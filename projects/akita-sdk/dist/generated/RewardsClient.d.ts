@@ -553,8 +553,8 @@ export declare abstract class RewardsParamsFactory {
      * Constructs a no op call for the createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64 ABI method
      *
     * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-    transactions immediately before this call: one exact MBR payment, then one asset transfer
-    per allocation, all from the caller.
+    transactions immediately before this call: one exact MBR payment from any payer, then one asset
+    transfer per allocation from the caller.
   
     The index arguments are kept for ABI compatibility and must equal those positions. Binding
     the funding to the slots directly before the call means no other call in the group (this
@@ -576,8 +576,10 @@ export declare abstract class RewardsParamsFactory {
      * Constructs a no op call for the createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64 ABI method
      *
     * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-    MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-    stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+    MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+    `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+    addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+    withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
     a non-zero `reclaimTo` (`sweepExpired`).
   
      *
@@ -647,7 +649,7 @@ export declare abstract class RewardsParamsFactory {
      *
     * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
     disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-    the creator.
+    whoever funded it (the creator, unless someone else paid).
   
      *
      * @param params Parameters for the call
@@ -1129,8 +1131,8 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64` ABI method.
          *
         * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-        transactions immediately before this call: one exact MBR payment, then one asset transfer
-        per allocation, all from the caller.
+        transactions immediately before this call: one exact MBR payment from any payer, then one asset
+        transfer per allocation from the caller.
     
         The index arguments are kept for ABI compatibility and must equal those positions. Binding
         the funding to the slots directly before the call means no other call in the group (this
@@ -1156,8 +1158,10 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64` ABI method.
          *
         * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-        MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-        stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+        MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+        `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+        addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+        withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
         a non-zero `reclaimTo` (`sweepExpired`).
     
          *
@@ -1241,7 +1245,7 @@ export declare class RewardsClient {
          *
         * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
         disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-        the creator.
+        whoever funded it (the creator, unless someone else paid).
     
          *
          * @param params The params for the smart contract call
@@ -1414,8 +1418,8 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64` ABI method.
          *
         * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-        transactions immediately before this call: one exact MBR payment, then one asset transfer
-        per allocation, all from the caller.
+        transactions immediately before this call: one exact MBR payment from any payer, then one asset
+        transfer per allocation from the caller.
     
         The index arguments are kept for ABI compatibility and must equal those positions. Binding
         the funding to the slots directly before the call means no other call in the group (this
@@ -1449,8 +1453,10 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64` ABI method.
          *
         * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-        MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-        stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+        MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+        `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+        addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+        withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
         a non-zero `reclaimTo` (`sweepExpired`).
     
          *
@@ -1562,7 +1568,7 @@ export declare class RewardsClient {
          *
         * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
         disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-        the creator.
+        whoever funded it (the creator, unless someone else paid).
     
          *
          * @param params The params for the smart contract call
@@ -1794,8 +1800,8 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64` ABI method.
          *
         * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-        transactions immediately before this call: one exact MBR payment, then one asset transfer
-        per allocation, all from the caller.
+        transactions immediately before this call: one exact MBR payment from any payer, then one asset
+        transfer per allocation from the caller.
     
         The index arguments are kept for ABI compatibility and must equal those positions. Binding
         the funding to the slots directly before the call means no other call in the group (this
@@ -1839,8 +1845,10 @@ export declare class RewardsClient {
          * Makes a call to the Rewards smart contract using the `createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64` ABI method.
          *
         * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-        MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-        stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+        MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+        `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+        addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+        withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
         a non-zero `reclaimTo` (`sweepExpired`).
     
          *
@@ -1987,7 +1995,7 @@ export declare class RewardsClient {
          *
         * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
         disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-        the creator.
+        whoever funded it (the creator, unless someone else paid).
     
          *
          * @param params The params for the smart contract call
@@ -2257,8 +2265,8 @@ export type RewardsComposer<TReturns extends [...any[]] = []> = {
      * Calls the createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64 ABI method.
      *
     * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-    transactions immediately before this call: one exact MBR payment, then one asset transfer
-    per allocation, all from the caller.
+    transactions immediately before this call: one exact MBR payment from any payer, then one asset
+    transfer per allocation from the caller.
   
     The index arguments are kept for ABI compatibility and must equal those positions. Binding
     the funding to the slots directly before the call means no other call in the group (this
@@ -2282,8 +2290,10 @@ export type RewardsComposer<TReturns extends [...any[]] = []> = {
      * Calls the createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64 ABI method.
      *
     * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-    MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-    stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+    MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+    `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+    addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+    withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
     a non-zero `reclaimTo` (`sweepExpired`).
   
      *
@@ -2360,7 +2370,7 @@ export type RewardsComposer<TReturns extends [...any[]] = []> = {
      *
     * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
     disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-    the creator.
+    whoever funded it (the creator, unless someone else paid).
   
      *
      * @param args The arguments for the contract call

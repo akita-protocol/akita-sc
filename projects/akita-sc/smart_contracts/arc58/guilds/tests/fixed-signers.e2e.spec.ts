@@ -38,6 +38,7 @@ import {
   vote,
   VOTING_DURATION,
   type GuildTestEnvironment,
+  PROPOSAL_MBR,
 } from './test-helpers'
 import type { GuildClient } from '../../../artifacts/arc58/guilds/core/GuildClient'
 
@@ -182,7 +183,7 @@ describe('Fixed-signer Guild consensus', () => {
 
     const addAction = addFixedSignerMembersAction(2, [[member2.addr.toString(), 2n]])
     const costResult = await proposalCostFor([addAction])
-    const expectedMbr = 44_900n + 400n * (7n + BigInt(addAction[1].length)) + 45_000n + 28_500n
+    const expectedMbr = PROPOSAL_MBR + 400n * (7n + BigInt(addAction[1].length)) + 45_000n + 28_500n
     expect(costResult.mbr).toBe(expectedMbr)
     expect(costResult.total).toBe(expectedMbr)
 

@@ -82,15 +82,19 @@ export type GuildProposal = {
     status: number;
     cid: Uint8Array;
     creator: string;
+    payer: string;
+    feeTokenPayer: string;
     votingTs: bigint;
     created: bigint;
     feesPaid: bigint;
+    feeAsset: bigint;
+    feeTokensPaid: bigint;
     actions: [number, Uint8Array][];
 };
 /**
  * Converts the ABI tuple representation of a GuildProposal to the struct representation
  */
-export declare function GuildProposalFromTuple(abiTuple: [number, Uint8Array, string, bigint, bigint, bigint, [number, Uint8Array][]]): GuildProposal;
+export declare function GuildProposalFromTuple(abiTuple: [number, Uint8Array, string, string, string, bigint, bigint, bigint, bigint, bigint, [number, Uint8Array][]]): GuildProposal;
 export type GuildProposalCostInfo = {
     total: bigint;
     mbr: bigint;
@@ -100,11 +104,12 @@ export type GuildProposalCostInfo = {
     participation: bigint;
     approval: bigint;
     minimumApprovals: bigint;
+    feeAsset: bigint;
 };
 /**
  * Converts the ABI tuple representation of a GuildProposalCostInfo to the struct representation
  */
-export declare function GuildProposalCostInfoFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]): GuildProposalCostInfo;
+export declare function GuildProposalCostInfoFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]): GuildProposalCostInfo;
 export type GuildProposalSettings = {
     fee: bigint;
     power: bigint;
@@ -178,11 +183,22 @@ export type GuildArgs = {
         'setProposalActionLimit(uint64)void': {
             limit: bigint | number;
         };
+        'setFeeAsset(pay,uint64)void': {
+            mbrPayment: AppMethodCallTransactionArgument;
+            asset: bigint | number;
+        };
         'lockPluginSet()void': Record<string, never>;
         'partiallyInitialize()void': Record<string, never>;
         'initialize()void': Record<string, never>;
         'newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64': {
             payment: AppMethodCallTransactionArgument;
+            cid: Uint8Array;
+            actions: [bigint | number, Uint8Array][];
+            evidence: Uint8Array;
+        };
+        'newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64': {
+            payment: AppMethodCallTransactionArgument;
+            feePayment: AppMethodCallTransactionArgument;
             cid: Uint8Array;
             actions: [bigint | number, Uint8Array][];
             evidence: Uint8Array;
@@ -195,6 +211,14 @@ export type GuildArgs = {
         };
         'editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void': {
             payment: AppMethodCallTransactionArgument;
+            id: bigint | number;
+            cid: Uint8Array;
+            actions: [bigint | number, Uint8Array][];
+            evidence: Uint8Array;
+        };
+        'editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void': {
+            payment: AppMethodCallTransactionArgument;
+            feePayment: AppMethodCallTransactionArgument;
             id: bigint | number;
             cid: Uint8Array;
             actions: [bigint | number, Uint8Array][];
@@ -230,11 +254,20 @@ export type GuildArgs = {
             newVersion: string;
         };
         'sweep()uint64': Record<string, never>;
+        'sweepFeeTokens(uint64)uint64': {
+            asset: bigint | number;
+        };
+        'feeAssetCost(uint64)uint64': {
+            asset: bigint | number;
+        };
+        'sweepableFeeTokens(uint64)uint64': {
+            asset: bigint | number;
+        };
         'setupCost()uint64': Record<string, never>;
-        'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
+        'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
             actions: [bigint | number, Uint8Array][];
         };
-        'getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])': {
+        'getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])': {
             proposalId: bigint | number;
         };
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': {
@@ -266,12 +299,15 @@ export type GuildArgs = {
         'setProposalSettings(uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void': [actionType: bigint | number, settings: GuildProposalSettings];
         'setConsensusActionSettings(uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void': [code: bigint | number, settings: GuildProposalSettings];
         'setProposalActionLimit(uint64)void': [limit: bigint | number];
+        'setFeeAsset(pay,uint64)void': [mbrPayment: AppMethodCallTransactionArgument, asset: bigint | number];
         'lockPluginSet()void': [];
         'partiallyInitialize()void': [];
         'initialize()void': [];
         'newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64': [payment: AppMethodCallTransactionArgument, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array];
+        'newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64': [payment: AppMethodCallTransactionArgument, feePayment: AppMethodCallTransactionArgument, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array];
         'editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void': [id: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array];
         'editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void': [payment: AppMethodCallTransactionArgument, id: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array];
+        'editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void': [payment: AppMethodCallTransactionArgument, feePayment: AppMethodCallTransactionArgument, id: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array];
         'deleteProposal(uint64)void': [proposalId: bigint | number];
         'submitProposal(uint64,byte[])void': [proposalId: bigint | number, evidence: Uint8Array];
         'voteProposal(pay,uint64,uint8,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, proposalId: bigint | number, vote: bigint | number, evidence: Uint8Array];
@@ -281,9 +317,12 @@ export type GuildArgs = {
         'executeProposal(uint64)void': [proposalId: bigint | number];
         'update(string)void': [newVersion: string];
         'sweep()uint64': [];
+        'sweepFeeTokens(uint64)uint64': [asset: bigint | number];
+        'feeAssetCost(uint64)uint64': [asset: bigint | number];
+        'sweepableFeeTokens(uint64)uint64': [asset: bigint | number];
         'setupCost()uint64': [];
-        'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [actions: [bigint | number, Uint8Array][]];
-        'getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])': [proposalId: bigint | number];
+        'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [actions: [bigint | number, Uint8Array][]];
+        'getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])': [proposalId: bigint | number];
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': [proposalId: bigint | number];
         'mustGetExecution(byte[32])(uint64,uint64)': [lease: Uint8Array];
         'getConsensusActionSettings(uint64)(uint64,uint64,uint64,uint64,uint64,uint64)': [code: bigint | number];
@@ -305,12 +344,15 @@ export type GuildReturns = {
     'setProposalSettings(uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void': void;
     'setConsensusActionSettings(uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void': void;
     'setProposalActionLimit(uint64)void': void;
+    'setFeeAsset(pay,uint64)void': void;
     'lockPluginSet()void': void;
     'partiallyInitialize()void': void;
     'initialize()void': void;
     'newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64': bigint;
+    'newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64': bigint;
     'editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void': void;
     'editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void': void;
+    'editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void': void;
     'deleteProposal(uint64)void': void;
     'submitProposal(uint64,byte[])void': void;
     'voteProposal(pay,uint64,uint8,byte[])void': void;
@@ -320,9 +362,12 @@ export type GuildReturns = {
     'executeProposal(uint64)void': void;
     'update(string)void': void;
     'sweep()uint64': bigint;
+    'sweepFeeTokens(uint64)uint64': bigint;
+    'feeAssetCost(uint64)uint64': bigint;
+    'sweepableFeeTokens(uint64)uint64': bigint;
     'setupCost()uint64': bigint;
-    'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': GuildProposalCostInfo;
-    'getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])': GuildProposal;
+    'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': GuildProposalCostInfo;
+    'getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])': GuildProposal;
     'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': GuildConsensusBallot;
     'mustGetExecution(byte[32])(uint64,uint64)': GuildExecutionMetadata;
     'getConsensusActionSettings(uint64)(uint64,uint64,uint64,uint64,uint64,uint64)': GuildProposalSettings;
@@ -367,6 +412,10 @@ export type GuildTypes = {
         argsObj: GuildArgs['obj']['setProposalActionLimit(uint64)void'];
         argsTuple: GuildArgs['tuple']['setProposalActionLimit(uint64)void'];
         returns: GuildReturns['setProposalActionLimit(uint64)void'];
+    }> & Record<'setFeeAsset(pay,uint64)void' | 'setFeeAsset', {
+        argsObj: GuildArgs['obj']['setFeeAsset(pay,uint64)void'];
+        argsTuple: GuildArgs['tuple']['setFeeAsset(pay,uint64)void'];
+        returns: GuildReturns['setFeeAsset(pay,uint64)void'];
     }> & Record<'lockPluginSet()void' | 'lockPluginSet', {
         argsObj: GuildArgs['obj']['lockPluginSet()void'];
         argsTuple: GuildArgs['tuple']['lockPluginSet()void'];
@@ -383,6 +432,10 @@ export type GuildTypes = {
         argsObj: GuildArgs['obj']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'];
         argsTuple: GuildArgs['tuple']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'];
         returns: GuildReturns['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'];
+    }> & Record<'newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64' | 'newProposalWithFeeAsset', {
+        argsObj: GuildArgs['obj']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'];
+        argsTuple: GuildArgs['tuple']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'];
+        returns: GuildReturns['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'];
     }> & Record<'editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void' | 'editProposal', {
         argsObj: GuildArgs['obj']['editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void'];
         argsTuple: GuildArgs['tuple']['editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void'];
@@ -391,6 +444,10 @@ export type GuildTypes = {
         argsObj: GuildArgs['obj']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'];
         argsTuple: GuildArgs['tuple']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'];
         returns: GuildReturns['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'];
+    }> & Record<'editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void' | 'editProposalWithFeeAsset', {
+        argsObj: GuildArgs['obj']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'];
+        argsTuple: GuildArgs['tuple']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'];
+        returns: GuildReturns['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'];
     }> & Record<'deleteProposal(uint64)void' | 'deleteProposal', {
         argsObj: GuildArgs['obj']['deleteProposal(uint64)void'];
         argsTuple: GuildArgs['tuple']['deleteProposal(uint64)void'];
@@ -427,18 +484,30 @@ export type GuildTypes = {
         argsObj: GuildArgs['obj']['sweep()uint64'];
         argsTuple: GuildArgs['tuple']['sweep()uint64'];
         returns: GuildReturns['sweep()uint64'];
+    }> & Record<'sweepFeeTokens(uint64)uint64' | 'sweepFeeTokens', {
+        argsObj: GuildArgs['obj']['sweepFeeTokens(uint64)uint64'];
+        argsTuple: GuildArgs['tuple']['sweepFeeTokens(uint64)uint64'];
+        returns: GuildReturns['sweepFeeTokens(uint64)uint64'];
+    }> & Record<'feeAssetCost(uint64)uint64' | 'feeAssetCost', {
+        argsObj: GuildArgs['obj']['feeAssetCost(uint64)uint64'];
+        argsTuple: GuildArgs['tuple']['feeAssetCost(uint64)uint64'];
+        returns: GuildReturns['feeAssetCost(uint64)uint64'];
+    }> & Record<'sweepableFeeTokens(uint64)uint64' | 'sweepableFeeTokens', {
+        argsObj: GuildArgs['obj']['sweepableFeeTokens(uint64)uint64'];
+        argsTuple: GuildArgs['tuple']['sweepableFeeTokens(uint64)uint64'];
+        returns: GuildReturns['sweepableFeeTokens(uint64)uint64'];
     }> & Record<'setupCost()uint64' | 'setupCost', {
         argsObj: GuildArgs['obj']['setupCost()uint64'];
         argsTuple: GuildArgs['tuple']['setupCost()uint64'];
         returns: GuildReturns['setupCost()uint64'];
-    }> & Record<'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'proposalCost', {
-        argsObj: GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: GuildReturns['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-    }> & Record<'getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])' | 'getProposal', {
-        argsObj: GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'];
-        argsTuple: GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'];
-        returns: GuildReturns['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'];
+    }> & Record<'proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'proposalCost', {
+        argsObj: GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        returns: GuildReturns['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])' | 'getProposal', {
+        argsObj: GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'];
+        argsTuple: GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'];
+        returns: GuildReturns['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'];
     }> & Record<'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))' | 'getBallot', {
         argsObj: GuildArgs['obj']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
         argsTuple: GuildArgs['tuple']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
@@ -556,6 +625,10 @@ export type GuildTypes = {
                  * settings for changing the Guild itself
                  */
                 updateGuildProposalSettings: GuildProposalSettings;
+                /**
+                 * asset new proposals pay their fees in; 0 = ALGO. Proposal storage is always paid in ALGO.
+                 */
+                feeAsset: bigint;
             };
             maps: {};
         };
@@ -578,6 +651,10 @@ export type GuildTypes = {
                  * proposal settings keyed by opaque consensus action code; codes without settings use updateGuild
                  */
                 consensusActions: Map<bigint | number, GuildProposalSettings>;
+                /**
+                 * fee tokens held for draft proposals, keyed by asset; the Guild's balance above this is sweepable
+                 */
+                feeTokenReserves: Map<bigint | number, bigint>;
             };
         };
     };
@@ -783,6 +860,17 @@ export declare abstract class GuildParamsFactory {
      */
     static setProposalActionLimit(params: CallParams<GuildArgs['obj']['setProposalActionLimit(uint64)void'] | GuildArgs['tuple']['setProposalActionLimit(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the setFeeAsset(pay,uint64)void ABI method
+     *
+    * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+    `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setFeeAsset(params: CallParams<GuildArgs['obj']['setFeeAsset(pay,uint64)void'] | GuildArgs['tuple']['setFeeAsset(pay,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the lockPluginSet()void ABI method
      *
      * Permanently prevent this Guild from adding or removing ARC-58 plugins.
@@ -812,12 +900,23 @@ export declare abstract class GuildParamsFactory {
     /**
      * Constructs a no op call for the newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64 ABI method
      *
-     * Create a proposal after the paired consensus app verifies proposer power.
+     * Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static newProposal(params: CallParams<GuildArgs['obj']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'] | GuildArgs['tuple']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64 ABI method
+     *
+    * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+    `feePayment` the fee, both to the Guild.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static newProposalWithFeeAsset(params: CallParams<GuildArgs['obj']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'] | GuildArgs['tuple']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void ABI method
      *
@@ -830,19 +929,38 @@ export declare abstract class GuildParamsFactory {
     /**
      * Constructs a no op call for the editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void ABI method
      *
-     * Edit a draft proposal and fund its increased storage, ballot MBR, or action fees.
+    * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+  
+    A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+    that funded the draft, which need not be the proposer.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static editProposalWithPayment(params: CallParams<GuildArgs['obj']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'] | GuildArgs['tuple']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void ABI method
+     *
+    * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+    (it may be zero) and `feePayment` the fee increase.
+  
+    Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+    the fee asset yet takes the sender of `feePayment` as its fee token payer.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static editProposalWithFeeAsset(params: CallParams<GuildArgs['obj']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'] | GuildArgs['tuple']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the deleteProposal(uint64)void ABI method
      *
     * Delete a never-submitted draft or any bootstrap proposal as its creator.
   
-    Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-    creator-provided balance, refund the storage they release.
+    Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+    paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+    storage they release to the creator.
   
      *
      * @param params Parameters for the call
@@ -864,6 +982,9 @@ export declare abstract class GuildParamsFactory {
     * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
     the vote; only a first vote pays for its receipt (see `voteCost`).
   
+    Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+    can remember them, and gets both back when the receipt is cleaned up.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -883,7 +1004,8 @@ export declare abstract class GuildParamsFactory {
      *
     * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
   
-    Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+    Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+    funded the vote; the ballot storage returns to the proposal's payer.
     Approved ballots stay until execution or cancellation, since policies read the approving
     ballot while applying consensus actions.
   
@@ -898,7 +1020,7 @@ export declare abstract class GuildParamsFactory {
     * Abandon an approved proposal that has not executed, refunding its execution reserve.
   
     Approved proposals never expire, and state changes after approval can leave one permanently
-    unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+    unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
   
      *
      * @param params Parameters for the call
@@ -928,6 +1050,35 @@ export declare abstract class GuildParamsFactory {
      */
     static sweep(params: CallParams<GuildArgs['obj']['sweep()uint64'] | GuildArgs['tuple']['sweep()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the sweepFeeTokens(uint64)uint64 ABI method
+     *
+    * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+    Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static sweepFeeTokens(params: CallParams<GuildArgs['obj']['sweepFeeTokens(uint64)uint64'] | GuildArgs['tuple']['sweepFeeTokens(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the feeAssetCost(uint64)uint64 ABI method
+     *
+     * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static feeAssetCost(params: CallParams<GuildArgs['obj']['feeAssetCost(uint64)uint64'] | GuildArgs['tuple']['feeAssetCost(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the sweepableFeeTokens(uint64)uint64 ABI method
+     *
+     * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static sweepableFeeTokens(params: CallParams<GuildArgs['obj']['sweepableFeeTokens(uint64)uint64'] | GuildArgs['tuple']['sweepableFeeTokens(uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the setupCost()uint64 ABI method
      *
      * Return the funding required to create the Guild's ARC-58 wallet.
@@ -937,23 +1088,23 @@ export declare abstract class GuildParamsFactory {
      */
     static setupCost(params: CallParams<GuildArgs['obj']['setupCost()uint64'] | GuildArgs['tuple']['setupCost()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
      *
      * Return proposal cost and the strictest consensus settings among all actions.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static proposalCost(params: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static proposalCost(params: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[]) ABI method
+     * Constructs a no op call for the getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[]) ABI method
      *
      * Return a proposal by ID.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getProposal(params: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getProposal(params: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method
      *
@@ -984,7 +1135,9 @@ export declare abstract class GuildParamsFactory {
     /**
      * Constructs a no op call for the voteCost(uint64,address)uint64 ABI method
      *
-     * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    A payer other than the voter adds `PayerRecordMBR` to a first vote.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -1652,6 +1805,19 @@ export declare class GuildClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Guild smart contract using the `setFeeAsset(pay,uint64)void` ABI method.
+         *
+        * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+        `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setFeeAsset: (params: CallParams<GuildArgs["obj"]["setFeeAsset(pay,uint64)void"] | GuildArgs["tuple"]["setFeeAsset(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Guild smart contract using the `lockPluginSet()void` ABI method.
          *
          * Permanently prevent this Guild from adding or removing ARC-58 plugins.
@@ -1687,12 +1853,25 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
          *
-         * Create a proposal after the paired consensus app verifies proposer power.
+         * Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
         newProposal: (params: CallParams<GuildArgs["obj"]["newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64"] | GuildArgs["tuple"]["newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Guild smart contract using the `newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
+         *
+        * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+        `feePayment` the fee, both to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"] | GuildArgs["tuple"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1709,7 +1888,11 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
          *
-         * Edit a draft proposal and fund its increased storage, ballot MBR, or action fees.
+        * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+    
+        A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+        that funded the draft, which need not be the proposer.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1718,12 +1901,29 @@ export declare class GuildClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Guild smart contract using the `editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
+         *
+        * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+        (it may be zero) and `feePayment` the fee increase.
+    
+        Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+        the fee asset yet takes the sender of `feePayment` as its fee token payer.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"] | GuildArgs["tuple"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Guild smart contract using the `deleteProposal(uint64)void` ABI method.
          *
         * Delete a never-submitted draft or any bootstrap proposal as its creator.
     
-        Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-        creator-provided balance, refund the storage they release.
+        Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+        paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+        storage they release to the creator.
     
          *
          * @param params The params for the smart contract call
@@ -1749,6 +1949,9 @@ export declare class GuildClient {
         * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
         the vote; only a first vote pays for its receipt (see `voteCost`).
     
+        Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+        can remember them, and gets both back when the receipt is cleaned up.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1772,7 +1975,8 @@ export declare class GuildClient {
          *
         * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
     
-        Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+        Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+        funded the vote; the ballot storage returns to the proposal's payer.
         Approved ballots stay until execution or cancellation, since policies read the approving
         ballot while applying consensus actions.
     
@@ -1789,7 +1993,7 @@ export declare class GuildClient {
         * Abandon an approved proposal that has not executed, refunding its execution reserve.
     
         Approved proposals never expire, and state changes after approval can leave one permanently
-        unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+        unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
     
          *
          * @param params The params for the smart contract call
@@ -1825,6 +2029,45 @@ export declare class GuildClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Guild smart contract using the `sweepFeeTokens(uint64)uint64` ABI method.
+         *
+        * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+        Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        sweepFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepFeeTokens(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Guild smart contract using the `feeAssetCost(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        feeAssetCost: (params: CallParams<GuildArgs["obj"]["feeAssetCost(uint64)uint64"] | GuildArgs["tuple"]["feeAssetCost(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Guild smart contract using the `sweepableFeeTokens(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        sweepableFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepableFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepableFeeTokens(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Guild smart contract using the `setupCost()uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1838,7 +2081,7 @@ export declare class GuildClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -1847,11 +2090,11 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
+         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -1860,7 +2103,7 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"]> & {
+        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1907,7 +2150,9 @@ export declare class GuildClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        A payer other than the voter adds `PayerRecordMBR` to a first vote.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -2086,6 +2331,23 @@ export declare class GuildClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `setFeeAsset(pay,uint64)void` ABI method.
+         *
+        * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+        `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setFeeAsset: (params: CallParams<GuildArgs["obj"]["setFeeAsset(pay,uint64)void"] | GuildArgs["tuple"]["setFeeAsset(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `lockPluginSet()void` ABI method.
          *
          * Permanently prevent this Guild from adding or removing ARC-58 plugins.
@@ -2133,12 +2395,29 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
          *
-         * Create a proposal after the paired consensus app verifies proposer power.
+         * Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
         newProposal: (params: CallParams<GuildArgs["obj"]["newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64"] | GuildArgs["tuple"]["newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
+         *
+        * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+        `feePayment` the fee, both to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"] | GuildArgs["tuple"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2163,7 +2442,11 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
          *
-         * Edit a draft proposal and fund its increased storage, ballot MBR, or action fees.
+        * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+    
+        A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+        that funded the draft, which need not be the proposer.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2176,12 +2459,33 @@ export declare class GuildClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
+         *
+        * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+        (it may be zero) and `feePayment` the fee increase.
+    
+        Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+        the fee asset yet takes the sender of `feePayment` as its fee token payer.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"] | GuildArgs["tuple"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `deleteProposal(uint64)void` ABI method.
          *
         * Delete a never-submitted draft or any bootstrap proposal as its creator.
     
-        Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-        creator-provided balance, refund the storage they release.
+        Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+        paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+        storage they release to the creator.
     
          *
          * @param params The params for the smart contract call
@@ -2215,6 +2519,9 @@ export declare class GuildClient {
         * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
         the vote; only a first vote pays for its receipt (see `voteCost`).
     
+        Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+        can remember them, and gets both back when the receipt is cleaned up.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2246,7 +2553,8 @@ export declare class GuildClient {
          *
         * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
     
-        Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+        Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+        funded the vote; the ballot storage returns to the proposal's payer.
         Approved ballots stay until execution or cancellation, since policies read the approving
         ballot while applying consensus actions.
     
@@ -2267,7 +2575,7 @@ export declare class GuildClient {
         * Abandon an approved proposal that has not executed, refunding its execution reserve.
     
         Approved proposals never expire, and state changes after approval can leave one permanently
-        unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+        unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
     
          *
          * @param params The params for the smart contract call
@@ -2315,6 +2623,57 @@ export declare class GuildClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `sweepFeeTokens(uint64)uint64` ABI method.
+         *
+        * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+        Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        sweepFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepFeeTokens(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `feeAssetCost(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        feeAssetCost: (params: CallParams<GuildArgs["obj"]["feeAssetCost(uint64)uint64"] | GuildArgs["tuple"]["feeAssetCost(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `sweepableFeeTokens(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        sweepableFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepableFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepableFeeTokens(uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `setupCost()uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2332,7 +2691,7 @@ export declare class GuildClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -2341,7 +2700,7 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2349,7 +2708,7 @@ export declare class GuildClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
+         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -2358,7 +2717,7 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"]> & {
+        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2421,7 +2780,9 @@ export declare class GuildClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        A payer other than the voter adds `PayerRecordMBR` to a first vote.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2657,6 +3018,28 @@ export declare class GuildClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `setFeeAsset(pay,uint64)void` ABI method.
+         *
+        * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+        `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setFeeAsset: (params: CallParams<GuildArgs["obj"]["setFeeAsset(pay,uint64)void"] | GuildArgs["tuple"]["setFeeAsset(pay,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["setFeeAsset(pay,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `lockPluginSet()void` ABI method.
          *
          * Permanently prevent this Guild from adding or removing ARC-58 plugins.
@@ -2719,7 +3102,7 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
          *
-         * Create a proposal after the paired consensus app verifies proposer power.
+         * Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`.
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2728,6 +3111,28 @@ export declare class GuildClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | GuildReturns["newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64` ABI method.
+         *
+        * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+        `feePayment` the fee, both to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"] | GuildArgs["tuple"]["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2759,7 +3164,11 @@ export declare class GuildClient {
         /**
          * Makes a call to the Guild smart contract using the `editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
          *
-         * Edit a draft proposal and fund its increased storage, ballot MBR, or action fees.
+        * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+    
+        A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+        that funded the draft, which need not be the proposer.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2777,12 +3186,38 @@ export declare class GuildClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void` ABI method.
+         *
+        * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+        (it may be zero) and `feePayment` the fee increase.
+    
+        Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+        the fee asset yet takes the sender of `feePayment` as its fee token payer.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildArgs["obj"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"] | GuildArgs["tuple"]["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `deleteProposal(uint64)void` ABI method.
          *
         * Delete a never-submitted draft or any bootstrap proposal as its creator.
     
-        Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-        creator-provided balance, refund the storage they release.
+        Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+        paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+        storage they release to the creator.
     
          *
          * @param params The params for the smart contract call
@@ -2826,6 +3261,9 @@ export declare class GuildClient {
         * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
         the vote; only a first vote pays for its receipt (see `voteCost`).
     
+        Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+        can remember them, and gets both back when the receipt is cleaned up.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2867,7 +3305,8 @@ export declare class GuildClient {
          *
         * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
     
-        Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+        Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+        funded the vote; the ballot storage returns to the proposal's payer.
         Approved ballots stay until execution or cancellation, since policies read the approving
         ballot while applying consensus actions.
     
@@ -2893,7 +3332,7 @@ export declare class GuildClient {
         * Abandon an approved proposal that has not executed, refunding its execution reserve.
     
         Approved proposals never expire, and state changes after approval can leave one permanently
-        unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+        unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
     
          *
          * @param params The params for the smart contract call
@@ -2956,6 +3395,72 @@ export declare class GuildClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Guild smart contract using the `sweepFeeTokens(uint64)uint64` ABI method.
+         *
+        * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+        Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        sweepFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepFeeTokens(uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["sweepFeeTokens(uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `feeAssetCost(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        feeAssetCost: (params: CallParams<GuildArgs["obj"]["feeAssetCost(uint64)uint64"] | GuildArgs["tuple"]["feeAssetCost(uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["feeAssetCost(uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Guild smart contract using the `sweepableFeeTokens(uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        sweepableFeeTokens: (params: CallParams<GuildArgs["obj"]["sweepableFeeTokens(uint64)uint64"] | GuildArgs["tuple"]["sweepableFeeTokens(uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildReturns["sweepableFeeTokens(uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Guild smart contract using the `setupCost()uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2978,7 +3483,7 @@ export declare class GuildClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -2987,10 +3492,10 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+        proposalCost: (params: CallParams<GuildArgs["obj"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | GuildArgs["tuple"]["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | GuildReturns["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
+            return: (undefined | GuildReturns["proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3000,7 +3505,7 @@ export declare class GuildClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
+         * Makes a call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -3009,10 +3514,10 @@ export declare class GuildClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"]> & SendParams & {
+        getProposal: (params: CallParams<GuildArgs["obj"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"] | GuildArgs["tuple"]["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | GuildReturns["getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])"]);
+            return: (undefined | GuildReturns["getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3092,7 +3597,9 @@ export declare class GuildClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+        A payer other than the voter adds `PayerRecordMBR` to a first vote.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -3213,6 +3720,28 @@ export declare class GuildClient {
      */
     consensusConfigurationMbr(params: CallParams<GuildArgs['obj']['consensusConfigurationMbr(byte[])uint64'] | GuildArgs['tuple']['consensusConfigurationMbr(byte[])uint64']>): Promise<bigint>;
     /**
+     * Makes a readonly (simulated) call to the Guild smart contract using the `feeAssetCost(uint64)uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    feeAssetCost(params: CallParams<GuildArgs['obj']['feeAssetCost(uint64)uint64'] | GuildArgs['tuple']['feeAssetCost(uint64)uint64']>): Promise<bigint>;
+    /**
+     * Makes a readonly (simulated) call to the Guild smart contract using the `sweepableFeeTokens(uint64)uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    sweepableFeeTokens(params: CallParams<GuildArgs['obj']['sweepableFeeTokens(uint64)uint64'] | GuildArgs['tuple']['sweepableFeeTokens(uint64)uint64']>): Promise<bigint>;
+    /**
      * Makes a readonly (simulated) call to the Guild smart contract using the `setupCost()uint64` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -3224,7 +3753,7 @@ export declare class GuildClient {
      */
     setupCost(params?: CallParams<GuildArgs['obj']['setupCost()uint64'] | GuildArgs['tuple']['setupCost()uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the Guild smart contract using the `proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
@@ -3233,9 +3762,9 @@ export declare class GuildClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    proposalCost(params: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<GuildProposalCostInfo>;
+    proposalCost(params: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<GuildProposalCostInfo>;
     /**
-     * Makes a readonly (simulated) call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
+     * Makes a readonly (simulated) call to the Guild smart contract using the `getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
@@ -3244,7 +3773,7 @@ export declare class GuildClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getProposal(params: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])']>): Promise<GuildProposal>;
+    getProposal(params: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])']>): Promise<GuildProposal>;
     /**
      * Makes a readonly (simulated) call to the Guild smart contract using the `getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))` ABI method.
      *
@@ -3283,7 +3812,9 @@ export declare class GuildClient {
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    A payer other than the voter adds `PayerRecordMBR` to a first vote.
+  
      *
      * @param params The params for the smart contract call
      * @returns The call result
@@ -3410,6 +3941,10 @@ export declare class GuildClient {
              * Get the current value of the updateGuildProposalSettings key in global state
              */
             updateGuildProposalSettings: () => Promise<GuildProposalSettings | undefined>;
+            /**
+             * Get the current value of the feeAsset key in global state
+             */
+            feeAsset: () => Promise<bigint | undefined>;
         };
         /**
          * Methods to access box state for the current Guild app
@@ -3470,6 +4005,19 @@ export declare class GuildClient {
                  * Get a current value of the consensusActions map by key from box state
                  */
                 value: (key: bigint | number) => Promise<GuildProposalSettings | undefined>;
+            };
+            /**
+             * Get values from the feeTokenReserves map in box state
+             */
+            feeTokenReserves: {
+                /**
+                 * Get all current values of the feeTokenReserves map in box state
+                 */
+                getMap: () => Promise<Map<bigint, bigint>>;
+                /**
+                 * Get a current value of the feeTokenReserves map by key from box state
+                 */
+                value: (key: bigint | number) => Promise<bigint | undefined>;
             };
         };
     };
@@ -3537,6 +4085,18 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      */
     setProposalActionLimit(params?: CallParams<GuildArgs['obj']['setProposalActionLimit(uint64)void'] | GuildArgs['tuple']['setProposalActionLimit(uint64)void']>): GuildComposer<[...TReturns, GuildReturns['setProposalActionLimit(uint64)void'] | undefined]>;
     /**
+     * Calls the setFeeAsset(pay,uint64)void ABI method.
+     *
+    * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+    `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setFeeAsset(params?: CallParams<GuildArgs['obj']['setFeeAsset(pay,uint64)void'] | GuildArgs['tuple']['setFeeAsset(pay,uint64)void']>): GuildComposer<[...TReturns, GuildReturns['setFeeAsset(pay,uint64)void'] | undefined]>;
+    /**
      * Calls the lockPluginSet()void ABI method.
      *
      * Permanently prevent this Guild from adding or removing ARC-58 plugins.
@@ -3569,13 +4129,25 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64 ABI method.
      *
-     * Create a proposal after the paired consensus app verifies proposer power.
+     * Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     newProposal(params?: CallParams<GuildArgs['obj']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'] | GuildArgs['tuple']['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64']>): GuildComposer<[...TReturns, GuildReturns['newProposal(pay,byte[36],(uint8,byte[])[],byte[])uint64'] | undefined]>;
+    /**
+     * Calls the newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64 ABI method.
+     *
+    * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+    `feePayment` the fee, both to the Guild.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    newProposalWithFeeAsset(params?: CallParams<GuildArgs['obj']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'] | GuildArgs['tuple']['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64']>): GuildComposer<[...TReturns, GuildReturns['newProposalWithFeeAsset(pay,axfer,byte[36],(uint8,byte[])[],byte[])uint64'] | undefined]>;
     /**
      * Calls the editProposal(uint64,byte[36],(uint8,byte[])[],byte[])void ABI method.
      *
@@ -3589,7 +4161,11 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void ABI method.
      *
-     * Edit a draft proposal and fund its increased storage, ballot MBR, or action fees.
+    * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+  
+    A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+    that funded the draft, which need not be the proposer.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -3597,12 +4173,28 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      */
     editProposalWithPayment(params?: CallParams<GuildArgs['obj']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'] | GuildArgs['tuple']['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void']>): GuildComposer<[...TReturns, GuildReturns['editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[],byte[])void'] | undefined]>;
     /**
+     * Calls the editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void ABI method.
+     *
+    * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+    (it may be zero) and `feePayment` the fee increase.
+  
+    Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+    the fee asset yet takes the sender of `feePayment` as its fee token payer.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    editProposalWithFeeAsset(params?: CallParams<GuildArgs['obj']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'] | GuildArgs['tuple']['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void']>): GuildComposer<[...TReturns, GuildReturns['editProposalWithFeeAsset(pay,axfer,uint64,byte[36],(uint8,byte[])[],byte[])void'] | undefined]>;
+    /**
      * Calls the deleteProposal(uint64)void ABI method.
      *
     * Delete a never-submitted draft or any bootstrap proposal as its creator.
   
-    Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-    creator-provided balance, refund the storage they release.
+    Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+    paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+    storage they release to the creator.
   
      *
      * @param args The arguments for the contract call
@@ -3626,6 +4218,9 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
     * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
     the vote; only a first vote pays for its receipt (see `voteCost`).
   
+    Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+    can remember them, and gets both back when the receipt is cleaned up.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -3647,7 +4242,8 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      *
     * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
   
-    Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+    Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+    funded the vote; the ballot storage returns to the proposal's payer.
     Approved ballots stay until execution or cancellation, since policies read the approving
     ballot while applying consensus actions.
   
@@ -3663,7 +4259,7 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
     * Abandon an approved proposal that has not executed, refunding its execution reserve.
   
     Approved proposals never expire, and state changes after approval can leave one permanently
-    unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+    unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
   
      *
      * @param args The arguments for the contract call
@@ -3696,6 +4292,38 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      */
     sweep(params?: CallParams<GuildArgs['obj']['sweep()uint64'] | GuildArgs['tuple']['sweep()uint64']>): GuildComposer<[...TReturns, GuildReturns['sweep()uint64'] | undefined]>;
     /**
+     * Calls the sweepFeeTokens(uint64)uint64 ABI method.
+     *
+    * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+    Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    sweepFeeTokens(params?: CallParams<GuildArgs['obj']['sweepFeeTokens(uint64)uint64'] | GuildArgs['tuple']['sweepFeeTokens(uint64)uint64']>): GuildComposer<[...TReturns, GuildReturns['sweepFeeTokens(uint64)uint64'] | undefined]>;
+    /**
+     * Calls the feeAssetCost(uint64)uint64 ABI method.
+     *
+     * Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    feeAssetCost(params?: CallParams<GuildArgs['obj']['feeAssetCost(uint64)uint64'] | GuildArgs['tuple']['feeAssetCost(uint64)uint64']>): GuildComposer<[...TReturns, GuildReturns['feeAssetCost(uint64)uint64'] | undefined]>;
+    /**
+     * Calls the sweepableFeeTokens(uint64)uint64 ABI method.
+     *
+     * Return the `asset` balance sweepFeeTokens() would forward to the treasury right now.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    sweepableFeeTokens(params?: CallParams<GuildArgs['obj']['sweepableFeeTokens(uint64)uint64'] | GuildArgs['tuple']['sweepableFeeTokens(uint64)uint64']>): GuildComposer<[...TReturns, GuildReturns['sweepableFeeTokens(uint64)uint64'] | undefined]>;
+    /**
      * Calls the setupCost()uint64 ABI method.
      *
      * Return the funding required to create the Guild's ARC-58 wallet.
@@ -3706,7 +4334,7 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      */
     setupCost(params?: CallParams<GuildArgs['obj']['setupCost()uint64'] | GuildArgs['tuple']['setupCost()uint64']>): GuildComposer<[...TReturns, GuildReturns['setupCost()uint64'] | undefined]>;
     /**
-     * Calls the proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     * Calls the proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
      *
      * Return proposal cost and the strictest consensus settings among all actions.
      *
@@ -3714,9 +4342,9 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    proposalCost(params?: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): GuildComposer<[...TReturns, GuildReturns['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
+    proposalCost(params?: CallParams<GuildArgs['obj']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | GuildArgs['tuple']['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): GuildComposer<[...TReturns, GuildReturns['proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[]) ABI method.
+     * Calls the getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[]) ABI method.
      *
      * Return a proposal by ID.
      *
@@ -3724,7 +4352,7 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getProposal(params?: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])']>): GuildComposer<[...TReturns, GuildReturns['getProposal(uint64)(uint8,byte[36],address,uint64,uint64,uint64,(uint8,byte[])[])'] | undefined]>;
+    getProposal(params?: CallParams<GuildArgs['obj']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'] | GuildArgs['tuple']['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])']>): GuildComposer<[...TReturns, GuildReturns['getProposal(uint64)(uint8,byte[36],address,address,address,uint64,uint64,uint64,uint64,uint64,(uint8,byte[])[])'] | undefined]>;
     /**
      * Calls the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method.
      *
@@ -3758,7 +4386,9 @@ export type GuildComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the voteCost(uint64,address)uint64 ABI method.
      *
-     * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+    A payer other than the voter adds `PayerRecordMBR` to a first vote.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call

@@ -105,6 +105,114 @@ describe('Wave 0 shared helpers', () => {
     })
   })
 
+  describe('assertPlainPayment / assertExactPayment (payments anyone may send)', () => {
+    test('accept an exact plain payment from an account other than the caller', async () => {
+      await helpers.send.checkPlainPayment({
+        sender: alice.addr, signer: alice.signer,
+        args: { payment: { txn: await pay(bob), signer: bob.signer } },
+      })
+      await helpers.send.checkExactPayment({
+        sender: alice.addr, signer: alice.signer,
+        args: { payment: { txn: await pay(bob), signer: bob.signer }, receiver: helpers.appAddress.toString(), amount: 1_000n },
+      })
+    })
+
+    test('reject the wrong receiver or amount, a close-out and a rekey', async () => {
+      const exact = (payment: ReturnType<typeof pay>, receiver = helpers.appAddress.toString(), amount = 1_000n) =>
+        helpers.send.checkExactPayment({ sender: alice.addr, signer: alice.signer, args: { payment, receiver, amount } })
+      await expect(exact(pay(bob), bob.addr.toString())).rejects.toThrow(new RegExp(errInvalidPaymentReceiver))
+      await expect(exact(pay(bob), helpers.appAddress.toString(), 999n)).rejects.toThrow(new RegExp(errInvalidPaymentAmount))
+      await expect(exact(pay(bob, { closeRemainderTo: alice.addr }))).rejects.toThrow(new RegExp(errCloseForbidden))
+      await expect(exact(pay(bob, { rekeyTo: alice.addr }))).rejects.toThrow(new RegExp(errRekeyForbidden))
+      await expect(helpers.send.checkPlainPayment({
+        sender: alice.addr, signer: alice.signer, args: { payment: pay(bob, { rekeyTo: alice.addr }) },
+      })).rejects.toThrow(new RegExp(errRekeyForbidden))
+    })
+  })
+
+  describe('payer records (sponsorCost / recordPayer / payerOf / releaseDeposit)', () => {
+    const PAYER_RECORD_MBR = 28_500n
+    const DEPOSIT = 15_300n
+    let n = 0
+    const newRecord = () => new TextEncoder().encode(`record-${Date.now()}-${n++}-`.padEnd(64, 'x'))
+    const balance = async (address: string | algosdk.Address) => (await algorand.account.getInformation(address)).balance.microAlgos
+    const minBalance = async () => (await algorand.account.getInformation(helpers.appAddress)).minBalance.microAlgos
+    const hold = async (owner: TransactionSignerAccount, payer: TransactionSignerAccount, record: Uint8Array, paid: bigint, amount = DEPOSIT) =>
+      helpers.send.hold({
+        sender: owner.addr, signer: owner.signer,
+        args: { payment: { txn: await pay(payer, { amount: microAlgo(paid) }), signer: payer.signer }, record, amount },
+      })
+    const release = (caller: TransactionSignerAccount, record: Uint8Array, owner: TransactionSignerAccount, amount = DEPOSIT) =>
+      helpers.send.release({
+        sender: caller.addr, signer: caller.signer,
+        args: { record, owner: owner.addr.toString(), amount },
+        extraFee: microAlgo(1_000),
+      })
+    const heldBy = async (record: Uint8Array, owner: TransactionSignerAccount) =>
+      (await helpers.send.heldBy({ args: { record, owner: owner.addr.toString() } })).return
+
+    test('a caller who pays for themselves stores nothing extra and is refunded the deposit', async () => {
+      const record = newRecord()
+      const minBefore = await minBalance()
+      await hold(alice, alice, record, DEPOSIT)
+      // no payer record: the app's minimum balance did not move
+      expect(await minBalance()).toBe(minBefore)
+      expect(await heldBy(record, alice)).toBe(alice.addr.toString())
+
+      const before = await balance(alice.addr)
+      const { return: receiver } = await release(bob, record, alice)
+      expect(receiver).toBe(alice.addr.toString())
+      expect((await balance(alice.addr)) - before).toBe(DEPOSIT)
+    })
+
+    test('another payer funds its payer record, is remembered, and gets both back', async () => {
+      const record = newRecord()
+      // the deposit alone is not enough from another payer
+      await expect(hold(alice, bob, record, DEPOSIT)).rejects.toThrow(new RegExp(errInvalidPaymentAmount))
+
+      const minBefore = await minBalance()
+      await hold(alice, bob, record, DEPOSIT + PAYER_RECORD_MBR)
+      // the payer record costs exactly what the payer added
+      expect((await minBalance()) - minBefore).toBe(PAYER_RECORD_MBR)
+      expect(await heldBy(record, alice)).toBe(bob.addr.toString())
+
+      const payerBefore = await balance(bob.addr)
+      const ownerBefore = await balance(alice.addr)
+      const { return: receiver } = await release(deployer, record, alice)
+      expect(receiver).toBe(bob.addr.toString())
+      expect((await balance(bob.addr)) - payerBefore).toBe(DEPOSIT + PAYER_RECORD_MBR)
+      expect(await balance(alice.addr)).toBe(ownerBefore)
+      // the payer record is gone with the release
+      expect(await minBalance()).toBe(minBefore)
+      expect(await heldBy(record, alice)).toBe(alice.addr.toString())
+    })
+
+    test('a payer whose account closed forfeits a small refund to the owner; a refund that re-opens the account is paid', async () => {
+      const close = (account: TransactionSignerAccount) => algorand.send.payment({
+        sender: account.addr, signer: account.signer, receiver: deployer.addr, amount: microAlgo(0), closeRemainderTo: deployer.addr,
+      })
+
+      const small = newRecord()
+      const leaver = await fixture.context.generateAccount({ initialFunds: (1).algo() })
+      await hold(alice, leaver, small, DEPOSIT + PAYER_RECORD_MBR)
+      await close(leaver)
+      const ownerBefore = await balance(alice.addr)
+      const { return: receiver } = await release(deployer, small, alice)
+      // 43,800 µALGO cannot open an empty account, so the owner receives all of it
+      expect(receiver).toBe(alice.addr.toString())
+      expect((await balance(alice.addr)) - ownerBefore).toBe(DEPOSIT + PAYER_RECORD_MBR)
+      expect(await balance(leaver.addr)).toBe(0n)
+
+      const large = newRecord()
+      const returner = await fixture.context.generateAccount({ initialFunds: (1).algo() })
+      await hold(alice, returner, large, 100_000n + PAYER_RECORD_MBR, 100_000n)
+      await close(returner)
+      const { return: paid } = await release(deployer, large, alice, 100_000n)
+      expect(paid).toBe(returner.addr.toString())
+      expect(await balance(returner.addr)).toBe(100_000n + PAYER_RECORD_MBR)
+    })
+  })
+
   describe('assertBoundAssetTransfer / assertSafeAssetTransfer', () => {
     let assetId: bigint
 

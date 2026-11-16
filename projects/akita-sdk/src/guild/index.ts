@@ -74,6 +74,8 @@ export enum GuildActionType {
   /** Opaque policy action: `uint8 code || ABI payload`; the Guild selects settings by code. */
   Consensus = 83,
   SetConsensusActionSettings = 84,
+  /** Charge new proposals' fees in an asset (0 = ALGO); proposal storage stays in ALGO. */
+  SetFeeAsset = 85,
   UpdateWallet = 90,
   ChangeAdmin = 91,
   FullyInitialize = 100,
@@ -330,6 +332,10 @@ export const setProposalSettingsAction = (actionType: GuildActionType, settings:
 /** Build action 81. */
 export const setProposalActionLimitAction = (limit: bigint): GuildProposalAction =>
   encodeGuildAction(GuildActionType.SetProposalActionLimit, "(uint64)", [limit]);
+
+/** Build action 85: charge new proposals' fees in `asset` (0 = ALGO). Drafts keep the asset they were created with. */
+export const setFeeAssetAction = (asset: bigint): GuildProposalAction =>
+  encodeGuildAction(GuildActionType.SetFeeAsset, "(uint64)", [asset]);
 
 /** Build action 82: create a fresh Guild wallet through the DAO wallet factory. */
 export const newWalletAction = (nickname: string, salt: Uint8Array = new Uint8Array(32)): GuildProposalAction => {

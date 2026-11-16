@@ -36,6 +36,7 @@ import {
   VOTE_MBR,
   type GuildAction,
   type GuildTestEnvironment,
+  PROPOSAL_MBR,
 } from './test-helpers'
 
 const fixture = algorandFixture()
@@ -45,7 +46,7 @@ const send = { maxFee: MAX_APP_CALL_FEE, coverAppCallInnerTransactionFees: true,
 
 /** Storage of a proposal box: locked as minimum balance, so never part of the free-balance reserve. */
 const proposalBoxMbr = (actions: GuildAction[]) =>
-  44_900n + actions.reduce((sum, [, data]) => sum + 400n * (7n + BigInt(data.length)), 0n)
+  PROPOSAL_MBR + actions.reduce((sum, [, data]) => sum + 400n * (7n + BigInt(data.length)), 0n)
 
 /** Every microALGO above the Guild's own storage must be a proposer reserve; nothing may be stranded. */
 const expectNoStrandedBalance = async (guild: GuildClient) => {

@@ -1,4 +1,4 @@
-import { Account, Application, assert, Asset, Bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, assert, Asset, bytes, Bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, Address, decodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { btoi, itob, sha256 } from "@algorandfoundation/algorand-typescript/op"
 import { AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysCurrentPlugin, AbstractAccountGlobalStateKeysReferrer, AbstractAccountGlobalStateKeysRekeyIndex, AbstractAccountGlobalStateKeysSpendingAddress } from "../arc58/account/constants"
@@ -12,7 +12,7 @@ import { PrizeBoxGlobalStateKeyOwner } from "../prize-box/constants"
 import { MinDisbursementsMBR, UserAllocationMBR } from "../rewards/constants"
 import { UserAllocation } from "../rewards/types"
 import { STAKING_TYPE_LOCK } from "../staking/types"
-import { CreatorRoyaltyDefault, CreatorRoyaltyMaximumSingle, DIVISOR, IMPACT_DIVISOR, ONE_DAY, ONE_WEEK, ONE_YEAR_IN_DAYS, THIRTY_DAYS } from "./constants"
+import { CreatorRoyaltyDefault, CreatorRoyaltyMaximumSingle, DIVISOR, IMPACT_DIVISOR, ONE_DAY, ONE_WEEK, ONE_YEAR_IN_DAYS, PayerBoxPrefix, PayerRecordMBR, THIRTY_DAYS } from "./constants"
 import {
   errAssetsAndAmountsMismatch,
   errCannotCloseOutOfAlgoForbidden,
@@ -53,6 +53,100 @@ export function controls(sender: Account): boolean {
 }
 
 // GROUPED TRANSFER BINDING -------------------------------------------------------------------------
+//
+// Two families. A payment that covers storage or a fee (alone, or together with value in the same
+// transaction) may come from anyone, so a sponsor or paymaster can fund it for the caller: use
+// `assertPlainPayment` / `assertExactPayment`. A transfer that is only the caller's own value (a
+// deposit, a prize, tickets or a bid in an asset) must come from the caller: use `assertSafe*` /
+// `assertBound*`.
+
+/**
+ * Assert a grouped payment is a plain transfer: no close-out and no rekey. The payer is left open.
+ * Receiver and amount are left to the caller (see `assertExactPayment`).
+ */
+export function assertPlainPayment(txn: gtxn.PaymentTxn): void {
+  loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
+  loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
+}
+
+/**
+ * Assert a grouped payment is exactly `amount` µALGO to `receiver`, from any payer, with no
+ * close-out and no rekey.
+ */
+export function assertExactPayment(txn: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+  assertPlainPayment(txn)
+  loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
+  loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
+}
+
+// SPONSORED STORAGE --------------------------------------------------------------------------------
+//
+// A storage deposit goes back to whoever paid it. When the payer is the record's owner (the caller,
+// in every unsponsored call) nothing extra is stored and the refund goes to the owner, exactly as it
+// did before a payer could differ. When someone else paid, the contract keeps a payer record beside
+// the record: a box `PayerBoxPrefix + sha256(record)` holding the payer's address. The sponsor funds
+// that box on top of the deposit (`PayerRecordMBR`) and gets both back when the record is released.
+//
+// `record` is the record's own box key, so every refundable record has its own payer record. A
+// release looks the payer record up, so a call that refunds a deposit needs that box reference even
+// when nobody sponsored the record.
+
+/** The box key of the payer record kept beside `record`. */
+export function payerRecordKey(record: bytes): bytes {
+  return Bytes(PayerBoxPrefix).concat(sha256(record))
+}
+
+/** What a payer adds to a storage deposit to be remembered: nothing when the payer is the owner. */
+export function sponsorCost(payer: Account, owner: Account): uint64 {
+  return payer === owner ? 0 : PayerRecordMBR
+}
+
+/** Remember that `payer` funded `record` for `owner`. Nothing is stored when they are the same account. */
+export function recordPayer(record: bytes, payer: Account, owner: Account): void {
+  if (payer !== owner) {
+    op.Box.put(payerRecordKey(record), payer.bytes)
+  }
+}
+
+/** Who funded `record`: the recorded payer, or `owner` when nobody else paid. The record is kept. */
+export function payerOf(record: bytes, owner: Account): Account {
+  const [payer, sponsored] = op.Box.get(payerRecordKey(record))
+  return sponsored ? Account(payer) : owner
+}
+
+/** Forget who funded `record` and return them: the recorded payer, or `owner` when nobody else paid. */
+export function releasePayer(record: bytes, owner: Account): Account {
+  const key = payerRecordKey(record)
+  const [payer, sponsored] = op.Box.get(key)
+  if (!sponsored) {
+    return owner
+  }
+  op.Box.delete(key)
+  return Account(payer)
+}
+
+/** A closed (zero-balance) account cannot receive less than the base minimum balance. */
+export function canReceiveAlgo(receiver: Account, amount: uint64): boolean {
+  const [, funded] = op.AcctParams.acctBalance(receiver)
+  return funded || amount >= Global.minBalance
+}
+
+/**
+ * Release the storage deposit `amount` held for `record`: forget its payer and return who to pay and
+ * how much. A sponsor gets the deposit plus the payer record's own storage. A sponsor whose account
+ * has closed, and that the refund cannot re-open, forfeits both to `owner`, so a refund can never
+ * block the release.
+ */
+export function releaseDeposit(record: bytes, owner: Account, amount: uint64): [Account, uint64] {
+  const key = payerRecordKey(record)
+  const [payer, sponsored] = op.Box.get(key)
+  if (!sponsored) {
+    return [owner, amount]
+  }
+  op.Box.delete(key)
+  const total: uint64 = amount + PayerRecordMBR
+  return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+}
 
 /**
  * Assert a grouped payment is a plain transfer from `sender`: no close-out and no rekey.

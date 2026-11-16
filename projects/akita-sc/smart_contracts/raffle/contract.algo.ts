@@ -20,7 +20,7 @@ import {
 import { abiCall, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
-import { assertSafeAssetTransfer, assertSafePayment, calcPercent, createInstantDisbursement, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
+import { assertPlainPayment, assertSafeAssetTransfer, assertSafePayment, calcPercent, createInstantDisbursement, recordPayer, releaseDeposit, sponsorCost, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
 import { gateCtx } from '../utils/principal'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
@@ -485,7 +485,7 @@ export class Raffle extends classes(
     const costs = this.mbr()
     const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
 
-    const opUpIterationAmount: uint64 = iterationAmount * 120
+    const opUpIterationAmount: uint64 = iterationAmount * 200
     ensureBudget(opUpIterationAmount)
 
     for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
@@ -497,12 +497,14 @@ export class Raffle extends classes(
       }
       this.entries(i).delete()
       this.entriesByAddress(account).delete()
-      // TRADE-5: an entrant who left the ticket asset pays its refund disbursement out of its released MBR
-      if (entryTotalMBR > disbursementCost && this.canReceiveAlgo(account, entryTotalMBR - disbursementCost)) {
+      // the entry storage goes back to whoever paid for it (the entrant, unless someone else did)
+      const [receiver, refund] = releaseDeposit(this.entriesByAddress(account).key, account, entryTotalMBR)
+      // TRADE-5: an entrant who left the ticket asset pays its refund disbursement out of the released MBR
+      if (refund > disbursementCost && this.canReceiveAlgo(receiver, refund - disbursementCost)) {
         itxn
           .payment({
-            amount: entryTotalMBR - disbursementCost,
-            receiver: account,
+            amount: refund - disbursementCost,
+            receiver,
           })
           .submit()
       }
@@ -611,30 +613,44 @@ export class Raffle extends classes(
     loggedAssert(this.isLive(), errNotLive)
     loggedAssert(this.ticketAsset.value.id === 0, errTicketAssetNotAlgo)
 
+    const mbr = this.entryStorage(payment, gated)
+    loggedAssert(
+      payment.amount >= (this.minTickets.value + mbr) && payment.amount <= (this.maxTickets.value + mbr),
+      errInvalidPayment
+    )
+
+    this.recordEntry(payment, marketplace, payment.amount - mbr)
+  }
+
+  /**
+   * Checks shared by both entry paths: the entry point matches the raffle's gate, the caller has no
+   * entry yet, and `payment` is a plain payment to this app. Returns the entry storage the payment
+   * must cover. A payer other than the entrant also funds its payer record, and the storage returns
+   * to it (`refundMBR`).
+   */
+  private entryStorage(payment: gtxn.PaymentTxn, gated: boolean): uint64 {
     if (!gated) {
       loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
     }
 
     loggedAssert(!this.entriesByAddress(Txn.sender).exists, errAlreadyEntered)
 
-    const costs = this.mbr()
-    const mbr: uint64 = costs.entries + costs.entriesByAddress
-
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(
-      payment.amount >= (this.minTickets.value + mbr) && payment.amount <= (this.maxTickets.value + mbr),
-      errInvalidPayment
-    )
 
+    const costs = this.mbr()
+    return costs.entries + costs.entriesByAddress + sponsorCost(payment.sender, Txn.sender)
+  }
+
+  /** stores the caller's validated entry of `amount` tickets, and who paid for its storage */
+  private recordEntry(payment: gtxn.PaymentTxn, marketplace: Account, amount: uint64): void {
     const loc = this.entryCount.value
     this.entries(loc).value = {
       account: Txn.sender,
       marketplace,
     }
-    this.entriesByAddress(Txn.sender).value = this.entryCount.value
-
-    const amount: uint64 = payment.amount - mbr
+    this.entriesByAddress(Txn.sender).value = loc
+    recordPayer(this.entriesByAddress(Txn.sender).key, payment.sender, Txn.sender)
 
     this.weights(loc / ChunkSize).value[loc % ChunkSize] = new Uint64(amount)
     const newWeight = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + amount)
@@ -675,19 +691,8 @@ export class Raffle extends classes(
     loggedAssert(this.isLive(), errNotLive)
     loggedAssert(this.ticketAsset.value.id !== 0, errTicketAssetAlgo)
 
-    if (!gated) {
-      loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
-    }
-
-    loggedAssert(!this.entriesByAddress(Txn.sender).exists, errAlreadyEntered)
-
-    const costs = this.mbr()
-    const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
-
-    assertSafePayment(payment, Txn.sender)
+    loggedAssert(payment.amount === this.entryStorage(payment, gated), errInvalidPayment)
     assertSafeAssetTransfer(assetXfer, Txn.sender)
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === entryTotalMBR, errInvalidPayment)
 
     loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
     loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, errInvalidTransfer)
@@ -696,20 +701,7 @@ export class Raffle extends classes(
       errInvalidTransfer
     )
 
-    const loc = this.entryCount.value
-    this.entries(loc).value = {
-      account: Txn.sender,
-      marketplace
-    }
-    this.entriesByAddress(Txn.sender).value = loc
-
-    const amount = assetXfer.assetAmount
-    this.weights(loc / ChunkSize).value[loc % ChunkSize] = new Uint64(amount)
-    const newWeight = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + amount)
-    this.weightTotals.value[loc / ChunkSize] = newWeight
-
-    this.entryCount.value += 1
-    this.ticketCount.value += amount
+    this.recordEntry(payment, marketplace, assetXfer.assetAmount)
   }
 
   /** Gated ticket top-up (principal ABI, spec §6.8). */

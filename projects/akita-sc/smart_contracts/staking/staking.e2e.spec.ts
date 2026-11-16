@@ -2520,24 +2520,96 @@ describe('Staking Contract', () => {
       })).rejects.toThrow(errInvalidStakeType)
     })
 
-    test('stake funding must come from the staker (its MBR is refunded to the staker)', async () => {
+    test('anyone can fund a stake; the stake belongs to the staker and the storage deposit returns to whoever paid it', async () => {
       const { algorand } = fixture.context
-      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
-      await expect(client.send.stake({
-        sender: freshUser.addr,
-        signer: freshUser.signer,
+      const PAYER_RECORD_MBR = 28_500n
+      const staker = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
+      const sponsor = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(20_000_000) })
+      const balance = (who: { addr: Address }) => getAccountBalance(algorand, who.addr.toString())
+      const fundedStake = async (type: number, amount: bigint, paid: bigint) => client.send.stake({
+        sender: staker.addr,
+        signer: staker.signer,
         args: {
-          payment: await algorand.createTransaction.payment({
-            sender: deployer.addr,
-            signer: deployer.signer,
-            receiver: client.appAddress,
-            amount: algokit.microAlgos(Number(STAKES_MBR)),
-          }),
-          type: STAKING_TYPE_SOFT,
-          amount: 1_000_000n,
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: client.appAddress, amount: algokit.microAlgos(Number(paid)) }),
+            signer: sponsor.signer,
+          },
+          type,
+          amount,
           expiration: 0n,
         },
-      })).rejects.toThrow()
+      })
+
+      // the deposit alone is not enough from another payer: it is remembered and funds that record too
+      await expect(fundedStake(STAKING_TYPE_SOFT, 1_000_000n, STAKES_MBR)).rejects.toThrow(/errIpay/)
+
+      // SOFT: the sponsor pays the deposit and its payer record, and gets both back when the staker closes
+      let sponsorBefore = await balance(sponsor)
+      await fundedStake(STAKING_TYPE_SOFT, 1_000_000n, STAKES_MBR + PAYER_RECORD_MBR)
+      expect(sponsorBefore - await balance(sponsor)).toBe(STAKES_MBR + PAYER_RECORD_MBR + 1_000n)
+      const soft = await client.getInfo({ args: { address: staker.addr.toString(), stake: { asset: 0n, type: STAKING_TYPE_SOFT } } })
+      expect(soft.amount).toBe(1_000_000n)
+
+      sponsorBefore = await balance(sponsor)
+      let stakerBefore = await balance(staker)
+      await client.send.closeSoftStake({ sender: staker.addr, signer: staker.signer, args: { asset: 0n }, extraFee: algokit.microAlgos(1_000) })
+      expect(await balance(sponsor) - sponsorBefore).toBe(STAKES_MBR + PAYER_RECORD_MBR)
+      expect(stakerBefore - await balance(staker)).toBe(2_000n) // fees only
+
+      // HARD: the sponsor escrows the stake as well; the withdrawal pays the stake to the staker and the
+      // deposit back to the sponsor
+      const escrowed = 2_000_000n
+      await expect(fundedStake(STAKING_TYPE_HARD, escrowed, escrowed + STAKES_MBR)).rejects.toThrow(/errIpay/)
+      await fundedStake(STAKING_TYPE_HARD, escrowed, escrowed + STAKES_MBR + PAYER_RECORD_MBR)
+
+      sponsorBefore = await balance(sponsor)
+      stakerBefore = await balance(staker)
+      await client.send.withdraw({
+        sender: staker.addr, signer: staker.signer, args: { asset: 0n, type: STAKING_TYPE_HARD }, extraFee: algokit.microAlgos(2_000),
+      })
+      expect(await balance(sponsor) - sponsorBefore).toBe(STAKES_MBR + PAYER_RECORD_MBR)
+      expect(await balance(staker) - stakerBefore).toBe(escrowed - 3_000n)
+
+      // a staker who pays for themself stores no payer record and gets the plain deposit back
+      const own = await balance(staker)
+      await softStake(staker, 1_000_000n)
+      await client.send.closeSoftStake({ sender: staker.addr, signer: staker.signer, args: { asset: 0n }, extraFee: algokit.microAlgos(1_000) })
+      expect(own - await balance(staker)).toBeLessThan(10_000n) // fees only
+    })
+
+    test('a sponsored heartbeat stake returns its two deposits and the payer record to whoever paid them', async () => {
+      const { algorand } = fixture.context
+      const PAYER_RECORD_MBR = 28_500n
+      const staker = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
+      const sponsor = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(20_000_000) })
+      const balance = (who: { addr: Address }) => getAccountBalance(algorand, who.addr.toString())
+      const heartbeat = async (paid: bigint) => client.send.stake({
+        sender: staker.addr,
+        signer: staker.signer,
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: client.appAddress, amount: algokit.microAlgos(Number(paid)) }),
+            signer: sponsor.signer,
+          },
+          type: STAKING_TYPE_HEARTBEAT,
+          amount: 0n,
+          expiration: 0n,
+        },
+      })
+
+      // a heartbeat stake holds two boxes; a payer other than the staker also funds the record that remembers them
+      const boxes = STAKES_MBR + HEARTBEATS_MBR
+      await expect(heartbeat(boxes)).rejects.toThrow(/errIpay/)
+      let sponsorBefore = await balance(sponsor)
+      await heartbeat(boxes + PAYER_RECORD_MBR)
+      expect(sponsorBefore - await balance(sponsor)).toBe(boxes + PAYER_RECORD_MBR + 1_000n)
+
+      // the staker closes it: everything the sponsor paid returns to the sponsor, the staker pays fees only
+      sponsorBefore = await balance(sponsor)
+      const stakerBefore = await balance(staker)
+      await client.send.closeHeartbeat({ sender: staker.addr, signer: staker.signer, args: { asset: 0n }, extraFee: algokit.microAlgos(1_000) })
+      expect(await balance(sponsor) - sponsorBefore).toBe(boxes + PAYER_RECORD_MBR)
+      expect(stakerBefore - await balance(staker)).toBe(2_000n)
     })
 
     test('L-2: owners close SOFT and heartbeat stakes and get the exact MBR back', async () => {

@@ -93,16 +93,16 @@ proxyPay:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     uncover 5
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)

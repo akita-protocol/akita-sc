@@ -59,6 +59,8 @@ export const COMMON_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   IAAM: 'Invalid asset amount',
   IARE: 'Invalid asset receiver',
   IPMS: 'Payment or transfer was not sent by the expected account',
+  IPYR: 'This record was funded by another account; top-ups must come from that same account',
+  GPYR: 'This proposal was funded by another account; top-ups must come from that same account',
   NCLW: 'Clawback transfers are not accepted',
   NCLS: 'Transfers that close out the sender are not accepted',
   NRKY: 'Transfers that rekey the sender are not accepted',

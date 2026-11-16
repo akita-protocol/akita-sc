@@ -19,7 +19,8 @@ import {
 import { abimethod, Uint16, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { itob, sha256, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { errEscrowDoesNotExist } from '../arc58/account/errors'
-import { errInvalidPaymentAmount, errInvalidPaymentReceiver } from '../utils/errors'
+import { errInvalidPaymentAmount, errInvalidPaymentReceiver, errPayerOnly } from '../utils/errors'
+import { canReceiveAlgo, payerOf, recordPayer, releaseDeposit, sponsorCost } from '../utils/functions'
 import { AkitaBaseFeeGeneratorContractWithoutAkitaOptIn } from '../utils/base-contracts/base'
 import { Leaf, Proof } from '../utils/types/merkles'
 import {
@@ -163,14 +164,26 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     return 2500 + 400 * (33 + key.length + RecordHeaderBytes + size)
   }
 
-  private refundRecord(amount: uint64): void {
-    if (amount > 0) itxn.payment({ receiver: Txn.sender, amount, fee: 0 }).submit()
+  // A root or record has one payer: whoever funded it first, the caller unless someone else did. That
+  // account tops it up and gets every refund (see "SPONSORED STORAGE" in utils/functions.ts).
+
+  /** Return part of a kept box's storage to whoever paid for it. */
+  private refundRecord(box: bytes, amount: uint64): void {
+    if (amount === 0) return
+    const payer = payerOf(box, Txn.sender)
+    // a payer whose account has closed gives way to the owner, so a write is never blocked
+    itxn.payment({ receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender, amount, fee: 0 }).submit()
+  }
+
+  /** Return a deleted box's whole storage to whoever paid for it, and forget them. */
+  private releaseRecord(box: bytes, amount: uint64): void {
+    const [receiver, total] = releaseDeposit(box, Txn.sender, amount)
+    if (total > 0) itxn.payment({ receiver, amount: total, fee: 0 }).submit()
   }
 
   private requireRecordPayment(payment: gtxn.PaymentTxn, amount: uint64): void {
     loggedAssert(
       payment.groupIndex + 1 === Txn.groupIndex &&
-        payment.sender === Txn.sender &&
         payment.receiver === Global.currentApplicationAddress &&
         payment.amount === amount &&
         payment.closeRemainderTo === Global.zeroAddress &&
@@ -222,8 +235,10 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     const rootKey = this.recordKey(Txn.sender, Bytes(name))
     loggedAssert(!this.roots(rootKey).exists, errNameTaken)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-    loggedAssert(payment.amount === this.rootCosts(name), errInvalidPaymentAmount)
+    // a payer other than the caller funds the record that remembers them
+    loggedAssert(payment.amount === this.rootCosts(name) + sponsorCost(payment.sender, Txn.sender), errInvalidPaymentAmount)
     this.roots(rootKey).value = { root, type }
+    recordPayer(this.roots(rootKey).key, payment.sender, Txn.sender)
   }
 
   /**
@@ -235,7 +250,7 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     const rootKey = this.recordKey(Txn.sender, Bytes(name))
     loggedAssert(this.roots(rootKey).exists, errNoName)
     this.roots(rootKey).delete()
-    this.refundRecord(this.rootCosts(name))
+    this.releaseRecord(this.roots(rootKey).key, this.rootCosts(name))
   }
 
   /**
@@ -274,14 +289,29 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     loggedAssert(this.roots(rootKey).exists, errNoRootForData)
 
     const recordKey = this.dataKey(name, key)
-    // Keep the legacy full-deposit quote; return any replaced record's deposit.
+    // Keep the legacy full-deposit quote; return any replaced record's deposit to whoever paid it. This
+    // payment funds the whole new record, so its sender becomes the record's payer.
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-    loggedAssert(payment.amount === this.recordStorageCost(recordKey, Bytes(value).length), errInvalidPaymentAmount)
+    loggedAssert(
+      payment.amount === this.recordStorageCost(recordKey, Bytes(value).length) + sponsorCost(payment.sender, Txn.sender),
+      errInvalidPaymentAmount,
+    )
     const id = this.recordKey(Txn.sender, recordKey)
+    let previousPayer = Txn.sender
     let previousCost: uint64 = 0
-    if (this.records(id).exists) previousCost = this.recordStorageCost(recordKey, this.records(id).length - RecordHeaderBytes)
+    if (this.records(id).exists) {
+      const [receiver, total] = releaseDeposit(
+        this.records(id).key,
+        Txn.sender,
+        this.recordStorageCost(recordKey, this.records(id).length - RecordHeaderBytes),
+      )
+      previousPayer = receiver
+      previousCost = total
+    }
     this.writeRecord(recordKey, Bytes(value))
-    this.refundRecord(previousCost)
+    recordPayer(this.records(id).key, payment.sender, Txn.sender)
+    // paid out last, once the new record's storage is in place
+    if (previousCost > 0) itxn.payment({ receiver: previousPayer, amount: previousCost, fee: 0 }).submit()
   }
 
   /**
@@ -554,11 +584,22 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     const size: uint64 = data0.length + data1.length + data2.length + data3.length
     loggedAssert(size + RecordArgumentBytes + key.length <= MaxAppCallArgumentBytes, errRecordValueTooLarge)
     loggedAssert(expectedRevision === this.currentRecordRevision(id), errRecordRevisionMismatch)
+    const exists = this.records(id).exists
     let previousCost: uint64 = 0
-    if (this.records(id).exists) previousCost = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
+    if (exists) previousCost = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     const nextCost = this.recordStorageCost(key, size)
-    this.requireRecordPayment(payment, nextCost > previousCost ? nextCost - previousCost : 0)
+    const due: uint64 = nextCost > previousCost ? nextCost - previousCost : 0
+    // A new record takes the payment's sender as its payer; someone other than the caller funds the
+    // record that remembers them. A record that grows is topped up by the account that paid for it.
+    let sponsor: uint64 = 0
+    if (!exists) {
+      sponsor = sponsorCost(payment.sender, Txn.sender)
+    } else if (due > 0) {
+      loggedAssert(payment.sender === payerOf(this.records(id).key, Txn.sender), errPayerOnly)
+    }
+    this.requireRecordPayment(payment, due + sponsor)
     const revision = this.writeRecord(key, data3)
+    if (sponsor > 0) recordPayer(this.records(id).key, payment.sender, Txn.sender)
     if (size > data3.length) {
       this.records(id).resize(RecordHeaderBytes + size)
       // The typed assignment writes revision and the final data part. Prepend
@@ -568,7 +609,7 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
       if (data1.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data1)
       if (data0.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data0)
     }
-    this.refundRecord(previousCost > nextCost ? previousCost - nextCost : 0)
+    this.refundRecord(this.records(id).key, previousCost > nextCost ? previousCost - nextCost : 0)
     return revision
   }
 
@@ -578,7 +619,7 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     loggedAssert(expectedRevision === this.currentRecordRevision(id), errRecordRevisionMismatch)
     const refund = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     this.records(id).delete()
-    this.refundRecord(refund)
+    this.releaseRecord(this.records(id).key, refund)
     return 0
   }
 }

@@ -35,9 +35,9 @@ export const deploySubscriptions = async ({
   }
 
   const { appClient: client } = await factory.send.create.create({
-    // Subscriptions grew past 8 KB (audit fixes); 4 extra pages = 10 KB.
+    // Subscriptions grew past 10 KB with the payer records (2026-11-15); 5 extra pages = 12 KB.
     // Upgrades can grow pages further through the DAO update plugin.
-    extraProgramPages: 4,
+    extraProgramPages: 5,
     // > 8 KB programs pay a small per-byte fee on top of the min fee
     extraFee: microAlgo(1_000),
     args: {

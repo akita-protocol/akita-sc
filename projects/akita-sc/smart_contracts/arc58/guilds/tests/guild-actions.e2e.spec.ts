@@ -45,6 +45,7 @@ import {
   vote,
   ZERO_CID,
   type GuildTestEnvironment,
+  PROPOSAL_MBR,
 } from './test-helpers'
 
 const fixture = algorandFixture()
@@ -283,8 +284,9 @@ describe('Shared Guild lifecycle and action execution', () => {
     await expect(guild.getProposal({ args: { proposalId } })).rejects.toThrow('ERR:errGprp')
   }, 120_000)
 
-  test('bounds proposal power and per-action fees in direct and governance-driven settings updates', async () => {
-    const maximum = proposalSettings({ power: 1_000n, fee: 1_000_000n })
+  test('bounds proposal power, but not per-action fees, in direct and governance-driven settings updates', async () => {
+    // a fee is counted in base units of whatever the Guild charges in, so it has no ceiling below uint64
+    const maximum = proposalSettings({ power: 1_000n, fee: 2n ** 64n - 1n })
     const { guild } = await mintLockedGuild(environment)
 
     await guild.send.setProposalSettings({
@@ -298,12 +300,13 @@ describe('Shared Guild lifecycle and action execution', () => {
         maxFee: microAlgo(100_000n), coverAppCallInnerTransactionFees: true,
       }),
     ).rejects.toThrow('ERR:errGset')
+    expect((await guild.state.global.getAll()).updateGuildProposalSettings?.fee).toBe(2n ** 64n - 1n)
+    // nobody can pay that: once the Guild is live, a proposal of this class cannot even be priced, and
+    // only a class that is still affordable (an upgrade of the Guild) could bring the fee back down
+    await guild.send.partiallyInitialize({ args: {}, maxFee: microAlgo(100_000n), coverAppCallInnerTransactionFees: true })
     await expect(
-      guild.send.setProposalSettings({
-        args: { actionType: ACTION_LOCK_PLUGIN_SET, settings: proposalSettings({ fee: 1_000_001n }) },
-        maxFee: microAlgo(100_000n), coverAppCallInnerTransactionFees: true,
-      }),
-    ).rejects.toThrow('ERR:errGset')
+      createProposal(environment, guild, [setSettingsAction(ACTION_LOCK_PLUGIN_SET, proposalSettings())]),
+    ).rejects.toThrow(/overflow/)
 
     const { guild: governedGuild } = await mintLockedGuild(environment)
     await governedGuild.send.partiallyInitialize({
@@ -316,11 +319,11 @@ describe('Shared Guild lifecycle and action execution', () => {
         setSettingsAction(ACTION_LOCK_PLUGIN_SET, proposalSettings({ power: 1_001n })),
       ]),
     ).rejects.toThrow('ERR:errGset')
-    await expect(
-      createProposal(environment, governedGuild, [
-        setSettingsAction(ACTION_LOCK_PLUGIN_SET, proposalSettings({ fee: 1_000_001n })),
-      ]),
-    ).rejects.toThrow('ERR:errGset')
+    // a fee above the old one-ALGO ceiling is an ordinary settings proposal
+    const raised = await createProposal(environment, governedGuild, [
+      setSettingsAction(ACTION_LOCK_PLUGIN_SET, proposalSettings({ fee: 1_000_001n })),
+    ])
+    expect((await governedGuild.getProposal({ args: { proposalId: raised } })).actions).toHaveLength(1)
   }, 180_000)
 
   test('funds multiple plugin boxes exactly and charges action fees in addition to MBR', async () => {
@@ -594,7 +597,7 @@ describe('Shared Guild lifecycle and action execution', () => {
     await approveAndExecute(environment, timeWarp, guild, [removal])
     expect((await guild.state.box.executions.getMap()).size).toBe(0)
     // The new proposal box stays as history; the released execution box is the only storage given back.
-    const removalProposalMbr = 44_900n + 400n * (7n + BigInt(removal[1].length))
+    const removalProposalMbr = PROPOSAL_MBR + 400n * (7n + BigInt(removal[1].length))
     expect((await minBalanceOf(environment, guild.appAddress)) - minimumBefore).toBe(removalProposalMbr - EXECUTION_MBR)
     expect((await balanceOf(environment, guild.appAddress)) - (await minBalanceOf(environment, guild.appAddress))).toBe(
       (await guild.state.global.reserved()) ?? 0n,

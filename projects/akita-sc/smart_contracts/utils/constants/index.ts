@@ -37,6 +37,11 @@ export const AccountLength: uint64 = 32
 export const BoxCostPerBox: uint64 = 2_500
 export const BoxCostPerByte: uint64 = 400
 
+/** Box prefix of a payer record (see "SPONSORED STORAGE" in `utils/functions.ts`); no contract uses it for anything else. */
+export const PayerBoxPrefix = '$'
+/** Storage of a payer record: 2_500 + 400 * (1 + 32 key bytes + 32 value bytes). */
+export const PayerRecordMBR: uint64 = 28_500
+
 export const DynamicOffset: uint64 = 2
 export const DynamicLength: uint64 = 2
 

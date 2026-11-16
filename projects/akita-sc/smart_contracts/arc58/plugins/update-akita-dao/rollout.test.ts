@@ -761,7 +761,7 @@ describe('review 2026-10-05: rollout guards', () => {
     const ids = { stakingPoolFactory: 7n }
     const deployedPool = { '7': approvalBytes('StakingPoolFactory') }
 
-    test('the new child calls Staking.releaseAppStake, Rewards.closeDisbursement and Gate.checkFor, which the deployed apps lack', () => {
+    test('the new child calls Staking.reclaimAppStake, Rewards.closeDisbursement and Gate.checkFor, which the deployed apps lack', () => {
       const child = loadCompiled(pool().child!.artifact).approval
       const live = {
         [pool().dependencies![0].name]: { appId: 3642366153n, program: deployedRideAlong('Staking').approval },
@@ -769,7 +769,7 @@ describe('review 2026-10-05: rollout guards', () => {
         [pool().dependencies![2].name]: { appId: 3569558504n, program: approvalBytes('GateV1') },
       }
       expect(dependencyGaps('StakingPoolFactory', [child], pool().dependencies!, live).map((g) => [g.dependency, g.missing])).toEqual([
-        ['Staking (DAO akitaAppList.staking)', ['releaseAppStake(uint64,address,uint64)void']],
+        ['Staking (DAO akitaAppList.staking)', ['reclaimAppStake(address,uint64)void']],
         ['Rewards (DAO akitaAppList.rewards)', ['closeDisbursement(uint64)void']],
         ['Gate (DAO akitaAppList.gate)', ['checkFor((address,uint64,address),uint64,byte[][])bool', 'mustCheckFor((address,uint64,address),uint64,byte[][])void']],
       ])
@@ -780,11 +780,11 @@ describe('review 2026-10-05: rollout guards', () => {
         { appIds: ids, bc: { '7': approvalBytes('StakingPool') }, aal: { staking: 20n, rewards: 21n, gate: 22n } })
       const plan = await planTarget(ctx, pool())
       expect(plan.blockers).toEqual([
-        'StakingPoolFactory -> Staking (DAO akitaAppList.staking) 20: missing releaseAppStake(uint64,address,uint64)void (upgrade it first)',
+        'StakingPoolFactory -> Staking (DAO akitaAppList.staking) 20: missing reclaimAppStake(address,uint64)void (upgrade it first)',
         'StakingPoolFactory -> Rewards (DAO akitaAppList.rewards) 21: missing createInstantDisbursement(pay,uint64,uint64,(address,uint64)[],address)uint64, createInstantAsaDisbursement(pay,axfer,uint64,uint64,(address,uint64)[],address)uint64, closeDisbursement(uint64)void (upgrade it first)',
         'StakingPoolFactory -> Gate (DAO akitaAppList.gate) 22: missing checkFor((address,uint64,address),uint64,byte[][])bool, mustCheckFor((address,uint64,address),uint64,byte[][])void (upgrade it first)',
       ])
-      await expect(runPhase2(ctx, { targets: [pool()], confirm: true, log: () => {} })).rejects.toThrow(/^Phase 2 refused:[\s\S]*releaseAppStake/)
+      await expect(runPhase2(ctx, { targets: [pool()], confirm: true, log: () => {} })).rejects.toThrow(/^Phase 2 refused:[\s\S]*reclaimAppStake/)
 
       const upgraded = chain({ ...deployedPool, '20': loadCompiled('staking/Staking.arc56.json').approval, '21': loadCompiled('rewards/Rewards.arc56.json').approval, '22': loadCompiled('gates/Gate.arc56.json').approval },
         { appIds: ids, bc: { '7': approvalBytes('StakingPool') }, aal: { staking: 20n, rewards: 21n, gate: 22n } })

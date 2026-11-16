@@ -177,7 +177,7 @@ export type PollTypes = {
                  */
                 boxCount: bigint;
                 /**
-                 * the creator-side MBR funder to refund after the poll is deleted
+                 * the poll's creator and its creation deposit; the factory refunds the deposit to whoever paid it
                  */
                 funder: FunderInfo;
                 /**
@@ -373,10 +373,12 @@ export declare abstract class PollParamsFactory {
      *
     * Remove vote boxes after the poll has ended and return each voter's deposit.
   
-    Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+    Only the poll's creator may do this: the account that called the factory's `new`, which the
+    factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
     `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
     voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-    C17). Deposits always go back to the voters, never to the caller.
+    C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+    and never to the caller.
   
      *
      * @param params Parameters for the call
@@ -891,10 +893,12 @@ export declare class PollClient {
          *
         * Remove vote boxes after the poll has ended and return each voter's deposit.
     
-        Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+        Only the poll's creator may do this: the account that called the factory's `new`, which the
+        factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
         `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
         voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-        C17). Deposits always go back to the voters, never to the caller.
+        C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+        and never to the caller.
     
          *
          * @param params The params for the smart contract call
@@ -983,10 +987,12 @@ export declare class PollClient {
          *
         * Remove vote boxes after the poll has ended and return each voter's deposit.
     
-        Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+        Only the poll's creator may do this: the account that called the factory's `new`, which the
+        factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
         `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
         voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-        C17). Deposits always go back to the voters, never to the caller.
+        C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+        and never to the caller.
     
          *
          * @param params The params for the smart contract call
@@ -1104,10 +1110,12 @@ export declare class PollClient {
          *
         * Remove vote boxes after the poll has ended and return each voter's deposit.
     
-        Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+        Only the poll's creator may do this: the account that called the factory's `new`, which the
+        factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
         `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
         voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-        C17). Deposits always go back to the voters, never to the caller.
+        C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+        and never to the caller.
     
          *
          * @param params The params for the smart contract call
@@ -1358,10 +1366,12 @@ export type PollComposer<TReturns extends [...any[]] = []> = {
      *
     * Remove vote boxes after the poll has ended and return each voter's deposit.
   
-    Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+    Only the poll's creator may do this: the account that called the factory's `new`, which the
+    factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
     `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
     voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-    C17). Deposits always go back to the voters, never to the caller.
+    C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+    and never to the caller.
   
      *
      * @param args The arguments for the contract call

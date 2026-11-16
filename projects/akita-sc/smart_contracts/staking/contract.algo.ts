@@ -66,7 +66,7 @@ import {
 } from './errors'
 import { AkitaDAOGlobalStateKeysAkitaAssets } from '../arc58/dao/constants'
 import { AkitaAssets } from '../arc58/dao/types'
-import { assertSafeAssetTransfer, assertSafePayment } from '../utils/functions'
+import { assertPlainPayment, assertSafeAssetTransfer, recordPayer, releaseDeposit, sponsorCost } from '../utils/functions'
 import {
   arc4Heartbeat,
   AppStake,
@@ -297,8 +297,10 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
 
   stake(payment: gtxn.PaymentTxn, type: StakingType, amount: uint64, expiration: uint64): void {
     this.assertValidStakeType(type)
-    // MBR (and ALGO escrow) is refunded to the staker, so the staker must fund it.
-    assertSafePayment(payment, Txn.sender)
+    // Anyone may fund the stake's storage (and an ALGO escrow). The escrowed stake is the staker's.
+    // The storage deposit goes back to whoever paid it: a payer other than the staker is remembered
+    // and funds that record (`sponsorCost`).
+    assertPlainPayment(payment)
     const inTheFuture = expiration > Global.latestTimestamp
     const lessThanOneYearInTheFuture = expiration <= Global.latestTimestamp + ONE_YEAR
     const locked = type === STAKING_TYPE_LOCK
@@ -318,11 +320,12 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     if (!isUpdate) {
 
       const costs = this.mbr()
+      const sponsor = sponsorCost(payment.sender, Txn.sender)
 
       if (isEscrow) {
 
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-        loggedAssert(payment.amount === amount + costs.stakes, errInvalidPayment)
+        loggedAssert(payment.amount === amount + costs.stakes + sponsor, errInvalidPayment)
 
         this.updateTotals(0, type, amount, true)
         if (locked) {
@@ -334,7 +337,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
         // balance later. No snapshot is taken here, because the caller controls its timing and
         // could borrow the balance for this one group (M-2).
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-        loggedAssert(payment.amount === costs.stakes + costs.heartbeats, errInvalidPayment)
+        loggedAssert(payment.amount === costs.stakes + costs.heartbeats + sponsor, errInvalidPayment)
 
         const heartbeatKey: HeartbeatKey = {
           address: Txn.sender,
@@ -346,7 +349,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
       } else {
         loggedAssert(Txn.sender.balance >= amount, errInsufficientBalance)
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-        loggedAssert(payment.amount === costs.stakes, errInvalidPayment)
+        loggedAssert(payment.amount === costs.stakes + sponsor, errInvalidPayment)
       }
 
       this.stakes(sk).value = {
@@ -355,6 +358,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
         expiration,
         weightedAge: 0,
       }
+      recordPayer(this.stakes(sk).key, payment.sender, Txn.sender)
 
     } else {
       loggedAssert(type !== STAKING_TYPE_HEARTBEAT, errHeartbeatCannotUpdate)
@@ -394,7 +398,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     expiration: uint64
   ): void {
     this.assertValidStakeType(type)
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     // no clawback-sourced, closing or rekeying transfer, and the staker funds its own escrow
     assertSafeAssetTransfer(assetXfer, Txn.sender)
     const inTheFuture = expiration > Global.latestTimestamp
@@ -417,10 +421,12 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     if (!isUpdate) {
 
       const costs = this.mbr()
+      // the storage deposit goes back to whoever paid it (see `stake`)
+      const sponsor = sponsorCost(payment.sender, Txn.sender)
 
       if (isEscrow) {
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-        loggedAssert(payment.amount === costs.stakes, errInvalidPaymentAmount)
+        loggedAssert(payment.amount === costs.stakes + sponsor, errInvalidPaymentAmount)
 
         loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidAssetAmount)
         loggedAssert(assetXfer.assetAmount === amount, errInvalidAssetAmount)
@@ -437,7 +443,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
         loggedAssert(holdingAmount > 0, errInvalidAssetAmount)
 
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-        loggedAssert(payment.amount === (costs.stakes + costs.heartbeats), errInvalidPaymentAmount)
+        loggedAssert(payment.amount === (costs.stakes + costs.heartbeats + sponsor), errInvalidPaymentAmount)
 
         // if they aren't escrowing, we need to make sure the asset transfer is 0, doesn't matter to who in this case
         loggedAssert(assetXfer.assetAmount === 0, errInvalidAssetAmount)
@@ -451,7 +457,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
         loggedAssert(holdingAmount >= amount, errInsufficientBalance)
 
         loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-        loggedAssert(payment.amount === costs.stakes, errInvalidPaymentAmount)
+        loggedAssert(payment.amount === costs.stakes + sponsor, errInvalidPaymentAmount)
 
         // if they aren't escrowing, we need to make sure the asset transfer is 0, doesn't matter to who in this case
         loggedAssert(assetXfer.assetAmount === 0, errInvalidAssetAmount)
@@ -463,6 +469,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
         expiration,
         weightedAge: 0,
       }
+      recordPayer(this.stakes(sk).key, payment.sender, Txn.sender)
     } else {
       loggedAssert(type !== STAKING_TYPE_HEARTBEAT, errHeartbeatCannotUpdate)
       const currentStake = clone(this.stakes(sk).value)
@@ -513,27 +520,33 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     const { expiration, amount } = this.stakes(sk).value
     loggedAssert(type !== STAKING_TYPE_LOCK || expiration < Global.latestTimestamp, errLocked)
 
-    // Custody plus the stake box MBR the staker paid when creating it (L-2).
-    if (asset === 0) {
+    // Custody goes to the staker; the stake box MBR paid when creating it goes back to whoever
+    // paid it, the staker unless someone else funded the stake (L-2).
+    const [receiver, refund] = releaseDeposit(this.stakes(sk).key, Txn.sender, StakesMBR)
+    if (asset === 0 && receiver === Txn.sender) {
       itxn
         .payment({
           receiver: Txn.sender,
-          amount: amount + StakesMBR
+          amount: amount + refund
         })
         .submit()
     } else {
-      itxn
-        .assetTransfer({
-          assetReceiver: Txn.sender,
-          assetAmount: amount,
-          xferAsset: asset
-        })
-        .submit()
+      if (asset === 0) {
+        itxn.payment({ receiver: Txn.sender, amount }).submit()
+      } else {
+        itxn
+          .assetTransfer({
+            assetReceiver: Txn.sender,
+            assetAmount: amount,
+            xferAsset: asset
+          })
+          .submit()
+      }
 
       itxn
         .payment({
-          receiver: Txn.sender,
-          amount: StakesMBR
+          receiver,
+          amount: refund
         })
         .submit()
     }
@@ -734,7 +747,7 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     const current: uint64 = this.settings(asset).exists ? this.settings(asset).value : ONE_YEAR
     loggedAssert(value >= current, errLockupDecrease)
 
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(
       payment.amount === (this.settings(asset).exists ? 0 : this.mbr().settings),
@@ -750,29 +763,31 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     this.heartbeatManagerAddress.value = manager
   }
 
-  /** Owner closes their SOFT stake and gets the stake box MBR back (L-2). */
+  /** Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2). */
   closeSoftStake(asset: uint64): void {
     const sk: StakeKey = { address: Txn.sender, asset, type: STAKING_TYPE_SOFT }
     loggedAssert(this.stakes(sk).exists, errStakeDoesntExist)
     this.stakes(sk).delete()
 
-    itxn.payment({ receiver: Txn.sender, amount: StakesMBR }).submit()
+    const [receiver, refund] = releaseDeposit(this.stakes(sk).key, Txn.sender, StakesMBR)
+    itxn.payment({ receiver, amount: refund }).submit()
   }
 
-  /** Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2). */
+  /** Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2). */
   closeHeartbeat(asset: uint64): void {
     const sk: StakeKey = { address: Txn.sender, asset, type: STAKING_TYPE_HEARTBEAT }
     loggedAssert(this.stakes(sk).exists, errStakeDoesntExist)
     this.stakes(sk).delete()
 
-    let refund: uint64 = StakesMBR
+    let boxes: uint64 = StakesMBR
     const hbk: HeartbeatKey = { address: Txn.sender, asset }
     if (this.heartbeats(hbk).exists) {
       this.heartbeats(hbk).delete()
-      refund += HeartbeatsMBR
+      boxes += HeartbeatsMBR
     }
 
-    itxn.payment({ receiver: Txn.sender, amount: refund }).submit()
+    const [receiver, refund] = releaseDeposit(this.stakes(sk).key, Txn.sender, boxes)
+    itxn.payment({ receiver, amount: refund }).submit()
   }
 
   /**
@@ -791,6 +806,20 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
 
     this.appStakes(key).delete()
     itxn.payment({ receiver: address, amount: AppStakesMBR }).submit()
+  }
+
+  /**
+   * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+   * instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+   * whoever funded it there, and settles with that account itself.
+   */
+  reclaimAppStake(address: Account, asset: uint64): void {
+    loggedAssert(Global.callerApplicationId !== 0, errAppCallRequired)
+    const key: AppStakeKey = { app: Global.callerApplicationId, address, asset }
+    loggedAssert(this.appStakes(key).exists, errStakeDoesntExist)
+
+    this.appStakes(key).delete()
+    itxn.payment({ receiver: Global.callerApplicationAddress, amount: AppStakesMBR }).submit()
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------

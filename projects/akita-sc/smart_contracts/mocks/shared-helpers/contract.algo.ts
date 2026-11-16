@@ -1,7 +1,10 @@
-import { Account, Application, Asset, Global, gtxn, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, bytes, Global, gtxn, itxn, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, compileArc4, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { releasedRefund } from '../../utils/base-contracts/factory'
-import { assertBoundAssetTransfer, assertBoundPayment, assertSafeAssetTransfer, assertSafePayment, getControlledSpendingAccount } from '../../utils/functions'
+import {
+  assertBoundAssetTransfer, assertBoundPayment, assertExactPayment, assertPlainPayment, assertSafeAssetTransfer,
+  assertSafePayment, getControlledSpendingAccount, payerOf, recordPayer, releaseDeposit, sponsorCost,
+} from '../../utils/functions'
 import { programExtraPages } from '../../utils/programs'
 
 /** TEST-ONLY child that closes its whole balance back to its creator when deleted. */
@@ -25,6 +28,34 @@ export class MockSharedHelpers extends Contract {
 
   checkSafePayment(payment: gtxn.PaymentTxn, sender: Account): void {
     assertSafePayment(payment, sender)
+  }
+
+  checkPlainPayment(payment: gtxn.PaymentTxn): void {
+    assertPlainPayment(payment)
+  }
+
+  checkExactPayment(payment: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+    assertExactPayment(payment, receiver, amount)
+  }
+
+  /**
+   * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+   * caller is remembered and also funds its payer record.
+   */
+  hold(payment: gtxn.PaymentTxn, record: bytes, amount: uint64): void {
+    assertExactPayment(payment, Global.currentApplicationAddress, amount + sponsorCost(payment.sender, Txn.sender))
+    recordPayer(record, payment.sender, Txn.sender)
+  }
+
+  heldBy(record: bytes, owner: Account): Account {
+    return payerOf(record, owner)
+  }
+
+  /** Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account. */
+  release(record: bytes, owner: Account, amount: uint64): Account {
+    const [receiver, total] = releaseDeposit(record, owner, amount)
+    itxn.payment({ receiver, amount: total }).submit()
+    return receiver
   }
 
   checkAssetTransfer(xfer: gtxn.AssetTransferTxn, sender: Account, receiver: Account, asset: Asset, amount: uint64): void {

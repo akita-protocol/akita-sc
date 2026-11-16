@@ -17,6 +17,7 @@ import {
   errReservedKeyPrefix,
 } from './errors'
 import { errInvalidName } from './errors'
+import { errInvalidPaymentAmount } from '../utils/errors'
 
 algokit.Config.configure({
   debug: true,
@@ -409,6 +410,55 @@ describe('Meta SDK Tests', () => {
 
     test('deleteRoot fails for non-existent root', async () => {
       await expect(sdk.deleteRoot({ name: uniqueName('non-existent') })).rejects.toThrow(errNoName)
+    })
+
+    test('anyone can pay for a root and its data, and deleting them returns each deposit to whoever paid it', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const sponsor = otherAccount
+      const balance = async (who: TransactionSignerAccount) => (await algorand.account.getInformation(who.addr)).balance.microAlgos
+      const paid = async (amount: bigint) => ({
+        txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: sdk.client.appAddress, amount: algokit.microAlgo(amount) }),
+        signer: sponsor.signer,
+      })
+      const tree = createUint64Tree([7n, 8n, 9n])
+      const name = uniqueName('sponsored')
+      const [key, value] = ['royalty', '5']
+      const rootCost = await sdk.rootCosts({ name })
+      const dataCost = await sdk.dataCosts({ name, key, value })
+      // the deployer owns the root and its data; the other account pays for their storage
+      const addRoot = async (amount: bigint) => sdk.client.send.addRoot({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { payment: await paid(amount), name, root: tree.root, type: collectionTypeId },
+      })
+      const addData = async (amount: bigint) => sdk.client.send.addData({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { payment: await paid(amount), name, key, value },
+      })
+
+      // a payer other than the owner is remembered, so the plain cost is not enough
+      await expect(addRoot(rootCost)).rejects.toThrow(errInvalidPaymentAmount)
+      let before = await balance(sponsor)
+      await addRoot(rootCost + PAYER_RECORD_MBR)
+      expect(before - (await balance(sponsor))).toBe(rootCost + PAYER_RECORD_MBR + 1_000n)
+      expect(await sdk.hasRoot({ address: deployer.addr.toString(), name })).toBe(true)
+
+      await expect(addData(dataCost)).rejects.toThrow(errInvalidPaymentAmount)
+      before = await balance(sponsor)
+      await addData(dataCost + PAYER_RECORD_MBR)
+      expect(before - (await balance(sponsor))).toBe(dataCost + PAYER_RECORD_MBR + 1_000n)
+
+      // the owner deletes both; each deposit and its payer record return to the sponsor
+      const ownerBefore = await balance(deployer)
+      before = await balance(sponsor)
+      await sdk.deleteData({ name, key })
+      expect((await balance(sponsor)) - before).toBe(dataCost + PAYER_RECORD_MBR)
+      before = await balance(sponsor)
+      await sdk.deleteRoot({ name })
+      expect((await balance(sponsor)) - before).toBe(rootCost + PAYER_RECORD_MBR)
+      expect(await balance(deployer)).toBeLessThan(ownerBefore)
+      expect(await sdk.hasRoot({ address: deployer.addr.toString(), name })).toBe(false)
     })
   })
 

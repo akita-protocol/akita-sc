@@ -398,7 +398,9 @@ export declare class MockReapableChildFactory {
                     validityWindow?: number | bigint | undefined;
                     firstValidRound?: bigint | undefined;
                     lastValidRound?: bigint | undefined;
-                    accountReferences?: (string | Address)[] | undefined;
+                    accountReferences? /**
+                     * Add a clear state call to the MockReapableChild contract
+                     */: (string | Address)[] | undefined;
                     appReferences?: bigint[] | undefined;
                     assetReferences?: bigint[] | undefined;
                     boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
@@ -431,19 +433,7 @@ export declare class MockReapableChildFactory {
                     appReferences?: bigint[] | undefined;
                     assetReferences?: bigint[] | undefined;
                     boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
-                    accessReferences
-                    /**
-                     * Makes a clear_state call to an existing instance of the MockReapableChild smart contract.
-                     *
-                     * @param args The arguments for the bare call
-                     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-                     */
-                    ? /**
-                     * Makes a clear_state call to an existing instance of the MockReapableChild smart contract.
-                     *
-                     * @param args The arguments for the bare call
-                     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-                     */: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
                     rejectVersion?: number | undefined;
                     approvalProgram: string | Uint8Array;
                     clearStateProgram: string | Uint8Array;

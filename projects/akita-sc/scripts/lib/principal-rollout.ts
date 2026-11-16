@@ -528,7 +528,7 @@ export const PHASE2_TARGETS: readonly Phase2Target[] = [
   {
     name: 'StakingPoolFactory', appIdKey: 'stakingPoolFactory', artifact: 'staking-pool/StakingPoolFactory.arc56.json', leasePrefix: 'p2_pool',
     child: { name: 'StakingPool', artifact: 'staking-pool/StakingPool.arc56.json' },
-    // ROLLOUT-1: new pools call Staking.releaseAppStake and Rewards.closeDisbursement. Upgrade Staking and
+    // ROLLOUT-1: new pools call Staking.reclaimAppStake and Rewards.closeDisbursement. Upgrade Staking and
     // repoint aal.rewards to Rewards v2 first; the deployed ones do not route them.
     dependencies: [
       { name: 'Staking (DAO akitaAppList.staking)', artifact: 'staking/Staking.arc56.json', akitaAppList: 'staking' },

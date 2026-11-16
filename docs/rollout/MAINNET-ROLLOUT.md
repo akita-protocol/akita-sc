@@ -36,6 +36,41 @@ Also changed:
 - `release/manifest.json` pins 155 programs (86 deployable, 69 test-only). Taking the DEX out removed 30 programs and changed none: every remaining approval and clear hash equals the one in the 185-program manifest.
 - The LocalNet mock Haystack router (`smart_contracts/mocks/haystack-router-localnet`) routes over Tinyman v2 pools only. It no longer needs a relay key or a Vault.
 
+## Update 2026-11-15
+
+The Guild fee asset is in the tree: a Guild may charge its proposal fees in an asset instead of ALGO. The second audit pass covered it on 2026-11-14 (C18 to C21); the decisions of 2026-11-15 are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md`.
+
+- **Five programs differ from the release commit.** Guild (10,349 to 12,136 bytes), GuildPlugin (3,993 to 5,238 bytes, 2 extra pages instead of 1) and the three consensus programs, each 12 bytes smaller because fee settings lost their ceiling (C18): FixedSignerGuildConsensus 4,886, LockedTokenGuildConsensus 3,282, SubscriptionGuildConsensus 4,687. `release/manifest.json` is regenerated; the other 150 programs are unchanged.
+- **H2 keeps its order and commands.** No Guild app is live on TestNet or MainNet (the SDK's Guild app ids are 0 on both), so nothing is migrated, and the scripts size each upload from the program itself.
+- **ABI.** Guild gained `setFeeAsset`, `newProposalWithFeeAsset`, `editProposalWithFeeAsset`, `sweepFeeTokens`, `feeAssetCost`, `sweepableFeeTokens` and action 85 (set fee asset); `proposalCost` also returns `feeAsset`. GuildPlugin gained `setFeeAsset`, `newProposalWithFeeAsset` and `editProposalWithFeeAsset`. Build clients against the new SDK.
+- **Storage.** A proposal box costs 6,400 µALGO more (base 51,300, was 44,900). Charging in an asset costs 209,300 µALGO once: two opt-ins and a 9,300 reserve box (109,300 while the Guild has no wallet).
+- **Fee settings have no ceiling** (was 1,000,000). They are counted in base units of the asset charged and are not converted when the asset changes.
+
+## Update 2026-11-15: anyone may pay storage and fees
+
+A grouped payment that covers storage or a fee no longer has to come from the caller, and a storage deposit goes back to whoever paid it. The rules, costs and exceptions are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Third pass").
+
+- **23 more programs differ from the release commit** (26 in all, with the three consensus programs above). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247, SocialClaim 2,765, Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,306 and Subscriptions 10,468. Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
+- **Pages.** Subscriptions needs 5 extra pages, one more than planned: E2 grows it from 3 to 5 and the DAO wallet sponsors 3,528,000 µA for it (was 3,428,000). Phase 2 sponsorship is 7,056,000 µA (AkitaSocial 3,528,000 and Subscriptions 3,528,000), and 10.65 ALGO with the DAO's own growth. Guild needs 6 extra pages; GuildFactory creates every Guild with 7. PollFactory needs 2 and the live app has 3. No other live app crosses a page.
+- **Upload groups.** PollFactory's update takes one more upload transaction (three chunks, was two). Every other group keeps its size, StakingPoolFactory at exactly 16.
+- **Staking and pools.** Staking gains `reclaimAppStake(address,uint64)void` and keeps every method it had. The new StakingPool child calls it instead of `releaseAppStake`, so D1 (Staking) still comes before E5 (StakingPoolFactory), and the runner refuses E5 until the Staking at aal.staking routes the new method.
+- **ABI.** No method changed its signature. Calls that used to fail because the payment came from someone else now succeed when that payment also carries 28,500 µALGO for the payer record (`PAYER_RECORD_MBR` in the SDK), which comes back with the deposit. Guild proposals name their payer in the proposal itself and take no extra payment.
+- **Storage.** A Guild proposal box costs 25,600 µALGO more (base 76,900, was 51,300): it holds who paid the ALGO and who paid the fee tokens.
+- **Box references.** Every call that returns a deposit also looks for a payer record, so it needs one more box reference per record, sponsored or not. The SDK finds references by simulation. A hand-built group must add them, and a batch refund (`Poll.deleteBoxes`, `AkitaDAO.deleteProposalVotes`, `Raffle.refundMBR`, `Auction.refundMBR`, Guild vote cleanup) fits fewer records per call.
+- **Clients.** The SDK methods still pay from the caller. A paymaster builds the payment itself until the SDK methods take a payer.
+
+## Update 2026-11-16: the open points of the fourth pass are closed
+
+Two programs changed after the fourth pass. Each closes a point that pass left open. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Fifth pass").
+
+- **PollFactory is 4,339 bytes (was 4,159), C24.** The caller of `new` is the poll's author: the account the poll records, and the only one that may clear its votes. Anyone may pay for the poll. A payer that is not the author adds 28,500 µALGO, is remembered by the factory under the poll's id, and gets the deposit and that amount back from `deletePoll`. Before, a sponsored poll recorded its sponsor, and only the sponsor could clear the votes. The Poll child program is unchanged (2,349 bytes), and so are `newPollCost`, every method signature and the state schema. A poll created before the upgrade has no payer record and is refunded to the account it records, as before.
+- **Guild is 12,534 bytes (was 12,494), C25.** A proposal that installs a plugin with `defaultToEscrow` and no escrow name is refused when it is drafted. The wallet would refuse it at execution, so it could pass a vote and never execute.
+- **Nothing in the sequence changes.** PollFactory still needs 2 extra pages (the live app has 3) and three upload chunks, so E6 runs as written. Guild still needs 6 extra pages and GuildFactory still creates every Guild with 7, so H2 runs as written.
+- **Box references.** `PollFactory.deletePoll` looks for a payer record, sponsored or not, so it needs one more box reference on the factory. The SDK's `deletePoll` finds it by simulation. A hand-built call must add it.
+- **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of 2026-11-15 in these two entries only.
+- **SocialClaim is unchanged.** Its payer rule (C23) is still to be confirmed before H7, because the program can never be patched.
+- **Live state re-read 2026-11-16** with `rollout:status` (read-only) on MainNet and on TestNet: no step of this rollout is done on either network. 12 steps are ready, 27 wait on earlier steps, and the DAO is in Draft on both. The TestNet rehearsal (A4) has not been run.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -109,6 +144,7 @@ Off-chain. Nothing is sent.
 - **Requires:** none. **Script:** ready: `release:manifest:check` compares every program under `smart_contracts/artifacts` with `release/manifest.json`. The CI workflow (`.github/workflows/akita-sc-ci.yaml`) runs the same steps on every push.
 - Done 2026-11-10 on a clean clone of the committed tree (Linux, Node 24): after `npm ci` and both builds, every artifact, generated client and SDK bundle was unchanged. The full suite then passed on LocalNet in six shards: 163 files, 2,596 tests, 2,589 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
 - Repeated 2026-11-11 on the tree without the Plugin DEX: the whole-tree build changed no remaining program, the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 141 files, 2,224 tests, 2,217 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
+- Repeated 2026-11-16 on the working tree that holds the Guild fee asset work, the payer change and the fixes C18 to C25, none of it committed yet: the whole-tree build matches the regenerated manifest (155 programs), the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 145 files, 2,272 tests, 2,265 passed, none failed (2 skipped, 5 todo), and it left the build output unchanged. Repeat it on the deploy commit.
 - Use Node 24 (`nvm use` reads `.nvmrc`). A shell that defaults to an older Node fails the engine check.
 - Only `projects/akita-sdk/dist/*.map` may differ after a rebuild: tsup writes the absolute build path into each source map.
 
@@ -159,7 +195,7 @@ npm run rollout:status -- --network testnet
 - **What:** Top up the deployer, and confirm the DAO wallet holds the page-growth sponsorship.
 - **Why here:** A step that runs short mid-group wastes a proposal window.
 - **Requires:** none. **Script:** manual.
-- DAO wallet: 10.55 ALGO sponsorship (has 43.37 free).
+- DAO wallet: 10.65 ALGO sponsorship (has 43.37 free). It was 10.55 before Subscriptions took a sixth page on 2026-11-15.
 - StakingPoolFactory box growth +1.842 ALGO and AuctionFactory +14,800 µA; the Phase 2 runner pays both.
 - AkitaSocialModeration, PrizeBoxFactory and HyperSwap hold 0 µA today.
 
@@ -170,7 +206,7 @@ The new Update plugin first; then the DAO upgrades itself through it.
 #### B1. Phase 2a: install the new UpdateAkitaDAOPlugin
 
 - **What:** Deploy the page-growing Update plugin and run ONE proposal: UpdateFields pal (update = new; optin and revenueManager unchanged), AddPlugin new (global, execution key), RemovePlugin old 3569559689. Then record the id and rebuild the SDK.
-- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,421 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
+- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,765 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
 - **Requires:** A2. **Script:** ready.
 - **Tracked by rollout:status as** `phase2a`.
 - The pal write replaces the whole struct: it must carry optin 3569560490 and revenueManager 3642325118.
@@ -267,11 +303,11 @@ npm run deploy:gates -- -n mainnet -m $M --contracts gate --manifest-dir receipt
 
 ### Stage D: Staking and Rewards v2
 
-The new StakingPool child calls Staking.releaseAppStake and Rewards.closeDisbursement.
+The new StakingPool child calls Staking.reclaimAppStake and Rewards.closeDisbursement.
 
 #### D1. Upgrade Staking in place
 
-- **What:** UpgradeApp on Staking 3642366153 (7,010 B, fits its pages, schema unchanged).
+- **What:** UpgradeApp on Staking 3642366153 (7,306 B, fits its pages, schema unchanged). It adds `reclaimAppStake(address,uint64)void`, which the new StakingPool child calls when an entry leaves a SOFT pool; `releaseAppStake` stays for the StakingPlugin and for owners of commitments to deleted pools.
 - **Why here:** Hard prerequisite of the StakingPool child (ROLLOUT-1) and of the new StakingPlugin. The tree Staking still routes all 36 live selectors.
 - **Requires:** B1. **Script:** fixed: runUpdate now binds groups to the proposal (gap G2); without that fix it reverts between B1 and B2.
 - **Tracked by rollout:status as** `staking`.
@@ -349,12 +385,12 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 
 #### E2. Subscriptions
 
-- **What:** Phase 2 Subscriptions (pages 4 → 5).
+- **What:** Phase 2 Subscriptions (pages 4 → 6: the program is 10,468 B since the payer records of 2026-11-15).
 - **Why here:** Hinted subscribe paths back the new SubscriptionsPlugin and the subscription guild consensus.
 - **Requires:** C4, D2, B1. **Script:** ready.
 - **Tracked by rollout:status as** `p2:Subscriptions`.
 - Run E1–E3 immediately after D2: until each service upgrades, its referral payouts revert at Rewards v2.
-- DAO wallet sponsors 3,428,000 µA. 19 B of headroom left in 4 extra pages (57 B before the 2026-10-11 referral reclaim change; 3 B with its first, separate-box design); any further Subscriptions change needs a size cut first.
+- DAO wallet sponsors 3,528,000 µA (3,428,000 while the program still fitted 4 extra pages). 1,816 B of headroom left in 5 extra pages.
 
 ```bash
 … principal-phase2-upgrade-targets.ts -n mainnet -m $M --target Subscriptions --confirm
@@ -381,8 +417,8 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 - **Tracked by rollout:status as** `p2:AuctionFactory`.
 - K6 lockstep: ship the SDK release the same day; the HEAD SDK cannot create raffles on the new factory.
 - The old AuctionPlugin underpays bids on new children by 800 µA; rotate it in G1 soon after.
-- Auction child is 8,354 B: +0.1 ALGO MBR per auction.
-- Raffle child is 8,106 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16).
+- Auction child is 8,522 B: +0.1 ALGO MBR per auction.
+- Raffle child is 8,158 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16). It has 30 B left in its four pages: `auction/principal-abi.test.ts` fails if it takes a fifth.
 
 ```bash
 … --target AuctionFactory --target RaffleFactory --confirm
@@ -390,7 +426,7 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 
 #### E5. StakingPoolFactory + StakingPool
 
-- **What:** Phase 2 StakingPoolFactory with the 12,969 B child (exactly 16 txns).
+- **What:** Phase 2 StakingPoolFactory with the 13,272 B child (exactly 16 txns).
 - **Why here:** The runner refuses this target until Staking, Rewards v2 and Gate v2 are live; all three are hard callee dependencies.
 - **Requires:** D1, D2, C4, B1. **Script:** fixed: Gate dependency added today; the Rewards dependency now also covers the referral reclaim overloads.
 - **Tracked by rollout:status as** `p2:StakingPoolFactory`.
@@ -407,6 +443,7 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 - **Requires:** B1. **Script:** ready.
 - **Tracked by rollout:status as** `p2:PollFactory`.
 - HyperSwap has never had an offer, so the accept removal strands nothing.
+- Polls created before the upgrade keep working: they have no payer record, and `deletePoll` refunds the account they record, as before (C24).
 - PrizeBoxFactory holds 0 µA today; mint may never have worked on MainNet.
 
 ```bash
@@ -630,6 +667,7 @@ npm run deploy:pay-silo-plugin -- -n mainnet -m $M --config '{"recipient":"<Akit
 - **Requires:** H3. **Script:** ready since 2026-11-10: SocialClaim is in the immutable catalog, `--register` records the `socialClaim` SDK key and fills its README row (audit R7). Test: `tests/release-deployments.test.ts`.
 - **Referrer (audit C5, decided 2026-11-11):** the sender who pays to create a recipient's wallet is that wallet's referrer, and stays so after later gifts from other senders and after the claim. That is the incentive to send first. Nothing in the program changed. Test: `social-claim.e2e.spec.ts`.
 - **Held until one thing is decided:** who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
+- **Confirm the payer rule first (audit C23).** A gift's storage deposit returns to the account that paid it only when that account did not also send the call. A service that sends the call and pays is treated as the user, and its deposit goes to the user's wallet. A paymaster therefore pays from an account that never sends the call. The other choice, storing the payer in every gift, costs every gift 12,800 µALGO more and changes `getGift`. Nothing can change after the deploy.
 - The deploy tooling does not verify the two plugin ids on chain. Check each against its receipt first.
 
 ```bash

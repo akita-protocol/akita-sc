@@ -3,7 +3,7 @@ import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4
 import { AssetHolding, btoi, itob } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints } from '../utils/constants'
-import { calcPercent, gateCheck, gateCheckCtx, getAkitaAssets, getAkitaSocialAppList, getOriginAccount, getPluginAppList, getSocialFees, impactRange, legacyWalletOf, principalOf, referrerOrZeroAddress, sendReferralPaymentTo, tipWallet } from '../utils/functions'
+import { calcPercent, gateCheck, gateCheckCtx, getAkitaAssets, getAkitaSocialAppList, getOriginAccount, getPluginAppList, getSocialFees, impactRange, legacyWalletOf, principalOf, recordPayer, referrerOrZeroAddress, releaseDeposit, sendReferralPaymentTo, sponsorCost, tipWallet } from '../utils/functions'
 import { gateCtx } from '../utils/principal'
 import { CallerTypeGlobal } from '../arc58/account/types'
 import { CID } from '../utils/types/base'
@@ -615,6 +615,14 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     this.voteRecords(this.voteKey(account, ref)).value = { impact, isUp }
   }
 
+  /**
+   * The caller's vote record on `ref` carries a refundable deposit. When someone else paid it, remember
+   * them, so un-voting returns it to whoever paid (see "SPONSORED STORAGE" in utils/functions.ts).
+   */
+  private recordVotePayer(mbrPayment: gtxn.PaymentTxn, ref: bytes<32>): void {
+    recordPayer(this.voteRecords(this.voteKey(Txn.sender, ref)).key, mbrPayment.sender, Txn.sender)
+  }
+
   private createPost(
     postKey: bytes<32>,
     mbrPayment: gtxn.PaymentTxn,
@@ -672,6 +680,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }
     this.updateVotes(postKey, true, impact)
     this.createVoteList(postKey, true, Txn.sender, impact)
+    this.recordVotePayer(mbrPayment, postKey)
   }
 
   private createReply(
@@ -744,6 +753,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     const senderImpact = this.getUserImpact(Txn.sender)
     this.updateVotes(replyKey, true, senderImpact)
     this.createVoteList(replyKey, true, Txn.sender, senderImpact)
+    this.recordVotePayer(mbrPayment, replyKey)
   }
 
   private createVote(
@@ -791,14 +801,17 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
         .submit()
     }
 
+    // a new vote record carries a deposit (a flipped vote keeps the one it has); a payer other than
+    // the voter funds the record that remembers them
+    const sponsor: uint64 = mbrNeeded > 0 ? sponsorCost(mbrPayment.sender, Txn.sender) : 0
+
     // validate after we send payments, annoying but saves us compute
     loggedAssert(
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
-          amount: mbrNeeded + extra
+          amount: mbrNeeded + extra + sponsor
         }
       ),
       errInvalidPayment
@@ -808,6 +821,9 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     const senderImpact = this.getUserImpact(Txn.sender)
     this.updateVotes(ref, isUp, senderImpact)
     this.createVoteList(ref, isUp, Txn.sender, senderImpact)
+    if (sponsor > 0) {
+      this.recordVotePayer(mbrPayment, ref)
+    }
   }
 
   private createReaction(
@@ -851,6 +867,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }
 
     this.reactionRecords(recordKey).create()
+    recordPayer(this.reactionRecords(recordKey).key, mbrPayment.sender, Txn.sender)
   }
 
   private validateTip(tip: gtxn.AssetTransferTxn, action: TipAction) {
@@ -860,8 +877,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         tip,
         {
-          sender: Txn.sender,
-          // a clawback-sourced transfer would spend someone else's AKTA
+          // anyone may pay the fee, but a clawback-sourced transfer would spend someone else's AKTA
           assetSender: Global.zeroAddress,
           assetReceiver: Global.currentApplicationAddress,
           xferAsset: akta,
@@ -879,9 +895,10 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     extraAmount: uint64,
     legacyTerms: boolean,
   ): void {
-    // any referral MBR is passed in through extraAmount (the exact amount spent)
+    // any referral MBR is passed in through extraAmount (the exact amount spent); a payer other than
+    // the author funds the record that remembers them for the author's refundable vote deposit
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
-    let amount: uint64 = posts + votes + votelist + extraAmount
+    let amount: uint64 = posts + votes + votelist + extraAmount + sponsorCost(mbrPayment.sender, Txn.sender)
     if (isAmendment) {
       amount += AmendmentMBR
     }
@@ -894,7 +911,6 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount
         }
@@ -915,9 +931,9 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
-          amount: mbrAmount + extra
+          // a payer other than the reactor funds the record that remembers them
+          amount: mbrAmount + extra + sponsorCost(mbrPayment.sender, Txn.sender)
         }
       ),
       errInvalidPayment
@@ -1346,15 +1362,11 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     // undo user vote
     this.updateVotes(ref, !isUp, impact)
 
-    // if the user doesn't want to flip their vote, refund the vote box
-    // (legacy and new vote boxes have the same MBR)
+    // if the user doesn't want to flip their vote, refund the vote box to whoever paid for it
+    // (legacy and new vote boxes have the same MBR; a legacy box never has a recorded payer)
     if (!flip) {
-      itxn
-        .payment({
-          receiver: Txn.sender,
-          amount: VotelistMBR
-        })
-        .submit()
+      const [receiver, amount] = releaseDeposit(this.voteRecords(key).key, Txn.sender, VotelistMBR)
+      itxn.payment({ receiver, amount }).submit()
 
       return
     }
@@ -1455,12 +1467,9 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
     this.reactions({ ref, NFT }).value -= 1
 
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: refund,
-      })
-      .submit()
+    // back to whoever paid for the record (a legacy entry never has a recorded payer)
+    const [receiver, amount] = releaseDeposit(this.reactionRecords(recordKey).key, Txn.sender, refund)
+    itxn.payment({ receiver, amount }).submit()
   }
 
   // Unified moderation-write endpoint. Replaces the pre-existing
@@ -1540,7 +1549,6 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: this.mbr(Bytes(''), '', Bytes('')).meta + ImpactMetaMBR
         }
@@ -1601,7 +1609,6 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: this.payWallMbr(payWall)
         }
@@ -1632,7 +1639,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       wallMbr = this.createEmptyPostIfNecessary(Txn.sender.bytes, Txn.sender)
     }
     loggedAssert(
-      match(mbrPayment, { sender: Txn.sender, receiver: Global.currentApplicationAddress, amount: wallMbr }),
+      match(mbrPayment, { receiver: Global.currentApplicationAddress, amount: wallMbr }),
       errInvalidPayment
     )
     this.updateMetaImpl(followGateID, addressGateID, subscriptionIndex, NFD, akitaNFT, defaultPayWallID)
@@ -1701,7 +1708,6 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: this.mbr(Bytes(''), name, schema).refTypes
         }

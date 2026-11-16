@@ -268,7 +268,8 @@ describe('Guild production ARC-58 wallet integration', () => {
     composer.addAppUpdateMethodCall(await guild.params.update.update({
       args: { newVersion: 'governed-update' },
       lease, firstValidRound: firstValid, lastValidRound: lastValid, staticFee: microAlgo(10_000n),
-      boxReferences: [new Uint8Array([120, ...lease]), new Uint8Array([108, ...encodeAbi('uint64', proposalId)])],
+      // the empty reference adds read budget for the proposal box
+      boxReferences: [new Uint8Array([120, ...lease]), new Uint8Array([108, ...encodeAbi('uint64', proposalId)]), new Uint8Array()],
     }))
     const transactions = groupTransactions((await composer.buildTransactions()).transactions)
     const group = transactions[0].group!

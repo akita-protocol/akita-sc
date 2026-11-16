@@ -342,7 +342,8 @@ describe('Guild audit remediation (2026-10-02)', () => {
       staticFee: microAlgo(10_000n),
       accountReferences: [proposer.addr],
       appReferences: [wallet.appId],
-      boxReferences: [new Uint8Array([120, ...lease]), new Uint8Array([108, ...encodeAbi('uint64', proposalId)])],
+      // the empty reference adds read budget for the proposal box
+      boxReferences: [new Uint8Array([120, ...lease]), new Uint8Array([108, ...encodeAbi('uint64', proposalId)]), new Uint8Array()],
     }))
     const transactions = groupTransactions((await composer.buildTransactions()).transactions)
     const upgrade = upgradeAppAction(guild.appId, lease, [transactions[0].group! as Uint8Array<ArrayBuffer>], firstValid, lastValid)

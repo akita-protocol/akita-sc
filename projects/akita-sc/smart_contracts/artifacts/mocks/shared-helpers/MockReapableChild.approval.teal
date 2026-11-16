@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:8
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:11
     // export class MockReapableChild extends Contract {
     txn NumAppArgs
     bz main___algots__.defaultCreate@5
@@ -13,7 +13,7 @@ main:
     err
 
 main_reap_route@3:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:9
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:12
     // @abimethod({ allowActions: 'DeleteApplication' })
     txn OnCompletion
     pushint 5 // DeleteApplication
@@ -24,7 +24,7 @@ main_reap_route@3:
     b reap
 
 main___algots__.defaultCreate@5:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:8
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:11
     // export class MockReapableChild extends Contract {
     txn OnCompletion
     !
@@ -36,7 +36,7 @@ main___algots__.defaultCreate@5:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockReapableChild.reap[routing]() -> void:
 reap:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:11
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:14
     // itxn.payment({ closeRemainderTo: Global.creatorAddress }).submit()
     itxn_begin
     global CreatorAddress
@@ -46,7 +46,7 @@ reap:
     pushint 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:9
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:12
     // @abimethod({ allowActions: 'DeleteApplication' })
     pushint 1
     return

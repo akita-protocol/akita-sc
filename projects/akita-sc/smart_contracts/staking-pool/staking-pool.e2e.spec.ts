@@ -3903,6 +3903,136 @@ describe('Staking Pool Contract', () => {
       expect(await pool.getOpenRounds()).toBe(0n)
     })
 
+    describe('sponsored storage (2026-11-15)', () => {
+      const PAYER_RECORD_MBR = 28_500n
+
+      const paidEnter = async (
+        pool: StakingPoolSDK,
+        entrant: AddressWithTransactionSigner,
+        payer: AddressWithTransactionSigner,
+        paid: bigint,
+        entries: [bigint, bigint, Uint8Array[]][],
+      ) => pool.client.newGroup().enter({
+        sender: entrant.addr,
+        signer: entrant.signer,
+        maxFee: algokit.microAlgos(20_000),
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: payer.addr, receiver: pool.client.appAddress, amount: algokit.microAlgos(paid) }),
+            signer: payer.signer,
+          },
+          entries,
+        },
+      }).send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      test('anyone can pay for a pool entry; one account funds all of an entrant\'s entries and gets the storage back', async () => {
+        const pool = await newPool()
+        await goLive(pool, 300n)
+        const user = await fundedUser()
+        const sponsor = await fundedUser()
+        const userAddr = user.addr.toString()
+
+        // the entry storage alone is not enough from another payer: it is remembered and funds that record too
+        const first = await pool.enterCost({ address: userAddr, assets: [0n] })
+        await expect(paidEnter(pool, user, sponsor, first, [[0n, 1n, []]])).rejects.toThrow(/errIpay/)
+        const sponsorBefore = await getAccountBalance(algorand, sponsor.addr.toString())
+        await paidEnter(pool, user, sponsor, first + PAYER_RECORD_MBR, [[0n, 1n, []]])
+        expect(sponsorBefore - await getAccountBalance(algorand, sponsor.addr.toString())).toBe(first + PAYER_RECORD_MBR + 1_000n)
+        expect(await pool.isEntered({ address: userAddr })).toBe(true)
+
+        // a later entry of the same entrant must come from the same payer, who pays no second payer record
+        const second = await pool.enterCost({ address: userAddr, assets: [testAssetId] })
+        await expect(paidEnter(pool, user, user, second, [[testAssetId, 1n, []]])).rejects.toThrow(/errIpyr/)
+        await paidEnter(pool, user, sponsor, second, [[testAssetId, 1n, []]])
+
+        // leaving returns each entry's storage to the sponsor; the payer record is released with the last one
+        let held = await getAccountBalance(algorand, sponsor.addr.toString())
+        const userHeld = await getAccountBalance(algorand, userAddr)
+        await pool.removeEntry({ sender: user.addr, signer: user.signer, address: userAddr, asset: testAssetId })
+        expect(await getAccountBalance(algorand, sponsor.addr.toString()) - held).toBe(second)
+        held = await getAccountBalance(algorand, sponsor.addr.toString())
+        await pool.removeEntry({ sender: user.addr, signer: user.signer, address: userAddr, asset: 0n })
+        expect(await getAccountBalance(algorand, sponsor.addr.toString()) - held).toBe(first + PAYER_RECORD_MBR)
+        expect(await getAccountBalance(algorand, userAddr)).toBeLessThan(userHeld) // fees only
+        expect(await pool.isEntered({ address: userAddr })).toBe(false)
+
+        // the entrant may come back funded by anyone: the old payer record is gone
+        await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 1n }] })
+        const before = await getAccountBalance(algorand, userAddr)
+        await pool.removeEntry({ sender: user.addr, signer: user.signer, address: userAddr, asset: 0n })
+        expect(await getAccountBalance(algorand, userAddr) - before).toBe(first - 2_000n)
+      })
+
+      test('a sponsored SOFT pool entry returns the pool storage and the Staking commitment\'s storage to the sponsor', async () => {
+        const pool = await newPool({ type: POOL_STAKING_TYPE_SOFT, stakeKey: poolStakeKey })
+        await goLive(pool, 300n)
+        const user = await fundedUser(20_000_000n)
+        const sponsor = await fundedUser()
+        const userAddr = user.addr.toString()
+        await akitaUniverse.staking.stake({ sender: user.addr, signer: user.signer, type: StakingType.Soft, asset: 0n, amount: 5_000_000n })
+
+        const cost = await pool.enterCost({ address: userAddr, assets: [0n] })
+        expect(cost).toBe(POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR + STAKING_APP_STAKES_MBR)
+        await paidEnter(pool, user, sponsor, cost + PAYER_RECORD_MBR, [[0n, 5_000_000n, proofsFor(0n)]])
+        const commitment = { app: pool.appId, address: userAddr, asset: 0n }
+        expect((await akitaUniverse.staking.client.state.box.appStakes.value(commitment))?.amount).toBe(5_000_000n)
+
+        const poolFree = async () => {
+          const info = await algorand.account.getInformation(pool.client.appAddress)
+          return info.balance.microAlgos - info.minBalance.microAlgos
+        }
+        const freeBefore = await poolFree()
+        const held = await getAccountBalance(algorand, sponsor.addr.toString())
+        await pool.removeEntry({ sender: user.addr, signer: user.signer, address: userAddr, asset: 0n })
+        // one payment: the pool's boxes, the commitment's box (reclaimed from Staking) and the payer record
+        expect(await getAccountBalance(algorand, sponsor.addr.toString()) - held).toBe(cost + PAYER_RECORD_MBR)
+        expect(await poolFree()).toBe(freeBefore)
+        // the commitment's box is gone (the client reports a missing box as an error)
+        const gone = await akitaUniverse.staking.client.state.box.appStakes.value(commitment)
+          .then((value) => value === undefined, (error) => /box not found/.test(String(error)))
+        expect(gone).toBe(true)
+      })
+
+      test('anyone can fund a reward\'s storage; closing the reward returns it to that account', async () => {
+        const pool = await newPool()
+        const sponsor = await fundedUser()
+        const reward = createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n })
+        const budget = 1_000_000n
+        const cost = await pool.getAddRewardCost({ winnerCount: reward.winnerCount, asset: reward.asset })
+        const add = async (paid: bigint) => pool.client.send.addReward({
+          sender: creator.addr,
+          signer: creator.signer,
+          populateAppCallResources: true,
+          coverAppCallInnerTransactionFees: true,
+          maxFee: algokit.microAlgos(20_000),
+          args: {
+            payment: {
+              txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: pool.client.appAddress, amount: algokit.microAlgos(paid) }),
+              signer: sponsor.signer,
+            },
+            reward,
+          },
+        })
+        const sponsorBefore = await getAccountBalance(algorand, sponsor.addr.toString())
+        await add(cost + PAYER_RECORD_MBR + budget)
+        expect(sponsorBefore - await getAccountBalance(algorand, sponsor.addr.toString())).toBe(cost + PAYER_RECORD_MBR + budget + 1_000n)
+        // the payer record is not part of the budget
+        expect(await pool.getRewardBudget(1n)).toBe(budget)
+
+        await goLive(pool, 120n)
+        await timeWarp.timeWarp(200n)
+        // the budget is the creator's; the storage goes back to the sponsor when the reward is closed
+        const creatorBefore = await getAccountBalance(algorand, creator.addr.toString())
+        await pool.withdrawReward({ sender: creator.addr, signer: creator.signer, rewardId: 1n, amount: budget })
+        expect(await getAccountBalance(algorand, creator.addr.toString()) - creatorBefore).toBeGreaterThan(budget - 10_000n)
+        const held = await getAccountBalance(algorand, sponsor.addr.toString())
+        await pool.closeReward({ sender: creator.addr, signer: creator.signer, rewardId: 1n })
+        const returned = await getAccountBalance(algorand, sponsor.addr.toString()) - held
+        expect(returned).toBeGreaterThan(PAYER_RECORD_MBR)
+        expect(returned).toBeLessThanOrEqual(cost + PAYER_RECORD_MBR)
+      })
+    })
+
     test('M-5: entrants exit with their MBR; after the end the creator withdraws the budget and cleans up', async () => {
       const pool = await newPool()
       const budget = 2_000_000n

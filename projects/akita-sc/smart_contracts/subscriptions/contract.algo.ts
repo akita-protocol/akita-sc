@@ -24,9 +24,13 @@ import { classes } from 'polytype'
 import { errHasGate } from '../social/errors'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints } from '../utils/constants'
 import {
-  assertBoundPayment,
+  assertExactPayment,
+  assertPlainPayment,
   assertSafeAssetTransfer,
   assertSafePayment,
+  recordPayer,
+  releaseDeposit,
+  sponsorCost,
   atRestPrincipalOf,
   calcPercent,
   gateCheck,
@@ -348,7 +352,8 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const amounts = this.getAmounts(amount)
     const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
     const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, asset, akitaFees, this.akitaDAOEscrow.value.app.address)
-    const required: uint64 = mbrAmount + referralMbr
+    // a payer other than the subscriber also funds its payer record, and gets the storage back at `unsubscribe`
+    const required: uint64 = mbrAmount + referralMbr + sponsorCost(payment.sender, Txn.sender)
 
     // amounts.leftOver is the send amount after fees; any surplus (ALGO payment or asset transfer) is
     // escrowed for future payments
@@ -370,7 +375,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
         .submit()
 
       // mbr payment checks
-      assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, required)
+      assertExactPayment(payment, Global.currentApplicationAddress, required)
 
       // asset transfer checks (no clawback-sourced, close-out or rekeying transfers)
       assertSafeAssetTransfer(assetXfer, Txn.sender)
@@ -387,7 +392,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
       escrowed = assetXfer.assetAmount - amount
     } else {
-      assertSafePayment(payment, Txn.sender)
+      assertPlainPayment(payment)
       loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
       loggedAssert(payment.amount >= (amount + required), errInvalidPayment)
 
@@ -424,6 +429,8 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     if (storesPrincipal) {
       this.principals(subscriptionKey).value = { wallet, principal }
     }
+
+    recordPayer(this.subscriptions(subscriptionKey).key, payment.sender, Txn.sender)
 
     return subscriptionID
   }
@@ -756,7 +763,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     // (never out of the ASA balances escrowed for subscribers)
     const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, serviceCreationFee, this.akitaDAOEscrow.value.app.address)
 
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, requiredAmount + referralMbr)
+    assertExactPayment(payment, Global.currentApplicationAddress, requiredAmount + referralMbr)
 
     itxn
       .payment({
@@ -986,9 +993,10 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     loggedAssert(!this.blocks(boxKey).exists, errUserAlreadyBlocked)
     // ensure the payment is correct
     const costs = this.mbr()
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, costs.blocks)
+    assertExactPayment(payment, Global.currentApplicationAddress, costs.blocks + sponsorCost(payment.sender, Txn.sender))
 
     this.blocks(boxKey).create()
+    recordPayer(this.blocks(boxKey).key, payment.sender, Txn.sender)
   }
 
   /**
@@ -1004,11 +1012,10 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     this.blocks(boxKey).delete()
 
     const costs = this.mbr()
+    // the storage goes back to whoever paid for the block
+    const [receiver, amount] = releaseDeposit(this.blocks(boxKey).key, Txn.sender, costs.blocks)
 
-    itxn.payment({
-      receiver: Txn.sender,
-      amount: costs.blocks
-    }).submit()
+    itxn.payment({ receiver, amount }).submit()
   }
 
   /**
@@ -1206,6 +1213,9 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       mbrRefund += SubscriptionPrincipalMBR
     }
 
+    // the escrow is the subscriber's; the storage goes back to whoever paid for the subscription
+    const [receiver, refund] = releaseDeposit(this.subscriptions(subKey).key, Txn.sender, mbrRefund)
+
     if (sub.asset !== 0) {
       if (sub.escrowed > 0) {
         itxn
@@ -1219,15 +1229,31 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
       itxn
         .payment({
-          receiver: Txn.sender,
-          amount: mbrRefund
+          receiver,
+          amount: refund
         })
         .submit()
-    } else {
+    } else if (receiver === Txn.sender) {
       itxn
         .payment({
           receiver: Txn.sender,
-          amount: sub.escrowed + mbrRefund
+          amount: sub.escrowed + refund
+        })
+        .submit()
+    } else {
+      if (sub.escrowed > 0) {
+        itxn
+          .payment({
+            receiver: Txn.sender,
+            amount: sub.escrowed
+          })
+          .submit()
+      }
+
+      itxn
+        .payment({
+          receiver,
+          amount: refund
         })
         .submit()
     }
@@ -1284,7 +1310,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     // nothing to adopt: a plain subscriber keeps `key.address` (and nobody can pin it for them)
     loggedAssert(wallet.id !== 0, errNoLegacyWallet)
 
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, SubscriptionPrincipalMBR)
+    assertExactPayment(payment, Global.currentApplicationAddress, SubscriptionPrincipalMBR)
 
     this.principals(key).value = { wallet: wallet.id, principal: legacyOriginOr(wallet, key.address) }
   }

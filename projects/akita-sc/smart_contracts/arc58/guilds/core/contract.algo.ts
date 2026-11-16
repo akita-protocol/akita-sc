@@ -1,6 +1,7 @@
 import {
   Account,
   Application,
+  Asset,
   BoxMap,
   bytes,
   Bytes,
@@ -20,8 +21,10 @@ import {
 import { abiCall, abimethod, Contract, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { GlobalStateKeyVersion } from '../../../constants'
 import { BoxCostPerByte } from '../../../utils/constants'
+import { recordPayer, releasePayer, sponsorCost } from '../../../utils/functions'
 import type { CID } from '../../../utils/types/base'
 import { AbstractAccountGlobalStateKeysControlledAddress } from '../../account/constants'
+import { DelegationTypeSelf } from '../../account/types'
 import {
   GuildActionAddAllowances,
   GuildActionAddNamedPlugin,
@@ -38,6 +41,7 @@ import {
   GuildActionRemoveNamedPlugin,
   GuildActionRemovePlugin,
   GuildActionSetConsensusActionSettings,
+  GuildActionSetFeeAsset,
   GuildActionSetProposalActionLimit,
   GuildActionSetPluginSettings,
   GuildActionSetProposalSettings,
@@ -47,13 +51,16 @@ import {
   GuildActionUpgradeApp,
   GuildBoxPrefixConsensusActions,
   GuildBoxPrefixExecutions,
+  GuildBoxPrefixFeeTokenReserves,
   GuildBoxPrefixPlugins,
   GuildBoxPrefixProposals,
+  GuildConsensusBoxPrefixVotes,
   GuildConsensusActionSettingsMBR,
   GuildGlobalStateKeyConsensus,
   GuildGlobalStateKeyAddAllowancesProposalSettings,
   GuildGlobalStateKeyAddPluginProposalSettings,
   GuildGlobalStateKeyCreator,
+  GuildGlobalStateKeyFeeAsset,
   GuildGlobalStateKeyNewEscrowProposalSettings,
   GuildGlobalStateKeyPluginSetLocked,
   GuildGlobalStateKeyProposalActionLimit,
@@ -71,6 +78,7 @@ import {
   GuildNumGlobalBytes,
   GuildNumGlobalUints,
   GuildExecutionMBR,
+  GuildFeeTokenReserveMBR,
   MAX_GUILD_PROPOSAL_ACTIONS,
   MinGuildProposalMBR,
   GuildPluginMBR,
@@ -90,12 +98,15 @@ import {
   errGuildCreatorOnly,
   errGuildDraftOnly,
   errGuildFactoryOnly,
+  errGuildFeeAssetChanged,
   errGuildInvalidAction,
   errGuildInvalidAdmin,
+  errGuildInvalidAsset,
   errGuildInvalidConsensus,
   errGuildInvalidConsensusAction,
   errGuildInvalidPayment,
   errGuildInvalidProposal,
+  errGuildPayerOnly,
   errGuildInvalidProposalState,
   errGuildInvalidVersion,
   errGuildInvalidWallet,
@@ -132,6 +143,7 @@ import type {
   GuildProposalRemovePlugin,
   GuildProposalNewWallet,
   GuildProposalSetActionLimit,
+  GuildProposalSetFeeAsset,
   GuildProposalSetPluginSettings,
   GuildProposalSetSettings,
   GuildProposalSettings,
@@ -202,6 +214,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   toggleEscrowLockProposalSettings = GlobalState<GuildProposalSettings>({ key: GuildGlobalStateKeyToggleEscrowLockProposalSettings })
   /** settings for changing the Guild itself */
   updateGuildProposalSettings = GlobalState<GuildProposalSettings>({ key: GuildGlobalStateKeyUpdateGuildProposalSettings })
+  /** asset new proposals pay their fees in; 0 = ALGO. Proposal storage is always paid in ALGO. */
+  feeAsset = GlobalState<uint64>({ initialValue: 0, key: GuildGlobalStateKeyFeeAsset })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -213,6 +227,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   executions = BoxMap<bytes<32>, GuildExecutionMetadata>({ keyPrefix: GuildBoxPrefixExecutions })
   /** proposal settings keyed by opaque consensus action code; codes without settings use updateGuild */
   consensusActions = BoxMap<uint64, GuildProposalSettings>({ keyPrefix: GuildBoxPrefixConsensusActions })
+  /** fee tokens held for draft proposals, keyed by asset; the Guild's balance above this is sweepable */
+  feeTokenReserves = BoxMap<uint64, uint64>({ keyPrefix: GuildBoxPrefixFeeTokenReserves })
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
@@ -338,21 +354,137 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     }
   }
 
-  /** Release the execution reserve held for a proposal, refunding whatever was not consumed. */
-  private releaseReserve(proposalID: uint64, creator: Account, held: uint64, spent: uint64): void {
+  /** The part of a proposal's fee paid in microALGO; it is included in `total`. */
+  private algoFee(cost: GuildProposalCostInfo): uint64 {
+    return cost.feeAsset === 0 ? cost.fee : 0
+  }
+
+  /** The part of a proposal's fee paid in the Guild's fee asset; it is not included in `total`. */
+  private tokenFee(cost: GuildProposalCostInfo): uint64 {
+    return cost.feeAsset === 0 ? 0 : cost.fee
+  }
+
+  private requireAsset(asset: uint64): void {
+    const [, exists] = op.AssetParams.assetCreator(asset)
+    loggedAssert(exists, errGuildInvalidAsset)
+  }
+
+  private sendTokens(receiver: Account, asset: uint64, amount: uint64): void {
+    itxn.assetTransfer({ assetReceiver: receiver, xferAsset: asset, assetAmount: amount, fee: 0 }).submit()
+  }
+
+  /** Fee tokens belong to the treasury; while it cannot hold them they wait here for sweepFeeTokens(). */
+  private forwardTokenFee(asset: uint64, amount: uint64): void {
+    if (amount > 0 && this.wallet.hasValue) {
+      const treasury = this.treasury()
+      if (treasury.isOptedIn(Asset(asset))) {
+        this.sendTokens(treasury, asset, amount)
+      }
+    }
+  }
+
+  /** Refund fee tokens. A payer that has opted out of the asset forfeits them to the treasury. */
+  private refundTokens(receiver: Account, asset: uint64, amount: uint64): void {
+    if (amount === 0) {
+      return
+    }
+    if (receiver.isOptedIn(Asset(asset))) {
+      this.sendTokens(receiver, asset, amount)
+    } else {
+      this.forwardTokenFee(asset, amount)
+    }
+  }
+
+  private reserveTokens(asset: uint64, amount: uint64): void {
+    if (amount > 0) {
+      this.feeTokenReserves(asset).value += amount
+    }
+  }
+
+  private releaseTokens(asset: uint64, amount: uint64): void {
+    if (amount > 0) {
+      this.feeTokenReserves(asset).value -= amount
+    }
+  }
+
+  /** What starting to charge fees in `asset` costs now: the Guild's opt-in and reserve box, and the treasury's opt-in. */
+  private feeAssetMbr(asset: uint64): uint64 {
+    if (asset === 0) {
+      return 0
+    }
+    let mbr: uint64 = 0
+    if (!Global.currentApplicationAddress.isOptedIn(Asset(asset))) {
+      mbr += Global.assetOptInMinBalance
+    }
+    if (!this.feeTokenReserves(asset).exists) {
+      mbr += GuildFeeTokenReserveMBR
+    }
+    if (this.wallet.hasValue && !this.treasury().isOptedIn(Asset(asset))) {
+      mbr += Global.assetOptInMinBalance
+    }
+    return mbr
+  }
+
+  /** Opt the treasury into `asset` through the Guild's admin rekey; the Guild pays its minimum balance. */
+  private optInTreasury(asset: uint64): void {
+    const treasury = this.treasury()
+    if (treasury.isOptedIn(Asset(asset))) {
+      return
+    }
+    this.pay(treasury, Global.assetOptInMinBalance)
+    abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+      appId: this.wallet.value,
+      args: [Global.currentApplicationAddress, false],
+    })
+    itxn
+      .assetTransfer({
+        sender: treasury,
+        assetReceiver: treasury,
+        xferAsset: asset,
+        assetAmount: 0,
+        rekeyTo: this.wallet.value.address,
+        fee: 0,
+      })
+      .submit()
+  }
+
+  /** Charge new proposals' fees in `asset` (0 = ALGO). Drafts keep the asset they were created with. */
+  private applyFeeAsset(asset: uint64): void {
+    if (asset !== 0) {
+      this.requireAsset(asset)
+      if (!Global.currentApplicationAddress.isOptedIn(Asset(asset))) {
+        this.sendTokens(Global.currentApplicationAddress, asset, 0)
+      }
+      if (!this.feeTokenReserves(asset).exists) {
+        this.feeTokenReserves(asset).value = 0
+      }
+      if (this.wallet.hasValue) {
+        this.optInTreasury(asset)
+      }
+    }
+    this.feeAsset.value = asset
+  }
+
+  /** Release the execution reserve held for a proposal, refunding its payer whatever was not consumed. */
+  private releaseReserve(proposalID: uint64, payer: Account, held: uint64, spent: uint64): void {
     if (held === 0) {
       return
     }
     this.reserved.value -= held
     this.proposals(proposalID).value.feesPaid = 0
     if (held > spent) {
-      this.refund(creator, held - spent)
+      this.refund(payer, held - spent)
     }
   }
 
-  /** Whoever funded a Guild-local execution box: the voted proposal's creator, or the bootstrap creator. */
+  /** Whoever funded a Guild-local execution box: the voted proposal's payer, or the bootstrap creator. */
   private executionFunder(proposalID: uint64): Account {
-    return this.proposals(proposalID).exists ? this.proposals(proposalID).value.creator : this.creator.value
+    return this.proposals(proposalID).exists ? this.proposals(proposalID).value.payer : this.creator.value
+  }
+
+  /** The consensus app's box key for one vote; the Guild keys a sponsored vote's payer record by it. */
+  private voteRecord(proposalID: uint64, voter: Account): bytes {
+    return Bytes(GuildConsensusBoxPrefixVotes).concat(op.itob(proposalID)).concat(voter.bytes)
   }
 
   /** The part of a draft's prepayment that sits in free balance rather than in its own box storage. */
@@ -390,7 +522,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     return (
       (value >= GuildActionSetProposalSettings.asUint64() && value <= GuildActionSetConsensusActionSettings.asUint64()) ||
       type === GuildActionFullyInitialize ||
-      type === GuildActionLockPluginSet
+      type === GuildActionLockPluginSet ||
+      type === GuildActionSetFeeAsset
     )
   }
 
@@ -568,6 +701,11 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       loggedAssert(limit > 0 && limit <= MAX_GUILD_PROPOSAL_ACTIONS, errGuildTooManyActions)
     } else if (action.type === GuildActionSetConsensusActionSettings) {
       this.validateSettings(decodeArc4<GuildProposalConsensusActionSettings>(action.data).settings)
+    } else if (action.type === GuildActionSetFeeAsset) {
+      const asset = decodeArc4<GuildProposalSetFeeAsset>(action.data).asset
+      if (asset !== 0) {
+        this.requireAsset(asset)
+      }
     } else if (action.type === GuildActionConsensus) {
       // The policy validates its own action against current state and rejects unknown codes.
       this.consensusActionMbr(action.data)
@@ -582,6 +720,14 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   }
 
   private validatePluginSettings(plugin: GuildProposalAddPlugin): void {
+    // The wallet's own install rules (errZeroAddressDelegationType, errUsingExecutionKeyRequiresGlobal,
+    // ACC-02 errCoverFeesRequiresCaller, errEscrowRequiredToBeSetAsDefault), checked here so a proposal
+    // the wallet would refuse can't pass a vote and then sit Approved forever.
+    const openCaller = plugin.caller === Global.zeroAddress
+    loggedAssert(!(plugin.delegationType === DelegationTypeSelf && openCaller), errGuildInvalidAction)
+    loggedAssert(!(plugin.useExecutionKey && !openCaller), errGuildInvalidAction)
+    loggedAssert(!(plugin.coverFees && openCaller), errGuildInvalidAction)
+    loggedAssert(!(plugin.defaultToEscrow && plugin.escrow === ''), errGuildInvalidAction)
     if (plugin.useExecutionKey) {
       this.validateSettings({
         fee: plugin.fee,
@@ -631,6 +777,9 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     cid: CID,
     actions: GuildProposalAction[],
     feesPaid: uint64,
+    feeTokensPaid: uint64,
+    payer: Account,
+    feeTokenPayer: Account,
     powerRequired: uint64,
     proposerPower: uint64,
   ): uint64 {
@@ -641,9 +790,13 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         status: GuildProposalStatusApproved,
         cid,
         creator: Txn.sender,
+        payer,
+        feeTokenPayer,
         votingTs: 0,
         created: Global.latestTimestamp,
         feesPaid,
+        feeAsset: this.feeAsset.value,
+        feeTokensPaid,
         actions: clone(actions),
       }
       return id
@@ -662,9 +815,13 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       status: GuildProposalStatusDraft,
       cid,
       creator: Txn.sender,
+      payer,
+      feeTokenPayer,
       votingTs: 0,
       created,
       feesPaid,
+      feeAsset: this.feeAsset.value,
+      feeTokensPaid,
       actions: clone(actions),
     }
     return id
@@ -842,6 +999,9 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     }).returnValue
 
     this.wallet.value = Application(walletID)
+    if (this.feeAsset.value !== 0) {
+      this.optInTreasury(this.feeAsset.value)
+    }
     return walletID
   }
 
@@ -862,7 +1022,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     const amount = this.consensusConfigurationMbr(config)
     loggedAssert(
       match(mbrPayment, {
-        sender: Txn.sender,
         receiver: Global.currentApplicationAddress,
         amount,
       }),
@@ -873,9 +1032,9 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       appId: this.consensus.value,
       args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), config],
     })
-    // Storage the policy did not need comes back here; return it to the creator who paid it.
+    // Storage the policy did not need comes back here; return it to whoever paid it.
     const after = Global.currentApplicationAddress.balance
-    this.refund(Txn.sender, after + amount > before ? after + amount - before : 0)
+    this.refund(mbrPayment.sender, after + amount > before ? after + amount - before : 0)
   }
 
   /** Create the Guild's ARC-58 wallet through its configured wallet factory. */
@@ -904,6 +1063,22 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     this.proposalActionLimit.value = limit
   }
 
+  /**
+   * Charge new proposals' fees in `asset` (0 = ALGO) while the Guild remains in draft. The payment covers
+   * `feeAssetCost(asset)`: the Guild's and the treasury's opt-ins and the Guild's fee token reserve box.
+   */
+  setFeeAsset(mbrPayment: gtxn.PaymentTxn, asset: uint64): void {
+    this.requireCreatorDraft()
+    loggedAssert(
+      match(mbrPayment, {
+        receiver: Global.currentApplicationAddress,
+        amount: this.feeAssetMbr(asset),
+      }),
+      errGuildInvalidPayment,
+    )
+    this.applyFeeAsset(asset)
+  }
+
   /** Permanently prevent this Guild from adding or removing ARC-58 plugins. */
   lockPluginSet(): void {
     this.requireCreatorDraft()
@@ -922,14 +1097,59 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
 
   // GUILD METHODS --------------------------------------------------------------------------------
 
-  /** Create a proposal after the paired consensus app verifies proposer power. */
+  /** Create a proposal after the paired consensus app verifies proposer power. A fee due in a fee asset needs `newProposalWithFeeAsset`. */
   newProposal(payment: gtxn.PaymentTxn, cid: CID, actions: GuildProposalAction[], evidence: bytes): uint64 {
+    return this.draftProposal(payment, Txn.sender, 0, cid, actions, evidence)
+  }
+
+  /**
+   * Create a proposal whose fee is due in the Guild's fee asset: `payment` covers the ALGO storage and
+   * `feePayment` the fee, both to the Guild.
+   */
+  newProposalWithFeeAsset(
+    payment: gtxn.PaymentTxn,
+    feePayment: gtxn.AssetTransferTxn,
+    cid: CID,
+    actions: GuildProposalAction[],
+    evidence: bytes,
+  ): uint64 {
+    loggedAssert(this.feeAsset.value !== 0, errGuildInvalidPayment)
+    this.requireTokenPayment(feePayment, this.feeAsset.value, this.tokenFee(this.proposalCost(actions)))
+    return this.draftProposal(payment, feePayment.sender, feePayment.assetAmount, cid, actions, evidence)
+  }
+
+  private requireTokenPayment(feePayment: gtxn.AssetTransferTxn, asset: uint64, amount: uint64): void {
+    loggedAssert(
+      match(feePayment, {
+        assetSender: Global.zeroAddress,
+        assetReceiver: Global.currentApplicationAddress,
+        xferAsset: Asset(asset),
+        assetAmount: amount,
+        assetCloseTo: Global.zeroAddress,
+        rekeyTo: Global.zeroAddress,
+      }),
+      errGuildInvalidPayment,
+    )
+  }
+
+  /**
+   * `payment` and the fee asset payment may each come from anyone. Whoever paid is recorded on the
+   * proposal and gets every refund of what they paid; with nothing paid the proposer is recorded.
+   */
+  private draftProposal(
+    payment: gtxn.PaymentTxn,
+    tokenPayer: Account,
+    tokensPaid: uint64,
+    cid: CID,
+    actions: GuildProposalAction[],
+    evidence: bytes,
+  ): uint64 {
     const cost = this.proposalCost(actions)
     const bootstrap = this.state.value === GuildStateDraft
     const fee: uint64 = bootstrap ? 0 : cost.total
+    loggedAssert(tokensPaid === this.tokenFee(cost), errGuildInvalidPayment)
     loggedAssert(
       match(payment, {
-        sender: Txn.sender,
         receiver: Global.currentApplicationAddress,
         amount: fee,
       }),
@@ -939,27 +1159,59 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     const proposerPower: uint64 = bootstrap
       ? 0
       : this.governancePower(Txn.sender, evidence, Global.latestTimestamp + cost.duration)
-    const id = this.createOrUpdateProposal(0, cid, actions, fee, cost.power, proposerPower)
+    const id = this.createOrUpdateProposal(
+      0,
+      cid,
+      actions,
+      fee,
+      tokensPaid,
+      fee > 0 ? payment.sender : Txn.sender,
+      tokensPaid > 0 ? tokenPayer : Txn.sender,
+      cost.power,
+      proposerPower,
+    )
     if (!bootstrap) {
       this.reserved.value += this.draftReserve(fee, actions)
+      this.reserveTokens(cost.feeAsset, tokensPaid)
     }
     return id
+  }
+
+  /** A draft pays its fee in the asset it was created with; once the Guild changes asset it can only be deleted. */
+  private requireCurrentFeeAsset(proposal: GuildProposal): void {
+    loggedAssert(proposal.feeAsset === this.feeAsset.value, errGuildFeeAssetChanged)
   }
 
   /** Edit a draft proposal without adding funding. */
   editProposal(id: uint64, cid: CID, actions: GuildProposalAction[], evidence: bytes): void {
     loggedAssert(this.validEditOrSubmit(id), errGuildInvalidProposalState)
     const previous = clone(this.proposals(id).value)
+    this.requireCurrentFeeAsset(previous)
     const cost = this.proposalCost(actions)
-    loggedAssert(cost.total <= previous.feesPaid, errGuildInvalidPayment)
+    loggedAssert(cost.total <= previous.feesPaid && this.tokenFee(cost) <= previous.feeTokensPaid, errGuildInvalidPayment)
     this.validateActions(actions)
     const proposerPower = this.governancePower(Txn.sender, evidence, Global.latestTimestamp + cost.duration)
-    this.createOrUpdateProposal(id, cid, actions, previous.feesPaid, cost.power, proposerPower)
+    this.createOrUpdateProposal(
+      id,
+      cid,
+      actions,
+      previous.feesPaid,
+      previous.feeTokensPaid,
+      previous.payer,
+      previous.feeTokenPayer,
+      cost.power,
+      proposerPower,
+    )
     this.reserved.value =
       this.reserved.value + this.draftReserve(previous.feesPaid, actions) - this.draftReserve(previous.feesPaid, previous.actions)
   }
 
-  /** Edit a draft proposal and fund its increased storage, ballot MBR, or action fees. */
+  /**
+   * Edit a draft proposal and fund its increased storage, ballot MBR, or ALGO action fees.
+   *
+   * A proposal has one payer, so its refunds never have to be split: the top-up comes from the account
+   * that funded the draft, which need not be the proposer.
+   */
   editProposalWithPayment(
     payment: gtxn.PaymentTxn,
     id: uint64,
@@ -969,11 +1221,12 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   ): void {
     loggedAssert(this.validEditOrSubmit(id), errGuildInvalidProposalState)
     const previous = clone(this.proposals(id).value)
+    this.requireCurrentFeeAsset(previous)
     const cost = this.proposalCost(actions)
-    loggedAssert(cost.total > previous.feesPaid, errGuildInvalidPayment)
+    loggedAssert(cost.total > previous.feesPaid && this.tokenFee(cost) <= previous.feeTokensPaid, errGuildInvalidPayment)
+    loggedAssert(payment.sender === previous.payer, errGuildPayerOnly)
     loggedAssert(
       match(payment, {
-        sender: Txn.sender,
         receiver: Global.currentApplicationAddress,
         amount: cost.total - previous.feesPaid,
       }),
@@ -981,16 +1234,77 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     )
     this.validateActions(actions)
     const proposerPower = this.governancePower(Txn.sender, evidence, Global.latestTimestamp + cost.duration)
-    this.createOrUpdateProposal(id, cid, actions, cost.total, cost.power, proposerPower)
+    this.createOrUpdateProposal(
+      id,
+      cid,
+      actions,
+      cost.total,
+      previous.feeTokensPaid,
+      previous.payer,
+      previous.feeTokenPayer,
+      cost.power,
+      proposerPower,
+    )
     this.reserved.value =
       this.reserved.value + this.draftReserve(cost.total, actions) - this.draftReserve(previous.feesPaid, previous.actions)
   }
 
   /**
+   * Edit a draft proposal whose fee in the Guild's fee asset rose. `payment` funds any ALGO increase
+   * (it may be zero) and `feePayment` the fee increase.
+   *
+   * Each top-up comes from the account that paid that part of the draft. A draft that held no fee in
+   * the fee asset yet takes the sender of `feePayment` as its fee token payer.
+   */
+  editProposalWithFeeAsset(
+    payment: gtxn.PaymentTxn,
+    feePayment: gtxn.AssetTransferTxn,
+    id: uint64,
+    cid: CID,
+    actions: GuildProposalAction[],
+    evidence: bytes,
+  ): void {
+    loggedAssert(this.validEditOrSubmit(id), errGuildInvalidProposalState)
+    const previous = clone(this.proposals(id).value)
+    this.requireCurrentFeeAsset(previous)
+    const cost = this.proposalCost(actions)
+    const tokenFee = this.tokenFee(cost)
+    loggedAssert(tokenFee > previous.feeTokensPaid, errGuildInvalidPayment)
+    loggedAssert(previous.feeTokensPaid === 0 || feePayment.sender === previous.feeTokenPayer, errGuildPayerOnly)
+    this.requireTokenPayment(feePayment, previous.feeAsset, tokenFee - previous.feeTokensPaid)
+    const feesPaid: uint64 = cost.total > previous.feesPaid ? cost.total : previous.feesPaid
+    loggedAssert(feesPaid === previous.feesPaid || payment.sender === previous.payer, errGuildPayerOnly)
+    loggedAssert(
+      match(payment, {
+        receiver: Global.currentApplicationAddress,
+        amount: feesPaid - previous.feesPaid,
+      }),
+      errGuildInvalidPayment,
+    )
+    this.validateActions(actions)
+    const proposerPower = this.governancePower(Txn.sender, evidence, Global.latestTimestamp + cost.duration)
+    this.createOrUpdateProposal(
+      id,
+      cid,
+      actions,
+      feesPaid,
+      tokenFee,
+      previous.payer,
+      feePayment.sender,
+      cost.power,
+      proposerPower,
+    )
+    this.reserved.value =
+      this.reserved.value + this.draftReserve(feesPaid, actions) - this.draftReserve(previous.feesPaid, previous.actions)
+    this.reserveTokens(previous.feeAsset, tokenFee - previous.feeTokensPaid)
+  }
+
+  /**
    * Delete a never-submitted draft or any bootstrap proposal as its creator.
    *
-   * Drafts refund the full prepayment; bootstrap proposals, which the Guild funded from
-   * creator-provided balance, refund the storage they release.
+   * Drafts refund the full prepayment, each part in the currency it was paid in and to the account that
+   * paid it; bootstrap proposals, which the Guild funded from creator-provided balance, refund the
+   * storage they release to the creator.
    */
   deleteProposal(proposalID: uint64): void {
     loggedAssert(this.proposals(proposalID).exists, errGuildInvalidProposal)
@@ -1001,15 +1315,23 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     loggedAssert(proposal.status === GuildProposalStatusDraft || bootstrap, errGuildInvalidProposalState)
     loggedAssert(Txn.sender === proposal.creator, errGuildCreatorOnly)
 
+    // Read before the box is deleted below.
+    const payer = proposal.payer
+    const feeTokenPayer = proposal.feeTokenPayer
+    const feeAsset = proposal.feeAsset
     let refund: uint64 = proposal.feesPaid
+    let tokenRefund: uint64 = 0
     if (bootstrap) {
       refund = this.proposalMbr(proposal.actions)
     } else {
       this.reserved.value -= this.draftReserve(proposal.feesPaid, proposal.actions)
+      tokenRefund = proposal.feeTokensPaid
+      this.releaseTokens(feeAsset, tokenRefund)
     }
     // Deleting the box releases its storage, which covers the box share of the refund.
     this.proposals(proposalID).delete()
-    this.refund(proposal.creator, refund)
+    this.refund(payer, refund)
+    this.refundTokens(feeTokenPayer, feeAsset, tokenRefund)
   }
 
   /** Move a proposal created under Guild consensus from draft to voting. */
@@ -1017,8 +1339,10 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     loggedAssert(this.state.value !== GuildStateDraft, errGuildNotActive)
     loggedAssert(this.validEditOrSubmit(proposalID), errGuildInvalidProposalState)
     const proposal = clone(this.proposals(proposalID).value)
+    this.requireCurrentFeeAsset(proposal)
     const cost = this.proposalCost(proposal.actions)
-    loggedAssert(proposal.feesPaid >= cost.total, errGuildInvalidPayment)
+    const tokenFee = this.tokenFee(cost)
+    loggedAssert(proposal.feesPaid >= cost.total && proposal.feeTokensPaid >= tokenFee, errGuildInvalidPayment)
     loggedAssert(
       this.governancePower(Txn.sender, evidence, Global.latestTimestamp + cost.duration) >= cost.power,
       errGuildNoGovernancePower,
@@ -1045,19 +1369,27 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
 
     // Settle the prepayment: the proposal box stays as permanent history, the ballot is funded,
     // fees go to the treasury, and only the execution reserve stays held for this proposal.
-    const held: uint64 = cost.total - (this.proposalMbr(proposal.actions) + ballotMbr + cost.fee)
+    const algoFee = this.algoFee(cost)
+    const held: uint64 = cost.total - (this.proposalMbr(proposal.actions) + ballotMbr + algoFee)
     const surplus: uint64 = proposal.feesPaid - cost.total
-    this.reserved.value -= ballotMbr + cost.fee + surplus
+    this.reserved.value -= ballotMbr + algoFee + surplus
+    this.releaseTokens(proposal.feeAsset, proposal.feeTokensPaid)
     this.proposals(proposalID).value.feesPaid = held
+    this.proposals(proposalID).value.feeTokensPaid = 0
     this.proposals(proposalID).value.votingTs = Global.latestTimestamp
     this.proposals(proposalID).value.status = GuildProposalStatusVoting
-    this.refund(proposal.creator, surplus)
-    this.forwardFee(cost.fee)
+    this.refund(proposal.payer, surplus)
+    this.refundTokens(proposal.feeTokenPayer, proposal.feeAsset, proposal.feeTokensPaid - tokenFee)
+    this.forwardFee(algoFee)
+    this.forwardTokenFee(proposal.feeAsset, tokenFee)
   }
 
   /**
    * Vote through the Guild while its consensus app calculates and stores the result. Voting again changes
    * the vote; only a first vote pays for its receipt (see `voteCost`).
+   *
+   * Anyone may pay for the receipt. A payer other than the voter adds `PayerRecordMBR`, so the Guild
+   * can remember them, and gets both back when the receipt is cleaned up.
    */
   voteProposal(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, vote: GuildVoteType, evidence: bytes): void {
     loggedAssert(this.proposals(proposalID).exists, errGuildInvalidProposal)
@@ -1066,14 +1398,17 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       errGuildInvalidProposalState,
     )
     const cost = this.nextVoteCost(proposalID, Txn.sender)
+    const sponsor: uint64 = cost > 0 ? sponsorCost(mbrPayment.sender, Txn.sender) : 0
     loggedAssert(
       match(mbrPayment, {
-        sender: Txn.sender,
         receiver: Global.currentApplicationAddress,
-        amount: cost,
+        amount: cost + sponsor,
       }),
       errGuildInvalidPayment,
     )
+    if (sponsor > 0) {
+      recordPayer(this.voteRecord(proposalID, Txn.sender), mbrPayment.sender, Txn.sender)
+    }
     abiCall<typeof GuildConsensusCreateStub.prototype.vote>({
       appId: this.consensus.value,
       args: [
@@ -1111,21 +1446,22 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       this.proposals(proposalID).value.status = GuildProposalStatusApproved
     } else {
       this.proposals(proposalID).value.status = GuildProposalStatusRejected
-      // A rejected proposal never executes; return its execution reserve to the proposer.
-      this.releaseReserve(proposalID, proposal.creator, proposal.feesPaid, 0)
+      // A rejected proposal never executes; return its execution reserve to whoever paid it.
+      this.releaseReserve(proposalID, proposal.payer, proposal.feesPaid, 0)
     }
   }
 
   /**
    * Reclaim terminal consensus boxes without deleting the historical Guild proposal.
    *
-   * Every listed voter recovers their own vote receipt; the ballot storage returns to the proposer.
+   * Every listed vote receipt's storage returns to whoever paid it, the voter unless someone else
+   * funded the vote; the ballot storage returns to the proposal's payer.
    * Approved ballots stay until execution or cancellation, since policies read the approving
    * ballot while applying consensus actions.
    */
   cleanupProposalConsensus(proposalID: uint64, voters: Account[]): uint64 {
     loggedAssert(this.proposals(proposalID).exists, errGuildInvalidProposal)
-    const { status, creator } = this.proposals(proposalID).value
+    const { status, payer } = this.proposals(proposalID).value
     loggedAssert(
       status === GuildProposalStatusRejected ||
         status === GuildProposalStatusExecuted ||
@@ -1141,11 +1477,12 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     const received: uint64 = after > before ? after - before : 0
     let distributed: uint64 = 0
     for (let i: uint64 = 0; i < voters.length; i += 1) {
-      this.refund(voters[i], GuildVoteMBR)
+      const votePayer = releasePayer(this.voteRecord(proposalID, voters[i]), voters[i])
+      this.refund(votePayer, GuildVoteMBR + sponsorCost(votePayer, voters[i]))
       distributed += GuildVoteMBR
     }
     if (received > distributed) {
-      this.refund(creator, received - distributed)
+      this.refund(payer, received - distributed)
     }
     return remaining
   }
@@ -1154,7 +1491,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
    * Abandon an approved proposal that has not executed, refunding its execution reserve.
    *
    * Approved proposals never expire, and state changes after approval can leave one permanently
-   * unexecutable; cancellation is the proposer's way to recover the reserve they prepaid.
+   * unexecutable; cancellation is the proposer's way to return the prepaid reserve to its payer.
    */
   cancelProposal(proposalID: uint64): void {
     loggedAssert(this.proposals(proposalID).exists, errGuildInvalidProposal)
@@ -1162,7 +1499,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     loggedAssert(proposal.status === GuildProposalStatusApproved && proposal.votingTs !== 0, errGuildInvalidProposalState)
     loggedAssert(Txn.sender === proposal.creator, errGuildCreatorOnly)
     this.proposals(proposalID).value.status = GuildProposalStatusInvalid
-    this.releaseReserve(proposalID, proposal.creator, proposal.feesPaid, 0)
+    this.releaseReserve(proposalID, proposal.payer, proposal.feesPaid, 0)
   }
 
   /** Execute every action in an approved proposal. */
@@ -1331,12 +1668,15 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         case GuildActionLockPluginSet:
           this.pluginSetLocked.value = true
           break
+        case GuildActionSetFeeAsset:
+          this.applyFeeAsset(decodeArc4<GuildProposalSetFeeAsset>(data).asset)
+          break
         default:
           loggedErr(errGuildInvalidAction)
       }
     }
 
-    // Settle with the proposer: whatever the execution did not consume from their reserve, plus any
+    // Settle with the payer: whatever the execution did not consume from their reserve, plus any
     // storage a policy handed back during execution, goes to them rather than staying in the Guild.
     const freeAfter = this.freeBalance()
     if (proposal.votingTs !== 0) {
@@ -1349,7 +1689,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       this.reserved.value -= held
       this.proposals(proposalID).value.feesPaid = 0
     }
-    this.refund(proposal.creator, refund)
+    this.refund(proposal.payer, refund)
   }
 
   /** Active upgrades consume a voted transaction-group commitment, including exact program bytes and version. */
@@ -1375,7 +1715,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       }
       loggedAssert(approvedGroup, errGuildInvalidAction)
       this.executions(Txn.lease).delete()
-      this.refund(proposal.creator, GuildExecutionMBR)
+      this.refund(proposal.payer, GuildExecutionMBR)
     }
     loggedAssert(newVersion !== '', errGuildInvalidVersion)
     this.version.value = newVersion
@@ -1396,7 +1736,37 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     return amount
   }
 
+  /**
+   * Forward fee tokens of `asset` that no draft proposal holds to the treasury, once it is opted in.
+   * Fees wait here while the Guild has no wallet or its treasury cannot hold the asset.
+   */
+  sweepFeeTokens(asset: uint64): uint64 {
+    loggedAssert(this.state.value !== GuildStateDraft || Txn.sender === this.creator.value, errGuildCreatorOnly)
+    this.requireWallet()
+    const amount = this.sweepableFeeTokens(asset)
+    loggedAssert(amount === 0 || this.treasury().isOptedIn(Asset(asset)), errGuildInvalidAsset)
+    this.forwardTokenFee(asset, amount)
+    return amount
+  }
+
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  /** Return what `setFeeAsset(asset)` must pay now: the opt-ins and fee token reserve box it still needs. */
+  @abimethod({ readonly: true })
+  feeAssetCost(asset: uint64): uint64 {
+    return this.feeAssetMbr(asset)
+  }
+
+  /** Return the `asset` balance sweepFeeTokens() would forward to the treasury right now. */
+  @abimethod({ readonly: true })
+  sweepableFeeTokens(asset: uint64): uint64 {
+    const [balance, optedIn] = op.AssetHolding.assetBalance(Global.currentApplicationAddress, asset)
+    if (!optedIn) {
+      return 0
+    }
+    const held: uint64 = this.feeTokenReserves(asset).exists ? this.feeTokenReserves(asset).value : 0
+    return balance > held ? balance - held : 0
+  }
 
   /** Return the funding required to create the Guild's ARC-58 wallet. */
   @abimethod({ readonly: true })
@@ -1418,6 +1788,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       participation: 0,
       approval: 0,
       minimumApprovals: 0,
+      feeAsset: this.feeAsset.value,
     }
 
     for (let i: uint64 = 0; i < actions.length; i += 1) {
@@ -1430,6 +1801,14 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         mbr += GuildExecutionMBR
       } else if (action.type === GuildActionNewWallet) {
         mbr += this.setupCost()
+        if (this.feeAsset.value !== 0) {
+          mbr += Global.assetOptInMinBalance
+        }
+      } else if (action.type === GuildActionSetFeeAsset) {
+        // The most it can cost; execution refunds what an existing opt-in or reserve box saves.
+        if (decodeArc4<GuildProposalSetFeeAsset>(action.data).asset !== 0) {
+          mbr += 2 * Global.assetOptInMinBalance + GuildFeeTokenReserveMBR
+        }
       } else if (action.type === GuildActionAddPlugin) {
         const plugin = decodeArc4<GuildProposalAddPlugin>(action.data)
         if (plugin.useExecutionKey && plugin.caller === Global.zeroAddress) {
@@ -1467,7 +1846,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     }
 
     info.mbr = mbr
-    info.total = mbr + info.fee
+    info.total = mbr + this.algoFee(info)
 
     if (this.state.value === GuildStateDraft && Txn.sender === this.creator.value) {
       info.total = 0
@@ -1508,7 +1887,10 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     return this.updateGuildProposalSettings.value
   }
 
-  /** What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free. */
+  /**
+   * What `voter`'s next vote on the proposal pays: a first vote funds its receipt; changing a vote is free.
+   * A payer other than the voter adds `PayerRecordMBR` to a first vote.
+   */
   @abimethod({ readonly: true })
   voteCost(proposalID: uint64, voter: Account): uint64 {
     return this.nextVoteCost(proposalID, voter)

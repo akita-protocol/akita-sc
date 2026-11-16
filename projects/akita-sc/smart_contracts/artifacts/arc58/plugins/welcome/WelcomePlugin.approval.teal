@@ -84,20 +84,20 @@ isGenuineWallet_bool_false@6:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:452
+    // smart_contracts/utils/functions.ts:546
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:453
+    // smart_contracts/utils/functions.ts:547
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:454
+    // smart_contracts/utils/functions.ts:548
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:457
+    // smart_contracts/utils/functions.ts:551
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -372,16 +372,16 @@ newWallet:
     err // ERR:welcomeInvalidAdmin
 
 newWallet_after_assert@2:
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -9
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_2 // "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)

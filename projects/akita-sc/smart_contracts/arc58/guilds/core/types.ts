@@ -55,14 +55,25 @@ export type GuildVoteTotals = {
  * `feesPaid` tracks the proposer funds the Guild still holds for this proposal:
  * the full prepayment while in draft, only the execution reserve once voting
  * begins, and zero after the proposal is rejected or executed.
+ *
+ * `feeAsset` is the Guild's fee asset when the proposal was drafted (0 = ALGO). When it is not ALGO,
+ * `feesPaid` holds only microALGO and `feeTokensPaid` holds the fee paid in that asset while in draft.
+ *
+ * `creator` owns the proposal: only they edit, submit, delete or cancel it. `payer` is whoever paid the
+ * microALGO in `feesPaid`, and `feeTokenPayer` whoever paid `feeTokensPaid`; each is the creator unless
+ * someone else funded the proposal for them. Every refund goes back to the account that paid it.
  */
 export type GuildProposal = {
   status: GuildProposalStatus
   cid: CID
   creator: Account
+  payer: Account
+  feeTokenPayer: Account
   votingTs: uint64
   created: uint64
   feesPaid: uint64
+  feeAsset: uint64
+  feeTokensPaid: uint64
   actions: GuildProposalAction[]
 }
 
@@ -121,6 +132,8 @@ export type GuildProposalCostInfo = {
   participation: uint64
   approval: uint64
   minimumApprovals: uint64
+  /** asset `fee` is paid in; 0 = ALGO, when `total` includes `fee`. Otherwise `total` is ALGO only. */
+  feeAsset: uint64
 }
 
 // CONSENSUS CONFIGURATION ------------------------------------------------------------------------
@@ -267,3 +280,4 @@ export type GuildProposalNewWallet = { nickname: string; salt: bytes<32> }
 export type GuildProposalSetPluginSettings = { plugin: uint64; escrow: string; settings: GuildProposalSettings }
 export type GuildProposalConsensusActionSettings = { code: uint64; settings: GuildProposalSettings }
 export type GuildProposalChangeAdmin = { admin: Account }
+export type GuildProposalSetFeeAsset = { asset: uint64 }

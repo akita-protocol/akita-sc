@@ -149,19 +149,19 @@ walletControlsLive_after_if_else@6:
 
 // smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
 getControlledSpendingAccount:
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:492
     // export function getControlledSpendingAccount(wallet: Application): Account {
     proto 1 1
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec 10 // "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -169,7 +169,7 @@ getControlledSpendingAccount:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:400
+    // smart_contracts/utils/functions.ts:494
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -181,27 +181,27 @@ getControlledSpendingAccount:
     err // ERR:errNath
 
 getControlledSpendingAccount_after_assert@2:
-    // smart_contracts/utils/functions.ts:401
+    // smart_contracts/utils/functions.ts:495
     // return sender
     retsub
 
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:452
+    // smart_contracts/utils/functions.ts:546
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:453
+    // smart_contracts/utils/functions.ts:547
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:454
+    // smart_contracts/utils/functions.ts:548
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:457
+    // smart_contracts/utils/functions.ts:551
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -337,7 +337,7 @@ post:
     // const akitaSocial = Application(getAkitaSocialAppList(this.akitaDAO.value).social)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -384,7 +384,7 @@ post:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -394,7 +394,7 @@ post:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -603,7 +603,7 @@ editPost:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -652,7 +652,7 @@ editPost:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -662,7 +662,7 @@ editPost:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -994,7 +994,7 @@ gatedReply_after_for@4:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -1105,7 +1105,7 @@ gatedReply_after_if_else@7:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -1115,7 +1115,7 @@ gatedReply_after_if_else@7:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     dig 1
     bytec 5 // "social_fees"
@@ -1130,7 +1130,7 @@ gatedReply_after_if_else@7:
     dig 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     uncover 3
     bytec 6 // "aal"
@@ -1455,7 +1455,7 @@ reply:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -1562,7 +1562,7 @@ reply_after_if_else@3:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -1572,7 +1572,7 @@ reply_after_if_else@3:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -1871,7 +1871,7 @@ gatedEditReply_after_for@4:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -2031,7 +2031,7 @@ gatedEditReply_after_for@4:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -2041,7 +2041,7 @@ gatedEditReply_after_for@4:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     dig 1
     bytec 5 // "social_fees"
@@ -2056,7 +2056,7 @@ gatedEditReply_after_for@4:
     dig 6
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     uncover 3
     bytec 6 // "aal"
@@ -2276,7 +2276,7 @@ editReply:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -2430,7 +2430,7 @@ editReply:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -2440,7 +2440,7 @@ editReply:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -2643,7 +2643,7 @@ vote:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -2742,7 +2742,7 @@ vote_after_if_else@5:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -2752,7 +2752,7 @@ vote_after_if_else@5:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -2950,7 +2950,7 @@ editVote:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     dup
     bytec_1 // "sal"
@@ -3011,7 +3011,7 @@ editVote:
     // amount: 0,
     intc_0 // 0
     cover 11
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     swap
     bytec 4 // "akita_assets"
@@ -3046,7 +3046,7 @@ editVote:
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     bytec 5 // "social_fees"
     app_global_get_ex
@@ -3360,7 +3360,7 @@ gatedReact_after_for@4:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -3503,7 +3503,7 @@ gatedReact_after_if_else@11:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -3513,7 +3513,7 @@ gatedReact_after_if_else@11:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     dig 1
     bytec 5 // "social_fees"
@@ -3528,7 +3528,7 @@ gatedReact_after_if_else@11:
     dig 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     uncover 3
     bytec 6 // "aal"
@@ -3784,7 +3784,7 @@ react:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -3925,7 +3925,7 @@ react_after_if_else@7:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     dup
     bytec 4 // "akita_assets"
@@ -3935,7 +3935,7 @@ react_after_if_else@7:
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:141
+    // smart_contracts/utils/functions.ts:235
     // const [socialFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSocialFees))
     swap
     bytec 5 // "social_fees"
@@ -4122,7 +4122,7 @@ deleteReaction:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4289,7 +4289,7 @@ gatedFollow_after_for@4:
     // const { social, graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4361,7 +4361,7 @@ gatedFollow_after_for@4:
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     bytec 6 // "aal"
     app_global_get_ex
@@ -4529,7 +4529,7 @@ follow:
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4667,7 +4667,7 @@ unfollow:
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4760,7 +4760,7 @@ block:
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4889,7 +4889,7 @@ unblock:
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -4982,7 +4982,7 @@ addModerator:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5075,7 +5075,7 @@ removeModerator:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5175,7 +5175,7 @@ ban:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5271,7 +5271,7 @@ flagPost:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5364,7 +5364,7 @@ unflagPost:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5457,7 +5457,7 @@ unban:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5557,7 +5557,7 @@ addAction:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5659,7 +5659,7 @@ removeAction:
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5781,7 +5781,7 @@ initMeta:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -5972,7 +5972,7 @@ setMetaWallet:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -6110,7 +6110,7 @@ updateMeta:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -6348,7 +6348,7 @@ updateSubscriptionStateModifier:
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -6505,7 +6505,7 @@ commitStakingImpact:
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -6705,7 +6705,7 @@ registerRefType:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -7040,7 +7040,7 @@ checkTipMbrRequirements:
     btoi
     dup
     uncover 2
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     bytec 4 // "akita_assets"
     app_global_get_ex
@@ -7316,7 +7316,7 @@ getCreatorDetails:
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:211
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     bytec_1 // "sal"
     app_global_get_ex
@@ -7513,12 +7513,12 @@ getCreatorDetails_after_if_else@18:
     dup
     cover 2
     cover 3
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:937
+    // smart_contracts/utils/functions.ts:1031
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     pushint 88
     extract_uint64
@@ -7606,7 +7606,7 @@ getCreatorDetails_if_body@34:
     // return 0
     intc_0 // 0
     swap
-    // smart_contracts/utils/functions.ts:937
+    // smart_contracts/utils/functions.ts:1031
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     b getCreatorDetails_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@36
 
@@ -7622,7 +7622,7 @@ getCreatorDetails_after_if_else@35:
     cover 2
     select
     swap
-    // smart_contracts/utils/functions.ts:937
+    // smart_contracts/utils/functions.ts:1031
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     b getCreatorDetails_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@36
 
@@ -7783,12 +7783,12 @@ referralQuote:
     dup
     uncover 2
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:839
+    // smart_contracts/utils/functions.ts:933
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -7813,7 +7813,7 @@ referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     bytec 4 // "akita_assets"
     app_global_get_ex
@@ -7823,13 +7823,13 @@ referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
     intc_0 // 0
     extract_uint64
     frame_bury 0
-    // smart_contracts/utils/functions.ts:888
+    // smart_contracts/utils/functions.ts:982
     // if (referrer === Global.zeroAddress) {
     global ZeroAddress
     ==
     bz referralQuote_after_if_else@12
     pop
-    // smart_contracts/utils/functions.ts:889
+    // smart_contracts/utils/functions.ts:983
     // return 0
     intc_0 // 0
 
@@ -7840,21 +7840,21 @@ referralQuote_after_inlined_smart_contracts/utils/functions.ts::referralFeeTo@16
     retsub
 
 referralQuote_after_if_else@12:
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:623
+    // smart_contracts/utils/functions.ts:717
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
     intc_2 // 8
     extract_uint64
     frame_bury 2
-    // smart_contracts/utils/functions.ts:624
+    // smart_contracts/utils/functions.ts:718
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocationsLength)
     intc 6 // 79800
     frame_bury 1
-    // smart_contracts/utils/functions.ts:626
+    // smart_contracts/utils/functions.ts:720
     // if (asset !== 0 && !Application(rewardsApp).address.isOptedIn(Asset(asset))) {
     frame_dig 0
     bz referralQuote_after_if_else@15
@@ -7865,10 +7865,10 @@ referralQuote_after_if_else@12:
     asset_holding_get AssetBalance
     bury 1
     bnz referralQuote_after_if_else@15
-    // smart_contracts/utils/functions.ts:624
+    // smart_contracts/utils/functions.ts:718
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocationsLength)
     intc 6 // 79800
-    // smart_contracts/utils/functions.ts:627
+    // smart_contracts/utils/functions.ts:721
     // cost += Global.assetOptInMinBalance
     global AssetOptInMinBalance
     +
@@ -7894,7 +7894,7 @@ referralQuote_after_if_else@3:
     pushint 32
     ==
     bz referralQuote_ternary_false@6
-    // smart_contracts/utils/functions.ts:839
+    // smart_contracts/utils/functions.ts:933
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     b referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
 
@@ -7903,7 +7903,7 @@ referralQuote_ternary_false@6:
     // smart_contracts/utils/principal.ts:244
     // return referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
     global ZeroAddress
-    // smart_contracts/utils/functions.ts:839
+    // smart_contracts/utils/functions.ts:933
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     b referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
 
@@ -7948,12 +7948,12 @@ gateCtxArg:
     // return encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet)))
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:864
+    // smart_contracts/utils/functions.ts:958
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64
@@ -8453,7 +8453,7 @@ canCallArc58OptIn:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:122
+    // smart_contracts/utils/functions.ts:216
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     frame_dig -2
     pushbytes "pal"
@@ -8536,7 +8536,7 @@ tipRoute:
     // smart_contracts/social/base.ts:62
     // protected tipRoute(akitaDAO: Application, creator: Account, wallet: Application): { type: TipSendType, arc58: uint64, receiver: Account } {
     proto 3 1
-    // smart_contracts/utils/functions.ts:166
+    // smart_contracts/utils/functions.ts:260
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     frame_dig -3
     bytec 4 // "akita_assets"
@@ -8566,22 +8566,22 @@ tipRoute_if_body@2:
     retsub
 
 tipRoute_after_if_else@3:
-    // smart_contracts/utils/functions.ts:247-250
+    // smart_contracts/utils/functions.ts:341-344
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:249
+    // smart_contracts/utils/functions.ts:343
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     bytec 13 // "controlled_address"
-    // smart_contracts/utils/functions.ts:247-250
+    // smart_contracts/utils/functions.ts:341-344
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     app_global_get_ex
-    // smart_contracts/utils/functions.ts:251
+    // smart_contracts/utils/functions.ts:345
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bz tipRoute_bool_false@10
     dup
@@ -8592,7 +8592,7 @@ tipRoute_after_if_else@3:
     intc_1 // 1
 
 tipRoute_bool_merge@11:
-    // smart_contracts/utils/functions.ts:251
+    // smart_contracts/utils/functions.ts:345
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bnz tipRoute_after_assert@13
     bytec 21 // "ERR:errIwlt"

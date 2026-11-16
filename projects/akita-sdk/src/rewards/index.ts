@@ -717,8 +717,9 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
     await this.client.send.sweepExpired({
       ...sendParams,
-      // one ASA transfer per ASA allocation and at most one payment (ALGO amounts + freed MBR)
-      extraFee: microAlgo(1000 * (targets.filter(r => BigInt(r.asset) !== 0n).length + 1)),
+      // one ASA transfer per ASA allocation and at most two payments (ALGO amounts and freed MBR to the
+      // reclaim target, freed MBR to a payer other than the creator)
+      extraFee: microAlgo(1000 * (targets.filter(r => BigInt(r.asset) !== 0n).length + 2)),
       args: {
         id,
         reclaims: targets.map(r => [r.address, r.asset] as [string, bigint | number]),

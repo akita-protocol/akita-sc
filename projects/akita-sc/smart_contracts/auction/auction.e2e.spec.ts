@@ -745,6 +745,119 @@ describe('Auction SDK', () => {
       expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
     })
 
+    test('anyone can pay for a bid; the bid belongs to the bidder and its storage returns to the payer', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const owner = await newSeller()
+      const [a, b, sponsor] = [await newBidder(), await newBidder(), await newAccount(50)]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+      const costs = await auction.mbr()
+      const storage = costs.bids + costs.bidsByAddress + costs.locations // a first bid in a fee auction
+
+      // the sponsor's payment carries the bid, the bid's storage and its own payer record
+      const amount = 1_000_000n
+      const sponsoredBid = async (paid: bigint) => auction.client.send.bid({
+        sender: a.addr,
+        signer: a.signer,
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: auction.client.appAddress, amount: paid.microAlgo() }),
+            signer: sponsor.signer,
+          },
+          marketplace: a.addr.toString(),
+        },
+        populateAppCallResources: true,
+        coverAppCallInnerTransactionFees: true,
+        maxFee: (20_000).microAlgo(),
+      })
+      // a payment that only covers the bid and its storage is short by the payer record
+      await expect(sponsoredBid(amount + storage)).rejects.toThrow()
+      const sponsorBefore = await getAccountBalance(algorand, sponsor.addr.toString())
+      await sponsoredBid(amount + storage + PAYER_RECORD_MBR)
+      expect(sponsorBefore - await getAccountBalance(algorand, sponsor.addr.toString())).toBe(amount + storage + PAYER_RECORD_MBR + 1_000n)
+      const live = await auction.state()
+      expect(live.highestBid).toBe(amount)
+      expect(await auction.hasBid({ address: a.addr.toString() })).toBe(true)
+
+      // b outbids with its own money; a's bid amount is a's to take back
+      await bid(auction, b, 2_000_000n)
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await draw(auction)
+      if (!(await auction.state()).rafflePrizeClaimed) {
+        await findWinner(auction)
+        await auction.claimRafflePrize({ sender: deployer.addr, signer: deployer.signer })
+      }
+
+      // the cleanup pays a's bid back to a, and the bid storage with its payer record back to the sponsor
+      const sponsorHeld = await getAccountBalance(algorand, sponsor.addr.toString())
+      const aHeld = await getAccountBalance(algorand, a.addr.toString())
+      const bHeld = await getAccountBalance(algorand, b.addr.toString())
+      await cleanupAndDelete(auction, owner)
+      expect(await getAccountBalance(algorand, sponsor.addr.toString()) - sponsorHeld).toBe(storage + PAYER_RECORD_MBR)
+      const fee = (amount * BID_FEE) / 100_000n
+      expect(await getAccountBalance(algorand, a.addr.toString()) - aHeld).toBe(amount - fee)
+      expect(await getAccountBalance(algorand, b.addr.toString()) - bHeld).toBe(storage)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('eight sponsored bids are refunded in one call, the batch size the desktop app uses', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const owner = await newSeller()
+      const sponsor = await newAccount(200)
+      const bidders: TransactionSignerAccount[] = []
+      for (let i = 0; i < 8; i++) bidders.push(await newBidder())
+
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+      const costs = await auction.mbr()
+      const storage = costs.bids + costs.bidsByAddress + costs.locations // a first bid in a fee auction
+      let amount = 1_000_000n
+      for (const bidder of bidders) {
+        await auction.client.send.bid({
+          sender: bidder.addr,
+          signer: bidder.signer,
+          args: {
+            payment: {
+              txn: await algorand.createTransaction.payment({
+                sender: sponsor.addr, receiver: auction.client.appAddress, amount: (amount + storage + PAYER_RECORD_MBR).microAlgo(),
+              }),
+              signer: sponsor.signer,
+            },
+            marketplace: bidder.addr.toString(),
+          },
+          populateAppCallResources: true,
+          coverAppCallInnerTransactionFees: true,
+          maxFee: (20_000).microAlgo(),
+        })
+        amount += 200_000n
+      }
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await draw(auction)
+      if (!(await auction.state()).rafflePrizeClaimed) {
+        await findWinner(auction)
+        await auction.claimRafflePrize({ sender: deployer.addr, signer: deployer.signer })
+      }
+
+      // Seven losing bids are still to be paid back, and every bid's storage has a payer record.
+      const cursor = async () => (await auction.client.state.global.refundMbrCursor()) ?? 0n
+      const before = await cursor()
+      const sponsorHeld = await getAccountBalance(algorand, sponsor.addr.toString())
+      await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 8n })
+      expect((await cursor()) - before).toBe(8n)
+      expect(await getAccountBalance(algorand, sponsor.addr.toString()) - sponsorHeld).toBe(8n * (storage + PAYER_RECORD_MBR))
+      // every refund is done, so only the weights boxes and the app itself are left to remove
+      const { weightsBoxCount } = await auction.state()
+      if (weightsBoxCount > 0n) {
+        await auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: weightsBoxCount })
+      }
+      await akitaUniverse.auctionFactory.deleteAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
+    })
+
     test('AR-02: the current highest bidder cannot outbid itself in a fee auction', async () => {
       const owner = await newSeller()
       const [a, b] = [await newBidder(), await newBidder()]

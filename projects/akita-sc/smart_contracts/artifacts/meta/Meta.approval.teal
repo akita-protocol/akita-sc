@@ -4,23 +4,23 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 2 32 400 31700 1024 4094 100000000 16384
-    bytecblock 0x151f7c75 "" "m" "type_fees" "akita_dao" "r" "akita_escrow" "types_id" "ERR:errIpmr" "ERR:errIpma" "ERR:errKtl" "ERR:errMrev" "wallet" "ERR:errNdao" "version" "ERR:errMnam" "ERR:errNnam" "ERR:errMkey" "ERR:errDtl" "l." "ERR:errRkp" "ERR:errNdta" "ERR:errMrnf" "ERR:errMvsz" 0x068101
+    intcblock 0 1 2 32 28500 400 31700 1024 4094 100000000 16384
+    bytecblock 0x151f7c75 "" "m" "type_fees" "akita_dao" "r" "akita_escrow" "types_id" "$" "ERR:errIpmr" "ERR:errIpma" "ERR:errKtl" "ERR:errMrev" "wallet" "ERR:errNdao" "version" "ERR:errMnam" "ERR:errNnam" "ERR:errMkey" "ERR:errDtl" "l." "ERR:errRkp" "ERR:errNdta" "ERR:errMrnf" "ERR:errMvsz" 0x068101
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/meta/contract.algo.ts:119
+    // smart_contracts/meta/contract.algo.ts:120
     // typesID = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypesID })
     bytec 7 // "types_id"
     intc_0 // 0
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
     intc_0 // 0
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/meta/contract.algo.ts:111-112
+    // smart_contracts/meta/contract.algo.ts:112-113
     // @contract({ avmVersion: 13 })
     // export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     pushbytes 0xea9180dd // method "update(string)void"
@@ -28,7 +28,7 @@ main_after_if_else@2:
     match main_update_route@4
 
 main_switch_case_next@5:
-    // smart_contracts/meta/contract.algo.ts:111-112
+    // smart_contracts/meta/contract.algo.ts:112-113
     // @contract({ avmVersion: 13 })
     // export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     txn OnCompletion
@@ -42,13 +42,13 @@ main_switch_case_next@5:
     err
 
 main_opUp_route@7:
-    // smart_contracts/meta/contract.algo.ts:203
+    // smart_contracts/meta/contract.algo.ts:216
     // @abimethod({ readonly: true })
     intc_1 // 1
     return
 
 main_create_NoOp@30:
-    // smart_contracts/meta/contract.algo.ts:111-112
+    // smart_contracts/meta/contract.algo.ts:112-113
     // @contract({ avmVersion: 13 })
     // export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
@@ -68,9 +68,158 @@ main_update_route@4:
     b update
 
 
+// smart_contracts/utils/functions.ts::recordPayer(record: bytes, payer: bytes, owner: bytes) -> void:
+recordPayer:
+    // smart_contracts/utils/functions.ts:105
+    // export function recordPayer(record: bytes, payer: Account, owner: Account): void {
+    proto 3 0
+    // smart_contracts/utils/functions.ts:106
+    // if (payer !== owner) {
+    frame_dig -2
+    frame_dig -1
+    !=
+    bz recordPayer_after_if_else@2
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig -3
+    sha256
+    bytec 8 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:107
+    // op.Box.put(payerRecordKey(record), payer.bytes)
+    frame_dig -2
+    box_put
+
+recordPayer_after_if_else@2:
+    retsub
+
+
+// smart_contracts/utils/functions.ts::payerOf(record: bytes, owner: bytes) -> bytes:
+payerOf:
+    // smart_contracts/utils/functions.ts:112
+    // export function payerOf(record: bytes, owner: Account): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig -2
+    sha256
+    bytec 8 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:113
+    // const [payer, sponsored] = op.Box.get(payerRecordKey(record))
+    box_get
+    // smart_contracts/utils/functions.ts:114
+    // return sponsored ? Account(payer) : owner
+    bz payerOf_ternary_false@2
+    retsub
+
+payerOf_ternary_false@2:
+    pop
+    frame_dig -1
+    // smart_contracts/utils/functions.ts:114
+    // return sponsored ? Account(payer) : owner
+    retsub
+
+
+// smart_contracts/utils/functions.ts::canReceiveAlgo(receiver: bytes, amount: uint64) -> uint64:
+canReceiveAlgo:
+    // smart_contracts/utils/functions.ts:129
+    // export function canReceiveAlgo(receiver: Account, amount: uint64): boolean {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:130
+    // const [, funded] = op.AcctParams.acctBalance(receiver)
+    frame_dig -2
+    acct_params_get AcctBalance
+    bury 1
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    bnz canReceiveAlgo_bool_true@2
+    frame_dig -1
+    global MinBalance
+    >=
+    bz canReceiveAlgo_bool_false@3
+
+canReceiveAlgo_bool_true@2:
+    intc_1 // 1
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    retsub
+
+canReceiveAlgo_bool_false@3:
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    retsub
+
+
+// smart_contracts/utils/functions.ts::releaseDeposit(record: bytes, owner: bytes, amount: uint64) -> bytes:
+releaseDeposit:
+    // smart_contracts/utils/functions.ts:140
+    // export function releaseDeposit(record: bytes, owner: Account, amount: uint64): [Account, uint64] {
+    proto 3 1
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig -3
+    sha256
+    bytec 8 // "$"
+    swap
+    concat
+    dup
+    // smart_contracts/utils/functions.ts:142
+    // const [payer, sponsored] = op.Box.get(key)
+    box_get
+    // smart_contracts/utils/functions.ts:143
+    // if (!sponsored) {
+    bnz releaseDeposit_after_if_else@2
+    // smart_contracts/utils/functions.ts:144
+    // return [owner, amount]
+    frame_dig -1
+    itob
+    frame_dig -2
+    swap
+    concat
+    frame_bury 0
+    retsub
+
+releaseDeposit_after_if_else@2:
+    // smart_contracts/utils/functions.ts:146
+    // op.Box.delete(key)
+    swap
+    box_del
+    pop
+    // smart_contracts/utils/functions.ts:147
+    // const total: uint64 = amount + PayerRecordMBR
+    frame_dig -1
+    intc 4 // 28500
+    +
+    dup
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    dig 2
+    swap
+    callsub canReceiveAlgo
+    bz releaseDeposit_ternary_false@4
+    swap
+
+releaseDeposit_ternary_merge@5:
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    swap
+    itob
+    concat
+    retsub
+
+releaseDeposit_ternary_false@4:
+    bury 1
+    frame_dig -2
+    b releaseDeposit_ternary_merge@5
+
+
 // smart_contracts/meta/contract.algo.ts::Meta.create[routing]() -> void:
 create:
-    // smart_contracts/meta/contract.algo.ts:195
+    // smart_contracts/meta/contract.algo.ts:208
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -92,23 +241,23 @@ create:
     btoi
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 14 // "version"
-    // smart_contracts/meta/contract.algo.ts:197
+    bytec 15 // "version"
+    // smart_contracts/meta/contract.algo.ts:210
     // this.version.value = version
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec 4 // "akita_dao"
-    // smart_contracts/meta/contract.algo.ts:198
+    // smart_contracts/meta/contract.algo.ts:211
     // this.akitaDAO.value = akitaDAO
     swap
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:199
+    // smart_contracts/meta/contract.algo.ts:212
     // op.AppParamsSet.appForeignBoxReads(true)
     intc_1 // 1
     app_params_set AppForeignBoxReads
-    // smart_contracts/meta/contract.algo.ts:195
+    // smart_contracts/meta/contract.algo.ts:208
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -116,7 +265,7 @@ create:
 
 // smart_contracts/meta/contract.algo.ts::Meta.addRoot[routing]() -> void:
 addRoot:
-    // smart_contracts/meta/contract.algo.ts:217
+    // smart_contracts/meta/contract.algo.ts:230
     // addRoot(payment: gtxn.PaymentTxn, name: string, root: bytes<32>, type: uint64): void {
     txn GroupIndex
     intc_1 // 1
@@ -153,17 +302,17 @@ addRoot:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/meta/contract.algo.ts:218
+    // smart_contracts/meta/contract.algo.ts:231
     // loggedAssert(name !== '', errInvalidName)
     bytec_1 // ""
     !=
     bnz addRoot_after_assert@3
-    bytec 15 // "ERR:errMnam"
+    bytec 16 // "ERR:errMnam"
     log
     err // ERR:errMnam
 
 addRoot_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:219
+    // smart_contracts/meta/contract.algo.ts:232
     // loggedAssert(Bytes(name).length <= MaxRecordKeyBytes, errNameTooLong)
     dig 2
     len
@@ -177,16 +326,16 @@ addRoot_after_assert@3:
     err // ERR:errNtl
 
 addRoot_after_assert@5:
-    // smart_contracts/meta/contract.algo.ts:220
+    // smart_contracts/meta/contract.algo.ts:233
     // loggedAssert(this.types(type).exists, errNoTreeType)
     itob
     dup
-    // smart_contracts/meta/contract.algo.ts:129
+    // smart_contracts/meta/contract.algo.ts:130
     // types = BoxMap<uint64, TypesValue>({ keyPrefix: MetaBoxPrefixTypes })
     pushbytes "t"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:220
+    // smart_contracts/meta/contract.algo.ts:233
     // loggedAssert(this.types(type).exists, errNoTreeType)
     box_len
     bury 1
@@ -196,19 +345,19 @@ addRoot_after_assert@5:
     err // ERR:errNtrt
 
 addRoot_after_assert@7:
-    // smart_contracts/meta/contract.algo.ts:222
+    // smart_contracts/meta/contract.algo.ts:235
     // const rootKey = this.recordKey(Txn.sender, Bytes(name))
     txn Sender
     uncover 4
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     swap
     concat
     dup
     cover 4
-    // smart_contracts/meta/contract.algo.ts:223
+    // smart_contracts/meta/contract.algo.ts:236
     // loggedAssert(!this.roots(rootKey).exists, errNameTaken)
     box_len
     bury 1
@@ -218,43 +367,69 @@ addRoot_after_assert@7:
     err // ERR:errNtkn
 
 addRoot_after_assert@9:
-    // smart_contracts/meta/contract.algo.ts:224
+    // smart_contracts/meta/contract.algo.ts:237
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
     dig 4
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     bnz addRoot_after_assert@11
-    bytec 8 // "ERR:errIpmr"
+    bytec 9 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
 addRoot_after_assert@11:
-    // smart_contracts/meta/contract.algo.ts:225
-    // loggedAssert(payment.amount === this.rootCosts(name), errInvalidPaymentAmount)
+    // smart_contracts/meta/contract.algo.ts:239
+    // loggedAssert(payment.amount === this.rootCosts(name) + sponsorCost(payment.sender, Txn.sender), errInvalidPaymentAmount)
     uncover 4
+    dup
     gtxns Amount
-    // smart_contracts/meta/contract.algo.ts:502
+    // smart_contracts/meta/contract.algo.ts:532
     // return 31_700 + 400 * Bytes(name).length
-    intc 4 // 400
-    uncover 3
+    intc 5 // 400
+    uncover 4
     *
-    intc 5 // 31700
+    intc 6 // 31700
     +
-    // smart_contracts/meta/contract.algo.ts:225
-    // loggedAssert(payment.amount === this.rootCosts(name), errInvalidPaymentAmount)
+    // smart_contracts/meta/contract.algo.ts:239
+    // loggedAssert(payment.amount === this.rootCosts(name) + sponsorCost(payment.sender, Txn.sender), errInvalidPaymentAmount)
+    uncover 2
+    gtxns Sender
+    dup
+    cover 3
+    txn Sender
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    ==
+    intc 4 // 28500
+    intc_0 // 0
+    uncover 2
+    select
+    // smart_contracts/meta/contract.algo.ts:239
+    // loggedAssert(payment.amount === this.rootCosts(name) + sponsorCost(payment.sender, Txn.sender), errInvalidPaymentAmount)
+    +
     ==
     bnz addRoot_after_assert@13
-    bytec 9 // "ERR:errIpma"
+    bytec 10 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
 addRoot_after_assert@13:
-    // smart_contracts/meta/contract.algo.ts:226
+    // smart_contracts/meta/contract.algo.ts:240
     // this.roots(rootKey).value = { root, type }
+    cover 2
     concat
+    uncover 2
+    dup
+    uncover 2
     box_put
-    // smart_contracts/meta/contract.algo.ts:217
+    // smart_contracts/meta/contract.algo.ts:241
+    // recordPayer(this.roots(rootKey).key, payment.sender, Txn.sender)
+    txn Sender
+    swap
+    cover 2
+    callsub recordPayer
+    // smart_contracts/meta/contract.algo.ts:230
     // addRoot(payment: gtxn.PaymentTxn, name: string, root: bytes<32>, type: uint64): void {
     intc_1 // 1
     return
@@ -262,7 +437,7 @@ addRoot_after_assert@13:
 
 // smart_contracts/meta/contract.algo.ts::Meta.deleteRoot[routing]() -> void:
 deleteRoot:
-    // smart_contracts/meta/contract.algo.ts:234
+    // smart_contracts/meta/contract.algo.ts:249
     // deleteRoot(name: string): void {
     txna ApplicationArgs 1
     dup
@@ -276,42 +451,44 @@ deleteRoot:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     dup
-    // smart_contracts/meta/contract.algo.ts:235
+    // smart_contracts/meta/contract.algo.ts:250
     // const rootKey = this.recordKey(Txn.sender, Bytes(name))
     txn Sender
     swap
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     swap
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:236
+    // smart_contracts/meta/contract.algo.ts:251
     // loggedAssert(this.roots(rootKey).exists, errNoName)
     box_len
     bury 1
     bnz deleteRoot_after_assert@3
-    bytec 16 // "ERR:errNnam"
+    bytec 17 // "ERR:errNnam"
     log
     err // ERR:errNnam
 
 deleteRoot_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:237
+    // smart_contracts/meta/contract.algo.ts:252
     // this.roots(rootKey).delete()
+    dup
     box_del
     pop
-    // smart_contracts/meta/contract.algo.ts:502
+    // smart_contracts/meta/contract.algo.ts:532
     // return 31_700 + 400 * Bytes(name).length
+    swap
     len
-    intc 4 // 400
+    intc 5 // 400
     *
-    intc 5 // 31700
+    intc 6 // 31700
     +
-    // smart_contracts/meta/contract.algo.ts:238
-    // this.refundRecord(this.rootCosts(name))
-    callsub refundRecord
-    // smart_contracts/meta/contract.algo.ts:234
+    // smart_contracts/meta/contract.algo.ts:253
+    // this.releaseRecord(this.roots(rootKey).key, this.rootCosts(name))
+    callsub releaseRecord
+    // smart_contracts/meta/contract.algo.ts:249
     // deleteRoot(name: string): void {
     intc_1 // 1
     return
@@ -319,7 +496,7 @@ deleteRoot_after_assert@3:
 
 // smart_contracts/meta/contract.algo.ts::Meta.updateRoot[routing]() -> void:
 updateRoot:
-    // smart_contracts/meta/contract.algo.ts:247
+    // smart_contracts/meta/contract.algo.ts:262
     // updateRoot(name: string, newRoot: bytes<32>): void {
     txna ApplicationArgs 1
     dup
@@ -339,33 +516,33 @@ updateRoot:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/meta/contract.algo.ts:248
+    // smart_contracts/meta/contract.algo.ts:263
     // const key = this.recordKey(Txn.sender, Bytes(name))
     txn Sender
     swap
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     swap
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:249
+    // smart_contracts/meta/contract.algo.ts:264
     // loggedAssert(this.roots(key).exists, errNoName)
     box_len
     bury 1
     bnz updateRoot_after_assert@3
-    bytec 16 // "ERR:errNnam"
+    bytec 17 // "ERR:errNnam"
     log
     err // ERR:errNnam
 
 updateRoot_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:250
+    // smart_contracts/meta/contract.algo.ts:265
     // this.roots(key).value.root = newRoot
     intc_0 // 0
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/meta/contract.algo.ts:247
+    // smart_contracts/meta/contract.algo.ts:262
     // updateRoot(name: string, newRoot: bytes<32>): void {
     intc_1 // 1
     return
@@ -376,7 +553,7 @@ addData:
     intc_0 // 0
     bytec_1 // ""
     dup
-    // smart_contracts/meta/contract.algo.ts:261
+    // smart_contracts/meta/contract.algo.ts:276
     // addData(payment: gtxn.PaymentTxn, name: string, key: string, value: string): void {
     txn GroupIndex
     intc_1 // 1
@@ -422,34 +599,34 @@ addData:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     swap
-    // smart_contracts/meta/contract.algo.ts:262
+    // smart_contracts/meta/contract.algo.ts:277
     // loggedAssert(name !== '', errInvalidName)
     bytec_1 // ""
     !=
     bnz addData_after_assert@3
-    bytec 15 // "ERR:errMnam"
+    bytec 16 // "ERR:errMnam"
     log
     err // ERR:errMnam
 
 addData_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:263
+    // smart_contracts/meta/contract.algo.ts:278
     // loggedAssert(key !== '', errInvalidKey)
     dig 2
     bytec_1 // ""
     !=
     bnz addData_after_assert@5
-    bytec 17 // "ERR:errMkey"
+    bytec 18 // "ERR:errMkey"
     log
     err // ERR:errMkey
 
 addData_after_assert@5:
-    // smart_contracts/meta/contract.algo.ts:264
+    // smart_contracts/meta/contract.algo.ts:279
     // const rootKey = this.recordKey(Txn.sender, Bytes(name))
     txn Sender
     dig 2
     callsub recordKey
     swap
-    // smart_contracts/meta/contract.algo.ts:267
+    // smart_contracts/meta/contract.algo.ts:282
     // loggedAssert(keyBytes.length <= maxDataKeyLength, errKeyTooLong)
     dig 3
     len
@@ -458,12 +635,12 @@ addData_after_assert@5:
     pushint 15
     <=
     bnz addData_after_assert@7
-    bytec 10 // "ERR:errKtl"
+    bytec 11 // "ERR:errKtl"
     log
     err // ERR:errKtl
 
 addData_after_assert@7:
-    // smart_contracts/meta/contract.algo.ts:268
+    // smart_contracts/meta/contract.algo.ts:283
     // loggedAssert(Bytes(name).length + keyBytes.length < MaxRecordKeyBytes, errKeyTooLong)
     dig 2
     len
@@ -472,26 +649,26 @@ addData_after_assert@7:
     pushint 31
     <
     bnz addData_after_assert@9
-    bytec 10 // "ERR:errKtl"
+    bytec 11 // "ERR:errKtl"
     log
     err // ERR:errKtl
 
 addData_after_assert@9:
-    // smart_contracts/meta/contract.algo.ts:269
+    // smart_contracts/meta/contract.algo.ts:284
     // loggedAssert(Bytes(value).length <= maxDataLength, errDataTooLong)
     dup
     len
     dup
     cover 5
-    intc 6 // 1024
+    intc 7 // 1024
     <=
     bnz addData_after_assert@11
-    bytec 18 // "ERR:errDtl"
+    bytec 19 // "ERR:errDtl"
     log
     err // ERR:errDtl
 
 addData_after_assert@11:
-    // smart_contracts/meta/contract.algo.ts:271
+    // smart_contracts/meta/contract.algo.ts:286
     // keyBytes.length < 2 || !(keyBytes.slice(0, 2) === Bytes(reservedDataKeyPrefix)),
     dig 6
     intc_2 // 2
@@ -516,7 +693,7 @@ addData_after_assert@11:
     dig 5
     cover 2
     substring3
-    bytec 19 // "l."
+    bytec 20 // "l."
     ==
     bnz addData_bool_false@14
 
@@ -524,23 +701,23 @@ addData_bool_true@13:
     intc_1 // 1
 
 addData_bool_merge@15:
-    // smart_contracts/meta/contract.algo.ts:270-273
+    // smart_contracts/meta/contract.algo.ts:285-288
     // loggedAssert(
     //   keyBytes.length < 2 || !(keyBytes.slice(0, 2) === Bytes(reservedDataKeyPrefix)),
     //   errReservedKeyPrefix,
     // )
     bnz addData_after_assert@17
-    bytec 20 // "ERR:errRkp"
+    bytec 21 // "ERR:errRkp"
     log
     err // ERR:errRkp
 
 addData_after_assert@17:
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     uncover 2
     concat
-    // smart_contracts/meta/contract.algo.ts:274
+    // smart_contracts/meta/contract.algo.ts:289
     // loggedAssert(this.roots(rootKey).exists, errNoRootForData)
     box_len
     bury 1
@@ -550,79 +727,144 @@ addData_after_assert@17:
     err // ERR:errNrfd
 
 addData_after_assert@19:
-    // smart_contracts/meta/contract.algo.ts:276
+    // smart_contracts/meta/contract.algo.ts:291
     // const recordKey = this.dataKey(name, key)
     swap
     uncover 2
     callsub dataKey
     swap
-    // smart_contracts/meta/contract.algo.ts:278
+    // smart_contracts/meta/contract.algo.ts:294
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
     dig 3
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     bnz addData_after_assert@21
-    bytec 8 // "ERR:errIpmr"
+    bytec 9 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
 addData_after_assert@21:
-    // smart_contracts/meta/contract.algo.ts:279
-    // loggedAssert(payment.amount === this.recordStorageCost(recordKey, Bytes(value).length), errInvalidPaymentAmount)
+    // smart_contracts/meta/contract.algo.ts:296
+    // payment.amount === this.recordStorageCost(recordKey, Bytes(value).length) + sponsorCost(payment.sender, Txn.sender),
     uncover 3
+    dup
     gtxns Amount
-    dig 2
-    uncover 4
+    dig 3
+    uncover 5
     callsub recordStorageCost
+    uncover 2
+    gtxns Sender
+    dup
+    cover 5
+    txn Sender
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
     ==
+    intc 4 // 28500
+    intc_0 // 0
+    uncover 2
+    select
+    // smart_contracts/meta/contract.algo.ts:296
+    // payment.amount === this.recordStorageCost(recordKey, Bytes(value).length) + sponsorCost(payment.sender, Txn.sender),
+    +
+    ==
+    // smart_contracts/meta/contract.algo.ts:295-298
+    // loggedAssert(
+    //   payment.amount === this.recordStorageCost(recordKey, Bytes(value).length) + sponsorCost(payment.sender, Txn.sender),
+    //   errInvalidPaymentAmount,
+    // )
     bnz addData_after_assert@23
-    bytec 9 // "ERR:errIpma"
+    bytec 10 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
 addData_after_assert@23:
-    // smart_contracts/meta/contract.algo.ts:280
+    // smart_contracts/meta/contract.algo.ts:299
     // const id = this.recordKey(Txn.sender, recordKey)
     txn Sender
     dig 2
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:281
+    // smart_contracts/meta/contract.algo.ts:300
+    // let previousPayer = Txn.sender
+    txn Sender
+    bury 7
+    // smart_contracts/meta/contract.algo.ts:301
     // let previousCost: uint64 = 0
     intc_0 // 0
-    bury 5
-    // smart_contracts/meta/contract.algo.ts:133
+    bury 6
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
     dup
-    bury 6
-    // smart_contracts/meta/contract.algo.ts:282
-    // if (this.records(id).exists) previousCost = this.recordStorageCost(recordKey, this.records(id).length - RecordHeaderBytes)
+    // smart_contracts/meta/contract.algo.ts:302
+    // if (this.records(id).exists) {
     box_len
     bury 1
     bz addData_after_if_else@25
-    dig 4
+    // smart_contracts/meta/contract.algo.ts:305
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/meta/contract.algo.ts:306
+    // this.recordStorageCost(recordKey, this.records(id).length - RecordHeaderBytes),
+    dig 1
+    dup
     box_len
     assert // Box must have value
     pushint 12
     -
-    dig 2
+    dig 5
     swap
     callsub recordStorageCost
-    bury 4
+    // smart_contracts/meta/contract.algo.ts:303-307
+    // const [receiver, total] = releaseDeposit(
+    //   this.records(id).key,
+    //   Txn.sender,
+    //   this.recordStorageCost(recordKey, this.records(id).length - RecordHeaderBytes),
+    // )
+    swap
+    cover 2
+    callsub releaseDeposit
+    dup
+    extract 0 32
+    swap
+    intc_3 // 32
+    extract_uint64
+    swap
+    bury 8
+    bury 6
 
 addData_after_if_else@25:
-    // smart_contracts/meta/contract.algo.ts:283
+    // smart_contracts/meta/contract.algo.ts:311
     // this.writeRecord(recordKey, Bytes(value))
+    cover 2
     callsub writeRecord
     pop
-    // smart_contracts/meta/contract.algo.ts:284
-    // this.refundRecord(previousCost)
+    // smart_contracts/meta/contract.algo.ts:312
+    // recordPayer(this.records(id).key, payment.sender, Txn.sender)
+    txn Sender
+    swap
+    cover 2
+    callsub recordPayer
+    // smart_contracts/meta/contract.algo.ts:314
+    // if (previousCost > 0) itxn.payment({ receiver: previousPayer, amount: previousCost, fee: 0 }).submit()
     dig 1
-    callsub refundRecord
-    // smart_contracts/meta/contract.algo.ts:261
+    bz addData_after_if_else@28
+    itxn_begin
+    dig 1
+    itxn_field Amount
+    dig 2
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+addData_after_if_else@28:
+    // smart_contracts/meta/contract.algo.ts:276
     // addData(payment: gtxn.PaymentTxn, name: string, key: string, value: string): void {
     intc_1 // 1
     return
@@ -634,7 +876,7 @@ addData_bool_false@14:
 
 // smart_contracts/meta/contract.algo.ts::Meta.deleteData[routing]() -> void:
 deleteData:
-    // smart_contracts/meta/contract.algo.ts:293
+    // smart_contracts/meta/contract.algo.ts:323
     // deleteData(name: string, key: string): void {
     txna ApplicationArgs 1
     dup
@@ -659,7 +901,7 @@ deleteData:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     dup
-    // smart_contracts/meta/contract.algo.ts:295
+    // smart_contracts/meta/contract.algo.ts:325
     // loggedAssert(keyBytes.length < 2 || keyBytes.slice(0, 2) !== Bytes(reservedDataKeyPrefix), errReservedKeyPrefix)
     len
     dup
@@ -686,7 +928,7 @@ deleteData:
     dig 2
     cover 2
     substring3
-    bytec 19 // "l."
+    bytec 20 // "l."
     !=
     bz deleteData_bool_false@4
 
@@ -694,45 +936,45 @@ deleteData_bool_true@3:
     intc_1 // 1
 
 deleteData_bool_merge@5:
-    // smart_contracts/meta/contract.algo.ts:295
+    // smart_contracts/meta/contract.algo.ts:325
     // loggedAssert(keyBytes.length < 2 || keyBytes.slice(0, 2) !== Bytes(reservedDataKeyPrefix), errReservedKeyPrefix)
     bnz deleteData_after_assert@7
-    bytec 20 // "ERR:errRkp"
+    bytec 21 // "ERR:errRkp"
     log
     err // ERR:errRkp
 
 deleteData_after_assert@7:
-    // smart_contracts/meta/contract.algo.ts:296
+    // smart_contracts/meta/contract.algo.ts:326
     // const recordKey = this.dataKey(name, key)
     callsub dataKey
     dup
-    // smart_contracts/meta/contract.algo.ts:297
+    // smart_contracts/meta/contract.algo.ts:327
     // const id = this.recordKey(Txn.sender, recordKey)
     txn Sender
     swap
     callsub recordKey
     dup
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:298
+    // smart_contracts/meta/contract.algo.ts:328
     // loggedAssert(this.records(id).exists, errNoData)
     box_len
     bury 1
     bnz deleteData_after_assert@9
-    bytec 21 // "ERR:errNdta"
+    bytec 22 // "ERR:errNdta"
     log
     err // ERR:errNdta
 
 deleteData_after_assert@9:
-    // smart_contracts/meta/contract.algo.ts:299
+    // smart_contracts/meta/contract.algo.ts:329
     // this.removeRecord(recordKey, this.currentRecordRevision(id))
     callsub currentRecordRevision
     callsub smart_contracts/meta/contract.algo.ts::Meta.removeRecord
     pop
-    // smart_contracts/meta/contract.algo.ts:293
+    // smart_contracts/meta/contract.algo.ts:323
     // deleteData(name: string, key: string): void {
     intc_1 // 1
     return
@@ -744,7 +986,7 @@ deleteData_bool_false@4:
 
 // smart_contracts/meta/contract.algo.ts::Meta.verify[routing]() -> void:
 verify:
-    // smart_contracts/meta/contract.algo.ts:313
+    // smart_contracts/meta/contract.algo.ts:343
     // verify(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64): boolean {
     txna ApplicationArgs 1
     dup
@@ -804,7 +1046,7 @@ verify:
 
 // smart_contracts/meta/contract.algo.ts::Meta.read[routing]() -> void:
 read:
-    // smart_contracts/meta/contract.algo.ts:337
+    // smart_contracts/meta/contract.algo.ts:367
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -851,7 +1093,7 @@ read:
 
 // smart_contracts/meta/contract.algo.ts::Meta.verifiedRead[routing]() -> void:
 verifiedRead:
-    // smart_contracts/meta/contract.algo.ts:364
+    // smart_contracts/meta/contract.algo.ts:394
     // verifiedRead(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
     txna ApplicationArgs 1
     dupn 2
@@ -909,20 +1151,20 @@ verifiedRead:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     cover 5
-    // smart_contracts/meta/contract.algo.ts:365
+    // smart_contracts/meta/contract.algo.ts:395
     // const verified = this.verify(address, name, leaf, proof, type)
     callsub smart_contracts/meta/contract.algo.ts::Meta.verify
     pop
-    // smart_contracts/meta/contract.algo.ts:366
+    // smart_contracts/meta/contract.algo.ts:396
     // if (!verified) {
     bnz verifiedRead_after_if_else@3
     popn 3
-    // smart_contracts/meta/contract.algo.ts:367
+    // smart_contracts/meta/contract.algo.ts:397
     // return ''
     bytec_1 // ""
 
 verifiedRead_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.verifiedRead@4:
-    // smart_contracts/meta/contract.algo.ts:364
+    // smart_contracts/meta/contract.algo.ts:394
     // verifiedRead(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
     dup
     len
@@ -938,17 +1180,17 @@ verifiedRead_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.verifiedR
     return
 
 verifiedRead_after_if_else@3:
-    // smart_contracts/meta/contract.algo.ts:369
+    // smart_contracts/meta/contract.algo.ts:399
     // return this.read(address, name, key)
     callsub smart_contracts/meta/contract.algo.ts::Meta.read
-    // smart_contracts/meta/contract.algo.ts:364
+    // smart_contracts/meta/contract.algo.ts:394
     // verifiedRead(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
     b verifiedRead_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.verifiedRead@4
 
 
 // smart_contracts/meta/contract.algo.ts::Meta.verifiedMustRead[routing]() -> void:
 verifiedMustRead:
-    // smart_contracts/meta/contract.algo.ts:391
+    // smart_contracts/meta/contract.algo.ts:421
     // verifiedMustRead(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
     txna ApplicationArgs 1
     dupn 2
@@ -1006,7 +1248,7 @@ verifiedMustRead:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     cover 5
-    // smart_contracts/meta/contract.algo.ts:392
+    // smart_contracts/meta/contract.algo.ts:422
     // loggedAssert(this.verify(address, name, leaf, proof, type), errFailedToVerifyInclusion)
     callsub smart_contracts/meta/contract.algo.ts::Meta.verify
     pop
@@ -1016,10 +1258,10 @@ verifiedMustRead:
     err // ERR:errFvri
 
 verifiedMustRead_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:393
+    // smart_contracts/meta/contract.algo.ts:423
     // return this.read(address, name, key)
     callsub smart_contracts/meta/contract.algo.ts::Meta.read
-    // smart_contracts/meta/contract.algo.ts:391
+    // smart_contracts/meta/contract.algo.ts:421
     // verifiedMustRead(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
     dup
     len
@@ -1038,7 +1280,7 @@ verifiedMustRead_after_assert@3:
 // smart_contracts/meta/contract.algo.ts::Meta.addType[routing]() -> void:
 addType:
     bytec_1 // ""
-    // smart_contracts/meta/contract.algo.ts:396
+    // smart_contracts/meta/contract.algo.ts:426
     // addType(payment: gtxn.PaymentTxn, description: string, schemaList: SchemaList): void {
     txn GroupIndex
     intc_1 // 1
@@ -1074,30 +1316,30 @@ addType:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/meta/contract.algo.ts:397
+    // smart_contracts/meta/contract.algo.ts:427
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     bnz addType_after_assert@3
-    bytec 8 // "ERR:errIpmr"
+    bytec 9 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
 addType_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:398
+    // smart_contracts/meta/contract.algo.ts:428
     // loggedAssert(payment.amount === MetaTypeFee, errInvalidPaymentAmount)
     uncover 2
     gtxns Amount
-    intc 8 // 100000000
+    intc 9 // 100000000
     ==
     bnz addType_after_assert@5
-    bytec 9 // "ERR:errIpma"
+    bytec 10 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
 addType_after_assert@5:
-    // smart_contracts/meta/contract.algo.ts:399
+    // smart_contracts/meta/contract.algo.ts:429
     // loggedAssert(Bytes(description).length <= 800, errDataTooLong)
     dig 1
     len
@@ -1106,27 +1348,27 @@ addType_after_assert@5:
     pushint 800
     <=
     bnz addType_after_assert@7
-    bytec 18 // "ERR:errDtl"
+    bytec 19 // "ERR:errDtl"
     log
     err // ERR:errDtl
 
 addType_after_assert@7:
-    // smart_contracts/meta/contract.algo.ts:401
+    // smart_contracts/meta/contract.algo.ts:431
     // let schema: string = '('
     pushbytes "("
-    // smart_contracts/meta/contract.algo.ts:402
+    // smart_contracts/meta/contract.algo.ts:432
     // for (let i: uint64 = 0; i < schemaList.length; i += 1) {
     intc_0 // 0
     cover 2
 
 addType_while_top@8:
-    // smart_contracts/meta/contract.algo.ts:402
+    // smart_contracts/meta/contract.algo.ts:432
     // for (let i: uint64 = 0; i < schemaList.length; i += 1) {
     dig 2
     dig 2
     <
     bz addType_after_while@66
-    // smart_contracts/meta/contract.algo.ts:403
+    // smart_contracts/meta/contract.algo.ts:433
     // switch (schemaList[i]) {
     dig 4
     extract 2 0
@@ -1134,23 +1376,23 @@ addType_while_top@8:
     intc_1 // 1
     extract3 // on error: index access is out of bounds
     dup
-    // smart_contracts/meta/contract.algo.ts:404
+    // smart_contracts/meta/contract.algo.ts:434
     // case SchemaPartUint8:
     pushbytes 0x0a
     ==
-    // smart_contracts/meta/contract.algo.ts:404-406
+    // smart_contracts/meta/contract.algo.ts:434-436
     // case SchemaPartUint8:
     //   schema += SchemaPartUint8String
     //   break
     bz addType_after_if_else@12
     pop
-    // smart_contracts/meta/contract.algo.ts:405
+    // smart_contracts/meta/contract.algo.ts:435
     // schema += SchemaPartUint8String
     pushbytes "uint8"
     concat
 
 addType_block@62:
-    // smart_contracts/meta/contract.algo.ts:459
+    // smart_contracts/meta/contract.algo.ts:489
     // if (schemaList.length > 0 && i !== schemaList.length - 1) {
     dig 1
     bz addType_after_if_else@65
@@ -1160,13 +1402,13 @@ addType_block@62:
     dig 3
     !=
     bz addType_after_if_else@65
-    // smart_contracts/meta/contract.algo.ts:460
+    // smart_contracts/meta/contract.algo.ts:490
     // schema += ','
     pushbytes ","
     concat
 
 addType_after_if_else@65:
-    // smart_contracts/meta/contract.algo.ts:402
+    // smart_contracts/meta/contract.algo.ts:432
     // for (let i: uint64 = 0; i < schemaList.length; i += 1) {
     uncover 2
     intc_1 // 1
@@ -1175,325 +1417,325 @@ addType_after_if_else@65:
     b addType_while_top@8
 
 addType_after_if_else@12:
-    // smart_contracts/meta/contract.algo.ts:407
+    // smart_contracts/meta/contract.algo.ts:437
     // case SchemaPartUint16:
     dup
     pushbytes 0x0b
     ==
-    // smart_contracts/meta/contract.algo.ts:407-409
+    // smart_contracts/meta/contract.algo.ts:437-439
     // case SchemaPartUint16:
     //   schema += SchemaPartUint16String
     //   break
     bz addType_after_if_else@15
     pop
-    // smart_contracts/meta/contract.algo.ts:408
+    // smart_contracts/meta/contract.algo.ts:438
     // schema += SchemaPartUint16String
     pushbytes "uint16"
-    concat
-    // smart_contracts/meta/contract.algo.ts:409
-    // break
-    b addType_block@62
-
-addType_after_if_else@15:
-    // smart_contracts/meta/contract.algo.ts:410
-    // case SchemaPartUint32:
-    dup
-    pushbytes 0x0c
-    ==
-    // smart_contracts/meta/contract.algo.ts:410-412
-    // case SchemaPartUint32:
-    //   schema += SchemaPartUint32String
-    //   break
-    bz addType_after_if_else@18
-    pop
-    // smart_contracts/meta/contract.algo.ts:411
-    // schema += SchemaPartUint32String
-    pushbytes "uint32"
-    concat
-    // smart_contracts/meta/contract.algo.ts:412
-    // break
-    b addType_block@62
-
-addType_after_if_else@18:
-    // smart_contracts/meta/contract.algo.ts:413
-    // case SchemaPartUint64:
-    dup
-    pushbytes 0x0d
-    ==
-    // smart_contracts/meta/contract.algo.ts:413-415
-    // case SchemaPartUint64:
-    //   schema += SchemaPartUint64String
-    //   break
-    bz addType_after_if_else@21
-    pop
-    // smart_contracts/meta/contract.algo.ts:414
-    // schema += SchemaPartUint64String
-    pushbytes "uint64"
-    concat
-    // smart_contracts/meta/contract.algo.ts:415
-    // break
-    b addType_block@62
-
-addType_after_if_else@21:
-    // smart_contracts/meta/contract.algo.ts:416
-    // case SchemaPartUint128:
-    dup
-    pushbytes 0x0e
-    ==
-    // smart_contracts/meta/contract.algo.ts:416-418
-    // case SchemaPartUint128:
-    //   schema += SchemaPartUint128String
-    //   break
-    bz addType_after_if_else@24
-    pop
-    // smart_contracts/meta/contract.algo.ts:417
-    // schema += SchemaPartUint128String
-    pushbytes "uint128"
-    concat
-    // smart_contracts/meta/contract.algo.ts:418
-    // break
-    b addType_block@62
-
-addType_after_if_else@24:
-    // smart_contracts/meta/contract.algo.ts:419
-    // case SchemaPartUint256:
-    dup
-    pushbytes 0x0f
-    ==
-    // smart_contracts/meta/contract.algo.ts:419-421
-    // case SchemaPartUint256:
-    //   schema += SchemaPartUint256String
-    //   break
-    bz addType_after_if_else@27
-    pop
-    // smart_contracts/meta/contract.algo.ts:420
-    // schema += SchemaPartUint256String
-    pushbytes "uint256"
-    concat
-    // smart_contracts/meta/contract.algo.ts:421
-    // break
-    b addType_block@62
-
-addType_after_if_else@27:
-    // smart_contracts/meta/contract.algo.ts:422
-    // case SchemaPartUint512:
-    dup
-    pushbytes 0x10
-    ==
-    // smart_contracts/meta/contract.algo.ts:422-424
-    // case SchemaPartUint512:
-    //   schema += SchemaPartUint512String
-    //   break
-    bz addType_after_if_else@30
-    pop
-    // smart_contracts/meta/contract.algo.ts:423
-    // schema += SchemaPartUint512String
-    pushbytes "uint512"
-    concat
-    // smart_contracts/meta/contract.algo.ts:424
-    // break
-    b addType_block@62
-
-addType_after_if_else@30:
-    // smart_contracts/meta/contract.algo.ts:425
-    // case SchemaPartBytes4:
-    dup
-    pushbytes 0x14
-    ==
-    // smart_contracts/meta/contract.algo.ts:425-427
-    // case SchemaPartBytes4:
-    //   schema += SchemaPartBytes4String
-    //   break
-    bz addType_after_if_else@33
-    pop
-    // smart_contracts/meta/contract.algo.ts:426
-    // schema += SchemaPartBytes4String
-    pushbytes "byte[4]"
-    concat
-    // smart_contracts/meta/contract.algo.ts:427
-    // break
-    b addType_block@62
-
-addType_after_if_else@33:
-    // smart_contracts/meta/contract.algo.ts:428
-    // case SchemaPartBytes8:
-    dup
-    pushbytes 0x15
-    ==
-    // smart_contracts/meta/contract.algo.ts:428-430
-    // case SchemaPartBytes8:
-    //   schema += SchemaPartBytes8String
-    //   break
-    bz addType_after_if_else@36
-    pop
-    // smart_contracts/meta/contract.algo.ts:429
-    // schema += SchemaPartBytes8String
-    pushbytes "byte[8]"
-    concat
-    // smart_contracts/meta/contract.algo.ts:430
-    // break
-    b addType_block@62
-
-addType_after_if_else@36:
-    // smart_contracts/meta/contract.algo.ts:431
-    // case SchemaPartBytes16:
-    dup
-    pushbytes 0x16
-    ==
-    // smart_contracts/meta/contract.algo.ts:431-433
-    // case SchemaPartBytes16:
-    //   schema += SchemaPartBytes16String
-    //   break
-    bz addType_after_if_else@39
-    pop
-    // smart_contracts/meta/contract.algo.ts:432
-    // schema += SchemaPartBytes16String
-    pushbytes "byte[16]"
-    concat
-    // smart_contracts/meta/contract.algo.ts:433
-    // break
-    b addType_block@62
-
-addType_after_if_else@39:
-    // smart_contracts/meta/contract.algo.ts:434
-    // case SchemaPartBytes32:
-    dup
-    pushbytes 0x17
-    ==
-    // smart_contracts/meta/contract.algo.ts:434-436
-    // case SchemaPartBytes32:
-    //   schema += SchemaPartBytes32String
-    //   break
-    bz addType_after_if_else@42
-    pop
-    // smart_contracts/meta/contract.algo.ts:435
-    // schema += SchemaPartBytes32String
-    pushbytes "byte[32]"
-    concat
-    // smart_contracts/meta/contract.algo.ts:436
-    // break
-    b addType_block@62
-
-addType_after_if_else@42:
-    // smart_contracts/meta/contract.algo.ts:437
-    // case SchemaPartBytes64:
-    dup
-    pushbytes 0x18
-    ==
-    // smart_contracts/meta/contract.algo.ts:437-439
-    // case SchemaPartBytes64:
-    //   schema += SchemaPartBytes64String
-    //   break
-    bz addType_after_if_else@45
-    pop
-    // smart_contracts/meta/contract.algo.ts:438
-    // schema += SchemaPartBytes64String
-    pushbytes "byte[64]"
     concat
     // smart_contracts/meta/contract.algo.ts:439
     // break
     b addType_block@62
 
-addType_after_if_else@45:
+addType_after_if_else@15:
     // smart_contracts/meta/contract.algo.ts:440
-    // case SchemaPartBytes128:
+    // case SchemaPartUint32:
     dup
-    pushbytes 0x19
+    pushbytes 0x0c
     ==
     // smart_contracts/meta/contract.algo.ts:440-442
-    // case SchemaPartBytes128:
-    //   schema += SchemaPartBytes128String
+    // case SchemaPartUint32:
+    //   schema += SchemaPartUint32String
     //   break
-    bz addType_after_if_else@48
+    bz addType_after_if_else@18
     pop
     // smart_contracts/meta/contract.algo.ts:441
-    // schema += SchemaPartBytes128String
-    pushbytes "byte[128]"
+    // schema += SchemaPartUint32String
+    pushbytes "uint32"
     concat
     // smart_contracts/meta/contract.algo.ts:442
     // break
     b addType_block@62
 
-addType_after_if_else@48:
+addType_after_if_else@18:
     // smart_contracts/meta/contract.algo.ts:443
-    // case SchemaPartBytes256:
+    // case SchemaPartUint64:
     dup
-    pushbytes 0x1a
+    pushbytes 0x0d
     ==
     // smart_contracts/meta/contract.algo.ts:443-445
-    // case SchemaPartBytes256:
-    //   schema += SchemaPartBytes256String
+    // case SchemaPartUint64:
+    //   schema += SchemaPartUint64String
     //   break
-    bz addType_after_if_else@51
+    bz addType_after_if_else@21
     pop
     // smart_contracts/meta/contract.algo.ts:444
-    // schema += SchemaPartBytes256String
-    pushbytes "byte[256]"
+    // schema += SchemaPartUint64String
+    pushbytes "uint64"
     concat
     // smart_contracts/meta/contract.algo.ts:445
     // break
     b addType_block@62
 
-addType_after_if_else@51:
+addType_after_if_else@21:
     // smart_contracts/meta/contract.algo.ts:446
-    // case SchemaPartBytes512:
+    // case SchemaPartUint128:
     dup
-    pushbytes 0x1b
+    pushbytes 0x0e
     ==
     // smart_contracts/meta/contract.algo.ts:446-448
-    // case SchemaPartBytes512:
-    //   schema += SchemaPartBytes512String
+    // case SchemaPartUint128:
+    //   schema += SchemaPartUint128String
     //   break
-    bz addType_after_if_else@54
+    bz addType_after_if_else@24
     pop
     // smart_contracts/meta/contract.algo.ts:447
-    // schema += SchemaPartBytes512String
-    pushbytes "byte[512]"
+    // schema += SchemaPartUint128String
+    pushbytes "uint128"
     concat
     // smart_contracts/meta/contract.algo.ts:448
     // break
     b addType_block@62
 
-addType_after_if_else@54:
+addType_after_if_else@24:
     // smart_contracts/meta/contract.algo.ts:449
-    // case SchemaPartString:
+    // case SchemaPartUint256:
     dup
-    pushbytes 0x1e
+    pushbytes 0x0f
     ==
     // smart_contracts/meta/contract.algo.ts:449-451
-    // case SchemaPartString:
-    //   schema += SchemaPartStringString
+    // case SchemaPartUint256:
+    //   schema += SchemaPartUint256String
     //   break
-    bz addType_after_if_else@57
+    bz addType_after_if_else@27
     pop
     // smart_contracts/meta/contract.algo.ts:450
-    // schema += SchemaPartStringString
-    pushbytes "string"
+    // schema += SchemaPartUint256String
+    pushbytes "uint256"
     concat
     // smart_contracts/meta/contract.algo.ts:451
     // break
     b addType_block@62
 
-addType_after_if_else@57:
+addType_after_if_else@27:
     // smart_contracts/meta/contract.algo.ts:452
-    // case SchemaPartAddress:
-    pushbytes 0x28
+    // case SchemaPartUint512:
+    dup
+    pushbytes 0x10
     ==
     // smart_contracts/meta/contract.algo.ts:452-454
-    // case SchemaPartAddress:
-    //   schema += SchemaPartAddressString
+    // case SchemaPartUint512:
+    //   schema += SchemaPartUint512String
     //   break
-    bz addType_after_if_else@60
+    bz addType_after_if_else@30
+    pop
     // smart_contracts/meta/contract.algo.ts:453
-    // schema += SchemaPartAddressString
-    pushbytes "address"
+    // schema += SchemaPartUint512String
+    pushbytes "uint512"
     concat
     // smart_contracts/meta/contract.algo.ts:454
     // break
     b addType_block@62
 
-addType_after_if_else@60:
+addType_after_if_else@30:
+    // smart_contracts/meta/contract.algo.ts:455
+    // case SchemaPartBytes4:
+    dup
+    pushbytes 0x14
+    ==
+    // smart_contracts/meta/contract.algo.ts:455-457
+    // case SchemaPartBytes4:
+    //   schema += SchemaPartBytes4String
+    //   break
+    bz addType_after_if_else@33
+    pop
     // smart_contracts/meta/contract.algo.ts:456
+    // schema += SchemaPartBytes4String
+    pushbytes "byte[4]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:457
+    // break
+    b addType_block@62
+
+addType_after_if_else@33:
+    // smart_contracts/meta/contract.algo.ts:458
+    // case SchemaPartBytes8:
+    dup
+    pushbytes 0x15
+    ==
+    // smart_contracts/meta/contract.algo.ts:458-460
+    // case SchemaPartBytes8:
+    //   schema += SchemaPartBytes8String
+    //   break
+    bz addType_after_if_else@36
+    pop
+    // smart_contracts/meta/contract.algo.ts:459
+    // schema += SchemaPartBytes8String
+    pushbytes "byte[8]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:460
+    // break
+    b addType_block@62
+
+addType_after_if_else@36:
+    // smart_contracts/meta/contract.algo.ts:461
+    // case SchemaPartBytes16:
+    dup
+    pushbytes 0x16
+    ==
+    // smart_contracts/meta/contract.algo.ts:461-463
+    // case SchemaPartBytes16:
+    //   schema += SchemaPartBytes16String
+    //   break
+    bz addType_after_if_else@39
+    pop
+    // smart_contracts/meta/contract.algo.ts:462
+    // schema += SchemaPartBytes16String
+    pushbytes "byte[16]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:463
+    // break
+    b addType_block@62
+
+addType_after_if_else@39:
+    // smart_contracts/meta/contract.algo.ts:464
+    // case SchemaPartBytes32:
+    dup
+    pushbytes 0x17
+    ==
+    // smart_contracts/meta/contract.algo.ts:464-466
+    // case SchemaPartBytes32:
+    //   schema += SchemaPartBytes32String
+    //   break
+    bz addType_after_if_else@42
+    pop
+    // smart_contracts/meta/contract.algo.ts:465
+    // schema += SchemaPartBytes32String
+    pushbytes "byte[32]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:466
+    // break
+    b addType_block@62
+
+addType_after_if_else@42:
+    // smart_contracts/meta/contract.algo.ts:467
+    // case SchemaPartBytes64:
+    dup
+    pushbytes 0x18
+    ==
+    // smart_contracts/meta/contract.algo.ts:467-469
+    // case SchemaPartBytes64:
+    //   schema += SchemaPartBytes64String
+    //   break
+    bz addType_after_if_else@45
+    pop
+    // smart_contracts/meta/contract.algo.ts:468
+    // schema += SchemaPartBytes64String
+    pushbytes "byte[64]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:469
+    // break
+    b addType_block@62
+
+addType_after_if_else@45:
+    // smart_contracts/meta/contract.algo.ts:470
+    // case SchemaPartBytes128:
+    dup
+    pushbytes 0x19
+    ==
+    // smart_contracts/meta/contract.algo.ts:470-472
+    // case SchemaPartBytes128:
+    //   schema += SchemaPartBytes128String
+    //   break
+    bz addType_after_if_else@48
+    pop
+    // smart_contracts/meta/contract.algo.ts:471
+    // schema += SchemaPartBytes128String
+    pushbytes "byte[128]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:472
+    // break
+    b addType_block@62
+
+addType_after_if_else@48:
+    // smart_contracts/meta/contract.algo.ts:473
+    // case SchemaPartBytes256:
+    dup
+    pushbytes 0x1a
+    ==
+    // smart_contracts/meta/contract.algo.ts:473-475
+    // case SchemaPartBytes256:
+    //   schema += SchemaPartBytes256String
+    //   break
+    bz addType_after_if_else@51
+    pop
+    // smart_contracts/meta/contract.algo.ts:474
+    // schema += SchemaPartBytes256String
+    pushbytes "byte[256]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:475
+    // break
+    b addType_block@62
+
+addType_after_if_else@51:
+    // smart_contracts/meta/contract.algo.ts:476
+    // case SchemaPartBytes512:
+    dup
+    pushbytes 0x1b
+    ==
+    // smart_contracts/meta/contract.algo.ts:476-478
+    // case SchemaPartBytes512:
+    //   schema += SchemaPartBytes512String
+    //   break
+    bz addType_after_if_else@54
+    pop
+    // smart_contracts/meta/contract.algo.ts:477
+    // schema += SchemaPartBytes512String
+    pushbytes "byte[512]"
+    concat
+    // smart_contracts/meta/contract.algo.ts:478
+    // break
+    b addType_block@62
+
+addType_after_if_else@54:
+    // smart_contracts/meta/contract.algo.ts:479
+    // case SchemaPartString:
+    dup
+    pushbytes 0x1e
+    ==
+    // smart_contracts/meta/contract.algo.ts:479-481
+    // case SchemaPartString:
+    //   schema += SchemaPartStringString
+    //   break
+    bz addType_after_if_else@57
+    pop
+    // smart_contracts/meta/contract.algo.ts:480
+    // schema += SchemaPartStringString
+    pushbytes "string"
+    concat
+    // smart_contracts/meta/contract.algo.ts:481
+    // break
+    b addType_block@62
+
+addType_after_if_else@57:
+    // smart_contracts/meta/contract.algo.ts:482
+    // case SchemaPartAddress:
+    pushbytes 0x28
+    ==
+    // smart_contracts/meta/contract.algo.ts:482-484
+    // case SchemaPartAddress:
+    //   schema += SchemaPartAddressString
+    //   break
+    bz addType_after_if_else@60
+    // smart_contracts/meta/contract.algo.ts:483
+    // schema += SchemaPartAddressString
+    pushbytes "address"
+    concat
+    // smart_contracts/meta/contract.algo.ts:484
+    // break
+    b addType_block@62
+
+addType_after_if_else@60:
+    // smart_contracts/meta/contract.algo.ts:486
     // loggedAssert(false, errInvalidSchemaPart)
     pushbytes "ERR:errMsch"
     log
@@ -1502,39 +1744,39 @@ addType_after_if_else@60:
 addType_after_while@66:
     bury 1
     bury 1
-    // smart_contracts/meta/contract.algo.ts:138
+    // smart_contracts/meta/contract.algo.ts:139
     // const id = this.typesID.value
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:119
+    // smart_contracts/meta/contract.algo.ts:120
     // typesID = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypesID })
     bytec 7 // "types_id"
-    // smart_contracts/meta/contract.algo.ts:138
+    // smart_contracts/meta/contract.algo.ts:139
     // const id = this.typesID.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/meta/contract.algo.ts:139
+    // smart_contracts/meta/contract.algo.ts:140
     // this.typesID.value += 1
     dup
     intc_1 // 1
     +
-    // smart_contracts/meta/contract.algo.ts:119
+    // smart_contracts/meta/contract.algo.ts:120
     // typesID = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypesID })
     bytec 7 // "types_id"
-    // smart_contracts/meta/contract.algo.ts:139
+    // smart_contracts/meta/contract.algo.ts:140
     // this.typesID.value += 1
     swap
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:466
+    // smart_contracts/meta/contract.algo.ts:496
     // const minBalanceBefore: uint64 = Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
     assert // account funded
-    // smart_contracts/meta/contract.algo.ts:469
+    // smart_contracts/meta/contract.algo.ts:499
     // schema: schema + ')',
     uncover 2
     pushbytes ")"
     concat
-    // smart_contracts/meta/contract.algo.ts:467-470
+    // smart_contracts/meta/contract.algo.ts:497-500
     // this.types(id).value = {
     //   description: description,
     //   schema: schema + ')',
@@ -1564,16 +1806,16 @@ addType_after_while@66:
     concat
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:467
+    // smart_contracts/meta/contract.algo.ts:497
     // this.types(id).value = {
     uncover 2
     itob
-    // smart_contracts/meta/contract.algo.ts:129
+    // smart_contracts/meta/contract.algo.ts:130
     // types = BoxMap<uint64, TypesValue>({ keyPrefix: MetaBoxPrefixTypes })
     pushbytes "t"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:467-470
+    // smart_contracts/meta/contract.algo.ts:497-500
     // this.types(id).value = {
     //   description: description,
     //   schema: schema + ')',
@@ -1583,35 +1825,35 @@ addType_after_while@66:
     pop
     swap
     box_put
-    // smart_contracts/meta/contract.algo.ts:472
+    // smart_contracts/meta/contract.algo.ts:502
     // const storage: uint64 = Global.currentApplicationAddress.minBalance - minBalanceBefore
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
     assert // account funded
     swap
     -
-    // smart_contracts/meta/contract.algo.ts:473
+    // smart_contracts/meta/contract.algo.ts:503
     // this.typeFees.value += MetaTypeFee - storage
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:473
+    // smart_contracts/meta/contract.algo.ts:503
     // this.typeFees.value += MetaTypeFee - storage
     app_global_get_ex
     assert // check GlobalState exists
-    intc 8 // 100000000
+    intc 9 // 100000000
     uncover 2
     -
     +
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:473
+    // smart_contracts/meta/contract.algo.ts:503
     // this.typeFees.value += MetaTypeFee - storage
     swap
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:396
+    // smart_contracts/meta/contract.algo.ts:426
     // addType(payment: gtxn.PaymentTxn, description: string, schemaList: SchemaList): void {
     intc_1 // 1
     return
@@ -1619,13 +1861,13 @@ addType_after_while@66:
 
 // smart_contracts/meta/contract.algo.ts::Meta.collectTypeFees[routing]() -> void:
 collectTypeFees:
-    // smart_contracts/meta/contract.algo.ts:483
+    // smart_contracts/meta/contract.algo.ts:513
     // loggedAssert(this.akitaDAOEscrow.hasValue && this.akitaDAOEscrow.value.app.id !== 0, errEscrowDoesNotExist)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec 6 // "akita_escrow"
-    // smart_contracts/meta/contract.algo.ts:483
+    // smart_contracts/meta/contract.algo.ts:513
     // loggedAssert(this.akitaDAOEscrow.hasValue && this.akitaDAOEscrow.value.app.id !== 0, errEscrowDoesNotExist)
     app_global_get_ex
     bury 1
@@ -1634,7 +1876,7 @@ collectTypeFees:
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec 6 // "akita_escrow"
-    // smart_contracts/meta/contract.algo.ts:483
+    // smart_contracts/meta/contract.algo.ts:513
     // loggedAssert(this.akitaDAOEscrow.hasValue && this.akitaDAOEscrow.value.app.id !== 0, errEscrowDoesNotExist)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1644,7 +1886,7 @@ collectTypeFees:
     intc_1 // 1
 
 collectTypeFees_bool_merge@5:
-    // smart_contracts/meta/contract.algo.ts:483
+    // smart_contracts/meta/contract.algo.ts:513
     // loggedAssert(this.akitaDAOEscrow.hasValue && this.akitaDAOEscrow.value.app.id !== 0, errEscrowDoesNotExist)
     bnz collectTypeFees_after_assert@7
     pushbytes "ERR:errNesc"
@@ -1652,14 +1894,14 @@ collectTypeFees_bool_merge@5:
     err // ERR:errNesc
 
 collectTypeFees_after_assert@7:
-    // smart_contracts/meta/contract.algo.ts:485
+    // smart_contracts/meta/contract.algo.ts:515
     // const app = Global.currentApplicationAddress
     global CurrentApplicationAddress
-    // smart_contracts/meta/contract.algo.ts:485-486
+    // smart_contracts/meta/contract.algo.ts:515-516
     // const app = Global.currentApplicationAddress
     // const spare: uint64 = app.balance > app.minBalance ? app.balance - app.minBalance : 0
     dupn 2
-    // smart_contracts/meta/contract.algo.ts:486
+    // smart_contracts/meta/contract.algo.ts:516
     // const spare: uint64 = app.balance > app.minBalance ? app.balance - app.minBalance : 0
     acct_params_get AcctBalance
     assert // account funded
@@ -1677,13 +1919,13 @@ collectTypeFees_after_assert@7:
     -
 
 collectTypeFees_ternary_merge@10:
-    // smart_contracts/meta/contract.algo.ts:487
+    // smart_contracts/meta/contract.algo.ts:517
     // const amount: uint64 = this.typeFees.value < spare ? this.typeFees.value : spare
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:487
+    // smart_contracts/meta/contract.algo.ts:517
     // const amount: uint64 = this.typeFees.value < spare ? this.typeFees.value : spare
     app_global_get_ex
     assert // check GlobalState exists
@@ -1692,26 +1934,26 @@ collectTypeFees_ternary_merge@10:
     bz collectTypeFees_ternary_false@12
     pop
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:487
+    // smart_contracts/meta/contract.algo.ts:517
     // const amount: uint64 = this.typeFees.value < spare ? this.typeFees.value : spare
     app_global_get_ex
     assert // check GlobalState exists
 
 collectTypeFees_ternary_merge@13:
-    // smart_contracts/meta/contract.algo.ts:488
+    // smart_contracts/meta/contract.algo.ts:518
     // if (amount === 0) {
     dup
     bnz collectTypeFees_after_if_else@15
     pop
-    // smart_contracts/meta/contract.algo.ts:489
+    // smart_contracts/meta/contract.algo.ts:519
     // return 0
     intc_0 // 0
 
 collectTypeFees_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.collectTypeFees@17:
-    // smart_contracts/meta/contract.algo.ts:482
+    // smart_contracts/meta/contract.algo.ts:512
     // collectTypeFees(): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -1722,33 +1964,33 @@ collectTypeFees_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.collec
     return
 
 collectTypeFees_after_if_else@15:
-    // smart_contracts/meta/contract.algo.ts:492
+    // smart_contracts/meta/contract.algo.ts:522
     // this.typeFees.value -= amount
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:492
+    // smart_contracts/meta/contract.algo.ts:522
     // this.typeFees.value -= amount
     app_global_get_ex
     assert // check GlobalState exists
     dig 1
     -
-    // smart_contracts/meta/contract.algo.ts:124
+    // smart_contracts/meta/contract.algo.ts:125
     // typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
     bytec_3 // "type_fees"
-    // smart_contracts/meta/contract.algo.ts:492
+    // smart_contracts/meta/contract.algo.ts:522
     // this.typeFees.value -= amount
     swap
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:493
+    // smart_contracts/meta/contract.algo.ts:523
     // itxn.payment({ receiver: this.akitaDAOEscrow.value.app.address, amount, fee: 0 }).submit()
     itxn_begin
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec 6 // "akita_escrow"
-    // smart_contracts/meta/contract.algo.ts:493
+    // smart_contracts/meta/contract.algo.ts:523
     // itxn.payment({ receiver: this.akitaDAOEscrow.value.app.address, amount, fee: 0 }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -1764,7 +2006,7 @@ collectTypeFees_after_if_else@15:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/meta/contract.algo.ts:482
+    // smart_contracts/meta/contract.algo.ts:512
     // collectTypeFees(): uint64 {
     b collectTypeFees_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.collectTypeFees@17
 
@@ -1773,7 +2015,7 @@ collectTypeFees_ternary_false@12:
 
 collectTypeFees_ternary_false@9:
     pop
-    // smart_contracts/meta/contract.algo.ts:486
+    // smart_contracts/meta/contract.algo.ts:516
     // const spare: uint64 = app.balance > app.minBalance ? app.balance - app.minBalance : 0
     intc_0 // 0
     b collectTypeFees_ternary_merge@10
@@ -1785,7 +2027,7 @@ collectTypeFees_bool_false@4:
 
 // smart_contracts/meta/contract.algo.ts::Meta.rootCosts[routing]() -> void:
 rootCosts:
-    // smart_contracts/meta/contract.algo.ts:499
+    // smart_contracts/meta/contract.algo.ts:529
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1798,14 +2040,14 @@ rootCosts:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/meta/contract.algo.ts:502
+    // smart_contracts/meta/contract.algo.ts:532
     // return 31_700 + 400 * Bytes(name).length
     len
-    intc 4 // 400
+    intc 5 // 400
     *
-    intc 5 // 31700
+    intc 6 // 31700
     +
-    // smart_contracts/meta/contract.algo.ts:499
+    // smart_contracts/meta/contract.algo.ts:529
     // @abimethod({ readonly: true })
     itob
     bytec_0 // 0x151f7c75
@@ -1818,7 +2060,7 @@ rootCosts:
 
 // smart_contracts/meta/contract.algo.ts::Meta.dataCosts[routing]() -> void:
 dataCosts:
-    // smart_contracts/meta/contract.algo.ts:505
+    // smart_contracts/meta/contract.algo.ts:535
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1853,14 +2095,14 @@ dataCosts:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/meta/contract.algo.ts:507
+    // smart_contracts/meta/contract.algo.ts:537
     // return this.recordStorageCost(this.dataKey(name, key), Bytes(value).length)
     cover 2
     callsub dataKey
     swap
     len
     callsub recordStorageCost
-    // smart_contracts/meta/contract.algo.ts:505
+    // smart_contracts/meta/contract.algo.ts:535
     // @abimethod({ readonly: true })
     itob
     bytec_0 // 0x151f7c75
@@ -1873,7 +2115,7 @@ dataCosts:
 
 // smart_contracts/meta/contract.algo.ts::Meta.recordInfo[routing]() -> void:
 recordInfo:
-    // smart_contracts/meta/contract.algo.ts:510
+    // smart_contracts/meta/contract.algo.ts:540
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1903,7 +2145,7 @@ recordInfo:
 
 // smart_contracts/meta/contract.algo.ts::Meta.readRecord[routing]() -> void:
 readRecord:
-    // smart_contracts/meta/contract.algo.ts:517
+    // smart_contracts/meta/contract.algo.ts:547
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1934,7 +2176,7 @@ readRecord:
 // smart_contracts/meta/contract.algo.ts::Meta.readRecordSlice[routing]() -> void:
 readRecordSlice:
     bytec_1 // ""
-    // smart_contracts/meta/contract.algo.ts:526
+    // smart_contracts/meta/contract.algo.ts:556
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dupn 2
@@ -1979,37 +2221,37 @@ readRecordSlice:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/meta/contract.algo.ts:528
+    // smart_contracts/meta/contract.algo.ts:558
     // const info = this.recordInfo(account, key)
     callsub smart_contracts/meta/contract.algo.ts::Meta.recordInfo
     dup
     cover 6
-    // smart_contracts/meta/contract.algo.ts:529
+    // smart_contracts/meta/contract.algo.ts:559
     // loggedAssert(info.exists, errRecordNotFound)
     intc_0 // 0
     getbit
     bnz readRecordSlice_after_assert@3
-    bytec 22 // "ERR:errMrnf"
+    bytec 23 // "ERR:errMrnf"
     log
     err // ERR:errMrnf
 
 readRecordSlice_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:530
+    // smart_contracts/meta/contract.algo.ts:560
     // loggedAssert(info.revision === expectedRevision, errRecordRevisionMismatch)
     dig 5
     intc_1 // 1
     extract_uint64
     ==
     bnz readRecordSlice_after_assert@5
-    bytec 11 // "ERR:errMrev"
+    bytec 12 // "ERR:errMrev"
     log
     err // ERR:errMrev
 
 readRecordSlice_after_assert@5:
-    // smart_contracts/meta/contract.algo.ts:531
+    // smart_contracts/meta/contract.algo.ts:561
     // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
     dup
-    intc 6 // 1024
+    intc 7 // 1024
     <=
     bz readRecordSlice_bool_false@9
     dig 4
@@ -2029,7 +2271,7 @@ readRecordSlice_after_assert@5:
     intc_1 // 1
 
 readRecordSlice_bool_merge@10:
-    // smart_contracts/meta/contract.algo.ts:531
+    // smart_contracts/meta/contract.algo.ts:561
     // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
     bnz readRecordSlice_after_assert@12
     pushbytes "ERR:errMrng"
@@ -2037,24 +2279,24 @@ readRecordSlice_bool_merge@10:
     err // ERR:errMrng
 
 readRecordSlice_after_assert@12:
-    // smart_contracts/meta/contract.algo.ts:532
+    // smart_contracts/meta/contract.algo.ts:562
     // return this.records(this.recordKey(account, key)).extract(RecordHeaderBytes + offset, length)
     uncover 3
     uncover 3
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:532
+    // smart_contracts/meta/contract.algo.ts:562
     // return this.records(this.recordKey(account, key)).extract(RecordHeaderBytes + offset, length)
     pushint 12
     uncover 3
     +
     uncover 2
     box_extract
-    // smart_contracts/meta/contract.algo.ts:526
+    // smart_contracts/meta/contract.algo.ts:556
     // @abimethod({ readonly: true })
     dup
     len
@@ -2078,7 +2320,7 @@ readRecordSlice_bool_false@9:
 recordCost:
     intc_0 // 0
     bytec_1 // ""
-    // smart_contracts/meta/contract.algo.ts:535
+    // smart_contracts/meta/contract.algo.ts:565
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -2108,46 +2350,46 @@ recordCost:
     btoi
     dup
     cover 2
-    // smart_contracts/meta/contract.algo.ts:537
+    // smart_contracts/meta/contract.algo.ts:567
     // loggedAssert(size + RecordArgumentBytes + key.length <= MaxAppCallArgumentBytes, errRecordValueTooLarge)
     pushint 22
     +
     swap
     len
     +
-    intc 9 // 16384
+    intc 10 // 16384
     <=
     bnz recordCost_after_assert@3
-    bytec 23 // "ERR:errMvsz"
+    bytec 24 // "ERR:errMvsz"
     log
     err // ERR:errMvsz
 
 recordCost_after_assert@3:
-    // smart_contracts/meta/contract.algo.ts:538
+    // smart_contracts/meta/contract.algo.ts:568
     // const id = this.recordKey(account, key)
     swap
     dig 2
     dup
     cover 2
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:539
+    // smart_contracts/meta/contract.algo.ts:569
     // const next = this.recordStorageCost(key, size)
     swap
     uncover 2
     callsub recordStorageCost
     swap
-    // smart_contracts/meta/contract.algo.ts:540
+    // smart_contracts/meta/contract.algo.ts:570
     // let previous: uint64 = 0
     intc_0 // 0
     bury 4
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
     dup
     bury 5
-    // smart_contracts/meta/contract.algo.ts:541
+    // smart_contracts/meta/contract.algo.ts:571
     // if (this.records(id).exists) previous = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     box_len
     bury 1
@@ -2163,7 +2405,7 @@ recordCost_after_assert@3:
     bury 3
 
 recordCost_after_if_else@5:
-    // smart_contracts/meta/contract.algo.ts:542
+    // smart_contracts/meta/contract.algo.ts:572
     // return next > previous ? next - previous : 0
     dup
     dig 3
@@ -2173,7 +2415,7 @@ recordCost_after_if_else@5:
     -
 
 recordCost_ternary_merge@8:
-    // smart_contracts/meta/contract.algo.ts:535
+    // smart_contracts/meta/contract.algo.ts:565
     // @abimethod({ readonly: true })
     itob
     bytec_0 // 0x151f7c75
@@ -2185,7 +2427,7 @@ recordCost_ternary_merge@8:
 
 recordCost_ternary_false@7:
     pop
-    // smart_contracts/meta/contract.algo.ts:542
+    // smart_contracts/meta/contract.algo.ts:572
     // return next > previous ? next - previous : 0
     intc_0 // 0
     b recordCost_ternary_merge@8
@@ -2195,8 +2437,8 @@ recordCost_ternary_false@7:
 setRecord:
     intc_0 // 0
     bytec_1 // ""
-    dupn 4
-    // smart_contracts/meta/contract.algo.ts:546-550
+    dupn 6
+    // smart_contracts/meta/contract.algo.ts:576-580
     // setRecord(
     //   payment: gtxn.PaymentTxn, key: bytes,
     //   data0: bytes, data1: bytes, data2: bytes, data3: bytes,
@@ -2279,49 +2521,49 @@ setRecord:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/meta/contract.algo.ts:551
+    // smart_contracts/meta/contract.algo.ts:581
     // const id = this.recordKey(Txn.sender, key)
     txn Sender
     uncover 2
     callsub recordKey
     swap
-    // smart_contracts/meta/contract.algo.ts:552
+    // smart_contracts/meta/contract.algo.ts:582
     // loggedAssert(data0.length <= MaxRecordPartBytes && data1.length <= MaxRecordPartBytes &&
     len
     dup
     cover 5
-    intc 7 // 4094
+    intc 8 // 4094
     <=
     bz setRecord_bool_false@6
     dig 6
     len
-    intc 7 // 4094
+    intc 8 // 4094
     <=
     bz setRecord_bool_false@6
-    // smart_contracts/meta/contract.algo.ts:553
+    // smart_contracts/meta/contract.algo.ts:583
     // data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
     dig 5
     len
-    intc 7 // 4094
+    intc 8 // 4094
     <=
-    // smart_contracts/meta/contract.algo.ts:552-553
+    // smart_contracts/meta/contract.algo.ts:582-583
     // loggedAssert(data0.length <= MaxRecordPartBytes && data1.length <= MaxRecordPartBytes &&
     //   data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
     bz setRecord_bool_false@6
-    // smart_contracts/meta/contract.algo.ts:553
+    // smart_contracts/meta/contract.algo.ts:583
     // data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
     dig 2
     len
     pushint 4084
     <=
-    // smart_contracts/meta/contract.algo.ts:552-553
+    // smart_contracts/meta/contract.algo.ts:582-583
     // loggedAssert(data0.length <= MaxRecordPartBytes && data1.length <= MaxRecordPartBytes &&
     //   data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
     bz setRecord_bool_false@6
     intc_1 // 1
 
 setRecord_bool_merge@7:
-    // smart_contracts/meta/contract.algo.ts:552-553
+    // smart_contracts/meta/contract.algo.ts:582-583
     // loggedAssert(data0.length <= MaxRecordPartBytes && data1.length <= MaxRecordPartBytes &&
     //   data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
     bnz setRecord_after_assert@9
@@ -2330,7 +2572,7 @@ setRecord_bool_merge@7:
     err // ERR:errMprt
 
 setRecord_after_assert@9:
-    // smart_contracts/meta/contract.algo.ts:554
+    // smart_contracts/meta/contract.algo.ts:584
     // const size: uint64 = data0.length + data1.length + data2.length + data3.length
     dig 6
     len
@@ -2346,82 +2588,113 @@ setRecord_after_assert@9:
     dig 3
     len
     dup
-    cover 5
+    cover 3
     +
     dup
-    bury 14
-    // smart_contracts/meta/contract.algo.ts:555
+    bury 15
+    // smart_contracts/meta/contract.algo.ts:585
     // loggedAssert(size + RecordArgumentBytes + key.length <= MaxAppCallArgumentBytes, errRecordValueTooLarge)
     pushint 22
     +
     dig 5
     len
     +
-    intc 9 // 16384
+    intc 10 // 16384
     <=
     bnz setRecord_after_assert@11
-    bytec 23 // "ERR:errMvsz"
+    bytec 24 // "ERR:errMvsz"
     log
     err // ERR:errMvsz
 
 setRecord_after_assert@11:
-    // smart_contracts/meta/contract.algo.ts:556
+    // smart_contracts/meta/contract.algo.ts:586
     // loggedAssert(expectedRevision === this.currentRecordRevision(id), errRecordRevisionMismatch)
     dup
     callsub currentRecordRevision
-    uncover 2
+    uncover 3
     ==
     bnz setRecord_after_assert@13
-    bytec 11 // "ERR:errMrev"
+    bytec 12 // "ERR:errMrev"
     log
     err // ERR:errMrev
 
 setRecord_after_assert@13:
-    // smart_contracts/meta/contract.algo.ts:557
-    // let previousCost: uint64 = 0
-    intc_0 // 0
-    bury 13
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
     dup
-    bury 15
-    // smart_contracts/meta/contract.algo.ts:558
-    // if (this.records(id).exists) previousCost = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
+    bury 17
+    // smart_contracts/meta/contract.algo.ts:587
+    // const exists = this.records(id).exists
     box_len
-    bury 1
+    dup
+    uncover 2
+    pop
+    // smart_contracts/meta/contract.algo.ts:588
+    // let previousCost: uint64 = 0
+    intc_0 // 0
+    bury 16
+    // smart_contracts/meta/contract.algo.ts:589
+    // if (exists) previousCost = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     bz setRecord_after_if_else@15
-    dig 13
+    dig 16
     box_len
     assert // Box must have value
     pushint 12
     -
-    dig 3
+    dig 4
     swap
     callsub recordStorageCost
-    bury 12
+    bury 15
 
 setRecord_after_if_else@15:
-    // smart_contracts/meta/contract.algo.ts:559
+    // smart_contracts/meta/contract.algo.ts:590
     // const nextCost = this.recordStorageCost(key, size)
-    dig 2
-    dig 11
+    dig 3
+    dig 13
     callsub recordStorageCost
     dup
-    // smart_contracts/meta/contract.algo.ts:560
-    // this.requireRecordPayment(payment, nextCost > previousCost ? nextCost - previousCost : 0)
-    dig 13
+    // smart_contracts/meta/contract.algo.ts:591
+    // const due: uint64 = nextCost > previousCost ? nextCost - previousCost : 0
+    dig 16
     >
     bz setRecord_ternary_false@17
     dup
-    dig 13
+    dig 16
     -
-    bury 14
 
 setRecord_ternary_merge@18:
-    // smart_contracts/meta/contract.algo.ts:172
+    // smart_contracts/meta/contract.algo.ts:594
+    // let sponsor: uint64 = 0
+    intc_0 // 0
+    bury 14
+    // smart_contracts/meta/contract.algo.ts:595
+    // if (!exists) {
+    uncover 2
+    bnz setRecord_else_body@20
+    // smart_contracts/meta/contract.algo.ts:596
+    // sponsor = sponsorCost(payment.sender, Txn.sender)
+    dig 9
+    gtxns Sender
+    txn Sender
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    ==
+    intc 4 // 28500
+    intc_0 // 0
+    uncover 2
+    select
+    bury 13
+
+setRecord_after_if_else@25:
+    // smart_contracts/meta/contract.algo.ts:600
+    // this.requireRecordPayment(payment, due + sponsor)
+    dig 12
+    +
+    bury 16
+    // smart_contracts/meta/contract.algo.ts:186
     // payment.groupIndex + 1 === Txn.groupIndex &&
     dig 8
     gtxns GroupIndex
@@ -2429,113 +2702,111 @@ setRecord_ternary_merge@18:
     +
     txn GroupIndex
     ==
-    // smart_contracts/meta/contract.algo.ts:172-173
+    // smart_contracts/meta/contract.algo.ts:186-187
     // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
-    bz setRecord_bool_false@37
-    // smart_contracts/meta/contract.algo.ts:173
-    // payment.sender === Txn.sender &&
-    dig 8
-    gtxns Sender
-    txn Sender
-    ==
-    // smart_contracts/meta/contract.algo.ts:172-173
-    // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
-    bz setRecord_bool_false@37
-    // smart_contracts/meta/contract.algo.ts:174
+    //   payment.receiver === Global.currentApplicationAddress &&
+    bz setRecord_bool_false@52
+    // smart_contracts/meta/contract.algo.ts:187
     // payment.receiver === Global.currentApplicationAddress &&
     dig 8
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/meta/contract.algo.ts:172-174
+    // smart_contracts/meta/contract.algo.ts:186-187
     // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
     //   payment.receiver === Global.currentApplicationAddress &&
-    bz setRecord_bool_false@37
-    // smart_contracts/meta/contract.algo.ts:175
+    bz setRecord_bool_false@52
+    // smart_contracts/meta/contract.algo.ts:188
     // payment.amount === amount &&
     dig 8
     gtxns Amount
-    dig 14
+    dig 16
     ==
-    // smart_contracts/meta/contract.algo.ts:172-175
+    // smart_contracts/meta/contract.algo.ts:186-188
     // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
     //   payment.receiver === Global.currentApplicationAddress &&
     //   payment.amount === amount &&
-    bz setRecord_bool_false@37
-    // smart_contracts/meta/contract.algo.ts:176
+    bz setRecord_bool_false@52
+    // smart_contracts/meta/contract.algo.ts:189
     // payment.closeRemainderTo === Global.zeroAddress &&
     dig 8
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    // smart_contracts/meta/contract.algo.ts:172-176
+    // smart_contracts/meta/contract.algo.ts:186-189
     // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
     //   payment.receiver === Global.currentApplicationAddress &&
     //   payment.amount === amount &&
     //   payment.closeRemainderTo === Global.zeroAddress &&
-    bz setRecord_bool_false@37
-    // smart_contracts/meta/contract.algo.ts:177
+    bz setRecord_bool_false@52
+    // smart_contracts/meta/contract.algo.ts:190
     // payment.rekeyTo === Global.zeroAddress,
     dig 8
     gtxns RekeyTo
     global ZeroAddress
     ==
-    // smart_contracts/meta/contract.algo.ts:172-177
+    // smart_contracts/meta/contract.algo.ts:186-190
     // payment.groupIndex + 1 === Txn.groupIndex &&
-    //   payment.sender === Txn.sender &&
     //   payment.receiver === Global.currentApplicationAddress &&
     //   payment.amount === amount &&
     //   payment.closeRemainderTo === Global.zeroAddress &&
     //   payment.rekeyTo === Global.zeroAddress,
-    bz setRecord_bool_false@37
+    bz setRecord_bool_false@52
     intc_1 // 1
 
-setRecord_bool_merge@38:
-    // smart_contracts/meta/contract.algo.ts:171-179
+setRecord_bool_merge@53:
+    // smart_contracts/meta/contract.algo.ts:185-192
     // loggedAssert(
     //   payment.groupIndex + 1 === Txn.groupIndex &&
-    //     payment.sender === Txn.sender &&
     //     payment.receiver === Global.currentApplicationAddress &&
     //     payment.amount === amount &&
     //     payment.closeRemainderTo === Global.zeroAddress &&
     //     payment.rekeyTo === Global.zeroAddress,
     //   errInvalidRecordPayment,
     // )
-    bnz setRecord_after_assert@40
+    bnz setRecord_after_assert@55
     pushbytes "ERR:errMpmt"
     log
     err // ERR:errMpmt
 
-setRecord_after_assert@40:
-    // smart_contracts/meta/contract.algo.ts:561
+setRecord_after_assert@55:
+    // smart_contracts/meta/contract.algo.ts:601
     // const revision = this.writeRecord(key, data3)
     uncover 3
-    uncover 2
+    uncover 3
     callsub writeRecord
-    // smart_contracts/meta/contract.algo.ts:562
+    bury 12
+    // smart_contracts/meta/contract.algo.ts:602
+    // if (sponsor > 0) recordPayer(this.records(id).key, payment.sender, Txn.sender)
+    dig 9
+    bz setRecord_after_if_else@27
+    dig 6
+    gtxns Sender
+    txn Sender
+    dig 16
+    cover 2
+    callsub recordPayer
+
+setRecord_after_if_else@27:
+    // smart_contracts/meta/contract.algo.ts:603
     // if (size > data3.length) {
     dig 10
-    uncover 3
+    uncover 2
     >
-    bz setRecord_after_if_else@26
-    // smart_contracts/meta/contract.algo.ts:563
+    bz setRecord_after_if_else@35
+    // smart_contracts/meta/contract.algo.ts:604
     // this.records(id).resize(RecordHeaderBytes + size)
     pushint 12
     dig 10
     dup
     cover 2
     +
-    dig 14
+    dig 15
     dup
     cover 3
     swap
     box_resize
-    // smart_contracts/meta/contract.algo.ts:566
+    // smart_contracts/meta/contract.algo.ts:607
     // this.records(id).replace(RecordHeaderBytes - 2, new Uint16(size).bytes)
     itob
     dup
@@ -2547,59 +2818,88 @@ setRecord_after_assert@40:
     pushint 10
     swap
     box_replace
-    // smart_contracts/meta/contract.algo.ts:567
+    // smart_contracts/meta/contract.algo.ts:608
     // if (data2.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data2)
+    dig 6
+    bz setRecord_after_if_else@30
+    dig 13
+    pushint 12
+    intc_0 // 0
+    dig 5
+    box_splice
+
+setRecord_after_if_else@30:
+    // smart_contracts/meta/contract.algo.ts:609
+    // if (data1.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data1)
     dig 7
-    bz setRecord_after_if_else@21
-    dig 12
+    bz setRecord_after_if_else@32
+    dig 13
     pushint 12
     intc_0 // 0
     dig 6
     box_splice
 
-setRecord_after_if_else@21:
-    // smart_contracts/meta/contract.algo.ts:568
-    // if (data1.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data1)
-    dig 8
-    bz setRecord_after_if_else@23
-    dig 12
+setRecord_after_if_else@32:
+    // smart_contracts/meta/contract.algo.ts:610
+    // if (data0.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data0)
+    dig 1
+    bz setRecord_after_if_else@35
+    dig 13
     pushint 12
     intc_0 // 0
     dig 7
     box_splice
 
-setRecord_after_if_else@23:
-    // smart_contracts/meta/contract.algo.ts:569
-    // if (data0.length > 0) this.records(id).splice(RecordHeaderBytes, 0, data0)
-    dig 2
-    bz setRecord_after_if_else@26
-    dig 12
-    pushint 12
-    intc_0 // 0
-    dig 8
-    box_splice
-
-setRecord_after_if_else@26:
-    // smart_contracts/meta/contract.algo.ts:571
-    // this.refundRecord(previousCost > nextCost ? previousCost - nextCost : 0)
-    dig 10
-    dig 2
+setRecord_after_if_else@35:
+    // smart_contracts/meta/contract.algo.ts:612
+    // this.refundRecord(this.records(id).key, previousCost > nextCost ? previousCost - nextCost : 0)
+    dig 11
+    dig 1
     >
-    bz setRecord_ternary_false@28
-    dig 10
-    uncover 2
+    bz setRecord_ternary_false@37
+    dig 11
+    swap
     -
+    bury 12
 
-setRecord_ternary_merge@29:
-    // smart_contracts/meta/contract.algo.ts:571
-    // this.refundRecord(previousCost > nextCost ? previousCost - nextCost : 0)
-    callsub refundRecord
-    // smart_contracts/meta/contract.algo.ts:546-550
+setRecord_ternary_merge@38:
+    // smart_contracts/meta/contract.algo.ts:172
+    // if (amount === 0) return
+    dig 11
+    bz setRecord_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.refundRecord@45
+    // smart_contracts/meta/contract.algo.ts:173
+    // const payer = payerOf(box, Txn.sender)
+    dig 12
+    txn Sender
+    callsub payerOf
+    dup
+    // smart_contracts/meta/contract.algo.ts:175
+    // itxn.payment({ receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender, amount, fee: 0 }).submit()
+    itxn_begin
+    dig 13
+    callsub canReceiveAlgo
+    bz setRecord_ternary_false@43
+
+setRecord_ternary_merge@44:
+    dig 12
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/meta/contract.algo.ts:175
+    // itxn.payment({ receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender, amount, fee: 0 }).submit()
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+setRecord_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.refundRecord@45:
+    // smart_contracts/meta/contract.algo.ts:576-580
     // setRecord(
     //   payment: gtxn.PaymentTxn, key: bytes,
     //   data0: bytes, data1: bytes, data2: bytes, data3: bytes,
     //   expectedRevision: uint64,
     // ): uint64 {
+    dig 9
     itob
     bytec_0 // 0x151f7c75
     swap
@@ -2608,22 +2908,47 @@ setRecord_ternary_merge@29:
     intc_1 // 1
     return
 
-setRecord_ternary_false@28:
-    bury 1
-    // smart_contracts/meta/contract.algo.ts:571
-    // this.refundRecord(previousCost > nextCost ? previousCost - nextCost : 0)
-    intc_0 // 0
-    b setRecord_ternary_merge@29
+setRecord_ternary_false@43:
+    pop
+    // smart_contracts/meta/contract.algo.ts:175
+    // itxn.payment({ receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender, amount, fee: 0 }).submit()
+    txn Sender
+    b setRecord_ternary_merge@44
 
-setRecord_bool_false@37:
+setRecord_ternary_false@37:
+    pop
+    // smart_contracts/meta/contract.algo.ts:612
+    // this.refundRecord(this.records(id).key, previousCost > nextCost ? previousCost - nextCost : 0)
     intc_0 // 0
-    b setRecord_bool_merge@38
+    bury 12
+    b setRecord_ternary_merge@38
+
+setRecord_bool_false@52:
+    intc_0 // 0
+    b setRecord_bool_merge@53
+
+setRecord_else_body@20:
+    // smart_contracts/meta/contract.algo.ts:597
+    // } else if (due > 0) {
+    dup
+    bz setRecord_after_if_else@25
+    // smart_contracts/meta/contract.algo.ts:598
+    // loggedAssert(payment.sender === payerOf(this.records(id).key, Txn.sender), errPayerOnly)
+    dig 9
+    gtxns Sender
+    dig 18
+    txn Sender
+    callsub payerOf
+    ==
+    bnz setRecord_after_if_else@25
+    pushbytes "ERR:errIpyr"
+    log
+    err // ERR:errIpyr
 
 setRecord_ternary_false@17:
-    // smart_contracts/meta/contract.algo.ts:560
-    // this.requireRecordPayment(payment, nextCost > previousCost ? nextCost - previousCost : 0)
+    // smart_contracts/meta/contract.algo.ts:591
+    // const due: uint64 = nextCost > previousCost ? nextCost - previousCost : 0
     intc_0 // 0
-    bury 14
     b setRecord_ternary_merge@18
 
 setRecord_bool_false@6:
@@ -2633,7 +2958,7 @@ setRecord_bool_false@6:
 
 // smart_contracts/meta/contract.algo.ts::Meta.removeRecord[routing]() -> void:
 removeRecord:
-    // smart_contracts/meta/contract.algo.ts:575
+    // smart_contracts/meta/contract.algo.ts:616
     // removeRecord(key: bytes, expectedRevision: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -2700,7 +3025,7 @@ updateAkitaDAOEscrow:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 12 // "wallet"
+    bytec 13 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:51
@@ -2709,7 +3034,7 @@ updateAkitaDAOEscrow:
     assert // application exists
     ==
     bnz updateAkitaDAOEscrow_after_assert@3
-    bytec 13 // "ERR:errNdao"
+    bytec 14 // "ERR:errNdao"
     log
     err // ERR:errNdao
 
@@ -2755,7 +3080,7 @@ update:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 12 // "wallet"
+    bytec 13 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/upgradeable.ts:37
@@ -2764,7 +3089,7 @@ update:
     assert // application exists
     ==
     bnz update_after_assert@3
-    bytec 13 // "ERR:errNdao"
+    bytec 14 // "ERR:errNdao"
     log
     err // ERR:errNdao
 
@@ -2798,7 +3123,7 @@ update_after_assert@3:
 update_after_assert@5:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 14 // "version"
+    bytec 15 // "version"
     // smart_contracts/utils/base-contracts/upgradeable.ts:41
     // this.version.value = newVersion
     swap
@@ -2833,7 +3158,7 @@ updateAkitaDAO:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 12 // "wallet"
+    bytec 13 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/upgradeable.ts:26
@@ -2842,7 +3167,7 @@ updateAkitaDAO:
     assert // application exists
     ==
     bnz updateAkitaDAO_after_assert@3
-    bytec 13 // "ERR:errNdao"
+    bytec 14 // "ERR:errNdao"
     log
     err // ERR:errNdao
 
@@ -2862,10 +3187,10 @@ updateAkitaDAO_after_assert@3:
 
 // smart_contracts/meta/contract.algo.ts::Meta.recordKey(account: bytes, key: bytes) -> bytes:
 recordKey:
-    // smart_contracts/meta/contract.algo.ts:151
+    // smart_contracts/meta/contract.algo.ts:152
     // private recordKey(account: Account, key: bytes): bytes {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:152
+    // smart_contracts/meta/contract.algo.ts:153
     // loggedAssert(key.length > 0 && key.length <= MaxRecordKeyBytes, errInvalidKey)
     frame_dig -1
     len
@@ -2878,15 +3203,15 @@ recordKey:
     intc_1 // 1
 
 recordKey_bool_merge@4:
-    // smart_contracts/meta/contract.algo.ts:152
+    // smart_contracts/meta/contract.algo.ts:153
     // loggedAssert(key.length > 0 && key.length <= MaxRecordKeyBytes, errInvalidKey)
     bnz recordKey_after_assert@6
-    bytec 17 // "ERR:errMkey"
+    bytec 18 // "ERR:errMkey"
     log
     err // ERR:errMkey
 
 recordKey_after_assert@6:
-    // smart_contracts/meta/contract.algo.ts:153
+    // smart_contracts/meta/contract.algo.ts:154
     // return account.bytes.concat(key)
     frame_dig -2
     frame_dig -1
@@ -2901,10 +3226,10 @@ recordKey_bool_false@3:
 
 // smart_contracts/meta/contract.algo.ts::Meta.dataKey(name: bytes, key: bytes) -> bytes:
 dataKey:
-    // smart_contracts/meta/contract.algo.ts:157
+    // smart_contracts/meta/contract.algo.ts:158
     // private dataKey(name: string, key: string): bytes {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:158
+    // smart_contracts/meta/contract.algo.ts:159
     // loggedAssert(Bytes(name).length + Bytes(key).length < MaxRecordKeyBytes, errKeyTooLong)
     frame_dig -2
     len
@@ -2915,12 +3240,12 @@ dataKey:
     pushint 31
     <
     bnz dataKey_after_assert@2
-    bytec 10 // "ERR:errKtl"
+    bytec 11 // "ERR:errKtl"
     log
     err // ERR:errKtl
 
 dataKey_after_assert@2:
-    // smart_contracts/meta/contract.algo.ts:159
+    // smart_contracts/meta/contract.algo.ts:160
     // return new Uint8(Bytes(name).length).bytes.concat(Bytes(name)).concat(Bytes(key))
     itob
     dup
@@ -2938,10 +3263,10 @@ dataKey_after_assert@2:
 
 // smart_contracts/meta/contract.algo.ts::Meta.recordStorageCost(key: bytes, size: uint64) -> uint64:
 recordStorageCost:
-    // smart_contracts/meta/contract.algo.ts:162
+    // smart_contracts/meta/contract.algo.ts:163
     // private recordStorageCost(key: bytes, size: uint64): uint64 {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:163
+    // smart_contracts/meta/contract.algo.ts:164
     // return 2500 + 400 * (33 + key.length + RecordHeaderBytes + size)
     frame_dig -2
     len
@@ -2949,26 +3274,37 @@ recordStorageCost:
     +
     frame_dig -1
     +
-    intc 4 // 400
+    intc 5 // 400
     *
     pushint 2500
     +
     retsub
 
 
-// smart_contracts/meta/contract.algo.ts::Meta.refundRecord(amount: uint64) -> void:
-refundRecord:
-    // smart_contracts/meta/contract.algo.ts:166
-    // private refundRecord(amount: uint64): void {
-    proto 1 0
-    // smart_contracts/meta/contract.algo.ts:167
-    // if (amount > 0) itxn.payment({ receiver: Txn.sender, amount, fee: 0 }).submit()
-    frame_dig -1
-    bz refundRecord_after_if_else@3
-    itxn_begin
+// smart_contracts/meta/contract.algo.ts::Meta.releaseRecord(box: bytes, amount: uint64) -> void:
+releaseRecord:
+    // smart_contracts/meta/contract.algo.ts:179
+    // private releaseRecord(box: bytes, amount: uint64): void {
+    proto 2 0
+    // smart_contracts/meta/contract.algo.ts:180
+    // const [receiver, total] = releaseDeposit(box, Txn.sender, amount)
+    frame_dig -2
     txn Sender
     frame_dig -1
+    callsub releaseDeposit
+    dup
+    extract 0 32
+    swap
+    intc_3 // 32
+    extract_uint64
+    dup
+    // smart_contracts/meta/contract.algo.ts:181
+    // if (total > 0) itxn.payment({ receiver, amount: total, fee: 0 }).submit()
+    bz releaseRecord_after_if_else@3
+    itxn_begin
+    frame_dig 1
     itxn_field Amount
+    frame_dig 0
     itxn_field Receiver
     intc_1 // 1
     itxn_field TypeEnum
@@ -2976,22 +3312,22 @@ refundRecord:
     itxn_field Fee
     itxn_submit
 
-refundRecord_after_if_else@3:
+releaseRecord_after_if_else@3:
     retsub
 
 
 // smart_contracts/meta/contract.algo.ts::Meta.currentRecordRevision(id: bytes) -> uint64:
 currentRecordRevision:
-    // smart_contracts/meta/contract.algo.ts:182
+    // smart_contracts/meta/contract.algo.ts:195
     // private currentRecordRevision(id: bytes): uint64 {
     proto 1 1
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     frame_dig -1
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:183
+    // smart_contracts/meta/contract.algo.ts:196
     // return this.records(id).exists ? this.records(id).value.revision : 0
     box_len
     bury 1
@@ -3004,7 +3340,7 @@ currentRecordRevision:
 
 currentRecordRevision_ternary_false@2:
     pop
-    // smart_contracts/meta/contract.algo.ts:183
+    // smart_contracts/meta/contract.algo.ts:196
     // return this.records(id).exists ? this.records(id).value.revision : 0
     intc_0 // 0
     retsub
@@ -3012,21 +3348,21 @@ currentRecordRevision_ternary_false@2:
 
 // smart_contracts/meta/contract.algo.ts::Meta.writeRecord(key: bytes, data: bytes) -> uint64:
 writeRecord:
-    // smart_contracts/meta/contract.algo.ts:186
+    // smart_contracts/meta/contract.algo.ts:199
     // private writeRecord(key: bytes, data: bytes): uint64 {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:187
+    // smart_contracts/meta/contract.algo.ts:200
     // const id = this.recordKey(Txn.sender, key)
     txn Sender
     frame_dig -2
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:188
+    // smart_contracts/meta/contract.algo.ts:201
     // const revision: uint64 = this.currentRecordRevision(id) + 1
     dup
     callsub currentRecordRevision
     intc_1 // 1
     +
-    // smart_contracts/meta/contract.algo.ts:189
+    // smart_contracts/meta/contract.algo.ts:202
     // this.records(id).value = { revision, data }
     dup
     itob
@@ -3041,42 +3377,42 @@ writeRecord:
     concat
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     uncover 3
     concat
-    // smart_contracts/meta/contract.algo.ts:189
+    // smart_contracts/meta/contract.algo.ts:202
     // this.records(id).value = { revision, data }
     dup
     box_del
     pop
     swap
     box_put
-    // smart_contracts/meta/contract.algo.ts:190
+    // smart_contracts/meta/contract.algo.ts:203
     // return revision
     retsub
 
 
 // smart_contracts/meta/contract.algo.ts::Meta.verify(address: bytes, name: bytes, leaf: bytes, proof: bytes, type: uint64) -> uint64, bytes:
 smart_contracts/meta/contract.algo.ts::Meta.verify:
-    // smart_contracts/meta/contract.algo.ts:313
+    // smart_contracts/meta/contract.algo.ts:343
     // verify(address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64): boolean {
     proto 5 2
     bytec_1 // ""
     dup
-    // smart_contracts/meta/contract.algo.ts:314
+    // smart_contracts/meta/contract.algo.ts:344
     // const rootKey = this.recordKey(address, Bytes(name))
     frame_dig -5
     frame_dig -4
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     swap
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:315
+    // smart_contracts/meta/contract.algo.ts:345
     // if (!this.roots(rootKey).exists) return false
     box_len
     bury 1
@@ -3088,7 +3424,7 @@ smart_contracts/meta/contract.algo.ts::Meta.verify:
     retsub
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@2:
-    // smart_contracts/meta/contract.algo.ts:316
+    // smart_contracts/meta/contract.algo.ts:346
     // const treeType = this.roots(rootKey).value.type
     dup
     box_get
@@ -3096,7 +3432,7 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@2:
     intc_3 // 32
     extract_uint64
     frame_bury 1
-    // smart_contracts/meta/contract.algo.ts:317
+    // smart_contracts/meta/contract.algo.ts:347
     // if (type !== MerkleTreeTypeUnspecified && treeType !== type) return false
     frame_dig -1
     bz smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@5
@@ -3111,7 +3447,7 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@2:
     retsub
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@5:
-    // smart_contracts/meta/contract.algo.ts:319
+    // smart_contracts/meta/contract.algo.ts:349
     // ensureBudget(proof.length * 50)
     frame_dig -2
     intc_0 // 0
@@ -3133,9 +3469,9 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@14:
     itxn_field TypeEnum
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    bytec 24 // 0x068101
+    bytec 25 // 0x068101
     itxn_field ApprovalProgram
-    bytec 24 // 0x068101
+    bytec 25 // 0x068101
     itxn_field ClearStateProgram
     intc_0 // 0
     itxn_field Fee
@@ -3144,7 +3480,7 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@14:
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_while@19:
     pop
-    // smart_contracts/meta/contract.algo.ts:322
+    // smart_contracts/meta/contract.algo.ts:352
     // for (let i: uint64 = 0; i < proof.length; i += 1) {
     intc_0 // 0
     swap
@@ -3152,13 +3488,13 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_after_while@19:
     cover 2
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@6:
-    // smart_contracts/meta/contract.algo.ts:322
+    // smart_contracts/meta/contract.algo.ts:352
     // for (let i: uint64 = 0; i < proof.length; i += 1) {
     dig 1
     frame_dig 0
     <
     bz smart_contracts/meta/contract.algo.ts::Meta.verify_after_while@8
-    // smart_contracts/meta/contract.algo.ts:323
+    // smart_contracts/meta/contract.algo.ts:353
     // hash = this.hash(proof[i], hash)
     frame_dig -2
     extract 2 0
@@ -3168,12 +3504,12 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@6:
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     dup
-    // smart_contracts/meta/contract.algo.ts:144
+    // smart_contracts/meta/contract.algo.ts:145
     // if (BigUint(a) > BigUint(b)) {
     dig 4
     b>
     bz smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@11
-    // smart_contracts/meta/contract.algo.ts:145
+    // smart_contracts/meta/contract.algo.ts:146
     // return sha256(b.concat(a))
     uncover 3
     swap
@@ -3182,7 +3518,7 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@6:
     cover 2
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.hash@12:
-    // smart_contracts/meta/contract.algo.ts:322
+    // smart_contracts/meta/contract.algo.ts:352
     // for (let i: uint64 = 0; i < proof.length; i += 1) {
     swap
     intc_1 // 1
@@ -3191,19 +3527,19 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_after_inlined_smart_contracts
     b smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@6
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_if_else@11:
-    // smart_contracts/meta/contract.algo.ts:147
+    // smart_contracts/meta/contract.algo.ts:148
     // return sha256(a.concat(b))
     uncover 3
     concat
     sha256
     cover 2
-    // smart_contracts/meta/contract.algo.ts:323
+    // smart_contracts/meta/contract.algo.ts:353
     // hash = this.hash(proof[i], hash)
     b smart_contracts/meta/contract.algo.ts::Meta.verify_after_inlined_smart_contracts/meta/contract.algo.ts::Meta.hash@12
 
 smart_contracts/meta/contract.algo.ts::Meta.verify_after_while@8:
     bury 1
-    // smart_contracts/meta/contract.algo.ts:326
+    // smart_contracts/meta/contract.algo.ts:356
     // return hash === this.roots(rootKey).value.root
     box_get
     assert // Box must have value
@@ -3217,11 +3553,11 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_after_while@8:
 
 // smart_contracts/meta/contract.algo.ts::Meta.read(address: bytes, name: bytes, key: bytes) -> bytes:
 smart_contracts/meta/contract.algo.ts::Meta.read:
-    // smart_contracts/meta/contract.algo.ts:337-338
+    // smart_contracts/meta/contract.algo.ts:367-368
     // @abimethod({ readonly: true })
     // read(address: Account, name: string, key: string): string {
     proto 3 1
-    // smart_contracts/meta/contract.algo.ts:339
+    // smart_contracts/meta/contract.algo.ts:369
     // if (key === treeTypeKey) return String(itob(this.roots(this.recordKey(address, Bytes(name))).value.type))
     frame_dig -1
     pushbytes "l.type"
@@ -3230,12 +3566,12 @@ smart_contracts/meta/contract.algo.ts::Meta.read:
     frame_dig -3
     frame_dig -2
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:131
+    // smart_contracts/meta/contract.algo.ts:132
     // roots = BoxMap<bytes, RootValue>({ keyPrefix: MetaBoxPrefixRoots })
     bytec 5 // "r"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:339
+    // smart_contracts/meta/contract.algo.ts:369
     // if (key === treeTypeKey) return String(itob(this.roots(this.recordKey(address, Bytes(name))).value.type))
     box_get
     assert // Box must have value
@@ -3243,7 +3579,7 @@ smart_contracts/meta/contract.algo.ts::Meta.read:
     retsub
 
 smart_contracts/meta/contract.algo.ts::Meta.read_after_if_else@2:
-    // smart_contracts/meta/contract.algo.ts:340
+    // smart_contracts/meta/contract.algo.ts:370
     // const record = this.readRecord(address, this.dataKey(name, key))
     frame_dig -2
     frame_dig -1
@@ -3252,17 +3588,17 @@ smart_contracts/meta/contract.algo.ts::Meta.read_after_if_else@2:
     swap
     callsub smart_contracts/meta/contract.algo.ts::Meta.readRecord
     dup
-    // smart_contracts/meta/contract.algo.ts:341
+    // smart_contracts/meta/contract.algo.ts:371
     // loggedAssert(record.exists, errNoData)
     intc_0 // 0
     getbit
     bnz smart_contracts/meta/contract.algo.ts::Meta.read_after_assert@4
-    bytec 21 // "ERR:errNdta"
+    bytec 22 // "ERR:errNdta"
     log
     err // ERR:errNdta
 
 smart_contracts/meta/contract.algo.ts::Meta.read_after_assert@4:
-    // smart_contracts/meta/contract.algo.ts:342
+    // smart_contracts/meta/contract.algo.ts:372
     // return String(record.data)
     dup
     pushint 9
@@ -3276,23 +3612,23 @@ smart_contracts/meta/contract.algo.ts::Meta.read_after_assert@4:
 
 // smart_contracts/meta/contract.algo.ts::Meta.recordInfo(account: bytes, key: bytes) -> bytes:
 smart_contracts/meta/contract.algo.ts::Meta.recordInfo:
-    // smart_contracts/meta/contract.algo.ts:510-511
+    // smart_contracts/meta/contract.algo.ts:540-541
     // @abimethod({ readonly: true })
     // recordInfo(account: Account, key: bytes): MetaRecordInfo {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:512
+    // smart_contracts/meta/contract.algo.ts:542
     // const id = this.recordKey(account, key)
     frame_dig -2
     frame_dig -1
     callsub recordKey
     dup
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:513
+    // smart_contracts/meta/contract.algo.ts:543
     // if (!this.records(id).exists) return { exists: false, revision: 0, size: 0 }
     box_len
     bury 1
@@ -3302,7 +3638,7 @@ smart_contracts/meta/contract.algo.ts::Meta.recordInfo:
     retsub
 
 smart_contracts/meta/contract.algo.ts::Meta.recordInfo_after_if_else@2:
-    // smart_contracts/meta/contract.algo.ts:514
+    // smart_contracts/meta/contract.algo.ts:544
     // return { exists: true, revision: this.currentRecordRevision(id), size: this.records(id).length - RecordHeaderBytes }
     swap
     callsub currentRecordRevision
@@ -3324,17 +3660,17 @@ smart_contracts/meta/contract.algo.ts::Meta.recordInfo_after_if_else@2:
 
 // smart_contracts/meta/contract.algo.ts::Meta.readRecord(account: bytes, key: bytes) -> bytes:
 smart_contracts/meta/contract.algo.ts::Meta.readRecord:
-    // smart_contracts/meta/contract.algo.ts:517-518
+    // smart_contracts/meta/contract.algo.ts:547-548
     // @abimethod({ readonly: true })
     // readRecord(account: Account, key: bytes): MetaRecordRead {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:519
+    // smart_contracts/meta/contract.algo.ts:549
     // const info = this.recordInfo(account, key)
     frame_dig -2
     frame_dig -1
     callsub smart_contracts/meta/contract.algo.ts::Meta.recordInfo
     dup
-    // smart_contracts/meta/contract.algo.ts:520
+    // smart_contracts/meta/contract.algo.ts:550
     // if (!info.exists) return { exists: false, revision: 0, data: Bytes('') }
     intc_0 // 0
     getbit
@@ -3344,11 +3680,11 @@ smart_contracts/meta/contract.algo.ts::Meta.readRecord:
     retsub
 
 smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_if_else@2:
-    // smart_contracts/meta/contract.algo.ts:521
+    // smart_contracts/meta/contract.algo.ts:551
     // loggedAssert(info.size <= MaxInlineRecordBytes, errRecordRequiresSlice)
     pushint 9
     extract_uint64
-    intc 6 // 1024
+    intc 7 // 1024
     <=
     bnz smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_assert@4
     pushbytes "ERR:errMrsl"
@@ -3356,27 +3692,27 @@ smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_if_else@2:
     err // ERR:errMrsl
 
 smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_assert@4:
-    // smart_contracts/meta/contract.algo.ts:522
+    // smart_contracts/meta/contract.algo.ts:552
     // const record = clone(this.records(this.recordKey(account, key)).value)
     frame_dig -2
     frame_dig -1
     callsub recordKey
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
-    // smart_contracts/meta/contract.algo.ts:522-523
+    // smart_contracts/meta/contract.algo.ts:552-553
     // const record = clone(this.records(this.recordKey(account, key)).value)
     // return { exists: true, revision: record.revision, data: record.data }
     dup
     intc_0 // 0
     pushint 8
     box_extract // on error: index out of bounds
-    // smart_contracts/meta/contract.algo.ts:523
+    // smart_contracts/meta/contract.algo.ts:553
     // return { exists: true, revision: record.revision, data: record.data }
     btoi
-    // smart_contracts/meta/contract.algo.ts:522-523
+    // smart_contracts/meta/contract.algo.ts:552-553
     // const record = clone(this.records(this.recordKey(account, key)).value)
     // return { exists: true, revision: record.revision, data: record.data }
     dig 1
@@ -3390,7 +3726,7 @@ smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_assert@4:
     pushint 10
     uncover 2
     box_extract
-    // smart_contracts/meta/contract.algo.ts:523
+    // smart_contracts/meta/contract.algo.ts:553
     // return { exists: true, revision: record.revision, data: record.data }
     extract 2 0
     swap
@@ -3414,44 +3750,44 @@ smart_contracts/meta/contract.algo.ts::Meta.readRecord_after_assert@4:
 
 // smart_contracts/meta/contract.algo.ts::Meta.removeRecord(key: bytes, expectedRevision: uint64) -> uint64:
 smart_contracts/meta/contract.algo.ts::Meta.removeRecord:
-    // smart_contracts/meta/contract.algo.ts:575
+    // smart_contracts/meta/contract.algo.ts:616
     // removeRecord(key: bytes, expectedRevision: uint64): uint64 {
     proto 2 1
-    // smart_contracts/meta/contract.algo.ts:576
+    // smart_contracts/meta/contract.algo.ts:617
     // const id = this.recordKey(Txn.sender, key)
     txn Sender
     frame_dig -2
     callsub recordKey
     dup
-    // smart_contracts/meta/contract.algo.ts:133
+    // smart_contracts/meta/contract.algo.ts:134
     // records = BoxMap<bytes, MetaRecordValue>({ keyPrefix: RecordPrefix })
     bytec_2 // "m"
     swap
     concat
     dup
-    // smart_contracts/meta/contract.algo.ts:577
+    // smart_contracts/meta/contract.algo.ts:618
     // loggedAssert(this.records(id).exists, errRecordNotFound)
     box_len
     bury 1
     bnz smart_contracts/meta/contract.algo.ts::Meta.removeRecord_after_assert@2
-    bytec 22 // "ERR:errMrnf"
+    bytec 23 // "ERR:errMrnf"
     log
     err // ERR:errMrnf
 
 smart_contracts/meta/contract.algo.ts::Meta.removeRecord_after_assert@2:
-    // smart_contracts/meta/contract.algo.ts:578
+    // smart_contracts/meta/contract.algo.ts:619
     // loggedAssert(expectedRevision === this.currentRecordRevision(id), errRecordRevisionMismatch)
     swap
     callsub currentRecordRevision
     frame_dig -1
     ==
     bnz smart_contracts/meta/contract.algo.ts::Meta.removeRecord_after_assert@4
-    bytec 11 // "ERR:errMrev"
+    bytec 12 // "ERR:errMrev"
     log
     err // ERR:errMrev
 
 smart_contracts/meta/contract.algo.ts::Meta.removeRecord_after_assert@4:
-    // smart_contracts/meta/contract.algo.ts:579
+    // smart_contracts/meta/contract.algo.ts:620
     // const refund = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     dup
     box_len
@@ -3461,15 +3797,15 @@ smart_contracts/meta/contract.algo.ts::Meta.removeRecord_after_assert@4:
     frame_dig -2
     swap
     callsub recordStorageCost
-    // smart_contracts/meta/contract.algo.ts:580
+    // smart_contracts/meta/contract.algo.ts:621
     // this.records(id).delete()
-    swap
+    dig 1
     box_del
     pop
-    // smart_contracts/meta/contract.algo.ts:581
-    // this.refundRecord(refund)
-    callsub refundRecord
-    // smart_contracts/meta/contract.algo.ts:582
+    // smart_contracts/meta/contract.algo.ts:622
+    // this.releaseRecord(this.records(id).key, refund)
+    callsub releaseRecord
+    // smart_contracts/meta/contract.algo.ts:623
     // return 0
     intc_0 // 0
     retsub

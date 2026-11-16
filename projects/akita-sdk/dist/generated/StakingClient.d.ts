@@ -202,6 +202,10 @@ export type StakingArgs = {
             address: string;
             asset: bigint | number;
         };
+        'reclaimAppStake(address,uint64)void': {
+            address: string;
+            asset: bigint | number;
+        };
         'optInCost()uint64': Record<string, never>;
         'stakeCost(uint64,uint8)uint64': {
             asset: bigint | number;
@@ -317,6 +321,7 @@ export type StakingArgs = {
         'closeSoftStake(uint64)void': [asset: bigint | number];
         'closeHeartbeat(uint64)void': [asset: bigint | number];
         'releaseAppStake(uint64,address,uint64)void': [app: bigint | number, address: string, asset: bigint | number];
+        'reclaimAppStake(address,uint64)void': [address: string, asset: bigint | number];
         'optInCost()uint64': [];
         'stakeCost(uint64,uint8)uint64': [asset: bigint | number, type: bigint | number];
         'appStakeCost(address,uint64)uint64': [address: string, asset: bigint | number];
@@ -363,6 +368,7 @@ export type StakingReturns = {
     'closeSoftStake(uint64)void': void;
     'closeHeartbeat(uint64)void': void;
     'releaseAppStake(uint64,address,uint64)void': void;
+    'reclaimAppStake(address,uint64)void': void;
     'optInCost()uint64': bigint;
     'stakeCost(uint64,uint8)uint64': bigint;
     'appStakeCost(address,uint64)uint64': bigint;
@@ -459,6 +465,10 @@ export type StakingTypes = {
         argsObj: StakingArgs['obj']['releaseAppStake(uint64,address,uint64)void'];
         argsTuple: StakingArgs['tuple']['releaseAppStake(uint64,address,uint64)void'];
         returns: StakingReturns['releaseAppStake(uint64,address,uint64)void'];
+    }> & Record<'reclaimAppStake(address,uint64)void' | 'reclaimAppStake', {
+        argsObj: StakingArgs['obj']['reclaimAppStake(address,uint64)void'];
+        argsTuple: StakingArgs['tuple']['reclaimAppStake(address,uint64)void'];
+        returns: StakingReturns['reclaimAppStake(address,uint64)void'];
     }> & Record<'optInCost()uint64' | 'optInCost', {
         argsObj: StakingArgs['obj']['optInCost()uint64'];
         argsTuple: StakingArgs['tuple']['optInCost()uint64'];
@@ -850,7 +860,7 @@ export declare abstract class StakingParamsFactory {
     /**
      * Constructs a no op call for the closeSoftStake(uint64)void ABI method
      *
-     * Owner closes their SOFT stake and gets the stake box MBR back (L-2).
+     * Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2).
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -859,7 +869,7 @@ export declare abstract class StakingParamsFactory {
     /**
      * Constructs a no op call for the closeHeartbeat(uint64)void ABI method
      *
-     * Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2).
+     * Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2).
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -876,6 +886,18 @@ export declare abstract class StakingParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static releaseAppStake(params: CallParams<StakingArgs['obj']['releaseAppStake(uint64,address,uint64)void'] | StakingArgs['tuple']['releaseAppStake(uint64,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the reclaimAppStake(address,uint64)void ABI method
+     *
+    * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+    instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+    whoever funded it there, and settles with that account itself.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static reclaimAppStake(params: CallParams<StakingArgs['obj']['reclaimAppStake(address,uint64)void'] | StakingArgs['tuple']['reclaimAppStake(address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the optInCost()uint64 ABI method
      *
@@ -1731,7 +1753,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeSoftStake(uint64)void` ABI method.
          *
-         * Owner closes their SOFT stake and gets the stake box MBR back (L-2).
+         * Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1742,7 +1764,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeHeartbeat(uint64)void` ABI method.
          *
-         * Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2).
+         * Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1761,6 +1783,20 @@ export declare class StakingClient {
          * @returns The call params
          */
         releaseAppStake: (params: CallParams<StakingArgs["obj"]["releaseAppStake(uint64,address,uint64)void"] | StakingArgs["tuple"]["releaseAppStake(uint64,address,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Staking smart contract using the `reclaimAppStake(address,uint64)void` ABI method.
+         *
+        * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+        instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+        whoever funded it there, and settles with that account itself.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        reclaimAppStake: (params: CallParams<StakingArgs["obj"]["reclaimAppStake(address,uint64)void"] | StakingArgs["tuple"]["reclaimAppStake(address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -2227,7 +2263,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeSoftStake(uint64)void` ABI method.
          *
-         * Owner closes their SOFT stake and gets the stake box MBR back (L-2).
+         * Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2242,7 +2278,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeHeartbeat(uint64)void` ABI method.
          *
-         * Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2).
+         * Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2265,6 +2301,24 @@ export declare class StakingClient {
          * @returns The call transaction
          */
         releaseAppStake: (params: CallParams<StakingArgs["obj"]["releaseAppStake(uint64,address,uint64)void"] | StakingArgs["tuple"]["releaseAppStake(uint64,address,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `reclaimAppStake(address,uint64)void` ABI method.
+         *
+        * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+        instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+        whoever funded it there, and settles with that account itself.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        reclaimAppStake: (params: CallParams<StakingArgs["obj"]["reclaimAppStake(address,uint64)void"] | StakingArgs["tuple"]["reclaimAppStake(address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2894,7 +2948,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeSoftStake(uint64)void` ABI method.
          *
-         * Owner closes their SOFT stake and gets the stake box MBR back (L-2).
+         * Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2914,7 +2968,7 @@ export declare class StakingClient {
         /**
          * Makes a call to the Staking smart contract using the `closeHeartbeat(uint64)void` ABI method.
          *
-         * Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2).
+         * Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2).
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2945,6 +2999,29 @@ export declare class StakingClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | StakingReturns["releaseAppStake(uint64,address,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `reclaimAppStake(address,uint64)void` ABI method.
+         *
+        * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+        instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+        whoever funded it there, and settles with that account itself.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        reclaimAppStake: (params: CallParams<StakingArgs["obj"]["reclaimAppStake(address,uint64)void"] | StakingArgs["tuple"]["reclaimAppStake(address,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | StakingReturns["reclaimAppStake(address,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3836,7 +3913,7 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the closeSoftStake(uint64)void ABI method.
      *
-     * Owner closes their SOFT stake and gets the stake box MBR back (L-2).
+     * Owner closes their SOFT stake; the stake box MBR goes back to whoever paid it (L-2).
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -3846,7 +3923,7 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the closeHeartbeat(uint64)void ABI method.
      *
-     * Owner closes their heartbeat stake and its history and gets both boxes' MBR back (L-2).
+     * Owner closes their heartbeat stake and its history; both boxes' MBR goes back to whoever paid it (L-2).
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -3865,6 +3942,19 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     releaseAppStake(params?: CallParams<StakingArgs['obj']['releaseAppStake(uint64,address,uint64)void'] | StakingArgs['tuple']['releaseAppStake(uint64,address,uint64)void']>): StakingComposer<[...TReturns, StakingReturns['releaseAppStake(uint64,address,uint64)void'] | undefined]>;
+    /**
+     * Calls the reclaimAppStake(address,uint64)void ABI method.
+     *
+    * `releaseAppStake` for the consuming app, with the commitment's box MBR returned to that app
+    instead of the committed address. The app paid that deposit (`commitAppSoftStake`) on behalf of
+    whoever funded it there, and settles with that account itself.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    reclaimAppStake(params?: CallParams<StakingArgs['obj']['reclaimAppStake(address,uint64)void'] | StakingArgs['tuple']['reclaimAppStake(address,uint64)void']>): StakingComposer<[...TReturns, StakingReturns['reclaimAppStake(address,uint64)void'] | undefined]>;
     /**
      * Calls the optInCost()uint64 ABI method.
      *

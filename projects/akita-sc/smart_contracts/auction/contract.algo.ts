@@ -3,7 +3,7 @@ import { abiCall, abimethod, StaticArray, Uint128, Uint64 } from '@algorandfound
 import { classes } from 'polytype'
 import { errHasGate } from '../social/errors'
 import { MAX_UINT64 } from '../utils/constants'
-import { assertSafeAssetTransfer, assertSafePayment, calcPercent, createInstantDisbursement, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
+import { assertPlainPayment, assertSafeAssetTransfer, calcPercent, createInstantDisbursement, recordPayer, releaseDeposit, sponsorCost, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
 import { gateCtx } from '../utils/principal'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
@@ -513,18 +513,21 @@ export class Auction extends classes(
   }
 
   private createBid(payment: gtxn.PaymentTxn, marketplace: Account): void {
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     this.assertNotSelfOutbid()
     const id = this.newBidID()
 
-    const mbr = this.bidMbr()
-    const bidAmount: uint64 = payment.amount - mbr
+    // a payer other than the bidder also funds its payer record; the bid's storage returns to it,
+    // the bid itself stays the bidder's
+    const mbr: uint64 = this.bidMbr() + sponsorCost(payment.sender, Txn.sender)
     const minimumBidAmount = this.getMinimumBidAmount()
 
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(payment.amount >= (minimumBidAmount + mbr), errInvalidPayment)
+    const bidAmount: uint64 = payment.amount - mbr
 
     this.recordBid(id, bidAmount, marketplace)
+    recordPayer(this.bids(id).key, payment.sender, Txn.sender)
   }
 
   private createBidAsa(
@@ -532,12 +535,13 @@ export class Auction extends classes(
     assetXfer: gtxn.AssetTransferTxn,
     marketplace: Account
   ): void {
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     assertSafeAssetTransfer(assetXfer, Txn.sender)
     this.assertNotSelfOutbid()
     const id = this.newBidID()
 
-    const mbr = this.bidMbr()
+    // a payer other than the bidder also funds its payer record; the bid's storage returns to it
+    const mbr: uint64 = this.bidMbr() + sponsorCost(payment.sender, Txn.sender)
 
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(payment.amount === mbr, errInvalidPayment)
@@ -550,6 +554,7 @@ export class Auction extends classes(
     loggedAssert(assetXfer.xferAsset === this.bidAsset.value, errInvalidTransfer)
 
     this.recordBid(id, bidAmount, marketplace)
+    recordPayer(this.bids(id).key, payment.sender, Txn.sender)
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -926,7 +931,7 @@ export class Auction extends classes(
     const remainder: uint64 = this.bidID.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
-    ensureBudget((iterationAmount * 80))
+    ensureBudget((iterationAmount * 160))
 
     const { bids, bidsByAddress, locations } = this.mbr()
 
@@ -955,12 +960,14 @@ export class Auction extends classes(
         }
       }
 
-      // that bidder pays its disbursement out of its released MBR
-      if (refundAmount > disbursementCost && this.canReceiveAlgo(account, refundAmount - disbursementCost)) {
+      // the bid's storage goes back to whoever paid for it (the bidder, unless someone else did);
+      // a disbursement made for that bidder is paid out of it
+      const [payee, total] = releaseDeposit(this.bids(i).key, account, refundAmount)
+      if (total > disbursementCost && this.canReceiveAlgo(payee, total - disbursementCost)) {
         itxn
           .payment({
-            receiver: account,
-            amount: refundAmount - disbursementCost,
+            receiver: payee,
+            amount: total - disbursementCost,
           })
           .submit()
       }

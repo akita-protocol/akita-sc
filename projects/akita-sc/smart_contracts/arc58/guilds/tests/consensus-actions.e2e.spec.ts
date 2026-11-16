@@ -50,6 +50,7 @@ import {
   SUBSCRIPTIONS,
   vote,
   type GuildTestEnvironment,
+  PROPOSAL_MBR,
 } from './test-helpers'
 
 const fixture = algorandFixture()
@@ -130,7 +131,7 @@ describe('Guild consensus actions', () => {
     const thresholdAction = consensusAction(fixedSigner.setThreshold(2n))
     const cost = await proposalCostOf(guild, [thresholdAction])
     expect(cost.minimumApprovals).toBe(5n)
-    expect(cost.mbr).toBe(44_900n + 400n * (7n + BigInt(thresholdAction[1].length)) + BALLOT_MBR + FIXED_SIGNER_SNAPSHOT_MBR)
+    expect(cost.mbr).toBe(PROPOSAL_MBR + 400n * (7n + BigInt(thresholdAction[1].length)) + BALLOT_MBR + FIXED_SIGNER_SNAPSHOT_MBR)
     const lonely = await createProposal(environment, guild, [thresholdAction])
     await submitProposal(guild, lonely)
     await vote(environment, guild, environment.creator, lonely, APPROVE)

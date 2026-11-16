@@ -3,7 +3,8 @@ import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typ
 import { btoi, Global, Txn } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyVersion } from "../../constants";
 import { BoxCostPerByte, ONE_DAY, ONE_HUNDRED_PERCENT, ONE_WEEK } from "../../utils/constants";
-import { calcPercent, percentageOf } from "../../utils/functions";
+import { calcPercent, canReceiveAlgo, payerOf, percentageOf, recordPayer, releaseDeposit, sponsorCost } from "../../utils/functions";
+import { errPayerOnly } from "../../utils/errors";
 import { STAKING_TYPE_LOCK } from "../../staking/types";
 import { CID } from "../../utils/types/base";
 import { AbstractAccountBoxPrefixExecutions, AbstractAccountBoxPrefixPlugins } from "../account/constants";
@@ -1060,12 +1061,15 @@ export class AkitaDAO extends Contract {
       fee = total
     }
 
+    // Anyone may fund a proposal. A payer other than the proposer is remembered, and funds that record,
+    // so every refund of the prepayment goes back to whoever paid it (deleteProposal, editProposal).
+    const sponsor: uint64 = fee > 0 ? sponsorCost(payment.sender, Txn.sender) : 0
     loggedAssert(
       match(
         payment,
         {
           receiver: Global.currentApplicationAddress,
-          amount: fee
+          amount: fee + sponsor
         }
       ),
       errInvalidPayment
@@ -1073,7 +1077,11 @@ export class AkitaDAO extends Contract {
 
     this.validateActions(actions)
 
-    return this.createOrUpdateProposal(0, cid, actions, fee, power)
+    const id = this.createOrUpdateProposal(0, cid, actions, fee, power)
+    if (sponsor > 0) {
+      recordPayer(this.proposals(id).key, payment.sender, Txn.sender)
+    }
+    return id
   }
 
   editProposal(id: uint64, cid: CID, actions: ProposalAction[]): void {
@@ -1087,9 +1095,13 @@ export class AkitaDAO extends Contract {
     this.validateActions(actions)
     this.createOrUpdateProposal(id, cid, actions, total, power)
 
-    // A cheaper edit returns the difference instead of silently keeping it.
+    // A cheaper edit returns the difference, to whoever paid the prepayment, instead of silently keeping
+    // it. A payer whose account has closed gives way to the proposer, so the edit can never be blocked.
     if (feesPaid > total) {
-      itxn.payment({ receiver: Txn.sender, amount: feesPaid - total, fee: 0 }).submit()
+      const payer = payerOf(this.proposals(id).key, Txn.sender)
+      itxn
+        .payment({ receiver: canReceiveAlgo(payer, feesPaid - total) ? payer : Txn.sender, amount: feesPaid - total, fee: 0 })
+        .submit()
     }
   }
 
@@ -1101,6 +1113,9 @@ export class AkitaDAO extends Contract {
 
     loggedAssert(total > feesPaid, errPaymentNotRequired)
 
+    // A proposal has one payer, so its refund never has to be split: the top-up comes from the account
+    // that paid the prepayment, which need not be the proposer.
+    loggedAssert(payment.sender === payerOf(this.proposals(id).key, Txn.sender), errPayerOnly)
     loggedAssert(
       match(
         payment,
@@ -1133,8 +1148,9 @@ export class AkitaDAO extends Contract {
 
     loggedAssert(Txn.sender === creator, errIncorrectSender)
 
-    // A never-submitted draft consumed nothing, so its whole prepayment returns to the creator.
-    // Any other proposal keeps its fee for DAO operations and only releases its storage.
+    // A never-submitted draft consumed nothing, so its whole prepayment returns to whoever paid it, the
+    // creator unless someone else funded the proposal. Any other proposal keeps its fee for DAO
+    // operations and only releases its storage.
     let storage = this.proposalsMbr(actions)
     if (this.tallies(proposalID).exists) {
       // Voters must recover their receipts (deleteProposalVotes) before the proposal can go.
@@ -1153,8 +1169,9 @@ export class AkitaDAO extends Contract {
 
     this.proposals(proposalID).delete()
 
-    if (refund > 0) {
-      itxn.payment({ receiver: creator, amount: refund, fee: 0 }).submit()
+    const [receiver, amount] = releaseDeposit(this.proposals(proposalID).key, creator, refund)
+    if (amount > 0) {
+      itxn.payment({ receiver, amount, fee: 0 }).submit()
     }
   }
 
@@ -1225,12 +1242,16 @@ export class AkitaDAO extends Contract {
       cost += DAOParticipationMBR
     }
 
-    // The voter funds their own storage (no sponsored votes), so refunds always reach the payer.
+    // Anyone may fund the voter's storage. A new receipt carries a refundable deposit: a payer other than
+    // the voter is remembered, and funds that record, so deleteProposalVotes returns the deposit to them.
+    // What the payment holds above the cost goes back to its payer below.
+    if (!revote) {
+      cost += sponsorCost(mbrPayment.sender, Txn.sender)
+    }
     loggedAssert(
       match(
         mbrPayment,
         {
-          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: { greaterThanEq: cost },
         }
@@ -1247,6 +1268,9 @@ export class AkitaDAO extends Contract {
     const votes = this.tallyVote(proposal.votes, previous.type, previous.power, false)
     this.proposals(proposalID).value.votes = this.tallyVote(votes, vote, power, true)
     this.voteReceipts(key).value = { type: vote, power, weight }
+    if (!revote) {
+      recordPayer(this.voteReceipts(key).key, mbrPayment.sender, Txn.sender)
+    }
 
     if (this.tallies(proposalID).exists) {
       rules.weight = rules.weight - previous.weight + weight
@@ -1261,9 +1285,17 @@ export class AkitaDAO extends Contract {
     }
     this.participation(Txn.sender).value = { lastVotedTs: Global.latestTimestamp, lastProposalID: proposalID, votes: counted }
 
-    const refund: uint64 = mbrPayment.amount - cost + released
-    if (refund > 0) {
-      itxn.payment({ receiver: Txn.sender, amount: refund, fee: 0 }).submit()
+    // Storage released from a replaced legacy receipt was the voter's own deposit, so it returns to the voter.
+    // The surplus of this payment returns to whoever paid it; a voter who pays for themselves gets one refund.
+    const surplus: uint64 = mbrPayment.amount - cost
+    let toVoter: uint64 = released
+    if (mbrPayment.sender === Txn.sender) {
+      toVoter += surplus
+    } else if (surplus > 0) {
+      itxn.payment({ receiver: mbrPayment.sender, amount: surplus, fee: 0 }).submit()
+    }
+    if (toVoter > 0) {
+      itxn.payment({ receiver: Txn.sender, amount: toVoter, fee: 0 }).submit()
     }
   }
 
@@ -1439,21 +1471,25 @@ export class AkitaDAO extends Contract {
       errInvalidProposalState
     )
 
-    // Every voter recovers the receipt deposit they paid when they voted. Participation records stay.
+    // Every receipt's deposit goes back to whoever paid it when the vote was cast: the voter, unless
+    // someone else funded the vote (a legacy receipt never has a recorded payer). Participation records stay.
     for (let i: uint64 = 0; i < voters.length; i++) {
       const key: ProposalVoteKey = { proposalID, voter: voters[i] }
+      let receiver = voters[i]
       let deposit: uint64 = DAOProposalVotesMBR
       if (this.voteReceipts(key).exists) {
         this.voteReceipts(key).delete()
+        const [payer, amount] = releaseDeposit(this.voteReceipts(key).key, voters[i], DAOProposalVotesMBR)
+        receiver = payer
+        deposit = amount
       } else {
         loggedAssert(this.proposalVotes(key).exists, errProposalVoteNotFound)
         this.proposalVotes(key).delete()
         deposit = DAOLegacyProposalVotesMBR
       }
       // A closed (empty) account cannot receive a payment below the minimum balance: the DAO keeps it.
-      const [balance] = op.AcctParams.acctBalance(voters[i])
-      if (balance > 0) {
-        itxn.payment({ receiver: voters[i], amount: deposit, fee: 0 }).submit()
+      if (canReceiveAlgo(receiver, deposit)) {
+        itxn.payment({ receiver, amount: deposit, fee: 0 }).submit()
       }
     }
 

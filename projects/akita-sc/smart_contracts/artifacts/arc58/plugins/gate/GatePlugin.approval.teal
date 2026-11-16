@@ -181,16 +181,16 @@ register_after_for@4:
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -198,7 +198,7 @@ register_after_for@4:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:400
+    // smart_contracts/utils/functions.ts:494
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -220,7 +220,7 @@ register_after_assert@7:
     // const gate = Application(getAkitaAppList(this.akitaDAO.value).gate)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:112
+    // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     pushbytes "aal"
     app_global_get_ex
@@ -318,13 +318,13 @@ register_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/utils/functions.ts:453
+    // smart_contracts/utils/functions.ts:547
     // if (!rekeyBack) {
     uncover 5
     bnz register_after_if_else@13
     uncover 3
     pop
-    // smart_contracts/utils/functions.ts:454
+    // smart_contracts/utils/functions.ts:548
     // return Global.zeroAddress
     global ZeroAddress
 
@@ -384,7 +384,7 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@14:
     return
 
 register_after_if_else@13:
-    // smart_contracts/utils/functions.ts:457
+    // smart_contracts/utils/functions.ts:551
     // return wallet.address
     uncover 3
     app_params_get AppAddress

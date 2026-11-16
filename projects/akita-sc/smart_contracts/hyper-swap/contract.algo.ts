@@ -3,7 +3,7 @@ import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4
 import { AssetHolding, itob, sha256 } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { MerkleTreeTypeTrade } from '../meta/constants'
-import { arc58OptInAndSend, assertSafeAssetTransfer, assertSafePayment, getAkitaAppList, getPluginAppList } from '../utils/functions'
+import { arc58OptInAndSend, getAkitaAppList, getPluginAppList, assertPlainPayment, assertSafeAssetTransfer, canReceiveAlgo } from '../utils/functions'
 import { RefundValue } from '../utils/types/mbr'
 import { Proof } from '../utils/types/merkles'
 import {
@@ -116,6 +116,20 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
   }
 
   /**
+   * Returns a storage deposit to the account that paid it (AUD-C22). A payor whose account has
+   * closed cannot take a refund below the minimum balance, and a failed refund must never hold up
+   * a payout, a withdrawal or another account's cleanup. The deposit then goes to `owner`, the
+   * participant the record belongs to, and stays with the contract when neither can take it.
+   */
+  private refundStorage(payor: Account, owner: Account, amount: uint64): void {
+    if (canReceiveAlgo(payor, amount)) {
+      itxn.payment({ receiver: payor, amount }).submit()
+    } else if (canReceiveAlgo(owner, amount)) {
+      itxn.payment({ receiver: owner, amount }).submit()
+    }
+  }
+
+  /**
    * Releases one escrowed leaf. The leaf hash names its funder (`from`); the hash box existing
    * proves the leaf was verified and funded during escrow.
    */
@@ -142,12 +156,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
         .submit()
 
       // refund the account that covered the MBR
-      itxn
-        .payment({
-          amount: refundAmount,
-          receiver: payor,
-        })
-        .submit()
+      this.refundStorage(payor, from, refundAmount)
     } else {
       // ASA transfer - check if receiver needs opt-in
       const [, isOptedIn] = AssetHolding.assetBalance(receiver, asset)
@@ -180,12 +189,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
         // refund remaining MBR (total - opt-in cost) to payor
         const optInCost = Global.assetOptInMinBalance
         if (refundAmount > optInCost) {
-          itxn
-            .payment({
-              amount: refundAmount - optInCost,
-              receiver: payor,
-            })
-            .submit()
+          this.refundStorage(payor, from, refundAmount - optInCost)
         }
       } else {
         // receiver is opted in - direct asset transfer
@@ -198,12 +202,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
           .submit()
 
         // refund the full MBR to payor
-        itxn
-          .payment({
-            amount: refundAmount,
-            receiver: payor,
-          })
-          .submit()
+        this.refundStorage(payor, from, refundAmount)
       }
     }
 
@@ -350,7 +349,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
   /**
    * Escrows the assets in the trade for a given leaf in the tree
    *
-   * @param payment the leaf's ALGO principal plus the hash MBR, sent by the participant
+   * @param payment the leaf's ALGO principal plus the hash MBR, from any payer
    * @param id the id of the offer
    * @param receiver the recipient in the offer leaf
    * @param amount the amount in the offer leaf
@@ -376,8 +375,9 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
 
     const costs = this.mbr()
 
-    // the principal is the leaf funder's own ALGO (no sponsorship, close-out or rekey)
-    assertSafePayment(payment, Txn.sender)
+    // principal and hash MBR arrive in one payment, from any payer (no close-out or rekey); a
+    // cancelled leaf returns the principal to the participant and the MBR to the payer
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(payment.amount === amount + costs.hashes, errInvalidPayment)
 
@@ -566,12 +566,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
         .submit()
     }
 
-    itxn
-      .payment({
-        amount: refundAmount,
-        receiver: payor,
-      })
-      .submit()
+    this.refundStorage(payor, Txn.sender, refundAmount)
 
     // decrement our escrow count
     const newEscrowed: uint64 = escrowed - 1
@@ -612,12 +607,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
     this.offers(id).value.acceptances = acceptances - 1
 
     // refund the MBR to the original payor
-    itxn
-      .payment({
-        amount,
-        receiver: payor,
-      })
-      .submit()
+    this.refundStorage(payor, participant, amount)
   }
 
   /**

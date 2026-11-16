@@ -11,7 +11,7 @@ import {
 } from '../../tests/utils/balance'
 import { expectContractError } from '../../tests/utils/errors'
 import { MockEscrowOwnerFactory } from '../artifacts/mocks/escrow-owner/MockEscrowOwnerClient'
-import { errInvalidPaymentSender } from '../utils/errors'
+import { errInvalidPaymentAmount } from '../utils/errors'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
@@ -217,7 +217,7 @@ describe('Escrow SDK', () => {
       expect(await getAccountBalance(algorand, factoryApp.appAddress.toString())).toBe(factoryBefore)
     })
 
-    test('escrow creation funding must come from the caller', async () => {
+    test('anyone can fund the creation of an escrow for the caller', async () => {
       const factoryApp = akitaUniverse.escrowFactory
       const cost = await factoryApp.cost()
       const payment = await algorand.createTransaction.payment({
@@ -225,14 +225,26 @@ describe('Escrow SDK', () => {
         receiver: factoryApp.appAddress,
         amount: algokit.microAlgos(cost),
       })
+      const sponsorBefore = await getAccountBalance(algorand, user2.addr.toString())
+      const created = await factoryApp.send.new({
+        sender: user1.addr,
+        signer: user1.signer,
+        args: { payment: { txn: payment, signer: user2.signer } },
+        extraFee: algokit.microAlgos(4_000),
+      })
+      expect(created.return!).toBeGreaterThan(0n)
+      // the sponsor paid the funding and its own network fee
+      expect(sponsorBefore - (await getAccountBalance(algorand, user2.addr.toString()))).toBe(cost + 1_000n)
+
+      // the funding still has to be exact
+      const short = await algorand.createTransaction.payment({
+        sender: user2.addr,
+        receiver: factoryApp.appAddress,
+        amount: algokit.microAlgos(cost - 1n),
+      })
       await expectContractError(
-        factoryApp.send.new({
-          sender: user1.addr,
-          signer: user1.signer,
-          args: { payment },
-          extraFee: algokit.microAlgos(4_000),
-        }),
-        errInvalidPaymentSender,
+        factoryApp.send.new({ sender: user1.addr, signer: user1.signer, args: { payment: { txn: short, signer: user2.signer } }, extraFee: algokit.microAlgos(4_000) }),
+        errInvalidPaymentAmount,
       )
     })
   })

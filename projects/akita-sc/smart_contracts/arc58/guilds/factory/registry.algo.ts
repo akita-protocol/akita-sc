@@ -53,7 +53,6 @@ export abstract class GuildProgramRegistry extends UpgradeableAkitaBaseContract 
     this.validateProgramName(programName)
     loggedAssert(size > 0 && size <= MAX_GUILD_APPROVAL_PROGRAM_SIZE, errGuildFactoryInvalidConfig)
     loggedAssert(match(mbrPayment, {
-      sender: Txn.sender,
       receiver: Global.currentApplicationAddress,
       amount: this.programFunding(programName, size),
     }), errGuildFactoryInvalidPayment)

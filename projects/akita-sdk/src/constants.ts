@@ -16,4 +16,12 @@ export const DEFAULT_SEND_PARAMS: SendParams & { maxFee: AlgoAmount } = {
   maxFee: microAlgo(257_000n)
 }
 
+/**
+ * What a payer other than the caller adds to a refundable storage payment, in µALGO. The contract
+ * keeps a payer record beside the stored record (box `'$' + sha256(record box key)`, 32-byte payer
+ * address) and returns the deposit and this amount to that payer when the record is released.
+ * Calls that pay for themselves add nothing.
+ */
+export const PAYER_RECORD_MBR = 28_500n
+
 export const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1, the maximum value for a 64-bit unsigned integer

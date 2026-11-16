@@ -30,6 +30,8 @@ export const errFailedGate = 'errFgte'
 export const errPluginNotAuthAddr = 'errNath'
 export const errInvalidWallet = 'errIwlt'
 export const errInvalidPaymentSender = 'errIpms'
+/** A top-up of a prepayment must come from the account that paid it. */
+export const errPayerOnly = 'errIpyr'
 export const errClawbackForbidden = 'errNclw'
 export const errCloseForbidden = 'errNcls'
 export const errRekeyForbidden = 'errNrky'

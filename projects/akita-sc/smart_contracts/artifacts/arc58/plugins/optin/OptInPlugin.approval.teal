@@ -81,10 +81,10 @@ optIn:
     intc_0 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -93,7 +93,7 @@ optIn:
     pop
     dup
     cover 3
-    // smart_contracts/utils/functions.ts:400
+    // smart_contracts/utils/functions.ts:494
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -223,11 +223,11 @@ optIn_ternary_merge@12:
     b optIn_while_top@6
 
 optIn_ternary_false@11:
-    // smart_contracts/utils/functions.ts:453
+    // smart_contracts/utils/functions.ts:547
     // if (!rekeyBack) {
     dig 5
     bnz optIn_after_if_else@17
-    // smart_contracts/utils/functions.ts:454
+    // smart_contracts/utils/functions.ts:548
     // return Global.zeroAddress
     global ZeroAddress
     // smart_contracts/arc58/plugins/optin/contract.algo.ts:21
@@ -235,7 +235,7 @@ optIn_ternary_false@11:
     b optIn_ternary_merge@12
 
 optIn_after_if_else@17:
-    // smart_contracts/utils/functions.ts:457
+    // smart_contracts/utils/functions.ts:551
     // return wallet.address
     dig 6
     app_params_get AppAddress

@@ -1371,8 +1371,11 @@ describe('ARC58 DAO Voting', () => {
             await dao.deleteProposal({ proposalId: id });
         });
 
-        test('DAO-07: a re-vote refunds its deposit, and the deposit must come from the voter', async () => {
-            const { id } = await newDraft(minRewardsAction(911));
+        test('DAO-07: a re-vote refunds its deposit; another account may fund a vote and gets its deposit back', async () => {
+            const { algorand } = fixture.context;
+            const PAYER_RECORD_MBR = 28_500n;
+            await algorand.account.ensureFunded(sender, (await algorand.account.dispenserFromEnvironment()).addr, algo(50));
+            const { id, cost } = await newDraft(minRewardsAction(911));
             await dao.submitProposal({ proposalId: id });
             await castVote(voter1, voter1Signer, id, VOTE_APPROVE);
 
@@ -1382,14 +1385,81 @@ describe('ARC58 DAO Voting', () => {
             expect(await balanceOf(daoAddress())).toBe(daoBefore);
             expect(voterBefore - await balanceOf(voter1)).toBeLessThan(10_000n); // network fees only
 
-            // A third party may not fund someone else's vote receipt.
-            const sponsored = fixture.context.algorand.createTransaction.payment({
-                sender: voter2, signer: voter2Signer, receiver: daoAddress(), amount: microAlgo(DAOProposalVotesMBR),
+            const fundedVote = async (
+                who: string, whoSigner: TransactionSigner, payer: string, payerSigner: TransactionSigner, amount: bigint, vote: number,
+            ) => dao.client.send.voteProposal({
+                sender: who, signer: whoSigner,
+                args: {
+                    mbrPayment: {
+                        txn: await algorand.createTransaction.payment({ sender: payer, receiver: daoAddress(), amount: microAlgo(amount) }),
+                        signer: payerSigner,
+                    },
+                    proposalId: id, vote,
+                },
+                populateAppCallResources: true,
+                coverAppCallInnerTransactionFees: true,
+                maxFee: microAlgo(20_000),
             });
-            await expect(dao.client.send.voteProposal({
-                sender: voter1, signer: voter1Signer,
-                args: { mbrPayment: sponsored, proposalId: id, vote: VOTE_APPROVE },
-            })).rejects.toThrow(/errIpay/);
+
+            // A re-vote owes nothing, so another account's payment for it comes straight back.
+            const funderBefore = await balanceOf(voter2);
+            await fundedVote(voter1, voter1Signer, voter2, voter2Signer, DAOProposalVotesMBR, VOTE_APPROVE);
+            expect(funderBefore - await balanceOf(voter2)).toBe(1_000n); // the payment's own network fee
+            expect(await balanceOf(daoAddress())).toBe(daoBefore);
+
+            // A first vote funded by another account: the receipt deposit alone is not enough, because the
+            // payer is remembered and funds that record too. Anything above the cost is returned at once.
+            await expect(fundedVote(voter2, voter2Signer, sender, signer, DAOProposalVotesMBR, VOTE_APPROVE)).rejects.toThrow(/errIpay/);
+            const sponsorBefore = await balanceOf(sender);
+            await fundedVote(voter2, voter2Signer, sender, signer, 1_000_000n, VOTE_APPROVE);
+            expect(sponsorBefore - await balanceOf(sender)).toBe(DAOProposalVotesMBR + PAYER_RECORD_MBR + 1_000n);
+
+            // The cleanup returns the receipt's deposit and the payer record's to the funder, not to the voter.
+            await warpAndFinalize(cost.duration, [id]);
+            const sponsorHeld = await balanceOf(sender);
+            const votedHeld = await balanceOf(voter2);
+            await dao.deleteProposalVotes({
+                sender: voter1, signer: voter1Signer, proposalId: id, voters: [voter2],
+            } as unknown as Parameters<typeof dao.deleteProposalVotes>[0]);
+            expect(await balanceOf(sender) - sponsorHeld).toBe(DAOProposalVotesMBR + PAYER_RECORD_MBR);
+            expect(await balanceOf(voter2)).toBe(votedHeld);
+        });
+
+        test('a proposal funded by another account returns its prepayment to that account', async () => {
+            const { algorand } = fixture.context;
+            const PAYER_RECORD_MBR = 28_500n;
+            await algorand.account.ensureFunded(sender, (await algorand.account.dispenserFromEnvironment()).addr, algo(50));
+            const actions = minRewardsAction(913);
+            const prepped = await (dao as unknown as { prepProposalActions: (a: typeof actions) => Promise<never> }).prepProposalActions(actions);
+            const cost = await dao.proposalCost({ actions });
+            await dao.client.appClient.fundAppAccount({ amount: cost.total.microAlgo() });
+            const propose = async (amount: bigint) => dao.client.send.newProposal({
+                sender, signer,
+                args: {
+                    payment: {
+                        txn: await algorand.createTransaction.payment({ sender: voter2, receiver: daoAddress(), amount: microAlgo(amount) }),
+                        signer: voter2Signer,
+                    },
+                    cid: EMPTY_CID,
+                    actions: prepped,
+                },
+                populateAppCallResources: true,
+                coverAppCallInnerTransactionFees: true,
+                maxFee: microAlgo(20_000),
+            });
+
+            // the fee alone is not enough from another payer: it is remembered and funds that record too
+            await expect(propose(cost.total)).rejects.toThrow(/errIpay/);
+            const funderBefore = await balanceOf(voter2);
+            const { return: id } = await propose(cost.total + PAYER_RECORD_MBR);
+            expect(funderBefore - await balanceOf(voter2)).toBe(cost.total + PAYER_RECORD_MBR + 1_000n);
+
+            // the proposer deletes the draft; the whole prepayment goes back to the account that paid it
+            const funderHeld = await balanceOf(voter2);
+            const proposerHeld = await balanceOf(sender);
+            await dao.deleteProposal({ proposalId: id! });
+            expect(await balanceOf(voter2) - funderHeld).toBe(cost.total + PAYER_RECORD_MBR);
+            expect(await balanceOf(sender)).toBeLessThan(proposerHeld);
         });
 
         test('DAO-04: a lock that expires before the vote ends carries no weight', async () => {
@@ -1724,6 +1794,9 @@ describe('ARC58 DAO Voting', () => {
                 approvals > 0n && (rejections === 0n ? D >= approval : (approvals * D) / (approvals + rejections) >= approval);
 
             test('a vote the remaining stake could still change stays open', async () => {
+                // the shared sender funds drafts; the tests above leave it close to its minimum balance
+                const { algorand } = fixture.context;
+                await algorand.account.ensureFunded(sender, (await algorand.account.dispenserFromEnvironment()).addr, algo(50));
                 const { id } = await newDraft(minRewardsAction(952));
                 await dao.submitProposal({ proposalId: id });
                 await castVote(voter2, voter2Signer, id, VOTE_APPROVE);

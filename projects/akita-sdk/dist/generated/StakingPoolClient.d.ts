@@ -1068,7 +1068,9 @@ export declare abstract class StakingPoolParamsFactory {
     /**
      * Constructs a no op call for the closeReward(uint64)void ABI method
      *
-     * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+    * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+    the reward: the creator, unless someone else paid (M-5).
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -1135,8 +1137,8 @@ export declare abstract class StakingPoolParamsFactory {
      * Constructs a no op call for the removeEntry(address,uint64)void ABI method
      *
     * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-    to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-    anyone may clean up.
+    to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+    entrant may leave any time no round is open; after the pool ends anyone may clean up.
   
      *
      * @param params Parameters for the call
@@ -2094,7 +2096,9 @@ export declare class StakingPoolClient {
         /**
          * Makes a call to the StakingPool smart contract using the `closeReward(uint64)void` ABI method.
          *
-         * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+        * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+        the reward: the creator, unless someone else paid (M-5).
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -2173,8 +2177,8 @@ export declare class StakingPoolClient {
          * Makes a call to the StakingPool smart contract using the `removeEntry(address,uint64)void` ABI method.
          *
         * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-        to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-        anyone may clean up.
+        to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+        entrant may leave any time no round is open; after the pool ends anyone may clean up.
     
          *
          * @param params The params for the smart contract call
@@ -2621,7 +2625,9 @@ export declare class StakingPoolClient {
         /**
          * Makes a call to the StakingPool smart contract using the `closeReward(uint64)void` ABI method.
          *
-         * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+        * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+        the reward: the creator, unless someone else paid (M-5).
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2724,8 +2730,8 @@ export declare class StakingPoolClient {
          * Makes a call to the StakingPool smart contract using the `removeEntry(address,uint64)void` ABI method.
          *
         * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-        to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-        anyone may clean up.
+        to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+        entrant may leave any time no round is open; after the pool ends anyone may clean up.
     
          *
          * @param params The params for the smart contract call
@@ -3319,7 +3325,9 @@ export declare class StakingPoolClient {
         /**
          * Makes a call to the StakingPool smart contract using the `closeReward(uint64)void` ABI method.
          *
-         * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+        * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+        the reward: the creator, unless someone else paid (M-5).
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -3452,8 +3460,8 @@ export declare class StakingPoolClient {
          * Makes a call to the StakingPool smart contract using the `removeEntry(address,uint64)void` ABI method.
          *
         * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-        to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-        anyone may clean up.
+        to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+        entrant may leave any time no round is open; after the pool ends anyone may clean up.
     
          *
          * @param params The params for the smart contract call
@@ -4429,7 +4437,9 @@ export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the closeReward(uint64)void ABI method.
      *
-     * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+    * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+    the reward: the creator, unless someone else paid (M-5).
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -4502,8 +4512,8 @@ export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
      * Calls the removeEntry(address,uint64)void ABI method.
      *
     * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-    to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-    anyone may clean up.
+    to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+    entrant may leave any time no round is open; after the pool ends anyone may clean up.
   
      *
      * @param args The arguments for the contract call

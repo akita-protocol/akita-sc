@@ -34,6 +34,21 @@ type SetConsensusActionSettingsArgs = WalletPluginArgs<ContractMethodArgs<"setCo
 type GuildOnlyArgs = WalletPluginArgs<ContractMethodArgs<"initialize">>;
 type NewProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"newProposal">>>>;
 type EditProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"editProposal">>>>;
+/**
+ * `feeAsset` and `maxFee` pin the asset and the most the wallet may pay in it. Left out, they are what
+ * the Guild charges when the call is built, like `maxCost`.
+ */
+type WithOptionalFeeQuote<T extends { feeAsset: bigint | number; maxFee: bigint | number }> = Omit<T, "feeAsset" | "maxFee"> & {
+  feeAsset?: bigint | number;
+  maxFee?: bigint | number;
+};
+type NewProposalWithFeeAssetArgs = WalletPluginArgs<
+  WithOptionalFeeQuote<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"newProposalWithFeeAsset">>>>
+>;
+type EditProposalWithFeeAssetArgs = WalletPluginArgs<
+  WithOptionalFeeQuote<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"editProposalWithFeeAsset">>>>
+>;
+type SetFeeAssetArgs = WalletPluginArgs<WithOptionalMaxCost<ContractMethodArgs<"setFeeAsset">>>;
 type DeleteProposalArgs = WalletPluginArgs<ContractMethodArgs<"deleteProposal">>;
 type SubmitProposalArgs = WalletPluginArgs<WithOptionalEvidence<ContractMethodArgs<"submitProposal">>>;
 type VoteProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"voteProposal">>>>;
@@ -44,14 +59,22 @@ type ExecuteProposalArgs = WalletPluginArgs<ContractMethodArgs<"executeProposal"
 type OpUpArgs = WalletPluginArgs<ContractMethodArgs<"opUp">>;
 
 type ParamsBuilder = (params: Record<string, unknown>) => Promise<Record<string, unknown>>;
-/** Reads what a paying call costs right now; `spender` is the wallet account the plugin will pay from */
-type CostQuote = (reader: ReadableAddress, spender?: ReadableAddress) => Promise<bigint>;
+/**
+ * Reads what a paying call costs right now; `spender` is the wallet account the plugin will pay from. A
+ * bigint is the call's `maxCost`; an object names each limit argument it fills.
+ */
+type CostQuote = (reader: ReadableAddress, spender?: ReadableAddress) => Promise<bigint | Record<string, bigint>>;
+
+/** What a proposal costs now: ALGO `total` (storage, plus the fee when `feeAsset` is 0) and `fee` in `feeAsset`. */
+export type GuildProposalQuote = { total: bigint; mbr: bigint; fee: bigint; feeAsset: bigint };
 
 /**
  * Fee room for a simulated cost read: the Guild asks its consensus and wallet factory through inner calls,
  * up to one per proposal action. Simulated only, never paid.
  */
 const COST_READ_EXTRA_FEE = 20_000n;
+/** The limits a fee-asset proposal call takes: ALGO, the fee asset, and the most paid in it */
+const FEE_QUOTE_KEYS = ["maxCost", "feeAsset", "maxFee"];
 
 /** Wallet-facing hooks for the complete Guild factory and proposal lifecycle. */
 export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
@@ -59,11 +82,12 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     super({ factory: GuildPluginFactory, ...params });
   }
 
-  private hook<T extends MaybeSigner & { rekeyBack?: boolean; maxCost?: bigint | number }>(
+  private hook<T extends MaybeSigner & { rekeyBack?: boolean; maxCost?: bigint | number; feeAsset?: bigint | number; maxFee?: bigint | number }>(
     methodName: string,
     args?: T,
     extraFee = 0n,
     quote?: CostQuote,
+    quoteKeys: string[] = ["maxCost"],
   ): PluginSDKReturn {
     if (args === undefined) {
       return (_spendingAddress?: ReadableAddress) => ({
@@ -82,9 +106,12 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
       getTxns: async ({ wallet }: PluginHookParams) => {
         const paramsBuilder = (this.client.params as unknown as Record<string, ParamsBuilder>)[methodName];
         // a paying call the caller gave no limit for is held to what it costs now, when it is built
-        const quoted = quote !== undefined && methodArgs.maxCost === undefined
-          ? { maxCost: await quote(sendParams.sender, spendingAddress || undefined) }
-          : {};
+        const limits = methodArgs as Record<string, unknown>;
+        const needsQuote = quote !== undefined && quoteKeys.some((key) => limits[key] === undefined);
+        const quote_ = needsQuote ? await quote!(sendParams.sender, spendingAddress || undefined) : {};
+        const quoted = Object.fromEntries(
+          Object.entries(typeof quote_ === "bigint" ? { maxCost: quote_ } : quote_).filter(([key]) => limits[key] === undefined),
+        );
         const params = await paramsBuilder({
           ...sendParams,
           args: { wallet, rekeyBack, ...methodArgs, ...quoted },
@@ -123,12 +150,48 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
   }
 
   /**
-   * What proposing `actions` costs a member now (storage plus the Guild's fees), in microAlgo. A draft
-   * Guild charges its creator nothing, so for the creator this is an upper bound.
+   * What proposing `actions` costs a member now in microAlgo: storage, plus the Guild's fees when it
+   * charges them in ALGO (see `proposalQuote` for a fee asset). A draft Guild charges its creator nothing,
+   * so for the creator this is an upper bound.
    */
   async proposalCost(guild: bigint | number, actions: [number | bigint, Uint8Array][], reader: ReadableAddress = this.readerAccount): Promise<bigint> {
     const { return: cost } = await this.guildReader(guild, reader).send.proposalCost({ args: { actions: actions as never }, ...this.readFee() });
     return cost?.total ?? 0n;
+  }
+
+  /** What proposing `actions` costs now, split by currency: ALGO `total` and `fee` in `feeAsset` (0 = ALGO, included in `total`). */
+  async proposalQuote(guild: bigint | number, actions: [number | bigint, Uint8Array][], reader: ReadableAddress = this.readerAccount): Promise<GuildProposalQuote> {
+    const { return: cost } = await this.guildReader(guild, reader).send.proposalCost({ args: { actions: actions as never }, ...this.readFee() });
+    return { total: cost?.total ?? 0n, mbr: cost?.mbr ?? 0n, fee: cost?.fee ?? 0n, feeAsset: cost?.feeAsset ?? 0n };
+  }
+
+  /** What a draft Guild's `setFeeAsset(asset)` pays now: the Guild's and its treasury's opt-ins and the reserve box. */
+  async feeAssetCost(guild: bigint | number, asset: bigint | number, reader: ReadableAddress = this.readerAccount): Promise<bigint> {
+    return (await this.guildReader(guild, reader).send.feeAssetCost({ args: { asset }, ...this.readFee() })).return ?? 0n;
+  }
+
+  /**
+   * What replacing a draft's actions with `actions` costs now beyond what it already paid: `total` in
+   * microAlgo and `fee` in `feeAsset` (0 when the fee is in ALGO, where it is part of `total`).
+   */
+  async proposalEditQuote(
+    guild: bigint | number,
+    proposalId: bigint | number,
+    actions: [number | bigint, Uint8Array][],
+    reader: ReadableAddress = this.readerAccount,
+  ): Promise<{ total: bigint; fee: bigint; feeAsset: bigint }> {
+    const [quote, proposal] = await Promise.all([
+      this.proposalQuote(guild, actions, reader),
+      this.guildReader(guild, reader).send.getProposal({ args: { proposalId } }),
+    ]);
+    const paid = proposal.return?.feesPaid ?? 0n;
+    const tokensPaid = proposal.return?.feeTokensPaid ?? 0n;
+    const fee = quote.feeAsset === 0n ? 0n : quote.fee;
+    return {
+      total: quote.total > paid ? quote.total - paid : 0n,
+      fee: fee > tokensPaid ? fee - tokensPaid : 0n,
+      feeAsset: quote.feeAsset,
+    };
   }
 
   /** What replacing a draft proposal's actions with `actions` costs now on top of what it already paid. */
@@ -212,6 +275,13 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     return this.hook("setConsensusActionSettings", args);
   }
 
+  /** Charge a draft Guild's proposal fees in `asset` (0 = ALGO); the wallet pays the opt-ins it needs. */
+  setFeeAsset(): PluginSDKReturn;
+  setFeeAsset(args: SetFeeAssetArgs): PluginSDKReturn;
+  setFeeAsset(args?: SetFeeAssetArgs): PluginSDKReturn {
+    return this.hook("setFeeAsset", args, 0n, args && ((reader) => this.feeAssetCost(args.guild, args.asset, reader)));
+  }
+
   lockPluginSet(): PluginSDKReturn;
   lockPluginSet(args: GuildOnlyArgs): PluginSDKReturn;
   lockPluginSet(args?: GuildOnlyArgs): PluginSDKReturn {
@@ -235,6 +305,28 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
   newProposal(args?: NewProposalArgs): PluginSDKReturn {
     if (args === undefined) return this.hook("newProposal");
     return this.hook("newProposal", { evidence: new Uint8Array(), ...args }, 0n, (reader) => this.proposalCost(args.guild, args.actions, reader));
+  }
+
+  /** Propose to a Guild that charges its fee in an asset: the wallet pays storage in ALGO and the fee in that asset. */
+  newProposalWithFeeAsset(): PluginSDKReturn;
+  newProposalWithFeeAsset(args: NewProposalWithFeeAssetArgs): PluginSDKReturn;
+  newProposalWithFeeAsset(args?: NewProposalWithFeeAssetArgs): PluginSDKReturn {
+    if (args === undefined) return this.hook("newProposalWithFeeAsset");
+    return this.hook("newProposalWithFeeAsset", { evidence: new Uint8Array(), ...args }, 0n, async (reader) => {
+      const { total, fee, feeAsset } = await this.proposalQuote(args.guild, args.actions, reader);
+      return { maxCost: total, maxFee: fee, feeAsset };
+    }, FEE_QUOTE_KEYS);
+  }
+
+  /** Edit a draft in a Guild that charges its fee in an asset, topping up ALGO and fee tokens as needed. */
+  editProposalWithFeeAsset(): PluginSDKReturn;
+  editProposalWithFeeAsset(args: EditProposalWithFeeAssetArgs): PluginSDKReturn;
+  editProposalWithFeeAsset(args?: EditProposalWithFeeAssetArgs): PluginSDKReturn {
+    if (args === undefined) return this.hook("editProposalWithFeeAsset");
+    return this.hook("editProposalWithFeeAsset", { evidence: new Uint8Array(), ...args }, 0n, async (reader) => {
+      const { total, fee, feeAsset } = await this.proposalEditQuote(args.guild, args.proposalId, args.actions, reader);
+      return { maxCost: total, maxFee: fee, feeAsset };
+    }, FEE_QUOTE_KEYS);
   }
 
   editProposal(): PluginSDKReturn;
@@ -553,6 +645,8 @@ export async function proposeToGuild({
   evidence?: Uint8Array;
 }): Promise<bigint> {
   const proposalId = BigInt((await guildPlugin.algorand.app.getGlobalState(guild)).proposal_id?.value ?? 1n);
+  const { feeAsset } = await guildPlugin.proposalQuote(guild, actions, sender);
+  const propose = { sender, signer, guild, cid, actions: actions as never, evidence, rekeyBack: false };
   await wallet.usePlugin({
     sender,
     signer,
@@ -560,7 +654,8 @@ export async function proposeToGuild({
     consolidateFees: true,
     calls: [
       ...Array.from({ length: MEMBER_PROPOSAL_OP_UPS }, (_, nonce) => guildPlugin.opUp({ sender, signer, rekeyBack: false, nonce: BigInt(nonce) })),
-      guildPlugin.newProposal({ sender, signer, guild, cid, actions: actions as never, evidence, rekeyBack: false }),
+      // a Guild that charges its fee in an asset takes it in a separate asset transfer
+      feeAsset === 0n ? guildPlugin.newProposal(propose) : guildPlugin.newProposalWithFeeAsset({ ...propose, feeAsset }),
       guildPlugin.submitProposal({ sender, signer, guild, proposalId, evidence }),
     ],
   });

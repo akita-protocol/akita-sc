@@ -38,6 +38,20 @@ type SetConsensusActionSettingsArgs = WalletPluginArgs<ContractMethodArgs<"setCo
 type GuildOnlyArgs = WalletPluginArgs<ContractMethodArgs<"initialize">>;
 type NewProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"newProposal">>>>;
 type EditProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"editProposal">>>>;
+/**
+ * `feeAsset` and `maxFee` pin the asset and the most the wallet may pay in it. Left out, they are what
+ * the Guild charges when the call is built, like `maxCost`.
+ */
+type WithOptionalFeeQuote<T extends {
+    feeAsset: bigint | number;
+    maxFee: bigint | number;
+}> = Omit<T, "feeAsset" | "maxFee"> & {
+    feeAsset?: bigint | number;
+    maxFee?: bigint | number;
+};
+type NewProposalWithFeeAssetArgs = WalletPluginArgs<WithOptionalFeeQuote<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"newProposalWithFeeAsset">>>>>;
+type EditProposalWithFeeAssetArgs = WalletPluginArgs<WithOptionalFeeQuote<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"editProposalWithFeeAsset">>>>>;
+type SetFeeAssetArgs = WalletPluginArgs<WithOptionalMaxCost<ContractMethodArgs<"setFeeAsset">>>;
 type DeleteProposalArgs = WalletPluginArgs<ContractMethodArgs<"deleteProposal">>;
 type SubmitProposalArgs = WalletPluginArgs<WithOptionalEvidence<ContractMethodArgs<"submitProposal">>>;
 type VoteProposalArgs = WalletPluginArgs<WithOptionalMaxCost<WithOptionalEvidence<ContractMethodArgs<"voteProposal">>>>;
@@ -46,6 +60,13 @@ type CancelProposalArgs = WalletPluginArgs<ContractMethodArgs<"cancelProposal">>
 type CleanupProposalConsensusArgs = WalletPluginArgs<ContractMethodArgs<"cleanupProposalConsensus">>;
 type ExecuteProposalArgs = WalletPluginArgs<ContractMethodArgs<"executeProposal">>;
 type OpUpArgs = WalletPluginArgs<ContractMethodArgs<"opUp">>;
+/** What a proposal costs now: ALGO `total` (storage, plus the fee when `feeAsset` is 0) and `fee` in `feeAsset`. */
+export type GuildProposalQuote = {
+    total: bigint;
+    mbr: bigint;
+    fee: bigint;
+    feeAsset: bigint;
+};
 /** Wallet-facing hooks for the complete Guild factory and proposal lifecycle. */
 export declare class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     constructor(params: NewContractSDKParams);
@@ -60,10 +81,24 @@ export declare class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     /** What creating the Guild's treasury wallet costs now, in microAlgo. */
     setupCost(guild: bigint | number, reader?: ReadableAddress): Promise<bigint>;
     /**
-     * What proposing `actions` costs a member now (storage plus the Guild's fees), in microAlgo. A draft
-     * Guild charges its creator nothing, so for the creator this is an upper bound.
+     * What proposing `actions` costs a member now in microAlgo: storage, plus the Guild's fees when it
+     * charges them in ALGO (see `proposalQuote` for a fee asset). A draft Guild charges its creator nothing,
+     * so for the creator this is an upper bound.
      */
     proposalCost(guild: bigint | number, actions: [number | bigint, Uint8Array][], reader?: ReadableAddress): Promise<bigint>;
+    /** What proposing `actions` costs now, split by currency: ALGO `total` and `fee` in `feeAsset` (0 = ALGO, included in `total`). */
+    proposalQuote(guild: bigint | number, actions: [number | bigint, Uint8Array][], reader?: ReadableAddress): Promise<GuildProposalQuote>;
+    /** What a draft Guild's `setFeeAsset(asset)` pays now: the Guild's and its treasury's opt-ins and the reserve box. */
+    feeAssetCost(guild: bigint | number, asset: bigint | number, reader?: ReadableAddress): Promise<bigint>;
+    /**
+     * What replacing a draft's actions with `actions` costs now beyond what it already paid: `total` in
+     * microAlgo and `fee` in `feeAsset` (0 when the fee is in ALGO, where it is part of `total`).
+     */
+    proposalEditQuote(guild: bigint | number, proposalId: bigint | number, actions: [number | bigint, Uint8Array][], reader?: ReadableAddress): Promise<{
+        total: bigint;
+        fee: bigint;
+        feeAsset: bigint;
+    }>;
     /** What replacing a draft proposal's actions with `actions` costs now on top of what it already paid. */
     proposalEditCost(guild: bigint | number, proposalId: bigint | number, actions: [number | bigint, Uint8Array][], reader?: ReadableAddress): Promise<bigint>;
     /** What `voter`'s next vote on a proposal costs now: its receipt's storage for a first vote, nothing after. */
@@ -91,6 +126,9 @@ export declare class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     setProposalActionLimit(args: SetProposalActionLimitArgs): PluginSDKReturn;
     setConsensusActionSettings(): PluginSDKReturn;
     setConsensusActionSettings(args: SetConsensusActionSettingsArgs): PluginSDKReturn;
+    /** Charge a draft Guild's proposal fees in `asset` (0 = ALGO); the wallet pays the opt-ins it needs. */
+    setFeeAsset(): PluginSDKReturn;
+    setFeeAsset(args: SetFeeAssetArgs): PluginSDKReturn;
     lockPluginSet(): PluginSDKReturn;
     lockPluginSet(args: GuildOnlyArgs): PluginSDKReturn;
     partiallyInitialize(): PluginSDKReturn;
@@ -99,6 +137,12 @@ export declare class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     initialize(args: GuildOnlyArgs): PluginSDKReturn;
     newProposal(): PluginSDKReturn;
     newProposal(args: NewProposalArgs): PluginSDKReturn;
+    /** Propose to a Guild that charges its fee in an asset: the wallet pays storage in ALGO and the fee in that asset. */
+    newProposalWithFeeAsset(): PluginSDKReturn;
+    newProposalWithFeeAsset(args: NewProposalWithFeeAssetArgs): PluginSDKReturn;
+    /** Edit a draft in a Guild that charges its fee in an asset, topping up ALGO and fee tokens as needed. */
+    editProposalWithFeeAsset(): PluginSDKReturn;
+    editProposalWithFeeAsset(args: EditProposalWithFeeAssetArgs): PluginSDKReturn;
     editProposal(): PluginSDKReturn;
     editProposal(args: EditProposalArgs): PluginSDKReturn;
     deleteProposal(): PluginSDKReturn;

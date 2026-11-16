@@ -3,30 +3,30 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 8 0 32
-    bytecblock 0x151f7c75 "ERR:errIpms" "ERR:errNcls" "ERR:errNrky"
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:19
+    intcblock 1 8 0 32 28500
+    bytecblock 0x151f7c75 "ERR:errNcls" "ERR:errNrky" "$" "ERR:errIpmr" "ERR:errIpma" "ERR:errIpms"
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:22
     // export class MockSharedHelpers extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@16
+    bz main___algots__.defaultCreate@21
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x854dede0 0xf473bf4c 0x83394939 0xa9bfb897 0x7bfdf448 0xbc38aeef 0x442f1ca6 0xec03f020 0x2fb424a9 // method "opUp()void", method "checkPayment(pay,address,address,uint64)void", method "checkSafePayment(pay,address)void", method "checkAssetTransfer(axfer,address,address,uint64,uint64)void", method "checkSafeAssetTransfer(axfer,address)void", method "controlledSpending(uint64)address", method "extraPages(uint64,uint64,uint64)uint64", method "spawn(uint64)uint64", method "reap(uint64,uint64,address)uint64"
+    pushbytess 0x854dede0 0xf473bf4c 0x83394939 0x66c81c49 0xa87d182d 0xde530fa1 0xb4da4af4 0xa61d3249 0xa9bfb897 0x7bfdf448 0xbc38aeef 0x442f1ca6 0xec03f020 0x2fb424a9 // method "opUp()void", method "checkPayment(pay,address,address,uint64)void", method "checkSafePayment(pay,address)void", method "checkPlainPayment(pay)void", method "checkExactPayment(pay,address,uint64)void", method "hold(pay,byte[],uint64)void", method "heldBy(byte[],address)address", method "release(byte[],address,uint64)address", method "checkAssetTransfer(axfer,address,address,uint64,uint64)void", method "checkSafeAssetTransfer(axfer,address)void", method "controlledSpending(uint64)address", method "extraPages(uint64,uint64,uint64)uint64", method "spawn(uint64)uint64", method "reap(uint64,uint64,address)uint64"
     txna ApplicationArgs 0
-    match main_opUp_route@4 checkPayment checkSafePayment checkAssetTransfer checkSafeAssetTransfer controlledSpending extraPages spawn reap
+    match main_opUp_route@4 checkPayment checkSafePayment checkPlainPayment checkExactPayment hold heldBy release checkAssetTransfer checkSafeAssetTransfer controlledSpending extraPages spawn reap
     err
 
 main_opUp_route@4:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:20
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:23
     // opUp(): void { }
     intc_0 // 1
     return
 
-main___algots__.defaultCreate@16:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:19
+main___algots__.defaultCreate@21:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:22
     // export class MockSharedHelpers extends Contract {
     txn OnCompletion
     !
@@ -36,43 +36,111 @@ main___algots__.defaultCreate@16:
     return
 
 
+// smart_contracts/utils/functions.ts::assertPlainPayment(txn: uint64) -> void:
+assertPlainPayment:
+    // smart_contracts/utils/functions.ts:67
+    // export function assertPlainPayment(txn: gtxn.PaymentTxn): void {
+    proto 1 0
+    // smart_contracts/utils/functions.ts:68
+    // loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
+    frame_dig -1
+    gtxns CloseRemainderTo
+    global ZeroAddress
+    ==
+    bnz assertPlainPayment_after_assert@2
+    bytec_1 // "ERR:errNcls"
+    log
+    err // ERR:errNcls
+
+assertPlainPayment_after_assert@2:
+    // smart_contracts/utils/functions.ts:69
+    // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
+    frame_dig -1
+    gtxns RekeyTo
+    global ZeroAddress
+    ==
+    bnz assertPlainPayment_after_assert@4
+    bytec_2 // "ERR:errNrky"
+    log
+    err // ERR:errNrky
+
+assertPlainPayment_after_assert@4:
+    retsub
+
+
+// smart_contracts/utils/functions.ts::assertExactPayment(txn: uint64, receiver: bytes, amount: uint64) -> void:
+assertExactPayment:
+    // smart_contracts/utils/functions.ts:76
+    // export function assertExactPayment(txn: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+    proto 3 0
+    // smart_contracts/utils/functions.ts:77
+    // assertPlainPayment(txn)
+    frame_dig -3
+    callsub assertPlainPayment
+    // smart_contracts/utils/functions.ts:78
+    // loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
+    frame_dig -3
+    gtxns Receiver
+    frame_dig -2
+    ==
+    bnz assertExactPayment_after_assert@2
+    bytec 4 // "ERR:errIpmr"
+    log
+    err // ERR:errIpmr
+
+assertExactPayment_after_assert@2:
+    // smart_contracts/utils/functions.ts:79
+    // loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
+    frame_dig -3
+    gtxns Amount
+    frame_dig -1
+    ==
+    bnz assertExactPayment_after_assert@4
+    bytec 5 // "ERR:errIpma"
+    log
+    err // ERR:errIpma
+
+assertExactPayment_after_assert@4:
+    retsub
+
+
 // smart_contracts/utils/functions.ts::assertSafePayment(txn: uint64, sender: bytes) -> void:
 assertSafePayment:
-    // smart_contracts/utils/functions.ts:61
+    // smart_contracts/utils/functions.ts:155
     // export function assertSafePayment(txn: gtxn.PaymentTxn, sender: Account): void {
     proto 2 0
-    // smart_contracts/utils/functions.ts:62
+    // smart_contracts/utils/functions.ts:156
     // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
     frame_dig -2
     gtxns Sender
     frame_dig -1
     ==
     bnz assertSafePayment_after_assert@2
-    bytec_1 // "ERR:errIpms"
+    bytec 6 // "ERR:errIpms"
     log
     err // ERR:errIpms
 
 assertSafePayment_after_assert@2:
-    // smart_contracts/utils/functions.ts:63
+    // smart_contracts/utils/functions.ts:157
     // loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
     frame_dig -2
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
     bnz assertSafePayment_after_assert@4
-    bytec_2 // "ERR:errNcls"
+    bytec_1 // "ERR:errNcls"
     log
     err // ERR:errNcls
 
 assertSafePayment_after_assert@4:
-    // smart_contracts/utils/functions.ts:64
+    // smart_contracts/utils/functions.ts:158
     // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
     frame_dig -2
     gtxns RekeyTo
     global ZeroAddress
     ==
     bnz assertSafePayment_after_assert@6
-    bytec_3 // "ERR:errNrky"
+    bytec_2 // "ERR:errNrky"
     log
     err // ERR:errNrky
 
@@ -82,22 +150,22 @@ assertSafePayment_after_assert@6:
 
 // smart_contracts/utils/functions.ts::assertSafeAssetTransfer(txn: uint64, sender: bytes) -> void:
 assertSafeAssetTransfer:
-    // smart_contracts/utils/functions.ts:82
+    // smart_contracts/utils/functions.ts:176
     // export function assertSafeAssetTransfer(txn: gtxn.AssetTransferTxn, sender: Account): void {
     proto 2 0
-    // smart_contracts/utils/functions.ts:83
+    // smart_contracts/utils/functions.ts:177
     // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
     frame_dig -2
     gtxns Sender
     frame_dig -1
     ==
     bnz assertSafeAssetTransfer_after_assert@2
-    bytec_1 // "ERR:errIpms"
+    bytec 6 // "ERR:errIpms"
     log
     err // ERR:errIpms
 
 assertSafeAssetTransfer_after_assert@2:
-    // smart_contracts/utils/functions.ts:84
+    // smart_contracts/utils/functions.ts:178
     // loggedAssert(txn.assetSender === Global.zeroAddress, errClawbackForbidden)
     frame_dig -2
     gtxns AssetSender
@@ -109,26 +177,26 @@ assertSafeAssetTransfer_after_assert@2:
     err // ERR:errNclw
 
 assertSafeAssetTransfer_after_assert@4:
-    // smart_contracts/utils/functions.ts:85
+    // smart_contracts/utils/functions.ts:179
     // loggedAssert(txn.assetCloseTo === Global.zeroAddress, errCloseForbidden)
     frame_dig -2
     gtxns AssetCloseTo
     global ZeroAddress
     ==
     bnz assertSafeAssetTransfer_after_assert@6
-    bytec_2 // "ERR:errNcls"
+    bytec_1 // "ERR:errNcls"
     log
     err // ERR:errNcls
 
 assertSafeAssetTransfer_after_assert@6:
-    // smart_contracts/utils/functions.ts:86
+    // smart_contracts/utils/functions.ts:180
     // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
     frame_dig -2
     gtxns RekeyTo
     global ZeroAddress
     ==
     bnz assertSafeAssetTransfer_after_assert@8
-    bytec_3 // "ERR:errNrky"
+    bytec_2 // "ERR:errNrky"
     log
     err // ERR:errNrky
 
@@ -138,7 +206,7 @@ assertSafeAssetTransfer_after_assert@8:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkPayment[routing]() -> void:
 checkPayment:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:22
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:25
     // checkPayment(payment: gtxn.PaymentTxn, sender: Account, receiver: Account, amount: uint64): void {
     txn GroupIndex
     intc_0 // 1
@@ -168,34 +236,34 @@ checkPayment:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/utils/functions.ts:72
+    // smart_contracts/utils/functions.ts:166
     // assertSafePayment(txn, sender)
     dig 2
     uncover 2
     callsub assertSafePayment
-    // smart_contracts/utils/functions.ts:73
+    // smart_contracts/utils/functions.ts:167
     // loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
     swap
     gtxns Receiver
     ==
     bnz checkPayment_after_assert@3
-    pushbytes "ERR:errIpmr"
+    bytec 4 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
 checkPayment_after_assert@3:
-    // smart_contracts/utils/functions.ts:74
+    // smart_contracts/utils/functions.ts:168
     // loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
     swap
     gtxns Amount
     ==
     bnz checkPayment_after_assert@5
-    pushbytes "ERR:errIpma"
+    bytec 5 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
 checkPayment_after_assert@5:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:22
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:25
     // checkPayment(payment: gtxn.PaymentTxn, sender: Account, receiver: Account, amount: uint64): void {
     intc_0 // 1
     return
@@ -203,7 +271,7 @@ checkPayment_after_assert@5:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkSafePayment[routing]() -> void:
 checkSafePayment:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:26
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:29
     // checkSafePayment(payment: gtxn.PaymentTxn, sender: Account): void {
     txn GroupIndex
     intc_0 // 1
@@ -219,18 +287,342 @@ checkSafePayment:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:27
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:30
     // assertSafePayment(payment, sender)
     callsub assertSafePayment
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:26
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:29
     // checkSafePayment(payment: gtxn.PaymentTxn, sender: Account): void {
     intc_0 // 1
     return
 
 
+// smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkPlainPayment[routing]() -> void:
+checkPlainPayment:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:33
+    // checkPlainPayment(payment: gtxn.PaymentTxn): void {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:34
+    // assertPlainPayment(payment)
+    callsub assertPlainPayment
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:33
+    // checkPlainPayment(payment: gtxn.PaymentTxn): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkExactPayment[routing]() -> void:
+checkExactPayment:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:37
+    // checkExactPayment(payment: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:38
+    // assertExactPayment(payment, receiver, amount)
+    callsub assertExactPayment
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:37
+    // checkExactPayment(payment: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.hold[routing]() -> void:
+hold:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:45
+    // hold(payment: gtxn.PaymentTxn, record: bytes, amount: uint64): void {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    swap
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:46
+    // assertExactPayment(payment, Global.currentApplicationAddress, amount + sponsorCost(payment.sender, Txn.sender))
+    global CurrentApplicationAddress
+    dig 2
+    gtxns Sender
+    dup
+    cover 4
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    dup
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:46
+    // assertExactPayment(payment, Global.currentApplicationAddress, amount + sponsorCost(payment.sender, Txn.sender))
+    txn Sender
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    ==
+    intc 4 // 28500
+    intc_2 // 0
+    uncover 2
+    select
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:46
+    // assertExactPayment(payment, Global.currentApplicationAddress, amount + sponsorCost(payment.sender, Txn.sender))
+    uncover 3
+    +
+    uncover 3
+    uncover 3
+    uncover 2
+    callsub assertExactPayment
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:47
+    // recordPayer(record, payment.sender, Txn.sender)
+    txn Sender
+    // smart_contracts/utils/functions.ts:106
+    // if (payer !== owner) {
+    !=
+    bz hold_after_if_else@5
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    dig 1
+    sha256
+    bytec_3 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:107
+    // op.Box.put(payerRecordKey(record), payer.bytes)
+    dig 1
+    box_put
+
+hold_after_if_else@5:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:45
+    // hold(payment: gtxn.PaymentTxn, record: bytes, amount: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.heldBy[routing]() -> void:
+heldBy:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:50
+    // heldBy(record: bytes, owner: Account): Account {
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    sha256
+    bytec_3 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:113
+    // const [payer, sponsored] = op.Box.get(payerRecordKey(record))
+    box_get
+    // smart_contracts/utils/functions.ts:114
+    // return sponsored ? Account(payer) : owner
+    bz heldBy_ternary_false@3
+    bury 1
+
+heldBy_ternary_merge@4:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:50
+    // heldBy(record: bytes, owner: Account): Account {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+heldBy_ternary_false@3:
+    pop
+    b heldBy_ternary_merge@4
+
+
+// smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.release[routing]() -> void:
+release:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:55
+    // release(record: bytes, owner: Account, amount: uint64): Account {
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    sha256
+    bytec_3 // "$"
+    swap
+    concat
+    dup
+    // smart_contracts/utils/functions.ts:142
+    // const [payer, sponsored] = op.Box.get(key)
+    box_get
+    swap
+    cover 2
+    // smart_contracts/utils/functions.ts:143
+    // if (!sponsored) {
+    bnz release_after_if_else@3
+    popn 2
+    // smart_contracts/utils/functions.ts:144
+    // return [owner, amount]
+    itob
+    concat
+
+release_after_inlined_smart_contracts/utils/functions.ts::releaseDeposit@11:
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:56
+    // const [receiver, total] = releaseDeposit(record, owner, amount)
+    dup
+    extract 0 32
+    swap
+    intc_3 // 32
+    extract_uint64
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:57
+    // itxn.payment({ receiver, amount: total }).submit()
+    itxn_begin
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_2 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:55
+    // release(record: bytes, owner: Account, amount: uint64): Account {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+release_after_if_else@3:
+    // smart_contracts/utils/functions.ts:146
+    // op.Box.delete(key)
+    box_del
+    pop
+    // smart_contracts/utils/functions.ts:147
+    // const total: uint64 = amount + PayerRecordMBR
+    swap
+    intc 4 // 28500
+    +
+    // smart_contracts/utils/functions.ts:130
+    // const [, funded] = op.AcctParams.acctBalance(receiver)
+    dig 1
+    acct_params_get AcctBalance
+    bury 1
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    bnz release_bool_true@5
+    dup
+    global MinBalance
+    >=
+    bz release_bool_false@6
+
+release_bool_true@5:
+    intc_0 // 1
+
+release_bool_merge@7:
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    bz release_ternary_false@9
+    uncover 2
+    pop
+    swap
+
+release_ternary_merge@10:
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    swap
+    itob
+    concat
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:56
+    // const [receiver, total] = releaseDeposit(record, owner, amount)
+    b release_after_inlined_smart_contracts/utils/functions.ts::releaseDeposit@11
+
+release_ternary_false@9:
+    bury 1
+    swap
+    b release_ternary_merge@10
+
+release_bool_false@6:
+    intc_2 // 0
+    b release_bool_merge@7
+
+
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkAssetTransfer[routing]() -> void:
 checkAssetTransfer:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:30
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:61
     // checkAssetTransfer(xfer: gtxn.AssetTransferTxn, sender: Account, receiver: Account, asset: Asset, amount: uint64): void {
     txn GroupIndex
     intc_0 // 1
@@ -268,12 +660,12 @@ checkAssetTransfer:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/utils/functions.ts:100
+    // smart_contracts/utils/functions.ts:194
     // assertSafeAssetTransfer(txn, sender)
     dig 2
     uncover 2
     callsub assertSafeAssetTransfer
-    // smart_contracts/utils/functions.ts:101
+    // smart_contracts/utils/functions.ts:195
     // loggedAssert(txn.assetReceiver === receiver, errInvalidAssetReceiver)
     swap
     gtxns AssetReceiver
@@ -284,7 +676,7 @@ checkAssetTransfer:
     err // ERR:errIare
 
 checkAssetTransfer_after_assert@3:
-    // smart_contracts/utils/functions.ts:102
+    // smart_contracts/utils/functions.ts:196
     // loggedAssert(txn.xferAsset === asset, errInvalidAsset)
     dig 1
     gtxns XferAsset
@@ -296,7 +688,7 @@ checkAssetTransfer_after_assert@3:
     err // ERR:errIast
 
 checkAssetTransfer_after_assert@5:
-    // smart_contracts/utils/functions.ts:103
+    // smart_contracts/utils/functions.ts:197
     // loggedAssert(txn.assetAmount === amount, errInvalidAssetAmount)
     swap
     gtxns AssetAmount
@@ -307,7 +699,7 @@ checkAssetTransfer_after_assert@5:
     err // ERR:errIaam
 
 checkAssetTransfer_after_assert@7:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:30
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:61
     // checkAssetTransfer(xfer: gtxn.AssetTransferTxn, sender: Account, receiver: Account, asset: Asset, amount: uint64): void {
     intc_0 // 1
     return
@@ -315,7 +707,7 @@ checkAssetTransfer_after_assert@7:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.checkSafeAssetTransfer[routing]() -> void:
 checkSafeAssetTransfer:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:34
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:65
     // checkSafeAssetTransfer(xfer: gtxn.AssetTransferTxn, sender: Account): void {
     txn GroupIndex
     intc_0 // 1
@@ -331,10 +723,10 @@ checkSafeAssetTransfer:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:35
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:66
     // assertSafeAssetTransfer(xfer, sender)
     callsub assertSafeAssetTransfer
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:34
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:65
     // checkSafeAssetTransfer(xfer: gtxn.AssetTransferTxn, sender: Account): void {
     intc_0 // 1
     return
@@ -342,7 +734,7 @@ checkSafeAssetTransfer:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.controlledSpending[routing]() -> void:
 controlledSpending:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:38
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:69
     // controlledSpending(wallet: Application): Account {
     txna ApplicationArgs 1
     dup
@@ -351,10 +743,10 @@ controlledSpending:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:481
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:385-388
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -362,7 +754,7 @@ controlledSpending:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:400
+    // smart_contracts/utils/functions.ts:494
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -374,7 +766,7 @@ controlledSpending:
     err // ERR:errNath
 
 controlledSpending_after_assert@3:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:38
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:69
     // controlledSpending(wallet: Application): Account {
     bytec_0 // 0x151f7c75
     swap
@@ -386,7 +778,7 @@ controlledSpending_after_assert@3:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.extraPages[routing]() -> void:
 extraPages:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:42
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:73
     // extraPages(approvalSize: uint64, clearSize: uint64, minExtraPages: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -448,7 +840,7 @@ extraPages_ternary_merge@6:
     swap
     cover 2
     select
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:42
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:73
     // extraPages(approvalSize: uint64, clearSize: uint64, minExtraPages: uint64): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -468,7 +860,7 @@ extraPages_ternary_false@5:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.spawn[routing]() -> void:
 spawn:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:47
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:78
     // spawn(funding: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -477,7 +869,7 @@ spawn:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:48
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:79
     // const child = compileArc4(MockReapableChild).bareCreate().createdApp
     itxn_begin
     pushbytes base64(C4EBQw==)
@@ -492,7 +884,7 @@ spawn:
     itxn_field Fee
     itxn_submit
     itxn CreatedApplicationID
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:49
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:80
     // itxn.payment({ receiver: child.address, amount: funding }).submit()
     itxn_begin
     dup
@@ -506,7 +898,7 @@ spawn:
     intc_2 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:47
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:78
     // spawn(funding: uint64): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -519,7 +911,7 @@ spawn:
 
 // smart_contracts/mocks/shared-helpers/contract.algo.ts::MockSharedHelpers.reap[routing]() -> void:
 reap:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:57
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:88
     // reap(child: Application, recorded: uint64, receiver: Account): uint64 {
     txna ApplicationArgs 1
     dup
@@ -543,7 +935,7 @@ reap:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:58
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:89
     // const balanceBefore = Global.currentApplicationAddress.balance
     global CurrentApplicationAddress
     acct_params_get AcctBalance
@@ -552,14 +944,14 @@ reap:
     cover 2
     cover 3
     assert // account funded
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:59
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:90
     // const minBefore = Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
     swap
     cover 3
     assert // account funded
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:60
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:91
     // compileArc4(MockReapableChild).call.reap({ appId: child })
     itxn_begin
     pushint 5
@@ -624,10 +1016,10 @@ reap_ternary_merge@12:
     cover 2
     select
     dup
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:62
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:93
     // if (refund > 0) {
     bz reap_after_if_else@5
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:63
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:94
     // itxn.payment({ receiver, amount: refund }).submit()
     itxn_begin
     dup
@@ -641,7 +1033,7 @@ reap_ternary_merge@12:
     itxn_submit
 
 reap_after_if_else@5:
-    // smart_contracts/mocks/shared-helpers/contract.algo.ts:57
+    // smart_contracts/mocks/shared-helpers/contract.algo.ts:88
     // reap(child: Application, recorded: uint64, receiver: Account): uint64 {
     itob
     bytec_0 // 0x151f7c75

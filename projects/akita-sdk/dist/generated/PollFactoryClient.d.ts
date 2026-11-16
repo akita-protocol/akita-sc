@@ -379,12 +379,28 @@ export declare abstract class PollFactoryParamsFactory {
     /**
      * Constructs a no op call for the new(pay,uint8,uint64,uint64,string,string[],uint64)uint64 ABI method
      *
+    * Creates a poll for the caller.
+  
+    The caller is the poll's author. The poll records the author as its `funder` account, and that
+    account alone may clear the poll's votes once it has ended (`Poll.deleteBoxes`, readiness audit
+    C17). Anyone may pay for the poll. A payer that is not the author adds `PayerRecordMBR` and is
+    remembered here, under the new poll's id, so `deletePoll` returns the deposit to the payer and
+    the author keeps the cleanup (AUD-C24). Before this, a sponsored poll recorded its sponsor as
+    the `funder`, which handed the cleanup to the sponsor.
+  
+     *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static new(params: CallParams<PollFactoryArgs['obj']['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'] | PollFactoryArgs['tuple']['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the deletePoll(uint64)void ABI method
+     *
+    * Deletes a finished poll whose votes have been cleared and returns its deposit to whoever paid
+    it: the payer remembered by `new`, or the account the poll records when nobody else paid. A
+    poll created before AUD-C24 has no payer record and is refunded to its recorded account, as
+    it always was.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -1026,6 +1042,16 @@ export declare class PollFactoryClient {
         /**
          * Makes a call to the PollFactory smart contract using the `new(pay,uint8,uint64,uint64,string,string[],uint64)uint64` ABI method.
          *
+        * Creates a poll for the caller.
+    
+        The caller is the poll's author. The poll records the author as its `funder` account, and that
+        account alone may clear the poll's votes once it has ended (`Poll.deleteBoxes`, readiness audit
+        C17). Anyone may pay for the poll. A payer that is not the author adds `PayerRecordMBR` and is
+        remembered here, under the new poll's id, so `deletePoll` returns the deposit to the payer and
+        the author keeps the cleanup (AUD-C24). Before this, a sponsored poll recorded its sponsor as
+        the `funder`, which handed the cleanup to the sponsor.
+    
+         *
          * @param params The params for the smart contract call
          * @returns The call params
          */
@@ -1034,6 +1060,12 @@ export declare class PollFactoryClient {
         }) => Promise<AppCallMethodCall>;
         /**
          * Makes a call to the PollFactory smart contract using the `deletePoll(uint64)void` ABI method.
+         *
+        * Deletes a finished poll whose votes have been cleared and returns its deposit to whoever paid
+        it: the payer remembered by `new`, or the account the poll records when nobody else paid. A
+        poll created before AUD-C24 has no payer record and is refunded to its recorded account, as
+        it always was.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1172,6 +1204,16 @@ export declare class PollFactoryClient {
         /**
          * Makes a call to the PollFactory smart contract using the `new(pay,uint8,uint64,uint64,string,string[],uint64)uint64` ABI method.
          *
+        * Creates a poll for the caller.
+    
+        The caller is the poll's author. The poll records the author as its `funder` account, and that
+        account alone may clear the poll's votes once it has ended (`Poll.deleteBoxes`, readiness audit
+        C17). Anyone may pay for the poll. A payer that is not the author adds `PayerRecordMBR` and is
+        remembered here, under the new poll's id, so `deletePoll` returns the deposit to the payer and
+        the author keeps the cleanup (AUD-C24). Before this, a sponsored poll recorded its sponsor as
+        the `funder`, which handed the cleanup to the sponsor.
+    
+         *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
@@ -1184,6 +1226,12 @@ export declare class PollFactoryClient {
         }>;
         /**
          * Makes a call to the PollFactory smart contract using the `deletePoll(uint64)void` ABI method.
+         *
+        * Deletes a finished poll whose votes have been cleared and returns its deposit to whoever paid
+        it: the payer remembered by `new`, or the account the poll records when nobody else paid. A
+        poll created before AUD-C24 has no payer record and is refunded to its recorded account, as
+        it always was.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -1369,6 +1417,16 @@ export declare class PollFactoryClient {
         /**
          * Makes a call to the PollFactory smart contract using the `new(pay,uint8,uint64,uint64,string,string[],uint64)uint64` ABI method.
          *
+        * Creates a poll for the caller.
+    
+        The caller is the poll's author. The poll records the author as its `funder` account, and that
+        account alone may clear the poll's votes once it has ended (`Poll.deleteBoxes`, readiness audit
+        C17). Anyone may pay for the poll. A payer that is not the author adds `PayerRecordMBR` and is
+        remembered here, under the new poll's id, so `deletePoll` returns the deposit to the payer and
+        the author keeps the cleanup (AUD-C24). Before this, a sponsored poll recorded its sponsor as
+        the `funder`, which handed the cleanup to the sponsor.
+    
+         *
          * @param params The params for the smart contract call
          * @returns The call result
          */
@@ -1386,6 +1444,12 @@ export declare class PollFactoryClient {
         }>;
         /**
          * Makes a call to the PollFactory smart contract using the `deletePoll(uint64)void` ABI method.
+         *
+        * Deletes a finished poll whose votes have been cleared and returns its deposit to whoever paid
+        it: the payer remembered by `new`, or the account the poll records when nobody else paid. A
+        poll created before AUD-C24 has no payer record and is refunded to its recorded account, as
+        it always was.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -1658,6 +1722,16 @@ export type PollFactoryComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the new(pay,uint8,uint64,uint64,string,string[],uint64)uint64 ABI method.
      *
+    * Creates a poll for the caller.
+  
+    The caller is the poll's author. The poll records the author as its `funder` account, and that
+    account alone may clear the poll's votes once it has ended (`Poll.deleteBoxes`, readiness audit
+    C17). Anyone may pay for the poll. A payer that is not the author adds `PayerRecordMBR` and is
+    remembered here, under the new poll's id, so `deletePoll` returns the deposit to the payer and
+    the author keeps the cleanup (AUD-C24). Before this, a sponsored poll recorded its sponsor as
+    the `funder`, which handed the cleanup to the sponsor.
+  
+     *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
@@ -1665,6 +1739,12 @@ export type PollFactoryComposer<TReturns extends [...any[]] = []> = {
     new (params?: CallParams<PollFactoryArgs['obj']['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'] | PollFactoryArgs['tuple']['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64']>): PollFactoryComposer<[...TReturns, PollFactoryReturns['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'] | undefined]>;
     /**
      * Calls the deletePoll(uint64)void ABI method.
+     *
+    * Deletes a finished poll whose votes have been cleared and returns its deposit to whoever paid
+    it: the payer remembered by `new`, or the account the poll records when nobody else paid. A
+    poll created before AUD-C24 has no payer record and is refunded to its recorded account, as
+    it always was.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call

@@ -8,7 +8,7 @@ import { subscriptionPaidUp } from "../gates/sub-gates/subscription/utils";
 import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/upgradeable";
 import { AkitaCollectionsPrefixAKC, AkitaCollectionsPrefixAOG, AkitaNFTCreatorAddress } from "../utils/constants";
 import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDGlobalStateKeysTimeChanged, NFDGlobalStateKeysVersion, NFDMetaKeyVerifiedAddresses, NFDMetaKeyVerifiedDiscord, NFDMetaKeyVerifiedDomain, NFDMetaKeyVerifiedTelegram, NFDMetaKeyVerifiedTwitter } from "../utils/constants/nfd";
-import { assertBoundPayment, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getDAOARC58Wallet, getOtherAppList } from "../utils/functions";
+import { assertExactPayment, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getDAOARC58Wallet, getOtherAppList } from "../utils/functions";
 import { NFD } from "../utils/types/nfd";
 import { NFDRegistry } from "../utils/types/nfd-registry";
 import { ImpactBoxPrefixMeta, ImpactBoxPrefixSubscriptionStateModifier, ImpactMetaMBR, ONE_MILLION_AKITA, ONE_YEAR, SubscriptionStateModifierMBR, TEN_THOUSAND_AKITA, THIRTY_DAYS, TWO_HUNDRED_THOUSAND_AKITA, TWO_YEARS } from "./constants";
@@ -434,7 +434,7 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
     this.subscriptionStateModifier(subscriptionIndex).value = newModifier
 
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, this.mbr().subscriptionStateModifier)
+    assertExactPayment(payment, Global.currentApplicationAddress, this.mbr().subscriptionStateModifier)
   }
 
   /** Enrolls the caller in this application's AKTA soft-stake commitment. */
@@ -446,7 +446,7 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
       args: [Txn.sender, akta],
     }).returnValue
 
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, cost)
+    assertExactPayment(payment, Global.currentApplicationAddress, cost)
 
     abiCall<typeof Staking.prototype.commitAppSoftStake>({
       appId: staking,

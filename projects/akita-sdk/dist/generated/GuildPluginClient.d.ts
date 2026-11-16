@@ -152,6 +152,13 @@ export type GuildPluginArgs = {
             code: bigint | number;
             settings: GuildProposalSettings;
         };
+        'setFeeAsset(uint64,bool,uint64,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            guild: bigint | number;
+            asset: bigint | number;
+            maxCost: bigint | number;
+        };
         'lockPluginSet(uint64,bool,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -175,6 +182,29 @@ export type GuildPluginArgs = {
             actions: [bigint | number, Uint8Array][];
             evidence: Uint8Array;
             maxCost: bigint | number;
+        };
+        'newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            guild: bigint | number;
+            cid: Uint8Array;
+            actions: [bigint | number, Uint8Array][];
+            evidence: Uint8Array;
+            maxCost: bigint | number;
+            feeAsset: bigint | number;
+            maxFee: bigint | number;
+        };
+        'editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            guild: bigint | number;
+            proposalId: bigint | number;
+            cid: Uint8Array;
+            actions: [bigint | number, Uint8Array][];
+            evidence: Uint8Array;
+            maxCost: bigint | number;
+            feeAsset: bigint | number;
+            maxFee: bigint | number;
         };
         'editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void': {
             wallet: bigint | number;
@@ -256,10 +286,13 @@ export type GuildPluginArgs = {
         'setProposalSettings(uint64,bool,uint64,uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, actionType: bigint | number, settings: GuildProposalSettings];
         'setProposalActionLimit(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, limit: bigint | number];
         'setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, code: bigint | number, settings: GuildProposalSettings];
+        'setFeeAsset(uint64,bool,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, asset: bigint | number, maxCost: bigint | number];
         'lockPluginSet(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number];
         'partiallyInitialize(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number];
         'initialize(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number];
         'newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array, maxCost: bigint | number];
+        'newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array, maxCost: bigint | number, feeAsset: bigint | number, maxFee: bigint | number];
+        'editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array, maxCost: bigint | number, feeAsset: bigint | number, maxFee: bigint | number];
         'editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number, cid: Uint8Array, actions: [bigint | number, Uint8Array][], evidence: Uint8Array, maxCost: bigint | number];
         'deleteProposal(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number];
         'submitProposal(uint64,bool,uint64,uint64,byte[])void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number, evidence: Uint8Array];
@@ -284,10 +317,13 @@ export type GuildPluginReturns = {
     'setProposalSettings(uint64,bool,uint64,uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void': void;
     'setProposalActionLimit(uint64,bool,uint64,uint64)void': void;
     'setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void': void;
+    'setFeeAsset(uint64,bool,uint64,uint64,uint64)void': void;
     'lockPluginSet(uint64,bool,uint64)void': void;
     'partiallyInitialize(uint64,bool,uint64)void': void;
     'initialize(uint64,bool,uint64)void': void;
     'newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64': bigint;
+    'newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64': bigint;
+    'editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void': void;
     'editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void': void;
     'deleteProposal(uint64,bool,uint64,uint64)void': void;
     'submitProposal(uint64,bool,uint64,uint64,byte[])void': void;
@@ -338,6 +374,10 @@ export type GuildPluginTypes = {
         argsObj: GuildPluginArgs['obj']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'];
         argsTuple: GuildPluginArgs['tuple']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'];
         returns: GuildPluginReturns['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'];
+    }> & Record<'setFeeAsset(uint64,bool,uint64,uint64,uint64)void' | 'setFeeAsset', {
+        argsObj: GuildPluginArgs['obj']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'];
+        argsTuple: GuildPluginArgs['tuple']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'];
+        returns: GuildPluginReturns['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'];
     }> & Record<'lockPluginSet(uint64,bool,uint64)void' | 'lockPluginSet', {
         argsObj: GuildPluginArgs['obj']['lockPluginSet(uint64,bool,uint64)void'];
         argsTuple: GuildPluginArgs['tuple']['lockPluginSet(uint64,bool,uint64)void'];
@@ -354,6 +394,14 @@ export type GuildPluginTypes = {
         argsObj: GuildPluginArgs['obj']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'];
         argsTuple: GuildPluginArgs['tuple']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'];
         returns: GuildPluginReturns['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'];
+    }> & Record<'newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64' | 'newProposalWithFeeAsset', {
+        argsObj: GuildPluginArgs['obj']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'];
+        argsTuple: GuildPluginArgs['tuple']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'];
+        returns: GuildPluginReturns['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'];
+    }> & Record<'editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void' | 'editProposalWithFeeAsset', {
+        argsObj: GuildPluginArgs['obj']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'];
+        argsTuple: GuildPluginArgs['tuple']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'];
+        returns: GuildPluginReturns['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'];
     }> & Record<'editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void' | 'editProposal', {
         argsObj: GuildPluginArgs['obj']['editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void'];
         argsTuple: GuildPluginArgs['tuple']['editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void'];
@@ -565,6 +613,15 @@ export declare abstract class GuildPluginParamsFactory {
      */
     static setConsensusActionSettings(params: CallParams<GuildPluginArgs['obj']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'] | GuildPluginArgs['tuple']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the setFeeAsset(uint64,bool,uint64,uint64,uint64)void ABI method
+     *
+     * Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setFeeAsset(params: CallParams<GuildPluginArgs['obj']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'] | GuildPluginArgs['tuple']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the lockPluginSet(uint64,bool,uint64)void ABI method
      *
      * @param params Parameters for the call
@@ -592,6 +649,28 @@ export declare abstract class GuildPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static newProposal(params: CallParams<GuildPluginArgs['obj']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'] | GuildPluginArgs['tuple']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64 ABI method
+     *
+    * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+    `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static newProposalWithFeeAsset(params: CallParams<GuildPluginArgs['obj']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'] | GuildPluginArgs['tuple']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void ABI method
+     *
+    * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+    and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static editProposalWithFeeAsset(params: CallParams<GuildPluginArgs['obj']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'] | GuildPluginArgs['tuple']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void ABI method
      *
@@ -1107,6 +1186,17 @@ export declare class GuildPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the GuildPlugin smart contract using the `setFeeAsset(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the GuildPlugin smart contract using the `lockPluginSet(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1140,6 +1230,32 @@ export declare class GuildPluginClient {
          * @returns The call params
          */
         newProposal: (params: CallParams<GuildPluginArgs["obj"]["newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64"] | GuildPluginArgs["tuple"]["newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64` ABI method.
+         *
+        * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+        `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"] | GuildPluginArgs["tuple"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void` ABI method.
+         *
+        * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+        and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1352,6 +1468,21 @@ export declare class GuildPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the GuildPlugin smart contract using the `setFeeAsset(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the GuildPlugin smart contract using the `lockPluginSet(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1397,6 +1528,40 @@ export declare class GuildPluginClient {
          * @returns The call transaction
          */
         newProposal: (params: CallParams<GuildPluginArgs["obj"]["newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64"] | GuildPluginArgs["tuple"]["newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64` ABI method.
+         *
+        * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+        `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"] | GuildPluginArgs["tuple"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void` ABI method.
+         *
+        * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+        and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1688,6 +1853,26 @@ export declare class GuildPluginClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the GuildPlugin smart contract using the `setFeeAsset(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildPluginReturns["setFeeAsset(uint64,bool,uint64,uint64,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the GuildPlugin smart contract using the `lockPluginSet(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1751,6 +1936,50 @@ export declare class GuildPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | GuildPluginReturns["newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64` ABI method.
+         *
+        * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+        `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        newProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"] | GuildPluginArgs["tuple"]["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildPluginReturns["newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void` ABI method.
+         *
+        * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+        and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        editProposalWithFeeAsset: (params: CallParams<GuildPluginArgs["obj"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"] | GuildPluginArgs["tuple"]["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildPluginReturns["editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2045,6 +2274,16 @@ export type GuildPluginComposer<TReturns extends [...any[]] = []> = {
      */
     setConsensusActionSettings(params?: CallParams<GuildPluginArgs['obj']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'] | GuildPluginArgs['tuple']['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void'] | undefined]>;
     /**
+     * Calls the setFeeAsset(uint64,bool,uint64,uint64,uint64)void ABI method.
+     *
+     * Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setFeeAsset(params?: CallParams<GuildPluginArgs['obj']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'] | GuildPluginArgs['tuple']['setFeeAsset(uint64,bool,uint64,uint64,uint64)void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['setFeeAsset(uint64,bool,uint64,uint64,uint64)void'] | undefined]>;
+    /**
      * Calls the lockPluginSet(uint64,bool,uint64)void ABI method.
      *
      * @param args The arguments for the contract call
@@ -2076,6 +2315,30 @@ export type GuildPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     newProposal(params?: CallParams<GuildPluginArgs['obj']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'] | GuildPluginArgs['tuple']['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64'] | undefined]>;
+    /**
+     * Calls the newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64 ABI method.
+     *
+    * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+    `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    newProposalWithFeeAsset(params?: CallParams<GuildPluginArgs['obj']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'] | GuildPluginArgs['tuple']['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64'] | undefined]>;
+    /**
+     * Calls the editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void ABI method.
+     *
+    * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+    and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    editProposalWithFeeAsset(params?: CallParams<GuildPluginArgs['obj']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'] | GuildPluginArgs['tuple']['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void'] | undefined]>;
     /**
      * Calls the editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void ABI method.
      *

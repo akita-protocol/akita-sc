@@ -25,9 +25,15 @@ import { AppStakesMBR } from '../staking/constants'
 import { AllocationReclaimDetails, UserAllocation } from '../rewards/types'
 import { StakingType } from '../staking/types'
 import { BoxCostPerBox, BoxCostPerByte } from '../utils/constants'
+import { errPayerOnly } from '../utils/errors'
 import {
+  assertPlainPayment,
   assertSafeAssetTransfer,
-  assertSafePayment,
+  canReceiveAlgo,
+  payerOf,
+  recordPayer,
+  releaseDeposit,
+  sponsorCost,
   atRestPrincipalOf,
   calcPercent,
   gateCheck,
@@ -1049,9 +1055,23 @@ export class StakingPool extends classes(
       )
     }
 
-    // entry MBR is refunded to the entrant, so the entrant pays it, exactly
-    assertSafePayment(payment, Txn.sender)
+    // anyone may fund the entry MBR, exactly; it is refunded to whoever paid it
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    // One account funds all of an entrant's entries in this pool and gets their MBR back. When that
+    // account is not the entrant it also funds a payer record, once, with the entrant's first entries.
+    let sponsor: uint64 = 0
+    if (entries.length > 0) {
+      const payerRecord = this.uniques(Txn.sender).key
+      if (this.uniques(Txn.sender).exists) {
+        loggedAssert(payment.sender === payerOf(payerRecord, Txn.sender), errPayerOnly)
+      } else {
+        sponsor = sponsorCost(payment.sender, Txn.sender)
+        recordPayer(payerRecord, payment.sender, Txn.sender)
+      }
+    }
+    loggedAssert(payment.amount >= sponsor, errInvalidPayment)
+    const paid: uint64 = payment.amount - sponsor
     // Charges (each refunded exactly by removeEntry, PHASE-0-SPEC §6.5, Q14):
     // - hinted gatedEnter: the exact box MBR for the stored gate args, plus `'i'` when due;
     // - enter: the exact box MBR, or (legacy plugins that hard-code it, e.g. MainNet 3569562283) the
@@ -1068,8 +1088,8 @@ export class StakingPool extends classes(
       legacyCharged = true
       const flat = this.getEnterCost(Txn.sender, entries, PoolEntriesMBR, PoolEntriesByAddressMBR, 0)
       const pairDue = writePair && !this.principals(Txn.sender).exists
-      if (!(pairDue && payment.amount === flat + PoolPrincipalsMBR)) {
-        loggedAssert(payment.amount === flat, errInvalidPayment)
+      if (!(pairDue && paid === flat + PoolPrincipalsMBR)) {
+        loggedAssert(paid === flat, errInvalidPayment)
         writePair = writePair && !pairDue
       }
       // the flat charge undercharges gate args longer than 5 encoded bytes; the shortfall may only
@@ -1077,10 +1097,10 @@ export class StakingPool extends classes(
       borrowsFreeAlgo = this.entryBoxMbr(gateArgs) + PoolEntriesByAddressExactMBR > PoolEntriesMBR + PoolEntriesByAddressMBR
     } else {
       const exact = this.exactEnterCost(Txn.sender, entries, gateArgs, pairWallet)
-      if (payment.amount !== exact) {
+      if (paid !== exact) {
         loggedAssert(
           kind === ENTRY_UNGATED &&
-          payment.amount === this.getEnterCost(Txn.sender, entries, PoolEntriesMBR, PoolEntriesByAddressMBR, 0),
+          paid === this.getEnterCost(Txn.sender, entries, PoolEntriesMBR, PoolEntriesByAddressMBR, 0),
           errInvalidPayment
         )
         legacyCharged = true
@@ -1328,18 +1348,22 @@ export class StakingPool extends classes(
 
     this.validateReward(reward)
 
-    assertSafePayment(payment, Txn.sender)
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    // a payer other than the creator also funds a payer record, and gets the reward's box MBR back
+    // at `closeReward`; the budget stays the creator's
+    const sponsor = sponsorCost(payment.sender, Txn.sender)
     const boxMbr = this.rewardsMbr(reward.winnerCount)
-    loggedAssert(payment.amount >= boxMbr, errInvalidPayment)
+    loggedAssert(payment.amount >= boxMbr + sponsor, errInvalidPayment)
     // ALGO rewards pay their bookkeeping boxes out of the deposit; ASA rewards from free ALGO
     // (the reward box MBR rule is unchanged so already-deployed plugins keep working)
-    const algoCost: uint64 = this.addRewardCost(reward.winnerCount, reward.asset)
+    const algoCost: uint64 = this.addRewardCost(reward.winnerCount, reward.asset) + sponsor
     if (isAlgo) {
       loggedAssert(payment.amount >= algoCost, errInvalidPayment)
     }
 
     const id = this.newRewardID()
+    recordPayer(this.rewards(id).key, payment.sender, Txn.sender)
     this.rewards(id).value = {
       ...clone(reward),
       qualifiedStakers: 0,
@@ -1399,7 +1423,8 @@ export class StakingPool extends classes(
   }
 
   /**
-   * Creator deletes an idle reward with no budget left, and receives the box MBR it frees (M-5).
+   * Creator deletes an idle reward with no budget left. The box MBR it frees goes to whoever funded
+   * the reward: the creator, unless someone else paid (M-5).
    */
   closeReward(rewardID: uint64): void {
     loggedAssert(Txn.sender === this.creator.value, errForbidden)
@@ -1413,7 +1438,9 @@ export class StakingPool extends classes(
     if (this.budgets(rewardID).exists) {
       this.budgets(rewardID).delete()
     }
-    this.payOut(this.creator.value, 0, minBefore - Global.currentApplicationAddress.minBalance)
+    const freed: uint64 = minBefore - Global.currentApplicationAddress.minBalance
+    const [receiver, amount] = releaseDeposit(this.rewards(rewardID).key, this.creator.value, freed)
+    this.payOut(receiver, 0, amount)
   }
 
   finalize(signupTimestamp: uint64, startTimestamp: uint64, endTimestamp: uint64) {
@@ -1509,8 +1536,8 @@ export class StakingPool extends classes(
 
   /**
    * Removes an entry and refunds its box MBR (and, for SOFT pools, its Staking commitment's MBR)
-   * to the entrant (M-5). The entrant may leave any time no round is open; after the pool ends
-   * anyone may clean up.
+   * to whoever funded the entrant's entries: the entrant, unless someone else paid (M-5). The
+   * entrant may leave any time no round is open; after the pool ends anyone may clean up.
    */
   removeEntry(address: Account, asset: uint64): void {
     this.assertNoOpenRound()
@@ -1532,10 +1559,12 @@ export class StakingPool extends classes(
     }
 
     const [count, entered] = this.uniques(address).maybe()
+    let last = false
     if (entered) {
       if (count > 1) {
         this.uniques(address).value = count - 1
       } else {
+        last = true
         this.uniques(address).delete()
         refund += PoolUniquesMBR
         // the stored pair lives as long as the entrant has an entry
@@ -1547,14 +1576,27 @@ export class StakingPool extends classes(
     }
 
     if (this.type.value === POOL_STAKING_TYPE_SOFT) {
-      // Staking refunds the commitment's MBR straight to the entrant
-      abiCall<typeof Staking.prototype.releaseAppStake>({
+      // Staking returns the commitment's MBR to this pool, which passes it on with the entry's own
+      abiCall<typeof Staking.prototype.reclaimAppStake>({
         appId: getAkitaAppList(this.akitaDAO.value).staking,
-        args: [Global.currentApplicationId.id, address, asset],
+        args: [address, asset],
       })
+      refund += AppStakesMBR
     }
 
-    itxn.payment({ receiver: address, amount: refund }).submit()
+    // everything goes back to whoever funded the entrant's entries; the payer record goes with the last one
+    const payerRecord = this.uniques(address).key
+    let receiver = address
+    if (last) {
+      ([receiver, refund] = releaseDeposit(payerRecord, address, refund))
+    } else {
+      const payer = payerOf(payerRecord, address)
+      if (canReceiveAlgo(payer, refund)) {
+        receiver = payer
+      }
+    }
+
+    itxn.payment({ receiver, amount: refund }).submit()
   }
 
   startDisbursement(rewardID: uint64): void {

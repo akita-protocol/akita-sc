@@ -12,7 +12,7 @@ import { deployMerkleAddressGate } from './fixtures/gates/sub-gates/merkle-addre
 import { deployAkitaDAO } from './fixtures/dao'
 import { deployHyperSwap } from './fixtures/hyper-swap'
 import { errInvalidState, errParticipantsNotCleaned, errCantVerifyLeaf, errNotAParticipant, errOfferTooLong, errTermsMismatch } from '../smart_contracts/hyper-swap/errors'
-import { errClawbackForbidden, errInvalidPaymentSender } from '../smart_contracts/utils/errors'
+import { errClawbackForbidden } from '../smart_contracts/utils/errors'
 import { errFailedToVerifyInclusion } from '../smart_contracts/meta/errors'
 import { TimeWarp } from './utils/time'
 import {
@@ -409,7 +409,7 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     expect((await swap.getOffer({ id: 0n })).state).toBe(10)
   })
 
-  test('HS-03: escrowed principal must come from the leaf funder, never a sponsor or a clawback', async () => {
+  test('HS-03: anyone may fund an ALGO leaf, whose principal stays the participant\'s; an ASA leaf is never a clawback', async () => {
     const { algorand, testAccount } = fixture.context
     const { swap, to } = await createSwap()
     const { assetId: clawable } = await algorand.send.assetCreate({ sender: owner, total: 100n, decimals: 0, clawback: owner })
@@ -429,14 +429,17 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     await swap.optIn({ asset: clawable })
     const { hashes } = await swap.mbr()
     const app = swap.client.appAddress
-    // ALGO principal paid by a sponsor
+    // An ALGO leaf's principal and its hash MBR arrive in one payment, and since the payer change of
+    // 2026-11-15 that payment may come from anyone. The principal is the participant's from then on;
+    // the hash MBR stays the payer's.
     const sponsor = algorand.account.random()
     await algorand.account.ensureFunded(sponsor.addr, owner, microAlgo(1_000_000))
     const sponsored = await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: app, amount: microAlgo(10_000n + hashes) })
-    await expect(swap.client.send.escrow({
+    await swap.client.send.escrow({
       args: { payment: { txn: sponsored, signer: sponsor.signer }, id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) },
       extraFee: microAlgo(5_000),
-    })).rejects.toThrow(new RegExp(errInvalidPaymentSender))
+    })
+    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(1n)
     // ASA principal clawed back from a third party by the participant
     const mbrPayment = await algorand.createTransaction.payment({ sender: owner, receiver: app, amount: microAlgo(hashes + 100_000n) })
     const clawback = await algorand.createTransaction.assetTransfer({
@@ -450,8 +453,112 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
       },
       extraFee: microAlgo(5_000),
     })).rejects.toThrow(new RegExp(errClawbackForbidden))
-    // The funder's own ALGO is accepted.
+    // Cancelled: the principal returns to the participant whose leaf it is, the hash MBR to the account that paid it.
+    await swap.cancel({ id: 0n, proof: [] })
+    const balanceOf = async (address: Parameters<typeof algorand.account.getInformation>[0]) =>
+      (await algorand.account.getInformation(address)).balance.microAlgos
+    const sponsorBefore = await balanceOf(sponsor.addr)
+    const ownerBefore = await balanceOf(owner)
+    await swap.withdraw({ id: 0n, receiver: to, asset: 0n, amount: 10_000n, proof: [] })
+    expect((await balanceOf(sponsor.addr)) - sponsorBefore).toBe(hashes)
+    // the participant receives the 10,000 principal and pays only the network fees of the withdrawal
+    const ownerGain = (await balanceOf(owner)) - ownerBefore
+    expect(ownerGain).toBeGreaterThan(0n)
+    expect(ownerGain).toBeLessThanOrEqual(10_000n)
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
+  })
+
+  async function throwaway() {
+    const { algorand } = fixture.context
+    const account = algorand.account.random()
+    await algorand.account.ensureFunded(account.addr, owner, microAlgo(1_000_000))
+    return account
+  }
+
+  async function closeAccount(account: Awaited<ReturnType<typeof throwaway>>) {
+    const { algorand } = fixture.context
+    await algorand.send.payment({ sender: account.addr, signer: account.signer, receiver: owner, amount: microAlgo(0), closeRemainderTo: owner })
+    expect(await balanceOf(account.addr.toString())).toBe(0n)
+  }
+
+  test('AUD-C22: a storage payer that closes its account cannot block a payout or a cleanup', async () => {
+    const { algorand } = fixture.context
+    const { swap, partner, to, participants, trades, expiration } = await createSwap()
+    const app = swap.client.appAddress
+    const mbr = await swap.mbr()
+    expect(mbr.hashes).toBeLessThan(100_000n)
+    expect(mbr.participants).toBeLessThan(100_000n)
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
+    // The partner joins and funds its leaf through accounts it closes afterwards. A closed account
+    // cannot take a refund below the 0.1 ALGO minimum balance.
+    const acceptPayer = await throwaway()
+    const terms = computeOfferTerms(0n, await swap.getOffer({ id: 0n }))
+    const acceptPayment = await algorand.createTransaction.payment({ sender: acceptPayer.addr, receiver: app, amount: microAlgo(mbr.participants) })
+    await swap.client.send.accept({
+      sender: partner.addr, signer: partner.signer,
+      args: { mbrPayment: { txn: acceptPayment, signer: acceptPayer.signer }, id: 0n, proof: participants.getProof(1), terms },
+      extraFee: microAlgo(5_000),
+    })
     await swap.escrow({ id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
-    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(1n)
+    const leafPayer = await throwaway()
+    const leafPayment = await algorand.createTransaction.payment({ sender: leafPayer.addr, receiver: app, amount: microAlgo(20_000n + mbr.hashes) })
+    await swap.client.send.escrow({
+      sender: partner.addr, signer: partner.signer,
+      args: { payment: { txn: leafPayment, signer: leafPayer.signer }, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) },
+      extraFee: microAlgo(5_000),
+    })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(30)
+    await closeAccount(acceptPayer)
+    await closeAccount(leafPayer)
+    // The partner takes the owner's leaf and leaves its own leaf for someone else to complete.
+    await swap.disburseFrom({ sender: partner.addr, signer: partner.signer, id: 0n, from: owner, receiverWallet: 0n, receiver: to, asset: 0n, amount: 10_000n })
+    const keeper = await throwaway()
+    const asKeeper = { sender: keeper.addr, signer: keeper.signer }
+    const ownerBefore = await balanceOf(owner)
+    const partnerBefore = await balanceOf(to)
+    await swap.disburseFrom({ ...asKeeper, id: 0n, from: to, receiverWallet: 0n, receiver: owner, asset: 0n, amount: 20_000n })
+    expect(await balanceOf(owner) - ownerBefore).toBe(20_000n)
+    // The leaf's storage deposit goes to the leaf's funder, because its payer can no longer take it.
+    expect(await balanceOf(to) - partnerBefore).toBe(mbr.hashes)
+    expect(await balanceOf(leafPayer.addr.toString())).toBe(0n)
+    expect((await swap.getOffer({ id: 0n })).state).toBe(40)
+    // The same holds for the participant deposit, so the offeror's own deposit is not held hostage.
+    const beforeCleanup = await balanceOf(to)
+    await swap.client.send.cleanupParticipant({ ...asKeeper, args: { id: 0n, participant: to }, extraFee: microAlgo(10_000) })
+    expect(await balanceOf(to) - beforeCleanup).toBe(mbr.participants)
+    expect(await balanceOf(acceptPayer.addr.toString())).toBe(0n)
+    await swap.client.send.cleanupParticipant({ args: { id: 0n, participant: owner }, extraFee: microAlgo(10_000) })
+    await swap.client.send.cleanupOffer({ args: { id: 0n }, extraFee: microAlgo(10_000) })
+    expect(await balanceOf(app.toString())).toBe(100_000n)
+  })
+
+  test('AUD-C22: a cancelled leaf returns its principal after the account that paid its storage has closed', async () => {
+    const { algorand } = fixture.context
+    const { swap, to } = await createSwap()
+    const participantList = [owner]
+    const leafList = [
+      { from: owner, receiver: to, asset: 0n, amount: 10_000n },
+      { from: owner, receiver: to, asset: 0n, amount: 30_000n },
+    ]
+    const participants = hyperSwapParticipantTree(participantList)
+    const trades = hyperSwapTradeTree(leafList)
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 1, expiration: (await chainNow()) + 3600n })
+    const { hashes } = await swap.mbr()
+    const sponsor = await throwaway()
+    const sponsored = await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: swap.client.appAddress, amount: microAlgo(10_000n + hashes) })
+    await swap.client.send.escrow({
+      args: { payment: { txn: sponsored, signer: sponsor.signer }, id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) },
+      extraFee: microAlgo(5_000),
+    })
+    await closeAccount(sponsor)
+    await swap.cancel({ id: 0n, proof: [] })
+    const ownerBefore = await balanceOf(owner)
+    await swap.withdraw({ id: 0n, receiver: to, asset: 0n, amount: 10_000n, proof: [] })
+    // The participant gets the principal back, and the storage deposit its sponsor forfeited.
+    const gain = (await balanceOf(owner)) - ownerBefore
+    expect(gain).toBeGreaterThan(10_000n)
+    expect(gain).toBeLessThanOrEqual(10_000n + hashes)
+    expect(await balanceOf(sponsor.addr.toString())).toBe(0n)
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
   })
 })

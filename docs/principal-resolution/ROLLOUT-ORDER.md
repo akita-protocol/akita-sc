@@ -5,7 +5,7 @@ stops before it sends anything. Findings: `projects/akita-sc/audits/review-2026-
 
 ## Before Phase 2 StakingPoolFactory (ROLLOUT-1)
 
-The new StakingPool child calls `Staking.releaseAppStake`, `Rewards.closeDisbursement` and `Gate.checkFor`.
+The new StakingPool child calls `Staking.reclaimAppStake`, `Rewards.closeDisbursement` and `Gate.checkFor`.
 The deployed Staking (3642366153), Rewards v1 (3569556095) and Gate v1 (3569558504) do not route them.
 
 1. Upgrade Staking (`npm run update:staking`).

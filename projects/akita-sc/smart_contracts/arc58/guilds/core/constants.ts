@@ -28,6 +28,7 @@ export const GuildGlobalStateKeyRemoveAllowancesProposalSettings = 'remove_allow
 export const GuildGlobalStateKeyNewEscrowProposalSettings = 'new_escrow_ps'
 export const GuildGlobalStateKeyToggleEscrowLockProposalSettings = 'toggle_escrow_ps'
 export const GuildGlobalStateKeyUpdateGuildProposalSettings = 'update_guild_ps'
+export const GuildGlobalStateKeyFeeAsset = 'fee_asset'
 
 // consensus global state
 export const FixedSignerConsensusGlobalStateKeyThreshold = 'signer_threshold'
@@ -56,6 +57,7 @@ export const GuildBoxPrefixPlugins = 'g'
 export const GuildBoxPrefixProposals = 'l'
 export const GuildBoxPrefixExecutions = 'x'
 export const GuildBoxPrefixConsensusActions = 'c'
+export const GuildBoxPrefixFeeTokenReserves = 'f'
 export const GuildConsensusBoxPrefixMembers = 'm'
 export const GuildConsensusBoxPrefixBallots = 'b'
 export const GuildConsensusBoxPrefixVotes = 'v'
@@ -73,13 +75,13 @@ export const MAX_GUILD_VOTING_DURATION: uint64 = 31_536_000
 export const MAX_GUILD_PROPOSAL_ACTIONS: uint64 = 12
 /** Match AkitaDAO's proposer-power ceiling and prevent unreachable uint64 configuration mistakes. */
 export const MAX_GUILD_PROPOSAL_POWER: uint64 = 1_000
-/** At most one ALGO may be charged by any single proposal action. */
-export const MAX_GUILD_PROPOSAL_FEE: uint64 = 1_000_000
 
 // MBR
 // Box MBR = 2_500 + 400 * (encoded key bytes + encoded value bytes).
 export const GuildPluginMBR: uint64 = 26_900
-export const MinGuildProposalMBR: uint64 = 44_900
+// prefix + ID = 9 key bytes; status, CID, creator, payer, fee token payer, 5 uint64 values and the
+// empty action list = 177 value bytes.
+export const MinGuildProposalMBR: uint64 = 76_900
 export const MinGuildProposalActionMbr: uint64 = 7
 export const GuildVoteMBR: uint64 = 22_500
 // 2 packed bools + 9 uint64 values = 73 value bytes; prefix + ID = 9 key bytes.
@@ -87,6 +89,8 @@ export const GuildConsensusBallotMBR: uint64 = 35_300
 export const GuildExecutionMBR: uint64 = 22_100
 // prefix + uint64 code = 9 key bytes; 6 uint64 settings = 48 value bytes.
 export const GuildConsensusActionSettingsMBR: uint64 = 25_300
+// prefix + uint64 asset = 9 key bytes; uint64 reserved amount = 8 value bytes.
+export const GuildFeeTokenReserveMBR: uint64 = 9_300
 export const FixedSignerMemberMBR: uint64 = 25_300
 export const FixedSignerHistoryMBR: uint64 = 25_300
 export const FixedSignerSnapshotMBR: uint64 = 9_700
@@ -152,6 +156,7 @@ export const GuildActionNewWallet: GuildActionType = new Uint8(82)
 /** Opaque policy action; the first data byte is a policy-defined code the Guild uses only to select settings. */
 export const GuildActionConsensus: GuildActionType = new Uint8(83)
 export const GuildActionSetConsensusActionSettings: GuildActionType = new Uint8(84)
+export const GuildActionSetFeeAsset: GuildActionType = new Uint8(85)
 export const GuildActionUpdateWallet: GuildActionType = new Uint8(90)
 export const GuildActionChangeAdmin: GuildActionType = new Uint8(91)
 export const GuildActionFullyInitialize: GuildActionType = new Uint8(100)

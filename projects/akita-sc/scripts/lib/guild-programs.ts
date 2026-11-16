@@ -8,7 +8,10 @@ import type { GuildConsensusFactoryClient } from '../../smart_contracts/artifact
 export const GUILD_PROGRAM_UPLOAD_CHUNK_SIZE = 2_000
 export const MAX_GUILD_APPROVAL_PROGRAM_SIZE = 16_372
 
-/** Deployment and integration tests share this standard-signer, atomic upload path. */
+/**
+ * Deployment and integration tests share this standard-signer, atomic upload path. `payer`, when
+ * given, funds the program's storage instead of `sender`; the registry accepts the payment from anyone.
+ */
 export async function uploadGuildProgram(
   algorand: AlgorandClient,
   client: GuildFactoryClient | GuildConsensusFactoryClient,
@@ -16,6 +19,7 @@ export async function uploadGuildProgram(
   signer: TransactionSigner,
   programName: string,
   program: Uint8Array,
+  payer: { addr: ReadableAddress; signer: TransactionSigner } = { addr: sender, signer },
 ): Promise<void> {
   installAccessListResourcePopulator()
   registerAccessListResourceCarrier(client.appId, client.appClient.appSpec, algorand.client.algod)
@@ -24,14 +28,14 @@ export async function uploadGuildProgram(
   }
   const maxFee = microAlgo(100_000n)
   const mbrPayment = await algorand.createTransaction.payment({
-    sender,
-    signer,
+    sender: payer.addr,
+    signer: payer.signer,
     receiver: client.appAddress,
     amount: microAlgo(await client.programFunding({ args: { programName, size: program.length } })),
   })
   const composer = await client.newGroup().composer()
   composer.addAppCallMethodCall(await client.params.initProgram({
-    args: { mbrPayment, programName, size: program.length }, sender, signer, maxFee,
+    args: { mbrPayment: { txn: mbrPayment, signer: payer.signer }, programName, size: program.length }, sender, signer, maxFee,
   }))
   for (let offset = 0; offset < program.length; offset += GUILD_PROGRAM_UPLOAD_CHUNK_SIZE) {
     composer.addAppCallMethodCall(await client.params.loadProgram({

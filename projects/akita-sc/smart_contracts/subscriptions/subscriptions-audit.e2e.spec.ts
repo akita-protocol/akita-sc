@@ -24,6 +24,8 @@ const INTERVAL = 60n
 const LONG_INTERVAL = 3_600n
 const SUBSCRIPTIONS_MBR = 60_500n
 const PASSES_MBR = 83_700n
+/** what an account pays, and later gets back, for being remembered as the payer of someone else's record */
+const PAYER_RECORD_MBR = 28_500n
 
 describe('Subscriptions (audit fixes)', () => {
   const localnet = algorandFixture()
@@ -334,21 +336,127 @@ describe('Subscriptions (audit fixes)', () => {
       })).rejects.toThrow('errNclw')
     })
 
-    test('block rejects an MBR payment from another account', async () => {
+    test('anyone can pay a block\'s storage, and the deposit returns to whoever paid it', async () => {
+      const { algorand } = localnet.context
       const merchant = await newAccount(5)
       const sponsor = await newAccount(5)
       const blocked = (await newAccount(1)).addr.toString()
-      const payment = await localnet.context.algorand.createTransaction.payment({
-        sender: sponsor.addr,
-        signer: sponsor.signer,
-        receiver: subscriptions.client.appAddress,
-        amount: microAlgo(await subscriptions.blockCost()),
-      })
-      await expect(subscriptions.client.send.block({
+      const cost = await subscriptions.blockCost()
+      const balance = async (who: TransactionSignerAccount) => (await algorand.account.getInformation(who.addr)).balance.microAlgos
+      const block = async (amount: bigint) => subscriptions.client.send.block({
         sender: merchant.addr.toString(),
         signer: merchant.signer,
-        args: { payment, blocked },
-      })).rejects.toThrow('errIpms')
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: subscriptions.client.appAddress, amount: microAlgo(amount) }),
+            signer: sponsor.signer,
+          },
+          blocked,
+        },
+      })
+
+      // the deposit alone is not enough from another payer: it is remembered and funds that record too
+      await expect(block(cost)).rejects.toThrow('errIpma')
+      const before = await balance(sponsor)
+      await block(cost + PAYER_RECORD_MBR)
+      expect(before - await balance(sponsor)).toBe(cost + PAYER_RECORD_MBR + 1_000n)
+      expect(await subscriptions.isBlocked({ address: merchant.addr.toString(), blocked })).toBe(true)
+
+      const held = await balance(sponsor)
+      const merchantHeld = await balance(merchant)
+      await subscriptions.unblock({ sender: merchant.addr.toString(), signer: merchant.signer, blocked })
+      expect(await balance(sponsor) - held).toBe(cost + PAYER_RECORD_MBR)
+      expect(await balance(merchant)).toBeLessThan(merchantHeld) // fees only, no refund
+    })
+
+    test('anyone can fund a subscription; the escrow is the subscriber\'s and the storage returns to the payer', async () => {
+      const { algorand } = localnet.context
+      const merchant = await newAccount()
+      const subscriber = await newAccount(5)
+      const sponsor = await newAccount(20)
+      const subscriberAddr = subscriber.addr.toString()
+      const amount = 100_000n
+      const deposit = 250_000n
+      const balance = async (who: TransactionSignerAccount) => (await algorand.account.getInformation(who.addr)).balance.microAlgos
+      const cost = await subscriptions.newSubscriptionCost({ sender: subscriberAddr, recipient: merchant.addr.toString() })
+      const fundedSubscribe = async (paid: bigint) => subscriptions.client.newGroup()
+        .subscribePayAddressUint64Uint64Uint64Uint64Uint64({
+          sender: subscriberAddr,
+          signer: subscriber.signer,
+          maxFee: microAlgo(20_000),
+          args: {
+            payment: {
+              txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: subscriptions.client.appAddress, amount: microAlgo(paid) }),
+              signer: sponsor.signer,
+            },
+            amount, interval: INTERVAL, recipient: merchant.addr.toString(), serviceId: 0n, wallet: 0n,
+          },
+        })
+        .send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      // without the payer record's deposit the sponsor's payment is short
+      await expect(fundedSubscribe(amount + cost + PAYER_RECORD_MBR - 1n)).rejects.toThrow('errIpay')
+      const before = await balance(sponsor)
+      const { returns } = await fundedSubscribe(amount + cost + PAYER_RECORD_MBR + deposit)
+      const id = returns[0] as bigint
+      expect(before - await balance(sponsor)).toBe(amount + cost + PAYER_RECORD_MBR + deposit + 1_000n)
+      const sub = await subscriptions.getSubscription({ address: subscriberAddr, id })
+      expect(sub.escrowed).toBe(deposit)
+
+      // unsubscribing pays the escrow to the subscriber and the storage back to the sponsor
+      const sponsorHeld = await balance(sponsor)
+      const subscriberHeld = await balance(subscriber)
+      await subscriptions.unsubscribe({ sender: subscriberAddr, signer: subscriber.signer, id })
+      expect(await balance(sponsor) - sponsorHeld).toBe(SUBSCRIPTIONS_MBR + PAYER_RECORD_MBR)
+      const gained = await balance(subscriber) - subscriberHeld
+      expect(gained).toBeLessThanOrEqual(deposit)
+      expect(gained).toBeGreaterThan(deposit - 10_000n) // the escrow, less network fees
+    })
+
+    test('a sponsored ASA subscription returns its storage to the payer', async () => {
+      const { algorand } = localnet.context
+      const akta = universe.aktaAssetId
+      const merchant = await newAccount()
+      const subscriber = await newAccount(5)
+      const sponsor = await newAccount(20)
+      const subscriberAddr = subscriber.addr.toString()
+      const balance = async (who: TransactionSignerAccount) => (await algorand.account.getInformation(who.addr)).balance.microAlgos
+
+      if (!(await subscriptions.isOptedInToAsset(akta))) {
+        await subscriptions.optIn({ sender: deployer, signer: deployerSigner, asset: akta })
+      }
+      await algorand.send.assetOptIn({ sender: merchant.addr, signer: merchant.signer, assetId: akta })
+      await algorand.send.assetOptIn({ sender: subscriber.addr, signer: subscriber.signer, assetId: akta })
+      await algorand.send.assetTransfer({ sender: deployer, signer: deployerSigner, receiver: subscriber.addr, assetId: akta, amount: 10_000n })
+
+      const cost = await subscriptions.newSubscriptionCost({ sender: subscriberAddr, recipient: merchant.addr.toString(), asset: akta })
+      const fundedSubscribe = async (paid: bigint) => subscriptions.client.newGroup()
+        .subscribeAsaPayAxferAddressUint64Uint64Uint64Uint64Uint64({
+          sender: subscriberAddr,
+          signer: subscriber.signer,
+          maxFee: microAlgo(20_000),
+          args: {
+            payment: {
+              txn: await algorand.createTransaction.payment({ sender: sponsor.addr, receiver: subscriptions.client.appAddress, amount: microAlgo(paid) }),
+              signer: sponsor.signer,
+            },
+            assetXfer: await algorand.createTransaction.assetTransfer({
+              sender: subscriber.addr, receiver: subscriptions.client.appAddress, assetId: akta, amount: 3_000n,
+            }),
+            amount: 1_000n, interval: INTERVAL, recipient: merchant.addr.toString(), serviceId: 0n, wallet: 0n,
+          },
+        })
+        .send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      await expect(fundedSubscribe(cost)).rejects.toThrow('errIpma')
+      const { returns } = await fundedSubscribe(cost + PAYER_RECORD_MBR)
+      const id = returns[0] as bigint
+
+      const sponsorHeld = await balance(sponsor)
+      const subscriberHeld = await balance(subscriber)
+      await subscriptions.unsubscribe({ sender: subscriberAddr, signer: subscriber.signer, id })
+      expect(await balance(sponsor) - sponsorHeld).toBe(SUBSCRIPTIONS_MBR + PAYER_RECORD_MBR)
+      expect(await balance(subscriber)).toBeLessThan(subscriberHeld) // fees only: the storage went to the sponsor
     })
   })
 

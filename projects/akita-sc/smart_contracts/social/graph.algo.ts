@@ -2,7 +2,7 @@ import { abimethod, Account, Application, BoxMap, Bytes, bytes, Global, gtxn, it
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/upgradeable"
-import { assertBoundPayment, gateCheck, gateCheckCtx, getAkitaSocialAppList, principalOf } from "../utils/functions"
+import { assertExactPayment, gateCheck, gateCheckCtx, getAkitaSocialAppList, principalOf, recordPayer, releaseDeposit, sponsorCost } from "../utils/functions"
 import { gateCtx } from "../utils/principal"
 import { BaseSocial } from "./base"
 import { AkitaSocialBoxPrefixBlocks, AkitaSocialBoxPrefixFollows } from "./constants"
@@ -97,13 +97,20 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
     loggedAssert(!this.isBanned(Txn.sender), errBanned)
     loggedAssert(Txn.sender !== address, errSelfBlock)
 
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, this.mbr(Bytes(''), '', Bytes('')).blocks)
+    // anyone may pay; a payer other than the caller is remembered (and funds that record) so
+    // `unblock` returns the deposit to whoever paid it
+    assertExactPayment(
+      mbrPayment,
+      Global.currentApplicationAddress,
+      this.mbr(Bytes(''), '', Bytes('')).blocks + sponsorCost(mbrPayment.sender, Txn.sender)
+    )
 
     const blocksKey = this.blk(Txn.sender, address)
     // `create()` is a no-op on an existing box, which would keep a second payment with no
     // matching refund
     loggedAssert(!this.blocks(blocksKey).exists, errAlreadyBlocked)
     this.blocks(blocksKey).create()
+    recordPayer(this.blocks(blocksKey).key, mbrPayment.sender, Txn.sender)
   }
 
   // Withdrawal path: deliberately open to banned users so their MBR is never locked.
@@ -112,12 +119,12 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
     loggedAssert(this.blocks(blocksKey).exists, errUserNotBlocked)
     this.blocks(blocksKey).delete()
 
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: this.mbr(Bytes(''), '', Bytes('')).blocks
-      })
-      .submit()
+    const [receiver, amount] = releaseDeposit(
+      this.blocks(blocksKey).key,
+      Txn.sender,
+      this.mbr(Bytes(''), '', Bytes('')).blocks
+    )
+    itxn.payment({ receiver, amount }).submit()
   }
 
   /**
@@ -154,9 +161,12 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
 
   private followImpl(mbrPayment: gtxn.PaymentTxn, address: Account): void {
     const { follows } = this.mbr(Bytes(''), '', Bytes(''))
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, follows)
+    // anyone may pay; a payer other than the caller is remembered (and funds that record) so
+    // `unfollow` returns the deposit to whoever paid it
+    assertExactPayment(mbrPayment, Global.currentApplicationAddress, follows + sponsorCost(mbrPayment.sender, Txn.sender))
 
     this.createFollow(Txn.sender, address)
+    recordPayer(this.follows(this.flw(address, Txn.sender)).key, mbrPayment.sender, Txn.sender)
   }
 
   follow(mbrPayment: gtxn.PaymentTxn, address: Account): void {
@@ -178,12 +188,12 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
     this.updateFollowerMeta(address, followerIndex, followerCount - 1)
     this.follows(followsKey).delete()
 
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: this.mbr(Bytes(''), '', Bytes('')).follows
-      })
-      .submit()
+    const [receiver, amount] = releaseDeposit(
+      this.follows(followsKey).key,
+      Txn.sender,
+      this.mbr(Bytes(''), '', Bytes('')).follows
+    )
+    itxn.payment({ receiver, amount }).submit()
   }
 
   @abimethod({ readonly: true })

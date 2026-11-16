@@ -14,7 +14,7 @@ import {
   errOnlyApps,
 } from "./errors";
 
-import { assertBoundPayment } from "../utils/functions";
+import { assertExactPayment } from "../utils/functions";
 
 // CONTRACT IMPORTS
 import { Escrow } from "./contract.algo";
@@ -51,8 +51,8 @@ export class EscrowFactory extends Contract {
       GLOBAL_STATE_KEY_BYTES_COST
     )
 
-    // ACC-07: bind the funding payment to the caller (no third-party funding, close or rekey)
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, childAppMBR + Global.minBalance)
+    // ACC-07: the funding payment is exact, with no close-out or rekey; anyone may be the payer
+    assertExactPayment(payment, Global.currentApplicationAddress, childAppMBR + Global.minBalance)
 
     const newEscrow = escrow.call.create(
       {

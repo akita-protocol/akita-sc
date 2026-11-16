@@ -50,6 +50,7 @@ import {
   removeFixedSignerMemberAction,
   removePluginAction,
   setConsensusActionSettingsAction,
+  setFeeAssetAction,
   setFixedSignerMemberWeightAction,
   setPluginSettingsAction,
   setProposalActionLimitAction,
@@ -60,15 +61,15 @@ import {
   subscriptionVoteEvidence,
   subscriptionVotingOpensAt,
   toggleEscrowLockAction
-} from "../chunk-YUZOF573.mjs";
+} from "../chunk-QK6IT3NT.mjs";
 import {
   GuildClient,
   GuildFactory,
   GuildFactoryClient,
   GuildFactoryFactory
-} from "../chunk-NBCCOE5T.mjs";
-import "../chunk-7FJUH3WF.mjs";
-import "../chunk-VONME6S7.mjs";
+} from "../chunk-K7IKWEOR.mjs";
+import "../chunk-ITXBJZ4G.mjs";
+import "../chunk-POLXD3ER.mjs";
 import "../chunk-JZMSW77U.mjs";
 import "../chunk-J5LGTIGS.mjs";
 export {
@@ -127,6 +128,7 @@ export {
   removeFixedSignerMemberAction,
   removePluginAction,
   setConsensusActionSettingsAction,
+  setFeeAssetAction,
   setFixedSignerMemberWeightAction,
   setPluginSettingsAction,
   setProposalActionLimitAction,

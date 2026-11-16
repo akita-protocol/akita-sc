@@ -51,6 +51,28 @@ export type MockSharedHelpersArgs = {
             payment: AppMethodCallTransactionArgument;
             sender: string;
         };
+        'checkPlainPayment(pay)void': {
+            payment: AppMethodCallTransactionArgument;
+        };
+        'checkExactPayment(pay,address,uint64)void': {
+            payment: AppMethodCallTransactionArgument;
+            receiver: string;
+            amount: bigint | number;
+        };
+        'hold(pay,byte[],uint64)void': {
+            payment: AppMethodCallTransactionArgument;
+            record: Uint8Array;
+            amount: bigint | number;
+        };
+        'heldBy(byte[],address)address': {
+            record: Uint8Array;
+            owner: string;
+        };
+        'release(byte[],address,uint64)address': {
+            record: Uint8Array;
+            owner: string;
+            amount: bigint | number;
+        };
         'checkAssetTransfer(axfer,address,address,uint64,uint64)void': {
             xfer: AppMethodCallTransactionArgument;
             sender: string;
@@ -86,6 +108,11 @@ export type MockSharedHelpersArgs = {
         'opUp()void': [];
         'checkPayment(pay,address,address,uint64)void': [payment: AppMethodCallTransactionArgument, sender: string, receiver: string, amount: bigint | number];
         'checkSafePayment(pay,address)void': [payment: AppMethodCallTransactionArgument, sender: string];
+        'checkPlainPayment(pay)void': [payment: AppMethodCallTransactionArgument];
+        'checkExactPayment(pay,address,uint64)void': [payment: AppMethodCallTransactionArgument, receiver: string, amount: bigint | number];
+        'hold(pay,byte[],uint64)void': [payment: AppMethodCallTransactionArgument, record: Uint8Array, amount: bigint | number];
+        'heldBy(byte[],address)address': [record: Uint8Array, owner: string];
+        'release(byte[],address,uint64)address': [record: Uint8Array, owner: string, amount: bigint | number];
         'checkAssetTransfer(axfer,address,address,uint64,uint64)void': [xfer: AppMethodCallTransactionArgument, sender: string, receiver: string, asset: bigint | number, amount: bigint | number];
         'checkSafeAssetTransfer(axfer,address)void': [xfer: AppMethodCallTransactionArgument, sender: string];
         'controlledSpending(uint64)address': [wallet: bigint | number];
@@ -101,6 +128,11 @@ export type MockSharedHelpersReturns = {
     'opUp()void': void;
     'checkPayment(pay,address,address,uint64)void': void;
     'checkSafePayment(pay,address)void': void;
+    'checkPlainPayment(pay)void': void;
+    'checkExactPayment(pay,address,uint64)void': void;
+    'hold(pay,byte[],uint64)void': void;
+    'heldBy(byte[],address)address': string;
+    'release(byte[],address,uint64)address': string;
     'checkAssetTransfer(axfer,address,address,uint64,uint64)void': void;
     'checkSafeAssetTransfer(axfer,address)void': void;
     'controlledSpending(uint64)address': string;
@@ -127,6 +159,26 @@ export type MockSharedHelpersTypes = {
         argsObj: MockSharedHelpersArgs['obj']['checkSafePayment(pay,address)void'];
         argsTuple: MockSharedHelpersArgs['tuple']['checkSafePayment(pay,address)void'];
         returns: MockSharedHelpersReturns['checkSafePayment(pay,address)void'];
+    }> & Record<'checkPlainPayment(pay)void' | 'checkPlainPayment', {
+        argsObj: MockSharedHelpersArgs['obj']['checkPlainPayment(pay)void'];
+        argsTuple: MockSharedHelpersArgs['tuple']['checkPlainPayment(pay)void'];
+        returns: MockSharedHelpersReturns['checkPlainPayment(pay)void'];
+    }> & Record<'checkExactPayment(pay,address,uint64)void' | 'checkExactPayment', {
+        argsObj: MockSharedHelpersArgs['obj']['checkExactPayment(pay,address,uint64)void'];
+        argsTuple: MockSharedHelpersArgs['tuple']['checkExactPayment(pay,address,uint64)void'];
+        returns: MockSharedHelpersReturns['checkExactPayment(pay,address,uint64)void'];
+    }> & Record<'hold(pay,byte[],uint64)void' | 'hold', {
+        argsObj: MockSharedHelpersArgs['obj']['hold(pay,byte[],uint64)void'];
+        argsTuple: MockSharedHelpersArgs['tuple']['hold(pay,byte[],uint64)void'];
+        returns: MockSharedHelpersReturns['hold(pay,byte[],uint64)void'];
+    }> & Record<'heldBy(byte[],address)address' | 'heldBy', {
+        argsObj: MockSharedHelpersArgs['obj']['heldBy(byte[],address)address'];
+        argsTuple: MockSharedHelpersArgs['tuple']['heldBy(byte[],address)address'];
+        returns: MockSharedHelpersReturns['heldBy(byte[],address)address'];
+    }> & Record<'release(byte[],address,uint64)address' | 'release', {
+        argsObj: MockSharedHelpersArgs['obj']['release(byte[],address,uint64)address'];
+        argsTuple: MockSharedHelpersArgs['tuple']['release(byte[],address,uint64)address'];
+        returns: MockSharedHelpersReturns['release(byte[],address,uint64)address'];
     }> & Record<'checkAssetTransfer(axfer,address,address,uint64,uint64)void' | 'checkAssetTransfer', {
         argsObj: MockSharedHelpersArgs['obj']['checkAssetTransfer(axfer,address,address,uint64,uint64)void'];
         argsTuple: MockSharedHelpersArgs['tuple']['checkAssetTransfer(axfer,address,address,uint64,uint64)void'];
@@ -218,6 +270,47 @@ export declare abstract class MockSharedHelpersParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static checkSafePayment(params: CallParams<MockSharedHelpersArgs['obj']['checkSafePayment(pay,address)void'] | MockSharedHelpersArgs['tuple']['checkSafePayment(pay,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the checkPlainPayment(pay)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkPlainPayment(params: CallParams<MockSharedHelpersArgs['obj']['checkPlainPayment(pay)void'] | MockSharedHelpersArgs['tuple']['checkPlainPayment(pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the checkExactPayment(pay,address,uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkExactPayment(params: CallParams<MockSharedHelpersArgs['obj']['checkExactPayment(pay,address,uint64)void'] | MockSharedHelpersArgs['tuple']['checkExactPayment(pay,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the hold(pay,byte[],uint64)void ABI method
+     *
+    * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+    caller is remembered and also funds its payer record.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static hold(params: CallParams<MockSharedHelpersArgs['obj']['hold(pay,byte[],uint64)void'] | MockSharedHelpersArgs['tuple']['hold(pay,byte[],uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the heldBy(byte[],address)address ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static heldBy(params: CallParams<MockSharedHelpersArgs['obj']['heldBy(byte[],address)address'] | MockSharedHelpersArgs['tuple']['heldBy(byte[],address)address']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the release(byte[],address,uint64)address ABI method
+     *
+     * Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static release(params: CallParams<MockSharedHelpersArgs['obj']['release(byte[],address,uint64)address'] | MockSharedHelpersArgs['tuple']['release(byte[],address,uint64)address']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the checkAssetTransfer(axfer,address,address,uint64,uint64)void ABI method
      *
@@ -602,6 +695,57 @@ export declare class MockSharedHelpersClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkPlainPayment(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkPlainPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkPlainPayment(pay)void"] | MockSharedHelpersArgs["tuple"]["checkPlainPayment(pay)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkExactPayment(pay,address,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkExactPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkExactPayment(pay,address,uint64)void"] | MockSharedHelpersArgs["tuple"]["checkExactPayment(pay,address,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `hold(pay,byte[],uint64)void` ABI method.
+         *
+        * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+        caller is remembered and also funds its payer record.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        hold: (params: CallParams<MockSharedHelpersArgs["obj"]["hold(pay,byte[],uint64)void"] | MockSharedHelpersArgs["tuple"]["hold(pay,byte[],uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `heldBy(byte[],address)address` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        heldBy: (params: CallParams<MockSharedHelpersArgs["obj"]["heldBy(byte[],address)address"] | MockSharedHelpersArgs["tuple"]["heldBy(byte[],address)address"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `release(byte[],address,uint64)address` ABI method.
+         *
+         * Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        release: (params: CallParams<MockSharedHelpersArgs["obj"]["release(byte[],address,uint64)address"] | MockSharedHelpersArgs["tuple"]["release(byte[],address,uint64)address"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the MockSharedHelpers smart contract using the `checkAssetTransfer(axfer,address,address,uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -706,6 +850,77 @@ export declare class MockSharedHelpersClient {
          * @returns The call transaction
          */
         checkSafePayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkSafePayment(pay,address)void"] | MockSharedHelpersArgs["tuple"]["checkSafePayment(pay,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkPlainPayment(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkPlainPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkPlainPayment(pay)void"] | MockSharedHelpersArgs["tuple"]["checkPlainPayment(pay)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkExactPayment(pay,address,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkExactPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkExactPayment(pay,address,uint64)void"] | MockSharedHelpersArgs["tuple"]["checkExactPayment(pay,address,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `hold(pay,byte[],uint64)void` ABI method.
+         *
+        * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+        caller is remembered and also funds its payer record.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        hold: (params: CallParams<MockSharedHelpersArgs["obj"]["hold(pay,byte[],uint64)void"] | MockSharedHelpersArgs["tuple"]["hold(pay,byte[],uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `heldBy(byte[],address)address` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        heldBy: (params: CallParams<MockSharedHelpersArgs["obj"]["heldBy(byte[],address)address"] | MockSharedHelpersArgs["tuple"]["heldBy(byte[],address)address"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `release(byte[],address,uint64)address` ABI method.
+         *
+         * Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        release: (params: CallParams<MockSharedHelpersArgs["obj"]["release(byte[],address,uint64)address"] | MockSharedHelpersArgs["tuple"]["release(byte[],address,uint64)address"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -854,6 +1069,102 @@ export declare class MockSharedHelpersClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | MockSharedHelpersReturns["checkSafePayment(pay,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkPlainPayment(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkPlainPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkPlainPayment(pay)void"] | MockSharedHelpersArgs["tuple"]["checkPlainPayment(pay)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockSharedHelpersReturns["checkPlainPayment(pay)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `checkExactPayment(pay,address,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkExactPayment: (params: CallParams<MockSharedHelpersArgs["obj"]["checkExactPayment(pay,address,uint64)void"] | MockSharedHelpersArgs["tuple"]["checkExactPayment(pay,address,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockSharedHelpersReturns["checkExactPayment(pay,address,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `hold(pay,byte[],uint64)void` ABI method.
+         *
+        * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+        caller is remembered and also funds its payer record.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        hold: (params: CallParams<MockSharedHelpersArgs["obj"]["hold(pay,byte[],uint64)void"] | MockSharedHelpersArgs["tuple"]["hold(pay,byte[],uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockSharedHelpersReturns["hold(pay,byte[],uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `heldBy(byte[],address)address` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        heldBy: (params: CallParams<MockSharedHelpersArgs["obj"]["heldBy(byte[],address)address"] | MockSharedHelpersArgs["tuple"]["heldBy(byte[],address)address"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockSharedHelpersReturns["heldBy(byte[],address)address"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockSharedHelpers smart contract using the `release(byte[],address,uint64)address` ABI method.
+         *
+         * Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        release: (params: CallParams<MockSharedHelpersArgs["obj"]["release(byte[],address,uint64)address"] | MockSharedHelpersArgs["tuple"]["release(byte[],address,uint64)address"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockSharedHelpersReturns["release(byte[],address,uint64)address"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1015,6 +1326,52 @@ export type MockSharedHelpersComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     checkSafePayment(params?: CallParams<MockSharedHelpersArgs['obj']['checkSafePayment(pay,address)void'] | MockSharedHelpersArgs['tuple']['checkSafePayment(pay,address)void']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['checkSafePayment(pay,address)void'] | undefined]>;
+    /**
+     * Calls the checkPlainPayment(pay)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkPlainPayment(params?: CallParams<MockSharedHelpersArgs['obj']['checkPlainPayment(pay)void'] | MockSharedHelpersArgs['tuple']['checkPlainPayment(pay)void']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['checkPlainPayment(pay)void'] | undefined]>;
+    /**
+     * Calls the checkExactPayment(pay,address,uint64)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkExactPayment(params?: CallParams<MockSharedHelpersArgs['obj']['checkExactPayment(pay,address,uint64)void'] | MockSharedHelpersArgs['tuple']['checkExactPayment(pay,address,uint64)void']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['checkExactPayment(pay,address,uint64)void'] | undefined]>;
+    /**
+     * Calls the hold(pay,byte[],uint64)void ABI method.
+     *
+    * Holds a deposit of `amount` for the caller's `record`. Anyone may pay it; a payer other than the
+    caller is remembered and also funds its payer record.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    hold(params?: CallParams<MockSharedHelpersArgs['obj']['hold(pay,byte[],uint64)void'] | MockSharedHelpersArgs['tuple']['hold(pay,byte[],uint64)void']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['hold(pay,byte[],uint64)void'] | undefined]>;
+    /**
+     * Calls the heldBy(byte[],address)address ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    heldBy(params?: CallParams<MockSharedHelpersArgs['obj']['heldBy(byte[],address)address'] | MockSharedHelpersArgs['tuple']['heldBy(byte[],address)address']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['heldBy(byte[],address)address'] | undefined]>;
+    /**
+     * Calls the release(byte[],address,uint64)address ABI method.
+     *
+     * Releases the deposit of `amount` held for `record` and pays it to whoever funded it. Returns that account.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    release(params?: CallParams<MockSharedHelpersArgs['obj']['release(byte[],address,uint64)address'] | MockSharedHelpersArgs['tuple']['release(byte[],address,uint64)address']>): MockSharedHelpersComposer<[...TReturns, MockSharedHelpersReturns['release(byte[],address,uint64)address'] | undefined]>;
     /**
      * Calls the checkAssetTransfer(axfer,address,address,uint64,uint64)void ABI method.
      *

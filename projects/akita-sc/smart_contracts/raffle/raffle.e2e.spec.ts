@@ -553,6 +553,108 @@ describe('Raffle SDK', () => {
       expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
     })
 
+    test('anyone can pay for an entry; the tickets belong to the entrant and the entry storage returns to the payer', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const owner = await newSeller()
+      const [entrant, other, sponsor] = [await newEntrant(), await newEntrant(), await newAccount(50)]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      const costs = await raffle.mbr()
+      const entryMbr = costs.entries + costs.entriesByAddress
+
+      // the sponsor's payment carries the tickets, the entry storage and its own payer record
+      const tickets = 5_000_000n
+      const sponsorBefore = await getAccountBalance(algorand, sponsor.addr.toString())
+      await raffle.client.send.enter({
+        sender: entrant.addr,
+        signer: entrant.signer,
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({
+              sender: sponsor.addr, receiver: raffle.client.appAddress, amount: (tickets + entryMbr + PAYER_RECORD_MBR).microAlgo(),
+            }),
+            signer: sponsor.signer,
+          },
+          marketplace: entrant.addr.toString(),
+        },
+        populateAppCallResources: true,
+        coverAppCallInnerTransactionFees: true,
+        maxFee: (20_000).microAlgo(),
+      })
+      expect(sponsorBefore - await getAccountBalance(algorand, sponsor.addr.toString())).toBe(tickets + entryMbr + PAYER_RECORD_MBR + 1_000n)
+      await enter(raffle, other, 10_000_000n)
+      const live = await raffle.state()
+      expect(live.entryCount).toBe(2n)
+      expect(live.ticketCount).toBe(tickets + 10_000_000n)
+
+      await timeWarp.timeWarp(3_700n)
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await timeWarp.roundWarp(await raffle.drawReadyRound())
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await findWinner(raffle)
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      // the refund pays the sponsor its storage and payer record back, the self-funded entrant its storage
+      const sponsorHeld = await getAccountBalance(algorand, sponsor.addr.toString())
+      const entrantHeld = await getAccountBalance(algorand, entrant.addr.toString())
+      const otherHeld = await getAccountBalance(algorand, other.addr.toString())
+      await cleanupAndDelete(raffle)
+      expect(await getAccountBalance(algorand, sponsor.addr.toString()) - sponsorHeld).toBe(entryMbr + PAYER_RECORD_MBR)
+      expect(await getAccountBalance(algorand, entrant.addr.toString())).toBe(entrantHeld)
+      expect(await getAccountBalance(algorand, other.addr.toString()) - otherHeld).toBe(entryMbr)
+      // nothing of the payer record is left behind in the factory either
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('eight sponsored entries are refunded in one call, the batch size the desktop app uses', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const owner = await newSeller()
+      const sponsor = await newAccount(200)
+      const entrants: TransactionSignerAccount[] = []
+      for (let i = 0; i < 8; i++) entrants.push(await newEntrant())
+
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      const costs = await raffle.mbr()
+      const entryMbr = costs.entries + costs.entriesByAddress
+      const tickets = 2_000_000n
+      for (const entrant of entrants) {
+        await raffle.client.send.enter({
+          sender: entrant.addr,
+          signer: entrant.signer,
+          args: {
+            payment: {
+              txn: await algorand.createTransaction.payment({
+                sender: sponsor.addr, receiver: raffle.client.appAddress, amount: (tickets + entryMbr + PAYER_RECORD_MBR).microAlgo(),
+              }),
+              signer: sponsor.signer,
+            },
+            marketplace: entrant.addr.toString(),
+          },
+          populateAppCallResources: true,
+          coverAppCallInnerTransactionFees: true,
+          maxFee: (20_000).microAlgo(),
+        })
+      }
+      expect((await raffle.state()).entryCount).toBe(8n)
+
+      await timeWarp.timeWarp(3_700n)
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await timeWarp.roundWarp(await raffle.drawReadyRound())
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await findWinner(raffle)
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      // Every refund reads and deletes a payer record on top of the two entry boxes.
+      const sponsorHeld = await getAccountBalance(algorand, sponsor.addr.toString())
+      await raffle.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 8n })
+      expect((await raffle.state()).refundMbrCursor).toBe(8n)
+      expect(await getAccountBalance(algorand, sponsor.addr.toString()) - sponsorHeld).toBe(8n * (entryMbr + PAYER_RECORD_MBR))
+      await cleanupAndDelete(raffle)
+    })
+
     test('AR-07: a raffle with no entries returns the prize to the seller and can be deleted', async () => {
       const owner = await newSeller()
       const factoryBefore = await getAccountBalance(algorand, factoryAddress())

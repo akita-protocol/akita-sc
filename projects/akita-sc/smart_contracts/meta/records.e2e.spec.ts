@@ -357,6 +357,58 @@ describe('Account metadata registry (LocalNet)', () => {
     }
   })
 
+  test('another account can fund a record: it alone tops the record up, and gets every refund', async () => {
+    const { algorand, testAccount } = fixture.context
+    const PAYER_RECORD_MBR = 28_500n
+    const sponsor = algorand.account.random()
+    const dispenser = await algorand.account.dispenserFromEnvironment()
+    await algorand.account.ensureFunded(sponsor.addr, dispenser.addr, microAlgo(10_000_000))
+    const key = metadataDataKey('sponsored', 'data')
+    const cost = (size: number) => metadataStorageCost(size, key)
+    const balance = async (address: string) => (await algorand.account.getInformation(address)).balance.microAlgos
+    const app = () => algorand.account.getInformation(metadata.client.appAddress)
+    const set = async (payer: { addr: { toString(): string }, signer: typeof testAccount.signer }, amount: bigint, size: number, expectedRevision: bigint) =>
+      metadata.client.send.setRecord({
+        args: {
+          payment: {
+            txn: await algorand.createTransaction.payment({ sender: payer.addr.toString(), receiver: metadata.client.appAddress, amount: microAlgo(amount) }),
+            signer: payer.signer,
+          },
+          key, ...metadataDataParts(new Uint8Array(size)), expectedRevision,
+        },
+        extraFee: microAlgo(1_000),
+      })
+    const before = await app()
+
+    // a new record funded by someone else also needs that account's payer record
+    await expect(set(sponsor, cost(100), 100, 0n)).rejects.toThrow(new RegExp(errInvalidRecordPayment))
+    const sponsorBefore = await balance(sponsor.addr.toString())
+    const first = await set(sponsor, cost(100) + PAYER_RECORD_MBR, 100, 0n)
+    expect(sponsorBefore - await balance(sponsor.addr.toString())).toBe(cost(100) + PAYER_RECORD_MBR + 1_000n)
+    const created = await app()
+    expect(created.minBalance.microAlgos - before.minBalance.microAlgos).toBe(cost(100) + PAYER_RECORD_MBR)
+    expect(created.balance.microAlgos - before.balance.microAlgos).toBe(cost(100) + PAYER_RECORD_MBR)
+
+    // growth is paid by the account that funded the record, with no second payer record
+    await expect(set(testAccount, cost(200) - cost(100), 200, first.return!)).rejects.toThrow(/errIpyr/)
+    const second = await set(sponsor, cost(200) - cost(100), 200, first.return!)
+
+    // a shrink returns the difference to the sponsor, whoever sends the (empty) payment
+    let held = await balance(sponsor.addr.toString())
+    const third = await set(testAccount, 0n, 10, second.return!)
+    expect(await balance(sponsor.addr.toString()) - held).toBe(cost(200) - cost(10))
+
+    // removing the record returns the rest, and the payer record's deposit, to the sponsor
+    held = await balance(sponsor.addr.toString())
+    const ownerHeld = await balance(owner)
+    await metadata.removeRecord({ key, expectedRevision: third.return! })
+    expect(await balance(sponsor.addr.toString()) - held).toBe(cost(10) + PAYER_RECORD_MBR)
+    expect(await balance(owner)).toBeLessThan(ownerHeld) // fees only
+    const after = await app()
+    expect(after.balance.microAlgos).toBe(before.balance.microAlgos)
+    expect(after.minBalance.microAlgos).toBe(before.minBalance.microAlgos)
+  })
+
   test('rejects underfunded, overfunded and unrelated payments atomically', async () => {
     const { algorand, testAccount } = fixture.context
     const data = new Uint8Array([42])

@@ -24,7 +24,10 @@ import {
   errDisbursementNotSweepable,
   errReclaimTargetNotOptedIn,
 } from './errors'
-import { errInvalidPaymentAmount } from '../utils/errors'
+import { errInvalidPaymentAmount, errPayerOnly } from '../utils/errors'
+
+/** what an account pays, and later gets back, for being remembered as the payer of someone else's record */
+const PAYER_RECORD_MBR = 28_500n
 
 algokit.Config.configure({
   debug: true,
@@ -1906,7 +1909,7 @@ describe('Rewards SDK Tests', () => {
       expect(appBalanceAfter).toBe(appBalanceBefore)
     })
 
-    test('C-1: funding must be exact, from the caller, and immediately before the call', async () => {
+    test('C-1: funding must be exact and immediately before the call; another account may pay it and gets it back', async () => {
       const creator = await fixture.context.generateAccount({ initialFunds: (50).algos() })
       const sponsor = await fixture.context.generateAccount({ initialFunds: (50).algos() })
       const assetId = await newOptedInAsset([creator])
@@ -1923,8 +1926,8 @@ describe('Rewards SDK Tests', () => {
 
       // surplus payment would become withdrawable MBR credit
       await expect((await build(exact + 1_000_000n, creator, 0n, 1n)).send()).rejects.toThrow()
-      // payment from a third party
-      await expect((await build(exact, sponsor, 0n, 1n)).send()).rejects.toThrow()
+      // another payer is remembered, so the storage alone is not enough from it
+      await expect((await build(exact, sponsor, 0n, 1n)).send()).rejects.toThrow(errInvalidPaymentAmount)
       // wrong positions
       await expect((await build(exact, creator, 1n, 2n)).send()).rejects.toThrow(errInvalidGroupIndex)
 
@@ -1935,6 +1938,105 @@ describe('Rewards SDK Tests', () => {
       expect(disbursement.finalized).toBe(true)
       expect(disbursement.amount).toBe(500n)
       expect(BigInt((disbursement as any).mbrCredits)).toBe(0n)
+
+      // another account pays the storage and its payer record, and gets both back at the close
+      const balance = async (account: TransactionSignerAccount) => (await algorand.account.getInformation(account.addr)).balance.microAlgo
+      const next = await sdk.getState()
+      const sponsorBefore = await balance(sponsor)
+      await (await build(exact + PAYER_RECORD_MBR, sponsor, 0n, 1n)).send()
+      expect(sponsorBefore - (await balance(sponsor))).toBe(exact + PAYER_RECORD_MBR + 1_000n)
+      expect((await sdk.getDisbursement({ id: next.disbursementId })).finalized).toBe(true)
+      expect(BigInt(((await sdk.getDisbursement({ id: next.disbursementId })) as any).mbrCredits)).toBe(0n)
+
+      await sdk.claimRewards({ sender: creator.addr, signer: creator.signer, rewards: [{ id: next.disbursementId, asset: assetId }] })
+      const sponsorHeld = await balance(sponsor)
+      const creatorHeld = await balance(creator)
+      await sdk.closeDisbursement({ sender: creator.addr, signer: creator.signer, id: next.disbursementId })
+      expect((await balance(sponsor)) - sponsorHeld).toBe(exact + PAYER_RECORD_MBR)
+      expect(await balance(creator)).toBeLessThan(creatorHeld)
+    })
+
+    test('a draft funded by another account: that account tops it up, and credits and storage return to it', async () => {
+      const creator = await fixture.context.generateAccount({ initialFunds: (10).algos() })
+      const sponsor = await fixture.context.generateAccount({ initialFunds: (10).algos() })
+      const balance = async (account: TransactionSignerAccount) => (await algorand.account.getInformation(account.addr)).balance.microAlgo
+      const pay = (payer: TransactionSignerAccount, amount: bigint) => algorand.createTransaction.payment({
+        sender: payer.addr, receiver: sdk.client.appAddress, amount: algokit.microAlgo(amount),
+      })
+      const mbr = await sdk.mbr({ title: 'paid for', note: '' })
+      const credits = mbr.userAllocations * 2n
+      const create = async (amount: bigint) => sdk.client.send.createDisbursementPayStringUint64Uint64StringUint64({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: {
+          mbrPayment: { txn: await pay(sponsor, amount), signer: sponsor.signer },
+          title: 'paid for', timeToUnlock: 0n, expiration: (await getCurrentTimestamp()) + 86_400n, note: '',
+        },
+      })
+
+      // the storage alone is not enough from another payer: it also funds its payer record
+      await expect(create(mbr.disbursements + PAYER_RECORD_MBR - 1n)).rejects.toThrow()
+      const sponsorStart = await balance(sponsor)
+      const { return: id } = await create(mbr.disbursements + PAYER_RECORD_MBR + credits)
+      expect((await getMbrCredits(id!)).available).toBe(credits)
+
+      // top-ups come from the account that funded the disbursement, whoever created it
+      const fund = async (payer: TransactionSignerAccount) => (sdk.client.send as any).fundMbrCredits({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: { id, payment: { txn: await pay(payer, mbr.userAllocations), signer: payer.signer } },
+      })
+      await expect(fund(creator)).rejects.toThrow(errPayerOnly)
+      await fund(sponsor)
+      expect((await getMbrCredits(id!)).available).toBe(credits + mbr.userAllocations)
+
+      // the creator withdraws credit and closes the draft; all of it goes to the account that paid
+      const creatorHeld = await balance(creator)
+      await sdk.withdrawMbrCredits({ sender: creator.addr, signer: creator.signer, id: id!, amount: mbr.userAllocations })
+      await sdk.closeDisbursement({ sender: creator.addr, signer: creator.signer, id: id! })
+      // the sponsor is out the network fees of its two payments only
+      expect(sponsorStart - (await balance(sponsor))).toBe(2_000n)
+      expect(await balance(creator)).toBeLessThan(creatorHeld)
+      await expect(sdk.getDisbursement({ id: id! })).rejects.toThrow()
+    })
+
+    test('a sweep returns storage to the account that paid it and the rewards to the reclaim target', async () => {
+      const creator = await fixture.context.generateAccount({ initialFunds: (10).algos() })
+      const sponsor = await fixture.context.generateAccount({ initialFunds: (10).algos() })
+      const user = await fixture.context.generateAccount({ initialFunds: (1).algos() })
+      const reclaimTo = await fixture.context.generateAccount({ initialFunds: (1).algos() })
+      const keeper = await fixture.context.generateAccount({ initialFunds: (1).algos() })
+      const balance = async (account: TransactionSignerAccount) => (await algorand.account.getInformation(account.addr)).balance.microAlgo
+      const mbr = await sdk.mbr({ title: '', note: '' })
+      const storage = mbr.disbursements + mbr.userAllocations
+      const amount = 2_000_000n
+
+      const { return: id } = await sdk.client.send.createInstantDisbursementPayUint64Uint64AddressUint64AddressUint64({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: {
+          mbrPayment: {
+            txn: await algorand.createTransaction.payment({
+              sender: sponsor.addr, receiver: sdk.client.appAddress, amount: algokit.microAlgo(storage + amount + PAYER_RECORD_MBR),
+            }),
+            signer: sponsor.signer,
+          },
+          timeToUnlock: 0n,
+          expiration: (await getCurrentTimestamp()) + 120n,
+          allocations: [[user.addr.toString(), amount]],
+          reclaimTo: reclaimTo.addr.toString(),
+        },
+      })
+
+      await timeWarp.timeWarp(180n)
+      const sponsorHeld = await balance(sponsor)
+      const targetHeld = await balance(reclaimTo)
+      const creatorHeld = await balance(creator)
+      await sdk.sweepExpired({ sender: keeper.addr, signer: keeper.signer, id: id! })
+      expect((await balance(reclaimTo)) - targetHeld).toBe(amount)
+      expect((await balance(sponsor)) - sponsorHeld).toBe(storage + PAYER_RECORD_MBR)
+      expect(await balance(creator)).toBe(creatorHeld)
+      await expect(sdk.getDisbursement({ id: id! })).rejects.toThrow('not found')
     })
 
     test('H-3: repeated addresses top up one allocation instead of failing', async () => {

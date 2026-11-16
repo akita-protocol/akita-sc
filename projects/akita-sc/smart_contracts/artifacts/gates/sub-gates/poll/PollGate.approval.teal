@@ -266,7 +266,7 @@ check_after_assert@3:
     // const { poll } = getOtherAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:127
+    // smart_contracts/utils/functions.ts:221
     // const [otherAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysOtherAppList))
     pushbytes "oal"
     app_global_get_ex

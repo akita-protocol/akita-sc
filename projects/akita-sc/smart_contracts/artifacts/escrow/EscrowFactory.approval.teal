@@ -159,73 +159,61 @@ new:
 
 new_ternary_merge@10:
     // smart_contracts/escrow/factory.algo.ts:55
-    // assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, childAppMBR + Global.minBalance)
-    txn Sender
+    // assertExactPayment(payment, Global.currentApplicationAddress, childAppMBR + Global.minBalance)
     global CurrentApplicationAddress
-    cover 4
+    cover 3
     intc 4 // 150000
     global MinBalance
     +
-    cover 3
-    // smart_contracts/utils/functions.ts:62
-    // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
-    dig 2
-    gtxns Sender
-    ==
-    bnz new_after_assert@14
-    pushbytes "ERR:errIpms"
-    log
-    err // ERR:errIpms
-
-new_after_assert@14:
-    // smart_contracts/utils/functions.ts:63
+    cover 2
+    // smart_contracts/utils/functions.ts:68
     // loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
     dig 1
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    bnz new_after_assert@16
+    bnz new_after_assert@14
     pushbytes "ERR:errNcls"
     log
     err // ERR:errNcls
 
-new_after_assert@16:
-    // smart_contracts/utils/functions.ts:64
+new_after_assert@14:
+    // smart_contracts/utils/functions.ts:69
     // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
     dig 1
     gtxns RekeyTo
     global ZeroAddress
     ==
-    bnz new_after_assert@18
+    bnz new_after_assert@16
     pushbytes "ERR:errNrky"
     log
     err // ERR:errNrky
 
-new_after_assert@18:
-    // smart_contracts/utils/functions.ts:73
+new_after_assert@16:
+    // smart_contracts/utils/functions.ts:78
     // loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
     dig 1
     gtxns Receiver
     uncover 5
     ==
-    bnz new_after_assert@20
+    bnz new_after_assert@18
     pushbytes "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
-new_after_assert@20:
-    // smart_contracts/utils/functions.ts:74
+new_after_assert@18:
+    // smart_contracts/utils/functions.ts:79
     // loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
     swap
     gtxns Amount
     uncover 2
     ==
-    bnz new_after_assert@22
+    bnz new_after_assert@20
     pushbytes "ERR:errIpma"
     log
     err // ERR:errIpma
 
-new_after_assert@22:
+new_after_assert@20:
     // smart_contracts/escrow/factory.algo.ts:57-61
     // const newEscrow = escrow.call.create(
     //   {

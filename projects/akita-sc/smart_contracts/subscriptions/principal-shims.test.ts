@@ -80,9 +80,11 @@ describe('Subscriptions principal-resolution ABI (P2-ABI-01, §6.4)', () => {
     expect(subscriptions.methods.filter((m) => m.name === 'triggerPayment').map(signature)).toEqual(['triggerPayment((address,uint64))void'])
   })
 
-  test('the approval program fits the 4 extra pages the LocalNet fixture and deploy scripts allot', () => {
+  test('the approval program fits the 5 extra pages the LocalNet fixture allots', () => {
+    // The payer records of 2026-11-15 took Subscriptions past 10,240 bytes. A sixth page is the plan:
+    // the fixture creates it with 5 extra pages, and the rollout grows the MainNet app to match.
     const size = approval(subscriptions.byteCode!.approval).length + approval(subscriptions.byteCode!.clear).length
-    expect(size).toBeLessThanOrEqual(5 * 2048)
+    expect(size).toBeLessThanOrEqual(6 * 2048)
   })
 })
 

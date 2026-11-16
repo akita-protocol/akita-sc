@@ -11,11 +11,11 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { AcctParams, Global, Txn } from '@algorandfoundation/algorand-typescript/op'
+import { Global, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { GlobalStateKeyFunder } from '../constants'
 import { errHasGate } from '../social/errors'
 import { AkitaBaseContract } from '../utils/base-contracts/upgradeable'
-import { assertSafePayment, gateCheck, getUserImpact } from '../utils/functions'
+import { assertPlainPayment, canReceiveAlgo, gateCheck, getUserImpact, recordPayer, releaseDeposit, sponsorCost } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import {
   PollGlobalStateKeyBoxCount,
@@ -74,7 +74,7 @@ export class Poll extends AkitaBaseContract {
   maxSelected = GlobalState<uint64>({ key: PollGlobalStateKeyMaxSelected })
   /** the number of boxes created during the poll */
   boxCount = GlobalState<uint64>({ key: PollGlobalStateKeyBoxCount })
-  /** the creator-side MBR funder to refund after the poll is deleted */
+  /** the poll's creator and its creation deposit; the factory refunds the deposit to whoever paid it */
   funder = GlobalState<FunderInfo>({ key: GlobalStateKeyFunder })
   /** the question being asked */
   question = GlobalState<string>({ key: PollGlobalStateKeyQuestion })
@@ -211,10 +211,12 @@ export class Poll extends AkitaBaseContract {
   /**
    * Remove vote boxes after the poll has ended and return each voter's deposit.
    *
-   * Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+   * Only the poll's creator may do this: the account that called the factory's `new`, which the
+   * factory records as `funder.account` whoever paid for the poll (AUD-C24). The vote boxes are what
    * `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
    * voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
-   * C17). Deposits always go back to the voters, never to the caller.
+   * C17). Each deposit goes back to whoever paid it, the voter unless someone else funded the vote,
+   * and never to the caller.
    */
   deleteBoxes(addresses: Account[]): void {
     loggedAssert(Global.latestTimestamp > this.endTime.value, errPollActive)
@@ -224,16 +226,16 @@ export class Poll extends AkitaBaseContract {
 
       loggedAssert(this.votes(addresses[i]).exists, errNotVoted)
       this.votes(addresses[i]).delete()
+      const [receiver, amount] = releaseDeposit(this.votes(addresses[i]).key, addresses[i], votesMBR)
 
       // A closed (empty) account cannot receive a payment below the minimum balance. Its deposit stays
       // here and leaves with the rest of the account when the poll is deleted, so a voter who closed
       // their account never blocks the cleanup or the delete.
-      const [balance] = AcctParams.acctBalance(addresses[i])
-      if (balance > 0) {
+      if (canReceiveAlgo(receiver, amount)) {
         itxn
           .payment({
-            receiver: addresses[i],
-            amount: votesMBR,
+            receiver,
+            amount,
             note: 'MBR refund for poll vote',
           })
           .submit()
@@ -266,12 +268,14 @@ export class Poll extends AkitaBaseContract {
     loggedAssert(!this.votes(Txn.sender).exists, errAlreadyVoted)
     loggedAssert(votes.length <= 5 && votes.length >= 1, errInvalidVote)
     loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), errFailedGate)
-    // the voter funds its own vote box, so the refund in `deleteBoxes` reaches the payer
-    assertSafePayment(mbrPayment, Txn.sender)
+    // anyone may fund the vote box; a payer other than the voter is remembered (and funds that
+    // record), so the refund in `deleteBoxes` goes back to whoever paid
+    assertPlainPayment(mbrPayment)
     loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(mbrPayment.amount === votesMBR, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === votesMBR + sponsorCost(mbrPayment.sender, Txn.sender), errInvalidPayment)
 
     this.createVote(votes)
+    recordPayer(this.votes(Txn.sender).key, mbrPayment.sender, Txn.sender)
   }
 
   vote(mbrPayment: gtxn.PaymentTxn, votes: uint64[]): void {
@@ -279,12 +283,14 @@ export class Poll extends AkitaBaseContract {
     loggedAssert(!this.votes(Txn.sender).exists, errAlreadyVoted)
     loggedAssert(votes.length <= 5 && votes.length >= 1, errInvalidVote)
     loggedAssert(this.gateID.value === 0, errHasGate)
-    // the voter funds its own vote box, so the refund in `deleteBoxes` reaches the payer
-    assertSafePayment(mbrPayment, Txn.sender)
+    // anyone may fund the vote box; a payer other than the voter is remembered (and funds that
+    // record), so the refund in `deleteBoxes` goes back to whoever paid
+    assertPlainPayment(mbrPayment)
     loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(mbrPayment.amount === votesMBR, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === votesMBR + sponsorCost(mbrPayment.sender, Txn.sender), errInvalidPayment)
 
     this.createVote(votes)
+    recordPayer(this.votes(Txn.sender).key, mbrPayment.sender, Txn.sender)
   }
 
   @abimethod({ readonly: true })

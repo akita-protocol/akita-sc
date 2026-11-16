@@ -38,7 +38,6 @@ import {
   GuildVoteAbstain,
   GuildVoteApprove,
   GuildVoteReject,
-  MAX_GUILD_PROPOSAL_FEE,
   MAX_GUILD_PROPOSAL_POWER,
   MAX_GUILD_VOTING_DURATION,
 } from '../core/constants'
@@ -118,12 +117,18 @@ export class GuildConsensusBase extends Contract {
     return decodeArc4<GuildProposalSettings>(encoded)
   }
 
-  /** Pure policy validation also works before binding, while the factory creates the Guild. */
+  /**
+   * Pure policy validation also works before binding, while the factory creates the Guild.
+   *
+   * `fee` has no ceiling below uint64: it is counted in base units of whatever the Guild charges in, so
+   * one number cannot bound ALGO and every asset alike. A Guild that sets a fee nobody can pay closes
+   * that class of proposal to itself.
+   */
   @abimethod({ readonly: true })
   validateSettings(settings: GuildProposalSettings): void {
     loggedAssert(
       settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
-      settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+      settings.power <= MAX_GUILD_PROPOSAL_POWER &&
       settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
       (settings.approval > 0 || settings.minimumApprovals > 0),
       errGuildInvalidSettings,

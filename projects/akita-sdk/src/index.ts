@@ -1,5 +1,6 @@
 export * from './types';
 export * from './errors';
+export { PAYER_RECORD_MBR } from './constants';
 
 // Configuration utilities for environment and network-based app ID resolution
 export {

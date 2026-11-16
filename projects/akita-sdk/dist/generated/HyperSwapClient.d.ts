@@ -140,7 +140,7 @@ export type HyperSwapArgs = {
         };
         'escrow(pay,uint64,address,uint64,byte[32][])void': {
             /**
-             * the leaf's ALGO principal plus the hash MBR, sent by the participant
+             * the leaf's ALGO principal plus the hash MBR, from any payer
              */
             payment: AppMethodCallTransactionArgument;
             /**

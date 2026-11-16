@@ -124,7 +124,6 @@ export class GuildFactory extends GuildProgramRegistry {
     const walletFactory = Application(getAkitaAppList(this.akitaDAO.value).wallet)
     loggedAssert(walletFactory.id > 0, errGuildFactoryInvalidConfig)
     loggedAssert(match(payment, {
-      sender: Txn.sender,
       receiver: Global.currentApplicationAddress,
       amount: this.guildMbr() + consensusCost + createFee,
     }), errGuildFactoryInvalidPayment)

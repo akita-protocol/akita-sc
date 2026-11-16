@@ -308,6 +308,20 @@ export class GuildPlugin extends Contract {
     })
   }
 
+  /** Charge the draft Guild's proposal fees in `asset` (0 = ALGO), paying the opt-ins it needs. */
+  setFeeAsset(wallet: Application, rekeyBack: boolean, guild: Application, asset: uint64, maxCost: uint64): void {
+    this.requireGuild(guild)
+    const sender = getControlledSpendingAccount(wallet)
+    const cost = abiCall<typeof Guild.prototype.feeAssetCost>({ sender, appId: guild, args: [asset] }).returnValue
+    this.requireWithinQuote(cost, maxCost)
+    abiCall<typeof Guild.prototype.setFeeAsset>({
+      sender,
+      appId: guild,
+      args: [itxn.payment({ sender, receiver: guild.address, amount: cost }), asset],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
   lockPluginSet(wallet: Application, rekeyBack: boolean, guild: Application): void {
     this.requireGuild(guild)
     const sender = getControlledSpendingAccount(wallet)
@@ -374,6 +388,111 @@ export class GuildPlugin extends Contract {
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     }).returnValue
     return proposalID
+  }
+
+  /**
+   * Propose to a Guild that charges its fee in `feeAsset`: `maxCost` bounds the ALGO storage payment and
+   * `maxFee` the fee paid in `feeAsset`. A Guild whose fee asset changed since the quote fails the call.
+   */
+  newProposalWithFeeAsset(
+    wallet: Application,
+    rekeyBack: boolean,
+    guild: Application,
+    cid: CID,
+    actions: GuildProposalAction[],
+    evidence: bytes,
+    maxCost: uint64,
+    feeAsset: uint64,
+    maxFee: uint64,
+  ): uint64 {
+    this.requireGuild(guild)
+    const sender = getControlledSpendingAccount(wallet)
+    const cost = abiCall<typeof Guild.prototype.proposalCost>({
+      sender,
+      appId: guild,
+      args: [actions],
+    }).returnValue
+    loggedAssert(cost.feeAsset === feeAsset, errGuildCostLimitExceeded)
+    this.requireWithinQuote(cost.total, maxCost)
+    this.requireWithinQuote(cost.fee, maxFee)
+
+    return abiCall<typeof Guild.prototype.newProposalWithFeeAsset>({
+      sender,
+      appId: guild,
+      args: [
+        itxn.payment({ sender, receiver: guild.address, amount: cost.total }),
+        itxn.assetTransfer({ sender, assetReceiver: guild.address, xferAsset: feeAsset, assetAmount: cost.fee }),
+        cid,
+        actions,
+        evidence,
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    }).returnValue
+  }
+
+  /**
+   * Edit a draft in a Guild that charges its fee in `feeAsset`, paying whatever ALGO (bounded by `maxCost`)
+   * and fee tokens (bounded by `maxFee`) the new actions need beyond what the draft already paid.
+   */
+  editProposalWithFeeAsset(
+    wallet: Application,
+    rekeyBack: boolean,
+    guild: Application,
+    proposalID: uint64,
+    cid: CID,
+    actions: GuildProposalAction[],
+    evidence: bytes,
+    maxCost: uint64,
+    feeAsset: uint64,
+    maxFee: uint64,
+  ): void {
+    this.requireGuild(guild)
+    const sender = getControlledSpendingAccount(wallet)
+    const proposal = abiCall<typeof Guild.prototype.getProposal>({
+      sender,
+      appId: guild,
+      args: [proposalID],
+    }).returnValue
+    const cost = abiCall<typeof Guild.prototype.proposalCost>({
+      sender,
+      appId: guild,
+      args: [actions],
+    }).returnValue
+    loggedAssert(cost.feeAsset === feeAsset, errGuildCostLimitExceeded)
+    const algoTopUp: uint64 = cost.total > proposal.feesPaid ? cost.total - proposal.feesPaid : 0
+    const tokenTopUp: uint64 = feeAsset !== 0 && cost.fee > proposal.feeTokensPaid ? cost.fee - proposal.feeTokensPaid : 0
+    this.requireWithinQuote(algoTopUp, maxCost)
+    this.requireWithinQuote(tokenTopUp, maxFee)
+
+    if (tokenTopUp > 0) {
+      abiCall<typeof Guild.prototype.editProposalWithFeeAsset>({
+        sender,
+        appId: guild,
+        args: [
+          itxn.payment({ sender, receiver: guild.address, amount: algoTopUp }),
+          itxn.assetTransfer({ sender, assetReceiver: guild.address, xferAsset: feeAsset, assetAmount: tokenTopUp }),
+          proposalID,
+          cid,
+          actions,
+          evidence,
+        ],
+        rekeyTo: rekeyAddress(rekeyBack, wallet),
+      })
+    } else if (algoTopUp > 0) {
+      abiCall<typeof Guild.prototype.editProposalWithPayment>({
+        sender,
+        appId: guild,
+        args: [itxn.payment({ sender, receiver: guild.address, amount: algoTopUp }), proposalID, cid, actions, evidence],
+        rekeyTo: rekeyAddress(rekeyBack, wallet),
+      })
+    } else {
+      abiCall<typeof Guild.prototype.editProposal>({
+        sender,
+        appId: guild,
+        args: [proposalID, cid, actions, evidence],
+        rekeyTo: rekeyAddress(rekeyBack, wallet),
+      })
+    }
   }
 
   editProposal(

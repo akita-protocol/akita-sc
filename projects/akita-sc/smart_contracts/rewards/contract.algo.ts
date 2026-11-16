@@ -47,7 +47,11 @@ import {
   errReclaimTargetNotOptedIn,
 } from './errors'
 import { BoxCostPerByte } from '../utils/constants'
-import { assertBoundAssetTransfer, assertBoundPayment, assertSafePayment } from '../utils/functions'
+import { errPayerOnly } from '../utils/errors'
+import {
+  assertBoundAssetTransfer, assertBoundPayment, assertExactPayment, assertPlainPayment, canReceiveAlgo, payerOf,
+  recordPayer, releaseDeposit, sponsorCost,
+} from '../utils/functions'
 import {
   AllocationReclaimDetails,
   ClaimDetails,
@@ -95,6 +99,17 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
 
   private addMbrCredit(id: uint64, amount: uint64): void {
     this.disbursements(id).value.mbrCredits += amount
+  }
+
+  /**
+   * Remembers who funds disbursement `id` when it is not the creator (the caller). That payer funds
+   * the disbursement's storage and MBR credits from then on, and they return to it. Reward amounts
+   * stay the creator's.
+   * @returns what the payer adds to its payment for being remembered (0 for the creator)
+   */
+  private sponsor(id: uint64, payer: Account): uint64 {
+    recordPayer(this.disbursements(id).key, payer, Txn.sender)
+    return sponsorCost(payer, Txn.sender)
   }
 
   private useMbrCredit(id: uint64, amount: uint64): void {
@@ -239,10 +254,11 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     const costs = this.mbr(title, note)
     const mbrAmount = costs.disbursements
 
-    // Any surplus becomes creator-withdrawable MBR credit, so the creator must be the payer.
-    assertSafePayment(mbrPayment, Txn.sender)
+    // Anyone may fund the storage. Any surplus becomes MBR credit, which returns to whoever paid.
+    const sponsor = this.sponsor(id, mbrPayment.sender)
+    assertPlainPayment(mbrPayment)
     loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(mbrPayment.amount >= mbrAmount, errInvalidPayment)
+    loggedAssert(mbrPayment.amount >= mbrAmount + sponsor, errInvalidPayment)
 
     this.disbursements(id).value = {
       creator: Txn.sender,
@@ -253,7 +269,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       expiration,
       allocations: 0,
       distributed: 0,
-      mbrCredits: mbrPayment.amount - mbrAmount,
+      mbrCredits: mbrPayment.amount - mbrAmount - sponsor,
       reclaimTo,
       note,
     }
@@ -274,8 +290,9 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   fundMbrCredits(id: uint64, payment: gtxn.PaymentTxn): void {
     loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     loggedAssert(this.disbursements(id).value.creator === Txn.sender, errYouAreNotTheCreator)
-    // Credits are withdrawable by the creator, so only the creator may fund them.
-    assertSafePayment(payment, Txn.sender)
+    // Credits return to whoever funded the disbursement, so that account is the one that adds to them.
+    loggedAssert(payment.sender === payerOf(this.disbursements(id).key, Txn.sender), errPayerOnly)
+    assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(payment.amount > 0, errInvalidPayment)
 
@@ -289,8 +306,10 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     loggedAssert(this.disbursements(id).value.mbrCredits >= amount, errInvalidMbrAmount)
     this.disbursements(id).value.mbrCredits -= amount
 
+    // credits go back to whoever funded the disbursement (the creator, unless someone else paid)
+    const payer = payerOf(this.disbursements(id).key, Txn.sender)
     itxn.payment({
-      receiver: Txn.sender,
+      receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender,
       amount,
     }).submit()
   }
@@ -402,8 +421,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
 
   /**
    * Creates and finalizes a multi-ASA disbursement funded by the `allocations.length + 1`
-   * transactions immediately before this call: one exact MBR payment, then one asset transfer
-   * per allocation, all from the caller.
+   * transactions immediately before this call: one exact MBR payment from any payer, then one asset
+   * transfer per allocation from the caller.
    *
    * The index arguments are kept for ABI compatibility and must equal those positions. Binding
    * the funding to the slots directly before the call means no other call in the group (this
@@ -435,7 +454,11 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     const allocationMbrAmount: uint64 = costs.userAllocations * count
 
     // exact: no surplus may turn into withdrawable credit
-    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, disbursementMbrAmount + allocationMbrAmount)
+    assertExactPayment(
+      payment,
+      Global.currentApplicationAddress,
+      disbursementMbrAmount + allocationMbrAmount + this.sponsor(id, payment.sender)
+    )
 
     this.disbursements(id).value = {
       creator: Txn.sender,
@@ -492,8 +515,10 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
 
   /**
    * Instant ALGO disbursement. The payment must be exactly the disbursement MBR, one allocation
-   * MBR per entry, and the allocation sum, from the caller. Repeated addresses are summed and zero amounts are skipped; the MBR of boxes not created
-   * stays as creator-withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
+   * MBR per entry, and the allocation sum, from any payer (a payer other than the caller adds
+   * `PayerRecordMBR` and gets the storage back; the reward amounts stay the caller's). Repeated
+   * addresses are summed and zero amounts are skipped; the MBR of boxes not created stays as
+   * withdrawable credit. After `expiration`, anyone may sweep what is unclaimed to
    * a non-zero `reclaimTo` (`sweepExpired`).
    */
   createInstantDisbursement(
@@ -504,7 +529,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     reclaimTo: Account
   ): uint64 {
     const { id, sum, mbrAmount } = this.newInstantDisbursement(0, timeToUnlock, expiration, allocations, reclaimTo)
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount + sum)
+    assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + sum + this.sponsor(id, mbrPayment.sender))
     return id
   }
 
@@ -520,7 +545,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     allocations: UserAllocation[]
   ): uint64 {
     const { id, sum, mbrAmount } = this.newInstantDisbursement(0, timeToUnlock, expiration, allocations, Global.zeroAddress)
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount + sum)
+    assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + sum + this.sponsor(id, mbrPayment.sender))
     return id
   }
 
@@ -534,7 +559,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     reclaimTo: Account
   ): uint64 {
     const { id, sum, mbrAmount } = this.newInstantDisbursement(assetXfer.xferAsset.id, timeToUnlock, expiration, allocations, reclaimTo)
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount)
+    assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + this.sponsor(id, mbrPayment.sender))
     this.assertInboundAssetTransfer(assetXfer, sum)
     return id
   }
@@ -549,7 +574,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     allocations: UserAllocation[]
   ): uint64 {
     const { id, sum, mbrAmount } = this.newInstantDisbursement(assetXfer.xferAsset.id, timeToUnlock, expiration, allocations, Global.zeroAddress)
-    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount)
+    assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + this.sponsor(id, mbrPayment.sender))
     this.assertInboundAssetTransfer(assetXfer, sum)
     return id
   }
@@ -660,7 +685,10 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     loggedAssert(finalized, errDisbursementNotFinal)
     loggedAssert(expiration !== 0 && expiration < Global.latestTimestamp, errDisbursementNotExpired)
 
+    // Reward amounts go to the reclaim target. Storage goes back to whoever funded the disbursement:
+    // a recorded payer, or the reclaim target when the creator paid for it themselves.
     let algoAmount: uint64 = 0
+    let storage: uint64 = 0
     for (let i: uint64 = 0; i < reclaims.length; i += 1) {
       const userAllocationsKey: UserAllocationsKey = {
         disbursementID: id,
@@ -672,7 +700,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
         this.disbursements(id).value.allocations -= 1
         this.disbursements(id).value.amount -= userAllocation
         this.userAllocations(userAllocationsKey).delete()
-        algoAmount += UserAllocationMBR
+        storage += UserAllocationMBR
 
         if (reclaims[i].asset === 0) {
           algoAmount += userAllocation
@@ -687,8 +715,18 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       }
     }
 
+    const record = this.disbursements(id).key
+    let funder = payerOf(record, reclaimTo)
     if (this.disbursements(id).value.allocations === 0) {
-      algoAmount += this.deleteDisbursement(id)
+      const released: uint64 = storage + this.deleteDisbursement(id)
+      const [receiver, total] = releaseDeposit(record, reclaimTo, released)
+      funder = receiver
+      storage = total
+    }
+    if (funder === reclaimTo || !canReceiveAlgo(funder, storage)) {
+      algoAmount += storage
+    } else if (storage > 0) {
+      itxn.payment({ receiver: funder, amount: storage }).submit()
     }
 
     if (algoAmount > 0) {
@@ -699,7 +737,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   /**
    * Deletes a disbursement with no outstanding allocations (never-used drafts, or finalized
    * disbursements fully claimed/reclaimed) and refunds its box MBR and any remaining MBR credits to
-   * the creator.
+   * whoever funded it (the creator, unless someone else paid).
    */
   closeDisbursement(id: uint64): void {
     loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
@@ -707,7 +745,9 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     loggedAssert(creator === Txn.sender, errYouAreNotTheCreator)
     loggedAssert(allocations === 0, errDisbursementNotEmpty)
 
-    itxn.payment({ receiver: creator, amount: this.deleteDisbursement(id) }).submit()
+    const released = this.deleteDisbursement(id)
+    const [receiver, amount] = releaseDeposit(this.disbursements(id).key, creator, released)
+    itxn.payment({ receiver, amount }).submit()
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------

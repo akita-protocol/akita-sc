@@ -79,6 +79,10 @@ export const SUBSCRIPTION_ACTION = {
 export const LOCKED_TOKEN_ACTION = { SetMinimumApprovals: 1 } as const
 
 export const VOTE_MBR = 22_500n
+/** Storage of an empty proposal box (`MinGuildProposalMBR`). */
+export const PROPOSAL_MBR = 76_900n
+/** What a payer who is not the record's owner adds to a storage deposit (`PayerRecordMBR`). */
+export const PAYER_RECORD_MBR = 28_500n
 export const BALLOT_MBR = 35_300n
 export const FIXED_SIGNER_SNAPSHOT_MBR = 9_700n
 export const FIXED_SIGNER_MEMBER_MBR = 25_300n
@@ -275,6 +279,9 @@ export const addPluginAction = (
   escrow: string,
   settings = proposalSettings(),
   useExecutionKey = true,
+  coverFees = false,
+  defaultToEscrow = false,
+  delegationType = 0,
 ): GuildAction =>
   action(
     ACTION_ADD_PLUGIN,
@@ -284,14 +291,14 @@ export const addPluginAction = (
         plugin,
         caller,
         escrow,
-        0,
+        delegationType,
         18_446_744_073_709_551_615n,
         0n,
         [],
         false,
         useExecutionKey,
-        false,
-        false,
+        coverFees,
+        defaultToEscrow,
         settings.fee,
         settings.power,
         settings.duration,
@@ -414,16 +421,18 @@ const uploadProgram = async (
   sender: AddressWithTransactionSigner,
   programName: string,
   program: Uint8Array,
-) => uploadGuildProgram(algorand, client, sender.addr, sender.signer, programName, program)
+  payer = sender,
+) => uploadGuildProgram(algorand, client, sender.addr, sender.signer, programName, program, payer)
 
 export const uploadConsensusProgram = async (
   environment: GuildTestEnvironment,
   consensusName: string,
   program: Uint8Array,
   sender = environment.creator,
+  payer = sender,
 ) => {
   const client = environment.consensusFactory.clone({ defaultSender: sender.addr, defaultSigner: sender.signer })
-  await uploadProgram(environment.algorand, client, sender, consensusName, program)
+  await uploadProgram(environment.algorand, client, sender, consensusName, program, payer)
 }
 
 const deployConsensusHost = async (environment: GuildTestEnvironment, program: Uint8Array) => {
@@ -618,12 +627,13 @@ export const mintGuild = async (
   settings = proposalSettings(),
   sender = environment.creator,
   config = baseConfig(settings),
+  payer = sender,
 ) => {
   const { algorand } = environment
   const factory = environment.factory.clone({ defaultSender: sender.addr, defaultSigner: sender.signer })
   const payment = await algorand.createTransaction.payment({
-    sender: sender.addr,
-    signer: sender.signer,
+    sender: payer.addr,
+    signer: payer.signer,
     receiver: factory.appAddress,
     amount: microAlgo(await factory.cost({ args: { consensusName }, staticFee: MAX_APP_CALL_FEE })),
   })
@@ -633,7 +643,8 @@ export const mintGuild = async (
     .opUp({ args: {}, maxFee: MAX_APP_CALL_FEE })
     .newGuild({
       args: {
-        payment,
+        // signed by the payer, who need not be the sender of the call
+        payment: { txn: payment, signer: payer.signer },
         consensusName,
         baseConfig: config,
         governanceConfig,
@@ -756,18 +767,20 @@ export const createProposal = async (
   actions: GuildAction[],
   evidence = EMPTY_EVIDENCE,
   proposer = environment.creator,
+  payer = proposer,
 ) => {
   const proposerGuild = guild.clone({ defaultSender: proposer.addr, defaultSigner: proposer.signer })
   const cost = await proposalCostOf(proposerGuild, actions)
   const payment = await environment.algorand.createTransaction.payment({
-    sender: proposer.addr,
-    signer: proposer.signer,
+    sender: payer.addr,
+    signer: payer.signer,
     receiver: guild.appAddress,
     amount: microAlgo(cost.total),
   })
   const created = await withOpUps(proposerGuild, 'proposal-create')
     .newProposal({
-      args: { payment, cid: ZERO_CID, actions, evidence },
+      // signed by the payer, who need not be the proposer
+      args: { payment: { txn: payment, signer: payer.signer }, cid: ZERO_CID, actions, evidence },
       maxFee: MAX_APP_CALL_FEE,
     })
     .send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
@@ -829,21 +842,25 @@ export const vote = async (
   proposalId: bigint,
   choice: number,
   evidence = EMPTY_EVIDENCE,
+  payer = voter,
 ) => {
   const voterGuild = guild.clone({ defaultSender: voter.addr, defaultSigner: voter.signer })
-  // a first vote funds its receipt; changing a vote pays nothing
+  // a first vote funds its receipt; changing a vote pays nothing. A payer other than the voter adds
+  // the storage of the record that remembers them.
   const cost = await guild.voteCost({ args: { proposalId, voter: voter.addr.toString() }, staticFee: MAX_APP_CALL_FEE })
+  const sponsored = cost > 0n && payer.addr.toString() !== voter.addr.toString()
   const payment = await environment.algorand.createTransaction.payment({
-    sender: voter.addr,
-    signer: voter.signer,
+    sender: payer.addr,
+    signer: payer.signer,
     receiver: guild.appAddress,
-    amount: microAlgo(cost),
+    amount: microAlgo(cost + (sponsored ? PAYER_RECORD_MBR : 0n)),
   })
   return voterGuild
     .newGroup()
     .opUp({ args: {}, maxFee: MAX_APP_CALL_FEE })
     .voteProposal({
-      args: { mbrPayment: payment, proposalId, vote: choice, evidence },
+      // signed by the payer, who need not be the voter
+      args: { mbrPayment: { txn: payment, signer: payer.signer }, proposalId, vote: choice, evidence },
       maxFee: MAX_APP_CALL_FEE,
     })
     .send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })

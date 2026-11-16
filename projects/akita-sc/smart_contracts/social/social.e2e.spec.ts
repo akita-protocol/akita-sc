@@ -1241,7 +1241,7 @@ import {
   DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_CREATION,
   DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_POWER,
 } from '../utils/defaults'
-import { errInvalidPaymentSender } from '../utils/errors'
+import { errInvalidPaymentAmount } from '../utils/errors'
 import { errAlreadyBlocked, errAlreadyReacted, errBanned, errHasGate, errHaventVoted, errInvalidModifier, errInvalidPayment, errNotSelfMeta } from './errors'
 
 // NOTE: These tests require buildAkitaUniverse which takes 5-10 minutes
@@ -2140,22 +2140,80 @@ describe('Full DAO Integration Tests', () => {
       await expect(user1Sdk.isBlocked({ user: user1.addr.toString(), blocked: target })).resolves.toBe(false)
     })
 
-    test('S-09: graph MBR payments must come from the caller', async () => {
+    test('S-09: anyone can pay a graph MBR, and the deposit returns to whoever paid it', async () => {
       const graph = user1Sdk.graphClient
-      const sponsored = await algorand.createTransaction.payment({
-        sender: user2.addr,
-        receiver: graph.appAddress,
-        amount: algokit.microAlgo(BLOCKS_MBR),
-      })
-
-      await expect(graph.send.block({
+      const target = moderator.addr.toString()
+      const PAYER_RECORD_MBR = 28_500n
+      const balance = async (address: string) => (await algorand.account.getInformation(address)).balance.microAlgos
+      const block = async (amount: bigint) => graph.send.block({
         sender: user1.addr,
         signer: user1.signer,
-        args: { mbrPayment: { txn: sponsored, signer: user2.signer }, address: moderator.addr.toString() },
+        args: {
+          mbrPayment: {
+            txn: await algorand.createTransaction.payment({ sender: user2.addr, receiver: graph.appAddress, amount: algokit.microAlgo(amount) }),
+            signer: user2.signer,
+          },
+          address: target,
+        },
         populateAppCallResources: true,
         coverAppCallInnerTransactionFees: true,
         maxFee: algokit.microAlgo(10_000),
-      })).rejects.toThrow(new RegExp(errInvalidPaymentSender))
+      })
+
+      // a payer other than the caller is remembered, so the block deposit alone is not enough
+      await expect(block(BLOCKS_MBR)).rejects.toThrow(new RegExp(errInvalidPaymentAmount))
+      await expect(user1Sdk.isBlocked({ user: user1.addr.toString(), blocked: target })).resolves.toBe(false)
+
+      const paidFrom = await balance(user2.addr.toString())
+      await block(BLOCKS_MBR + PAYER_RECORD_MBR)
+      await expect(user1Sdk.isBlocked({ user: user1.addr.toString(), blocked: target })).resolves.toBe(true)
+      expect(paidFrom - (await balance(user2.addr.toString()))).toBe(BLOCKS_MBR + PAYER_RECORD_MBR + 1_000n)
+
+      // the caller lifts the block; both deposits go back to the payer and nothing goes to the caller
+      const sponsorBefore = await balance(user2.addr.toString())
+      const callerBefore = await balance(user1.addr.toString())
+      await user1Sdk.unblock({ address: target })
+      expect((await balance(user2.addr.toString())) - sponsorBefore).toBe(BLOCKS_MBR + PAYER_RECORD_MBR)
+      expect(await balance(user1.addr.toString())).toBeLessThan(callerBefore)
+      await expect(user1Sdk.isBlocked({ user: user1.addr.toString(), blocked: target })).resolves.toBe(false)
+    })
+
+    test('S-09: anyone can pay a vote MBR, and un-voting returns the deposit to whoever paid it', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const social = user2Sdk.socialClient
+      const balance = async (address: string) => (await algorand.account.getInformation(address)).balance.microAlgos
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(62) })
+      const [fees, assets] = await Promise.all([user2Sdk.getSocialFees(), user2Sdk.getAkitaAssets()])
+      // user2 votes; the deployer pays the vote record's deposit, user2 pays the AKTA tip
+      const vote = async (amount: bigint) => social.newGroup().votePayAxferByteUint64BoolUint64Void({
+        sender: user2.addr,
+        signer: user2.signer,
+        maxFee: algokit.microAlgo(20_000),
+        args: {
+          mbrPayment: {
+            txn: await algorand.createTransaction.payment({ sender: deployer.addr, receiver: social.appAddress, amount: algokit.microAlgo(amount) }),
+            signer: deployer.signer,
+          },
+          tip: await algorand.createTransaction.assetTransfer({
+            sender: user2.addr, receiver: social.appAddress, assetId: assets.akta, amount: fees.reactFee,
+          }),
+          ref: postKey, type: RefType.Post, isUp: true, wallet: 0n,
+        },
+      }).send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      // a payer other than the voter is remembered, so the vote deposit alone is not enough
+      await expect(vote(VOTELIST_MBR)).rejects.toThrow()
+      const paidFrom = await balance(deployer.addr.toString())
+      await vote(VOTELIST_MBR + PAYER_RECORD_MBR)
+      expect(paidFrom - (await balance(deployer.addr.toString()))).toBe(VOTELIST_MBR + PAYER_RECORD_MBR + 1_000n)
+      expect((await daoSdk.getVote({ account: user2.addr.toString(), ref: postKey })).isUp).toBe(true)
+
+      // un-voting returns both deposits to the payer and nothing to the voter
+      const sponsorBefore = await balance(deployer.addr.toString())
+      const voterBefore = await balance(user2.addr.toString())
+      await user2Sdk.deleteVote({ ref: postKey })
+      expect((await balance(deployer.addr.toString())) - sponsorBefore).toBe(VOTELIST_MBR + PAYER_RECORD_MBR)
+      expect(await balance(user2.addr.toString())).toBeLessThan(voterBefore)
     })
 
     test("S-06: a vote records the voter's impact without spot AKTA holdings", async () => {
@@ -2581,23 +2639,71 @@ describe('Full DAO Integration Tests', () => {
       }
     })
 
-    test('S-09: a paywall MBR payment from another account is rejected', async () => {
+    test('S-09: anyone can pay a reaction MBR, and removing the reaction returns the record deposit to whoever paid it', async () => {
+      const PAYER_RECORD_MBR = 28_500n
+      const social = user2Sdk.socialClient
+      const balance = async (address: string) => (await algorand.account.getInformation(address)).balance.microAlgos
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(76) })
+      const nft = await createNft(user2)
+      const [fees, assets] = await Promise.all([user2Sdk.getSocialFees(), user2Sdk.getAkitaAssets()])
+      // user2 reacts; the deployer pays the storage, user2 pays the AKTA tip
+      const react = async (amount: bigint) => social.newGroup().reactPayAxferByteUint64Uint64Uint64Void({
+        sender: user2.addr,
+        signer: user2.signer,
+        maxFee: algokit.microAlgo(20_000),
+        args: {
+          mbrPayment: {
+            txn: await algorand.createTransaction.payment({ sender: deployer.addr, receiver: social.appAddress, amount: algokit.microAlgo(amount) }),
+            signer: deployer.signer,
+          },
+          tip: await algorand.createTransaction.assetTransfer({
+            sender: user2.addr, receiver: social.appAddress, assetId: assets.akta, amount: fees.reactFee,
+          }),
+          ref: postKey, type: RefType.Post, nft, wallet: 0n,
+        },
+      }).send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      // the first reaction with an NFT pays for the reaction record and for the counter box, which is
+      // never refunded; a payer other than the reactor also funds the record that remembers them
+      const storage = REACTION_RECORD_MBR + REACTIONS_MBR
+      await expect(react(storage)).rejects.toThrow()
+      const paidFrom = await balance(deployer.addr.toString())
+      await react(storage + PAYER_RECORD_MBR)
+      expect(paidFrom - (await balance(deployer.addr.toString()))).toBe(storage + PAYER_RECORD_MBR + 1_000n)
+      const { userReactedNfts } = await user2Sdk.getPostReactions({ ref: postKey, userAddress: user2.addr.toString() })
+      expect(userReactedNfts.has(nft)).toBe(true)
+
+      // removing the reaction returns the record deposit and the payer record to the payer, nothing to the reactor
+      const sponsorBefore = await balance(deployer.addr.toString())
+      const reactorBefore = await balance(user2.addr.toString())
+      await user2Sdk.deleteReaction({ ref: postKey, nft })
+      expect((await balance(deployer.addr.toString())) - sponsorBefore).toBe(REACTION_RECORD_MBR + PAYER_RECORD_MBR)
+      expect(await balance(user2.addr.toString())).toBeLessThan(reactorBefore)
+    })
+
+    test('S-09: anyone can pay a paywall MBR for the caller', async () => {
       const payWall = {
         userPayInfo: [[PayWallType.OneTimePayment, 0n, 1_000_000n]] as [number, bigint, bigint][],
         agentPayInfo: [],
       }
       const amount = MIN_PAYWALL_MBR + BOX_COST_PER_BYTE * PAYWALL_PAY_OPTION_SIZE
-      const sponsored = await algorand.createTransaction.payment({
-        sender: user2.addr,
-        receiver: daoSdk.socialClient.appAddress,
-        amount: algokit.microAlgo(amount),
-      })
-      await expect(daoSdk.socialClient.send.createPayWall({
+      const create = async (paid: bigint) => daoSdk.socialClient.send.createPayWall({
         sender: user1.addr,
         signer: user1.signer,
-        args: { mbrPayment: { txn: sponsored, signer: user2.signer }, payWall },
+        args: {
+          mbrPayment: {
+            txn: await algorand.createTransaction.payment({ sender: user2.addr, receiver: daoSdk.socialClient.appAddress, amount: algokit.microAlgo(paid) }),
+            signer: user2.signer,
+          },
+          payWall,
+        },
         populateAppCallResources: true,
-      })).rejects.toThrow(new RegExp(errInvalidPayment))
+      })
+
+      // paywall storage is never refunded, so no payer is remembered: the plain amount is exact
+      await expect(create(amount - 1n)).rejects.toThrow(new RegExp(errInvalidPayment))
+      const { return: payWallId } = await create(amount)
+      expect(payWallId).toBeGreaterThan(0n)
     })
 
     test('S-05: post, reply, a vote that materializes a ref, and react do not drain the app', async () => {

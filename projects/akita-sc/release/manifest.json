@@ -81,8 +81,8 @@
     "arc58/dao/AkitaDAO": {
       "name": "AkitaDAO",
       "approval": {
-        "bytes": 10421,
-        "sha256": "922e85bde21e9bc40f9b089725d734d6295009d1366e3b19f4b33ec624716938"
+        "bytes": 10765,
+        "sha256": "f41f054b5bcd9a97f6d43c1d641d1b54410a0aaf2155ee302380ce32a673af95"
       },
       "clear": {
         "bytes": 4,
@@ -117,8 +117,8 @@
     "arc58/guilds/consensus/GuildConsensusFactory": {
       "name": "GuildConsensusFactory",
       "approval": {
-        "bytes": 1407,
-        "sha256": "47721794817de52d851f2520131ba6d912d55ddfeca9fddc6e2b411e626ff8b0"
+        "bytes": 1399,
+        "sha256": "b98d7133bb77f6f211146561ec009255075cee5f1110c999a5b7cae5cbfd3f28"
       },
       "clear": {
         "bytes": 4,
@@ -129,8 +129,8 @@
     "arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus": {
       "name": "FixedSignerGuildConsensus",
       "approval": {
-        "bytes": 4898,
-        "sha256": "2c5a1d3a6c3b41ad93622a3e4c6e75900cd730828d037ea3cedba59a11bbdd01"
+        "bytes": 4886,
+        "sha256": "b3eb7137c9d5d059ac286a9441a221215ad145ec73add963dfcf3ab4ed961c43"
       },
       "clear": {
         "bytes": 4,
@@ -141,8 +141,8 @@
     "arc58/guilds/consensus/locked-token/LockedTokenGuildConsensus": {
       "name": "LockedTokenGuildConsensus",
       "approval": {
-        "bytes": 3294,
-        "sha256": "1ccff07fb56550c8e0a318ff8b5be3f3711d350b3d8deb0b5388f62b0a2f9836"
+        "bytes": 3282,
+        "sha256": "de9e08b638313a559ef58a82eff8dc6428e7a991f4644c619c2c0676da49111a"
       },
       "clear": {
         "bytes": 4,
@@ -153,8 +153,8 @@
     "arc58/guilds/consensus/subscriptions/SubscriptionGuildConsensus": {
       "name": "SubscriptionGuildConsensus",
       "approval": {
-        "bytes": 4699,
-        "sha256": "98e189618555720c16fca7aa8de98feda3f44576e06bf72afd50047497c5eb41"
+        "bytes": 4687,
+        "sha256": "083a805f9942d4a3b6b0ff40271c99a449dbbf0fce54d9c33834bd9975d0361a"
       },
       "clear": {
         "bytes": 4,
@@ -165,20 +165,20 @@
     "arc58/guilds/core/Guild": {
       "name": "Guild",
       "approval": {
-        "bytes": 10349,
-        "sha256": "493b6ba739faa43d764bb417d3eae5494fe103712584c11dbc789a92d45440db"
+        "bytes": 12534,
+        "sha256": "57228bc57e97a9758d9f5f401de1a1455a630a2742b8c8612676b46d94ed3aaa"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
       },
-      "extraPages": 5
+      "extraPages": 6
     },
     "arc58/guilds/factory/GuildFactory": {
       "name": "GuildFactory",
       "approval": {
-        "bytes": 2028,
-        "sha256": "712d9e01ed7592d6d00dabc0dc3d9d99940ffe7d944d3b078adc3e34ca4e0d2e"
+        "bytes": 2012,
+        "sha256": "4ebbbc17fcace5b4970bce36dd34b395803cc5f3cbee7d5242ca32f25a3d6429"
       },
       "clear": {
         "bytes": 4,
@@ -340,14 +340,14 @@
     "arc58/plugins/guild/GuildPlugin": {
       "name": "GuildPlugin",
       "approval": {
-        "bytes": 3993,
-        "sha256": "5ac40194be8d4e9ee4a4e6459500dfe190c2ab07c13930977b84f8401f1872a5"
+        "bytes": 5247,
+        "sha256": "c15ea7739b65eae10dac56af38a27173dc7233e7b1b914daa6ac7d84c3974b78"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
-      "extraPages": 1
+      "extraPages": 2
     },
     "arc58/plugins/haystack-router/HaystackRouterPlugin": {
       "name": "HaystackRouterPlugin",
@@ -656,8 +656,8 @@
     "arc58/social-claim/SocialClaim": {
       "name": "SocialClaim",
       "approval": {
-        "bytes": 2635,
-        "sha256": "378343edebeaa3f7ae04d12a8d8ec533408ffafe75ac1749aac4dc6502cb0381"
+        "bytes": 2765,
+        "sha256": "cf33f34716f38ae4bb5021ba161dcbea76ab70402fb41c4ed4e86f61b0bb6262"
       },
       "clear": {
         "bytes": 4,
@@ -668,8 +668,8 @@
     "auction/Auction": {
       "name": "Auction",
       "approval": {
-        "bytes": 8354,
-        "sha256": "b3f9e62e9f899261db6ba611d0e23dcde7bdd5797d98b8d14d2dda3d7c07e64c"
+        "bytes": 8522,
+        "sha256": "9f9eb2548abcc812952a2db599cd5775d14149635e322f08596f83b30d2976cf"
       },
       "clear": {
         "bytes": 4,
@@ -717,8 +717,8 @@
     "escrow/EscrowFactory": {
       "name": "EscrowFactory",
       "approval": {
-        "bytes": 1441,
-        "sha256": "5beb8c7516cb2762678e6d04f05e1e62eb57d9d6dc3e35c574503533447a6d19"
+        "bytes": 1416,
+        "sha256": "14eace79d9be776284bd45c8bfcdd2f8fb7e719fef9ad8ce59949da7b014a035"
       },
       "clear": {
         "bytes": 4,
@@ -957,8 +957,8 @@
     "hyper-swap/HyperSwap": {
       "name": "HyperSwap",
       "approval": {
-        "bytes": 3951,
-        "sha256": "b11ae3d75538f4f85c949affcbe119dce3069d5354b5827a9b6e118ba2dfdfce"
+        "bytes": 3986,
+        "sha256": "56cd68d18bac2b15c29ee755d68c85800976f1389bb14464fd9551b10e9cfc71"
       },
       "clear": {
         "bytes": 4,
@@ -993,8 +993,8 @@
     "meta/Meta": {
       "name": "Meta",
       "approval": {
-        "bytes": 4096,
-        "sha256": "c01c05821741d6c4923ee455891cb38d9196b959c0f0868681685bf9c120603e"
+        "bytes": 4436,
+        "sha256": "3ddb2cc68da47d58d0da4f2c6b9a0d214e15107b5bae4c9fce81606930c7a24e"
       },
       "clear": {
         "bytes": 4,
@@ -1240,8 +1240,8 @@
       "name": "MockHyperSwap",
       "testOnly": true,
       "approval": {
-        "bytes": 3973,
-        "sha256": "b827a8d63766fd20093fd9059f366963788d7a3fc34119b4912064d6259847b9"
+        "bytes": 4008,
+        "sha256": "b685aeee491aa3f44bf19042d3a86bd0cbc1618558922ef261b59163776b663c"
       },
       "clear": {
         "bytes": 4,
@@ -1292,8 +1292,8 @@
       "name": "MockLegacyVoteDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 10652,
-        "sha256": "aadedea406ce1c630487bd7f882eff5392a44cc472fda5a709bd18a8b723713e"
+        "bytes": 10996,
+        "sha256": "ffe93a36c092c72715dd7c80726cedcdfcad694e92e5484bc39194200cb49836"
       },
       "clear": {
         "bytes": 4,
@@ -1617,8 +1617,8 @@
       "name": "MockSharedHelpers",
       "testOnly": true,
       "approval": {
-        "bytes": 948,
-        "sha256": "17d9f77afe8665a9589c6b0e75c497353b8db1d65e3b970721649c26185255f3"
+        "bytes": 1363,
+        "sha256": "299f3fa9dc11466a726c79431c885f5c30ddc5cc150de3cb94758685830c3bdb"
       },
       "clear": {
         "bytes": 4,
@@ -1707,8 +1707,8 @@
     "poll/Poll": {
       "name": "Poll",
       "approval": {
-        "bytes": 2208,
-        "sha256": "1e79aaf57d8a68ea5c5d7295745952111ee425def13a96704ac2c87fe8f639fb"
+        "bytes": 2349,
+        "sha256": "3a23ad59361939e084e0e7e3c1b2f632e850c98b33583b268896d3e7290748a9"
       },
       "clear": {
         "bytes": 4,
@@ -1719,14 +1719,14 @@
     "poll/PollFactory": {
       "name": "PollFactory",
       "approval": {
-        "bytes": 4018,
-        "sha256": "6dd516d04db381f373a0d89910e08b3d3fc19371ba13af81e7803db155dc6674"
+        "bytes": 4339,
+        "sha256": "e0be24b9f82738bd35f41e680814ba995c85d4f0aff22ca48596862e58466b08"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
-      "extraPages": 1
+      "extraPages": 2
     },
     "prize-box/PrizeBox": {
       "name": "PrizeBox",
@@ -1755,8 +1755,8 @@
     "raffle/Raffle": {
       "name": "Raffle",
       "approval": {
-        "bytes": 8106,
-        "sha256": "4b6de3d54fe68378dbf7f7dcdece3a64173c33b3eb3b57497fa9e8e3c37a77e2"
+        "bytes": 8158,
+        "sha256": "db06cd5833878c146f533ee54c37a3eb70b85d9d507c61c2e3b13d73ca87e102"
       },
       "clear": {
         "bytes": 4,
@@ -1779,8 +1779,8 @@
     "rewards/Rewards": {
       "name": "Rewards",
       "approval": {
-        "bytes": 4845,
-        "sha256": "dcb9b5695219e45ae51f5ec87d038a5fcf309ec91d9b9ad7016628ecd2473cf2"
+        "bytes": 5243,
+        "sha256": "72986705337c3b6807c9ba76703413748d0536db056a906072c093e951398b64"
       },
       "clear": {
         "bytes": 4,
@@ -1791,8 +1791,8 @@
     "social/AkitaSocial": {
       "name": "AkitaSocial",
       "approval": {
-        "bytes": 11324,
-        "sha256": "9b91cbcb254baf700bd05aecaf399312062ab6f559c1eaf85d18e63526a06e5b"
+        "bytes": 11499,
+        "sha256": "a09895463a5408747bc5883c11247c74a5001a13c4d841ada5806a7981588359"
       },
       "clear": {
         "bytes": 4,
@@ -1803,8 +1803,8 @@
     "social/AkitaSocialGraph": {
       "name": "AkitaSocialGraph",
       "approval": {
-        "bytes": 2454,
-        "sha256": "a377e2d8395172a3966bc99db207711da47e2c03b31aca1fb98d2825b657c1ce"
+        "bytes": 2609,
+        "sha256": "efb85e259241cdb78602d0bb40fdca149929323329c46142a425c1ce86be6b28"
       },
       "clear": {
         "bytes": 4,
@@ -1815,8 +1815,8 @@
     "social/AkitaSocialImpact": {
       "name": "AkitaSocialImpact",
       "approval": {
-        "bytes": 3190,
-        "sha256": "2a650dd8c437c097d102fff8de10729efb7248db1d17afe11411817d63eacbc8"
+        "bytes": 3160,
+        "sha256": "e1742df18bfeb9db897e9adfe984cd295439aa498562e157ac97ddacac04a7ff"
       },
       "clear": {
         "bytes": 4,
@@ -1839,8 +1839,8 @@
     "staking-pool/StakingPool": {
       "name": "StakingPool",
       "approval": {
-        "bytes": 12969,
-        "sha256": "19758e535d1d54db45718521f370dd2015142cfd64f51afa202850a9934e0770"
+        "bytes": 13272,
+        "sha256": "395424e5ead26b7e09bb6f893cc5e2a1d13b43cbef36b932ce46a6026f80ed56"
       },
       "clear": {
         "bytes": 4,
@@ -1863,8 +1863,8 @@
     "staking/Staking": {
       "name": "Staking",
       "approval": {
-        "bytes": 7010,
-        "sha256": "70e26bfbf8daaead25875eb611ec2c0b095381426f2b56fdd36ea365cd9a30b0"
+        "bytes": 7306,
+        "sha256": "498b1b806c34aca332588d2357dbcc7ea5043173411ba0df29546df0f6aa2285"
       },
       "clear": {
         "bytes": 4,
@@ -1875,14 +1875,14 @@
     "subscriptions/Subscriptions": {
       "name": "Subscriptions",
       "approval": {
-        "bytes": 10217,
-        "sha256": "bf9eba702222dd12f88ba031b5766ec2343aa02918cefd71830b8c18664f8d30"
+        "bytes": 10468,
+        "sha256": "e9acfa9ffe5633e89c68bcafc3617cb817bc1a9e0b9bb7c332cb83f2c0fc67b2"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
-      "extraPages": 4
+      "extraPages": 5
     },
     "sunset/AbstractedAccountUpdateStub": {
       "name": "AbstractedAccountUpdateStub",

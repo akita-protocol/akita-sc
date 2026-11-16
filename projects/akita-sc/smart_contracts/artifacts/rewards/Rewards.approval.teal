@@ -3,18 +3,18 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 2 25300 54500 400
-    bytecblock "d" "ERR:errDbne" 0x151f7c75 "ERR:errYncr" "ERR:errIxfr" "ERR:errIpay" "ERR:errImbr" "ERR:errDbaf" "ERR:errDbma" "u" "disbursement_id" "akita_dao" "ERR:errIgix" "ERR:errDbem" "ERR:errDbnl" "ERR:errIpms" "ERR:errNcls" "ERR:errNrky" "ERR:errIpmr" "ERR:errIpma" 0x000075 "ERR:errDblk" "ERR:errAlne" "ERR:errDbnx"
+    intcblock 0 1 8 2 25300 54500 400 28500
+    bytecblock "d" "ERR:errDbne" 0x151f7c75 "ERR:errYncr" "ERR:errIxfr" "ERR:errIpay" "ERR:errImbr" "ERR:errDbaf" "ERR:errDbma" "u" "disbursement_id" "ERR:errNcls" "ERR:errNrky" "ERR:errIpmr" "ERR:errIpma" "$" "akita_dao" "ERR:errIgix" "ERR:errDbem" "ERR:errDbnl" "ERR:errIpms" 0x000075 "ERR:errDblk" "ERR:errAlne" "ERR:errDbnx"
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/rewards/contract.algo.ts:70
+    // smart_contracts/rewards/contract.algo.ts:74
     // disbursementID = GlobalState<uint64>({ initialValue: 1, key: RewardsGlobalStateKeyDisbursementID })
     bytec 10 // "disbursement_id"
     intc_1 // 1
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/rewards/contract.algo.ts:65
+    // smart_contracts/rewards/contract.algo.ts:69
     // export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWithOptIn) {
     txn OnCompletion
     !
@@ -33,7 +33,7 @@ main_opUp_route@24:
     return
 
 main_create_NoOp@28:
-    // smart_contracts/rewards/contract.algo.ts:65
+    // smart_contracts/rewards/contract.algo.ts:69
     // export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWithOptIn) {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
@@ -41,90 +41,199 @@ main_create_NoOp@28:
     err
 
 
-// smart_contracts/utils/functions.ts::assertSafePayment(txn: uint64, sender: bytes) -> void:
-assertSafePayment:
-    // smart_contracts/utils/functions.ts:61
-    // export function assertSafePayment(txn: gtxn.PaymentTxn, sender: Account): void {
-    proto 2 0
-    // smart_contracts/utils/functions.ts:62
-    // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
-    frame_dig -2
-    gtxns Sender
-    frame_dig -1
-    ==
-    bnz assertSafePayment_after_assert@2
-    bytec 15 // "ERR:errIpms"
-    log
-    err // ERR:errIpms
-
-assertSafePayment_after_assert@2:
-    // smart_contracts/utils/functions.ts:63
+// smart_contracts/utils/functions.ts::assertPlainPayment(txn: uint64) -> void:
+assertPlainPayment:
+    // smart_contracts/utils/functions.ts:67
+    // export function assertPlainPayment(txn: gtxn.PaymentTxn): void {
+    proto 1 0
+    // smart_contracts/utils/functions.ts:68
     // loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
-    frame_dig -2
+    frame_dig -1
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    bnz assertSafePayment_after_assert@4
-    bytec 16 // "ERR:errNcls"
+    bnz assertPlainPayment_after_assert@2
+    bytec 11 // "ERR:errNcls"
     log
     err // ERR:errNcls
 
-assertSafePayment_after_assert@4:
-    // smart_contracts/utils/functions.ts:64
+assertPlainPayment_after_assert@2:
+    // smart_contracts/utils/functions.ts:69
     // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
-    frame_dig -2
+    frame_dig -1
     gtxns RekeyTo
     global ZeroAddress
     ==
-    bnz assertSafePayment_after_assert@6
-    bytec 17 // "ERR:errNrky"
+    bnz assertPlainPayment_after_assert@4
+    bytec 12 // "ERR:errNrky"
     log
     err // ERR:errNrky
 
-assertSafePayment_after_assert@6:
+assertPlainPayment_after_assert@4:
     retsub
 
 
-// smart_contracts/utils/functions.ts::assertBoundPayment(txn: uint64, sender: bytes, receiver: bytes, amount: uint64) -> void:
-assertBoundPayment:
-    // smart_contracts/utils/functions.ts:71
-    // export function assertBoundPayment(txn: gtxn.PaymentTxn, sender: Account, receiver: Account, amount: uint64): void {
-    proto 4 0
-    // smart_contracts/utils/functions.ts:72
-    // assertSafePayment(txn, sender)
-    frame_dig -4
+// smart_contracts/utils/functions.ts::assertExactPayment(txn: uint64, receiver: bytes, amount: uint64) -> void:
+assertExactPayment:
+    // smart_contracts/utils/functions.ts:76
+    // export function assertExactPayment(txn: gtxn.PaymentTxn, receiver: Account, amount: uint64): void {
+    proto 3 0
+    // smart_contracts/utils/functions.ts:77
+    // assertPlainPayment(txn)
     frame_dig -3
-    callsub assertSafePayment
-    // smart_contracts/utils/functions.ts:73
+    callsub assertPlainPayment
+    // smart_contracts/utils/functions.ts:78
     // loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
-    frame_dig -4
+    frame_dig -3
     gtxns Receiver
     frame_dig -2
     ==
-    bnz assertBoundPayment_after_assert@2
-    bytec 18 // "ERR:errIpmr"
+    bnz assertExactPayment_after_assert@2
+    bytec 13 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
-assertBoundPayment_after_assert@2:
-    // smart_contracts/utils/functions.ts:74
+assertExactPayment_after_assert@2:
+    // smart_contracts/utils/functions.ts:79
     // loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
-    frame_dig -4
+    frame_dig -3
     gtxns Amount
     frame_dig -1
     ==
-    bnz assertBoundPayment_after_assert@4
-    bytec 19 // "ERR:errIpma"
+    bnz assertExactPayment_after_assert@4
+    bytec 14 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
-assertBoundPayment_after_assert@4:
+assertExactPayment_after_assert@4:
     retsub
+
+
+// smart_contracts/utils/functions.ts::payerOf(record: bytes, owner: bytes) -> bytes:
+payerOf:
+    // smart_contracts/utils/functions.ts:112
+    // export function payerOf(record: bytes, owner: Account): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig -2
+    sha256
+    bytec 15 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:113
+    // const [payer, sponsored] = op.Box.get(payerRecordKey(record))
+    box_get
+    // smart_contracts/utils/functions.ts:114
+    // return sponsored ? Account(payer) : owner
+    bz payerOf_ternary_false@2
+    retsub
+
+payerOf_ternary_false@2:
+    pop
+    frame_dig -1
+    // smart_contracts/utils/functions.ts:114
+    // return sponsored ? Account(payer) : owner
+    retsub
+
+
+// smart_contracts/utils/functions.ts::canReceiveAlgo(receiver: bytes, amount: uint64) -> uint64:
+canReceiveAlgo:
+    // smart_contracts/utils/functions.ts:129
+    // export function canReceiveAlgo(receiver: Account, amount: uint64): boolean {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:130
+    // const [, funded] = op.AcctParams.acctBalance(receiver)
+    frame_dig -2
+    acct_params_get AcctBalance
+    bury 1
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    bnz canReceiveAlgo_bool_true@2
+    frame_dig -1
+    global MinBalance
+    >=
+    bz canReceiveAlgo_bool_false@3
+
+canReceiveAlgo_bool_true@2:
+    intc_1 // 1
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    retsub
+
+canReceiveAlgo_bool_false@3:
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:131
+    // return funded || amount >= Global.minBalance
+    retsub
+
+
+// smart_contracts/utils/functions.ts::releaseDeposit(record: bytes, owner: bytes, amount: uint64) -> bytes:
+releaseDeposit:
+    // smart_contracts/utils/functions.ts:140
+    // export function releaseDeposit(record: bytes, owner: Account, amount: uint64): [Account, uint64] {
+    proto 3 1
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig -3
+    sha256
+    bytec 15 // "$"
+    swap
+    concat
+    dup
+    // smart_contracts/utils/functions.ts:142
+    // const [payer, sponsored] = op.Box.get(key)
+    box_get
+    // smart_contracts/utils/functions.ts:143
+    // if (!sponsored) {
+    bnz releaseDeposit_after_if_else@2
+    // smart_contracts/utils/functions.ts:144
+    // return [owner, amount]
+    frame_dig -1
+    itob
+    frame_dig -2
+    swap
+    concat
+    frame_bury 0
+    retsub
+
+releaseDeposit_after_if_else@2:
+    // smart_contracts/utils/functions.ts:146
+    // op.Box.delete(key)
+    swap
+    box_del
+    pop
+    // smart_contracts/utils/functions.ts:147
+    // const total: uint64 = amount + PayerRecordMBR
+    frame_dig -1
+    intc 7 // 28500
+    +
+    dup
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    dig 2
+    swap
+    callsub canReceiveAlgo
+    bz releaseDeposit_ternary_false@4
+    swap
+
+releaseDeposit_ternary_merge@5:
+    // smart_contracts/utils/functions.ts:148
+    // return [canReceiveAlgo(Account(payer), total) ? Account(payer) : owner, total]
+    swap
+    itob
+    concat
+    retsub
+
+releaseDeposit_ternary_false@4:
+    bury 1
+    frame_dig -2
+    b releaseDeposit_ternary_merge@5
 
 
 // smart_contracts/utils/functions.ts::assertBoundAssetTransfer(txn: uint64, sender: bytes, receiver: bytes, asset: uint64, amount: uint64) -> void:
 assertBoundAssetTransfer:
-    // smart_contracts/utils/functions.ts:93-99
+    // smart_contracts/utils/functions.ts:187-193
     // export function assertBoundAssetTransfer(
     //   txn: gtxn.AssetTransferTxn,
     //   sender: Account,
@@ -133,19 +242,19 @@ assertBoundAssetTransfer:
     //   amount: uint64
     // ): void {
     proto 5 0
-    // smart_contracts/utils/functions.ts:83
+    // smart_contracts/utils/functions.ts:177
     // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
     frame_dig -5
     gtxns Sender
     frame_dig -4
     ==
     bnz assertBoundAssetTransfer_after_assert@9
-    bytec 15 // "ERR:errIpms"
+    bytec 20 // "ERR:errIpms"
     log
     err // ERR:errIpms
 
 assertBoundAssetTransfer_after_assert@9:
-    // smart_contracts/utils/functions.ts:84
+    // smart_contracts/utils/functions.ts:178
     // loggedAssert(txn.assetSender === Global.zeroAddress, errClawbackForbidden)
     frame_dig -5
     gtxns AssetSender
@@ -157,31 +266,31 @@ assertBoundAssetTransfer_after_assert@9:
     err // ERR:errNclw
 
 assertBoundAssetTransfer_after_assert@11:
-    // smart_contracts/utils/functions.ts:85
+    // smart_contracts/utils/functions.ts:179
     // loggedAssert(txn.assetCloseTo === Global.zeroAddress, errCloseForbidden)
     frame_dig -5
     gtxns AssetCloseTo
     global ZeroAddress
     ==
     bnz assertBoundAssetTransfer_after_assert@13
-    bytec 16 // "ERR:errNcls"
+    bytec 11 // "ERR:errNcls"
     log
     err // ERR:errNcls
 
 assertBoundAssetTransfer_after_assert@13:
-    // smart_contracts/utils/functions.ts:86
+    // smart_contracts/utils/functions.ts:180
     // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
     frame_dig -5
     gtxns RekeyTo
     global ZeroAddress
     ==
     bnz assertBoundAssetTransfer_after_assert@15
-    bytec 17 // "ERR:errNrky"
+    bytec 12 // "ERR:errNrky"
     log
     err // ERR:errNrky
 
 assertBoundAssetTransfer_after_assert@15:
-    // smart_contracts/utils/functions.ts:101
+    // smart_contracts/utils/functions.ts:195
     // loggedAssert(txn.assetReceiver === receiver, errInvalidAssetReceiver)
     frame_dig -5
     gtxns AssetReceiver
@@ -193,7 +302,7 @@ assertBoundAssetTransfer_after_assert@15:
     err // ERR:errIare
 
 assertBoundAssetTransfer_after_assert@2:
-    // smart_contracts/utils/functions.ts:102
+    // smart_contracts/utils/functions.ts:196
     // loggedAssert(txn.xferAsset === asset, errInvalidAsset)
     frame_dig -5
     gtxns XferAsset
@@ -205,7 +314,7 @@ assertBoundAssetTransfer_after_assert@2:
     err // ERR:errIast
 
 assertBoundAssetTransfer_after_assert@4:
-    // smart_contracts/utils/functions.ts:103
+    // smart_contracts/utils/functions.ts:197
     // loggedAssert(txn.assetAmount === amount, errInvalidAssetAmount)
     frame_dig -5
     gtxns AssetAmount
@@ -222,7 +331,7 @@ assertBoundAssetTransfer_after_assert@6:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.create[routing]() -> void:
 create:
-    // smart_contracts/rewards/contract.algo.ts:266
+    // smart_contracts/rewards/contract.algo.ts:282
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -245,18 +354,18 @@ create:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/rewards/contract.algo.ts:268
+    // smart_contracts/rewards/contract.algo.ts:284
     // this.version.value = version
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec 11 // "akita_dao"
-    // smart_contracts/rewards/contract.algo.ts:269
+    bytec 16 // "akita_dao"
+    // smart_contracts/rewards/contract.algo.ts:285
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/rewards/contract.algo.ts:266
+    // smart_contracts/rewards/contract.algo.ts:282
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -264,7 +373,7 @@ create:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.fundMbrCredits[routing]() -> void:
 fundMbrCredits:
-    // smart_contracts/rewards/contract.algo.ts:274
+    // smart_contracts/rewards/contract.algo.ts:290
     // fundMbrCredits(id: uint64, payment: gtxn.PaymentTxn): void {
     txna ApplicationArgs 1
     dup
@@ -283,16 +392,17 @@ fundMbrCredits:
     intc_1 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/rewards/contract.algo.ts:275
+    // smart_contracts/rewards/contract.algo.ts:291
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:275
+    cover 2
+    // smart_contracts/rewards/contract.algo.ts:291
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -302,8 +412,9 @@ fundMbrCredits:
     err // ERR:errDbne
 
 fundMbrCredits_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:276
+    // smart_contracts/rewards/contract.algo.ts:292
     // loggedAssert(this.disbursements(id).value.creator === Txn.sender, errYouAreNotTheCreator)
+    dig 1
     intc_0 // 0
     pushint 32
     box_extract // on error: index out of bounds
@@ -315,38 +426,50 @@ fundMbrCredits_after_assert@3:
     err // ERR:errYncr
 
 fundMbrCredits_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:278
-    // assertSafePayment(payment, Txn.sender)
-    txn Sender
-    dig 1
+    // smart_contracts/rewards/contract.algo.ts:294
+    // loggedAssert(payment.sender === payerOf(this.disbursements(id).key, Txn.sender), errPayerOnly)
     dup
-    uncover 2
-    callsub assertSafePayment
-    // smart_contracts/rewards/contract.algo.ts:279
+    gtxns Sender
+    txn Sender
+    uncover 3
+    swap
+    callsub payerOf
+    ==
+    bnz fundMbrCredits_after_assert@7
+    pushbytes "ERR:errIpyr"
+    log
+    err // ERR:errIpyr
+
+fundMbrCredits_after_assert@7:
+    // smart_contracts/rewards/contract.algo.ts:295
+    // assertPlainPayment(payment)
+    dupn 2
+    callsub assertPlainPayment
+    // smart_contracts/rewards/contract.algo.ts:296
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    bnz fundMbrCredits_after_assert@7
-    bytec 5 // "ERR:errIpay"
-    log
-    err // ERR:errIpay
-
-fundMbrCredits_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:280
-    // loggedAssert(payment.amount > 0, errInvalidPayment)
-    gtxns Amount
-    dup
     bnz fundMbrCredits_after_assert@9
     bytec 5 // "ERR:errIpay"
     log
     err // ERR:errIpay
 
 fundMbrCredits_after_assert@9:
-    // smart_contracts/rewards/contract.algo.ts:282
+    // smart_contracts/rewards/contract.algo.ts:297
+    // loggedAssert(payment.amount > 0, errInvalidPayment)
+    gtxns Amount
+    dup
+    bnz fundMbrCredits_after_assert@11
+    bytec 5 // "ERR:errIpay"
+    log
+    err // ERR:errIpay
+
+fundMbrCredits_after_assert@11:
+    // smart_contracts/rewards/contract.algo.ts:299
     // this.addMbrCredit(id, payment.amount)
     callsub addMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:274
+    // smart_contracts/rewards/contract.algo.ts:290
     // fundMbrCredits(id: uint64, payment: gtxn.PaymentTxn): void {
     intc_1 // 1
     return
@@ -354,7 +477,7 @@ fundMbrCredits_after_assert@9:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.withdrawMbrCredits[routing]() -> void:
 withdrawMbrCredits:
-    // smart_contracts/rewards/contract.algo.ts:285
+    // smart_contracts/rewards/contract.algo.ts:302
     // withdrawMbrCredits(id: uint64, amount: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -371,16 +494,16 @@ withdrawMbrCredits:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/rewards/contract.algo.ts:286
+    // smart_contracts/rewards/contract.algo.ts:303
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:286
+    // smart_contracts/rewards/contract.algo.ts:303
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -390,7 +513,7 @@ withdrawMbrCredits:
     err // ERR:errDbne
 
 withdrawMbrCredits_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:287
+    // smart_contracts/rewards/contract.algo.ts:304
     // loggedAssert(this.disbursements(id).value.creator === Txn.sender, errYouAreNotTheCreator)
     dup
     intc_0 // 0
@@ -404,7 +527,7 @@ withdrawMbrCredits_after_assert@3:
     err // ERR:errYncr
 
 withdrawMbrCredits_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:288
+    // smart_contracts/rewards/contract.algo.ts:305
     // loggedAssert(amount > 0, errInvalidMbrAmount)
     dig 1
     bnz withdrawMbrCredits_after_assert@7
@@ -413,7 +536,7 @@ withdrawMbrCredits_after_assert@5:
     err // ERR:errImbr
 
 withdrawMbrCredits_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:289
+    // smart_contracts/rewards/contract.algo.ts:306
     // loggedAssert(this.disbursements(id).value.mbrCredits >= amount, errInvalidMbrAmount)
     dup
     pushint 75
@@ -428,36 +551,46 @@ withdrawMbrCredits_after_assert@7:
     err // ERR:errImbr
 
 withdrawMbrCredits_after_assert@9:
-    // smart_contracts/rewards/contract.algo.ts:290
+    // smart_contracts/rewards/contract.algo.ts:307
     // this.disbursements(id).value.mbrCredits -= amount
     dup
     pushint 75
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    uncover 2
+    dig 2
     dup
-    cover 2
+    cover 3
     -
     itob
-    uncover 2
+    dig 1
     pushint 75
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:292-295
+    // smart_contracts/rewards/contract.algo.ts:310
+    // const payer = payerOf(this.disbursements(id).key, Txn.sender)
+    txn Sender
+    callsub payerOf
+    dup
+    cover 2
+    // smart_contracts/rewards/contract.algo.ts:311-314
     // itxn.payment({
-    //   receiver: Txn.sender,
+    //   receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender,
     //   amount,
     // }).submit()
     itxn_begin
-    // smart_contracts/rewards/contract.algo.ts:293
-    // receiver: Txn.sender,
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:312
+    // receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender,
+    swap
+    callsub canReceiveAlgo
+    bz withdrawMbrCredits_ternary_false@11
+
+withdrawMbrCredits_ternary_merge@12:
     itxn_field Receiver
     itxn_field Amount
-    // smart_contracts/rewards/contract.algo.ts:292-295
+    // smart_contracts/rewards/contract.algo.ts:311-314
     // itxn.payment({
-    //   receiver: Txn.sender,
+    //   receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender,
     //   amount,
     // }).submit()
     intc_1 // 1
@@ -465,15 +598,22 @@ withdrawMbrCredits_after_assert@9:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/rewards/contract.algo.ts:285
+    // smart_contracts/rewards/contract.algo.ts:302
     // withdrawMbrCredits(id: uint64, amount: uint64): void {
     intc_1 // 1
     return
 
+withdrawMbrCredits_ternary_false@11:
+    pop
+    // smart_contracts/rewards/contract.algo.ts:312
+    // receiver: canReceiveAlgo(payer, amount) ? payer : Txn.sender,
+    txn Sender
+    b withdrawMbrCredits_ternary_merge@12
+
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createDisbursement[routing]() -> void:
 createDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:302-309
+    // smart_contracts/rewards/contract.algo.ts:321-328
     // createDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   title: string,
@@ -532,10 +672,10 @@ createDisbursement:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/rewards/contract.algo.ts:310
+    // smart_contracts/rewards/contract.algo.ts:329
     // return this.newDisbursement(mbrPayment, title, timeToUnlock, expiration, note, reclaimTo)
     callsub newDisbursement
-    // smart_contracts/rewards/contract.algo.ts:302-309
+    // smart_contracts/rewards/contract.algo.ts:321-328
     // createDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   title: string,
@@ -555,7 +695,7 @@ createDisbursement:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.legacyCreateDisbursement[routing]() -> void:
 legacyCreateDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:314
+    // smart_contracts/rewards/contract.algo.ts:333
     // @abimethod({ name: 'createDisbursement' })
     txn GroupIndex
     intc_1 // 1
@@ -601,11 +741,11 @@ legacyCreateDisbursement:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/rewards/contract.algo.ts:322
+    // smart_contracts/rewards/contract.algo.ts:341
     // return this.newDisbursement(mbrPayment, title, timeToUnlock, expiration, note, Global.zeroAddress)
     global ZeroAddress
     callsub newDisbursement
-    // smart_contracts/rewards/contract.algo.ts:314
+    // smart_contracts/rewards/contract.algo.ts:333
     // @abimethod({ name: 'createDisbursement' })
     itob
     bytec_2 // 0x151f7c75
@@ -620,7 +760,7 @@ legacyCreateDisbursement:
 editDisbursement:
     pushbytes ""
     dup
-    // smart_contracts/rewards/contract.algo.ts:325-331
+    // smart_contracts/rewards/contract.algo.ts:344-350
     // editDisbursement(
     //   id: uint64,
     //   title: string,
@@ -679,16 +819,16 @@ editDisbursement:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     swap
-    // smart_contracts/rewards/contract.algo.ts:332
+    // smart_contracts/rewards/contract.algo.ts:351
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:332
+    // smart_contracts/rewards/contract.algo.ts:351
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -698,7 +838,7 @@ editDisbursement:
     err // ERR:errDbne
 
 editDisbursement_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:334
+    // smart_contracts/rewards/contract.algo.ts:353
     // const { creator, finalized, title: oldTitle, note: oldNote } = this.disbursements(id).value
     dupn 2
     intc_0 // 0
@@ -741,7 +881,7 @@ editDisbursement_after_assert@3:
     box_extract
     extract 2 0
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:335
+    // smart_contracts/rewards/contract.algo.ts:354
     // loggedAssert(Txn.sender === creator, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -751,7 +891,7 @@ editDisbursement_after_assert@3:
     err // ERR:errYncr
 
 editDisbursement_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:336
+    // smart_contracts/rewards/contract.algo.ts:355
     // loggedAssert(finalized === false, errDisbursementAlreadyFinal)
     uncover 3
     bz editDisbursement_after_assert@7
@@ -760,13 +900,13 @@ editDisbursement_after_assert@5:
     err // ERR:errDbaf
 
 editDisbursement_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:340
+    // smart_contracts/rewards/contract.algo.ts:359
     // const oldMbr = this.disbursementBoxMbr(Bytes(oldTitle).length, Bytes(oldNote).length)
     uncover 2
     len
     uncover 2
     len
-    // smart_contracts/rewards/contract.algo.ts:169
+    // smart_contracts/rewards/contract.algo.ts:184
     // return MinDisbursementsMBR + (BoxCostPerByte * (titleLength + noteLength))
     +
     intc 6 // 400
@@ -775,13 +915,13 @@ editDisbursement_after_assert@7:
     +
     dup
     bury 10
-    // smart_contracts/rewards/contract.algo.ts:341
+    // smart_contracts/rewards/contract.algo.ts:360
     // const newMbr = this.disbursementBoxMbr(Bytes(title).length, Bytes(note).length)
     uncover 6
     len
     uncover 3
     len
-    // smart_contracts/rewards/contract.algo.ts:169
+    // smart_contracts/rewards/contract.algo.ts:184
     // return MinDisbursementsMBR + (BoxCostPerByte * (titleLength + noteLength))
     +
     intc 6 // 400
@@ -790,17 +930,17 @@ editDisbursement_after_assert@7:
     +
     dup
     bury 10
-    // smart_contracts/rewards/contract.algo.ts:342
+    // smart_contracts/rewards/contract.algo.ts:361
     // if (newMbr > oldMbr) {
     <
     bz editDisbursement_else_body@11
-    // smart_contracts/rewards/contract.algo.ts:343
+    // smart_contracts/rewards/contract.algo.ts:362
     // const delta: uint64 = newMbr - oldMbr
     dig 7
     dig 7
     -
     dup
-    // smart_contracts/rewards/contract.algo.ts:344
+    // smart_contracts/rewards/contract.algo.ts:363
     // loggedAssert(this.disbursements(id).value.mbrCredits >= delta, errInvalidMbrAmount)
     dig 2
     pushint 75
@@ -814,7 +954,7 @@ editDisbursement_after_assert@7:
     err // ERR:errImbr
 
 editDisbursement_after_assert@10:
-    // smart_contracts/rewards/contract.algo.ts:345
+    // smart_contracts/rewards/contract.algo.ts:364
     // this.disbursements(id).value.mbrCredits -= delta
     dig 1
     dup
@@ -830,7 +970,7 @@ editDisbursement_after_assert@10:
     box_replace // on error: index out of bounds
 
 editDisbursement_after_if_else@14:
-    // smart_contracts/rewards/contract.algo.ts:350
+    // smart_contracts/rewards/contract.algo.ts:369
     // this.disbursements(id).value.title = title
     dup
     box_get
@@ -873,19 +1013,19 @@ editDisbursement_after_if_else@14:
     dig 1
     swap
     box_put
-    // smart_contracts/rewards/contract.algo.ts:351
+    // smart_contracts/rewards/contract.algo.ts:370
     // this.disbursements(id).value.timeToUnlock = timeToUnlock
     dup
     pushint 43
     uncover 5
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:352
+    // smart_contracts/rewards/contract.algo.ts:371
     // this.disbursements(id).value.expiration = expiration
     dup
     pushint 51
     uncover 4
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:353
+    // smart_contracts/rewards/contract.algo.ts:372
     // this.disbursements(id).value.note = note
     dup
     box_get
@@ -902,7 +1042,7 @@ editDisbursement_after_if_else@14:
     box_del
     pop
     box_put
-    // smart_contracts/rewards/contract.algo.ts:325-331
+    // smart_contracts/rewards/contract.algo.ts:344-350
     // editDisbursement(
     //   id: uint64,
     //   title: string,
@@ -914,13 +1054,13 @@ editDisbursement_after_if_else@14:
     return
 
 editDisbursement_else_body@11:
-    // smart_contracts/rewards/contract.algo.ts:346
+    // smart_contracts/rewards/contract.algo.ts:365
     // } else if (oldMbr > newMbr) {
     dig 6
     dig 8
     >
     bz editDisbursement_after_if_else@14
-    // smart_contracts/rewards/contract.algo.ts:347
+    // smart_contracts/rewards/contract.algo.ts:366
     // this.disbursements(id).value.mbrCredits += oldMbr - newMbr
     dupn 2
     pushint 75
@@ -940,7 +1080,7 @@ editDisbursement_else_body@11:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createUserAllocations[routing]() -> void:
 createUserAllocations:
-    // smart_contracts/rewards/contract.algo.ts:356-360
+    // smart_contracts/rewards/contract.algo.ts:375-379
     // createUserAllocations(
     //   payment: gtxn.PaymentTxn,
     //   id: uint64,
@@ -962,6 +1102,7 @@ createUserAllocations:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 2
     dup
     cover 2
@@ -969,7 +1110,7 @@ createUserAllocations:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 5
+    cover 6
     pushint 40
     *
     intc_3 // 2
@@ -978,16 +1119,16 @@ createUserAllocations:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::UserAllocation>
-    // smart_contracts/rewards/contract.algo.ts:361
+    // smart_contracts/rewards/contract.algo.ts:380
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:361
+    // smart_contracts/rewards/contract.algo.ts:380
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -997,7 +1138,7 @@ createUserAllocations:
     err // ERR:errDbne
 
 createUserAllocations_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:363
+    // smart_contracts/rewards/contract.algo.ts:382
     // const { creator, finalized } = this.disbursements(id).value
     dup
     intc_0 // 0
@@ -1010,7 +1151,7 @@ createUserAllocations_after_assert@3:
     intc_0 // 0
     getbit
     swap
-    // smart_contracts/rewards/contract.algo.ts:364
+    // smart_contracts/rewards/contract.algo.ts:383
     // loggedAssert(Txn.sender === creator, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -1020,7 +1161,7 @@ createUserAllocations_after_assert@3:
     err // ERR:errYncr
 
 createUserAllocations_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:365
+    // smart_contracts/rewards/contract.algo.ts:384
     // loggedAssert(!finalized, errDisbursementAlreadyFinal)
     bz createUserAllocations_after_assert@7
     bytec 7 // "ERR:errDbaf"
@@ -1028,26 +1169,26 @@ createUserAllocations_after_assert@5:
     err // ERR:errDbaf
 
 createUserAllocations_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:367
+    // smart_contracts/rewards/contract.algo.ts:386
     // let sum: uint64 = 0
     intc_0 // 0
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:368
+    // smart_contracts/rewards/contract.algo.ts:387
     // let newBoxes: uint64 = 0
     intc_0 // 0
-    swap
-    // smart_contracts/rewards/contract.algo.ts:369
+    cover 2
+    // smart_contracts/rewards/contract.algo.ts:388
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_0 // 0
 
 createUserAllocations_while_top@8:
-    // smart_contracts/rewards/contract.algo.ts:369
+    // smart_contracts/rewards/contract.algo.ts:388
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     dup
-    dig 6
+    dig 7
     <
     bz createUserAllocations_after_while@10
-    // smart_contracts/rewards/contract.algo.ts:370
+    // smart_contracts/rewards/contract.algo.ts:389
     // newBoxes += this.writeAllocation(id, allocations[i].address, 0, allocations[i].amount)
     dig 1
     extract 2 0
@@ -1061,20 +1202,20 @@ createUserAllocations_while_top@8:
     swap
     pushint 32
     extract_uint64
-    dig 5
+    dig 7
     uncover 2
     intc_0 // 0
     dig 3
     callsub writeAllocation
-    uncover 4
+    uncover 5
     +
-    cover 3
-    // smart_contracts/rewards/contract.algo.ts:371
+    cover 4
+    // smart_contracts/rewards/contract.algo.ts:390
     // sum += allocations[i].amount
     uncover 5
     +
     cover 4
-    // smart_contracts/rewards/contract.algo.ts:369
+    // smart_contracts/rewards/contract.algo.ts:388
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_1 // 1
     +
@@ -1082,20 +1223,75 @@ createUserAllocations_while_top@8:
 
 createUserAllocations_after_while@10:
     popn 2
-    // smart_contracts/rewards/contract.algo.ts:374
+    // smart_contracts/rewards/contract.algo.ts:393
     // this.useMbrCredit(id, UserAllocationMBR * newBoxes)
     intc 4 // 25300
+    uncover 2
     *
-    callsub useMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:376
-    // assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, sum)
-    txn Sender
-    global CurrentApplicationAddress
-    dig 4
-    cover 2
     uncover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:356-360
+    swap
+    callsub useMbrCredit
+    // smart_contracts/rewards/contract.algo.ts:395
+    // assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, sum)
+    global CurrentApplicationAddress
+    txn Sender
+    // smart_contracts/utils/functions.ts:156
+    // loggedAssert(txn.sender === sender, errInvalidPaymentSender)
+    dig 2
+    gtxns Sender
+    ==
+    bnz createUserAllocations_after_assert@13
+    bytec 20 // "ERR:errIpms"
+    log
+    err // ERR:errIpms
+
+createUserAllocations_after_assert@13:
+    // smart_contracts/utils/functions.ts:157
+    // loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
+    dig 1
+    gtxns CloseRemainderTo
+    global ZeroAddress
+    ==
+    bnz createUserAllocations_after_assert@15
+    bytec 11 // "ERR:errNcls"
+    log
+    err // ERR:errNcls
+
+createUserAllocations_after_assert@15:
+    // smart_contracts/utils/functions.ts:158
+    // loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
+    dig 1
+    gtxns RekeyTo
+    global ZeroAddress
+    ==
+    bnz createUserAllocations_after_assert@17
+    bytec 12 // "ERR:errNrky"
+    log
+    err // ERR:errNrky
+
+createUserAllocations_after_assert@17:
+    // smart_contracts/utils/functions.ts:167
+    // loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
+    dig 1
+    gtxns Receiver
+    ==
+    bnz createUserAllocations_after_assert@19
+    bytec 13 // "ERR:errIpmr"
+    log
+    err // ERR:errIpmr
+
+createUserAllocations_after_assert@19:
+    // smart_contracts/utils/functions.ts:168
+    // loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
+    gtxns Amount
+    ==
+    bnz createUserAllocations_after_assert@21
+    bytec 14 // "ERR:errIpma"
+    log
+    err // ERR:errIpma
+
+createUserAllocations_after_assert@21:
+    // smart_contracts/rewards/contract.algo.ts:375-379
     // createUserAllocations(
     //   payment: gtxn.PaymentTxn,
     //   id: uint64,
@@ -1107,7 +1303,7 @@ createUserAllocations_after_while@10:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createAsaUserAllocations[routing]() -> void:
 createAsaUserAllocations:
-    // smart_contracts/rewards/contract.algo.ts:379-383
+    // smart_contracts/rewards/contract.algo.ts:398-402
     // createAsaUserAllocations(
     //   assetXfer: gtxn.AssetTransferTxn,
     //   id: uint64,
@@ -1145,16 +1341,16 @@ createAsaUserAllocations:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::UserAllocation>
-    // smart_contracts/rewards/contract.algo.ts:384
+    // smart_contracts/rewards/contract.algo.ts:403
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:384
+    // smart_contracts/rewards/contract.algo.ts:403
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -1164,7 +1360,7 @@ createAsaUserAllocations:
     err // ERR:errDbne
 
 createAsaUserAllocations_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:386
+    // smart_contracts/rewards/contract.algo.ts:405
     // const { creator, finalized } = this.disbursements(id).value
     dup
     intc_0 // 0
@@ -1177,7 +1373,7 @@ createAsaUserAllocations_after_assert@3:
     intc_0 // 0
     getbit
     swap
-    // smart_contracts/rewards/contract.algo.ts:387
+    // smart_contracts/rewards/contract.algo.ts:406
     // loggedAssert(Txn.sender === creator, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -1187,7 +1383,7 @@ createAsaUserAllocations_after_assert@3:
     err // ERR:errYncr
 
 createAsaUserAllocations_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:388
+    // smart_contracts/rewards/contract.algo.ts:407
     // loggedAssert(!finalized, errDisbursementAlreadyFinal)
     bz createAsaUserAllocations_after_assert@7
     bytec 7 // "ERR:errDbaf"
@@ -1195,31 +1391,31 @@ createAsaUserAllocations_after_assert@5:
     err // ERR:errDbaf
 
 createAsaUserAllocations_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:390
+    // smart_contracts/rewards/contract.algo.ts:409
     // const asset = assetXfer.xferAsset.id
     dig 2
     gtxns XferAsset
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:391
+    // smart_contracts/rewards/contract.algo.ts:410
     // let matchSum: uint64 = 0
     intc_0 // 0
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:392
+    // smart_contracts/rewards/contract.algo.ts:411
     // let newBoxes: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/rewards/contract.algo.ts:393
+    // smart_contracts/rewards/contract.algo.ts:412
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_0 // 0
 
 createAsaUserAllocations_while_top@8:
-    // smart_contracts/rewards/contract.algo.ts:393
+    // smart_contracts/rewards/contract.algo.ts:412
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     dup
     dig 8
     <
     bz createAsaUserAllocations_after_while@10
-    // smart_contracts/rewards/contract.algo.ts:394
+    // smart_contracts/rewards/contract.algo.ts:413
     // newBoxes += this.writeAllocation(id, allocations[i].address, asset, allocations[i].amount)
     dig 1
     extract 2 0
@@ -1241,12 +1437,12 @@ createAsaUserAllocations_while_top@8:
     uncover 4
     +
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:395
+    // smart_contracts/rewards/contract.algo.ts:414
     // matchSum += allocations[i].amount
     uncover 6
     +
     cover 5
-    // smart_contracts/rewards/contract.algo.ts:393
+    // smart_contracts/rewards/contract.algo.ts:412
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_1 // 1
     +
@@ -1254,19 +1450,19 @@ createAsaUserAllocations_while_top@8:
 
 createAsaUserAllocations_after_while@10:
     popn 2
-    // smart_contracts/rewards/contract.algo.ts:398
+    // smart_contracts/rewards/contract.algo.ts:417
     // this.useMbrCredit(id, UserAllocationMBR * newBoxes)
     intc 4 // 25300
     *
     callsub useMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:400
+    // smart_contracts/rewards/contract.algo.ts:419
     // assertBoundAssetTransfer(assetXfer, Txn.sender, Global.currentApplicationAddress, assetXfer.xferAsset, matchSum)
     txn Sender
     global CurrentApplicationAddress
     uncover 4
     uncover 4
     callsub assertBoundAssetTransfer
-    // smart_contracts/rewards/contract.algo.ts:379-383
+    // smart_contracts/rewards/contract.algo.ts:398-402
     // createAsaUserAllocations(
     //   assetXfer: gtxn.AssetTransferTxn,
     //   id: uint64,
@@ -1278,7 +1474,7 @@ createAsaUserAllocations_after_while@10:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createAsaDisbursementFromGroup[routing]() -> void:
 createAsaDisbursementFromGroup:
-    // smart_contracts/rewards/contract.algo.ts:412-420
+    // smart_contracts/rewards/contract.algo.ts:431-439
     // createAsaDisbursementFromGroup(
     //   mbrPaymentIndex: uint64,
     //   assetTransferStartIndex: uint64,
@@ -1359,7 +1555,7 @@ createAsaDisbursementFromGroup:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::UserAllocation>
-    // smart_contracts/rewards/contract.algo.ts:422
+    // smart_contracts/rewards/contract.algo.ts:441
     // loggedAssert(count > 0, errDisbursementsMustHaveAllocations)
     bnz createAsaDisbursementFromGroup_after_assert@3
     bytec 8 // "ERR:errDbma"
@@ -1367,18 +1563,18 @@ createAsaDisbursementFromGroup:
     err // ERR:errDbma
 
 createAsaDisbursementFromGroup_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:423
+    // smart_contracts/rewards/contract.algo.ts:442
     // loggedAssert(Txn.groupIndex > count, errInvalidGroupIndex)
     txn GroupIndex
     dig 1
     >
     bnz createAsaDisbursementFromGroup_after_assert@5
-    bytec 12 // "ERR:errIgix"
+    bytec 17 // "ERR:errIgix"
     log
     err // ERR:errIgix
 
 createAsaDisbursementFromGroup_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:424
+    // smart_contracts/rewards/contract.algo.ts:443
     // loggedAssert(assetTransferStartIndex === Txn.groupIndex - count, errInvalidGroupIndex)
     txn GroupIndex
     dig 1
@@ -1386,12 +1582,12 @@ createAsaDisbursementFromGroup_after_assert@5:
     dig 2
     ==
     bnz createAsaDisbursementFromGroup_after_assert@7
-    bytec 12 // "ERR:errIgix"
+    bytec 17 // "ERR:errIgix"
     log
     err // ERR:errIgix
 
 createAsaDisbursementFromGroup_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:425
+    // smart_contracts/rewards/contract.algo.ts:444
     // loggedAssert(mbrPaymentIndex === assetTransferStartIndex - 1, errInvalidGroupIndex)
     dig 1
     intc_1 // 1
@@ -1399,29 +1595,28 @@ createAsaDisbursementFromGroup_after_assert@7:
     dig 6
     ==
     bnz createAsaDisbursementFromGroup_after_assert@9
-    bytec 12 // "ERR:errIgix"
+    bytec 17 // "ERR:errIgix"
     log
     err // ERR:errIgix
 
 createAsaDisbursementFromGroup_after_assert@9:
-    // smart_contracts/rewards/contract.algo.ts:427
+    // smart_contracts/rewards/contract.algo.ts:446
     // this.assertValidUnlock(timeToUnlock)
     uncover 3
     dup
     callsub assertValidUnlock
-    // smart_contracts/rewards/contract.algo.ts:428
+    // smart_contracts/rewards/contract.algo.ts:447
     // this.assertValidExpiration(expiration)
     uncover 3
     dup
     cover 2
     callsub assertValidExpiration
-    // smart_contracts/rewards/contract.algo.ts:430
+    // smart_contracts/rewards/contract.algo.ts:449
     // const id = this.newDisbursementID()
     callsub newDisbursementID
     dup
-    cover 3
     cover 5
-    // smart_contracts/rewards/contract.algo.ts:431
+    // smart_contracts/rewards/contract.algo.ts:450
     // const payment = gtxn.PaymentTxn(mbrPaymentIndex)
     uncover 7
     dup
@@ -1429,44 +1624,57 @@ createAsaDisbursementFromGroup_after_assert@9:
     intc_1 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/rewards/contract.algo.ts:433
+    // smart_contracts/rewards/contract.algo.ts:452
     // const costs = this.mbr(title, note)
     uncover 8
     dup
-    cover 2
+    cover 3
     uncover 9
     dup
-    cover 6
+    cover 7
     callsub smart_contracts/rewards/base.ts::BaseRewards.mbr
-    // smart_contracts/rewards/contract.algo.ts:434
+    // smart_contracts/rewards/contract.algo.ts:453
     // const disbursementMbrAmount = costs.disbursements
     dup
     intc_0 // 0
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:435
+    // smart_contracts/rewards/contract.algo.ts:454
     // const allocationMbrAmount: uint64 = costs.userAllocations * count
     swap
     intc_2 // 8
     extract_uint64
     dig 8
     *
-    // smart_contracts/rewards/contract.algo.ts:438
-    // assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, disbursementMbrAmount + allocationMbrAmount)
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:459
+    // Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    uncover 3
-    dig 3
+    // smart_contracts/rewards/contract.algo.ts:460
+    // disbursementMbrAmount + allocationMbrAmount + this.sponsor(id, payment.sender)
+    uncover 2
+    dig 2
     +
-    uncover 4
-    cover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:441
+    dig 3
+    gtxns Sender
+    dig 5
+    swap
+    callsub sponsor
+    +
+    // smart_contracts/rewards/contract.algo.ts:457-461
+    // assertExactPayment(
+    //   payment,
+    //   Global.currentApplicationAddress,
+    //   disbursementMbrAmount + allocationMbrAmount + this.sponsor(id, payment.sender)
+    // )
+    uncover 3
+    cover 2
+    callsub assertExactPayment
+    // smart_contracts/rewards/contract.algo.ts:464
     // creator: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:450
+    // smart_contracts/rewards/contract.algo.ts:473
     // reclaimTo: Global.zeroAddress,
     global ZeroAddress
-    // smart_contracts/rewards/contract.algo.ts:440-452
+    // smart_contracts/rewards/contract.algo.ts:463-475
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -1480,23 +1688,23 @@ createAsaDisbursementFromGroup_after_assert@9:
     //   reclaimTo: Global.zeroAddress,
     //   note,
     // }
-    dig 3
+    dig 4
     len
     itob
     extract 6 2
-    uncover 4
+    uncover 5
     concat
     uncover 2
-    bytec 20 // 0x000075
+    bytec 21 // 0x000075
     concat
     dig 1
     len
     pushint 117
     +
-    // smart_contracts/rewards/contract.algo.ts:444
+    // smart_contracts/rewards/contract.algo.ts:467
     // amount: 0,
     intc_0 // 0
-    // smart_contracts/rewards/contract.algo.ts:440-452
+    // smart_contracts/rewards/contract.algo.ts:463-475
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -1514,10 +1722,10 @@ createAsaDisbursementFromGroup_after_assert@9:
     uncover 2
     dig 1
     concat
-    uncover 6
+    uncover 7
     itob
     concat
-    uncover 6
+    uncover 7
     itob
     concat
     dig 1
@@ -1529,11 +1737,11 @@ createAsaDisbursementFromGroup_after_assert@9:
     concat
     uncover 3
     concat
-    dig 3
+    dig 4
     len
     itob
     extract 6 2
-    uncover 4
+    uncover 5
     concat
     uncover 2
     itob
@@ -1545,20 +1753,20 @@ createAsaDisbursementFromGroup_after_assert@9:
     concat
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:440
+    // smart_contracts/rewards/contract.algo.ts:463
     // this.disbursements(id).value = {
     swap
     itob
     dup
     cover 4
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:440-452
+    // smart_contracts/rewards/contract.algo.ts:463-475
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -1577,23 +1785,23 @@ createAsaDisbursementFromGroup_after_assert@9:
     pop
     swap
     box_put
-    // smart_contracts/rewards/contract.algo.ts:454
+    // smart_contracts/rewards/contract.algo.ts:477
     // let newBoxes: uint64 = 0
     intc_0 // 0
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:455
+    // smart_contracts/rewards/contract.algo.ts:478
     // for (let i: uint64 = 0; i < count; i += 1) {
     intc_0 // 0
     swap
 
 createAsaDisbursementFromGroup_while_top@10:
-    // smart_contracts/rewards/contract.algo.ts:455
+    // smart_contracts/rewards/contract.algo.ts:478
     // for (let i: uint64 = 0; i < count; i += 1) {
     dig 1
     dig 3
     <
     bz createAsaDisbursementFromGroup_after_while@14
-    // smart_contracts/rewards/contract.algo.ts:456
+    // smart_contracts/rewards/contract.algo.ts:479
     // const assetXfer = gtxn.AssetTransferTxn(assetTransferStartIndex + i)
     dig 4
     dig 2
@@ -1606,7 +1814,7 @@ createAsaDisbursementFromGroup_while_top@10:
     pushint 4 // axfer
     ==
     assert // transaction type is axfer
-    // smart_contracts/rewards/contract.algo.ts:457-458
+    // smart_contracts/rewards/contract.algo.ts:480-481
     // const allocation = clone(allocations[i])
     // loggedAssert(allocation.amount > 0, errDisbursementsCannotBeEmpty)
     dig 9
@@ -1619,28 +1827,28 @@ createAsaDisbursementFromGroup_while_top@10:
     dup
     cover 6
     pushint 32
-    // smart_contracts/rewards/contract.algo.ts:458
+    // smart_contracts/rewards/contract.algo.ts:481
     // loggedAssert(allocation.amount > 0, errDisbursementsCannotBeEmpty)
     extract_uint64
     dup
     bnz createAsaDisbursementFromGroup_after_assert@13
-    bytec 13 // "ERR:errDbem"
+    bytec 18 // "ERR:errDbem"
     log
     err // ERR:errDbem
 
 createAsaDisbursementFromGroup_after_assert@13:
-    // smart_contracts/rewards/contract.algo.ts:461
+    // smart_contracts/rewards/contract.algo.ts:484
     // Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:462
+    // smart_contracts/rewards/contract.algo.ts:485
     // Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/rewards/contract.algo.ts:463
+    // smart_contracts/rewards/contract.algo.ts:486
     // assetXfer.xferAsset,
     uncover 3
     dup
     gtxns XferAsset
-    // smart_contracts/rewards/contract.algo.ts:459-465
+    // smart_contracts/rewards/contract.algo.ts:482-488
     // assertBoundAssetTransfer(
     //   assetXfer,
     //   Txn.sender,
@@ -1654,7 +1862,7 @@ createAsaDisbursementFromGroup_after_assert@13:
     dig 3
     dig 5
     callsub assertBoundAssetTransfer
-    // smart_contracts/rewards/contract.algo.ts:466
+    // smart_contracts/rewards/contract.algo.ts:489
     // newBoxes += this.writeAllocation(id, allocation.address, assetXfer.xferAsset.id, allocation.amount)
     uncover 6
     extract 0 32
@@ -1666,7 +1874,7 @@ createAsaDisbursementFromGroup_after_assert@13:
     uncover 4
     +
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:455
+    // smart_contracts/rewards/contract.algo.ts:478
     // for (let i: uint64 = 0; i < count; i += 1) {
     swap
     intc_1 // 1
@@ -1679,7 +1887,7 @@ createAsaDisbursementFromGroup_after_while@14:
     bury 1
     uncover 2
     pop
-    // smart_contracts/rewards/contract.algo.ts:469
+    // smart_contracts/rewards/contract.algo.ts:492
     // this.useMbrCredit(id, UserAllocationMBR * newBoxes)
     intc 4 // 25300
     uncover 2
@@ -1687,7 +1895,7 @@ createAsaDisbursementFromGroup_after_while@14:
     uncover 3
     swap
     callsub useMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:471
+    // smart_contracts/rewards/contract.algo.ts:494
     // loggedAssert(this.disbursements(id).value.amount > 0, errDisbursementsCannotBeEmpty)
     dup
     pushint 35
@@ -1695,12 +1903,12 @@ createAsaDisbursementFromGroup_after_while@14:
     box_extract // on error: index out of bounds
     btoi
     bnz createAsaDisbursementFromGroup_after_assert@16
-    bytec 13 // "ERR:errDbem"
+    bytec 18 // "ERR:errDbem"
     log
     err // ERR:errDbem
 
 createAsaDisbursementFromGroup_after_assert@16:
-    // smart_contracts/rewards/contract.algo.ts:472
+    // smart_contracts/rewards/contract.algo.ts:495
     // loggedAssert(this.disbursements(id).value.allocations > 0, errDisbursementsMustHaveAllocations)
     dup
     pushint 59
@@ -1713,7 +1921,7 @@ createAsaDisbursementFromGroup_after_assert@16:
     err // ERR:errDbma
 
 createAsaDisbursementFromGroup_after_assert@18:
-    // smart_contracts/rewards/contract.algo.ts:474
+    // smart_contracts/rewards/contract.algo.ts:497
     // this.disbursements(id).value.finalized = true
     dup
     pushint 32
@@ -1725,7 +1933,7 @@ createAsaDisbursementFromGroup_after_assert@18:
     pushint 32
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:412-420
+    // smart_contracts/rewards/contract.algo.ts:431-439
     // createAsaDisbursementFromGroup(
     //   mbrPaymentIndex: uint64,
     //   assetTransferStartIndex: uint64,
@@ -1745,7 +1953,7 @@ createAsaDisbursementFromGroup_after_assert@18:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.finalizeDisbursement[routing]() -> void:
 finalizeDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:479
+    // smart_contracts/rewards/contract.algo.ts:502
     // finalizeDisbursement(id: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1754,16 +1962,16 @@ finalizeDisbursement:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/rewards/contract.algo.ts:480
+    // smart_contracts/rewards/contract.algo.ts:503
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:480
+    // smart_contracts/rewards/contract.algo.ts:503
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -1773,7 +1981,7 @@ finalizeDisbursement:
     err // ERR:errDbne
 
 finalizeDisbursement_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:482
+    // smart_contracts/rewards/contract.algo.ts:505
     // const { creator, finalized, timeToUnlock, expiration, amount, allocations } = this.disbursements(id).value
     dupn 2
     intc_0 // 0
@@ -1810,7 +2018,7 @@ finalizeDisbursement_after_assert@3:
     box_extract // on error: index out of bounds
     btoi
     swap
-    // smart_contracts/rewards/contract.algo.ts:483
+    // smart_contracts/rewards/contract.algo.ts:506
     // loggedAssert(Txn.sender === creator, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -1820,7 +2028,7 @@ finalizeDisbursement_after_assert@3:
     err // ERR:errYncr
 
 finalizeDisbursement_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:484
+    // smart_contracts/rewards/contract.algo.ts:507
     // loggedAssert(!finalized, errDisbursementAlreadyFinal)
     uncover 5
     bz finalizeDisbursement_after_assert@7
@@ -1829,24 +2037,24 @@ finalizeDisbursement_after_assert@5:
     err // ERR:errDbaf
 
 finalizeDisbursement_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:485
+    // smart_contracts/rewards/contract.algo.ts:508
     // this.assertValidUnlock(timeToUnlock)
     uncover 4
     callsub assertValidUnlock
-    // smart_contracts/rewards/contract.algo.ts:486
+    // smart_contracts/rewards/contract.algo.ts:509
     // this.assertValidExpiration(expiration)
     uncover 3
     callsub assertValidExpiration
-    // smart_contracts/rewards/contract.algo.ts:487
+    // smart_contracts/rewards/contract.algo.ts:510
     // loggedAssert(amount > 0, errDisbursementsCannotBeEmpty)
     uncover 2
     bnz finalizeDisbursement_after_assert@9
-    bytec 13 // "ERR:errDbem"
+    bytec 18 // "ERR:errDbem"
     log
     err // ERR:errDbem
 
 finalizeDisbursement_after_assert@9:
-    // smart_contracts/rewards/contract.algo.ts:488
+    // smart_contracts/rewards/contract.algo.ts:511
     // loggedAssert(allocations > 0, errDisbursementsMustHaveAllocations)
     bnz finalizeDisbursement_after_assert@11
     bytec 8 // "ERR:errDbma"
@@ -1854,7 +2062,7 @@ finalizeDisbursement_after_assert@9:
     err // ERR:errDbma
 
 finalizeDisbursement_after_assert@11:
-    // smart_contracts/rewards/contract.algo.ts:490
+    // smart_contracts/rewards/contract.algo.ts:513
     // this.disbursements(id).value.finalized = true
     dup
     pushint 32
@@ -1866,7 +2074,7 @@ finalizeDisbursement_after_assert@11:
     pushint 32
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:479
+    // smart_contracts/rewards/contract.algo.ts:502
     // finalizeDisbursement(id: uint64): void {
     intc_1 // 1
     return
@@ -1874,7 +2082,7 @@ finalizeDisbursement_after_assert@11:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createInstantDisbursement[routing]() -> void:
 createInstantDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:499-505
+    // smart_contracts/rewards/contract.algo.ts:524-530
     // createInstantDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   timeToUnlock: uint64,
@@ -1922,7 +2130,7 @@ createInstantDisbursement:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/rewards/contract.algo.ts:506
+    // smart_contracts/rewards/contract.algo.ts:531
     // const { id, sum, mbrAmount } = this.newInstantDisbursement(0, timeToUnlock, expiration, allocations, reclaimTo)
     intc_0 // 0
     cover 4
@@ -1931,22 +2139,30 @@ createInstantDisbursement:
     dup
     extract 0 8
     dig 1
+    intc_0 // 0
+    extract_uint64
+    dig 2
     intc_2 // 8
     extract_uint64
-    uncover 2
+    uncover 3
     pushint 16
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:507
-    // assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount + sum)
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:532
+    // assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + sum + this.sponsor(id, mbrPayment.sender))
     global CurrentApplicationAddress
+    swap
     uncover 2
-    uncover 3
     +
-    uncover 4
-    cover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:499-505
+    dig 4
+    gtxns Sender
+    uncover 3
+    swap
+    callsub sponsor
+    +
+    uncover 3
+    cover 2
+    callsub assertExactPayment
+    // smart_contracts/rewards/contract.algo.ts:524-530
     // createInstantDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   timeToUnlock: uint64,
@@ -1964,7 +2180,7 @@ createInstantDisbursement:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.legacyCreateInstantDisbursement[routing]() -> void:
 legacyCreateInstantDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:515
+    // smart_contracts/rewards/contract.algo.ts:540
     // @abimethod({ name: 'createInstantDisbursement' })
     txn GroupIndex
     intc_1 // 1
@@ -2000,7 +2216,7 @@ legacyCreateInstantDisbursement:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::UserAllocation>
-    // smart_contracts/rewards/contract.algo.ts:522
+    // smart_contracts/rewards/contract.algo.ts:547
     // const { id, sum, mbrAmount } = this.newInstantDisbursement(0, timeToUnlock, expiration, allocations, Global.zeroAddress)
     global ZeroAddress
     intc_0 // 0
@@ -2010,22 +2226,30 @@ legacyCreateInstantDisbursement:
     dup
     extract 0 8
     dig 1
+    intc_0 // 0
+    extract_uint64
+    dig 2
     intc_2 // 8
     extract_uint64
-    uncover 2
+    uncover 3
     pushint 16
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:523
-    // assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount + sum)
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:548
+    // assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + sum + this.sponsor(id, mbrPayment.sender))
     global CurrentApplicationAddress
+    swap
     uncover 2
-    uncover 3
     +
-    uncover 4
-    cover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:515
+    dig 4
+    gtxns Sender
+    uncover 3
+    swap
+    callsub sponsor
+    +
+    uncover 3
+    cover 2
+    callsub assertExactPayment
+    // smart_contracts/rewards/contract.algo.ts:540
     // @abimethod({ name: 'createInstantDisbursement' })
     bytec_2 // 0x151f7c75
     swap
@@ -2037,7 +2261,7 @@ legacyCreateInstantDisbursement:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.createInstantAsaDisbursement[routing]() -> void:
 createInstantAsaDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:528-535
+    // smart_contracts/rewards/contract.algo.ts:553-560
     // createInstantAsaDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -2094,7 +2318,7 @@ createInstantAsaDisbursement:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/rewards/contract.algo.ts:536
+    // smart_contracts/rewards/contract.algo.ts:561
     // const { id, sum, mbrAmount } = this.newInstantDisbursement(assetXfer.xferAsset.id, timeToUnlock, expiration, allocations, reclaimTo)
     dig 4
     gtxns XferAsset
@@ -2104,25 +2328,33 @@ createInstantAsaDisbursement:
     dup
     extract 0 8
     dig 1
+    intc_0 // 0
+    extract_uint64
+    dig 2
     intc_2 // 8
     extract_uint64
-    uncover 2
+    uncover 3
     pushint 16
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:537
-    // assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount)
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:562
+    // assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + this.sponsor(id, mbrPayment.sender))
     global CurrentApplicationAddress
-    uncover 6
+    dig 6
+    gtxns Sender
+    uncover 4
+    swap
+    callsub sponsor
+    uncover 2
+    +
+    uncover 5
     cover 2
-    uncover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:538
+    callsub assertExactPayment
+    // smart_contracts/rewards/contract.algo.ts:563
     // this.assertInboundAssetTransfer(assetXfer, sum)
     uncover 2
     swap
     callsub assertInboundAssetTransfer
-    // smart_contracts/rewards/contract.algo.ts:528-535
+    // smart_contracts/rewards/contract.algo.ts:553-560
     // createInstantAsaDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -2141,7 +2373,7 @@ createInstantAsaDisbursement:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.legacyCreateInstantAsaDisbursement[routing]() -> void:
 legacyCreateInstantAsaDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:543
+    // smart_contracts/rewards/contract.algo.ts:568
     // @abimethod({ name: 'createInstantAsaDisbursement' })
     txn GroupIndex
     intc_3 // 2
@@ -2185,7 +2417,7 @@ legacyCreateInstantAsaDisbursement:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::UserAllocation>
-    // smart_contracts/rewards/contract.algo.ts:551
+    // smart_contracts/rewards/contract.algo.ts:576
     // const { id, sum, mbrAmount } = this.newInstantDisbursement(assetXfer.xferAsset.id, timeToUnlock, expiration, allocations, Global.zeroAddress)
     dig 3
     gtxns XferAsset
@@ -2197,25 +2429,33 @@ legacyCreateInstantAsaDisbursement:
     dup
     extract 0 8
     dig 1
+    intc_0 // 0
+    extract_uint64
+    dig 2
     intc_2 // 8
     extract_uint64
-    uncover 2
+    uncover 3
     pushint 16
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:552
-    // assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, mbrAmount)
-    txn Sender
+    // smart_contracts/rewards/contract.algo.ts:577
+    // assertExactPayment(mbrPayment, Global.currentApplicationAddress, mbrAmount + this.sponsor(id, mbrPayment.sender))
     global CurrentApplicationAddress
-    uncover 6
+    dig 6
+    gtxns Sender
+    uncover 4
+    swap
+    callsub sponsor
+    uncover 2
+    +
+    uncover 5
     cover 2
-    uncover 3
-    callsub assertBoundPayment
-    // smart_contracts/rewards/contract.algo.ts:553
+    callsub assertExactPayment
+    // smart_contracts/rewards/contract.algo.ts:578
     // this.assertInboundAssetTransfer(assetXfer, sum)
     uncover 2
     swap
     callsub assertInboundAssetTransfer
-    // smart_contracts/rewards/contract.algo.ts:543
+    // smart_contracts/rewards/contract.algo.ts:568
     // @abimethod({ name: 'createInstantAsaDisbursement' })
     bytec_2 // 0x151f7c75
     swap
@@ -2228,7 +2468,7 @@ legacyCreateInstantAsaDisbursement:
 // smart_contracts/rewards/contract.algo.ts::Rewards.claimRewards[routing]() -> void:
 claimRewards:
     pushbytes ""
-    // smart_contracts/rewards/contract.algo.ts:557
+    // smart_contracts/rewards/contract.algo.ts:582
     // claimRewards(rewards: ClaimDetails[]): void {
     txna ApplicationArgs 1
     dupn 2
@@ -2244,18 +2484,18 @@ claimRewards:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::ClaimDetails>
-    // smart_contracts/rewards/contract.algo.ts:558
+    // smart_contracts/rewards/contract.algo.ts:583
     // for (let i: uint64 = 0; i < rewards.length; i += 1) {
     intc_0 // 0
 
 claimRewards_while_top@2:
-    // smart_contracts/rewards/contract.algo.ts:558
+    // smart_contracts/rewards/contract.algo.ts:583
     // for (let i: uint64 = 0; i < rewards.length; i += 1) {
     dup
     dig 2
     <
     bz claimRewards_after_while@25
-    // smart_contracts/rewards/contract.algo.ts:559
+    // smart_contracts/rewards/contract.algo.ts:584
     // loggedAssert(this.disbursements(rewards[i].id).exists, errDisbursementDoesNotExist)
     dig 2
     extract 2 0
@@ -2273,14 +2513,14 @@ claimRewards_while_top@2:
     itob
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:559
+    // smart_contracts/rewards/contract.algo.ts:584
     // loggedAssert(this.disbursements(rewards[i].id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -2290,7 +2530,7 @@ claimRewards_while_top@2:
     err // ERR:errDbne
 
 claimRewards_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:561
+    // smart_contracts/rewards/contract.algo.ts:586
     // const { finalized, timeToUnlock, expiration, amount, distributed, note } = this.disbursements(rewards[i].id).value
     dig 1
     dup
@@ -2340,26 +2580,26 @@ claimRewards_after_assert@5:
     box_extract
     extract 2 0
     swap
-    // smart_contracts/rewards/contract.algo.ts:562
+    // smart_contracts/rewards/contract.algo.ts:587
     // loggedAssert(finalized, errDisbursementNotFinal)
     bnz claimRewards_after_assert@7
-    bytec 14 // "ERR:errDbnl"
+    bytec 19 // "ERR:errDbnl"
     log
     err // ERR:errDbnl
 
 claimRewards_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:563
+    // smart_contracts/rewards/contract.algo.ts:588
     // loggedAssert(timeToUnlock <= Global.latestTimestamp, errDisbursementLocked)
     global LatestTimestamp
     uncover 10
     >=
     bnz claimRewards_after_assert@9
-    bytec 21 // "ERR:errDblk"
+    bytec 22 // "ERR:errDblk"
     log
     err // ERR:errDblk
 
 claimRewards_after_assert@9:
-    // smart_contracts/rewards/contract.algo.ts:565
+    // smart_contracts/rewards/contract.algo.ts:590
     // loggedAssert(expiration === 0 || expiration >= Global.latestTimestamp, errDisbursementLocked)
     dig 10
     bz claimRewards_bool_true@11
@@ -2372,15 +2612,15 @@ claimRewards_bool_true@11:
     intc_1 // 1
 
 claimRewards_bool_merge@13:
-    // smart_contracts/rewards/contract.algo.ts:565
+    // smart_contracts/rewards/contract.algo.ts:590
     // loggedAssert(expiration === 0 || expiration >= Global.latestTimestamp, errDisbursementLocked)
     bnz claimRewards_after_assert@15
-    bytec 21 // "ERR:errDblk"
+    bytec 22 // "ERR:errDblk"
     log
     err // ERR:errDblk
 
 claimRewards_after_assert@15:
-    // smart_contracts/rewards/contract.algo.ts:566
+    // smart_contracts/rewards/contract.algo.ts:591
     // loggedAssert(amount > distributed, errDisbursementFullyDistributed)
     uncover 4
     uncover 4
@@ -2391,17 +2631,17 @@ claimRewards_after_assert@15:
     err // ERR:errDbfd
 
 claimRewards_after_assert@17:
-    // smart_contracts/rewards/contract.algo.ts:570
+    // smart_contracts/rewards/contract.algo.ts:595
     // address: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:571
+    // smart_contracts/rewards/contract.algo.ts:596
     // asset: rewards[i].asset,
     uncover 7
     intc_2 // 8
     extract_uint64
     dup
     cover 8
-    // smart_contracts/rewards/contract.algo.ts:568-572
+    // smart_contracts/rewards/contract.algo.ts:593-597
     // const userAllocationsKey: UserAllocationsKey = {
     //   disbursementID: rewards[i].id,
     //   address: Txn.sender,
@@ -2411,23 +2651,23 @@ claimRewards_after_assert@17:
     concat
     uncover 4
     concat
-    // smart_contracts/rewards/contract.algo.ts:86
+    // smart_contracts/rewards/contract.algo.ts:90
     // userAllocations = BoxMap<UserAllocationsKey, uint64>({ keyPrefix: RewardsBoxPrefixUserAllocations })
     bytec 9 // "u"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:573
+    // smart_contracts/rewards/contract.algo.ts:598
     // loggedAssert(this.userAllocations(userAllocationsKey).exists, errAllocationDoesNotExist)
     box_len
     bury 1
     bnz claimRewards_after_assert@19
-    bytec 22 // "ERR:errAlne"
+    bytec 23 // "ERR:errAlne"
     log
     err // ERR:errAlne
 
 claimRewards_after_assert@19:
-    // smart_contracts/rewards/contract.algo.ts:574
+    // smart_contracts/rewards/contract.algo.ts:599
     // const userAllocation = this.userAllocations(userAllocationsKey).value
     dup
     box_get
@@ -2435,7 +2675,7 @@ claimRewards_after_assert@19:
     btoi
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:576
+    // smart_contracts/rewards/contract.algo.ts:601
     // this.disbursements(rewards[i].id).value.allocations -= 1
     uncover 5
     dup
@@ -2450,7 +2690,7 @@ claimRewards_after_assert@19:
     pushint 59
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:577
+    // smart_contracts/rewards/contract.algo.ts:602
     // this.disbursements(rewards[i].id).value.distributed += userAllocation
     dup
     pushint 67
@@ -2463,23 +2703,23 @@ claimRewards_after_assert@19:
     pushint 67
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:578
+    // smart_contracts/rewards/contract.algo.ts:603
     // this.userAllocations(userAllocationsKey).delete()
     box_del
     pop
-    // smart_contracts/rewards/contract.algo.ts:107
+    // smart_contracts/rewards/contract.algo.ts:122
     // this.addMbrCredit(id, UserAllocationMBR)
     uncover 6
     intc 4 // 25300
     callsub addMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:583
+    // smart_contracts/rewards/contract.algo.ts:608
     // if (!isAlgo) {
     dig 5
     bz claimRewards_else_body@22
-    // smart_contracts/rewards/contract.algo.ts:585
+    // smart_contracts/rewards/contract.algo.ts:610
     // assetReceiver: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:591
+    // smart_contracts/rewards/contract.algo.ts:616
     // assetXfer.submit()
     itxn_begin
     uncover 2
@@ -2488,7 +2728,7 @@ claimRewards_after_assert@19:
     itxn_field XferAsset
     itxn_field AssetReceiver
     itxn_field AssetAmount
-    // smart_contracts/rewards/contract.algo.ts:584-589
+    // smart_contracts/rewards/contract.algo.ts:609-614
     // const assetXfer = itxn.assetTransfer({
     //   assetReceiver: Txn.sender,
     //   assetAmount: userAllocation,
@@ -2499,12 +2739,12 @@ claimRewards_after_assert@19:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/rewards/contract.algo.ts:591
+    // smart_contracts/rewards/contract.algo.ts:616
     // assetXfer.submit()
     itxn_submit
 
 claimRewards_after_if_else@24:
-    // smart_contracts/rewards/contract.algo.ts:558
+    // smart_contracts/rewards/contract.algo.ts:583
     // for (let i: uint64 = 0; i < rewards.length; i += 1) {
     intc_1 // 1
     +
@@ -2513,17 +2753,17 @@ claimRewards_after_if_else@24:
 claimRewards_else_body@22:
     uncover 5
     pop
-    // smart_contracts/rewards/contract.algo.ts:594
+    // smart_contracts/rewards/contract.algo.ts:619
     // receiver: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:599
+    // smart_contracts/rewards/contract.algo.ts:624
     // payment.submit()
     itxn_begin
     uncover 2
     itxn_field Note
     itxn_field Receiver
     itxn_field Amount
-    // smart_contracts/rewards/contract.algo.ts:593-597
+    // smart_contracts/rewards/contract.algo.ts:618-622
     // const payment = itxn.payment({
     //   receiver: Txn.sender,
     //   amount: userAllocation,
@@ -2533,7 +2773,7 @@ claimRewards_else_body@22:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/rewards/contract.algo.ts:599
+    // smart_contracts/rewards/contract.algo.ts:624
     // payment.submit()
     itxn_submit
     b claimRewards_after_if_else@24
@@ -2543,7 +2783,7 @@ claimRewards_bool_false@12:
     b claimRewards_bool_merge@13
 
 claimRewards_after_while@25:
-    // smart_contracts/rewards/contract.algo.ts:557
+    // smart_contracts/rewards/contract.algo.ts:582
     // claimRewards(rewards: ClaimDetails[]): void {
     intc_1 // 1
     return
@@ -2552,7 +2792,7 @@ claimRewards_after_while@25:
 // smart_contracts/rewards/contract.algo.ts::Rewards.reclaimRewards[routing]() -> void:
 reclaimRewards:
     pushbytes ""
-    // smart_contracts/rewards/contract.algo.ts:604
+    // smart_contracts/rewards/contract.algo.ts:629
     // reclaimRewards(id: uint64, reclaims: AllocationReclaimDetails[]): void {
     txna ApplicationArgs 1
     dup
@@ -2578,17 +2818,17 @@ reclaimRewards:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::AllocationReclaimDetails>
-    // smart_contracts/rewards/contract.algo.ts:605
+    // smart_contracts/rewards/contract.algo.ts:630
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
     dup
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:605
+    // smart_contracts/rewards/contract.algo.ts:630
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -2598,7 +2838,7 @@ reclaimRewards:
     err // ERR:errDbne
 
 reclaimRewards_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:606
+    // smart_contracts/rewards/contract.algo.ts:631
     // const { creator, finalized, expiration } = this.disbursements(id).value
     dupn 2
     intc_0 // 0
@@ -2619,7 +2859,7 @@ reclaimRewards_after_assert@3:
     box_extract // on error: index out of bounds
     btoi
     bury 9
-    // smart_contracts/rewards/contract.algo.ts:608
+    // smart_contracts/rewards/contract.algo.ts:633
     // loggedAssert(creator === Txn.sender, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -2629,16 +2869,16 @@ reclaimRewards_after_assert@3:
     err // ERR:errYncr
 
 reclaimRewards_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:609
+    // smart_contracts/rewards/contract.algo.ts:634
     // loggedAssert(finalized, errDisbursementNotFinal)
     swap
     bnz reclaimRewards_after_assert@7
-    bytec 14 // "ERR:errDbnl"
+    bytec 19 // "ERR:errDbnl"
     log
     err // ERR:errDbnl
 
 reclaimRewards_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:611
+    // smart_contracts/rewards/contract.algo.ts:636
     // loggedAssert(expiration !== 0 && expiration < Global.latestTimestamp, errDisbursementNotExpired)
     dig 6
     bz reclaimRewards_bool_false@10
@@ -2649,26 +2889,26 @@ reclaimRewards_after_assert@7:
     intc_1 // 1
 
 reclaimRewards_bool_merge@11:
-    // smart_contracts/rewards/contract.algo.ts:611
+    // smart_contracts/rewards/contract.algo.ts:636
     // loggedAssert(expiration !== 0 && expiration < Global.latestTimestamp, errDisbursementNotExpired)
     bnz reclaimRewards_after_assert@13
-    bytec 23 // "ERR:errDbnx"
+    bytec 24 // "ERR:errDbnx"
     log
     err // ERR:errDbnx
 
 reclaimRewards_after_assert@13:
-    // smart_contracts/rewards/contract.algo.ts:613
+    // smart_contracts/rewards/contract.algo.ts:638
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
     intc_0 // 0
 
 reclaimRewards_while_top@14:
-    // smart_contracts/rewards/contract.algo.ts:613
+    // smart_contracts/rewards/contract.algo.ts:638
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
     dup
     dig 5
     <
     bz reclaimRewards_after_while@23
-    // smart_contracts/rewards/contract.algo.ts:616
+    // smart_contracts/rewards/contract.algo.ts:641
     // address: reclaims[i].address,
     dig 5
     extract 2 0
@@ -2679,19 +2919,19 @@ reclaimRewards_while_top@14:
     extract3 // on error: index access is out of bounds
     dup
     extract 0 32
-    // smart_contracts/rewards/contract.algo.ts:617
+    // smart_contracts/rewards/contract.algo.ts:642
     // asset: reclaims[i].asset,
     swap
-    // smart_contracts/rewards/contract.algo.ts:616-617
+    // smart_contracts/rewards/contract.algo.ts:641-642
     // address: reclaims[i].address,
     // asset: reclaims[i].asset,
     pushint 32
-    // smart_contracts/rewards/contract.algo.ts:617
+    // smart_contracts/rewards/contract.algo.ts:642
     // asset: reclaims[i].asset,
     extract_uint64
     dup
     cover 4
-    // smart_contracts/rewards/contract.algo.ts:614-618
+    // smart_contracts/rewards/contract.algo.ts:639-643
     // const userAllocationsKey: UserAllocationsKey = {
     //   disbursementID: id,
     //   address: reclaims[i].address,
@@ -2701,23 +2941,23 @@ reclaimRewards_while_top@14:
     concat
     dig 5
     concat
-    // smart_contracts/rewards/contract.algo.ts:86
+    // smart_contracts/rewards/contract.algo.ts:90
     // userAllocations = BoxMap<UserAllocationsKey, uint64>({ keyPrefix: RewardsBoxPrefixUserAllocations })
     bytec 9 // "u"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:619
+    // smart_contracts/rewards/contract.algo.ts:644
     // loggedAssert(this.userAllocations(userAllocationsKey).exists, errAllocationDoesNotExist)
     box_len
     bury 1
     bnz reclaimRewards_after_assert@17
-    bytec 22 // "ERR:errAlne"
+    bytec 23 // "ERR:errAlne"
     log
     err // ERR:errAlne
 
 reclaimRewards_after_assert@17:
-    // smart_contracts/rewards/contract.algo.ts:621
+    // smart_contracts/rewards/contract.algo.ts:646
     // const userAllocation = this.userAllocations(userAllocationsKey).value
     dup
     box_get
@@ -2725,7 +2965,7 @@ reclaimRewards_after_assert@17:
     btoi
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:623
+    // smart_contracts/rewards/contract.algo.ts:648
     // this.disbursements(id).value.allocations -= 1
     dig 4
     dup
@@ -2740,7 +2980,7 @@ reclaimRewards_after_assert@17:
     pushint 59
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:624
+    // smart_contracts/rewards/contract.algo.ts:649
     // this.disbursements(id).value.amount -= userAllocation
     dup
     pushint 35
@@ -2753,20 +2993,20 @@ reclaimRewards_after_assert@17:
     pushint 35
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:625
+    // smart_contracts/rewards/contract.algo.ts:650
     // this.userAllocations(userAllocationsKey).delete()
     box_del
     pop
-    // smart_contracts/rewards/contract.algo.ts:107
+    // smart_contracts/rewards/contract.algo.ts:122
     // this.addMbrCredit(id, UserAllocationMBR)
     dig 8
     intc 4 // 25300
     callsub addMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:630
+    // smart_contracts/rewards/contract.algo.ts:655
     // if (!isAlgo) {
     dig 3
     bz reclaimRewards_else_body@20
-    // smart_contracts/rewards/contract.algo.ts:637
+    // smart_contracts/rewards/contract.algo.ts:662
     // xfer.submit()
     itxn_begin
     uncover 3
@@ -2774,7 +3014,7 @@ reclaimRewards_after_assert@17:
     itxn_field AssetAmount
     dig 2
     itxn_field AssetReceiver
-    // smart_contracts/rewards/contract.algo.ts:631-635
+    // smart_contracts/rewards/contract.algo.ts:656-660
     // const xfer = itxn.assetTransfer({
     //   assetReceiver: creator,
     //   assetAmount: userAllocation,
@@ -2784,12 +3024,12 @@ reclaimRewards_after_assert@17:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/rewards/contract.algo.ts:637
+    // smart_contracts/rewards/contract.algo.ts:662
     // xfer.submit()
     itxn_submit
 
 reclaimRewards_after_if_else@22:
-    // smart_contracts/rewards/contract.algo.ts:613
+    // smart_contracts/rewards/contract.algo.ts:638
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
     intc_1 // 1
     +
@@ -2798,7 +3038,7 @@ reclaimRewards_after_if_else@22:
 reclaimRewards_else_body@20:
     uncover 3
     pop
-    // smart_contracts/rewards/contract.algo.ts:639-644
+    // smart_contracts/rewards/contract.algo.ts:664-669
     // itxn
     //   .payment({
     //     receiver: creator,
@@ -2809,7 +3049,7 @@ reclaimRewards_else_body@20:
     itxn_field Amount
     dig 2
     itxn_field Receiver
-    // smart_contracts/rewards/contract.algo.ts:639-643
+    // smart_contracts/rewards/contract.algo.ts:664-668
     // itxn
     //   .payment({
     //     receiver: creator,
@@ -2819,7 +3059,7 @@ reclaimRewards_else_body@20:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/rewards/contract.algo.ts:639-644
+    // smart_contracts/rewards/contract.algo.ts:664-669
     // itxn
     //   .payment({
     //     receiver: creator,
@@ -2830,7 +3070,7 @@ reclaimRewards_else_body@20:
     b reclaimRewards_after_if_else@22
 
 reclaimRewards_after_while@23:
-    // smart_contracts/rewards/contract.algo.ts:604
+    // smart_contracts/rewards/contract.algo.ts:629
     // reclaimRewards(id: uint64, reclaims: AllocationReclaimDetails[]): void {
     intc_1 // 1
     return
@@ -2843,10 +3083,10 @@ reclaimRewards_bool_false@10:
 // smart_contracts/rewards/contract.algo.ts::Rewards.sweepExpired[routing]() -> void:
 sweepExpired:
     intc_0 // 0
-    dup
+    dupn 2
     pushbytes ""
-    dupn 3
-    // smart_contracts/rewards/contract.algo.ts:656
+    dupn 4
+    // smart_contracts/rewards/contract.algo.ts:681
     // sweepExpired(id: uint64, reclaims: AllocationReclaimDetails[]): void {
     txna ApplicationArgs 1
     dup
@@ -2872,17 +3112,17 @@ sweepExpired:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/rewards/types.ts::AllocationReclaimDetails>
-    // smart_contracts/rewards/contract.algo.ts:657
+    // smart_contracts/rewards/contract.algo.ts:682
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
     dup
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:657
+    // smart_contracts/rewards/contract.algo.ts:682
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -2892,7 +3132,7 @@ sweepExpired:
     err // ERR:errDbne
 
 sweepExpired_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:658
+    // smart_contracts/rewards/contract.algo.ts:683
     // const { finalized, expiration, reclaimTo } = this.disbursements(id).value
     dupn 2
     pushint 32
@@ -2900,18 +3140,18 @@ sweepExpired_after_assert@3:
     box_extract // on error: index out of bounds
     intc_0 // 0
     getbit
-    cover 2
+    swap
     dup
     pushint 51
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    bury 10
+    bury 11
     pushints 83 32
     box_extract // on error: index out of bounds
     dup
-    bury 12
-    // smart_contracts/rewards/contract.algo.ts:659
+    bury 13
+    // smart_contracts/rewards/contract.algo.ts:684
     // loggedAssert(reclaimTo !== Global.zeroAddress, errDisbursementNotSweepable)
     global ZeroAddress
     !=
@@ -2921,74 +3161,76 @@ sweepExpired_after_assert@3:
     err // ERR:errDbns
 
 sweepExpired_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:660
+    // smart_contracts/rewards/contract.algo.ts:685
     // loggedAssert(finalized, errDisbursementNotFinal)
-    swap
     bnz sweepExpired_after_assert@7
-    bytec 14 // "ERR:errDbnl"
+    bytec 19 // "ERR:errDbnl"
     log
     err // ERR:errDbnl
 
 sweepExpired_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:661
+    // smart_contracts/rewards/contract.algo.ts:686
     // loggedAssert(expiration !== 0 && expiration < Global.latestTimestamp, errDisbursementNotExpired)
-    dig 7
+    dig 8
     bz sweepExpired_bool_false@10
-    dig 7
+    dig 8
     global LatestTimestamp
     <
     bz sweepExpired_bool_false@10
     intc_1 // 1
 
 sweepExpired_bool_merge@11:
-    // smart_contracts/rewards/contract.algo.ts:661
+    // smart_contracts/rewards/contract.algo.ts:686
     // loggedAssert(expiration !== 0 && expiration < Global.latestTimestamp, errDisbursementNotExpired)
     bnz sweepExpired_after_assert@13
-    bytec 23 // "ERR:errDbnx"
+    bytec 24 // "ERR:errDbnx"
     log
     err // ERR:errDbnx
 
 sweepExpired_after_assert@13:
-    // smart_contracts/rewards/contract.algo.ts:663
+    // smart_contracts/rewards/contract.algo.ts:690
     // let algoAmount: uint64 = 0
     intc_0 // 0
-    bury 9
-    // smart_contracts/rewards/contract.algo.ts:664
+    bury 10
+    // smart_contracts/rewards/contract.algo.ts:691
+    // let storage: uint64 = 0
+    intc_0 // 0
+    bury 8
+    // smart_contracts/rewards/contract.algo.ts:692
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
     intc_0 // 0
-    swap
 
 sweepExpired_while_top@14:
-    // smart_contracts/rewards/contract.algo.ts:664
+    // smart_contracts/rewards/contract.algo.ts:692
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
-    dig 1
+    dup
     dig 4
     <
     bz sweepExpired_after_while@24
-    // smart_contracts/rewards/contract.algo.ts:667
+    // smart_contracts/rewards/contract.algo.ts:695
     // address: reclaims[i].address,
     dig 4
     extract 2 0
-    dig 2
+    dig 1
     pushint 40
     *
     pushint 40
     extract3 // on error: index access is out of bounds
     dup
     extract 0 32
-    // smart_contracts/rewards/contract.algo.ts:668
+    // smart_contracts/rewards/contract.algo.ts:696
     // asset: reclaims[i].asset,
     swap
-    // smart_contracts/rewards/contract.algo.ts:667-668
+    // smart_contracts/rewards/contract.algo.ts:695-696
     // address: reclaims[i].address,
     // asset: reclaims[i].asset,
     pushint 32
-    // smart_contracts/rewards/contract.algo.ts:668
+    // smart_contracts/rewards/contract.algo.ts:696
     // asset: reclaims[i].asset,
     extract_uint64
     dup
     bury 10
-    // smart_contracts/rewards/contract.algo.ts:665-669
+    // smart_contracts/rewards/contract.algo.ts:693-697
     // const userAllocationsKey: UserAllocationsKey = {
     //   disbursementID: id,
     //   address: reclaims[i].address,
@@ -2998,25 +3240,26 @@ sweepExpired_while_top@14:
     concat
     dig 3
     concat
-    // smart_contracts/rewards/contract.algo.ts:86
+    // smart_contracts/rewards/contract.algo.ts:90
     // userAllocations = BoxMap<UserAllocationsKey, uint64>({ keyPrefix: RewardsBoxPrefixUserAllocations })
     bytec 9 // "u"
     swap
     concat
     dup
-    bury 13
-    // smart_contracts/rewards/contract.algo.ts:670
+    bury 14
+    // smart_contracts/rewards/contract.algo.ts:698
     // const [userAllocation, exists] = this.userAllocations(userAllocationsKey).maybe()
     box_get
     swap
     btoi
     bury 8
-    // smart_contracts/rewards/contract.algo.ts:671
+    // smart_contracts/rewards/contract.algo.ts:699
     // if (exists) {
     bz sweepExpired_after_if_else@23
-    // smart_contracts/rewards/contract.algo.ts:672
+    // smart_contracts/rewards/contract.algo.ts:700
     // this.disbursements(id).value.allocations -= 1
-    dupn 2
+    dig 1
+    dup
     pushint 59
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -3028,7 +3271,7 @@ sweepExpired_while_top@14:
     pushint 59
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:673
+    // smart_contracts/rewards/contract.algo.ts:701
     // this.disbursements(id).value.amount -= userAllocation
     dup
     pushint 35
@@ -3041,41 +3284,39 @@ sweepExpired_while_top@14:
     pushint 35
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:674
+    // smart_contracts/rewards/contract.algo.ts:702
     // this.userAllocations(userAllocationsKey).delete()
-    dig 11
+    dig 12
     box_del
     pop
-    // smart_contracts/rewards/contract.algo.ts:675
-    // algoAmount += UserAllocationMBR
-    dig 9
+    // smart_contracts/rewards/contract.algo.ts:703
+    // storage += UserAllocationMBR
+    dig 8
     intc 4 // 25300
     +
-    bury 10
-    // smart_contracts/rewards/contract.algo.ts:677
+    bury 9
+    // smart_contracts/rewards/contract.algo.ts:705
     // if (reclaims[i].asset === 0) {
     dig 7
     bnz sweepExpired_else_body@18
-    // smart_contracts/rewards/contract.algo.ts:678
+    // smart_contracts/rewards/contract.algo.ts:706
     // algoAmount += userAllocation
-    dig 9
+    dig 10
     dig 7
     +
-    bury 10
+    bury 11
 
 sweepExpired_after_if_else@23:
-    // smart_contracts/rewards/contract.algo.ts:664
+    // smart_contracts/rewards/contract.algo.ts:692
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
-    swap
     intc_1 // 1
     +
-    swap
     b sweepExpired_while_top@14
 
 sweepExpired_else_body@18:
-    // smart_contracts/rewards/contract.algo.ts:680
+    // smart_contracts/rewards/contract.algo.ts:708
     // loggedAssert(reclaimTo.isOptedIn(Asset(reclaims[i].asset)), errReclaimTargetNotOptedIn)
-    dig 10
+    dig 11
     dig 8
     asset_holding_get AssetBalance
     bury 1
@@ -3085,7 +3326,7 @@ sweepExpired_else_body@18:
     err // ERR:errRcoi
 
 sweepExpired_after_assert@20:
-    // smart_contracts/rewards/contract.algo.ts:681-685
+    // smart_contracts/rewards/contract.algo.ts:709-713
     // itxn.assetTransfer({
     //   assetReceiver: reclaimTo,
     //   assetAmount: userAllocation,
@@ -3096,7 +3337,7 @@ sweepExpired_after_assert@20:
     itxn_field XferAsset
     dig 6
     itxn_field AssetAmount
-    dig 10
+    dig 11
     itxn_field AssetReceiver
     pushint 4
     itxn_field TypeEnum
@@ -3106,33 +3347,71 @@ sweepExpired_after_assert@20:
     b sweepExpired_after_if_else@23
 
 sweepExpired_after_while@24:
-    bury 1
-    // smart_contracts/rewards/contract.algo.ts:690
+    pop
+    // smart_contracts/rewards/contract.algo.ts:719
+    // let funder = payerOf(record, reclaimTo)
+    dupn 2
+    dig 12
+    callsub payerOf
+    bury 14
+    // smart_contracts/rewards/contract.algo.ts:720
     // if (this.disbursements(id).value.allocations === 0) {
     pushint 59
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
     bnz sweepExpired_after_if_else@26
-    // smart_contracts/rewards/contract.algo.ts:691
-    // algoAmount += this.deleteDisbursement(id)
-    dig 3
+    // smart_contracts/rewards/contract.algo.ts:721
+    // const released: uint64 = storage + this.deleteDisbursement(id)
+    dig 4
     callsub deleteDisbursement
     dig 8
     +
-    bury 8
+    // smart_contracts/rewards/contract.algo.ts:722
+    // const [receiver, total] = releaseDeposit(record, reclaimTo, released)
+    dig 1
+    dig 12
+    uncover 2
+    callsub releaseDeposit
+    dup
+    extract 0 32
+    swap
+    pushint 32
+    extract_uint64
+    bury 9
+    bury 13
 
 sweepExpired_after_if_else@26:
-    // smart_contracts/rewards/contract.algo.ts:694
+    // smart_contracts/rewards/contract.algo.ts:726
+    // if (funder === reclaimTo || !canReceiveAlgo(funder, storage)) {
+    dig 12
+    dig 11
+    ==
+    bnz sweepExpired_if_body@28
+    dig 12
+    dig 8
+    callsub canReceiveAlgo
+    bnz sweepExpired_else_body@29
+
+sweepExpired_if_body@28:
+    // smart_contracts/rewards/contract.algo.ts:727
+    // algoAmount += storage
+    dig 9
+    dig 8
+    +
+    bury 10
+
+sweepExpired_after_if_else@33:
+    // smart_contracts/rewards/contract.algo.ts:732
     // if (algoAmount > 0) {
-    dig 7
-    bz sweepExpired_after_if_else@29
-    // smart_contracts/rewards/contract.algo.ts:695
+    dig 9
+    bz sweepExpired_after_if_else@36
+    // smart_contracts/rewards/contract.algo.ts:733
     // itxn.payment({ receiver: reclaimTo, amount: algoAmount }).submit()
     itxn_begin
-    dig 7
+    dig 9
     itxn_field Amount
-    dig 8
+    dig 10
     itxn_field Receiver
     intc_1 // 1
     itxn_field TypeEnum
@@ -3140,11 +3419,30 @@ sweepExpired_after_if_else@26:
     itxn_field Fee
     itxn_submit
 
-sweepExpired_after_if_else@29:
-    // smart_contracts/rewards/contract.algo.ts:656
+sweepExpired_after_if_else@36:
+    // smart_contracts/rewards/contract.algo.ts:681
     // sweepExpired(id: uint64, reclaims: AllocationReclaimDetails[]): void {
     intc_1 // 1
     return
+
+sweepExpired_else_body@29:
+    // smart_contracts/rewards/contract.algo.ts:728
+    // } else if (storage > 0) {
+    dig 7
+    bz sweepExpired_after_if_else@33
+    // smart_contracts/rewards/contract.algo.ts:729
+    // itxn.payment({ receiver: funder, amount: storage }).submit()
+    itxn_begin
+    dig 7
+    itxn_field Amount
+    dig 12
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b sweepExpired_after_if_else@33
 
 sweepExpired_bool_false@10:
     intc_0 // 0
@@ -3153,7 +3451,7 @@ sweepExpired_bool_false@10:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.closeDisbursement[routing]() -> void:
 closeDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:704
+    // smart_contracts/rewards/contract.algo.ts:742
     // closeDisbursement(id: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -3163,16 +3461,16 @@ closeDisbursement:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/rewards/contract.algo.ts:705
+    // smart_contracts/rewards/contract.algo.ts:743
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:705
+    // smart_contracts/rewards/contract.algo.ts:743
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -3182,21 +3480,21 @@ closeDisbursement:
     err // ERR:errDbne
 
 closeDisbursement_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:706
+    // smart_contracts/rewards/contract.algo.ts:744
     // const { creator, allocations } = this.disbursements(id).value
-    dup
+    dupn 2
     intc_0 // 0
     pushint 32
     box_extract // on error: index out of bounds
     dup
     cover 2
-    cover 3
+    cover 4
     pushint 59
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
     swap
-    // smart_contracts/rewards/contract.algo.ts:707
+    // smart_contracts/rewards/contract.algo.ts:745
     // loggedAssert(creator === Txn.sender, errYouAreNotTheCreator)
     txn Sender
     ==
@@ -3206,7 +3504,7 @@ closeDisbursement_after_assert@3:
     err // ERR:errYncr
 
 closeDisbursement_after_assert@5:
-    // smart_contracts/rewards/contract.algo.ts:708
+    // smart_contracts/rewards/contract.algo.ts:746
     // loggedAssert(allocations === 0, errDisbursementNotEmpty)
     bz closeDisbursement_after_assert@7
     pushbytes "ERR:errDbny"
@@ -3214,10 +3512,23 @@ closeDisbursement_after_assert@5:
     err // ERR:errDbny
 
 closeDisbursement_after_assert@7:
-    // smart_contracts/rewards/contract.algo.ts:710
-    // itxn.payment({ receiver: creator, amount: this.deleteDisbursement(id) }).submit()
-    itxn_begin
+    // smart_contracts/rewards/contract.algo.ts:748
+    // const released = this.deleteDisbursement(id)
+    swap
     callsub deleteDisbursement
+    // smart_contracts/rewards/contract.algo.ts:749
+    // const [receiver, amount] = releaseDeposit(this.disbursements(id).key, creator, released)
+    swap
+    cover 2
+    callsub releaseDeposit
+    dup
+    extract 0 32
+    swap
+    pushint 32
+    extract_uint64
+    // smart_contracts/rewards/contract.algo.ts:750
+    // itxn.payment({ receiver, amount }).submit()
+    itxn_begin
     itxn_field Amount
     itxn_field Receiver
     intc_1 // 1
@@ -3225,7 +3536,7 @@ closeDisbursement_after_assert@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/rewards/contract.algo.ts:704
+    // smart_contracts/rewards/contract.algo.ts:742
     // closeDisbursement(id: uint64): void {
     intc_1 // 1
     return
@@ -3233,7 +3544,7 @@ closeDisbursement_after_assert@7:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.allocationMbrCreditShortfall[routing]() -> void:
 allocationMbrCreditShortfall:
-    // smart_contracts/rewards/contract.algo.ts:715
+    // smart_contracts/rewards/contract.algo.ts:755
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3250,16 +3561,16 @@ allocationMbrCreditShortfall:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/rewards/contract.algo.ts:717
+    // smart_contracts/rewards/contract.algo.ts:757
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:717
+    // smart_contracts/rewards/contract.algo.ts:757
     // loggedAssert(this.disbursements(id).exists, errDisbursementDoesNotExist)
     box_len
     bury 1
@@ -3269,13 +3580,13 @@ allocationMbrCreditShortfall:
     err // ERR:errDbne
 
 allocationMbrCreditShortfall_after_assert@3:
-    // smart_contracts/rewards/contract.algo.ts:719
+    // smart_contracts/rewards/contract.algo.ts:759
     // const mbrAmount: uint64 = UserAllocationMBR * allocationCount
     intc 4 // 25300
     uncover 2
     *
     dup
-    // smart_contracts/rewards/contract.algo.ts:720
+    // smart_contracts/rewards/contract.algo.ts:760
     // const credits: uint64 = this.disbursements(id).value.mbrCredits
     uncover 2
     pushint 75
@@ -3284,17 +3595,17 @@ allocationMbrCreditShortfall_after_assert@3:
     btoi
     dup
     uncover 2
-    // smart_contracts/rewards/contract.algo.ts:721
+    // smart_contracts/rewards/contract.algo.ts:761
     // if (credits >= mbrAmount) {
     >=
     bz allocationMbrCreditShortfall_after_if_else@5
     popn 2
-    // smart_contracts/rewards/contract.algo.ts:722
+    // smart_contracts/rewards/contract.algo.ts:762
     // return 0
     intc_0 // 0
 
 allocationMbrCreditShortfall_after_inlined_smart_contracts/rewards/contract.algo.ts::Rewards.allocationMbrCreditShortfall@6:
-    // smart_contracts/rewards/contract.algo.ts:715
+    // smart_contracts/rewards/contract.algo.ts:755
     // @abimethod({ readonly: true })
     itob
     bytec_2 // 0x151f7c75
@@ -3305,10 +3616,10 @@ allocationMbrCreditShortfall_after_inlined_smart_contracts/rewards/contract.algo
     return
 
 allocationMbrCreditShortfall_after_if_else@5:
-    // smart_contracts/rewards/contract.algo.ts:725
+    // smart_contracts/rewards/contract.algo.ts:765
     // return mbrAmount - credits
     -
-    // smart_contracts/rewards/contract.algo.ts:715
+    // smart_contracts/rewards/contract.algo.ts:755
     // @abimethod({ readonly: true })
     b allocationMbrCreditShortfall_after_inlined_smart_contracts/rewards/contract.algo.ts::Rewards.allocationMbrCreditShortfall@6
 
@@ -3332,7 +3643,7 @@ updateAkitaDAO:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec 11 // "akita_dao"
+    bytec 16 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:19
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
@@ -3353,7 +3664,7 @@ updateAkitaDAO:
 updateAkitaDAO_after_assert@3:
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec 11 // "akita_dao"
+    bytec 16 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:27
     // this.akitaDAO.value = akitaDAO
     swap
@@ -3425,7 +3736,7 @@ optIn:
     global CurrentApplicationAddress
     ==
     bnz optIn_after_assert@3
-    bytec 18 // "ERR:errIpmr"
+    bytec 13 // "ERR:errIpmr"
     log
     err // ERR:errIpmr
 
@@ -3437,7 +3748,7 @@ optIn_after_assert@3:
     global AssetOptInMinBalance
     ==
     bnz optIn_after_assert@5
-    bytec 19 // "ERR:errIpma"
+    bytec 14 // "ERR:errIpma"
     log
     err // ERR:errIpma
 
@@ -3489,48 +3800,48 @@ optIn_after_assert@5:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.newDisbursementID() -> uint64:
 newDisbursementID:
-    // smart_contracts/rewards/contract.algo.ts:91
+    // smart_contracts/rewards/contract.algo.ts:95
     // const id = this.disbursementID.value
     intc_0 // 0
-    // smart_contracts/rewards/contract.algo.ts:70
+    // smart_contracts/rewards/contract.algo.ts:74
     // disbursementID = GlobalState<uint64>({ initialValue: 1, key: RewardsGlobalStateKeyDisbursementID })
     bytec 10 // "disbursement_id"
-    // smart_contracts/rewards/contract.algo.ts:91
+    // smart_contracts/rewards/contract.algo.ts:95
     // const id = this.disbursementID.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/rewards/contract.algo.ts:92
+    // smart_contracts/rewards/contract.algo.ts:96
     // this.disbursementID.value += 1
     dup
     intc_1 // 1
     +
-    // smart_contracts/rewards/contract.algo.ts:70
+    // smart_contracts/rewards/contract.algo.ts:74
     // disbursementID = GlobalState<uint64>({ initialValue: 1, key: RewardsGlobalStateKeyDisbursementID })
     bytec 10 // "disbursement_id"
-    // smart_contracts/rewards/contract.algo.ts:92
+    // smart_contracts/rewards/contract.algo.ts:96
     // this.disbursementID.value += 1
     swap
     app_global_put
-    // smart_contracts/rewards/contract.algo.ts:93
+    // smart_contracts/rewards/contract.algo.ts:97
     // return id
     retsub
 
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.addMbrCredit(id: uint64, amount: uint64) -> void:
 addMbrCredit:
-    // smart_contracts/rewards/contract.algo.ts:96
+    // smart_contracts/rewards/contract.algo.ts:100
     // private addMbrCredit(id: uint64, amount: uint64): void {
     proto 2 0
-    // smart_contracts/rewards/contract.algo.ts:97
+    // smart_contracts/rewards/contract.algo.ts:101
     // this.disbursements(id).value.mbrCredits += amount
     frame_dig -2
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:97
+    // smart_contracts/rewards/contract.algo.ts:101
     // this.disbursements(id).value.mbrCredits += amount
     dup
     pushint 75
@@ -3546,22 +3857,78 @@ addMbrCredit:
     retsub
 
 
+// smart_contracts/rewards/contract.algo.ts::Rewards.sponsor(id: uint64, payer: bytes) -> uint64:
+sponsor:
+    // smart_contracts/rewards/contract.algo.ts:110
+    // private sponsor(id: uint64, payer: Account): uint64 {
+    proto 2 1
+    // smart_contracts/rewards/contract.algo.ts:111
+    // recordPayer(this.disbursements(id).key, payer, Txn.sender)
+    frame_dig -2
+    itob
+    // smart_contracts/rewards/contract.algo.ts:84
+    // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
+    bytec_0 // "d"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:106
+    // if (payer !== owner) {
+    frame_dig -1
+    // smart_contracts/rewards/contract.algo.ts:111
+    // recordPayer(this.disbursements(id).key, payer, Txn.sender)
+    txn Sender
+    // smart_contracts/utils/functions.ts:106
+    // if (payer !== owner) {
+    !=
+    bz sponsor_after_if_else@3
+    // smart_contracts/utils/functions.ts:96
+    // return Bytes(PayerBoxPrefix).concat(sha256(record))
+    frame_dig 0
+    sha256
+    bytec 15 // "$"
+    swap
+    concat
+    // smart_contracts/utils/functions.ts:107
+    // op.Box.put(payerRecordKey(record), payer.bytes)
+    frame_dig -1
+    box_put
+
+sponsor_after_if_else@3:
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    frame_dig -1
+    // smart_contracts/rewards/contract.algo.ts:112
+    // return sponsorCost(payer, Txn.sender)
+    txn Sender
+    // smart_contracts/utils/functions.ts:101
+    // return payer === owner ? 0 : PayerRecordMBR
+    ==
+    intc 7 // 28500
+    intc_0 // 0
+    uncover 2
+    select
+    // smart_contracts/rewards/contract.algo.ts:112
+    // return sponsorCost(payer, Txn.sender)
+    swap
+    retsub
+
+
 // smart_contracts/rewards/contract.algo.ts::Rewards.useMbrCredit(id: uint64, amount: uint64) -> void:
 useMbrCredit:
-    // smart_contracts/rewards/contract.algo.ts:100
+    // smart_contracts/rewards/contract.algo.ts:115
     // private useMbrCredit(id: uint64, amount: uint64): void {
     proto 2 0
-    // smart_contracts/rewards/contract.algo.ts:101
+    // smart_contracts/rewards/contract.algo.ts:116
     // loggedAssert(this.disbursements(id).value.mbrCredits >= amount, errInvalidMbrAmount)
     frame_dig -2
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
     dup
-    // smart_contracts/rewards/contract.algo.ts:101
+    // smart_contracts/rewards/contract.algo.ts:116
     // loggedAssert(this.disbursements(id).value.mbrCredits >= amount, errInvalidMbrAmount)
     pushint 75
     intc_2 // 8
@@ -3575,7 +3942,7 @@ useMbrCredit:
     err // ERR:errImbr
 
 useMbrCredit_after_assert@2:
-    // smart_contracts/rewards/contract.algo.ts:102
+    // smart_contracts/rewards/contract.algo.ts:117
     // this.disbursements(id).value.mbrCredits -= amount
     dup
     pushint 75
@@ -3593,10 +3960,10 @@ useMbrCredit_after_assert@2:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.assertValidUnlock(timeToUnlock: uint64) -> void:
 assertValidUnlock:
-    // smart_contracts/rewards/contract.algo.ts:111
+    // smart_contracts/rewards/contract.algo.ts:126
     // private assertValidUnlock(timeToUnlock: uint64): void {
     proto 1 0
-    // smart_contracts/rewards/contract.algo.ts:113
+    // smart_contracts/rewards/contract.algo.ts:128
     // timeToUnlock >= Global.latestTimestamp || timeToUnlock === 0,
     frame_dig -1
     global LatestTimestamp
@@ -3609,7 +3976,7 @@ assertValidUnlock_bool_true@2:
     intc_1 // 1
 
 assertValidUnlock_bool_merge@4:
-    // smart_contracts/rewards/contract.algo.ts:112-115
+    // smart_contracts/rewards/contract.algo.ts:127-130
     // loggedAssert(
     //   timeToUnlock >= Global.latestTimestamp || timeToUnlock === 0,
     //   errInvalidDisbursementUnlockTime
@@ -3629,10 +3996,10 @@ assertValidUnlock_bool_false@3:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.assertValidExpiration(expiration: uint64) -> void:
 assertValidExpiration:
-    // smart_contracts/rewards/contract.algo.ts:119
+    // smart_contracts/rewards/contract.algo.ts:134
     // private assertValidExpiration(expiration: uint64): void {
     proto 1 0
-    // smart_contracts/rewards/contract.algo.ts:121
+    // smart_contracts/rewards/contract.algo.ts:136
     // expiration >= Global.latestTimestamp + 60 || expiration === 0,
     global LatestTimestamp
     pushint 60
@@ -3647,7 +4014,7 @@ assertValidExpiration_bool_true@2:
     intc_1 // 1
 
 assertValidExpiration_bool_merge@4:
-    // smart_contracts/rewards/contract.algo.ts:120-123
+    // smart_contracts/rewards/contract.algo.ts:135-138
     // loggedAssert(
     //   expiration >= Global.latestTimestamp + 60 || expiration === 0,
     //   errInvalidDisbursementExpirationTime
@@ -3667,20 +4034,20 @@ assertValidExpiration_bool_false@3:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.writeAllocation(id: uint64, address: bytes, asset: uint64, amount: uint64) -> uint64:
 writeAllocation:
-    // smart_contracts/rewards/contract.algo.ts:132
+    // smart_contracts/rewards/contract.algo.ts:147
     // private writeAllocation(id: uint64, address: Account, asset: uint64, amount: uint64): uint64 {
     proto 4 1
-    // smart_contracts/rewards/contract.algo.ts:133
+    // smart_contracts/rewards/contract.algo.ts:148
     // if (amount === 0) {
     frame_dig -1
     bnz writeAllocation_after_if_else@2
-    // smart_contracts/rewards/contract.algo.ts:134
+    // smart_contracts/rewards/contract.algo.ts:149
     // return 0
     intc_0 // 0
     retsub
 
 writeAllocation_after_if_else@2:
-    // smart_contracts/rewards/contract.algo.ts:137
+    // smart_contracts/rewards/contract.algo.ts:152
     // const key: UserAllocationsKey = { disbursementID: id, address, asset }
     frame_dig -2
     itob
@@ -3692,27 +4059,27 @@ writeAllocation_after_if_else@2:
     swap
     dig 1
     concat
-    // smart_contracts/rewards/contract.algo.ts:86
+    // smart_contracts/rewards/contract.algo.ts:90
     // userAllocations = BoxMap<UserAllocationsKey, uint64>({ keyPrefix: RewardsBoxPrefixUserAllocations })
     bytec 9 // "u"
     swap
     concat
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:138
+    // smart_contracts/rewards/contract.algo.ts:153
     // const [previous, exists] = this.userAllocations(key).maybe()
     box_get
     swap
     btoi
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     uncover 2
     concat
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:139
+    // smart_contracts/rewards/contract.algo.ts:154
     // this.disbursements(id).value.amount += amount
     dup
     pushint 35
@@ -3725,31 +4092,31 @@ writeAllocation_after_if_else@2:
     pushint 35
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:141
+    // smart_contracts/rewards/contract.algo.ts:156
     // if (exists) {
     bz writeAllocation_after_if_else@4
     pop
-    // smart_contracts/rewards/contract.algo.ts:142
+    // smart_contracts/rewards/contract.algo.ts:157
     // this.userAllocations(key).value = previous + amount
     frame_dig -1
     +
     itob
     box_put
-    // smart_contracts/rewards/contract.algo.ts:143
+    // smart_contracts/rewards/contract.algo.ts:158
     // return 0
     intc_0 // 0
     retsub
 
 writeAllocation_after_if_else@4:
     bury 1
-    // smart_contracts/rewards/contract.algo.ts:146
+    // smart_contracts/rewards/contract.algo.ts:161
     // this.userAllocations(key).value = amount
     frame_dig -1
     itob
     uncover 2
     swap
     box_put
-    // smart_contracts/rewards/contract.algo.ts:147
+    // smart_contracts/rewards/contract.algo.ts:162
     // this.disbursements(id).value.allocations += 1
     dup
     pushint 59
@@ -3762,7 +4129,7 @@ writeAllocation_after_if_else@4:
     pushint 59
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/rewards/contract.algo.ts:148
+    // smart_contracts/rewards/contract.algo.ts:163
     // return 1
     intc_1 // 1
     retsub
@@ -3770,11 +4137,11 @@ writeAllocation_after_if_else@4:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.assertInboundAssetTransfer(assetXfer: uint64, amount: uint64) -> void:
 assertInboundAssetTransfer:
-    // smart_contracts/rewards/contract.algo.ts:155
+    // smart_contracts/rewards/contract.algo.ts:170
     // private assertInboundAssetTransfer(assetXfer: gtxn.AssetTransferTxn, amount: uint64): void {
     proto 2 0
     intc_0 // 0
-    // smart_contracts/rewards/contract.algo.ts:156
+    // smart_contracts/rewards/contract.algo.ts:171
     // loggedAssert(assetXfer.sender === Txn.sender, errInvalidTransfer)
     frame_dig -2
     gtxns Sender
@@ -3786,7 +4153,7 @@ assertInboundAssetTransfer:
     err // ERR:errIxfr
 
 assertInboundAssetTransfer_after_assert@2:
-    // smart_contracts/rewards/contract.algo.ts:157
+    // smart_contracts/rewards/contract.algo.ts:172
     // loggedAssert(assetXfer.assetSender === Global.zeroAddress, errInvalidTransfer)
     frame_dig -2
     gtxns AssetSender
@@ -3798,7 +4165,7 @@ assertInboundAssetTransfer_after_assert@2:
     err // ERR:errIxfr
 
 assertInboundAssetTransfer_after_assert@4:
-    // smart_contracts/rewards/contract.algo.ts:158
+    // smart_contracts/rewards/contract.algo.ts:173
     // loggedAssert(assetXfer.rekeyTo === Global.zeroAddress, errInvalidTransfer)
     frame_dig -2
     gtxns RekeyTo
@@ -3810,7 +4177,7 @@ assertInboundAssetTransfer_after_assert@4:
     err // ERR:errIxfr
 
 assertInboundAssetTransfer_after_assert@6:
-    // smart_contracts/rewards/contract.algo.ts:160
+    // smart_contracts/rewards/contract.algo.ts:175
     // assetXfer.assetCloseTo === Global.zeroAddress || assetXfer.assetCloseTo === Global.currentApplicationAddress,
     frame_dig -2
     gtxns AssetCloseTo
@@ -3828,7 +4195,7 @@ assertInboundAssetTransfer_bool_true@8:
     intc_1 // 1
 
 assertInboundAssetTransfer_bool_merge@10:
-    // smart_contracts/rewards/contract.algo.ts:159-162
+    // smart_contracts/rewards/contract.algo.ts:174-177
     // loggedAssert(
     //   assetXfer.assetCloseTo === Global.zeroAddress || assetXfer.assetCloseTo === Global.currentApplicationAddress,
     //   errInvalidCloseTo
@@ -3839,7 +4206,7 @@ assertInboundAssetTransfer_bool_merge@10:
     err // ERR:errIcto
 
 assertInboundAssetTransfer_after_assert@12:
-    // smart_contracts/rewards/contract.algo.ts:163
+    // smart_contracts/rewards/contract.algo.ts:178
     // loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
     frame_dig -2
     gtxns AssetReceiver
@@ -3851,7 +4218,7 @@ assertInboundAssetTransfer_after_assert@12:
     err // ERR:errIxfr
 
 assertInboundAssetTransfer_after_assert@14:
-    // smart_contracts/rewards/contract.algo.ts:164
+    // smart_contracts/rewards/contract.algo.ts:179
     // loggedAssert(assetXfer.assetAmount === amount, errInvalidTransfer)
     frame_dig -2
     gtxns AssetAmount
@@ -3872,19 +4239,19 @@ assertInboundAssetTransfer_bool_false@9:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.deleteDisbursement(id: uint64) -> uint64:
 deleteDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:176
+    // smart_contracts/rewards/contract.algo.ts:191
     // private deleteDisbursement(id: uint64): uint64 {
     proto 1 1
-    // smart_contracts/rewards/contract.algo.ts:177
+    // smart_contracts/rewards/contract.algo.ts:192
     // const { mbrCredits, title, note } = this.disbursements(id).value
     frame_dig -1
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:177
+    // smart_contracts/rewards/contract.algo.ts:192
     // const { mbrCredits, title, note } = this.disbursements(id).value
     dup
     pushint 75
@@ -3919,35 +4286,35 @@ deleteDisbursement:
     cover 2
     box_extract
     extract 2 0
-    // smart_contracts/rewards/contract.algo.ts:178
+    // smart_contracts/rewards/contract.algo.ts:193
     // const released: uint64 = this.disbursementBoxMbr(Bytes(title).length, Bytes(note).length) + mbrCredits
     swap
     len
     swap
     len
-    // smart_contracts/rewards/contract.algo.ts:169
+    // smart_contracts/rewards/contract.algo.ts:184
     // return MinDisbursementsMBR + (BoxCostPerByte * (titleLength + noteLength))
     +
     intc 6 // 400
     *
     intc 5 // 54500
     +
-    // smart_contracts/rewards/contract.algo.ts:178
+    // smart_contracts/rewards/contract.algo.ts:193
     // const released: uint64 = this.disbursementBoxMbr(Bytes(title).length, Bytes(note).length) + mbrCredits
     +
-    // smart_contracts/rewards/contract.algo.ts:179
+    // smart_contracts/rewards/contract.algo.ts:194
     // this.disbursements(id).delete()
     swap
     box_del
     pop
-    // smart_contracts/rewards/contract.algo.ts:180
+    // smart_contracts/rewards/contract.algo.ts:195
     // return released
     retsub
 
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.newInstantDisbursement(asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: bytes, reclaimTo: bytes) -> bytes, bytes:
 newInstantDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:188-194
+    // smart_contracts/rewards/contract.algo.ts:203-209
     // private newInstantDisbursement(
     //   asset: uint64,
     //   timeToUnlock: uint64,
@@ -3956,7 +4323,7 @@ newInstantDisbursement:
     //   reclaimTo: Account
     // ): { id: uint64, sum: uint64, mbrAmount: uint64 } {
     proto 5 2
-    // smart_contracts/rewards/contract.algo.ts:195
+    // smart_contracts/rewards/contract.algo.ts:210
     // loggedAssert(allocations.length > 0, errDisbursementsMustHaveAllocations)
     frame_dig -2
     intc_0 // 0
@@ -3968,34 +4335,34 @@ newInstantDisbursement:
     err // ERR:errDbma
 
 newInstantDisbursement_after_assert@2:
-    // smart_contracts/rewards/contract.algo.ts:196
+    // smart_contracts/rewards/contract.algo.ts:211
     // this.assertValidUnlock(timeToUnlock)
     frame_dig -4
     callsub assertValidUnlock
-    // smart_contracts/rewards/contract.algo.ts:197
+    // smart_contracts/rewards/contract.algo.ts:212
     // this.assertValidExpiration(expiration)
     frame_dig -3
     callsub assertValidExpiration
-    // smart_contracts/rewards/contract.algo.ts:199
+    // smart_contracts/rewards/contract.algo.ts:214
     // const id = this.newDisbursementID()
     callsub newDisbursementID
     dup
     cover 2
-    // smart_contracts/rewards/contract.algo.ts:201
+    // smart_contracts/rewards/contract.algo.ts:216
     // const allocationsMbr: uint64 = UserAllocationMBR * allocations.length
     intc 4 // 25300
     dig 2
     *
-    // smart_contracts/rewards/contract.algo.ts:202
+    // smart_contracts/rewards/contract.algo.ts:217
     // const mbrAmount: uint64 = MinDisbursementsMBR + allocationsMbr
     intc 5 // 54500
     dig 1
     +
     cover 4
-    // smart_contracts/rewards/contract.algo.ts:205
+    // smart_contracts/rewards/contract.algo.ts:220
     // creator: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:204-216
+    // smart_contracts/rewards/contract.algo.ts:219-231
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: true,
@@ -4033,18 +4400,18 @@ newInstantDisbursement_after_assert@2:
     concat
     pushbytes 0x007700000000
     concat
-    // smart_contracts/rewards/contract.algo.ts:204
+    // smart_contracts/rewards/contract.algo.ts:219
     // this.disbursements(id).value = {
     swap
     itob
     dup
     cover 4
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:204-216
+    // smart_contracts/rewards/contract.algo.ts:219-231
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: true,
@@ -4063,26 +4430,26 @@ newInstantDisbursement_after_assert@2:
     pop
     swap
     box_put
-    // smart_contracts/rewards/contract.algo.ts:218
+    // smart_contracts/rewards/contract.algo.ts:233
     // let sum: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/rewards/contract.algo.ts:219
+    // smart_contracts/rewards/contract.algo.ts:234
     // let newBoxes: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/rewards/contract.algo.ts:220
+    // smart_contracts/rewards/contract.algo.ts:235
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_0 // 0
 
 newInstantDisbursement_while_top@3:
-    // smart_contracts/rewards/contract.algo.ts:220
+    // smart_contracts/rewards/contract.algo.ts:235
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     dup
     dig 2
     <
     bz newInstantDisbursement_after_while@5
-    // smart_contracts/rewards/contract.algo.ts:221
+    // smart_contracts/rewards/contract.algo.ts:236
     // newBoxes += this.writeAllocation(id, allocations[i].address, asset, allocations[i].amount)
     frame_dig -2
     extract 2 0
@@ -4104,12 +4471,12 @@ newInstantDisbursement_while_top@3:
     uncover 4
     +
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:222
+    // smart_contracts/rewards/contract.algo.ts:237
     // sum += allocations[i].amount
     uncover 4
     +
     cover 3
-    // smart_contracts/rewards/contract.algo.ts:220
+    // smart_contracts/rewards/contract.algo.ts:235
     // for (let i: uint64 = 0; i < allocations.length; i += 1) {
     intc_1 // 1
     +
@@ -4117,14 +4484,14 @@ newInstantDisbursement_while_top@3:
 
 newInstantDisbursement_after_while@5:
     popn 2
-    // smart_contracts/rewards/contract.algo.ts:224
+    // smart_contracts/rewards/contract.algo.ts:239
     // this.useMbrCredit(id, UserAllocationMBR * newBoxes)
     intc 4 // 25300
     *
     uncover 2
     swap
     callsub useMbrCredit
-    // smart_contracts/rewards/contract.algo.ts:226
+    // smart_contracts/rewards/contract.algo.ts:241
     // return { id, sum, mbrAmount }
     itob
     concat
@@ -4137,7 +4504,7 @@ newInstantDisbursement_after_while@5:
 
 // smart_contracts/rewards/contract.algo.ts::Rewards.newDisbursement(mbrPayment: uint64, title: bytes, timeToUnlock: uint64, expiration: uint64, note: bytes, reclaimTo: bytes) -> uint64:
 newDisbursement:
-    // smart_contracts/rewards/contract.algo.ts:229-236
+    // smart_contracts/rewards/contract.algo.ts:244-251
     // private newDisbursement(
     //   mbrPayment: gtxn.PaymentTxn,
     //   title: string,
@@ -4147,24 +4514,31 @@ newDisbursement:
     //   reclaimTo: Account
     // ): uint64 {
     proto 6 1
-    // smart_contracts/rewards/contract.algo.ts:237
+    // smart_contracts/rewards/contract.algo.ts:252
     // const id = this.newDisbursementID()
     callsub newDisbursementID
-    // smart_contracts/rewards/contract.algo.ts:239
+    dup
+    // smart_contracts/rewards/contract.algo.ts:254
     // const costs = this.mbr(title, note)
     frame_dig -5
     frame_dig -2
     callsub smart_contracts/rewards/base.ts::BaseRewards.mbr
-    // smart_contracts/rewards/contract.algo.ts:240
+    // smart_contracts/rewards/contract.algo.ts:255
     // const mbrAmount = costs.disbursements
     intc_0 // 0
     extract_uint64
-    // smart_contracts/rewards/contract.algo.ts:243
-    // assertSafePayment(mbrPayment, Txn.sender)
+    swap
+    // smart_contracts/rewards/contract.algo.ts:258
+    // const sponsor = this.sponsor(id, mbrPayment.sender)
     frame_dig -6
-    txn Sender
-    callsub assertSafePayment
-    // smart_contracts/rewards/contract.algo.ts:244
+    gtxns Sender
+    callsub sponsor
+    swap
+    // smart_contracts/rewards/contract.algo.ts:259
+    // assertPlainPayment(mbrPayment)
+    frame_dig -6
+    callsub assertPlainPayment
+    // smart_contracts/rewards/contract.algo.ts:260
     // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     frame_dig -6
     gtxns Receiver
@@ -4176,12 +4550,14 @@ newDisbursement:
     err // ERR:errIpay
 
 newDisbursement_after_assert@2:
-    // smart_contracts/rewards/contract.algo.ts:245
-    // loggedAssert(mbrPayment.amount >= mbrAmount, errInvalidPayment)
+    // smart_contracts/rewards/contract.algo.ts:261
+    // loggedAssert(mbrPayment.amount >= mbrAmount + sponsor, errInvalidPayment)
     frame_dig -6
     gtxns Amount
     dup
     dig 2
+    dig 4
+    +
     >=
     bnz newDisbursement_after_assert@4
     bytec 5 // "ERR:errIpay"
@@ -4189,15 +4565,17 @@ newDisbursement_after_assert@2:
     err // ERR:errIpay
 
 newDisbursement_after_assert@4:
-    // smart_contracts/rewards/contract.algo.ts:248
+    // smart_contracts/rewards/contract.algo.ts:264
     // creator: Txn.sender,
     txn Sender
-    // smart_contracts/rewards/contract.algo.ts:256
-    // mbrCredits: mbrPayment.amount - mbrAmount,
+    // smart_contracts/rewards/contract.algo.ts:272
+    // mbrCredits: mbrPayment.amount - mbrAmount - sponsor,
     swap
     uncover 2
     -
-    // smart_contracts/rewards/contract.algo.ts:247-259
+    uncover 2
+    -
+    // smart_contracts/rewards/contract.algo.ts:263-275
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -4207,7 +4585,7 @@ newDisbursement_after_assert@4:
     //   expiration,
     //   allocations: 0,
     //   distributed: 0,
-    //   mbrCredits: mbrPayment.amount - mbrAmount,
+    //   mbrCredits: mbrPayment.amount - mbrAmount - sponsor,
     //   reclaimTo,
     //   note,
     // }
@@ -4218,16 +4596,16 @@ newDisbursement_after_assert@4:
     frame_dig -5
     concat
     uncover 2
-    bytec 20 // 0x000075
+    bytec 21 // 0x000075
     concat
     dig 1
     len
     pushint 117
     +
-    // smart_contracts/rewards/contract.algo.ts:251
+    // smart_contracts/rewards/contract.algo.ts:267
     // amount: 0,
     intc_0 // 0
-    // smart_contracts/rewards/contract.algo.ts:247-259
+    // smart_contracts/rewards/contract.algo.ts:263-275
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -4237,7 +4615,7 @@ newDisbursement_after_assert@4:
     //   expiration,
     //   allocations: 0,
     //   distributed: 0,
-    //   mbrCredits: mbrPayment.amount - mbrAmount,
+    //   mbrCredits: mbrPayment.amount - mbrAmount - sponsor,
     //   reclaimTo,
     //   note,
     // }
@@ -4276,16 +4654,16 @@ newDisbursement_after_assert@4:
     concat
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:247
+    // smart_contracts/rewards/contract.algo.ts:263
     // this.disbursements(id).value = {
     dig 1
     itob
-    // smart_contracts/rewards/contract.algo.ts:80
+    // smart_contracts/rewards/contract.algo.ts:84
     // disbursements = BoxMap<uint64, DisbursementDetails>({ keyPrefix: RewardsBoxPrefixDisbursements })
     bytec_0 // "d"
     swap
     concat
-    // smart_contracts/rewards/contract.algo.ts:247-259
+    // smart_contracts/rewards/contract.algo.ts:263-275
     // this.disbursements(id).value = {
     //   creator: Txn.sender,
     //   finalized: false,
@@ -4295,7 +4673,7 @@ newDisbursement_after_assert@4:
     //   expiration,
     //   allocations: 0,
     //   distributed: 0,
-    //   mbrCredits: mbrPayment.amount - mbrAmount,
+    //   mbrCredits: mbrPayment.amount - mbrAmount - sponsor,
     //   reclaimTo,
     //   note,
     // }
@@ -4304,7 +4682,7 @@ newDisbursement_after_assert@4:
     pop
     swap
     box_put
-    // smart_contracts/rewards/contract.algo.ts:261
+    // smart_contracts/rewards/contract.algo.ts:277
     // return id
     retsub
 

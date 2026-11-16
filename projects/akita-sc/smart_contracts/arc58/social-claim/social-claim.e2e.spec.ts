@@ -177,7 +177,7 @@ describe('SocialClaim', () => {
    */
   const groupWithContribute = async (
     payments: { receiver: string; asset: bigint; amount: bigint }[],
-    contributes: { subject: Uint8Array; payCallIndex?: bigint; note?: string; storage?: bigint }[],
+    contributes: { subject: Uint8Array; payCallIndex?: bigint; note?: string; storage?: bigint; payer?: Account }[],
     extraBefore: 'none' | 'payment' = 'none',
   ) => {
     const { group, length, sendParams } = await wallet.prepareUsePlugin({
@@ -188,9 +188,16 @@ describe('SocialClaim', () => {
     if (extraBefore === 'payment') {
       composer.addPayment({ sender, receiver: sender, amount: (0).microAlgos(), signer })
     }
-    for (const { subject, payCallIndex = BigInt(length - 2), note, storage = 0n } of contributes) {
+    for (const { subject, payCallIndex = BigInt(length - 2), note, storage = 0n, payer } of contributes) {
+      // `payer`: an account other than the gift's sender funds the storage, signing its own payment
+      const mbrPayment = payer === undefined ? await storagePayment(storage, note) : {
+        txn: await fixture.algorand.createTransaction.payment({
+          sender: payer.sender, receiver: socialClaim.address, amount: Number(storage).microAlgos(),
+        }),
+        signer: payer.signer,
+      }
       composer.addAppCallMethodCall(await socialClaim.client.params.contribute({
-        ...sendParams, args: { mbrPayment: await storagePayment(storage, note), payCallIndex, subject, ttl: ONE_DAY },
+        ...sendParams, args: { mbrPayment, payCallIndex, subject, ttl: ONE_DAY },
         ...(note ? { note: new TextEncoder().encode(note) } : {}),
       }))
     }
@@ -390,6 +397,39 @@ describe('SocialClaim', () => {
       wallet = first
     }
     expect((await socialClaim.listGifts(subjectA)).map((g) => g.gift.amount).sort()).toEqual([TOP_UP, GIFT + TOP_UP].sort())
+    expect(await spare()).toBe(0n)
+  })
+
+  test('anyone can pay a gift box\'s storage, and gets it back with its payer record when the gift is refunded', async () => {
+    const PAYER_RECORD_MBR = 28_500n
+    const other = await newSponsor('Other')
+    const { wallet: id } = await gift(subjectA, { sponsor: other })
+    const one = [{ receiver: giftAddress(id), asset: 0n, amount: TOP_UP }]
+    const payer = await stranger()
+    const appBefore = await mbr()
+
+    // the box deposit alone is short: a payer other than the gift's sender is remembered, and funds that record
+    await expect(groupWithContribute(one, [{ subject: subjectA, storage: GIFT_MBR, payer }]))
+      .rejects.toThrow(/socialClaimInvalidStoragePayment/)
+    const payerBefore = await balance(payer.sender)
+    await groupWithContribute(one, [{ subject: subjectA, storage: GIFT_MBR + PAYER_RECORD_MBR, payer }])
+    expect(payerBefore - await balance(payer.sender)).toBe(GIFT_MBR + PAYER_RECORD_MBR + 1_000n)
+    expect(await mbr() - appBefore).toBe(GIFT_MBR + PAYER_RECORD_MBR)
+    expect(await spare()).toBe(0n)
+    expect((await socialClaim.getGift({ subject: subjectA, senderWallet: wallet.appId, asset: 0n }))?.amount).toBe(TOP_UP)
+
+    // a later top-up of the same box owes nothing, whoever sends the (empty) storage payment
+    await groupWithContribute(one, [{ subject: subjectA, storage: 0n }])
+
+    await new TimeWarp(fixture.algorand).timeWarp(ONE_DAY + 60n)
+    const relayer = await stranger()
+    const payerHeld = await balance(payer.sender)
+    const senderHeld = await balance(controlled(wallet))
+    await socialClaim.refund({ subject: subjectA, senderWallet: wallet.appId, asset: 0n, ...relayer })
+    // the gift goes back to the wallet that sent it; the storage, with the payer record's own, to whoever paid it
+    expect(await balance(controlled(wallet)) - senderHeld).toBe(2n * TOP_UP)
+    expect(await balance(payer.sender) - payerHeld).toBe(GIFT_MBR + PAYER_RECORD_MBR)
+    expect(await mbr()).toBe(appBefore)
     expect(await spare()).toBe(0n)
   })
 
