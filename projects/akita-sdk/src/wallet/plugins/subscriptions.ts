@@ -6,6 +6,7 @@ import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { getTxns } from "../utils";
+import { hexColorToBytes, validateHexColor } from "../../subscriptions/utils";
 
 const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2017;
 const MAX_DESCRIPTION_LENGTH = 3151;
@@ -43,6 +44,24 @@ type UpdateServiceTitleArgs = (
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
+
+type UpdateServiceHighlightArgs = (
+  Omit<ContractArgs['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'], 'wallet' | 'rekeyBack' | 'highlightColor'>
+  & MaybeSigner
+  & {
+    rekeyBack?: boolean;
+    /** `#rrggbb` or the raw 3 bytes */
+    highlightColor: string | Uint8Array;
+  }
+);
+
+type SetFeaturedServiceArgs = (
+  Omit<ContractArgs['setFeaturedService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type ClearFeaturedServiceArgs = MaybeSigner & { rekeyBack?: boolean };
 
 type SetServiceDescriptionArgs = (
   Omit<ContractArgs['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'], 'wallet' | 'rekeyBack'>
@@ -339,6 +358,112 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
         const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.updateServiceTitle({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  updateServiceHighlight(): PluginSDKReturn;
+  updateServiceHighlight(args: UpdateServiceHighlightArgs): PluginSDKReturn;
+  updateServiceHighlight(args?: UpdateServiceHighlightArgs): PluginSDKReturn {
+    const methodName = 'updateServiceHighlight';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    const highlightColor = typeof rest.highlightColor === 'string'
+      ? (validateHexColor(rest.highlightColor), hexColorToBytes(rest.highlightColor))
+      : rest.highlightColor;
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = rekeyBackArg ?? true;
+
+        const params = await this.client.params.updateServiceHighlight({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest, highlightColor },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  /** the plugin pays the featured box storage from the wallet on the first call */
+  setFeaturedService(): PluginSDKReturn;
+  setFeaturedService(args: SetFeaturedServiceArgs): PluginSDKReturn;
+  setFeaturedService(args?: SetFeaturedServiceArgs): PluginSDKReturn {
+    const methodName = 'setFeaturedService';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = rekeyBackArg ?? true;
+
+        const params = await this.client.params.setFeaturedService({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  clearFeaturedService(): PluginSDKReturn;
+  clearFeaturedService(args: ClearFeaturedServiceArgs): PluginSDKReturn;
+  clearFeaturedService(args?: ClearFeaturedServiceArgs): PluginSDKReturn {
+    const methodName = 'clearFeaturedService';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = rekeyBackArg ?? true;
+
+        const params = await this.client.params.clearFeaturedService({
           ...sendParams,
           args: { wallet, rekeyBack, ...rest },
         });

@@ -56,7 +56,9 @@ import {
   MAX_TITLE_LENGTH,
   MIN_AMOUNT,
   MIN_INTERVAL,
+  FeaturedServiceMBR,
   SubscriptionsBoxPrefixBlocks,
+  SubscriptionsBoxPrefixFeatured,
   SubscriptionsBoxPrefixPasses,
   SubscriptionsBoxPrefixPrincipals,
   SubscriptionsBoxPrefixServices,
@@ -88,6 +90,8 @@ import {
   errNotOptedIn,
   errPassCountOverflow,
   errPrincipalExists,
+  errFeaturedShutdown,
+  errNoFeaturedService,
   errServiceDoesNotExist,
   errServiceIsNotActive,
   errServiceIsNotDraft,
@@ -177,6 +181,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
    * refunded by `unsubscribe`. 'i' + 32 + 8 = 41 byte key, 40 byte value → `SubscriptionPrincipalMBR`.
    */
   principals = BoxMap<SubscriptionKey, SubscriptionPrincipal>({ keyPrefix: SubscriptionsBoxPrefixPrincipals })
+
+  /**
+   * The service a creator wants shown front and center, keyed by creator. Absent (or 0) means none.
+   * Kept apart from `services` / `serviceslist` so deployed boxes keep their layout.
+   * 'f' + 32 = 33 byte key, 8 byte value → `FeaturedServiceMBR`, refunded to its payer on clear.
+   */
+  featured = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixFeatured })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
@@ -919,6 +930,56 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   }
 
   /**
+   * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+   * @param id the service id
+   * @param highlightMessage the highlight label (`HighlightMessage*`, 0 = none)
+   * @param highlightColor the highlight colour (3 bytes)
+   */
+  updateServiceHighlight(id: ServiceID, highlightMessage: Uint8, highlightColor: bytes<3>): void {
+    const key: ServicesKey = { address: Txn.sender, id }
+
+    loggedAssert(this.services(key).exists, errServiceDoesNotExist)
+
+    this.services(key).value.highlightMessage = highlightMessage
+    this.services(key).value.highlightColor = highlightColor
+  }
+
+  /**
+   * setFeaturedService picks the sender's service that apps show front and center.
+   * The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+   * record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+   * @param payment the storage payment to this app
+   * @param id an existing, not shut down service of the sender
+   */
+  setFeaturedService(payment: gtxn.PaymentTxn, id: ServiceID): void {
+    const key: ServicesKey = { address: Txn.sender, id }
+    loggedAssert(this.services(key).exists, errServiceDoesNotExist)
+    loggedAssert(this.services(key).value.status !== ServiceStatusShutdown, errFeaturedShutdown)
+
+    if (this.featured(Txn.sender).exists) {
+      assertExactPayment(payment, Global.currentApplicationAddress, 0)
+    } else {
+      assertExactPayment(payment, Global.currentApplicationAddress, FeaturedServiceMBR + sponsorCost(payment.sender, Txn.sender))
+      recordPayer(this.featured(Txn.sender).key, payment.sender, Txn.sender)
+    }
+
+    this.featured(Txn.sender).value = id
+  }
+
+  /**
+   * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+   */
+  clearFeaturedService(): void {
+    loggedAssert(this.featured(Txn.sender).exists, errNoFeaturedService)
+
+    this.featured(Txn.sender).delete()
+
+    const [receiver, amount] = releaseDeposit(this.featured(Txn.sender).key, Txn.sender, FeaturedServiceMBR)
+
+    itxn.payment({ receiver, amount }).submit()
+  }
+
+  /**
    * activateService activates an service for a merchant
    */
   activateService(): void {
@@ -1459,6 +1520,12 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const key: ServicesKey = { address, id }
     loggedAssert(this.services(key).exists, errServiceDoesNotExist)
     return this.services(key).value
+  }
+
+  /** the creator's featured service id, 0 when none is set */
+  @abimethod({ readonly: true })
+  getFeaturedService(address: Account): uint64 {
+    return this.featured(address).exists ? this.featured(address).value : 0
   }
 
   @abimethod({ readonly: true })

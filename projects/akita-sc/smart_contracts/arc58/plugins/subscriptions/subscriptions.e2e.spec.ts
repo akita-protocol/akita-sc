@@ -3,7 +3,7 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, SubscriptionsPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
-import { ServiceStatus } from 'akita-sdk/subscriptions';
+import { FEATURED_SERVICE_MBR, HighlightMessage, ServiceStatus } from 'akita-sdk/subscriptions';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { TimeWarp } from '../../../../tests/utils/time';
 import { errCannotTrigger } from '../../../subscriptions/errors';
@@ -496,6 +496,59 @@ describe('Subscriptions plugin contract', () => {
         address: walletAddress(),
         blocked: blocked.addr.toString(),
       })).resolves.toBe(false);
+    });
+
+    test('creator wallet can update a highlight and pick, change and clear its featured service', async () => {
+      const first = await createWalletService({ title: 'Featured One' });
+      const second = await createWalletService({ title: 'Featured Two' });
+      await fundWalletApp();
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          subscriptionsPluginSdk.updateServiceHighlight({
+            id: second.serviceId,
+            highlightMessage: HighlightMessage.Recommended,
+            highlightColor: '#0A0B0C',
+          }),
+        ],
+      });
+
+      const service = await akitaUniverse.subscriptions.getService({
+        address: walletAddress(),
+        id: Number(second.serviceId),
+      });
+      expect(service.highlightMessage).toBe(HighlightMessage.Recommended);
+      expect(service.highlightColor).toBe('#0A0B0C');
+      expect(service.title).toBe('Featured Two');
+
+      const appAddress = akitaUniverse.subscriptions.client.appAddress.toString();
+      const appBalance = async () => (await algorand.account.getInformation(appAddress)).balance.microAlgo;
+
+      expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(0n);
+
+      let before = await appBalance();
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.setFeaturedService({ id: second.serviceId })],
+      });
+      expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(second.serviceId);
+      expect(await appBalance() - before).toBe(FEATURED_SERVICE_MBR);
+
+      before = await appBalance();
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.setFeaturedService({ id: first.serviceId })],
+      });
+      expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(first.serviceId);
+      expect(await appBalance()).toBe(before);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.clearFeaturedService({})],
+      });
+      expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(0n);
+      expect(await appBalance()).toBe(before - FEATURED_SERVICE_MBR);
     });
 
     test('setPasses stores family pass holders for a wallet subscription', async () => {

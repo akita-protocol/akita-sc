@@ -17,6 +17,17 @@ type NewServiceWithDescriptionArgs = NewServiceArgs & {
 type UpdateServiceTitleArgs = (Omit<ContractArgs['updateServiceTitle(uint64,bool,uint64,string)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+type UpdateServiceHighlightArgs = (Omit<ContractArgs['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'], 'wallet' | 'rekeyBack' | 'highlightColor'> & MaybeSigner & {
+    rekeyBack?: boolean;
+    /** `#rrggbb` or the raw 3 bytes */
+    highlightColor: string | Uint8Array;
+});
+type SetFeaturedServiceArgs = (Omit<ContractArgs['setFeaturedService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type ClearFeaturedServiceArgs = MaybeSigner & {
+    rekeyBack?: boolean;
+};
 type SetServiceDescriptionArgs = (Omit<ContractArgs['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -86,6 +97,13 @@ export declare class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginC
     newServiceWithDescription(args: NewServiceWithDescriptionArgs): PluginSDKReturn[];
     updateServiceTitle(): PluginSDKReturn;
     updateServiceTitle(args: UpdateServiceTitleArgs): PluginSDKReturn;
+    updateServiceHighlight(): PluginSDKReturn;
+    updateServiceHighlight(args: UpdateServiceHighlightArgs): PluginSDKReturn;
+    /** the plugin pays the featured box storage from the wallet on the first call */
+    setFeaturedService(): PluginSDKReturn;
+    setFeaturedService(args: SetFeaturedServiceArgs): PluginSDKReturn;
+    clearFeaturedService(): PluginSDKReturn;
+    clearFeaturedService(args: ClearFeaturedServiceArgs): PluginSDKReturn;
     setServiceDescription(): PluginSDKReturn;
     setServiceDescription(args: SetServiceDescriptionArgs): PluginSDKReturn;
     updateServiceDescription(args: UpdateServiceDescriptionArgs): PluginSDKReturn[];

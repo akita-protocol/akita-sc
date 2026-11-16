@@ -86,8 +86,8 @@ import {
   socialClaimSubject,
   translateWalletError,
   voteOnGuildProposal
-} from "../chunk-YMVPTCFS.mjs";
-import "../chunk-55IOSZE5.mjs";
+} from "../chunk-O7TEZD3O.mjs";
+import "../chunk-DFU3OQJ5.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-XQE327QJ.mjs";
 import "../chunk-XN5GRW52.mjs";

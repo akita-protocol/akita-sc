@@ -228,6 +228,31 @@ export type SubscriptionsArgs = {
             id: bigint | number;
             title: string;
         };
+        'updateServiceHighlight(uint64,uint8,byte[3])void': {
+            /**
+             * the service id
+             */
+            id: bigint | number;
+            /**
+             * the highlight label (`HighlightMessage*`, 0 = none)
+             */
+            highlightMessage: bigint | number;
+            /**
+             * the highlight colour (3 bytes)
+             */
+            highlightColor: Uint8Array;
+        };
+        'setFeaturedService(pay,uint64)void': {
+            /**
+             * the storage payment to this app
+             */
+            payment: AppMethodCallTransactionArgument;
+            /**
+             * an existing, not shut down service of the sender
+             */
+            id: bigint | number;
+        };
+        'clearFeaturedService()void': Record<string, never>;
         'activateService()void': Record<string, never>;
         'pauseService(uint64)void': {
             id: bigint | number;
@@ -410,6 +435,9 @@ export type SubscriptionsArgs = {
             address: string;
             id: bigint | number;
         };
+        'getFeaturedService(address)uint64': {
+            address: string;
+        };
         'getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]': {
             address: string;
             start: bigint | number;
@@ -466,6 +494,9 @@ export type SubscriptionsArgs = {
         'newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': [payment: AppMethodCallTransactionArgument, interval: bigint | number, asset: bigint | number, amount: bigint | number, passes: bigint | number, gateId: bigint | number, payoutAddress: string, title: string, bannerImage: Uint8Array, highlightMessage: bigint | number, highlightColor: Uint8Array];
         'setServiceDescription(uint64,uint64,byte[])void': [id: bigint | number, offset: bigint | number, data: Uint8Array];
         'updateServiceTitle(uint64,string)void': [id: bigint | number, title: string];
+        'updateServiceHighlight(uint64,uint8,byte[3])void': [id: bigint | number, highlightMessage: bigint | number, highlightColor: Uint8Array];
+        'setFeaturedService(pay,uint64)void': [payment: AppMethodCallTransactionArgument, id: bigint | number];
+        'clearFeaturedService()void': [];
         'activateService()void': [];
         'pauseService(uint64)void': [id: bigint | number];
         'unpauseService(uint64)void': [id: bigint | number];
@@ -501,6 +532,7 @@ export type SubscriptionsArgs = {
         'triggerGateCtx((address,uint64),uint64)(address,uint64,address)': [key: SubscriptionKey, wallet: bigint | number];
         'blockCost()uint64': [];
         'getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])': [address: string, id: bigint | number];
+        'getFeaturedService(address)uint64': [address: string];
         'getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]': [address: string, start: bigint | number, windowSize: bigint | number];
         'getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [key: SubscriptionKey];
         'mustGetSubscription((address,uint64))(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [key: SubscriptionKey];
@@ -525,6 +557,9 @@ export type SubscriptionsReturns = {
     'newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': bigint;
     'setServiceDescription(uint64,uint64,byte[])void': void;
     'updateServiceTitle(uint64,string)void': void;
+    'updateServiceHighlight(uint64,uint8,byte[3])void': void;
+    'setFeaturedService(pay,uint64)void': void;
+    'clearFeaturedService()void': void;
     'activateService()void': void;
     'pauseService(uint64)void': void;
     'unpauseService(uint64)void': void;
@@ -560,6 +595,7 @@ export type SubscriptionsReturns = {
     'triggerGateCtx((address,uint64),uint64)(address,uint64,address)': GateCtx;
     'blockCost()uint64': bigint;
     'getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])': Service;
+    'getFeaturedService(address)uint64': bigint;
     'getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]': [number, bigint, bigint, bigint, bigint, bigint, string, string, string, Uint8Array, number, Uint8Array][];
     'getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': SubscriptionInfoWithExistence;
     'mustGetSubscription((address,uint64))(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': SubscriptionInfo;
@@ -601,6 +637,18 @@ export type SubscriptionsTypes = {
         argsObj: SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'];
         argsTuple: SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void'];
         returns: SubscriptionsReturns['updateServiceTitle(uint64,string)void'];
+    }> & Record<'updateServiceHighlight(uint64,uint8,byte[3])void' | 'updateServiceHighlight', {
+        argsObj: SubscriptionsArgs['obj']['updateServiceHighlight(uint64,uint8,byte[3])void'];
+        argsTuple: SubscriptionsArgs['tuple']['updateServiceHighlight(uint64,uint8,byte[3])void'];
+        returns: SubscriptionsReturns['updateServiceHighlight(uint64,uint8,byte[3])void'];
+    }> & Record<'setFeaturedService(pay,uint64)void' | 'setFeaturedService', {
+        argsObj: SubscriptionsArgs['obj']['setFeaturedService(pay,uint64)void'];
+        argsTuple: SubscriptionsArgs['tuple']['setFeaturedService(pay,uint64)void'];
+        returns: SubscriptionsReturns['setFeaturedService(pay,uint64)void'];
+    }> & Record<'clearFeaturedService()void' | 'clearFeaturedService', {
+        argsObj: SubscriptionsArgs['obj']['clearFeaturedService()void'];
+        argsTuple: SubscriptionsArgs['tuple']['clearFeaturedService()void'];
+        returns: SubscriptionsReturns['clearFeaturedService()void'];
     }> & Record<'activateService()void' | 'activateService', {
         argsObj: SubscriptionsArgs['obj']['activateService()void'];
         argsTuple: SubscriptionsArgs['tuple']['activateService()void'];
@@ -741,6 +789,10 @@ export type SubscriptionsTypes = {
         argsObj: SubscriptionsArgs['obj']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'];
         argsTuple: SubscriptionsArgs['tuple']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'];
         returns: SubscriptionsReturns['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'];
+    }> & Record<'getFeaturedService(address)uint64' | 'getFeaturedService', {
+        argsObj: SubscriptionsArgs['obj']['getFeaturedService(address)uint64'];
+        argsTuple: SubscriptionsArgs['tuple']['getFeaturedService(address)uint64'];
+        returns: SubscriptionsReturns['getFeaturedService(address)uint64'];
     }> & Record<'getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]' | 'getServicesByAddress', {
         argsObj: SubscriptionsArgs['obj']['getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]'];
         argsTuple: SubscriptionsArgs['tuple']['getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]'];
@@ -856,6 +908,13 @@ export type SubscriptionsTypes = {
         
                  */
                 principals: Map<SubscriptionKey, SubscriptionPrincipal>;
+                /**
+                * The service a creator wants shown front and center, keyed by creator. Absent (or 0) means none.
+                Kept apart from `services` / `serviceslist` so deployed boxes keep their layout.
+                'f' + 32 = 33 byte key, 8 byte value → `FeaturedServiceMBR`, refunded to its payer on clear.
+        
+                 */
+                featured: Map<string, bigint>;
             };
         };
     };
@@ -1038,6 +1097,36 @@ export declare abstract class SubscriptionsParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static updateServiceTitle(params: CallParams<SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'] | SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the updateServiceHighlight(uint64,uint8,byte[3])void ABI method
+     *
+     * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateServiceHighlight(params: CallParams<SubscriptionsArgs['obj']['updateServiceHighlight(uint64,uint8,byte[3])void'] | SubscriptionsArgs['tuple']['updateServiceHighlight(uint64,uint8,byte[3])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setFeaturedService(pay,uint64)void ABI method
+     *
+    * setFeaturedService picks the sender's service that apps show front and center.
+    The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+    record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setFeaturedService(params: CallParams<SubscriptionsArgs['obj']['setFeaturedService(pay,uint64)void'] | SubscriptionsArgs['tuple']['setFeaturedService(pay,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the clearFeaturedService()void ABI method
+     *
+     * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static clearFeaturedService(params: CallParams<SubscriptionsArgs['obj']['clearFeaturedService()void'] | SubscriptionsArgs['tuple']['clearFeaturedService()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the activateService()void ABI method
      *
@@ -1365,6 +1454,15 @@ export declare abstract class SubscriptionsParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static getService(params: CallParams<SubscriptionsArgs['obj']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'] | SubscriptionsArgs['tuple']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getFeaturedService(address)uint64 ABI method
+     *
+     * the creator's featured service id, 0 when none is set
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getFeaturedService(params: CallParams<SubscriptionsArgs['obj']['getFeaturedService(address)uint64'] | SubscriptionsArgs['tuple']['getFeaturedService(address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[] ABI method
      *
@@ -2060,6 +2158,42 @@ export declare class SubscriptionsClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceHighlight(uint64,uint8,byte[3])void` ABI method.
+         *
+         * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceHighlight(uint64,uint8,byte[3])void"] | SubscriptionsArgs["tuple"]["updateServiceHighlight(uint64,uint8,byte[3])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `setFeaturedService(pay,uint64)void` ABI method.
+         *
+        * setFeaturedService picks the sender's service that apps show front and center.
+        The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+        record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["setFeaturedService(pay,uint64)void"] | SubscriptionsArgs["tuple"]["setFeaturedService(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `clearFeaturedService()void` ABI method.
+         *
+         * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        clearFeaturedService: (params?: CallParams<SubscriptionsArgs["obj"]["clearFeaturedService()void"] | SubscriptionsArgs["tuple"]["clearFeaturedService()void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Subscriptions smart contract using the `activateService()void` ABI method.
          *
          * activateService activates an service for a merchant
@@ -2474,6 +2608,19 @@ export declare class SubscriptionsClient {
          * @returns The call params
          */
         getService: (params: CallParams<SubscriptionsArgs["obj"]["getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])"] | SubscriptionsArgs["tuple"]["getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `getFeaturedService(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * the creator's featured service id, 0 when none is set
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["getFeaturedService(address)uint64"] | SubscriptionsArgs["tuple"]["getFeaturedService(address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -2700,6 +2847,54 @@ export declare class SubscriptionsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceHighlight(uint64,uint8,byte[3])void` ABI method.
+         *
+         * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceHighlight(uint64,uint8,byte[3])void"] | SubscriptionsArgs["tuple"]["updateServiceHighlight(uint64,uint8,byte[3])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `setFeaturedService(pay,uint64)void` ABI method.
+         *
+        * setFeaturedService picks the sender's service that apps show front and center.
+        The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+        record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["setFeaturedService(pay,uint64)void"] | SubscriptionsArgs["tuple"]["setFeaturedService(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `clearFeaturedService()void` ABI method.
+         *
+         * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        clearFeaturedService: (params?: CallParams<SubscriptionsArgs["obj"]["clearFeaturedService()void"] | SubscriptionsArgs["tuple"]["clearFeaturedService()void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Subscriptions smart contract using the `activateService()void` ABI method.
          *
          * activateService activates an service for a merchant
@@ -3250,6 +3445,23 @@ export declare class SubscriptionsClient {
          * @returns The call transaction
          */
         getService: (params: CallParams<SubscriptionsArgs["obj"]["getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])"] | SubscriptionsArgs["tuple"]["getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `getFeaturedService(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * the creator's featured service id, 0 when none is set
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["getFeaturedService(address)uint64"] | SubscriptionsArgs["tuple"]["getFeaturedService(address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3546,6 +3758,69 @@ export declare class SubscriptionsClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | SubscriptionsReturns["updateServiceTitle(uint64,string)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceHighlight(uint64,uint8,byte[3])void` ABI method.
+         *
+         * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceHighlight(uint64,uint8,byte[3])void"] | SubscriptionsArgs["tuple"]["updateServiceHighlight(uint64,uint8,byte[3])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsReturns["updateServiceHighlight(uint64,uint8,byte[3])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `setFeaturedService(pay,uint64)void` ABI method.
+         *
+        * setFeaturedService picks the sender's service that apps show front and center.
+        The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+        record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["setFeaturedService(pay,uint64)void"] | SubscriptionsArgs["tuple"]["setFeaturedService(pay,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsReturns["setFeaturedService(pay,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `clearFeaturedService()void` ABI method.
+         *
+         * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        clearFeaturedService: (params?: CallParams<SubscriptionsArgs["obj"]["clearFeaturedService()void"] | SubscriptionsArgs["tuple"]["clearFeaturedService()void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsReturns["clearFeaturedService()void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -4287,6 +4562,28 @@ export declare class SubscriptionsClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Subscriptions smart contract using the `getFeaturedService(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * the creator's featured service id, 0 when none is set
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getFeaturedService: (params: CallParams<SubscriptionsArgs["obj"]["getFeaturedService(address)uint64"] | SubscriptionsArgs["tuple"]["getFeaturedService(address)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsReturns["getFeaturedService(address)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Subscriptions smart contract using the `getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -4650,6 +4947,17 @@ export declare class SubscriptionsClient {
      */
     getService(params: CallParams<SubscriptionsArgs['obj']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'] | SubscriptionsArgs['tuple']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])']>): Promise<Service>;
     /**
+     * Makes a readonly (simulated) call to the Subscriptions smart contract using the `getFeaturedService(address)uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * the creator's featured service id, 0 when none is set
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getFeaturedService(params: CallParams<SubscriptionsArgs['obj']['getFeaturedService(address)uint64'] | SubscriptionsArgs['tuple']['getFeaturedService(address)uint64']>): Promise<bigint>;
+    /**
      * Makes a readonly (simulated) call to the Subscriptions smart contract using the `getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -4849,6 +5157,19 @@ export declare class SubscriptionsClient {
                  */
                 value: (key: SubscriptionKey) => Promise<SubscriptionPrincipal | undefined>;
             };
+            /**
+             * Get values from the featured map in box state
+             */
+            featured: {
+                /**
+                 * Get all current values of the featured map in box state
+                 */
+                getMap: () => Promise<Map<string, bigint>>;
+                /**
+                 * Get a current value of the featured map by key from box state
+                 */
+                value: (key: string) => Promise<bigint | undefined>;
+            };
         };
     };
     newGroup(): SubscriptionsComposer;
@@ -4890,6 +5211,39 @@ export type SubscriptionsComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateServiceTitle(params?: CallParams<SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'] | SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['updateServiceTitle(uint64,string)void'] | undefined]>;
+    /**
+     * Calls the updateServiceHighlight(uint64,uint8,byte[3])void ABI method.
+     *
+     * updateServiceHighlight changes the highlight label and colour of one of the sender's services
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateServiceHighlight(params?: CallParams<SubscriptionsArgs['obj']['updateServiceHighlight(uint64,uint8,byte[3])void'] | SubscriptionsArgs['tuple']['updateServiceHighlight(uint64,uint8,byte[3])void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['updateServiceHighlight(uint64,uint8,byte[3])void'] | undefined]>;
+    /**
+     * Calls the setFeaturedService(pay,uint64)void ABI method.
+     *
+    * setFeaturedService picks the sender's service that apps show front and center.
+    The first call creates the featured box: `payment` covers `FeaturedServiceMBR` (plus the payer
+    record when someone else pays). Later calls only change the id and take a 0 ALGO payment.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setFeaturedService(params?: CallParams<SubscriptionsArgs['obj']['setFeaturedService(pay,uint64)void'] | SubscriptionsArgs['tuple']['setFeaturedService(pay,uint64)void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['setFeaturedService(pay,uint64)void'] | undefined]>;
+    /**
+     * Calls the clearFeaturedService()void ABI method.
+     *
+     * clearFeaturedService removes the sender's featured service and returns the storage to whoever paid it
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    clearFeaturedService(params?: CallParams<SubscriptionsArgs['obj']['clearFeaturedService()void'] | SubscriptionsArgs['tuple']['clearFeaturedService()void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['clearFeaturedService()void'] | undefined]>;
     /**
      * Calls the activateService()void ABI method.
      *
@@ -5252,6 +5606,16 @@ export type SubscriptionsComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     getService(params?: CallParams<SubscriptionsArgs['obj']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'] | SubscriptionsArgs['tuple']['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])'] | undefined]>;
+    /**
+     * Calls the getFeaturedService(address)uint64 ABI method.
+     *
+     * the creator's featured service id, 0 when none is set
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getFeaturedService(params?: CallParams<SubscriptionsArgs['obj']['getFeaturedService(address)uint64'] | SubscriptionsArgs['tuple']['getFeaturedService(address)uint64']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['getFeaturedService(address)uint64'] | undefined]>;
     /**
      * Calls the getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[] ABI method.
      *

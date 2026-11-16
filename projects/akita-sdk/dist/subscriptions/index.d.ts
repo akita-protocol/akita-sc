@@ -3,6 +3,7 @@ import { ServicesKey, SubscriptionInfo, SubscriptionsArgs, SubscriptionsClient }
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ValueMap } from "../wallet/utils";
 import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionGateCtx, SubscriptionGateTxn, SubscriptionInfoWithDetails, SubscriptionStatus } from "./types";
+import { HighlightMessage } from "./constants";
 export { ServicesKey } from '../generated/SubscriptionsClient';
 type ContractArgs = SubscriptionsArgs["obj"];
 export * from './constants';
@@ -159,6 +160,33 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
         id: bigint | number;
         title: string;
     }): Promise<void>;
+    /** Change the highlight label and colour (`#rrggbb`) of one of the sender's services. */
+    updateServiceHighlight({ sender, signer, id, highlightMessage, highlightColor }: MaybeSigner & {
+        id: bigint | number;
+        highlightMessage: HighlightMessage | number;
+        highlightColor: string;
+    }): Promise<void>;
+    /** The creator's featured (front and center) service id, or 0n when none is set. */
+    getFeaturedService({ sender, address }: {
+        sender?: string;
+    } & {
+        address: string;
+    }): Promise<bigint>;
+    /**
+     * What `setFeaturedService` costs: 0 once the creator has a featured box, otherwise its MBR
+     * (plus the payer record when `payer` is not the creator).
+     */
+    featuredServiceCost({ sender, creator, payer }: {
+        sender?: string;
+        creator: string;
+        payer?: string;
+    }): Promise<bigint>;
+    /** Pick which of the sender's services apps show front and center. */
+    setFeaturedService({ sender, signer, id }: MaybeSigner & {
+        id: bigint | number;
+    }): Promise<void>;
+    /** Remove the sender's featured service; the storage goes back to whoever paid it. */
+    clearFeaturedService({ sender, signer }?: MaybeSigner): Promise<void>;
     updateServiceDescription({ sender, signer, id, description }: MaybeSigner & {
         id: bigint | number;
         description: string;
