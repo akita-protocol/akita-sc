@@ -40,7 +40,7 @@ Also changed:
 
 The Guild fee asset is in the tree: a Guild may charge its proposal fees in an asset instead of ALGO. The second audit pass covered it on 2026-11-14 (C18 to C21); the decisions of 2026-11-15 are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md`.
 
-- **Five programs differ from the release commit.** Guild (10,349 to 12,136 bytes), GuildPlugin (3,993 to 5,238 bytes, 2 extra pages instead of 1) and the three consensus programs, each 12 bytes smaller because fee settings lost their ceiling (C18): FixedSignerGuildConsensus 4,886, LockedTokenGuildConsensus 3,282, SubscriptionGuildConsensus 4,687. `release/manifest.json` is regenerated; the other 150 programs are unchanged.
+- **Five programs differ from the release commit.** Guild (10,349 to 12,136 bytes), GuildPlugin (3,993 to 5,238 bytes, 2 extra pages instead of 1) and the three consensus programs, each 12 bytes smaller because fee settings lost their ceiling (C18): FixedSignerGuildConsensus 4,886 (5,424 since the direct plugin use of 2026-11-16), LockedTokenGuildConsensus 3,282, SubscriptionGuildConsensus 4,687. `release/manifest.json` is regenerated; the other 150 programs are unchanged.
 - **H2 keeps its order and commands.** No Guild app is live on TestNet or MainNet (the SDK's Guild app ids are 0 on both), so nothing is migrated, and the scripts size each upload from the program itself.
 - **ABI.** Guild gained `setFeeAsset`, `newProposalWithFeeAsset`, `editProposalWithFeeAsset`, `sweepFeeTokens`, `feeAssetCost`, `sweepableFeeTokens` and action 85 (set fee asset); `proposalCost` also returns `feeAsset`. GuildPlugin gained `setFeeAsset`, `newProposalWithFeeAsset` and `editProposalWithFeeAsset`. Build clients against the new SDK.
 - **Storage.** A proposal box costs 6,400 µALGO more (base 51,300, was 44,900). Charging in an asset costs 209,300 µALGO once: two opt-ins and a 9,300 reserve box (109,300 while the Guild has no wallet).
@@ -50,7 +50,7 @@ The Guild fee asset is in the tree: a Guild may charge its proposal fees in an a
 
 A grouped payment that covers storage or a fee no longer has to come from the caller, and a storage deposit goes back to whoever paid it. The rules, costs and exceptions are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Third pass").
 
-- **25 more programs differ from the release commit** (28 in all, with the three consensus programs above; 23 and 26 before the empty-account fix C27 of 2026-11-16 added AssetGate and the balance reader). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247, SocialClaim 2,697 (2,765 before each gift stored its payer, C23 and C26 of 2026-11-16), Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,302 (7,306 before C27), Subscriptions 10,468, AssetGate 712 (710 before C27) and AbstractedAccountBalanceReader 283 (284 before C27). Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
+- **25 more programs differ from the release commit** (28 in all, with the three consensus programs above; 23 and 26 before the empty-account fix C27 of 2026-11-16 added AssetGate and the balance reader). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247 (5,564 since the direct plugin use of 2026-11-16), SocialClaim 2,697 (2,765 before each gift stored its payer, C23 and C26 of 2026-11-16), Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,302 (7,306 before C27), Subscriptions 10,468 (10,801 since the featured service of 2026-11-16), AssetGate 712 (710 before C27) and AbstractedAccountBalanceReader 283 (284 before C27). Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
 - **Pages.** Subscriptions needs 5 extra pages, one more than planned: E2 grows it from 3 to 5 and the DAO wallet sponsors 3,528,000 µA for it (was 3,428,000). Phase 2 sponsorship is 7,056,000 µA (AkitaSocial 3,528,000 and Subscriptions 3,528,000), and 10.65 ALGO with the DAO's own growth. Guild needs 6 extra pages; GuildFactory creates every Guild with 7. PollFactory needs 2 and the live app has 3. No other live app crosses a page.
 - **Upload groups.** PollFactory's update takes one more upload transaction (three chunks, was two). Every other group keeps its size, StakingPoolFactory at exactly 16.
 - **Staking and pools.** Staking gains `reclaimAppStake(address,uint64)void` and keeps every method it had. The new StakingPool child calls it instead of `releaseAppStake`, so D1 (Staking) still comes before E5 (StakingPoolFactory), and the runner refuses E5 until the Staking at aal.staking routes the new method.
@@ -82,6 +82,20 @@ Four programs changed after the update above. The record is in `projects/akita-s
 - **AbstractedAccountBalanceReader is 283 bytes (was 284), C27.** The same read. It failed for an address that holds nothing instead of returning zero. It cannot be patched and is deployed new at H5.
 - **Nothing in the sequence changes.** No step is added, moved or resized.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these four entries only. 28 programs differ from the release commit.
+
+## Update 2026-11-16 (third): a deciding signer's direct plugin use, and editable highlights with a featured service
+
+Four programs changed after the update above, for two additions the owner asked for on the evening of 2026-11-16. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Seventh pass").
+
+- **FixedSignerGuildConsensus is 5,424 bytes (was 4,886).** New method `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void`. A signer whose own weight meets the threshold uses a plugin the Guild's wallet granted to the consensus app, in one send and with no proposal. The consensus app is the named caller of that grant, so the route does nothing until a Guild installs a plugin with its consensus app's address as the caller. The wallet's own checks on the grant still hold: the wallet named in each call, the rekey back, method restrictions, cooldown and escrow allowance. The Guild's vote settings, the proposal fee and the proposal record do not apply to such a use (C29, the design). ALGO the consensus app gains during a use is forwarded to the Guild app, where `sweep` sends it on to the treasury (C28). The program cannot be patched once it is registered at H2. It still needs 2 extra pages and three upload chunks.
+- **GuildPlugin is 5,564 bytes (was 5,247).** New method `usePluginAsSigner`, the wallet-side entry to the route. It works from the creation-only plugin (guild = 0) for every Guild of the factory. Still 2 extra pages.
+- **Limits of the route.** It carries only plugin methods that take no transaction arguments, and the SDK has no helper yet to encode the calls. A Guild with locked-token or subscription consensus has no such route: the call fails there.
+- **Subscriptions is 10,801 bytes (was 10,468).** New methods `updateServiceHighlight`, `setFeaturedService`, `clearFeaturedService` and the read-only `getFeaturedService`. A creator edits a service's highlight label and colour at any time, and names one of their services as featured. The featured id is in a new box per creator (prefix `f`) that costs 18,900 µALGO once and comes back on clear to whoever paid it. A payer that is not the creator adds 28,500 µALGO for the payer record. Moving the featured service later takes a payment of 0 µALGO in the group. No existing method, box or struct changed. The four services on MainNet (app 3569556497, read 2026-11-16) decode under the unchanged layout, so their highlights can be edited as soon as E2 has run.
+- **E2 keeps its pages, sponsorship and group size.** Subscriptions still needs 5 extra pages and six upload chunks, and the DAO wallet still sponsors 3,528,000 µA. 1,483 B of headroom is left (was 1,816).
+- **SubscriptionsPlugin is 4,794 bytes (was 4,461).** It mirrors the three new write methods. Still 2 extra pages, deployed new at G1. The G1 readiness check reads the calls from the plugin's program, so it refuses the plugin until the Subscriptions at E2 routes the new methods.
+- **For the apps.** A featured service that is shut down later stays recorded until its creator moves or clears it, so a reader checks the service's status. `highlightMessage` is not range-checked, as in `newService`.
+- **Nothing in the sequence changes.** No step is added, moved or resized.
+- **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these four entries only. 29 programs differ from the release commit: SubscriptionsPlugin is the new one.
 
 ## Live state (read 2026-10-10)
 
@@ -399,12 +413,12 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 
 #### E2. Subscriptions
 
-- **What:** Phase 2 Subscriptions (pages 4 → 6: the program is 10,468 B since the payer records of 2026-11-15).
+- **What:** Phase 2 Subscriptions (pages 4 → 6: the program is 10,801 B since the featured service of 2026-11-16, and was 10,468 B with the payer records of 2026-11-15).
 - **Why here:** Hinted subscribe paths back the new SubscriptionsPlugin and the subscription guild consensus.
 - **Requires:** C4, D2, B1. **Script:** ready.
 - **Tracked by rollout:status as** `p2:Subscriptions`.
 - Run E1–E3 immediately after D2: until each service upgrades, its referral payouts revert at Rewards v2.
-- DAO wallet sponsors 3,528,000 µA (3,428,000 while the program still fitted 4 extra pages). 1,816 B of headroom left in 5 extra pages.
+- DAO wallet sponsors 3,528,000 µA (3,428,000 while the program still fitted 4 extra pages). 1,483 B of headroom left in 5 extra pages.
 
 ```bash
 … principal-phase2-upgrade-targets.ts -n mainnet -m $M --target Subscriptions --confirm

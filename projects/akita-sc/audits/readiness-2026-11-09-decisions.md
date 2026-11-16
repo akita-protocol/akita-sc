@@ -641,3 +641,110 @@ Nothing in the contract code that this review knows of. What remains is the owne
 This pass, like the ones before it, is one reviewer's work. C26 and C27 were found by a test
 written for another change, after four review passes had read the same lines. The contracts that
 can never be patched go out on this review and the test suite.
+
+## Seventh pass, 2026-11-16: two additions before the rehearsal
+
+After the release gate passed on 638c6f2e the owner asked for two contract changes and put both in
+this release: a one-send plugin route for a deciding signer of a fixed-signer Guild, and
+creator-edited highlights with a featured service in Subscriptions. Each was built as its own pull
+request against the work branch (#12 and #13) and reviewed here as a diff against 638c6f2e. Four
+programs change. Like the passes before it, this is one reviewer's work.
+
+### The direct plugin use of a deciding signer
+
+- What it is. `FixedSignerGuildConsensus.usePlugin(plugin, escrow, methodOffsets, fundsRequest,
+  calls)`: a signer whose own weight meets the threshold uses a plugin that the Guild's wallet
+  granted to the consensus app, in one send and with no proposal. The consensus app calls
+  `arc58_rekeyToPlugin` on the Guild's wallet as the named caller, sends each plugin call itself,
+  and ends with `arc58_verifyAuthAddress`. `GuildPlugin.usePluginAsSigner` is the wallet-side
+  entry. The owner chose this design and chose to ship it in this release.
+- Who can use it. A draft Guild is refused. The caller's own weight must meet the threshold at
+  that moment, so a signer below it, a removed signer and a non-signer are refused, and raising
+  the threshold above a signer's weight closes the route for that signer. The wallet is read from
+  the Guild's own state and is never an argument.
+- What a deciding signer can do with it. Only what the grant allows. The wallet enforces, as for
+  any named caller: each plugin call names the Guild's wallet as its first argument, the group
+  hands the wallet back, method restrictions, cooldown and escrow allowance. A named grant cannot
+  use an execution key. The Guild never installs a plugin with admin or reclaim rights. A fee
+  reimbursement (`coverFees`) is not paid to a caller that is an app. A plugin cannot call back
+  into the consensus app, because the AVM forbids re-entry.
+- **C28 (low), fixed in the pull request.** The consensus app is the sender of the plugin calls,
+  so a plugin that pays its caller left ALGO in the consensus app, and no method could move it
+  out. `usePlugin` now compares the app's balance before and after the use and forwards any gain
+  to the Guild app, where `sweep` sends it to the treasury.
+- **C29, the design, recorded so nobody is surprised by it.** The route asks one question: does
+  this signer's weight meet the threshold. The Guild's vote settings for the plugin, the proposal
+  fee and the proposal record do not apply to a plugin granted to the consensus app. Whoever can
+  change the threshold, the weights or the signers decides who can use such a grant alone. A Guild
+  that wants a vote or a record for a plugin does not grant it to its consensus app.
+- A nit, fixed: `GuildPlugin.sweep` had lost its description in the app spec.
+- Limits. The route carries only plugin methods that take no transaction arguments, and the SDK
+  has no helper yet to encode `calls`. Locked-token and subscription consensus have no such
+  method, so `usePluginAsSigner` fails for those Guilds.
+- The consensus programs cannot be patched once registered, so this method goes out on this
+  review and its tests.
+
+### Subscriptions: editable highlights and a featured service
+
+- What it is. `updateServiceHighlight(id, highlightMessage, highlightColor)` rewrites the two
+  fixed fields of one of the caller's services, in any status. `setFeaturedService(payment, id)`
+  records one of the caller's services, which must exist and not be shut down, in a new box per
+  creator (prefix `f`). `clearFeaturedService()` deletes it. `getFeaturedService(address)` returns
+  the id, or 0. SubscriptionsPlugin mirrors the three write methods and pays the storage from the
+  wallet's spending account.
+- Authorization. Every write is keyed by the caller's address: the service box and the featured
+  box are both found under `Txn.sender`, so nobody can touch another creator's.
+- Storage. The `Service` struct, the service boxes and every existing method are unchanged. Read
+  on MainNet 2026-11-16 (app 3569556497): 13 boxes, none with prefix `f` or `$`, and all four
+  service boxes decode under the unchanged layout (a fixed head of 117 bytes, the highlight at byte
+  113). After E2 the new method edits those live services in place.
+- Costs. The featured box costs 18,900 µALGO, once. Anyone may pay it: a payer that is not the
+  creator adds 28,500 µALGO for the payer record, and both come back on clear to whoever paid. If
+  that account is closed they go to the creator. Moving the featured service later takes a payment
+  of exactly 0 µALGO, from anyone, and leaves the first payer in place. A storage payment that
+  closes out or rekeys its sender is refused.
+- No fault found. Three points for the apps, none of them a contract change. The featured id is
+  not cleared when that service is shut down later, so a reader checks the service's status.
+  Every later `setFeaturedService` still needs the 0 µALGO payment in the group. `highlightMessage`
+  is not range-checked, as in `newService`.
+
+### Build and manifest
+
+- The two pull requests conflict only in the SDK bundle (`projects/akita-sdk/dist`, 26 files with
+  hashed names). Merged, with the bundle rebuilt, a whole-tree build from the lockfile reproduces
+  every committed artifact.
+- Four programs differ from 638c6f2e: FixedSignerGuildConsensus 5,424 bytes (was 4,886),
+  GuildPlugin 5,564 (5,247), Subscriptions 10,801 (10,468) and SubscriptionsPlugin 4,794 (4,461).
+  No page count changes: 2, 2, 5 and 2 extra pages. `release/manifest.json` changes in those four
+  entries only and the check passes for 155 programs. 29 programs now differ from the release
+  commit (28 before): SubscriptionsPlugin is the new one.
+- The rollout keeps its steps, page counts, sponsorship and upload groups. The runbook has the
+  figures ("Update 2026-11-16 (third)").
+
+### Tests
+
+- `guild-sole-signer.e2e.spec.ts`, 9 tests, from the pull request: the configuration change, the
+  vote and the capped budget in one group, the direct use, and its refusals.
+- `guild-sole-signer-audit.e2e.spec.ts`, 9 tests written for this pass: a call that names another
+  wallet, a use that does not hand the wallet back, method restrictions, a cooldown across
+  signers, a removed grant, a removed signer, the consensus app's balance with fee reimbursement,
+  a draft Guild, and ALGO sent to the consensus app reaching the treasury through `sweep`.
+- `featured.e2e.spec.ts`, 11 tests, from the pull request, and `featured-audit.e2e.spec.ts`, 5
+  tests written for this pass: a sponsor that closed its account, a later set paid by someone
+  else, a storage payment with close-out or rekey, a highlight edit on a service with a description
+  of the maximum length, and a featured service shut down later.
+- The Guild, wallet, Pay, Subscriptions and plugin files together on the merged tree: 45 files,
+  520 tests, 519 passed, none failed, 1 skipped (it needs the backend).
+- SDK: rebuilt, 496 unit tests pass. The type check shows the same 12 errors as before, all in
+  test files.
+- The full suite and the release gate (A1) are repeated on the commit that holds both changes.
+  Their result is recorded with the deploy commit, not here.
+
+### What is left before the first MainNet step
+
+1. The deploy commit. 638c6f2e is no longer it. The commit that holds both changes replaces it
+   once A1 passes there and the owner moves `release/mainnet-rollout` to it.
+2. Rehearse stages B to I on TestNet from that commit (A4).
+3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
+   the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
+   the push (I2).
