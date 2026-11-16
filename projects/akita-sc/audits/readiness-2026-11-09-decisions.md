@@ -748,3 +748,125 @@ programs change. Like the passes before it, this is one reviewer's work.
 3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
    the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
    the push (I2).
+
+## Eighth pass, 2026-11-16: a caller may remove its own grant
+
+After the seventh pass the owner asked for one more change in this release: the account named as a
+grant's caller can remove that grant. The case is an agent that Akita runs. When its user points
+the agent's NFD away, the agent is shut down, and the grants users gave it are useless and hold
+storage in their wallets. The owner also said the revocation app is not needed until the plugin
+system opens to others, so none is built here. The change is in the wallet program and one new
+fault in the existing check came out of testing it (C30). This pass wrote the change and reviewed
+it: nobody else has read it.
+
+### The rule
+
+- `arc58_removePlugin(plugin, caller, escrow)` accepts a third sender next to the admin and the
+  revocation app: the account named as `caller` in that grant.
+- Two kinds of grant have no such caller. An admin-type grant is stored under the wallet's own
+  address, and a plugin that holds the main account can send as that address, so that address
+  never counts. A grant open to anyone is stored under the zero address, which cannot send.
+- The storage goes back to the wallet, never to the caller. A wallet whose controlled address is a
+  separate account refunds with an inner payment of fee 0, so the sender covers that fee.
+- A caller's own removal sets `lastChange` and leaves `lastUserInteraction` alone. That also holds
+  when one of the wallet's own keys is the named caller and removes its grant this way. Nothing
+  on-chain reads either value.
+- `arc58_removeNamedPlugin` and `arc58_removeAllowances` keep their check: the admin or the
+  revocation app. A caller that removes its own grant leaves the grant's alias, its escrow and the
+  escrow's allowances for the admin. `arc58_removeNamedPlugin` already accepts an alias whose grant
+  is gone (ACC-05), so the admin can clear it.
+- Why it is not a plugin method. The owner's first wording was a method on every plugin. The
+  wallet does not accept a plugin's address for a removal, so such a method does nothing, and a
+  forwarder named as a wallet's revocation app lets anyone strip that wallet's plugins (ACCT-9).
+  The plugin package's README now says so.
+
+### What was checked
+
+- An open window gives nobody this route. A top-level call to the wallet inside a window is
+  refused. An inner call sent as the wallet's own address is the excluded case above. A plugin
+  that is itself the named caller of a grant can remove that one grant, which is the rule.
+  `arc58_verifyAuthAddress` does not read the grant, so a caller app that removes its own grant
+  inside its own window still closes the window.
+- An account that names itself on a grant it does not hold fails with `errNplg` and changes
+  nothing.
+- A grant with method restrictions, with an escrow, or past its expiry is removed like any other,
+  and the wallet's minimum balance returns to its value before the grant.
+- Guild. The fixed-signer plugin route (seventh pass) never calls a removal. The Guild's own
+  record of a grant exists only for grants open to anyone, which have no caller. A proposal to
+  remove an unnamed grant whose caller has already removed it fails at the wallet with `errNplg`:
+  there is nothing left to remove.
+- DAO. `bootstrapGrants` is a list for readers and no check uses it. If a bootstrap grantee
+  removes its own unnamed grant, that entry stays, because the DAO's removal fails at the wallet
+  before the entry is deleted. For a named grant the DAO removes by name, which succeeds and
+  deletes the entry.
+
+### C30 (low), fixed here
+
+- The fault. `canRevoke()` compared the sender with the address of the wallet's revocation app.
+  With no revocation app the id is 0, and the AVM resolves app 0 to the calling program, so the
+  comparison was with the wallet's own address. A plugin that holds a main-account window can send
+  as that address. On such a wallet it passed as the revocation app and could remove any plugin
+  grant, alias or allowance.
+- Who is affected. Every wallet with no revocation app, which is every wallet the live factory
+  made: its `revocation` is 0 (app 3569556257, read on MainNet 2026-11-16). The live wallet
+  program 1.0.1 has the same check (the DAO wallet 3569559153, same read).
+- Why low. It removes and cannot add, and a plugin with a main-account window already controls the
+  main account for that window. No plugin in this tree calls a wallet removal from inside a
+  window: only the Guild and the DAO call them, as admin of their own wallets. It matters once
+  plugins from others exist.
+- The fix. `canRevoke()` compares the app that calls the wallet with the revocation app, where it
+  compared the sender. No app can call itself, so with id 0 nobody passes. The check is the same
+  size as before. A revocation app passes as it did, because it calls the wallet itself. One
+  difference: an account that only sends as the revocation app's address, without that app being
+  the caller, no longer passes. That takes the revocation app's own account rekeyed to someone
+  else, and nothing here does that.
+- The evidence. The fifth test in `self-revocation.e2e.spec.ts` sets the revocation app to 0 and
+  has a plugin attempt the removal from inside its window. It passed the check before the fix and
+  is refused after it. A wallet with a revocation app still accepts that app:
+  `agent-delegation.e2e.spec.ts`, "configured emergency app removes a Global grant for every
+  caller", passes on the new check.
+- Live wallets keep the old check until F1 and F2 replace the program.
+
+### Size, build and manifest
+
+- AbstractedAccount is 8,160 bytes (was 8,139): the rule is 21 bytes and the C30 fix none. A first
+  form of the fix, which refused the wallet's own address as sender, cost 12 bytes and was
+  replaced for that reason. The limit for a program is 4 pages, 8,192 bytes with the clear
+  program, so 28 bytes are left. The live program is 8,186. A later wallet change has to fit in
+  28 bytes or free some first.
+- No method, schema or page count changes. A whole-tree build changes three programs: the wallet
+  and two that never deploy, Arc58AgentProbePlugin (291 bytes, was 184: a method that attempts
+  the removal from inside a window) and MockBigWallet (10,579, was 10,558: it inherits the wallet).
+- `release/manifest.json`: those three entries change, and Arc58AgentRevoker is now marked as never
+  deployed, which the naming rule had missed. 155 programs, 85 that deploy and 70 that never do.
+  32 programs differ from the release commit, 27 of them programs that deploy: the wallet is the
+  new one.
+- The rollout keeps its steps, page counts and upload groups. The runbook has the figures ("Update
+  2026-11-16 (fourth)").
+- SDK. `wallet.removePlugin` already takes any sender, so no method was added. The text for
+  `errOarp` names the third sender.
+
+### Tests
+
+- `self-revocation.e2e.spec.ts`, 5 tests written for this pass: the named caller removes its grant
+  and the storage returns; restrictions, an escrow and expiry do not block it; a caller cannot
+  remove another caller's grant, a grant open to anyone or an admin grant; a plugin cannot remove
+  an admin grant by sending as the wallet's account; and the C30 case.
+- The wallet, agent, Guild and plugin files (`smart_contracts/arc58/account`, `arc58/guilds`,
+  `arc58/plugins`) with the rule and the first form of the C30 fix: 71 files, 653 tests, 652
+  passed, none failed, 1 skipped (it needs the backend). Then the wallet files, the Guild test on a
+  real wallet and the Guild plugin files again on the final build, with the final form of the fix:
+  20 files, 217 tests, 216 passed, none failed, the same 1 skipped.
+- SDK: rebuilt, 496 unit tests pass. The type check shows the same 12 errors as before, all in
+  test files.
+- The full suite and the release gate (A1) are repeated on the commit that holds this change.
+  Their result is recorded with the deploy commit, not here.
+
+### What is left before the first MainNet step
+
+1. The deploy commit. The gate passed on 740ec90f, which does not hold this change. The commit
+   that does replaces it once A1 passes there and the owner moves `release/mainnet-rollout` to it.
+2. Rehearse stages B to I on TestNet from that commit (A4).
+3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
+   the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
+   the push (I2).

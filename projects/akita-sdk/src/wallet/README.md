@@ -103,7 +103,7 @@ A Hyperspace session installs a plugin grant for the P-256 LogicSig caller from 
 | Principal resolution | `windowHint` (the hint Akita plugins forward: this wallet's app id), `predictPrincipal` (prediction only), `principalResources`; `usePlugin({ seedPrincipalResources: true })` seeds them into the Access-list preparer |
 | Co-admin passkeys | `assignDomain` (a key whose domain equals the wallet domain is a co-admin; reassigning refunds the old key's MBR), `removeDomainKey` (revokes and refunds; on-chain `assignDomain(key, '')`), `getDomainKey`. An admin change through an admin plugin (recovery) clears the wallet domain, disabling every co-admin key until the new admin calls `setDomain`. |
 | Profile | `setNickname`, `setAvatar`, `setBanner`, `setBio` |
-| Plugins | `addPlugin`, `usePlugin`, `removePlugin`, `removeNamedPlugin`, `canCall`, `getPlugins`, `getPluginByKey`, `getNamedPlugins`, `getPluginByName` |
+| Plugins | `addPlugin`, `usePlugin`, `removePlugin` (the admin, the revocation app, or the grant's own caller: pass that caller as `sender`), `removeNamedPlugin`, `canCall`, `getPlugins`, `getPluginByKey`, `getNamedPlugins`, `getPluginByName` |
 | Escrows | `newEscrow`, `getEscrows`, `getEscrow`, `toggleEscrowLock`, `reclaimFunds` |
 | Allowances | `addAllowances`, `removeAllowances`, `getAllowances`, `getAllowance` |
 | Execution keys | `addExecutionKey`, `removeExecutionKey`, `getExecutions`, `getExecution` |

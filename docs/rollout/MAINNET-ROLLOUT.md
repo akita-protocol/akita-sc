@@ -33,7 +33,7 @@ Kyle's decisions of 2026-11-11 change the plan in four places:
 
 Also changed:
 
-- `release/manifest.json` pins 155 programs (86 deployable, 69 test-only). Taking the DEX out removed 30 programs and changed none: every remaining approval and clear hash equals the one in the 185-program manifest.
+- `release/manifest.json` pins 155 programs (85 deployable, 70 test-only; the manifest marked Arc58AgentRevoker, a test helper, as deployable until 2026-11-16). Taking the DEX out removed 30 programs and changed none: every remaining approval and clear hash equals the one in the 185-program manifest.
 - The LocalNet mock Haystack router (`smart_contracts/mocks/haystack-router-localnet`) routes over Tinyman v2 pools only. It no longer needs a relay key or a Vault.
 
 ## Update 2026-11-15
@@ -96,6 +96,18 @@ Four programs changed after the update above, for two additions the owner asked 
 - **For the apps.** A featured service that is shut down later stays recorded until its creator moves or clears it, so a reader checks the service's status. `highlightMessage` is not range-checked, as in `newService`.
 - **Nothing in the sequence changes.** No step is added, moved or resized.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these four entries only. 29 programs differ from the release commit: SubscriptionsPlugin is the new one.
+
+## Update 2026-11-16 (fourth): a caller may remove its own grant, and the revocation check
+
+One deployable program changed after the update above: the wallet. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Eighth pass").
+
+- **AbstractedAccount is 8,160 bytes (was 8,139).** Two changes to who may remove a plugin grant, both in `arc58_removePlugin` and the check behind it.
+- **A caller may remove its own grant** (asked for by the owner 2026-11-16). `arc58_removePlugin(plugin, caller, escrow)` also accepts the account named as `caller` in that grant. It is for an agent that shuts down: it frees the storage its grants hold in users' wallets, 38,900 µALGO per grant plus 8,000 per method restriction and 400 per byte of escrow name. The storage returns to the wallet, never to the caller. A grant open to anyone and an admin grant have no such caller. The removal updates `last_change` and leaves `last_user_interaction` alone. An alias, an escrow and its allowances stay until the admin removes them.
+- **C30, low, fixed.** With no revocation app (id 0, the state of every wallet the live factory made) the revocation check compared the sender with the wallet's own address, because app id 0 resolves to the app that asks. A plugin can send as that address inside a main-account window, so it could remove any plugin grant, alias or allowance of that wallet. The check now compares the app that calls the wallet, where it compared the sender, and no app can call itself. The live wallet program (1.0.1, read 2026-11-16 on the DAO wallet 3569559153) has the same check. F1 and F2 replace it.
+- **No method, schema or page count changed.** The wallet still needs 3 extra pages, with 28 B of headroom (was 49). E7 still uploads five chunks, and F1 and F2 run as written with no growth cost. Four pages is the most a program can have, so a later wallet change has to fit in those 28 bytes or free space first.
+- **Test-only programs.** Arc58AgentProbePlugin (291 B, was 184) gained the hostile case the new tests use, and MockBigWallet (10,579 B, was 10,558) inherits the wallet.
+- **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these three entries, and Arc58AgentRevoker is now marked test-only: 85 programs are deployable and 70 are test-only. Nothing deploys the revoker; the manifest's naming rule had missed it. 32 programs differ from the release commit, and the wallet is the new deployable one.
+- **SDK.** `wallet.removePlugin` takes any sender, so a caller uses it as it is. The text for `errOarp` now names the caller.
 
 ## Live state (read 2026-10-10)
 
@@ -189,7 +201,7 @@ npm test (projects/akita-sc)
 - **What:** Commit the tree and record approval hashes for every app the rollout touches, including the ride-along apps (Staking, HyperSwap, PollFactory, PrizeBoxFactory, Impact, Moderation, validator, Rewards v2, Meta).
 - **Why here:** Pinned hashes make a later diff against MainNet meaningful. The tag is made in I2, after the deployment (DEC-5).
 - **Requires:** A1. **Script:** ready: `npm run release:manifest` writes `release/manifest.json`; `tests/release-manifest.test.ts` fails when the artifacts drift from it. The push and the tag are manual and come after the deployment (DEC-5, I2).
-- Committed locally 2026-11-10; the Plugin DEX was taken out on 2026-11-11. The manifest pins the approval and clear hash, the size and the extra pages of all 155 programs (86 deployable, 69 test-only), so the ride-along apps are pinned too.
+- Committed locally 2026-11-10; the Plugin DEX was taken out on 2026-11-11. The manifest pins the approval and clear hash, the size and the extra pages of all 155 programs (85 deployable, 70 test-only), so the ride-along apps are pinned too.
 - After an intended rebuild, regenerate the manifest and commit it with the artifacts. Its diff is the list of programs whose bytes changed.
 - Still to do before stage B: record the commit the rollout deploys from and keep a second copy of the repository (DEC-5).
 
@@ -515,7 +527,7 @@ npm run update:dao-wallet -- -n mainnet -m $M
 - **What:** Push the tree wallet into every automatic-update wallet.
 - **Why here:** R-STALE (the stale escrow registry) closes per wallet only when it runs the new program.
 - **Requires:** E7. **Script:** ready.
-- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,139 B, 49 B of headroom), so no growth cost.
+- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,160 B since the caller removal rule of 2026-11-16, 28 B of headroom), so no growth cost.
 
 ```bash
 npm run update:automatic-wallets -- -n mainnet -m $M --skip-current

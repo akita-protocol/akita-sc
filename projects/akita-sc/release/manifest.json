@@ -8,8 +8,8 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8139,
-        "sha256": "307c6daf530b64aa81af7da893504ec44b507d6593b6a4e225cfdcd6e2b04e4f"
+        "bytes": 8160,
+        "sha256": "8d79c7c5a4b619b8b85385fdae80b782bd06a138d89706594eeb6a5a5d54b2da"
       },
       "clear": {
         "bytes": 4,
@@ -57,8 +57,8 @@
       "name": "Arc58AgentProbePlugin",
       "testOnly": true,
       "approval": {
-        "bytes": 184,
-        "sha256": "3212cab2dfa9e7646c05099f8da1c33fd9269604493ba8fb6087948b49fdeac6"
+        "bytes": 291,
+        "sha256": "b28a673a930da000272e1b448886e13946e708290dda1c7a43dd582ee9d23578"
       },
       "clear": {
         "bytes": 4,
@@ -68,6 +68,7 @@
     },
     "arc58/account/Arc58AgentRevoker": {
       "name": "Arc58AgentRevoker",
+      "testOnly": true,
       "approval": {
         "bytes": 115,
         "sha256": "9de44b31eea1261c5e034d5f31eff2ede9608c610b878f3521c7be58e4b4ad75"
@@ -1071,8 +1072,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 10558,
-        "sha256": "a8e755079f0eb39b8ff5e20b57114fe4b4c58d7d733b3fe95ae91ed1a16e919e"
+        "bytes": 10579,
+        "sha256": "2d96c173012b4c91bfca9f58a382ac1f7130d02600395f3a87cebc0e62c0cfb4"
       },
       "clear": {
         "bytes": 4,

@@ -38,7 +38,7 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   OAAP: 'Only an admin can add a plugin',
   OAMR: 'Only an admin can add a method restriction',
   OACN: 'Only an admin can change the nickname',
-  OARP: 'Only an admin or revocation app can remove plugins',
+  OARP: 'Only an admin, the revocation app or the grant\'s own caller can remove a plugin',
   OARM: 'Only an admin or revocation app can remove method restrictions',
   OARA: 'Only an admin or revocation app can remove allowances',
 
