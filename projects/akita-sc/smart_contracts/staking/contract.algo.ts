@@ -18,7 +18,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { decodeArc4, StaticArray, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
-import { AssetHolding } from '@algorandfoundation/algorand-typescript/op'
+import { AcctParams, AssetHolding } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { arc4Zero } from '../utils/constants'
 import {
@@ -181,9 +181,17 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
     }
   }
 
+  /**
+   * What `address` holds of `asset` right now (0 = ALGO).
+   *
+   * The ALGO case must not read `address.balance`: that read fails the whole call for an account
+   * that holds nothing. A holder who closed the account outright could then not be checkpointed,
+   * and the stake kept the age it had built up (AUD-C27). An empty account holds zero.
+   */
   private getHeld(address: Account, asset: uint64): { balance: uint64; optedIn: boolean } {
     if (asset === 0) {
-      return { balance: address.balance, optedIn: true }
+      const [algo] = AcctParams.acctBalance(address)
+      return { balance: algo, optedIn: true }
     }
 
     const [balance, optedIn] = AssetHolding.assetBalance(address, asset)
@@ -892,8 +900,9 @@ export class Staking extends classes(BaseStaking, UpgradeableAkitaBaseContract) 
 
     const { amount } = this.stakes(sk).value
     if (asset === 0) {
-      const valid = address.balance >= amount
-      return { valid, balance: address.balance }
+      // an account that holds nothing checks as a balance of zero (AUD-C27, see `getHeld`)
+      const held = this.getHeld(address, asset).balance
+      return { valid: held >= amount, balance: held }
     }
 
     const [holdingAmount, optedIn] = AssetHolding.assetBalance(address, asset)

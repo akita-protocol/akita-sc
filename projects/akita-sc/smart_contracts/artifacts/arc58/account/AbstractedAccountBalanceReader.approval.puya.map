@@ -4,7 +4,7 @@
     "../../../arc58/account/balance-reader.algo.ts",
     "../../../utils/functions.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;AAgCA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAOG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALU;AAOT;AAAA;AAFD;AAAA;;;;AASA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEyB;;;;AAAA;AACH;AAAG;AAAA;;AAAA;AAAxB;;;AACuB;AAAjB;;AACgB;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAEpB;;;;AACW;;AAAA;;AAAA;AAAA;;AAAA;AAQQ;AACM;AA/BlB;AA+BkB;AAAA;AC4IkC;;;;;AAAxC;AAAA;AD5IV;AAAA;;;AADU;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAKa;;;AAAA;AAAT;;AAAA;AAA2B;;;AAAA;AAA3B;AAAb;AAAA;;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;;;;;;;;;;;;;;;;;AAlBoC;AAAL;;;;AAON;;AAAA;AAAA;;AAAA;AAAA;;AACjC;;;;;;;;;;;;AAXL;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;AAgCA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAOG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALU;AAOT;AAAA;AAFD;AAAA;;;;AASA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEyB;;;;AAAA;AACH;AAAG;AAAA;;AAAA;AAAxB;;;AACuB;AAAjB;;AACgB;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAEpB;;;;AAEiB;;AAAA;;AAAA;;;AASE;AACM;AAjClB;AAiCkB;AAAA;AC0IkC;;;;;AAAxC;AAAA;AD1IV;AAAA;;;AADU;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAKa;;;AAAA;AAAT;;AAAA;AAA2B;;;AAAA;AAA3B;AAAb;AAAA;;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;;;;;;;;;;;;;;;;;AApBoC;AAAL;;;;AASN;;AAAA;AAAA;;AAAA;AAAA;;AACjC;;;;;;;;;;;;AAbL;AAAA;AAAA;AAAA;AAAA;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -955,8 +955,9 @@
       "op": "acct_params_get AcctBalance",
       "defined_out": [
         "aggregate%encoded_element%0#0",
+        "algo#0",
         "amount#0",
-        "check%0#0"
+        "awst_tmp%1#0"
       ],
       "stack_out": [
         "amount#0",
@@ -967,12 +968,12 @@
         "address#0",
         "aggregate%encoded_element%0#0",
         "i#0",
-        "amount#0",
-        "check%0#0"
+        "algo#0",
+        "awst_tmp%1#0"
       ]
     },
     "147": {
-      "op": "swap",
+      "op": "pop",
       "stack_out": [
         "amount#0",
         "holdingAmount#0",
@@ -982,27 +983,11 @@
         "address#0",
         "aggregate%encoded_element%0#0",
         "i#0",
-        "check%0#0",
         "amount#0"
       ]
     },
     "148": {
-      "op": "bury 9",
-      "stack_out": [
-        "amount#0",
-        "holdingAmount#0",
-        "assets#0",
-        "aggregate%array_length%0#0",
-        "amounts#0",
-        "address#0",
-        "aggregate%encoded_element%0#0",
-        "i#0",
-        "check%0#0"
-      ]
-    },
-    "150": {
-      "error": "account funded",
-      "op": "assert // account funded",
+      "op": "bury 8",
       "stack_out": [
         "amount#0",
         "holdingAmount#0",
@@ -1014,7 +999,7 @@
         "i#0"
       ]
     },
-    "151": {
+    "150": {
       "block": "balance_after_if_else@8",
       "stack_in": [
         "amount#0",
@@ -1028,7 +1013,7 @@
       ],
       "op": "itxn_begin"
     },
-    "152": {
+    "151": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -1045,7 +1030,7 @@
         "0"
       ]
     },
-    "153": {
+    "152": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -1064,7 +1049,7 @@
         "\"akita_dao\""
       ]
     },
-    "154": {
+    "153": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -1083,7 +1068,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "155": {
+    "154": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -1098,7 +1083,7 @@
         "akitaDAO#0"
       ]
     },
-    "156": {
+    "155": {
       "op": "pushbytes \"aal\"",
       "defined_out": [
         "\"aal\"",
@@ -1117,7 +1102,7 @@
         "\"aal\""
       ]
     },
-    "161": {
+    "160": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -1136,7 +1121,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "162": {
+    "161": {
       "op": "pop",
       "stack_out": [
         "amount#0",
@@ -1150,7 +1135,7 @@
         "appListBytes#0"
       ]
     },
-    "163": {
+    "162": {
       "op": "intc_0 // 0",
       "stack_out": [
         "amount#0",
@@ -1165,7 +1150,7 @@
         "0"
       ]
     },
-    "164": {
+    "163": {
       "op": "extract_uint64",
       "defined_out": [
         "tmp%7#0"
@@ -1182,7 +1167,7 @@
         "tmp%7#0"
       ]
     },
-    "165": {
+    "164": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "amount#0",
@@ -1195,7 +1180,7 @@
         "i#0"
       ]
     },
-    "167": {
+    "166": {
       "op": "pushbytes 0x4c88eace // method \"getEscrowInfo(address,uint64)(uint64,uint64)\"",
       "defined_out": [
         "Method(getEscrowInfo(address,uint64)(uint64,uint64))"
@@ -1212,7 +1197,7 @@
         "Method(getEscrowInfo(address,uint64)(uint64,uint64))"
       ]
     },
-    "173": {
+    "172": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "amount#0",
@@ -1225,7 +1210,7 @@
         "i#0"
       ]
     },
-    "175": {
+    "174": {
       "op": "dig 2",
       "defined_out": [
         "address#0 (copy)"
@@ -1242,7 +1227,7 @@
         "address#0 (copy)"
       ]
     },
-    "177": {
+    "176": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "amount#0",
@@ -1255,7 +1240,7 @@
         "i#0"
       ]
     },
-    "179": {
+    "178": {
       "op": "swap",
       "defined_out": [
         "aggregate%encoded_element%0#0"
@@ -1271,7 +1256,7 @@
         "aggregate%encoded_element%0#0"
       ]
     },
-    "180": {
+    "179": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "amount#0",
@@ -1283,7 +1268,7 @@
         "i#0"
       ]
     },
-    "182": {
+    "181": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -1299,7 +1284,7 @@
         "appl"
       ]
     },
-    "184": {
+    "183": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "amount#0",
@@ -1311,7 +1296,7 @@
         "i#0"
       ]
     },
-    "186": {
+    "185": {
       "op": "intc_0 // 0",
       "stack_out": [
         "amount#0",
@@ -1324,7 +1309,7 @@
         "0"
       ]
     },
-    "187": {
+    "186": {
       "op": "itxn_field Fee",
       "stack_out": [
         "amount#0",
@@ -1336,13 +1321,13 @@
         "i#0"
       ]
     },
-    "189": {
+    "188": {
       "op": "itxn_submit"
     },
-    "190": {
+    "189": {
       "op": "itxn LastLog",
       "defined_out": [
-        "awst_tmp%2#0"
+        "awst_tmp%4#0"
       ],
       "stack_out": [
         "amount#0",
@@ -1352,31 +1337,31 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0"
+        "awst_tmp%4#0"
+      ]
+    },
+    "191": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%4#0",
+        "awst_tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "holdingAmount#0",
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "amounts#0",
+        "address#0",
+        "i#0",
+        "awst_tmp%4#0",
+        "awst_tmp%4#0 (copy)"
       ]
     },
     "192": {
-      "op": "dup",
-      "defined_out": [
-        "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)"
-      ],
-      "stack_out": [
-        "amount#0",
-        "holdingAmount#0",
-        "assets#0",
-        "aggregate%array_length%0#0",
-        "amounts#0",
-        "address#0",
-        "i#0",
-        "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)"
-      ]
-    },
-    "193": {
       "op": "extract 4 0",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0"
       ],
       "stack_out": [
@@ -1387,11 +1372,11 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0"
       ]
     },
-    "196": {
+    "195": {
       "op": "dig 1",
       "stack_out": [
         "amount#0",
@@ -1401,15 +1386,15 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
-        "awst_tmp%2#0 (copy)"
+        "awst_tmp%4#0 (copy)"
       ]
     },
-    "198": {
+    "197": {
       "op": "extract 0 4",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%9#0"
       ],
@@ -1421,16 +1406,16 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%9#0"
       ]
     },
-    "201": {
+    "200": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%9#0"
       ],
@@ -1442,16 +1427,16 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%9#0",
         "0x151f7c75"
       ]
     },
-    "202": {
+    "201": {
       "op": "==",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%10#0"
       ],
@@ -1463,12 +1448,12 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0",
         "tmp%10#0"
       ]
     },
-    "203": {
+    "202": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -1479,14 +1464,14 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "escrowInfo#0"
       ]
     },
-    "204": {
+    "203": {
       "op": "len",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "len%0#0"
       ],
       "stack_out": [
@@ -1497,15 +1482,15 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "len%0#0"
       ]
     },
-    "205": {
+    "204": {
       "op": "pushint 16",
       "defined_out": [
         "16",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "len%0#0"
       ],
       "stack_out": [
@@ -1516,15 +1501,15 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "len%0#0",
         "16"
       ]
     },
-    "207": {
+    "206": {
       "op": "==",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "eq%0#0"
       ],
       "stack_out": [
@@ -1535,11 +1520,11 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "eq%0#0"
       ]
     },
-    "208": {
+    "207": {
       "error": "invalid number of bytes for smart_contracts/staking/types.ts::Escrow",
       "op": "assert // invalid number of bytes for smart_contracts/staking/types.ts::Escrow",
       "stack_out": [
@@ -1550,10 +1535,10 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0"
+        "awst_tmp%4#0"
       ]
     },
-    "209": {
+    "208": {
       "op": "dup",
       "stack_out": [
         "amount#0",
@@ -1563,16 +1548,16 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)"
+        "awst_tmp%4#0",
+        "awst_tmp%4#0 (copy)"
       ]
     },
-    "210": {
+    "209": {
       "op": "pushint 4",
       "defined_out": [
         "4",
-        "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)"
+        "awst_tmp%4#0",
+        "awst_tmp%4#0 (copy)"
       ],
       "stack_out": [
         "amount#0",
@@ -1582,15 +1567,15 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)",
+        "awst_tmp%4#0",
+        "awst_tmp%4#0 (copy)",
         "4"
       ]
     },
-    "212": {
+    "211": {
       "op": "extract_uint64",
       "defined_out": [
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%11#0"
       ],
       "stack_out": [
@@ -1601,15 +1586,15 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%11#0"
       ]
     },
-    "213": {
+    "212": {
       "op": "dig 8",
       "defined_out": [
         "amount#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%11#0"
       ],
       "stack_out": [
@@ -1620,16 +1605,16 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%11#0",
         "amount#0"
       ]
     },
-    "215": {
+    "214": {
       "op": "+",
       "defined_out": [
         "amount#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%12#0"
       ],
       "stack_out": [
@@ -1640,11 +1625,11 @@
         "amounts#0",
         "address#0",
         "i#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%12#0"
       ]
     },
-    "216": {
+    "215": {
       "op": "swap",
       "stack_out": [
         "amount#0",
@@ -1655,15 +1640,15 @@
         "address#0",
         "i#0",
         "tmp%12#0",
-        "awst_tmp%2#0"
+        "awst_tmp%4#0"
       ]
     },
-    "217": {
+    "216": {
       "op": "pushint 12",
       "defined_out": [
         "12",
         "amount#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "tmp%12#0"
       ],
       "stack_out": [
@@ -1675,11 +1660,11 @@
         "address#0",
         "i#0",
         "tmp%12#0",
-        "awst_tmp%2#0",
+        "awst_tmp%4#0",
         "12"
       ]
     },
-    "219": {
+    "218": {
       "op": "extract_uint64",
       "defined_out": [
         "amount#0",
@@ -1698,7 +1683,7 @@
         "tmp%13#0"
       ]
     },
-    "220": {
+    "219": {
       "op": "+",
       "defined_out": [
         "amount#0",
@@ -1715,7 +1700,7 @@
         "tmp%14#0"
       ]
     },
-    "221": {
+    "220": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -1732,7 +1717,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "222": {
+    "221": {
       "op": "pushbytes 0x0001",
       "defined_out": [
         "0x0001",
@@ -1751,7 +1736,7 @@
         "0x0001"
       ]
     },
-    "226": {
+    "225": {
       "op": "swap",
       "stack_out": [
         "amount#0",
@@ -1765,7 +1750,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "227": {
+    "226": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%0#0",
@@ -1782,7 +1767,7 @@
         "aggregate%head%0#0"
       ]
     },
-    "228": {
+    "227": {
       "op": "dup",
       "defined_out": [
         "aggregate%head%0#0",
@@ -1801,7 +1786,7 @@
         "aggregate%head%0#0 (copy)"
       ]
     },
-    "229": {
+    "228": {
       "op": "extract 2 0",
       "defined_out": [
         "aggregate%head%0#0",
@@ -1820,7 +1805,7 @@
         "new_items_bytes#0"
       ]
     },
-    "232": {
+    "231": {
       "op": "swap",
       "stack_out": [
         "amount#0",
@@ -1834,7 +1819,7 @@
         "aggregate%head%0#0"
       ]
     },
-    "233": {
+    "232": {
       "op": "intc_0 // 0",
       "stack_out": [
         "amount#0",
@@ -1849,7 +1834,7 @@
         "0"
       ]
     },
-    "234": {
+    "233": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1869,7 +1854,7 @@
         "new_items_count#0"
       ]
     },
-    "235": {
+    "234": {
       "op": "uncover 4",
       "defined_out": [
         "amount#0",
@@ -1889,7 +1874,7 @@
         "amounts#0"
       ]
     },
-    "237": {
+    "236": {
       "op": "dup",
       "defined_out": [
         "amount#0",
@@ -1910,7 +1895,7 @@
         "amounts#0 (copy)"
       ]
     },
-    "238": {
+    "237": {
       "op": "cover 2",
       "stack_out": [
         "amount#0",
@@ -1925,7 +1910,7 @@
         "amounts#0 (copy)"
       ]
     },
-    "240": {
+    "239": {
       "op": "intc_0 // 0",
       "stack_out": [
         "amount#0",
@@ -1941,7 +1926,7 @@
         "0"
       ]
     },
-    "241": {
+    "240": {
       "op": "extract_uint16",
       "defined_out": [
         "amount#0",
@@ -1963,7 +1948,7 @@
         "array_length#0"
       ]
     },
-    "242": {
+    "241": {
       "op": "+",
       "defined_out": [
         "amount#0",
@@ -1983,7 +1968,7 @@
         "new_array_length#0"
       ]
     },
-    "243": {
+    "242": {
       "op": "itob",
       "defined_out": [
         "amount#0",
@@ -2003,7 +1988,7 @@
         "tmp%0#3"
       ]
     },
-    "244": {
+    "243": {
       "op": "extract 6 0",
       "defined_out": [
         "amount#0",
@@ -2023,7 +2008,7 @@
         "new_len_u16#0"
       ]
     },
-    "247": {
+    "246": {
       "op": "replace2 0",
       "defined_out": [
         "amount#0",
@@ -2041,7 +2026,7 @@
         "result#0"
       ]
     },
-    "249": {
+    "248": {
       "op": "swap",
       "stack_out": [
         "amount#0",
@@ -2054,7 +2039,7 @@
         "new_items_bytes#0"
       ]
     },
-    "250": {
+    "249": {
       "op": "concat",
       "stack_out": [
         "amount#0",
@@ -2066,7 +2051,7 @@
         "amounts#0"
       ]
     },
-    "251": {
+    "250": {
       "op": "cover 2",
       "defined_out": [
         "amount#0",
@@ -2083,7 +2068,7 @@
         "i#0"
       ]
     },
-    "253": {
+    "252": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1",
@@ -2102,7 +2087,7 @@
         "1"
       ]
     },
-    "254": {
+    "253": {
       "op": "+",
       "defined_out": [
         "amount#0",
@@ -2119,10 +2104,10 @@
         "i#0"
       ]
     },
-    "255": {
+    "254": {
       "op": "b balance_while_top@2"
     },
-    "258": {
+    "257": {
       "block": "balance_else_body@5",
       "stack_in": [
         "amount#0",
@@ -2152,7 +2137,7 @@
         "address#0 (copy)"
       ]
     },
-    "260": {
+    "259": {
       "op": "swap",
       "defined_out": [
         "address#0 (copy)",
@@ -2171,7 +2156,7 @@
         "asset#0"
       ]
     },
-    "261": {
+    "260": {
       "op": "asset_holding_get AssetBalance",
       "defined_out": [
         "holdingAmount#0",
@@ -2190,7 +2175,7 @@
         "optedIn#0"
       ]
     },
-    "263": {
+    "262": {
       "op": "swap",
       "stack_out": [
         "amount#0",
@@ -2205,7 +2190,7 @@
         "holdingAmount#0"
       ]
     },
-    "264": {
+    "263": {
       "op": "bury 8",
       "defined_out": [
         "holdingAmount#0",
@@ -2223,7 +2208,7 @@
         "optedIn#0"
       ]
     },
-    "266": {
+    "265": {
       "op": "bz balance_after_if_else@8",
       "stack_out": [
         "amount#0",
@@ -2236,7 +2221,7 @@
         "i#0"
       ]
     },
-    "269": {
+    "268": {
       "op": "dig 6",
       "defined_out": [
         "amount#0",
@@ -2254,7 +2239,7 @@
         "amount#0"
       ]
     },
-    "271": {
+    "270": {
       "op": "bury 8",
       "defined_out": [
         "amount#0",
@@ -2271,10 +2256,10 @@
         "i#0"
       ]
     },
-    "273": {
+    "272": {
       "op": "b balance_after_if_else@8"
     },
-    "276": {
+    "275": {
       "block": "balance_after_while@10",
       "stack_in": [
         "amount#0",
@@ -2295,7 +2280,7 @@
         "amounts#0"
       ]
     },
-    "278": {
+    "277": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75"
@@ -2309,7 +2294,7 @@
         "0x151f7c75"
       ]
     },
-    "279": {
+    "278": {
       "op": "swap",
       "defined_out": [
         "0x151f7c75",
@@ -2324,7 +2309,7 @@
         "amounts#0"
       ]
     },
-    "280": {
+    "279": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -2337,7 +2322,7 @@
         "tmp%4#0"
       ]
     },
-    "281": {
+    "280": {
       "op": "log",
       "stack_out": [
         "amount#0",
@@ -2346,7 +2331,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "282": {
+    "281": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -2359,7 +2344,7 @@
         "1"
       ]
     },
-    "283": {
+    "282": {
       "op": "return",
       "stack_out": [
         "amount#0",

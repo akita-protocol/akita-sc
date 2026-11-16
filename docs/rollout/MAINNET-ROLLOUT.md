@@ -50,7 +50,7 @@ The Guild fee asset is in the tree: a Guild may charge its proposal fees in an a
 
 A grouped payment that covers storage or a fee no longer has to come from the caller, and a storage deposit goes back to whoever paid it. The rules, costs and exceptions are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Third pass").
 
-- **23 more programs differ from the release commit** (26 in all, with the three consensus programs above). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247, SocialClaim 2,765, Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,306 and Subscriptions 10,468. Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
+- **25 more programs differ from the release commit** (28 in all, with the three consensus programs above; 23 and 26 before the empty-account fix C27 of 2026-11-16 added AssetGate and the balance reader). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247, SocialClaim 2,697 (2,765 before each gift stored its payer, C23 and C26 of 2026-11-16), Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,302 (7,306 before C27), Subscriptions 10,468, AssetGate 712 (710 before C27) and AbstractedAccountBalanceReader 283 (284 before C27). Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
 - **Pages.** Subscriptions needs 5 extra pages, one more than planned: E2 grows it from 3 to 5 and the DAO wallet sponsors 3,528,000 µA for it (was 3,428,000). Phase 2 sponsorship is 7,056,000 µA (AkitaSocial 3,528,000 and Subscriptions 3,528,000), and 10.65 ALGO with the DAO's own growth. Guild needs 6 extra pages; GuildFactory creates every Guild with 7. PollFactory needs 2 and the live app has 3. No other live app crosses a page.
 - **Upload groups.** PollFactory's update takes one more upload transaction (three chunks, was two). Every other group keeps its size, StakingPoolFactory at exactly 16.
 - **Staking and pools.** Staking gains `reclaimAppStake(address,uint64)void` and keeps every method it had. The new StakingPool child calls it instead of `releaseAppStake`, so D1 (Staking) still comes before E5 (StakingPoolFactory), and the runner refuses E5 until the Staking at aal.staking routes the new method.
@@ -67,9 +67,21 @@ Two programs changed after the fourth pass. Each closes a point that pass left o
 - **Guild is 12,534 bytes (was 12,494), C25.** A proposal that installs a plugin with `defaultToEscrow` and no escrow name is refused when it is drafted. The wallet would refuse it at execution, so it could pass a vote and never execute.
 - **Nothing in the sequence changes.** PollFactory still needs 2 extra pages (the live app has 3) and three upload chunks, so E6 runs as written. Guild still needs 6 extra pages and GuildFactory still creates every Guild with 7, so H2 runs as written.
 - **Box references.** `PollFactory.deletePoll` looks for a payer record, sponsored or not, so it needs one more box reference on the factory. The SDK's `deletePoll` finds it by simulation. A hand-built call must add it.
-- **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of 2026-11-15 in these two entries only.
-- **SocialClaim is unchanged.** Its payer rule (C23) is still to be confirmed before H7, because the program can never be patched.
+- **Manifest.** `release/manifest.json` was regenerated from a whole-tree build. It differed from the manifest of 2026-11-15 in these two entries only. The next update changes four more.
+- **SocialClaim was unchanged at this point.** Its payer rule (C23) was decided later the same day and the program changed. See the next update.
 - **Live state re-read 2026-11-16** with `rollout:status` (read-only) on MainNet and on TestNet: no step of this rollout is done on either network. 12 steps are ready, 27 wait on earlier steps, and the DAO is in Draft on both. The TestNet rehearsal (A4) has not been run.
+
+## Update 2026-11-16 (second): SocialClaim stores each gift's payer, and empty accounts read as zero
+
+Four programs changed after the update above. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Sixth pass").
+
+- **SocialClaim is 2,697 bytes (was 2,765), C23 and C26.** Decided 2026-11-16: every gift box stores the account that paid its storage deposit, and the deposit always returns to that account. A gift box costs 41,300 µALGO (was 28,500). The subject entry is still 18,900 µALGO and is never returned. SocialClaim writes no payer record any more, and a payer that is not the caller pays nothing extra. `getGift` returns a third field, `payer`. When the payer's account is empty the deposit goes to the wallet that sent the gift, then to the gift wallet. C26: the check for an empty account failed the call instead of answering, so a payer that closed its account blocked the refund and the prune of its gift. Fixed. SocialClaim has never been deployed, so nothing live changes, and H7 is still held only for the keys.
+- **Who gets the deposit with the SDK.** `sendToAnyone` and `topUp` pay the storage from the account that sends the group. That account gets the deposit back, not the sponsor wallet.
+- **Staking is 7,302 bytes (was 7,306), C27.** It read an ALGO balance in a way that fails for an account that holds nothing. A holder of an ALGO soft stake who closed the account outright could not be checkpointed, and the stake kept the age it had built up. An empty account now reads as zero: the checkpoints, the heartbeat and `softCheck` answer for it. No method and no schema changed, and D1 runs as written.
+- **AssetGate is 712 bytes (was 710), C27.** The same read. An ALGO gate failed for an empty account instead of comparing a balance of zero. The asset sub-gate cannot be patched. It was already one of the eight sub-gates DEC-4 recommends to deploy again at C1. A live asset sub-gate kept in place would not carry this fix.
+- **AbstractedAccountBalanceReader is 283 bytes (was 284), C27.** The same read. It failed for an address that holds nothing instead of returning zero. It cannot be patched and is deployed new at H5.
+- **Nothing in the sequence changes.** No step is added, moved or resized.
+- **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these four entries only. 28 programs differ from the release commit.
 
 ## Live state (read 2026-10-10)
 
@@ -114,6 +126,8 @@ Blocks: C1. 8 sub-gates changed behavior (AkitaReferrer, Asset, NFD, NFDRoot, So
 - Redeploy the 8 changed, allowlist the 8 live ones on Gate v2 (recommended, matches the plugin policy).
 - Redeploy all 16 for uniform versions.
 
+Since 2026-11-16 the Asset sub-gate in the tree also reads an empty account's ALGO balance as zero (audit C27). Both options deploy it again, so both carry the fix.
+
 ### DEC-5. Commit, deploy, then push and tag
 
 Every MainNet push must come from one pinned, whole-tree build.
@@ -144,7 +158,7 @@ Off-chain. Nothing is sent.
 - **Requires:** none. **Script:** ready: `release:manifest:check` compares every program under `smart_contracts/artifacts` with `release/manifest.json`. The CI workflow (`.github/workflows/akita-sc-ci.yaml`) runs the same steps on every push.
 - Done 2026-11-10 on a clean clone of the committed tree (Linux, Node 24): after `npm ci` and both builds, every artifact, generated client and SDK bundle was unchanged. The full suite then passed on LocalNet in six shards: 163 files, 2,596 tests, 2,589 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
 - Repeated 2026-11-11 on the tree without the Plugin DEX: the whole-tree build changed no remaining program, the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 141 files, 2,224 tests, 2,217 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
-- Repeated 2026-11-16 on the working tree that holds the Guild fee asset work, the payer change and the fixes C18 to C25, none of it committed yet: the whole-tree build matches the regenerated manifest (155 programs), the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 145 files, 2,272 tests, 2,265 passed, none failed (2 skipped, 5 todo), and it left the build output unchanged. Repeat it on the deploy commit.
+- Repeated 2026-11-16 on the working tree that holds the Guild fee asset work, the payer change and the fixes C18 to C25, none of it committed yet: the whole-tree build matches the regenerated manifest (155 programs), the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 145 files, 2,272 tests, 2,265 passed, none failed (2 skipped, 5 todo), and it left the build output unchanged. Repeated again the same day after SocialClaim, Staking, AssetGate and the balance reader changed (audit C23, C26, C27): the whole-tree build matches the regenerated manifest (155 programs), the SDK's 496 unit tests passed, and the full suite passed: 146 files, 2,277 tests, 2,270 passed, none failed (2 skipped, 5 todo), again leaving the build output unchanged. Repeat it on the deploy commit.
 - Use Node 24 (`nvm use` reads `.nvmrc`). A shell that defaults to an older Node fails the engine check.
 - Only `projects/akita-sdk/dist/*.map` may differ after a rebuild: tsup writes the absolute build path into each source map.
 
@@ -307,7 +321,7 @@ The new StakingPool child calls Staking.reclaimAppStake and Rewards.closeDisburs
 
 #### D1. Upgrade Staking in place
 
-- **What:** UpgradeApp on Staking 3642366153 (7,306 B, fits its pages, schema unchanged). It adds `reclaimAppStake(address,uint64)void`, which the new StakingPool child calls when an entry leaves a SOFT pool; `releaseAppStake` stays for the StakingPlugin and for owners of commitments to deleted pools.
+- **What:** UpgradeApp on Staking 3642366153 (7,302 B, fits its pages, schema unchanged; 7,306 B before the empty-account fix C27 of 2026-11-16). It adds `reclaimAppStake(address,uint64)void`, which the new StakingPool child calls when an entry leaves a SOFT pool; `releaseAppStake` stays for the StakingPlugin and for owners of commitments to deleted pools.
 - **Why here:** Hard prerequisite of the StakingPool child (ROLLOUT-1) and of the new StakingPlugin. The tree Staking still routes all 36 live selectors.
 - **Requires:** B1. **Script:** fixed: runUpdate now binds groups to the proposal (gap G2); without that fix it reverts between B1 and B2.
 - **Tracked by rollout:status as** `staking`.
@@ -643,6 +657,7 @@ part of G1, or npm run deploy:immutable -- --contract WelcomePlugin
 - **What:** Deploy with receipts and configure consumers by id.
 - **Why here:** No dependencies: the ARC-59 router 2449590623 is live.
 - **Requires:** none. **Script:** ready.
+- The balance reader is 283 bytes since 2026-11-16 (audit C27): an address that holds nothing reads as zero instead of failing the call. It cannot be patched after the deploy.
 
 ```bash
 npm run deploy:asset-inbox-plugin -- -n mainnet -m $M --manifest …
@@ -667,7 +682,7 @@ npm run deploy:pay-silo-plugin -- -n mainnet -m $M --config '{"recipient":"<Akit
 - **Requires:** H3. **Script:** ready since 2026-11-10: SocialClaim is in the immutable catalog, `--register` records the `socialClaim` SDK key and fills its README row (audit R7). Test: `tests/release-deployments.test.ts`.
 - **Referrer (audit C5, decided 2026-11-11):** the sender who pays to create a recipient's wallet is that wallet's referrer, and stays so after later gifts from other senders and after the claim. That is the incentive to send first. Nothing in the program changed. Test: `social-claim.e2e.spec.ts`.
 - **Held until one thing is decided:** who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
-- **Confirm the payer rule first (audit C23).** A gift's storage deposit returns to the account that paid it only when that account did not also send the call. A service that sends the call and pays is treated as the user, and its deposit goes to the user's wallet. A paymaster therefore pays from an account that never sends the call. The other choice, storing the payer in every gift, costs every gift 12,800 µALGO more and changes `getGift`. Nothing can change after the deploy.
+- **Payer rule (audit C23, decided 2026-11-16).** Every gift box stores the account that paid for its storage, 41,300 µALGO a box, and returns the deposit to that account when the gift is refunded, dropped or pruned. Anyone may pay and every payer pays the same. With the SDK the account that sends the group pays, so that account is refunded, not the sponsor wallet. A payer whose account is empty by then forfeits the deposit to the wallet that sent the gift. Nothing can change after the deploy.
 - The deploy tooling does not verify the two plugin ids on chain. Check each against its receipt first.
 
 ```bash

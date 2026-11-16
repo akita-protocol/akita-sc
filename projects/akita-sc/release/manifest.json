@@ -20,8 +20,8 @@
     "arc58/account/AbstractedAccountBalanceReader": {
       "name": "AbstractedAccountBalanceReader",
       "approval": {
-        "bytes": 284,
-        "sha256": "972c35dcfb69c9587ad5474f58d886a6e3e5b71bc35d8d9450fbb483091a1e06"
+        "bytes": 283,
+        "sha256": "561652a1657251aa550e5e1a35f659b4905d041fee48e57caef1ab4598e4888d"
       },
       "clear": {
         "bytes": 4,
@@ -656,8 +656,8 @@
     "arc58/social-claim/SocialClaim": {
       "name": "SocialClaim",
       "approval": {
-        "bytes": 2765,
-        "sha256": "cf33f34716f38ae4bb5021ba161dcbea76ab70402fb41c4ed4e86f61b0bb6262"
+        "bytes": 2697,
+        "sha256": "e773db2cd06ab42e22b2c5a13b90122b388336f806d30511bc087015572c11b7"
       },
       "clear": {
         "bytes": 4,
@@ -753,8 +753,8 @@
     "gates/sub-gates/asset/AssetGate": {
       "name": "AssetGate",
       "approval": {
-        "bytes": 710,
-        "sha256": "43d31247f3d8d2609f7be9f4fd6bd75625bedf2c506e5a44ab8a3a0c28bbbfe8"
+        "bytes": 712,
+        "sha256": "7afef3a7d2b6ab16838d9cd9e6f79a494a733df48a5ff01026a6b3e11b56ce9e"
       },
       "clear": {
         "bytes": 4,
@@ -1863,8 +1863,8 @@
     "staking/Staking": {
       "name": "Staking",
       "approval": {
-        "bytes": 7306,
-        "sha256": "498b1b806c34aca332588d2357dbcc7ea5043173411ba0df29546df0f6aa2285"
+        "bytes": 7302,
+        "sha256": "bec4e00d418f3e71c4c09d1d429d351252d6fcdff7ed6db384f53991a44f270f"
       },
       "clear": {
         "bytes": 4,

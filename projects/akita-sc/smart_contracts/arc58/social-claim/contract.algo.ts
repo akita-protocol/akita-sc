@@ -4,8 +4,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi, itob } from '@algorandfoundation/algorand-typescript/op'
-import { PayerRecordMBR } from '../../utils/constants'
-import { isAkitaWallet, payerRecordKey, recordPayer, sponsorCost } from '../../utils/functions'
+import { canReceiveAlgo, isAkitaWallet } from '../../utils/functions'
 import { AbstractAccountGlobalStateKeysControlledAddress } from '../account/constants'
 import type { AbstractedAccount } from '../account/contract.algo'
 import type { PayPlugin } from '../plugins/pay/contract.algo'
@@ -40,11 +39,12 @@ import {
  * `prune` frees a gift box once the subject is CLAIMED. Akita never holds funds; the attestor key
  * is the only trust point and the manager can rotate it.
  *
- * Whoever sends a gift pays for its storage: `bind` and `contribute` take a payment to this app for
- * the boxes they create (18,900 for the subject entry, 28,500 per gift box), so this app needs no
- * balance beyond its own minimum and nobody can use up storage someone else paid for. The subject
- * entry is permanent. A gift box's deposit goes back to its sender's wallet when the box is deleted
- * (refund or prune); when that wallet cannot take it, it goes to the gift wallet.
+ * Each gift pays for its own storage: `bind` and `contribute` take a payment to this app for the
+ * boxes they create (18,900 for the subject entry, 41,300 per gift box), so this app needs no balance
+ * beyond its own minimum and nobody can use up storage someone else paid for. Anyone may send that
+ * payment. The subject entry is permanent. A gift box records the account that paid for it, and its
+ * deposit goes back to that account when the box is deleted (refund or prune). When that account
+ * cannot take it, the deposit goes to the sender's wallet, then to the gift wallet.
  *
  * Immutable: no update or delete routes.
  */
@@ -89,7 +89,8 @@ export class SocialClaim extends Contract {
    * no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
    * ABI return.
    *
-   * `mbrPayment` pays this app for the subject entry and the gift box.
+   * `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+   * payer.
    */
   bind(mbrPayment: gtxn.PaymentTxn, welcomeCallIndex: uint64, subject: bytes<32>, ttl: uint64): uint64 {
     this.requirePosition(welcomeCallIndex)
@@ -109,10 +110,11 @@ export class SocialClaim extends Contract {
     const wallet = decodeArc4<uint64>(welcomeCall.lastLog, 'log')
     const key: GiftKey = { subject, senderWallet: btoi(welcomeCall.appArgs(1)), asset: btoi(welcomeCall.appArgs(7)) }
     this.requireAkitaWallet(key.senderWallet)
-    const gift: Gift = { amount: btoi(welcomeCall.appArgs(8)), expiry: Global.latestTimestamp + ttl }
+    const gift: Gift = {
+      amount: btoi(welcomeCall.appArgs(8)), expiry: Global.latestTimestamp + ttl, payer: mbrPayment.sender,
+    }
     this.pending(subject).value = wallet
     this.gifts(key).value = clone(gift)
-    recordPayer(this.gifts(key).key, mbrPayment.sender, Txn.sender)
     emit<SocialClaimBound>({
       subject, wallet, senderWallet: key.senderWallet, asset: key.asset, amount: gift.amount, expiry: gift.expiry,
     })
@@ -124,8 +126,9 @@ export class SocialClaim extends Contract {
    * rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
    * The sender's gift box for that asset sums the amount and keeps the later expiry.
    *
-   * `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-   * one for this subject and asset.
+   * `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+   * zero payment when the sender already has a box for this subject and asset, and the box keeps
+   * the payer it has.
    */
   contribute(mbrPayment: gtxn.PaymentTxn, payCallIndex: uint64, subject: bytes<32>, ttl: uint64): void {
     this.requirePosition(payCallIndex)
@@ -147,13 +150,12 @@ export class SocialClaim extends Contract {
     // PayPlugin trusts the wallet app's own spending_address, so any app can pose as a wallet there.
     // Only a factory wallet has a controlled address a refund can always reach.
     this.requireAkitaWallet(key.senderWallet)
-    let gift: Gift = { amount: 0, expiry: 0 }
+    let gift: Gift = { amount: 0, expiry: 0, payer: mbrPayment.sender }
     if (this.gifts(key).exists) {
       gift = clone(this.gifts(key).value)
       this.requireStorage(mbrPayment, 0)
     } else {
       this.requireStorage(mbrPayment, SOCIAL_CLAIM_GIFT_MBR)
-      recordPayer(this.gifts(key).key, mbrPayment.sender, Txn.sender)
     }
     gift.amount += payment.amount
     const expiry: uint64 = Global.latestTimestamp + ttl
@@ -212,7 +214,7 @@ export class SocialClaim extends Contract {
     loggedAssert(this.pending(subject).exists, 'socialClaimNotPending')
     const key: GiftKey = { subject, senderWallet, asset }
     loggedAssert(this.gifts(key).exists, 'socialClaimNoGift')
-    const { amount, expiry } = this.gifts(key).value
+    const { amount, expiry, payer } = this.gifts(key).value
     loggedAssert(Global.latestTimestamp > expiry, 'socialClaimNotExpired')
 
     const wallet = Application(this.pending(subject).value)
@@ -222,7 +224,7 @@ export class SocialClaim extends Contract {
     const refundedTo = Account(controlledBytes)
     if (!exists || !this.canReceive(refundedTo, asset, amount)) {
       this.gifts(key).delete()
-      this.returnGiftStorage(this.gifts(key).key, senderWallet, wallet)
+      this.returnGiftStorage(payer, senderWallet, wallet)
       emit<SocialClaimDropped>({ subject, wallet: wallet.id, senderWallet, asset, amount })
       return
     }
@@ -244,7 +246,7 @@ export class SocialClaim extends Contract {
     }
 
     this.gifts(key).delete()
-    this.returnGiftStorage(this.gifts(key).key, senderWallet, wallet)
+    this.returnGiftStorage(payer, senderWallet, wallet)
     emit<SocialClaimRefunded>({ subject, wallet: wallet.id, senderWallet, asset, amount, refundedTo })
   }
 
@@ -257,9 +259,10 @@ export class SocialClaim extends Contract {
     loggedAssert(!this.pending(subject).exists, 'socialClaimStillPending')
     const key: GiftKey = { subject, senderWallet, asset }
     if (this.gifts(key).exists) {
+      const payer = this.gifts(key).value.payer
       this.gifts(key).delete()
       // a gift box only ever exists for a subject that was bound, so a subject that is not PENDING is CLAIMED
-      this.returnGiftStorage(this.gifts(key).key, senderWallet, Application(this.directory(subject).value))
+      this.returnGiftStorage(payer, senderWallet, Application(this.directory(subject).value))
     }
   }
 
@@ -276,47 +279,44 @@ export class SocialClaim extends Contract {
     return this.gifts(key).value
   }
 
-  /** True when `receiver` can take `amount` of `asset` (0 = ALGO) without the transfer failing. */
+  /**
+   * True when `receiver` can take `amount` of `asset` (0 = ALGO) without the transfer failing.
+   *
+   * The ALGO case must not read `receiver.balance`: that read fails the whole call for an account
+   * that holds nothing, which is the one case this check exists to answer (AUD-C26).
+   */
   private canReceive(receiver: Account, asset: uint64, amount: uint64): boolean {
     if (asset === 0) {
-      return receiver.balance > 0 || amount >= Global.minBalance
+      return canReceiveAlgo(receiver, amount)
     }
     const [, optedIn] = op.AssetHolding.assetBalance(receiver, asset)
     return optedIn
   }
 
   /**
-   * The storage payment that sits right before a bind or contribute call. Anyone may send it. A payer
-   * other than the caller is remembered when the payment funds a gift box (`amount` > 0): it adds
-   * `PayerRecordMBR` and gets that box's deposit back (see `returnGiftStorage`).
+   * The storage payment that sits right before a bind or contribute call: exactly `amount` to this
+   * app. Anyone may send it, and every payer pays the same. Its sender is recorded in the gift box it
+   * creates (AUD-C23).
    */
   private requireStorage(mbrPayment: gtxn.PaymentTxn, amount: uint64): void {
-    const sponsor: uint64 = amount > 0 ? sponsorCost(mbrPayment.sender, Txn.sender) : 0
     loggedAssert(
-      match(mbrPayment, { receiver: Global.currentApplicationAddress, amount: amount + sponsor }),
+      match(mbrPayment, { receiver: Global.currentApplicationAddress, amount }),
       'socialClaimInvalidStoragePayment',
     )
   }
 
   /**
-   * Return a deleted gift box's storage deposit. A payer other than the gift's sender was recorded
-   * beside the box (`record` is the box key) and gets the deposit back with its payer record's own.
-   * Otherwise, or when that payer's account is empty, it goes to the wallet that sent the gift (its
-   * controlled address). When that wallet is gone or its account is empty the deposit goes to the
-   * gift wallet, and when none can take it, it stays here. A deposit can therefore never make a
-   * refund, a drop or a prune fail.
+   * Return a deleted gift box's storage deposit to the account that paid it (`payer`, read from the
+   * box). When that account is empty and the deposit cannot open it again, the deposit goes to the
+   * wallet that sent the gift (its controlled address). When that wallet is gone or its account is
+   * empty too, it goes to the gift wallet, and when none can take it, it stays here. A deposit can
+   * therefore never make a refund, a drop or a prune fail.
    */
-  private returnGiftStorage(record: bytes, senderWallet: uint64, giftWallet: Application): void {
-    let amount: uint64 = SOCIAL_CLAIM_GIFT_MBR
-    const payerRecord = payerRecordKey(record)
-    const [payer, sponsored] = op.Box.get(payerRecord)
-    if (sponsored) {
-      op.Box.delete(payerRecord)
-      amount += PayerRecordMBR
-      if (this.canReceive(Account(payer), 0, amount)) {
-        itxn.payment({ receiver: Account(payer), amount, fee: 0 }).submit()
-        return
-      }
+  private returnGiftStorage(payer: Account, senderWallet: uint64, giftWallet: Application): void {
+    const amount: uint64 = SOCIAL_CLAIM_GIFT_MBR
+    if (this.canReceive(payer, 0, amount)) {
+      itxn.payment({ receiver: payer, amount, fee: 0 }).submit()
+      return
     }
     const [controlledBytes, exists] = op.AppGlobal.getExBytes(
       Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),

@@ -137,4 +137,17 @@ describe('AbstractedAccountBalanceReader', () => {
 
     expect(result.return).toEqual([BigInt(account.balance.microAlgos) + 3_000_000n, 100n, 0n])
   })
+
+  // AUD-C27: the reader can never be patched, and it failed for an address that holds nothing.
+  test('an address that holds nothing reads as zero instead of failing', async () => {
+    const empty = algorand.account.random().addr.toString()
+    const result = await reader.send.balance({
+      args: { address: empty, assets: [0n, asset] },
+      populateAppCallResources: true,
+      coverAppCallInnerTransactionFees: true,
+      extraFee: algokit.microAlgo(3_000),
+    })
+
+    expect(result.return).toEqual([0n, 0n])
+  })
 })

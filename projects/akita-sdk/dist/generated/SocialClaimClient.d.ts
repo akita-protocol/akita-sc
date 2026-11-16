@@ -35,11 +35,12 @@ export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expa
 export type Gift = {
     amount: bigint;
     expiry: bigint;
+    payer: string;
 };
 /**
  * Converts the ABI tuple representation of a Gift to the struct representation
  */
-export declare function GiftFromTuple(abiTuple: [bigint, bigint]): Gift;
+export declare function GiftFromTuple(abiTuple: [bigint, bigint, string]): Gift;
 export type GiftKey = {
     subject: Uint8Array;
     senderWallet: bigint;
@@ -100,7 +101,7 @@ export type SocialClaimArgs = {
         'getPending(byte[32])uint64': {
             subject: Uint8Array;
         };
-        'getGift(byte[32],uint64,uint64)(uint64,uint64)': {
+        'getGift(byte[32],uint64,uint64)(uint64,uint64,address)': {
             subject: Uint8Array;
             senderWallet: bigint | number;
             asset: bigint | number;
@@ -119,7 +120,7 @@ export type SocialClaimArgs = {
         'refund(byte[32],uint64,uint64)void': [subject: Uint8Array, senderWallet: bigint | number, asset: bigint | number];
         'prune(byte[32],uint64,uint64)void': [subject: Uint8Array, senderWallet: bigint | number, asset: bigint | number];
         'getPending(byte[32])uint64': [subject: Uint8Array];
-        'getGift(byte[32],uint64,uint64)(uint64,uint64)': [subject: Uint8Array, senderWallet: bigint | number, asset: bigint | number];
+        'getGift(byte[32],uint64,uint64)(uint64,uint64,address)': [subject: Uint8Array, senderWallet: bigint | number, asset: bigint | number];
     };
 };
 /**
@@ -135,7 +136,7 @@ export type SocialClaimReturns = {
     'refund(byte[32],uint64,uint64)void': void;
     'prune(byte[32],uint64,uint64)void': void;
     'getPending(byte[32])uint64': bigint;
-    'getGift(byte[32],uint64,uint64)(uint64,uint64)': Gift;
+    'getGift(byte[32],uint64,uint64)(uint64,uint64,address)': Gift;
 };
 /**
  * Defines the types of available calls and state of the SocialClaim smart contract.
@@ -180,10 +181,10 @@ export type SocialClaimTypes = {
         argsObj: SocialClaimArgs['obj']['getPending(byte[32])uint64'];
         argsTuple: SocialClaimArgs['tuple']['getPending(byte[32])uint64'];
         returns: SocialClaimReturns['getPending(byte[32])uint64'];
-    }> & Record<'getGift(byte[32],uint64,uint64)(uint64,uint64)' | 'getGift', {
-        argsObj: SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64)'];
-        argsTuple: SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64)'];
-        returns: SocialClaimReturns['getGift(byte[32],uint64,uint64)(uint64,uint64)'];
+    }> & Record<'getGift(byte[32],uint64,uint64)(uint64,uint64,address)' | 'getGift', {
+        argsObj: SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'];
+        argsTuple: SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'];
+        returns: SocialClaimReturns['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -335,7 +336,8 @@ export declare abstract class SocialClaimParamsFactory {
     no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
     ABI return.
   
-    `mbrPayment` pays this app for the subject entry and the gift box.
+    `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+    payer.
   
      *
      * @param params Parameters for the call
@@ -349,8 +351,9 @@ export declare abstract class SocialClaimParamsFactory {
     rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
     The sender's gift box for that asset sums the amount and keeps the later expiry.
   
-    `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-    one for this subject and asset.
+    `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+    zero payment when the sender already has a box for this subject and asset, and the box keeps
+    the payer it has.
   
      *
      * @param params Parameters for the call
@@ -410,12 +413,12 @@ export declare abstract class SocialClaimParamsFactory {
      */
     static getPending(params: CallParams<SocialClaimArgs['obj']['getPending(byte[32])uint64'] | SocialClaimArgs['tuple']['getPending(byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getGift(byte[32],uint64,uint64)(uint64,uint64) ABI method
+     * Constructs a no op call for the getGift(byte[32],uint64,uint64)(uint64,uint64,address) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getGift(params: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getGift(params: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the SocialClaim smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -808,7 +811,8 @@ export declare class SocialClaimClient {
         no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
         ABI return.
     
-        `mbrPayment` pays this app for the subject entry and the gift box.
+        `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+        payer.
     
          *
          * @param params The params for the smart contract call
@@ -824,8 +828,9 @@ export declare class SocialClaimClient {
         rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
         The sender's gift box for that asset sums the amount and keeps the later expiry.
     
-        `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-        one for this subject and asset.
+        `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+        zero payment when the sender already has a box for this subject and asset, and the box keeps
+        the payer it has.
     
          *
          * @param params The params for the smart contract call
@@ -897,14 +902,14 @@ export declare class SocialClaimClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64)` ABI method.
+         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"]> & {
+        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -954,7 +959,8 @@ export declare class SocialClaimClient {
         no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
         ABI return.
     
-        `mbrPayment` pays this app for the subject entry and the gift box.
+        `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+        payer.
     
          *
          * @param params The params for the smart contract call
@@ -974,8 +980,9 @@ export declare class SocialClaimClient {
         rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
         The sender's gift box for that asset sums the amount and keeps the later expiry.
     
-        `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-        one for this subject and asset.
+        `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+        zero payment when the sender already has a box for this subject and asset, and the box keeps
+        the payer it has.
     
          *
          * @param params The params for the smart contract call
@@ -1067,14 +1074,14 @@ export declare class SocialClaimClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64)` ABI method.
+         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"]> & {
+        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1138,7 +1145,8 @@ export declare class SocialClaimClient {
         no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
         ABI return.
     
-        `mbrPayment` pays this app for the subject entry and the gift box.
+        `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+        payer.
     
          *
          * @param params The params for the smart contract call
@@ -1163,8 +1171,9 @@ export declare class SocialClaimClient {
         rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
         The sender's gift box for that asset sums the amount and keeps the later expiry.
     
-        `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-        one for this subject and asset.
+        `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+        zero payment when the sender already has a box for this subject and asset, and the box keeps
+        the payer it has.
     
          *
          * @param params The params for the smart contract call
@@ -1281,17 +1290,17 @@ export declare class SocialClaimClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64)` ABI method.
+         * Makes a call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64)"]> & SendParams & {
+        getGift: (params: CallParams<SocialClaimArgs["obj"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"] | SocialClaimArgs["tuple"]["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | SocialClaimReturns["getGift(byte[32],uint64,uint64)(uint64,uint64)"]);
+            return: (undefined | SocialClaimReturns["getGift(byte[32],uint64,uint64)(uint64,uint64,address)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1318,14 +1327,14 @@ export declare class SocialClaimClient {
      */
     getPending(params: CallParams<SocialClaimArgs['obj']['getPending(byte[32])uint64'] | SocialClaimArgs['tuple']['getPending(byte[32])uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the SocialClaim smart contract using the `getGift(byte[32],uint64,uint64)(uint64,uint64,address)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getGift(params: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64)']>): Promise<Gift>;
+    getGift(params: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)']>): Promise<Gift>;
     /**
      * Methods to access state for the current SocialClaim app
      */
@@ -1432,7 +1441,8 @@ export type SocialClaimComposer<TReturns extends [...any[]] = []> = {
     no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
     ABI return.
   
-    `mbrPayment` pays this app for the subject entry and the gift box.
+    `mbrPayment` pays this app for the subject entry and the gift box. Its sender is the gift box's
+    payer.
   
      *
      * @param args The arguments for the contract call
@@ -1447,8 +1457,9 @@ export type SocialClaimComposer<TReturns extends [...any[]] = []> = {
     rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
     The sender's gift box for that asset sums the amount and keeps the later expiry.
   
-    `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
-    one for this subject and asset.
+    `mbrPayment` pays this app for a new gift box, and its sender becomes that box's payer. It is a
+    zero payment when the sender already has a box for this subject and asset, and the box keeps
+    the payer it has.
   
      *
      * @param args The arguments for the contract call
@@ -1513,13 +1524,13 @@ export type SocialClaimComposer<TReturns extends [...any[]] = []> = {
      */
     getPending(params?: CallParams<SocialClaimArgs['obj']['getPending(byte[32])uint64'] | SocialClaimArgs['tuple']['getPending(byte[32])uint64']>): SocialClaimComposer<[...TReturns, SocialClaimReturns['getPending(byte[32])uint64'] | undefined]>;
     /**
-     * Calls the getGift(byte[32],uint64,uint64)(uint64,uint64) ABI method.
+     * Calls the getGift(byte[32],uint64,uint64)(uint64,uint64,address) ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getGift(params?: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64)']>): SocialClaimComposer<[...TReturns, SocialClaimReturns['getGift(byte[32],uint64,uint64)(uint64,uint64)'] | undefined]>;
+    getGift(params?: CallParams<SocialClaimArgs['obj']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'] | SocialClaimArgs['tuple']['getGift(byte[32],uint64,uint64)(uint64,uint64,address)']>): SocialClaimComposer<[...TReturns, SocialClaimReturns['getGift(byte[32],uint64,uint64)(uint64,uint64,address)'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the SocialClaim smart contract.
      *

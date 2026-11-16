@@ -1,7 +1,7 @@
 import { sha256 } from '@noble/hashes/sha2.js'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import type { TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
-import { ABITupleType, ABIUintType, decodeAddress, decodeUint64, encodeUint64, getApplicationAddress } from 'algosdk'
+import { ABIAddressType, ABITupleType, ABIUintType, decodeAddress, decodeUint64, encodeUint64, getApplicationAddress } from 'algosdk'
 import { BaseSDK } from '../../base'
 import { Gift, SocialClaimClient, SocialClaimFactory } from '../../generated/SocialClaimClient'
 import { GroupReturn, MaybeSigner, NewContractSDKParams } from '../../types'
@@ -22,11 +22,14 @@ export const SOCIAL_CLAIM_MIN_TTL = 86_400n
 export const SOCIAL_CLAIM_MAX_TTL = 365n * 86_400n
 /** Storage deposit for a subject's entry, paid with the first gift and never returned. Must match the contract. */
 export const SOCIAL_CLAIM_SUBJECT_MBR = 18_900n
-/** Storage deposit for one gift box, returned to the sender's wallet when the box is deleted. Must match the contract. */
-export const SOCIAL_CLAIM_GIFT_MBR = 28_500n
+/**
+ * Storage deposit for one gift box, returned to the account that paid it (the storage payment's
+ * sender) when the box is deleted. Must match the contract.
+ */
+export const SOCIAL_CLAIM_GIFT_MBR = 41_300n
 
 const GIFT_PREFIX = 'g'
-const GIFT_VALUE_TYPE = new ABITupleType([new ABIUintType(64), new ABIUintType(64)])
+const GIFT_VALUE_TYPE = new ABITupleType([new ABIUintType(64), new ABIUintType(64), new ABIAddressType()])
 
 const utf8 = (text: string) => new TextEncoder().encode(text)
 
@@ -117,7 +120,7 @@ export type SocialClaimClaimParams = MaybeSigner & {
   newAdmin: string
   expires: bigint
   signature: Uint8Array
-  /** Also delete the subject's gift boxes in the same group, returning each storage deposit to its sender's wallet. */
+  /** Also delete the subject's gift boxes in the same group, returning each storage deposit to the account that paid it. */
   prune?: boolean
 }
 
@@ -125,9 +128,10 @@ export type SocialClaimClaimParams = MaybeSigner & {
  * Escrow-free admin for "send to anyone" wallets. A subject (platform identity) has at most one
  * gift wallet. Its admin is this app until the attestor (Akita's claim portal) signs for the
  * recipient. Each sender's gift per asset is one box; after its expiry anyone may refund it to the
- * sender's wallet. Whoever sends a gift pays its storage deposit in the same group: the subject's
- * entry with the first gift, and each new gift box. A gift box's deposit comes back to the sender's
- * wallet when the box is deleted.
+ * sender's wallet. Each gift pays its storage deposit in the same group: the subject's entry with
+ * the first gift, and each new gift box. A gift box records the account that paid for it (`payer`),
+ * and its deposit goes back to that account when the box is deleted. These methods pay from the
+ * account that sends the group, so that account gets the deposit back, not the sponsor wallet.
  */
 export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
   constructor(params: NewContractSDKParams) {
@@ -142,7 +146,8 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
   /**
    * First gift, one atomic group: the sponsor wallet's usePlugin txns for welcome.sendToAnyone
    * with this app as admin, then the storage payment and `bind` pointing at that call. Returns the
-   * new wallet id. The account that sends the group pays the deposit.
+   * new wallet id. The account that sends the group pays the deposit and gets the gift box's part
+   * back when the box is deleted.
    *
    * The wallet's usePlugin group is [arc58_rekeyToPlugin, sendToAnyone, arc58_verifyAuthAddress];
    * the wallet only inspects txns between the rekey and the verify, so `bind` rides after it.
@@ -275,12 +280,12 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
       (name) => name.nameRaw.length === prefix.length + 16 && startsWith(name.nameRaw, prefix),
     )
     return boxes.map(({ name, value }) => {
-      const [amount, expiry] = value as [bigint, bigint]
+      const [amount, expiry, payer] = value as [bigint, bigint, string]
       return {
         subject,
         senderWallet: decodeUint64(name.nameRaw.subarray(prefix.length, prefix.length + 8), 'bigint'),
         asset: decodeUint64(name.nameRaw.subarray(prefix.length + 8, prefix.length + 16), 'bigint'),
-        gift: { amount, expiry },
+        gift: { amount, expiry, payer },
       }
     })
   }

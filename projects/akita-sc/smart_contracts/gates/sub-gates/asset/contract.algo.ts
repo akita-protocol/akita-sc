@@ -1,6 +1,6 @@
 import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
+import { AcctParams, AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 import {
   Equal,
@@ -45,8 +45,11 @@ export class AssetGate extends AkitaBaseContract {
 
   // gates based on holding an asset
   private assetGate(user: Account, asset: uint64, op: Operator, value: uint64): boolean {
-    // asset 0 is ALGO (audit SG-17): use the account balance, never the ASA holding API
-    let balance: uint64 = user.balance
+    // asset 0 is ALGO (audit SG-17): use the account balance, never the ASA holding API.
+    // Not `user.balance`: that read fails the call for an account that holds nothing, where the
+    // gate has to compare a balance of zero (AUD-C27).
+    const [algo] = AcctParams.acctBalance(user)
+    let balance: uint64 = algo
     if (asset !== 0) {
       const [holding, optedIn] = AssetHolding.assetBalance(user, asset)
       if (!optedIn) {

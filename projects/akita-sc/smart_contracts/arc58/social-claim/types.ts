@@ -19,6 +19,11 @@ export type Gift = {
   amount: uint64
   /** Unix seconds. After this, anyone may refund. Top-ups only extend it. */
   expiry: uint64
+  /**
+   * The account that paid this box's storage deposit: the sender of the storage payment that created
+   * it. The deposit goes back to this account when the box is deleted (AUD-C23, decided 2026-11-16).
+   */
+  payer: Account
 }
 
 export type SocialClaimBound = {

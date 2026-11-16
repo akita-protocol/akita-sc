@@ -8,7 +8,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4'
-import { AssetHolding } from '@algorandfoundation/algorand-typescript/op'
+import { AcctParams, AssetHolding } from '@algorandfoundation/algorand-typescript/op'
 
 import { GlobalStateKeyAkitaDAO } from '../../constants'
 import { getAkitaAppList } from '../../utils/functions'
@@ -54,7 +54,9 @@ export class AbstractedAccountBalanceReader extends Contract {
       const asset = Asset(assets[i])
 
       if (asset.id === 0) {
-        amount = address.balance
+        // not `address.balance`: that read fails the call for an address that holds nothing (AUD-C27)
+        const [algo] = AcctParams.acctBalance(address)
+        amount = algo
       } else {
         const [holdingAmount, optedIn] = AssetHolding.assetBalance(address, asset)
         if (optedIn) {

@@ -19,5 +19,8 @@ export const SOCIAL_CLAIM_VERIFY_BUDGET: uint64 = 2_400
  * (1 + 32 key bytes, 8 value bytes). It is never deleted, so its deposit is never returned.
  */
 export const SOCIAL_CLAIM_SUBJECT_MBR: uint64 = 18_900
-/** One gift box (1 + 32 + 8 + 8 key bytes, 16 value bytes). Returned when the box is deleted. */
-export const SOCIAL_CLAIM_GIFT_MBR: uint64 = 28_500
+/**
+ * One gift box (1 + 32 + 8 + 8 key bytes; 8 + 8 + 32 value bytes, the last 32 its payer). Returned to
+ * the payer when the box is deleted.
+ */
+export const SOCIAL_CLAIM_GIFT_MBR: uint64 = 41_300

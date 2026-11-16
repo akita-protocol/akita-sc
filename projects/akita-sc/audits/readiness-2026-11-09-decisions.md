@@ -32,7 +32,7 @@ The owner's answers to the six questions left open after the fixes:
 |---|---|---|
 | C1, C2 | Plugins trusted the spending address of any app passed as `wallet`, so a fake wallet could point a plugin at its own account. | 16 plugin contracts read `getControlledSpendingAccount`, which asserts the account is rekeyed to the plugin right now (`errNath`). `AkitaDAOPlugin.voteProposal` reads participation for the wallet's account. Guard test `arc58/plugins/controlled-spending.test.ts`, attack test `arc58/plugins/spoofed-wallet.e2e.spec.ts`. |
 | C3 | GuildPlugin paid whatever the Guild app quoted at execution. | Every paying GuildPlugin method takes `maxCost`, the cost quoted when the call was built (for an approved group, at proposal time), and fails with `errGcle` when the cost at execution is higher. The SDK fills it from the Guild's own cost readers. `createGuild` cannot be quoted ahead of time because part of its cost is storage in a Guild that does not exist yet; pass `maxCost` explicitly to bound it. |
-| C5 (storage) | SocialClaim storage was prefunded by Akita and could be used up by cheap calls. | `bind` and `contribute` take a storage payment from the sender: 18,900 µALGO for a new subject entry (kept) and 28,500 µALGO for each new gift entry (returned to the sender's wallet when the gift is refunded or pruned). The app needs only its own 0.1 ALGO. |
+| C5 (storage) | SocialClaim storage was prefunded by Akita and could be used up by cheap calls. | `bind` and `contribute` take a storage payment from the sender: 18,900 µALGO for a new subject entry (kept) and 28,500 µALGO for each new gift entry (returned to the sender's wallet when the gift is refunded or pruned). The app needs only its own 0.1 ALGO. Since the sixth pass (C23, 2026-11-16) a gift entry costs 41,300 µALGO and is returned to the account that paid it. |
 | C6 | One closed account stopped the refund loops of Raffle, Auction and Poll. | The loops skip an ALGO payment the receiver cannot take (closed account, amount below the minimum balance). The skipped amount leaves with the child's account at deletion: it goes into the funder's storage refund up to the funder's recorded deposit, and anything above that stays in the factory. `Auction.refundBid` on its own still fails instead of skipping, so a single refund is never dropped. |
 | C7 | The 100 ALGO Meta type fee had no way out of the app. | Meta counts each fee, less the type's storage, in `type_fees`. `collectTypeFees()` (anyone may call it) sends the amount to the revenue escrow the DAO names with `updateAkitaDAOEscrow`. |
 | C10 (admin) | Admin handover was one step on the Vault, LaunchManager, BackrunArbHook and ConsensusKeyregHook, so a wrong or unusable address locked every admin function. | `setAdmin` is gone from all four. (VenueRegistry had the same flaw; it was removed with the AkitaRouterPlugin on 2026-11-10.) `proposeAdmin(account)` names the successor and changes nothing; `acceptAdmin()` must be sent by the successor. Proposing again replaces the pending successor, and proposing the zero address cancels. `activate-plugin-dex.ts` proposes the handover and reports each acceptance as awaiting instead of handing over. Test `plugin-dex/admin-handover.e2e.spec.ts`. |
@@ -203,7 +203,7 @@ it locks per user, and on the value it adds to a payment that carries value.
 | StakingPool | An entrant's entries, a reward's boxes | `removeEntry`, `closeReward` |
 | Raffle, Auction | Entries, bids | `refundMBR` |
 | Meta | Roots, data, records | `deleteRoot`, `deleteData`, `removeRecord`, and a shrinking `setRecord` |
-| SocialClaim | Gift boxes | `refund`, `prune`, a dropped gift |
+| SocialClaim | Gift boxes. Since the sixth pass (C23) the payer is stored in the gift box itself, for every gift, and SocialClaim writes no payer record. | `refund`, `prune`, a dropped gift |
 | PollFactory (since the fifth pass, C24) | A poll's creation deposit | `deletePoll` |
 
 Three refunds changed for callers who sponsor nothing:
@@ -230,7 +230,8 @@ Three refunds changed for callers who sponsor nothing:
 ### Costs and limits to know
 
 - A paymaster has 28,500 µALGO per sponsored record tied up until the record is released, on top of
-  the deposit.
+  the deposit. SocialClaim is the exception since the sixth pass (C23): it keeps no payer record,
+  and a gift box costs every payer 41,300 µALGO.
 - Every call that returns a deposit looks for a payer record, whether one exists or not, and needs
   one more box reference per record. A transaction holds eight, shared across its group. Batch
   refunds fit fewer records per call. `Raffle.refundMBR` and `Auction.refundMBR` reserve more
@@ -298,7 +299,7 @@ redirects a refund or collects one twice.
 | # | Finding | State |
 |---|---|---|
 | C22 | HyperSwap pays a storage deposit back to its payer with no fallback. A payer whose account has closed makes that payment fail, and with it the leaf's payout, a cancelled leaf's withdrawal, or a participant's cleanup. | Fixed in this pass. |
-| C23 | SocialClaim remembers a gift's payer only when the payer is not the account that sends the call. | Open: the owner's decision, before SocialClaim is deployed. The contract is kept as it is until then. |
+| C23 | SocialClaim remembers a gift's payer only when the payer is not the account that sends the call. | Decided by the owner on 2026-11-16: store the payer in every gift and always refund that account. Built in the sixth pass. |
 | C24 | A poll treats the account that paid for it as its creator. For a sponsored poll only the sponsor can clear the votes. | Fixed in the fifth pass, 2026-11-16. |
 | C25 | The Guild's new plugin rule check covers three of the wallet's four fixed install rules. | Fixed in the fifth pass, 2026-11-16. |
 
@@ -336,6 +337,8 @@ box and always refund that account: 12,800 µALGO more deposit per gift for ever
 `getGift`, and a self-paid deposit returns to the key that paid it and not to the wallet. Suggested:
 keep the contract as it is and state the rule for paymasters.
 
+The owner chose the alternative on 2026-11-16. It is built in the sixth pass, below.
+
 **C24, Poll.** A poll stores one account, `funder`, taken from the sender of the factory payment,
 and `deleteBoxes` lets only that account clear the votes (C17). The factory took that payment from
 anyone before the payer change, so this is not new, but C17 is what turned the funder into an
@@ -363,7 +366,8 @@ caller has no case yet. The line and the two missing cases were added in the fif
   has left the asset is paid through a Rewards disbursement, and its cost comes out of the storage
   being released (TRADE-5). When the storage was sponsored, the cost comes out of the sponsor's
   refund, up to all of it. The entrant gains nothing by it.
-- SocialClaim: pay from an account that does not send the call (C23).
+- SocialClaim: until the sixth pass, pay from an account that does not send the call (C23). Since
+  then every payer is refunded, whoever sends the call.
 - Poll: until the fifth pass the sponsor of a poll was the only account that could clear its votes
   (C24). Since then the author clears them and the sponsor only gets the deposit back.
 
@@ -454,6 +458,8 @@ The contract is as it was. The choice was put to the owner on 2026-11-16 with "k
 the rule for paymasters" as the suggested option. It has to be confirmed before step H7, because
 SocialClaim can never be patched. Nothing else in the rollout depends on it.
 
+The owner answered later the same day: always refund the account that paid. See the sixth pass.
+
 ### Build and manifest
 
 - A whole-tree build differs from the manifest of the fourth pass in two programs: Guild (12,534
@@ -491,7 +497,8 @@ SocialClaim can never be patched. Nothing else in the rollout depends on it.
 
 Nothing in the contract code. What remains is the owner's:
 
-1. Confirm C23, the SocialClaim payer rule (needed before H7 only).
+1. Confirm C23, the SocialClaim payer rule (needed before H7 only). Decided and built later the
+   same day, see the sixth pass.
 2. Commit the tree. The fee asset work, the payer change and the fixes C18 to C25 are all
    uncommitted on `release/mainnet-rollout`. The commit is what the rollout deploys from.
 3. Repeat A1 on that commit and keep a second copy of the repository (A2).
@@ -499,3 +506,138 @@ Nothing in the contract code. What remains is the owner's:
 5. The runbook's own open decisions: DEC-4 (which sub-gates get new app ids) before stage C, DEC-3
    (the Meta pointer) before H1, who holds the SocialClaim attestor and manager keys before H7, and
    whether `audits/` is published with the push (I2).
+
+## Sixth pass, 2026-11-16: SocialClaim stores each gift's payer, and the empty-account reads
+
+On 2026-11-16 the owner decided C23: always refund the account that paid. This pass builds that,
+and fixes a fault its new tests uncovered, first in SocialClaim (C26) and then in three more
+programs that read an account's balance the same way (C27).
+
+### C23, SocialClaim: every gift box stores its payer
+
+- `Gift` is now `{ amount, expiry, payer }`. `bind` and `contribute` record the sender of the
+  storage payment as the payer of the gift box that payment creates.
+- Every payer pays the same: 18,900 µALGO for a new subject entry (kept, as before) and 41,300
+  µALGO for a new gift box (2,500 + 400 × (49 + 48); it was 28,500). SocialClaim no longer writes
+  a payer record, and a payer that is not the caller no longer pays the 28,500 µALGO for one. A
+  sponsored gift box locks 41,300 µALGO where it locked 57,000.
+- A top-up of a box that exists takes a zero payment, from anyone, and the box keeps the payer it
+  has.
+- `refund`, a dropped gift and `prune` return the box's 41,300 µALGO to its payer. When the payer's
+  account is empty, which 41,300 µALGO cannot open again, the deposit goes to the wallet that sent
+  the gift, then to the gift wallet, and else stays in the app. A deposit cannot make a refund, a
+  drop or a prune fail.
+- `getGift` returns `(uint64,uint64,address)`. No other method signature changed, the events are
+  the same and the state schema is the same. SocialClaim is 2,697 bytes (it was 2,765).
+- With the SDK, `sendToAnyone` and `topUp` build the storage payment from the account that sends
+  the group. That account is the payer and gets the deposit back. Before, a deposit the sender
+  paid went to the sponsor wallet. `SOCIAL_CLAIM_GIFT_MBR` is `41_300n`, and `getGift` and
+  `listGifts` return `payer`.
+- `refund` and `prune` no longer look for a payer record (one box reference fewer) and need the
+  payer's account available instead. The SDK finds it by simulation.
+- SocialClaim has never been deployed, so no gift box of the old shape exists anywhere. No code in
+  the desktop app, the mobile app or the backend reads a gift yet.
+
+The note for paymasters in the fourth pass ("pay from an account that does not send the call") no
+longer applies: whoever pays is refunded.
+
+### C26, SocialClaim: the empty-account check failed instead of answering
+
+`canReceive` read `receiver.balance`. That read compiles to `acct_params_get AcctBalance` followed
+by an assert that the account is funded, so for an account that holds nothing the whole call
+fails. That is the one case the check exists to answer. The fallback after it could never be
+reached for an empty account.
+
+- In the program as first written, only the sending wallet's and the gift wallet's accounts went
+  through the check. A factory wallet's account always holds its minimum balance, so the fault
+  could not be reached.
+- The payer change of the third pass sent a sponsor's account through it. From then on a sponsor
+  that closed its account made the refund and the prune of that gift fail until someone funded the
+  sponsor's account again. A prune that fails also fails a claim group it was appended to, which
+  is the portal's flow, although the claim alone still went through. C23 as first built here would
+  have made that true of every payer.
+- Fix: the ALGO case uses the shared `canReceiveAlgo` (`op.AcctParams.acctBalance`, which answers
+  instead of failing), the helper Raffle, Auction, the Guild and the payer helpers already use.
+- Proof: the new test "a payer that closed its account" failed on the first C23 build at
+  `acct_params_get AcctBalance; assert`, and passes with the fix.
+- Why earlier passes missed it: the SocialClaim tests of the third and fourth pass had no case with
+  a closed payer, and the review read `receiver.balance > 0` as a comparison that answers.
+
+### C27, the same read in Staking, the asset sub-gate and the balance reader
+
+Every other place where a contract reads the ALGO balance of an account it does not control was
+then checked. Three had the same read:
+
+| Program | Where | Effect of an account that holds nothing |
+|---|---|---|
+| Staking | `getHeld`, used by `checkpointSoftStake`, `checkpointAppSoftStake`, `createHeartbeat`, the soft stake clamp and the weighted stake readers, and `softCheck` | Every one of them failed. A holder of an ALGO soft stake who closed the account outright could not be checkpointed, so the stake kept the age it had built up while the funds were somewhere else, and counted in full again once the account was funded. A holder who left 0.1 ALGO behind could be checkpointed, so closing the account was the way around the checkpoint. While the account was empty the reads failed too, so nothing was gained during the gap itself. |
+| AssetGate (sub-gate, cannot be patched) | `assetGate`, asset 0 | The check failed instead of comparing a balance of zero. It always denied, also for a gate that an empty account should pass (below an amount, or not equal). |
+| AbstractedAccountBalanceReader (cannot be patched) | `balance`, asset 0 | The read failed for an address that holds nothing instead of returning zero. |
+
+- Fix, the same in all three: read the balance with `AcctParams.acctBalance`, which returns zero
+  for an account that holds nothing. Staking is 7,302 bytes (was 7,306), AssetGate 712 (was 710),
+  the balance reader 283 (was 284). No method signature and no schema changed.
+- Staking's own account reads, and reads of the caller's balance (`Txn.sender.balance` in Staking
+  and StakingPool), are left as they are: an empty caller fails there, which denies.
+- Proof: three new tests failed on the programs of the fifth pass with "account funded" and pass
+  on the new ones. `staking.e2e.spec.ts` "AUD-C27": a soft stake whose holder closed the account
+  checks as a shortfall, anyone can checkpoint it, and funding the account again does not bring
+  the stake or its age back. `gates/asset-gate-algo.e2e.spec.ts` (new file): an empty account is
+  checked as a balance of zero. `balance-reader.e2e.spec.ts`: an empty address reads as zero.
+- Not checked: whether the Staking program that is live on MainNet today has the same read. It
+  matches no commit. The upgrade at D1 installs the fixed program either way.
+- Rollout: nothing in the sequence changes. Staking is upgraded at D1 and still fits its pages.
+  The asset sub-gate was already among the eight that DEC-4 recommends to deploy again at C1; a
+  live asset sub-gate kept in place would not carry this fix. The balance reader is deployed new
+  at H5.
+
+### Build and manifest
+
+- A whole-tree build differs from the manifest of the fifth pass in four programs: SocialClaim
+  (2,697 bytes), Staking (7,302), AssetGate (712) and AbstractedAccountBalanceReader (283).
+  `release/manifest.json` was regenerated and changes in those four entries only. The check passes
+  for 155 programs. 28 programs now differ from the release commit (26 before): AssetGate and the
+  balance reader are the two new ones.
+- 24 generated files changed: the artifacts and clients of those four programs.
+
+### Tests
+
+- `social-claim.e2e.spec.ts`: 18 tests pass, three of them new and five changed. The box records
+  the account that paid, also through the ABI's `getGift`. A payer that is not the sender pays
+  exactly the deposit, one µALGO more or less is refused. A top-up keeps the box's payer whoever
+  sends the empty payment. On refund the gift returns to the sending wallet and the deposit to
+  the payer. A first gift someone else pays for, claimed with prune, returns each box's deposit
+  to its own payer. A payer that closed its account: the deposit goes to the sending wallet, on
+  refund and on prune.
+- Staking, the gates, the balance reader, the StakingPlugin and SocialClaim together: 13 files,
+  224 tests, all pass.
+- SDK: rebuilt, 496 unit tests pass (one new: the deposit constant against the box size). The type
+  check shows the same 12 errors as before, all in test files. `tests/release-deployments.test.ts`
+  and `tests/migration-scripts.e2e.spec.ts`: 57 tests pass.
+- The full suite on the final state, six shards on LocalNet: 146 files, 2,277 tests, 2,270 passed,
+  none failed, 2 skipped, 5 todo. It left every generated file unchanged. That is one file and
+  five tests more than the fifth pass: the new asset gate file, and the new tests in SocialClaim
+  (three, with one removed), Staking and the balance reader.
+- The contracts and the SDK were rebuilt in the owner's checkout after the 38 changed files were
+  copied in. That build, on macOS, reproduces the one tested here byte for byte: all 1,249 generated
+  files and the SDK bundle. The manifest check passes there for 155 programs and the SDK's 496 unit
+  tests pass there.
+
+### What is left before the first MainNet step
+
+Nothing in the contract code that this review knows of. What remains is the owner's:
+
+1. The deploy commit. On 2026-11-16 the tree of the fifth pass was committed in the owner's
+   checkout on the branch `wip/akita-sc-snapshot-2026-11-16` (d7fb61ee, parent 41e63bc9), at the
+   owner's request. The 39 files of this pass and the rebuilt SDK bundle are the commit after it on
+   that branch. `release/mainnet-rollout` is still at 41e63bc9, and nothing is pushed or tagged.
+   The commit the rollout deploys from, on the release branch, is still to be made.
+2. Repeat A1 on the deploy commit and keep a second copy of the repository (A2).
+3. Rehearse stages B to I on TestNet from that commit (A4).
+4. The runbook's own open decisions: DEC-4 (which sub-gates get new app ids) before stage C, DEC-3
+   (the Meta pointer) before H1, who holds the SocialClaim attestor and manager keys before H7, and
+   whether `audits/` is published with the push (I2).
+
+This pass, like the ones before it, is one reviewer's work. C26 and C27 were found by a test
+written for another change, after four review passes had read the same lines. The contracts that
+can never be patched go out on this review and the test suite.

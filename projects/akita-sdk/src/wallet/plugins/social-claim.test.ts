@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { socialClaimAttestationMessage, socialClaimGiftBoxName, socialClaimSubject } from './social-claim'
+import { SOCIAL_CLAIM_GIFT_MBR, socialClaimAttestationMessage, socialClaimGiftBoxName, socialClaimSubject } from './social-claim'
 
 const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString('hex')
 
@@ -25,6 +25,11 @@ describe('social-claim encodings', () => {
     const name = socialClaimGiftBoxName(subject, 0x0102n, 0x0304n)
     expect(name.length).toBe(49)
     expect(hex(name)).toBe('67' + 'ab'.repeat(32) + '0000000000000102' + '0000000000000304')
+  })
+
+  test('the gift box deposit covers the box name and a value that holds the payer', () => {
+    // 2_500 + 400 * (49 name bytes + 8 amount + 8 expiry + 32 payer)
+    expect(SOCIAL_CLAIM_GIFT_MBR).toBe(2_500n + 400n * (49n + 48n))
   })
 
   test('rejects a subject that is not 32 bytes', () => {

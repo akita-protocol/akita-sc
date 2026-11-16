@@ -2501,6 +2501,64 @@ describe('Staking Contract', () => {
       expect(result.return?.valid).toBe(false)
     })
 
+    // AUD-C27: an ALGO balance was read in a way that fails the call for an account that holds
+    // nothing. A holder who closed the account outright could not be checkpointed, so the stake
+    // kept the age it had built up while the funds were somewhere else.
+    test('AUD-C27: a soft stake whose holder closed the account checks as a shortfall instead of failing', async () => {
+      const { algorand } = fixture.context
+      const testUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(15_000_000) })
+      const address = testUser.addr.toString()
+      const soft = { asset: 0n, type: STAKING_TYPE_SOFT }
+      await softStake(testUser, 8_000_000n)
+
+      const timeWarp = new TimeWarp(algorand)
+      await timeWarp.timeWarp(120n)
+      await timeWarp.roundWarp()
+      const before = await client.getWeightedStake({ args: { address, asset: 0n } })
+      expect(before.amount).toBe(8_000_000n)
+      expect(before.weightedAge).toBeGreaterThanOrEqual(120n)
+
+      // the holder moves everything out and closes the account: it now holds nothing at all
+      await algorand.send.payment({
+        sender: testUser.addr,
+        signer: testUser.signer,
+        receiver: deployer.addr,
+        amount: algokit.microAlgos(0),
+        closeRemainderTo: deployer.addr,
+      })
+      expect(await getAccountBalance(algorand, address)).toBe(0n)
+
+      // every read answers "not backed" instead of failing
+      const checked = await client.send.softCheck({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { address, asset: 0n },
+      })
+      expect(checked.return).toEqual({ valid: false, balance: 0n })
+      expect((await client.getWeightedStake({ args: { address, asset: 0n } })).amount).toBe(0n)
+      expect((await client.getInfo({ args: { address, stake: soft } })).amount).toBe(0n)
+
+      // and anyone can record the shortfall, which is what takes the built-up age away
+      const checkpoint = await client.send.checkpointSoftStake({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { address, asset: 0n },
+      })
+      expect(checkpoint.return).toEqual({ valid: false, balance: 0n })
+
+      // funding the account again does not bring the stake or its age back
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: address,
+        amount: algokit.microAlgos(15_000_000),
+      })
+      const after = await client.getInfo({ args: { address, stake: soft } })
+      expect(after.amount).toBe(0n)
+      expect(after.weightedAge).toBe(0n)
+      expect((await client.getWeightedStake({ args: { address, asset: 0n } })).amount).toBe(0n)
+    })
+
     test('L-3: unknown stake types are rejected before any state change', async () => {
       const { algorand } = fixture.context
       const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
