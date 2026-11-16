@@ -9,7 +9,7 @@ import { deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
-import { ERR_PLUGIN_DOES_NOT_EXIST } from '../account/errors';
+import { ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN, ERR_PLUGIN_DOES_NOT_EXIST } from '../account/errors';
 
 /**
  * Abstracted Account Plugin Tests
@@ -424,6 +424,95 @@ describe('Abstracted Account Plugins', () => {
 
       plugins = await wallet.getPlugins();
       expect(plugins.size).toBe(0);
+    });
+
+    test('caller can uninstall its own plugin', async () => {
+      const {
+        context: { generateAccount },
+      } = localnet;
+      const agent = await generateAccount({ initialFunds: (10).algos() });
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) });
+
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        callerType: CallerType.Other,
+        caller: agent.toString(),
+      });
+      expect((await wallet.getPlugins()).size).toBe(1);
+
+      await wallet.removePlugin({
+        sender: agent.toString(),
+        signer: agent.signer,
+        plugin: payPluginSdk.appId,
+        caller: agent.toString(),
+        escrow: '',
+      });
+
+      expect((await wallet.getPlugins()).size).toBe(0);
+    });
+
+    test('caller cannot uninstall another caller\'s plugin', async () => {
+      const {
+        context: { generateAccount },
+      } = localnet;
+      const agent = await generateAccount({ initialFunds: (10).algos() });
+      const stranger = await generateAccount({ initialFunds: (10).algos() });
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) });
+
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        callerType: CallerType.Other,
+        caller: agent.toString(),
+      });
+
+      let error = 'no error thrown';
+      try {
+        await wallet.removePlugin({
+          sender: stranger.toString(),
+          signer: stranger.signer,
+          plugin: payPluginSdk.appId,
+          caller: agent.toString(),
+          escrow: '',
+        });
+      } catch (e: any) {
+        error = e.message;
+      }
+      expect(error).toContain(ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN);
+      expect((await wallet.getPlugins()).size).toBe(1);
+    });
+
+    test('nobody but the admin or revocation app can uninstall a global plugin', async () => {
+      const {
+        context: { generateAccount },
+      } = localnet;
+      const stranger = await generateAccount({ initialFunds: (10).algos() });
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) });
+
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        callerType: CallerType.Global,
+      });
+
+      let error = 'no error thrown';
+      try {
+        await wallet.removePlugin({
+          sender: stranger.toString(),
+          signer: stranger.signer,
+          plugin: payPluginSdk.appId,
+          caller: ALGORAND_ZERO_ADDRESS_STRING,
+          escrow: '',
+        });
+      } catch (e: any) {
+        error = e.message;
+      }
+      expect(error).toContain(ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN);
+      expect((await wallet.getPlugins()).size).toBe(1);
     });
 
     test('cannot use removed plugin', async () => {

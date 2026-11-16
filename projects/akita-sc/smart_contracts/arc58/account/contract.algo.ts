@@ -212,9 +212,17 @@ export class AbstractedAccount extends Contract {
     loggedAssert(this.isAdmin(), ERR_ADMIN_ONLY)
   }
 
-  /** Gate used by the plugin and named-plugin remove paths. */
-  private _requireAdminOrRevoke(): void {
-    loggedAssert(this.isAdmin() || this.canRevoke(), ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN)
+  /**
+   * Gate used by the plugin and named-plugin remove paths. The admin and the
+   * revocation app can remove any plugin. A plugin's own caller can also remove
+   * it, so an agent can uninstall itself on shutdown. Global installs (caller is
+   * the zero address) are never removable this way.
+   */
+  private _requireRemover(caller: Account): void {
+    loggedAssert(
+      this.isAdmin() || this.canRevoke() || (caller !== Global.zeroAddress && Txn.sender === caller),
+      ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN
+    )
   }
 
   /** Box existence check for an escrow, used at ~8 call sites. */
@@ -1279,7 +1287,7 @@ export class AbstractedAccount extends Contract {
    * @param escrow The escrow associated with the plugin
   */
   arc58_removePlugin(plugin: uint64, caller: Account, escrow: string): void {
-    this._requireAdminOrRevoke();
+    this._requireRemover(caller);
 
     const key: PluginKey = { plugin, caller: caller, escrow }
     this._requirePlugin(key)
@@ -1346,9 +1354,9 @@ export class AbstractedAccount extends Contract {
      * @param name The plugin name
     */
   arc58_removeNamedPlugin(name: string): void {
-    this._requireAdminOrRevoke();
     loggedAssert(this.namedPlugins(name).exists, ERR_PLUGIN_DOES_NOT_EXIST);
     const app = clone(this.namedPlugins(name).value)
+    this._requireRemover(app.caller);
     this._requirePlugin(app);
 
     const methodsLength: uint64 = this.plugins(app).value.methods.length
