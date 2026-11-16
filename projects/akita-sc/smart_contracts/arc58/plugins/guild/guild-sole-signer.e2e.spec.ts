@@ -212,7 +212,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
     expect(await guildClient(guild).state.global.proposalActionLimit()).toBe(11n)
   })
 
-  test('a treasury payment is approved in one group, then the approved group runs', async () => {
+  test('a plugin use that needs a vote is approved in one group, then the approved group runs', async () => {
     const { guild, treasuryId } = await soleSignerGuild()
     const receiver = environment.algorand.account.random().addr.toString()
     const treasury = new WalletSDK({
