@@ -760,6 +760,8 @@ export declare abstract class GuildPluginParamsFactory {
     /**
      * Constructs a no op call for the sweep(uint64,bool,uint64)uint64 ABI method
      *
+     * Forward unreserved Guild balance to its treasury wallet.
+     *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
@@ -1375,6 +1377,8 @@ export declare class GuildPluginClient {
         /**
          * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
          *
+         * Forward unreserved Guild balance to its treasury wallet.
+         *
          * @param params The params for the smart contract call
          * @returns The call params
          */
@@ -1732,6 +1736,8 @@ export declare class GuildPluginClient {
         }>;
         /**
          * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
+         *
+         * Forward unreserved Guild balance to its treasury wallet.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2214,6 +2220,8 @@ export declare class GuildPluginClient {
         /**
          * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
          *
+         * Forward unreserved Guild balance to its treasury wallet.
+         *
          * @param params The params for the smart contract call
          * @returns The call result
          */
@@ -2495,6 +2503,8 @@ export type GuildPluginComposer<TReturns extends [...any[]] = []> = {
     usePluginAsSigner(params?: CallParams<GuildPluginArgs['obj']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | GuildPluginArgs['tuple']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | undefined]>;
     /**
      * Calls the sweep(uint64,bool,uint64)uint64 ABI method.
+     *
+     * Forward unreserved Guild balance to its treasury wallet.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call

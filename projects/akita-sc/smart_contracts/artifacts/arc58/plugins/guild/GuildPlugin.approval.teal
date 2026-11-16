@@ -4757,7 +4757,7 @@ executeProposal:
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.usePluginAsSigner[routing]() -> void:
 usePluginAsSigner:
     pushbytes ""
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4858,7 +4858,7 @@ usePluginAsSigner:
     intc_0 // 0
 
 usePluginAsSigner_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4900,7 +4900,7 @@ usePluginAsSigner_for_header@1:
     intc_0 // 0
 
 usePluginAsSigner_for_header@3:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4944,7 +4944,7 @@ usePluginAsSigner_for_header@3:
 usePluginAsSigner_after_for@6:
     pop
     bury 1
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4967,7 +4967,7 @@ usePluginAsSigner_after_for@6:
 
 usePluginAsSigner_after_for@8:
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4983,21 +4983,21 @@ usePluginAsSigner_after_for@8:
     dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:681
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:680
     // this.requireGuild(guild)
     dig 9
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:682
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:681
     // const sender = getControlledSpendingAccount(wallet)
     dig 1
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:684
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:683
     // const [consensus, exists] = op.AppGlobal.getExUint64(guild, Bytes(GuildGlobalStateKeyConsensus))
     pushbytes "consensus"
     app_global_get_ex
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:685
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:684
     // loggedAssert(exists, errGuildNotFromFactory)
     bnz usePluginAsSigner_after_assert@11
     bytec_1 // "ERR:errGnff"
@@ -5005,7 +5005,7 @@ usePluginAsSigner_after_for@8:
     err // ERR:errGnff
 
 usePluginAsSigner_after_assert@11:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:686-691
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:685-690
     // abiCall<typeof FixedSignerGuildConsensus.prototype.usePlugin>({
     //   sender,
     //   appId: consensus,
@@ -5013,7 +5013,7 @@ usePluginAsSigner_after_assert@11:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:690
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:689
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     dig 12
     uncover 3
@@ -5021,7 +5021,7 @@ usePluginAsSigner_after_assert@11:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:686-691
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:685-690
     // abiCall<typeof FixedSignerGuildConsensus.prototype.usePlugin>({
     //   sender,
     //   appId: consensus,
@@ -5045,7 +5045,7 @@ usePluginAsSigner_after_assert@11:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:671-680
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
     // usePluginAsSigner(
     //   wallet: Application,
     //   rekeyBack: boolean,

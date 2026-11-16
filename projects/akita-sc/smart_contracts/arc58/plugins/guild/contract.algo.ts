@@ -662,7 +662,6 @@ export class GuildPlugin extends Contract {
     })
   }
 
-  /** Forward unreserved Guild balance to its treasury wallet. */
   /**
    * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
    * meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
@@ -691,6 +690,7 @@ export class GuildPlugin extends Contract {
     })
   }
 
+  /** Forward unreserved Guild balance to its treasury wallet. */
   sweep(wallet: Application, rekeyBack: boolean, guild: Application): uint64 {
     this.requireGuild(guild)
     const sender = getControlledSpendingAccount(wallet)

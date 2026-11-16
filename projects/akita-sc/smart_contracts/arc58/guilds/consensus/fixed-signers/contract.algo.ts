@@ -533,7 +533,11 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
    * One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
    * and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
    * of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-   * arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+   * arguments.
+   *
+   * The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+   * no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+   * sweep moves it on to the treasury.
    */
   usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     loggedAssert(this.activated.value, errGuildNotActive)
@@ -544,6 +548,7 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
     loggedAssert(uses.length > 0, errGuildInvalidAction)
 
     const wallet = Application(walletID)
+    const balanceBefore: uint64 = Global.currentApplicationAddress.balance
     itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
       appId: wallet,
       args: [plugin, CallerTypeOther, escrow, methodOffsets, fundsRequest],
@@ -561,6 +566,11 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
     }
     itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({ appId: wallet, fee: 0 })
     itxnCompose.submit()
+
+    const balanceAfter: uint64 = Global.currentApplicationAddress.balance
+    if (balanceAfter > balanceBefore) {
+      itxn.payment({ receiver: this.guild.value.address, amount: balanceAfter - balanceBefore, fee: 0 }).submit()
+    }
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------

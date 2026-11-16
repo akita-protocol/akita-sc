@@ -1652,7 +1652,8 @@ proposalPower:
 usePlugin:
     intc_0 // 0
     pushbytes ""
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    dupn 2
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     txna ApplicationArgs 1
     dupn 2
@@ -1712,7 +1713,7 @@ usePlugin:
     intc_0 // 0
 
 usePlugin_for_header@1:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     dup
     dig 3
@@ -1736,7 +1737,7 @@ usePlugin_for_header@1:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 14
+    bury 16
     intc_3 // 2
     *
     cover 2
@@ -1745,10 +1746,10 @@ usePlugin_for_header@1:
     intc_0 // 0
 
 usePlugin_for_header@3:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     dup
-    dig 15
+    dig 17
     <
     bz usePlugin_after_for@6
     dup
@@ -1780,7 +1781,7 @@ usePlugin_for_header@3:
 usePlugin_after_for@6:
     pop
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     swap
     intc_3 // 2
@@ -1794,20 +1795,20 @@ usePlugin_after_for@6:
 
 usePlugin_after_for@8:
     pop
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     intc_3 // 2
     +
     dig 4
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:539
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:543
     // loggedAssert(this.activated.value, errGuildNotActive)
     intc_0 // 0
     // smart_contracts/arc58/guilds/consensus/base.ts:78
     // activated = GlobalState<boolean>({ initialValue: false, key: GuildConsensusGlobalStateKeyActivated })
     bytec 13 // "activated"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:539
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:543
     // loggedAssert(this.activated.value, errGuildNotActive)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1817,7 +1818,7 @@ usePlugin_after_for@8:
     err // ERR:errGact
 
 usePlugin_after_assert@11:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:540
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:544
     // loggedAssert(this.memberPower(Txn.sender) >= this.threshold.value, errGuildNoGovernancePower)
     txn Sender
     callsub memberPower
@@ -1825,7 +1826,7 @@ usePlugin_after_assert@11:
     // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:115
     // threshold = GlobalState<uint64>({ key: FixedSignerConsensusGlobalStateKeyThreshold })
     bytec 4 // "signer_threshold"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:540
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:544
     // loggedAssert(this.memberPower(Txn.sender) >= this.threshold.value, errGuildNoGovernancePower)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1836,19 +1837,19 @@ usePlugin_after_assert@11:
     err // ERR:errGpwr
 
 usePlugin_after_assert@13:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:541
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:545
     // const [walletID, hasWallet] = op.AppGlobal.getExUint64(this.guild.value, Bytes(GuildGlobalStateKeyWallet))
     intc_0 // 0
     // smart_contracts/arc58/guilds/consensus/base.ts:74
     // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
     bytec_1 // "guild"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:541
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:545
     // const [walletID, hasWallet] = op.AppGlobal.getExUint64(this.guild.value, Bytes(GuildGlobalStateKeyWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:546
     // loggedAssert(hasWallet, errGuildWalletRequired)
     bnz usePlugin_after_assert@15
     pushbytes "ERR:errGwlr"
@@ -1856,7 +1857,7 @@ usePlugin_after_assert@13:
     err // ERR:errGwlr
 
 usePlugin_after_assert@15:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:544
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:548
     // loggedAssert(uses.length > 0, errGuildInvalidAction)
     dig 1
     bnz usePlugin_after_assert@17
@@ -1865,20 +1866,27 @@ usePlugin_after_assert@15:
     err // ERR:errGacn
 
 usePlugin_after_assert@17:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:547-551
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:551
+    // const balanceBefore: uint64 = Global.currentApplicationAddress.balance
+    global CurrentApplicationAddress
+    acct_params_get AcctBalance
+    swap
+    bury 12
+    assert // account funded
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:552-556
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: wallet,
     //   args: [plugin, CallerTypeOther, escrow, methodOffsets, fundsRequest],
     //   fee: 0,
     // })
     itxn_begin
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:549
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:554
     // args: [plugin, CallerTypeOther, escrow, methodOffsets, fundsRequest],
     intc_0 // 0
     itob
     dig 1
     itxn_field ApplicationID
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:547-551
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:552-556
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: wallet,
     //   args: [plugin, CallerTypeOther, escrow, methodOffsets, fundsRequest],
@@ -1897,58 +1905,58 @@ usePlugin_after_assert@17:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:550
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:555
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:552
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:557
     // for (let i: uint64 = 0; i < uses.length; i += 1) {
     intc_0 // 0
     swap
 
 usePlugin_while_top@18:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:552
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:557
     // for (let i: uint64 = 0; i < uses.length; i += 1) {
     dig 1
     dig 3
     <
     bz usePlugin_after_while@23
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:553
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:558
     // const args = clone(uses[i])
     dig 3
     dig 2
     callsub dynamic_array_read_dynamic_element
-    bury 13
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:554
+    bury 15
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:559
     // op.ITxnCreate.next()
     itxn_next
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:555
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:560
     // op.ITxnCreate.setTypeEnum(TransactionType.ApplicationCall)
     pushint 6
     itxn_field TypeEnum
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:556
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:561
     // op.ITxnCreate.setApplicationId(plugin)
     dig 9
     itxn_field ApplicationID
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:557
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:562
     // op.ITxnCreate.setFee(0)
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:558
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:563
     // for (let j: uint64 = 0; j < args.length; j += 1) {
     intc_0 // 0
     cover 2
 
 usePlugin_while_top@20:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:558
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:563
     // for (let j: uint64 = 0; j < args.length; j += 1) {
-    dig 13
+    dig 15
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dig 3
     >
     bz usePlugin_after_while@22
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:559
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:564
     // op.ITxnCreate.setApplicationArgs(args[j])
     dig 4
     dig 2
@@ -1974,11 +1982,11 @@ usePlugin_while_top@20:
     intc_3 // 2
     +
     extract3
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:559
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:564
     // op.ITxnCreate.setApplicationArgs(args[j])
     extract 2 0
     itxn_field ApplicationArgs
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:558
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:563
     // for (let j: uint64 = 0; j < args.length; j += 1) {
     intc_1 // 1
     +
@@ -1988,7 +1996,7 @@ usePlugin_while_top@20:
 usePlugin_after_while@22:
     uncover 2
     pop
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:552
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:557
     // for (let i: uint64 = 0; i < uses.length; i += 1) {
     swap
     intc_1 // 1
@@ -1997,7 +2005,10 @@ usePlugin_after_while@22:
     b usePlugin_while_top@18
 
 usePlugin_after_while@23:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:562
+    bury 1
+    bury 1
+    bury 1
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:567
     // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({ appId: wallet, fee: 0 })
     itxn_next
     itxn_field ApplicationID
@@ -2007,10 +2018,49 @@ usePlugin_after_while@23:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:563
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:568
     // itxnCompose.submit()
     itxn_submit
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:538
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:570
+    // const balanceAfter: uint64 = Global.currentApplicationAddress.balance
+    global CurrentApplicationAddress
+    acct_params_get AcctBalance
+    swap
+    dup
+    cover 2
+    bury 11
+    assert // account funded
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:571
+    // if (balanceAfter > balanceBefore) {
+    dig 8
+    >
+    bz usePlugin_after_if_else@26
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:572
+    // itxn.payment({ receiver: this.guild.value.address, amount: balanceAfter - balanceBefore, fee: 0 }).submit()
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:74
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_1 // "guild"
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:572
+    // itxn.payment({ receiver: this.guild.value.address, amount: balanceAfter - balanceBefore, fee: 0 }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    dig 9
+    dig 9
+    -
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+usePlugin_after_if_else@26:
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:542
     // usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
     intc_1 // 1
     return
@@ -2018,7 +2068,7 @@ usePlugin_after_while@23:
 
 // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:568
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:578
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -2031,7 +2081,7 @@ create:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     intc_3 // 2
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:571
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:581
     // loggedAssert(config.threshold > 0, errGuildInvalidThreshold)
     extract_uint64
     dup
@@ -2066,18 +2116,18 @@ create_after_assert@10:
     // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:115
     // threshold = GlobalState<uint64>({ key: FixedSignerConsensusGlobalStateKeyThreshold })
     bytec 4 // "signer_threshold"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:573
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:583
     // this.threshold.value = config.threshold
     swap
     app_global_put
     // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:126
     // weightMode = GlobalState<FixedSignerWeightMode>({ key: FixedSignerConsensusGlobalStateKeyWeightMode })
     bytec_2 // "weight_mode"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:574
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:584
     // this.weightMode.value = FixedSignerWeightModeEqual
     bytec 9 // 0x01
     app_global_put
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:568
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:578
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -2089,7 +2139,7 @@ create_bool_false@7:
 
 // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.configurationMbr[routing]() -> void:
 configurationMbr:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:579
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:589
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -2102,7 +2152,7 @@ configurationMbr:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:581
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:591
     // return this.memberAdditionMbr(decodeArc4<FixedSignerConsensusConfiguration>(config).members.length)
     dup
     intc_1 // 1
@@ -2113,7 +2163,7 @@ configurationMbr:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     callsub smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.memberAdditionMbr
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:579
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:589
     // @abimethod({ readonly: true })
     itob
     bytec 6 // 0x151f7c75
@@ -2126,7 +2176,7 @@ configurationMbr:
 
 // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.configure[routing]() -> void:
 configure:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:585
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:595
     // configure(mbrPayment: gtxn.PaymentTxn, config: bytes): void {
     txn GroupIndex
     intc_1 // 1
@@ -2148,13 +2198,13 @@ configure:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     dup
     extract 2 0
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:586
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:596
     // this.requireGuild()
     callsub requireGuild
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:587
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:597
     // this.requireMembershipMutable()
     callsub requireMembershipMutable
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:589
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:599
     // this.configureMembers(mbrPayment, configuration.mode, configuration.members)
     swap
     extract 2 1
@@ -2168,7 +2218,7 @@ configure:
     substring3
     callsub configureMembers
     pop
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:585
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:595
     // configure(mbrPayment: gtxn.PaymentTxn, config: bytes): void {
     intc_1 // 1
     return
@@ -2176,7 +2226,7 @@ configure:
 
 // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.consensusActionMbr[routing]() -> void:
 consensusActionMbr:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:595
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:605
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -2189,10 +2239,10 @@ consensusActionMbr:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:597
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:607
     // return this.validateConsensusAction(data)
     callsub validateConsensusAction
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:595
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:605
     // @abimethod({ readonly: true })
     itob
     bytec 6 // 0x151f7c75
@@ -2205,7 +2255,7 @@ consensusActionMbr:
 
 // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts::FixedSignerGuildConsensus.applyConsensusAction[routing]() -> void:
 applyConsensusAction:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:605
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:615
     // applyConsensusAction(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, data: bytes): void {
     txn GroupIndex
     intc_1 // 1
@@ -2233,13 +2283,13 @@ applyConsensusAction:
     extract 2 0
     dup
     cover 2
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:606
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:616
     // this.requireGuild()
     callsub requireGuild
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:607
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:617
     // const amount = this.validateConsensusAction(data)
     callsub validateConsensusAction
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:609-613
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:619-623
     // match(mbrPayment, {
     //   sender: this.guild.value.address,
     //   receiver: Global.currentApplicationAddress,
@@ -2247,19 +2297,19 @@ applyConsensusAction:
     // }),
     dig 1
     gtxns Sender
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:610
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:620
     // sender: this.guild.value.address,
     intc_0 // 0
     // smart_contracts/arc58/guilds/consensus/base.ts:74
     // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
     bytec_1 // "guild"
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:610
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:620
     // sender: this.guild.value.address,
     app_global_get_ex
     assert // check GlobalState exists
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:609-613
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:619-623
     // match(mbrPayment, {
     //   sender: this.guild.value.address,
     //   receiver: Global.currentApplicationAddress,
@@ -2268,10 +2318,10 @@ applyConsensusAction:
     ==
     dig 2
     gtxns Receiver
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:611
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:621
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:609-613
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:619-623
     // match(mbrPayment, {
     //   sender: this.guild.value.address,
     //   receiver: Global.currentApplicationAddress,
@@ -2284,7 +2334,7 @@ applyConsensusAction:
     uncover 2
     ==
     &&
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:608-615
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:618-625
     // loggedAssert(
     //   match(mbrPayment, {
     //     sender: this.guild.value.address,
@@ -2299,23 +2349,23 @@ applyConsensusAction:
     err // ERR:errGpay
 
 applyConsensusAction_after_assert@3:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:616
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:626
     // const code = this.consensusActionCode(data)
     dup
     callsub consensusActionCode
     dup
     uncover 2
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:617
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:627
     // const payload = this.consensusActionPayload(data)
     callsub consensusActionPayload
     swap
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:618
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:628
     // if (code === ActionAddMembers) {
     intc_1 // 1
     ==
     bz applyConsensusAction_else_body@5
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:620
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:630
     // this.configureMembers(mbrPayment, action.mode, action.members)
     dup
     extract 0 1
@@ -2331,7 +2381,7 @@ applyConsensusAction_after_assert@3:
     pop
 
 applyConsensusAction_after_if_else@21:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:605
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:615
     // applyConsensusAction(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, data: bytes): void {
     intc_1 // 1
     return
@@ -2339,14 +2389,14 @@ applyConsensusAction_after_if_else@21:
 applyConsensusAction_else_body@5:
     uncover 2
     pop
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:621
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:631
     // } else if (code === ActionRemoveMember) {
     dig 1
     intc_3 // 2
     ==
     bz applyConsensusAction_else_body@7
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:622
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:632
     // this.removeMember(decodeArc4<FixedSignerActionRemoveMember>(payload).member)
     extract 0 32
     // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:401
@@ -2449,14 +2499,14 @@ applyConsensusAction_else_body@5:
     b applyConsensusAction_after_if_else@21
 
 applyConsensusAction_else_body@7:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:623
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:633
     // } else if (code === ActionSetMemberWeight) {
     dig 1
     pushint 3
     ==
     bz applyConsensusAction_else_body@9
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:625
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:635
     // this.setMemberWeight(action.member, action.weight)
     dup
     extract 0 32
@@ -2564,14 +2614,14 @@ applyConsensusAction_else_body@7:
     b applyConsensusAction_after_if_else@21
 
 applyConsensusAction_else_body@9:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:626
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:636
     // } else if (code === ActionSetThreshold) {
     dig 1
     pushint 4
     ==
     bz applyConsensusAction_else_body@11
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:627
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:637
     // this.setThreshold(decodeArc4<FixedSignerActionSetThreshold>(payload).threshold)
     intc_0 // 0
     extract_uint64
@@ -2589,14 +2639,14 @@ applyConsensusAction_else_body@9:
     b applyConsensusAction_after_if_else@21
 
 applyConsensusAction_else_body@11:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:628
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:638
     // } else if (code === ActionSetWeightMode) {
     dig 1
     pushint 5
     ==
     bz applyConsensusAction_else_body@13
     bury 1
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:629
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:639
     // this.setWeightMode(decodeArc4<FixedSignerActionSetWeightMode>(payload).mode)
     extract 0 1
     // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:432
@@ -2626,7 +2676,7 @@ applyConsensusAction_else_body@11:
 
 applyConsensusAction_else_body@13:
     pop
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:630
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:640
     // } else if (code === ActionLockMembership) {
     pushint 6
     ==
@@ -2647,7 +2697,7 @@ applyConsensusAction_else_body@13:
     b applyConsensusAction_after_if_else@21
 
 applyConsensusAction_else_body@15:
-    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:633
+    // smart_contracts/arc58/guilds/consensus/fixed-signers/contract.algo.ts:643
     // loggedErr(errGuildInvalidConsensusAction)
     bytec 22 // "ERR:errGcac"
     log

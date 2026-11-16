@@ -639,7 +639,11 @@ export declare abstract class FixedSignerGuildConsensusParamsFactory {
     One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
     and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
     of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-    arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+    arguments.
+  
+    The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+    no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+    sweep moves it on to the treasury.
   
      *
      * @param params Parameters for the call
@@ -1212,7 +1216,11 @@ export declare class FixedSignerGuildConsensusClient {
         One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
         and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
         of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+        arguments.
+    
+        The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+        no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+        sweep moves it on to the treasury.
     
          *
          * @param params The params for the smart contract call
@@ -1506,7 +1514,11 @@ export declare class FixedSignerGuildConsensusClient {
         One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
         and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
         of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+        arguments.
+    
+        The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+        no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+        sweep moves it on to the treasury.
     
          *
          * @param params The params for the smart contract call
@@ -1895,7 +1907,11 @@ export declare class FixedSignerGuildConsensusClient {
         One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
         and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
         of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+        arguments.
+    
+        The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+        no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+        sweep moves it on to the treasury.
     
          *
          * @param params The params for the smart contract call
@@ -2446,7 +2462,11 @@ export type FixedSignerGuildConsensusComposer<TReturns extends [...any[]] = []> 
     One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
     and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
     of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
-    arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+    arguments.
+  
+    The calls are sent by this app, so a plugin method that pays its caller pays this app. This app has
+    no other way to release ALGO, so whatever it gained during the use is forwarded to the Guild, whose
+    sweep moves it on to the treasury.
   
      *
      * @param args The arguments for the contract call
