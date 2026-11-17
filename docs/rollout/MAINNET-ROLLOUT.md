@@ -109,6 +109,17 @@ One deployable program changed after the update above: the wallet. The record is
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these three entries, and Arc58AgentRevoker is now marked test-only: 85 programs are deployable and 70 are test-only. Nothing deploys the revoker; the manifest's naming rule had missed it. 32 programs differ from the release commit, and the wallet is the new deployable one.
 - **SDK.** `wallet.removePlugin` takes any sender, so a caller uses it as it is. The text for `errOarp` now names the caller.
 
+## Update 2026-11-17: TestNet compared with MainNet, and one command for both
+
+The owner said TestNet goes first, and asked whether the two networks have drifted. Both were read the same day, read-only: every app the SDK registry names, the DAO's settings, the DAO wallet's grants and escrows, each factory's child, and each app's account. The figures are under Live state, and what they mean for the rehearsal is in A4.
+
+- **The programs have not drifted where the rollout touches them.** 61 of the 63 registry names that point at an Akita app on both networks point at byte-identical programs, and the five factory children match. The two that differ, `nfdPlugin` and `haystackRouterPlugin`, are replaced by G2.
+- **TestNet holds almost no user state.** No user wallet, Listing, Poll or Rewards v1 disbursement exists there. As TestNet stands, the rehearsal never upgrades an app that holds records written by the old programs.
+- **`deploy:rewards-plugin` and `withdraw-rewards-v1-mbr-credits.ts` read Rewards v1 from the SDK registry.** `rewardsV1` is 3569556095 on MainNet and 763128244 on TestNet, so the same command pins the right app on both. Before, TestNet needed `--legacy-rewards` and `--rewards`, and a deploy without the flag pinned nothing. MainNet's value is unchanged. `deploy:rewards-plugin` prints the app it pins, in a dry run too.
+- **`deploy:haystack-router-plugin` stops on TestNet.** It holds router and treasury ids for MainNet only. On TestNet the plugin is left out and named in `--allow-pending` at I1.
+- **The DAO creator has 7.63 ALGO free on MainNet** (61.10 held, 53.47 minimum balance). It pays for every new app. A5 now names it.
+- **A step was missing: G2b, the Rewards v1 credit withdrawal.** The 2026-10-05 review wrote the script (STAKE-4) and asked for the step, and the runbook never carried it. 21.30 ALGO of the `stickers` escrow's credits sit on Rewards v1 on MainNet, across 125 disbursements, and the two proposals that recover them execute at once only before `initialize()`. It is now step G2b, the tracker step `rewards-v1-credits` (60 steps in all), and `npm run rewards:withdraw-v1-credits`.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -125,6 +136,16 @@ Re-read 2026-11-10 at round 66,834,699 (read-only):
 - DAO wallet 3569559153 still has 43.37 ALGO free. The B1 dry run reports 6,956,000 µA of Phase 2 sponsorship (AkitaSocial 3,528,000 and Subscriptions 3,428,000) and no shortfall.
 - AkitaSocial has 7.54 ALGO free (K4). AkitaSocialModeration, PrizeBoxFactory and HyperSwap still hold 0 µA.
 - Not re-read: the wallet, Listing, Poll and escrow counts, and whether TestNet programs still match MainNet.
+
+Re-read 2026-11-17, MainNet against TestNet (read-only, no key):
+
+- 61 of the 63 registry names that point at an Akita app on both networks point at byte-identical programs (`rewards` and `rewardsV1` name the same app). The children held by the wallet, Listing, StakingPool, Auction and Raffle factories match. `nfdPlugin` is 2,886 B on MainNet and 2,152 B on TestNet, where its registry is 0. `haystackRouterPlugin` is 588 B on MainNet (router 3172554435) and 1,514 B on TestNet (router 0).
+- The DAO's settings match apart from `proposalId` (171 and 165) and `otherAppList.akitaNfd` (765902356 on MainNet, 0 on TestNet, where no Akita NFD app exists). The five plugin settings boxes and the named plugins match. Both DAOs are in Draft with the same creator.
+- The DAO wallet holds 28 grants and 24 escrows on MainNet, 21 and 22 on TestNet. Only MainNet has the account escrows `akta_creator` and `collections` (plain accounts rekeyed to the wallet, escrow id 0), each with an `nfdPlugin` grant for the operator; `nfdPlugin` and `asaManagerPlugin` grants for the operator on the main account; two grants of an older `selfOptinPlugin`; and a second grant of the older `socialPlugin`. TestNet's `asaManagerPlugin` grant is on an older revision. The `rewardsPlugin` grant on `stickers` names E3H5NB… on MainNet and the DAO creator on TestNet. `stickers` is unlocked on MainNet and locked on TestNet; every other lock matches.
+- The wallet factory has created 73 apps on MainNet and 1 on TestNet, the DAO wallet. Rewards v1 holds 147 disbursements in 312 boxes on MainNet and none on TestNet. MainNet has 2 Listings and 6 Polls, TestNet none. AkitaSocial holds 1,836 boxes on MainNet and 1 on TestNet, the graph 229 and 0, Impact 59 and 3, Staking 11 and 1, Subscriptions 13 and 4.
+- The DAO creator holds 61.10 ALGO on MainNet, 53.47 of it minimum balance for 81 created apps, so 7.63 is free. On TestNet it holds 3,720.80. TestNet's PollFactory holds 0.
+- `rollout:status` showed the same 59 steps in the same state on both networks: none done. With the step added the same day (`rewards-v1-credits`) it shows 60: none done on MainNet, and that one done on TestNet, where there is nothing to withdraw.
+- Not read: the contents of each app's boxes (they were counted), and the backend's and the apps' configuration for each network.
 
 ## Decisions to close first
 
@@ -248,11 +269,23 @@ git bundle create akita-release.bundle --all
 #### A4. Rehearse B → I on TestNet
 
 - **What:** Run every stage on TestNet with the same scripts, checking progress with rollout:status --network testnet after each step.
-- **Why here:** TestNet runs the same programs as MainNet for every target, so the ABI guard and the K1 binding run against real deployed bytes. LocalNet runs the tree, so its ABI diff is empty.
+- **Why here:** TestNet runs the same programs as MainNet for every target (re-read 2026-11-17; the two plugins that differ are replaced by G2), so the ABI guard and the K1 binding run against real deployed bytes. LocalNet runs the tree, so its ABI diff is empty.
 - **Requires:** A2. **Script:** new: rollout-status.ts written today.
-- TestNet has only the DAO wallet, so it cannot rehearse the 72-wallet sweep or live-child compat.
-- TestNet PollFactory is unfunded; fund it before the Poll step.
-- MainNet haystackRouter #2 and nfd #3 have no TestNet twin.
+- **The commands differ from the MainNet ones in four places only.**
+  - `-n testnet` for `-n mainnet`, and `--network testnet` for the tracker.
+  - C2 and C3 name the kept sub-gates by app id. On TestNet the list is `MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897`.
+  - `deploy:haystack-router-plugin` stops on TestNet, for want of a router id. Skip it there and add `plugin:haystackRouterPlugin` to `--allow-pending` at I1.
+  - `deploy:guild-factory` takes `--confirm-mainnet` on MainNet only.
+- `deploy:rewards-plugin`, `deploy:nfd-plugin`, `rewards:opt-in` and `rewards:withdraw-v1-credits` pick each network's own apps by themselves.
+- **What TestNet cannot show as it stands** (state read 2026-11-17, see Live state):
+  - F2 finds no wallet to sweep: the factory has created only the DAO wallet.
+  - No Listing, Poll or Rewards v1 disbursement exists, so the live children, the legacy claims (DEC-1) and the v1 credit withdrawal (G2b) act on nothing.
+  - The DAO wallet lacks MainNet's two account escrows and seven of its grants, so the grant swap is shorter there. Read the MainNet plan of `update:dao-wallet-plugins` grant by grant; TestNet has not shown those.
+  - There is no Haystack router and no Akita NFD app, so the swap path and the Akita NFD reads are not exercised.
+- **State to make first** (suggested 2026-11-17; the owner decides). TestNet runs the old programs today, so records made on it now are of the kind MainNet holds. Before B1: two or three wallets through the factory, one with automatic updates off; an open Listing; a Poll; a few posts and a follow; a subscription; a staking lock; and one Rewards v1 disbursement with an unclaimed allocation.
+- TestNet PollFactory holds 0 ALGO. Its upgrade plans without funding (dry run 2026-11-17). Fund it before a Poll is created.
+- **Measure the cost.** Note the DAO creator's balance before B1 and after I1. The difference sizes the MainNet top-up in A5.
+- I1 on TestNet ends the creator's control of the TestNet DAO as it does on MainNet, and every later change there needs a vote. Stop before I1 to keep the TestNet DAO in Draft.
 
 ```bash
 npm run rollout:status -- --network testnet
@@ -263,6 +296,7 @@ npm run rollout:status -- --network testnet
 - **What:** Top up the deployer, and confirm the DAO wallet holds the page-growth sponsorship.
 - **Why here:** A step that runs short mid-group wastes a proposal window.
 - **Requires:** none. **Script:** manual.
+- DAO creator (the deployer): 7.63 ALGO free on MainNet (61.10 held, 53.47 minimum balance; read 2026-11-17). It creates every new app, and each one raises its minimum balance. Top it up before B1 by what the TestNet rehearsal spent (A4), with margin.
 - DAO wallet: 10.65 ALGO sponsorship (has 43.37 free). It was 10.55 before Subscriptions took a sixth page on 2026-11-15.
 - StakingPoolFactory box growth +1.842 ALGO and AuctionFactory +14,800 µA; the Phase 2 runner pays both.
 - AkitaSocialModeration, PrizeBoxFactory and HyperSwap hold 0 µA today.
@@ -643,8 +677,9 @@ All 23 live plugins and the step that rotates each. Every one differs from this 
 One command per plugin, then one grant swap for all of them:
 
 - `deploy:pay-silo-plugin` creates the registered instance with the recipient the live one has (read 2026-11-16: the DAO creator's address on both networks). The Labs instance is a separate deploy in H6.
-- `deploy:rewards-plugin` pins `legacyRewards` to Rewards v1 on MainNet by default; elsewhere pass `--legacy-rewards <id>`.
-- `deploy:nfd-plugin` takes no version and has no dry run. `deploy:haystack-router-plugin` has MainNet defaults only (there is no TestNet twin).
+- `deploy:rewards-plugin` pins `legacyRewards` to the network's Rewards v1 as the SDK registry names it (`rewardsV1`: 3569556095 on MainNet, 763128244 on TestNet) and prints it first, in a dry run too. `--legacy-rewards <id>` overrides it.
+- `deploy:nfd-plugin` takes no version and has no dry run. It picks the network's NFD registry by itself (760937186 on MainNet, 84366825 on TestNet).
+- `deploy:haystack-router-plugin` holds router and treasury ids for MainNet only and stops on TestNet (see A4). On MainNet it creates the plugin for router 3757715482, the v4 router the new plugin was written for; the live plugin names router 3172554435.
 - `deploy:dual-stake-plugin` needs the DualStake registry app id. The live plugin was created with registry 0 on both networks (read 2026-11-16), so it has never been able to act. Deploy the new one once the registry id is known; until then leave it out and name `plugin:dualStakePlugin` in `--allow-pending` at I1.
 - `update:dao-wallet-plugins` plans first and prints every grant it will replace, with its methods. `--add-method` adds the three new RewardsPlugin methods to its method-restricted grants (today one, on `stickers`).
 
@@ -676,6 +711,20 @@ npm run update:dao-wallet-plugins -- -n mainnet --add-method rewardsPlugin:recla
 ```bash
 npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address> --dry-run
 npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address>
+```
+
+#### G2b. Withdraw the stickers escrow's storage credits from Rewards v1
+
+- **What:** The DAO wallet's `stickers` escrow paid the storage of the Welcome disbursements on Rewards v1. What was released sits on v1 as credits that only the escrow can withdraw: 21.30 ALGO across 125 disbursements on MainNet (read 2026-11-17). The script grants the sender `withdrawMbrCredits` on the escrow through the new RewardsPlugin, withdraws every credit to the escrow, and removes the grant (review 2026-10-05, STAKE-4).
+- **Why here:** It needs the new RewardsPlugin (G2), which reaches v1 through the app pinned at its creation. Its two proposals execute at once only while the DAO is in Draft; after I1 each needs a vote. The review asked for it before the v1 drain risk grows. This step was missing from the runbook until 2026-11-17.
+- **Requires:** G2 (the new RewardsPlugin, registered, and the SDK rebuilt). **Script:** ready.
+- **Tracked by rollout:status as** `rewards-v1-credits`. `dao:initialize` refuses while credits remain, unless the step is named in `--allow-pending`.
+- The script takes the Rewards app and the RewardsPlugin from the SDK registry. It refuses a RewardsPlugin deployed before `withdrawMbrCredits` existed, so the plan line stops until G2's deploy is done, and it refuses a sender who already holds a grant of the plugin on the escrow, because the run adds a grant under the same key and then removes that key.
+- TestNet's Rewards v1 holds no disbursement, so on TestNet the step is done from the start and the rehearsal does not exercise it unless a disbursement is made there first (A4). The flow is covered on LocalNet by the STAKE-4 tests in `arc58/plugins/rewards/rewards.e2e.spec.ts`.
+
+```bash
+npm run rewards:withdraw-v1-credits -- -n mainnet --dry-run --sender "$CREATOR"
+npm run rewards:withdraw-v1-credits -- -n mainnet --execute
 ```
 
 #### G3. RevenueManagerPlugin

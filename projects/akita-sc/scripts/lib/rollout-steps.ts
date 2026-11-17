@@ -12,6 +12,8 @@ import { isPhase2aUpdatePlugin, readFactoryChild, readLiveApp } from './principa
 import { loadCompiled, PHASE2_RIDE_ALONG_TARGETS, PHASE2_TARGETS } from './principal-rollout'
 import { readHeartbeatManager } from './heartbeat-manager'
 import { planRewardsOptIns } from './rewards-opt-ins'
+import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawal'
+import { RewardsSDK } from 'akita-sdk/rewards'
 import { planPowerRescale, powerProblems } from './proposal-power'
 
 type Status = { done: boolean; detail: string }
@@ -145,6 +147,20 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       return { done: latest.done && stale === 0 && palOk, detail: `${latest.detail}; ${stale} stale DAO wallet grant(s)${palOk ? '' : `; pal.revenueManager = ${pal?.revenueManager}`}` }
     } })
   }
+
+  // The stickers escrow paid the storage of the Welcome disbursements on Rewards v1; what was released sits there
+  // as credits only that escrow can withdraw, through the new RewardsPlugin and two proposals (STAKE-4).
+  add({ id: 'rewards-v1-credits', stage: 'G', title: 'The stickers escrow has withdrawn its storage credits from Rewards v1', requires: ['plugin:rewardsPlugin'],
+    run: 'npm run rewards:withdraw-v1-credits -- --execute (two proposals: run it while the DAO is in Draft)', check: async () => {
+      const v1 = ctx.appIds.rewardsV1 ?? 0n
+      if (!v1) return { done: true, detail: 'the SDK registry names no Rewards v1 on this network' }
+      const escrow = await escrowAddress(ctx.dao, 'stickers').catch(() => undefined)
+      if (!escrow) return { done: true, detail: 'the DAO wallet has no stickers escrow' }
+      const rewards = new RewardsSDK({ algorand: ctx.algorand, factoryParams: { appId: v1, defaultSender: ctx.sender, defaultSigner: ctx.signer } })
+      const plan = await planCreditWithdrawals(rewards, escrow.address)
+      const total = plan.reduce((sum, w) => sum + w.amount, 0n)
+      return { done: plan.length === 0, detail: plan.length ? `${plan.length} disbursement(s) on Rewards ${v1} hold ${total} µALGO of the stickers escrow's credits` : `the stickers escrow holds no credits on Rewards ${v1}` }
+    } })
 
   add({ id: 'revenue-escrows', stage: 'G', title: 'Every rev_* escrow is registered with the RevenueManager and has its grant', requires: ['plugin:revenueManagerPlugin'],
     run: 'npm run register:revenue-escrow -- --escrow <name> --source <address> --confirm', check: async () => {

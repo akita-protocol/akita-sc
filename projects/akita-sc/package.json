@@ -193,6 +193,7 @@
     "release:manifest:check": "node scripts/release-manifest.mjs --check",
     "seal:gate-imports": "ts-node --transpile-only scripts/seal-gate-imports.ts",
     "rewards:opt-in": "ts-node --transpile-only scripts/opt-in-rewards-assets.ts",
+    "rewards:withdraw-v1-credits": "ts-node --transpile-only scripts/withdraw-rewards-v1-mbr-credits.ts",
     "dao:rescale-power": "ts-node --transpile-only scripts/rescale-proposal-power.ts",
     "dao:initialize": "ts-node --transpile-only scripts/initialize-dao.ts",
     "update:app-dao-escrow": "ts-node --transpile-only scripts/update-app-dao-escrow.ts",
