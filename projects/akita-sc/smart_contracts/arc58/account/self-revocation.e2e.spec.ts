@@ -264,6 +264,51 @@ describe('ARC-58 a caller removes its own grant', () => {
   )
 })
 
+describe('ARC-58 a caller and a grant that has a name', () => {
+  test(
+    'the caller removes the grant with arc58_removePlugin; the name is the owner\'s to clear',
+    async () => {
+      const scenario = await createFreshAgentWallet(deployment)
+      const { wallet, owner, agent } = scenario
+      const walletAddress = wallet.client.appAddress.toString()
+      const pay = deployment.payPlugin.appId
+      const name = 'agent-pay'
+      const grant = { plugin: pay, caller: addressOf(agent) }
+
+      const before = await minBalance(walletAddress)
+      await wallet.client.send.arc58AddNamedPlugin({
+        sender: owner.addr,
+        signer: owner.signer,
+        args: {
+          name, plugin: pay, caller: addressOf(agent), escrow: '', admin: false, delegationType: AGENT_DELEGATION_TYPE,
+          lastValid: MAX_UINT64, cooldown: 0n, methods: [], useRounds: true, useExecutionKey: false, coverFees: false,
+          canReclaim: false, defaultToEscrow: false,
+        },
+      })
+      const withNamedGrant = await minBalance(walletAddress)
+
+      // the named removal stays with the admin and the revocation app
+      await expect(
+        wallet.client.send.arc58RemoveNamedPlugin({ sender: agent.addr, signer: agent.signer, args: { name } }),
+      ).rejects.toThrow(errOnlyAdminOrRevocationAppCanRemovePlugin)
+      expect(await grantExists(scenario, grant)).toBe(true)
+
+      // the plain removal works for the caller and frees the grant's storage, not the name's
+      await removeAs(scenario, agent, grant)
+      expect(await grantExists(scenario, grant)).toBe(false)
+      const nameOnly = await minBalance(walletAddress)
+      expect(nameOnly).toBeLessThan(withNamedGrant)
+      expect(nameOnly).toBeGreaterThan(before)
+      expect((await wallet.client.state.box.namedPlugins.value(name))?.plugin).toBe(pay)
+
+      // the owner clears the name that now points at nothing, and the wallet is back where it started
+      await wallet.client.send.arc58RemoveNamedPlugin({ sender: owner.addr, signer: owner.signer, args: { name } })
+      expect(await minBalance(walletAddress)).toBe(before)
+    },
+    TEST_TIMEOUT,
+  )
+})
+
 describe('ARC-58 an open plugin window is not a way to remove grants', () => {
   test(
     'a plugin cannot remove an admin grant by sending as the wallet\'s own account',

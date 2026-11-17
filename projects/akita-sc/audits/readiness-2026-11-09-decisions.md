@@ -870,3 +870,69 @@ it: nobody else has read it.
 3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
    the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
    the push (I2).
+
+## Ninth pass, 2026-11-16: the rollout itself
+
+Asked for by the owner on 2026-11-16: the three changes of this release (the Guild direct plugin
+use, the Subscriptions highlights and featured service, and the caller's own removal of a grant)
+must be one whole, with a rollout script for every step that is ready to run. No contract, artifact
+or SDK source changes in this pass; `release/manifest.json` is unchanged.
+
+### What was checked
+
+Every command of the runbook's Sequence was read against the script it runs: the npm alias or
+file, every flag, every contract, target and plugin name, and the constructor arguments. Then the
+chain was read on MainNet and TestNet (read-only) for what each step would find there.
+
+### What would have failed
+
+- **Six steps had no script.** D2's asset opt-ins for Rewards v2, I1's rescale of the proposal
+  thresholds, I1's `initialize()`, H1's repoint of an app at its DAO escrow (gap G14), the
+  registration of a revenue escrow that is new (G3a, H1, H2), and H6's pay grant on `rec_krby`.
+  Each now has one: `rewards:opt-in`, `dao:rescale-power`, `dao:initialize`,
+  `update:app-dao-escrow`, `register:revenue-escrow`, `install:pay-silo-grant`.
+- **The proposal thresholds change unit with the DAO upgrade.** The live DAO compares a proposer's
+  power in whole token-years, the upgraded DAO in base units. The nine `*_ps` globals (600, 300,
+  200) and the plugin settings boxes would have read a million times too low after B2, so any
+  holder of a fraction of a token could have proposed. Thresholds are not enforced in Draft, so
+  nothing is exposed before `initialize()`. `dao:rescale-power` rewrites the globals; the grant
+  swaps of stage G scale each box as they copy it; `dao:initialize` refuses while a value is
+  still in the old unit.
+- **Rewards v2 could have gone live without an asset Rewards v1 holds.** `deploy:rewards
+  --register` now refuses the cutover until the new app is opted in to every asset the old one
+  holds.
+- **Runbook commands that did not match their scripts.** C4 lacked `--legacy-cutoff` and
+  registered only the Gate; G1 passed a flag the script does not read; H5 named a script that does
+  not exist; the grant swap lacked `--confirm-update`; C2 and C3 would have acted on Gate v1;
+  inline `--config` was read as a file name; version labels were below or equal to live ones. The
+  list is in the runbook, "Script changes made 2026-11-16".
+
+### What holds it in place
+
+- `tests/rollout-runbook.test.ts` reads the Sequence and fails when a command names something
+  that does not exist, lacks the release label, or passes the key on the command line.
+- `tests/rollout-steps.e2e.spec.ts` (12 tests) runs the new steps on LocalNet, ending with a real
+  payment through the pay silo. `tests/migration-scripts.e2e.spec.ts` (46) runs the refused
+  Rewards cutover, the opt-ins and the resumed cutover. `self-revocation.e2e.spec.ts` gained the
+  case of a grant that has a name (6 tests).
+- `rollout:status` tracks every step that leaves a fact on chain, and `dao:initialize` reads the
+  same list, so the launch is refused while a step is unfinished and not named with
+  `--allow-pending`. Five steps can never be left pending: `phase2a`, `dao`, `validator`,
+  `dao-wallet`, `power`.
+- Every `--dry-run` line of the Sequence was run against MainNet and TestNet with no key. Each
+  plans, or stops naming the step it waits for.
+
+### What this does not show
+
+A dry run cannot show a step whose prerequisite is not on chain yet (gap G17). LocalNet starts
+from this tree's programs, not from what is deployed, so a local run of the Sequence would not
+show it either. The Sequence as a whole is proven by the TestNet rehearsal (A4) and by nothing
+before it.
+
+### Inputs the owner sets before the rehearsal
+
+The release label (`$V`, one for every command), the guild creation cost (B3), the heartbeat
+manager (G2a), the `--source` of `rev_nfd` (G3a), the recipient of the pay silo (G2) and of the
+Akita Labs pay grant (H6), and the DualStake registry, or DualStake left out with
+`--allow-pending plugin:dualStakePlugin` at I1. The runbook's own open decisions are unchanged:
+DEC-4 before stage C, DEC-3 before H1, the SocialClaim attestor and manager before H7.

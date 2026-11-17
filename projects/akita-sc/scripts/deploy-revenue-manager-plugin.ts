@@ -30,6 +30,7 @@ import {
   setupContext,
 } from './script-base'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
+import { comparesPowerInBaseUnits, isLegacyPower, toBaseUnitPower } from './lib/power-units'
 
 const SOURCE_LINK = 'https://github.com/kylebee/akita-sc'
 const EXECUTION_GROUP_BUFFER = 2n
@@ -462,6 +463,9 @@ Resume example:
 
   installations.sort((a, b) => installationLabel(a).localeCompare(installationLabel(b)))
 
+  // The upgraded DAO compares proposal power with base units: a threshold copied from a grant made
+  // before the upgrade is rescaled as it is copied (lib/power-units.ts).
+  const baseUnits = comparesPowerInBaseUnits((await ctx.algorand.client.algod.getApplicationByID(ctx.dao.appId).do()).params!.approvalProgram)
   const proposalSettingsByInstallation = new Map<string, ProposalSettings>()
   for (const installation of installations) {
     if (!installation.info.useExecutionKey) continue
@@ -472,7 +476,9 @@ Resume example:
     if (proposalSettings === undefined) {
       throw new Error(`Missing DAO proposal settings for ${installationLabel(installation)}`)
     }
-    proposalSettingsByInstallation.set(pluginKeyId(installation.key), proposalSettings)
+    proposalSettingsByInstallation.set(pluginKeyId(installation.key), baseUnits && isLegacyPower(proposalSettings.power)
+      ? { ...proposalSettings, power: toBaseUnitPower(proposalSettings.power) }
+      : proposalSettings)
   }
 
   const migrationCaller = ctx.sender.toString()

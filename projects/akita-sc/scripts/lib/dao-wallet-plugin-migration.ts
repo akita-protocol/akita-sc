@@ -71,6 +71,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import type { ScriptContext } from '../script-base'
 import { executeProposal, getAppFundingNeeded } from '../utils'
 import type { GrantReplacement } from './principal-rollout'
+import { comparesPowerInBaseUnits, isLegacyPower, toBaseUnitPower } from './power-units'
 
 export const DEFAULT_SOURCE_LINK = 'https://github.com/kylebee/akita-sc'
 
@@ -401,12 +402,16 @@ export async function createMigrationPlan(
   const { effectiveSender, filters = [], sourceLink = DEFAULT_SOURCE_LINK, replacements = [], unnameAliases = false, addMethods = {} } = options
   const wallet = await ctx.dao.getWallet()
   const walletAddress = wallet.client.appAddress.toString()
-  const [pluginEntries, namedPlugins, escrows, pal] = await Promise.all([
+  const [pluginEntries, namedPlugins, escrows, pal, daoApp] = await Promise.all([
     wallet.client.state.box.plugins.getMap(),
     wallet.getNamedPlugins(),
     wallet.getEscrows(),
     ctx.dao.client.state.global.pluginAppList(),
+    ctx.algorand.client.algod.getApplicationByID(ctx.dao.appId).do(),
   ])
+  // The upgraded DAO compares proposal power with base units, so a threshold copied from a grant made
+  // before the upgrade is rescaled as it is copied (lib/power-units.ts). Only AddPlugin writes it.
+  const baseUnits = comparesPowerInBaseUnits(daoApp.params!.approvalProgram)
 
   const namesByKey = new Map<string, string[]>()
   for (const [name, key] of namedPlugins) {
@@ -489,6 +494,9 @@ export async function createMigrationPlan(
       executionSettings = await readDaoExecutionSettings(ctx, key.plugin, configuredEscrow)
       if (!executionSettings) {
         throw new Error(`Missing DAO execution settings for ${update.current.name} ${pluginKeyId(key)}`)
+      }
+      if (baseUnits && isLegacyPower(executionSettings.power)) {
+        executionSettings = { ...executionSettings, power: toBaseUnitPower(executionSettings.power) }
       }
     }
 

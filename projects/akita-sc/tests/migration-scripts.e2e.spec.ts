@@ -6,6 +6,8 @@ import { getNetworkAppIds } from 'akita-sdk'
 import { bootstrapDaoTestContext, type DaoTestContext } from '../smart_contracts/arc58/dao/tests/utils'
 import { deployImmutable, immutableContracts, prepareImmutable, registerDaoApp, verifyDependencies } from '../scripts/lib/immutable-deployment'
 import { type ScriptContext } from '../scripts/script-base'
+import { heldAssets, planRewardsOptIns, runRewardsOptIns } from '../scripts/lib/rewards-opt-ins'
+import { RewardsSDK } from 'akita-sdk/rewards'
 import { discoverChildren, updateChildren } from '../scripts/lib/child-updates'
 import { StakingPoolStakingType } from 'akita-sdk/staking-pool'
 
@@ -43,6 +45,24 @@ describe('migration deployment and update scripts', () => {
     const receipt = path.join(dir, `${name}.json`)
     // A stale/local-empty SDK map must not hide the currently active Rewards ID.
     const deploymentContext = name === 'Rewards' ? { ...ctx, appIds: { ...ctx.appIds, rewards: 0n } } : ctx
+    if (name === 'Rewards') {
+      // The cutover is refused while the new app lacks an asset the old one pays out (rollout D2).
+      const asset = (await ctx.algorand.send.assetCreate({ sender: ctx.sender, signer: ctx.signer, total: 10n, decimals: 0 })).assetId
+      const old = new RewardsSDK({ algorand: ctx.algorand, factoryParams: { appId: ctx.appIds.rewards, defaultSender: ctx.sender, defaultSigner: ctx.signer } })
+      await old.optIn({ sender: ctx.sender, signer: ctx.signer, asset })
+      await expect(deployImmutable(deploymentContext, name, config, receipt, true)).rejects.toThrow(`is not opted in to`)
+      const pending = JSON.parse(fs.readFileSync(receipt, 'utf8'))
+      expect(pending.status).not.toBe('registered')
+      expect((await ctx.dao.client.state.global.akitaAppList())!.rewards).toBe(ctx.appIds.rewards)
+      const plan = await planRewardsOptIns(ctx, BigInt(pending.oldAppId), BigInt(pending.appId))
+      expect(plan.wanted).toContain(asset)
+      expect(plan.missing).toEqual(plan.wanted)
+      expect(await runRewardsOptIns(ctx, plan, () => {})).toEqual(plan.missing)
+      expect((await planRewardsOptIns(ctx, plan.from, plan.to)).missing).toEqual([])
+      expect(await heldAssets(ctx, plan.to)).toEqual(await heldAssets(ctx, plan.from))
+      // The same receipt resumes at the registration; no second app is created.
+      expect(await deployImmutable(deploymentContext, name, config, receipt, true)).toBe(BigInt(pending.appId))
+    }
     const id = await deployImmutable(deploymentContext, name, config, receipt, true)
     expect(id).toBeGreaterThan(0n)
     deployed[name] = id!
