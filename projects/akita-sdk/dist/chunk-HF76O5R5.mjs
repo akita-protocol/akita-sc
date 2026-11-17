@@ -1830,7 +1830,7 @@ var AkitaDaoSDK = class extends BaseSDK {
                 raffleSaleImpactTaxMax,
                 raffleComposablePercentage
               };
-              data = encodeABIValue(abiData, "NftFees", this.client.appClient.appSpec.structs);
+              data = encodeABIValue(abiData, "NFTFees", this.client.appClient.appSpec.structs);
               break;
             }
             case "swap_fees": {
@@ -2324,4 +2324,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-YE4LU7YU.mjs.map
+//# sourceMappingURL=chunk-HF76O5R5.mjs.map

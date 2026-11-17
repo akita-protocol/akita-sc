@@ -1830,7 +1830,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkLDSU2NENjs.BaseSDK {
                 raffleSaleImpactTaxMax,
                 raffleComposablePercentage
               };
-              data = _chunkAP6ZTMSTjs.encodeABIValue.call(void 0, abiData, "NftFees", this.client.appClient.appSpec.structs);
+              data = _chunkAP6ZTMSTjs.encodeABIValue.call(void 0, abiData, "NFTFees", this.client.appClient.appSpec.structs);
               break;
             }
             case "swap_fees": {
@@ -2324,4 +2324,4 @@ var AkitaDaoSDK = (_class2 = class extends _chunkLDSU2NENjs.BaseSDK {
 
 
 exports.SplitDistributionType = SplitDistributionType; exports.SplitsToTuples = SplitsToTuples; exports.ProposalActionEnum = ProposalActionEnum; exports.EMPTY_CID = EMPTY_CID; exports.DAOProposalVotesMBR = DAOProposalVotesMBR; exports.DAOLegacyProposalVotesMBR = DAOLegacyProposalVotesMBR; exports.DAOParticipationMBR = DAOParticipationMBR; exports.DAOVoteReceiptBoxPrefix = DAOVoteReceiptBoxPrefix; exports.DAOLegacyVoteReceiptBoxPrefix = DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = DAOParticipationBoxPrefix; exports.ProposalStatusEnum = ProposalStatusEnum; exports.DAOProposalTallyMBR = DAOProposalTallyMBR; exports.MaxBootstrapKeyRounds = MaxBootstrapKeyRounds; exports.DAOBootstrapKeyBoxPrefix = DAOBootstrapKeyBoxPrefix; exports.voteReceiptBoxName = voteReceiptBoxName; exports.participationBoxName = participationBoxName; exports.decodeVoteReceipt = decodeVoteReceipt; exports.decodeGovernanceParticipation = decodeGovernanceParticipation; exports.voteCost = voteCost; exports.LEGACY_DAO_ACTION_STRUCTS = LEGACY_DAO_ACTION_STRUCTS; exports.decodeLegacyProposalNewEscrow = decodeLegacyProposalNewEscrow; exports.usesLegacyEscrowActionShape = usesLegacyEscrowActionShape; exports.DAO_ERROR_MESSAGES = DAO_ERROR_MESSAGES; exports.parseDaoErrorCode = parseDaoErrorCode; exports.translateDaoError = translateDaoError; exports.AkitaDaoSDK = AkitaDaoSDK;
-//# sourceMappingURL=chunk-EZJZLDG5.js.map
+//# sourceMappingURL=chunk-2CRTJPCQ.js.map

@@ -562,7 +562,7 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
                 raffleComposablePercentage
               };
 
-              data = getABIEncodedValue(abiData, 'NftFees', this.client.appClient.appSpec.structs)
+              data = getABIEncodedValue(abiData, 'NFTFees', this.client.appClient.appSpec.structs)
               break;
             }
             case 'swap_fees': {

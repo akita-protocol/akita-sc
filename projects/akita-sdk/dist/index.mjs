@@ -65,7 +65,7 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-YE4LU7YU.mjs";
+} from "./chunk-HF76O5R5.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
