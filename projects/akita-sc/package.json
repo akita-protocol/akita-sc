@@ -189,6 +189,7 @@
     "update:raffle-children": "ts-node --transpile-only scripts/update-children.ts --kind raffle",
     "update:staking-pool-children": "ts-node --transpile-only scripts/update-children.ts --kind staking-pool",
     "rollout:status": "ts-node --transpile-only scripts/rollout-status.ts",
+    "rollout:testnet-parity": "ts-node --transpile-only scripts/testnet-dao-parity.ts",
     "release:manifest": "node scripts/release-manifest.mjs",
     "release:manifest:check": "node scripts/release-manifest.mjs --check",
     "seal:gate-imports": "ts-node --transpile-only scripts/seal-gate-imports.ts",
