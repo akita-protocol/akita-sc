@@ -111,6 +111,7 @@
     "update:automatic-wallets": "ts-node --transpile-only scripts/update-automatic-wallets.ts",
     "update:wallet-creation-cost": "ts-node --transpile-only scripts/update-wallet-creation-cost.ts",
     "update:guild-creation-cost": "ts-node --transpile-only scripts/update-guild-creation-cost.ts",
+    "update:creation-fees": "ts-node --transpile-only scripts/update-creation-fees.ts",
     "sunset:cleanup": "ts-node --transpile-only scripts/sunset-cleanup.ts",
     "sunset:plan-deployer": "ts-node --transpile-only scripts/plan-deployer-sunset.ts",
     "sunset:execute-deployer": "ts-node --transpile-only scripts/execute-deployer-sunset.ts",

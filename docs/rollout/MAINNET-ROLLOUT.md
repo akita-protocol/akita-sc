@@ -131,7 +131,8 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **The release label is `2.0.0`** (owner, 2026-11-17).
 - **DualStakePlugin is left out of the release** unless the owner chooses the fix. The registry was looked up (MainNet app 2933409454), and the look-up showed that the plugin's pool check cannot pass for any real pool. See G2.
 - **The guild creation fee is 200 ALGO.** The owner's first figure was 100,000 AKTA, which the factory cannot charge: it takes the fee in ALGO, as every other creation fee is taken. The owner kept it in ALGO. See B3.
-- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
+- **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and the stored auction fee from 10 to 50 (owner, 2026-11-17). AuctionFactory has never charged its fee, so the third changes nothing on chain unless the factory is changed. Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
+- **Still open:** whether AuctionFactory should charge the auction fee, the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Live state (read 2026-10-10)
@@ -397,11 +398,27 @@ npm run deploy:dao-plugin -- -n mainnet -v "$V" --manifest receipts/dao-plugin.j
 - **Requires:** B2. **Script:** ready.
 - **Tracked by rollout:status as** `guild-fees`.
 - Can wait until just before H2.
-- `--cost` is in microAlgos: GuildFactory takes the creation fee as an ALGO payment and forwards it to the DAO's escrow, as every other creation fee in the protocol is taken. The owner first named 100,000 AKTA and, told that the factory cannot charge AKTA, chose to keep the fee in ALGO and set it to **200 ALGO**, 200000000 microAlgos (2026-11-17). For scale: at the reserves of the Tinyman AKTA/ALGO pool read that day, 100,000 AKTA was about 205 ALGO. The creation fees live today are 100 ALGO for a subscription service, 50 for a staking pool, 10 each for an auction and a raffle, and 0 for a wallet. The DAO can change the fee later by proposal.
+- `--cost` is in microAlgos: GuildFactory takes the creation fee as an ALGO payment and forwards it to the DAO's escrow, as every other creation fee in the protocol is taken. The owner first named 100,000 AKTA and, told that the factory cannot charge AKTA, chose to keep the fee in ALGO and set it to **200 ALGO**, 200000000 microAlgos (2026-11-17). For scale: at the reserves of the Tinyman AKTA/ALGO pool read that day, 100,000 AKTA was about 205 ALGO. The creation fees live today are 100 ALGO for a subscription service, 50 for a staking pool, 10 each for an auction and a raffle, and 0 for a wallet; B3a changes three of them. The DAO can change the fee later by proposal.
 
 ```bash
 npm run update:guild-creation-cost -- -n mainnet --cost 200000000 --dry-run --sender "$CREATOR"
 npm run update:guild-creation-cost -- -n mainnet --cost 200000000
+```
+
+#### B3a. Set the staking pool, auction and raffle creation fees
+
+- **What:** One proposal with two UpdateFields actions: `staking_fees.creationFee` from 50 to 100 ALGO, and in `nft_fees` both `auctionCreationFee` and `raffleCreationFee` from 10 to 50 ALGO. The owner set the three amounts on 2026-11-17. UpdateFields replaces a whole struct, so the script writes the other 15 members back as it read them and compares every member afterwards.
+- **Why here:** In Draft the creator's proposal executes at once. After `initialize()` a fee change needs a vote. Both networks hold the same fees today (read 2026-11-17), so the same command fits both.
+- **Requires:** B2. **Script:** new 2026-11-17: `update:creation-fees` (`scripts/update-creation-fees.ts`; the rules are in `scripts/lib/creation-fees.ts`). It plans unless `--confirm` is given. Each amount is in microAlgos, and a fee left out is not changed.
+- **Not tracked by `rollout:status`.** The plan is the check: after the run, the dry run prints "Nothing to change".
+- **The staking pool and raffle fees take effect with the proposal.** StakingPoolFactory and RaffleFactory read their fee from the DAO on every call and add it to the payment that creates a pool or a raffle. The DAO wallet still creates pools without the fee.
+- **The auction fee is stored, not charged.** AuctionFactory does not read `auctionCreationFee`, in the tree or in any earlier version: creating an auction costs storage only, whatever the DAO stores. Whether the factory should charge it is with the owner (asked 2026-11-17).
+- **An SDK fault this step ran into:** the SDK encoded `nft_fees` with a struct name the DAO does not have (`NftFees` for `NFTFees`), so no proposal that changes `nft_fees` could be built. It is fixed in `akita-sdk/src/dao/index.ts`, and the built SDK the scripts read is rebuilt in the same commit.
+- Tested by `tests/creation-fees.test.ts` (the plan, against the fees both DAOs hold), `tests/creation-fees.e2e.spec.ts` (LocalNet: after the proposal the factories quote 50 ALGO more for a pool and 40 more for a raffle, and the same as before for an auction) and `akita-sdk/src/dao/update-fields.test.ts` (the encoding).
+
+```bash
+npm run update:creation-fees -- -n mainnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --dry-run --sender "$CREATOR"
+npm run update:creation-fees -- -n mainnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --confirm
 ```
 
 ### Stage C: Gate v2
