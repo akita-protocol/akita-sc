@@ -130,8 +130,8 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **What stays different on purpose:** `akitaNfd`, the Haystack router and `rev_haystack`'s source account (TestNet has neither app), the NFD plugin's program until G2, and what the escrows hold.
 - **The release label is `2.0.0`** (owner, 2026-11-17).
 - **DualStakePlugin is left out of the release** unless the owner chooses the fix. The registry was looked up (MainNet app 2933409454), and the look-up showed that the plugin's pool check cannot pass for any real pool. See G2.
-- **The guild creation fee is charged in ALGO.** The owner's starting figure is 100,000 AKTA, which the factory cannot charge. See B3.
-- **Still open:** the guild fee, the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
+- **The guild creation fee is 200 ALGO.** The owner's first figure was 100,000 AKTA, which the factory cannot charge: it takes the fee in ALGO, as every other creation fee is taken. The owner kept it in ALGO. See B3.
+- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Live state (read 2026-10-10)
@@ -397,11 +397,11 @@ npm run deploy:dao-plugin -- -n mainnet -v "$V" --manifest receipts/dao-plugin.j
 - **Requires:** B2. **Script:** ready.
 - **Tracked by rollout:status as** `guild-fees`.
 - Can wait until just before H2.
-- `--cost` is in microAlgos: GuildFactory takes the creation fee as an ALGO payment and forwards it to the DAO's escrow, as every other creation fee in the protocol is taken. The owner named 100,000 AKTA as the starting fee (2026-11-17). The release contracts cannot charge it in AKTA, so the figure waits for the owner's choice between an ALGO amount and a change to the factory, which would be audited again.
+- `--cost` is in microAlgos: GuildFactory takes the creation fee as an ALGO payment and forwards it to the DAO's escrow, as every other creation fee in the protocol is taken. The owner first named 100,000 AKTA and, told that the factory cannot charge AKTA, chose to keep the fee in ALGO and set it to **200 ALGO**, 200000000 microAlgos (2026-11-17). For scale: at the reserves of the Tinyman AKTA/ALGO pool read that day, 100,000 AKTA was about 205 ALGO. The creation fees live today are 100 ALGO for a subscription service, 50 for a staking pool, 10 each for an auction and a raffle, and 0 for a wallet. The DAO can change the fee later by proposal.
 
 ```bash
-npm run update:guild-creation-cost -- -n mainnet --cost <microAlgos> --dry-run --sender "$CREATOR"
-npm run update:guild-creation-cost -- -n mainnet --cost <microAlgos>
+npm run update:guild-creation-cost -- -n mainnet --cost 200000000 --dry-run --sender "$CREATOR"
+npm run update:guild-creation-cost -- -n mainnet --cost 200000000
 ```
 
 ### Stage C: Gate v2
