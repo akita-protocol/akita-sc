@@ -4,7 +4,7 @@ import { Txn } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
 import { errBadMethodPrizeBoxTransferNeeded, errContractNotSet, errNotPrizeBoxOwner } from '../utils/errors'
-import { disbursementCost, getFunder, getPrizeBoxOwner, legacyWalletOf, principalOf, referrerOrZeroAddress, rewardsOptInCost, royalties } from '../utils/functions'
+import { disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, legacyWalletOf, principalOf, referrerOrZeroAddress, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { AuctionGlobalStateKeySeller, MaxWeightsBoxes } from './constants'
 import { errBidsMustAlwaysIncrease, errEndMustBeAtleastFiveMinutesAfterStart, errInvalidPayment, errInvalidTransfer, errNotAnAuction, errNotOptedIn, errPrizeIsBidAsset, errPrizeSeizable, errStartingBidRequired, errTooManyWeightsBoxes, errWeightsNeedBidFee } from './errors'
@@ -48,6 +48,26 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     } else {
       // only fee auctions send the weights MBR to the child; a zero-fee auction would strand it here
       loggedAssert(weightsListCount === 0, errWeightsNeedBidFee)
+    }
+  }
+
+  /**
+   * The DAO's auction creation fee (`nft_fees.auctionCreationFee`, microAlgos), read on every call.
+   * It is charged on top of the storage costs, goes to the DAO escrow and is never refunded.
+   */
+  private creationFee(): uint64 {
+    return getNFTFees(this.akitaDAO.value).auctionCreationFee
+  }
+
+  /** Send the creation fee to the DAO escrow (`akitaDAOEscrow`). Nothing is sent for a zero fee. */
+  private payCreationFee(fee: uint64): void {
+    if (fee > 0) {
+      itxn
+        .payment({
+          receiver: this.akitaDAOEscrow.value.app.address,
+          amount: fee,
+        })
+        .submit()
     }
   }
 
@@ -111,9 +131,10 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       childAppMBR
     )
 
-    // ensure they paid enough to cover the contract mint + mbr costs
+    // ensure they paid exactly the creation fee plus the contract mint + mbr costs
+    const creationFee = this.creationFee()
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === totalMBR, errInvalidPayment)
+    loggedAssert(payment.amount === totalMBR + creationFee, errInvalidPayment)
 
     // make sure they actually sent the asset they want to auction
     loggedAssert(assetXfer.sender === Txn.sender, errInvalidTransfer)
@@ -128,7 +149,9 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
+    this.payCreationFee(creationFee)
 
+    // the funder's recorded deposit is the storage cost alone: the creation fee is not refundable
     const auctionApp = auction.call
       .create({
         args: [
@@ -228,7 +251,8 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
    * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
    * seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
    * (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-   * child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+   * child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+   * auction creation fee.
    */
   newAuction(
     payment: gtxn.PaymentTxn,
@@ -373,13 +397,16 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       childAppMBR
     )
 
-    // ensure they paid enough to cover the contract mint + mbr costs
+    // ensure they paid exactly the creation fee plus the contract mint + mbr costs
+    const creationFee = this.creationFee()
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === totalMBR, errInvalidPayment)
+    loggedAssert(payment.amount === totalMBR + creationFee, errInvalidPayment)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, Asset(0), '', [])
 
+    this.payCreationFee(creationFee)
 
+    // the funder's recorded deposit is the storage cost alone: the creation fee is not refundable
     const auctionApp = auction.call
       .create({
         args: [
@@ -492,6 +519,10 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
   }
 
+  /**
+   * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+   * plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+   */
   @abimethod({ readonly: true })
   newAuctionCost(isPrizeBox: boolean, bidAssetID: uint64, prizeAssetID: uint64, weightsListCount: uint64): uint64 {
 
@@ -525,6 +556,6 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       childAppMBR
     )
 
-    return totalMBR
+    return totalMBR + this.creationFee()
   }
 }

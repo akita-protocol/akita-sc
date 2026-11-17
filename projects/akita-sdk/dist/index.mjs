@@ -34,7 +34,7 @@ import {
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-VRRRLYCJ.mjs";
+} from "./chunk-RK6F5UJ7.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK

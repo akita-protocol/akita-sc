@@ -6,9 +6,10 @@
  * every other member is written back as it was read, and the result is read back and compared member
  * by member.
  *
- * All three are amounts in microAlgos. StakingPoolFactory and RaffleFactory add their fee to the
- * payment that creates a pool or a raffle. AuctionFactory does not read `auctionCreationFee`: its
- * creation cost is storage only, whatever the DAO stores.
+ * All three are amounts in microAlgos. Each factory reads its fee from the DAO on every call, adds it
+ * to the payment that creates a pool, a raffle or an auction, and sends it to the DAO's escrow.
+ * AuctionFactory does so from this release's program on (runbook E4). The program live before it never
+ * read `auctionCreationFee`, so until that upgrade an auction costs storage only, whatever is stored.
  */
 import type { SDKClient } from 'akita-sdk'
 import { ProposalActionEnum, type ProposalAction } from 'akita-sdk/dao'
@@ -92,7 +93,7 @@ export async function runCreationFees(ctx: ScriptContext, wanted: CreationFees,
   for (const c of plan.changes) log(`  ${c.name}: ${algo(c.from)} -> ${algo(c.to)}  (${c.field}.${c.member}: ${c.from} -> ${c.to} microAlgos)`)
   for (const c of plan.unchanged) log(`  ${c.name}: already ${algo(c.to)}`)
   if (plan.changes.some((c) => c.name === 'auction')) {
-    log('  Note: AuctionFactory does not read the auction creation fee. Creating an auction costs storage only, whatever is stored here.')
+    log('  Note: AuctionFactory charges the auction fee once it runs this release\'s program (runbook E4). The program live before that upgrade charges none.')
   }
   if (plan.changes.length === 0) {
     log('Nothing to change.')

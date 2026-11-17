@@ -48,12 +48,12 @@ describe('creation fees: staking pool, auction and raffle', () => {
     expect(after.nft).toEqual({ ...before.nft, auctionCreationFee: wanted.auction, raffleCreationFee: wanted.raffle })
     expect(feeDifferences(after, before)).toHaveLength(3)
 
-    // The factories read the fee from the DAO on every call: a pool costs 50 ALGO more and a raffle 40 more.
+    // The factories read the fee from the DAO on every call: a pool costs 50 ALGO more, and a raffle
+    // and an auction 40 more each.
     const now = await quotes()
     expect(now.pool - quoted.pool).toBe(50n * ALGO)
     expect(now.raffle - quoted.raffle).toBe(40n * ALGO)
-    // AuctionFactory does not read `auctionCreationFee`: an auction still costs storage only.
-    expect(now.auction).toBe(quoted.auction)
+    expect(now.auction - quoted.auction).toBe(40n * ALGO)
 
     // A second run finds nothing to do, and one fee can move alone.
     const again = await runCreationFees(ctx, wanted, { confirm: true, log })

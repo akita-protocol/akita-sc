@@ -23,7 +23,7 @@ runScript(async () => {
   const options = parseBaseArgs('update-creation-fees.ts', `
 Creation fee options (at least one; there is no default):
   --staking-pool <microAlgos>  Fee to create a staking pool (staking_fees.creationFee)
-  --auction <microAlgos>       Stored auction creation fee (nft_fees.auctionCreationFee); AuctionFactory does not charge it
+  --auction <microAlgos>       Fee to create an auction (nft_fees.auctionCreationFee); charged once AuctionFactory is upgraded (E4)
   --raffle <microAlgos>        Fee to create a raffle (nft_fees.raffleCreationFee)
   --confirm                    Create and execute the proposal (plans only without it)`)
   const wanted = { stakingPool: fee('--staking-pool'), auction: fee('--auction'), raffle: fee('--raffle') }

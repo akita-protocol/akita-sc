@@ -131,8 +131,9 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **The release label is `2.0.0`** (owner, 2026-11-17).
 - **DualStakePlugin is left out of the release** unless the owner chooses the fix. The registry was looked up (MainNet app 2933409454), and the look-up showed that the plugin's pool check cannot pass for any real pool. See G2.
 - **The guild creation fee is 200 ALGO.** The owner's first figure was 100,000 AKTA, which the factory cannot charge: it takes the fee in ALGO, as every other creation fee is taken. The owner kept it in ALGO. See B3.
-- **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and the stored auction fee from 10 to 50 (owner, 2026-11-17). AuctionFactory has never charged its fee, so the third changes nothing on chain unless the factory is changed. Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
-- **Still open:** whether AuctionFactory should charge the auction fee, the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
+- **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and an auction from 10 to 50 (owner, 2026-11-17). Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
+- **AuctionFactory now charges the auction creation fee** (owner, 2026-11-17; C33). The factory live today never has, so auctions cost storage only until E4 upgrades it. One contract program changes for this, AuctionFactory's, and the manifest carries its new hash. See B3a and E4.
+- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Live state (read 2026-10-10)
@@ -412,9 +413,9 @@ npm run update:guild-creation-cost -- -n mainnet --cost 200000000
 - **Requires:** B2. **Script:** new 2026-11-17: `update:creation-fees` (`scripts/update-creation-fees.ts`; the rules are in `scripts/lib/creation-fees.ts`). It plans unless `--confirm` is given. Each amount is in microAlgos, and a fee left out is not changed.
 - **Not tracked by `rollout:status`.** The plan is the check: after the run, the dry run prints "Nothing to change".
 - **The staking pool and raffle fees take effect with the proposal.** StakingPoolFactory and RaffleFactory read their fee from the DAO on every call and add it to the payment that creates a pool or a raffle. The DAO wallet still creates pools without the fee.
-- **The auction fee is stored, not charged.** AuctionFactory does not read `auctionCreationFee`, in the tree or in any earlier version: creating an auction costs storage only, whatever the DAO stores. Whether the factory should charge it is with the owner (asked 2026-11-17).
+- **The auction fee takes effect at E4.** The AuctionFactory live today has never read `auctionCreationFee`: creating an auction costs storage only, whatever the DAO stores. The owner decided on 2026-11-17 that the factory charges it, and this release's AuctionFactory does (C33): it adds the fee to the cost it quotes, takes it on all four creation methods and sends it to the `rev_auction` escrow, as RaffleFactory does with its fee. So between this step and E4 the 50 ALGO is stored and not charged, and from E4 on every new auction pays it.
 - **An SDK fault this step ran into:** the SDK encoded `nft_fees` with a struct name the DAO does not have (`NftFees` for `NFTFees`), so no proposal that changes `nft_fees` could be built. It is fixed in `akita-sdk/src/dao/index.ts`, and the built SDK the scripts read is rebuilt in the same commit.
-- Tested by `tests/creation-fees.test.ts` (the plan, against the fees both DAOs hold), `tests/creation-fees.e2e.spec.ts` (LocalNet: after the proposal the factories quote 50 ALGO more for a pool and 40 more for a raffle, and the same as before for an auction) and `akita-sdk/src/dao/update-fields.test.ts` (the encoding).
+- Tested by `tests/creation-fees.test.ts` (the plan, against the fees both DAOs hold), `tests/creation-fees.e2e.spec.ts` (LocalNet: after the proposal the factories quote 50 ALGO more for a pool and 40 more each for a raffle and an auction) and `akita-sdk/src/dao/update-fields.test.ts` (the encoding).
 
 ```bash
 npm run update:creation-fees -- -n mainnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --dry-run --sender "$CREATOR"
@@ -594,6 +595,7 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 - **Tracked by rollout:status as** `p2:AuctionFactory`.
 - K6 lockstep: ship the SDK release the same day; the HEAD SDK cannot create raffles on the new factory.
 - The old AuctionPlugin underpays bids on new children by 800 µA; rotate it in G1 soon after.
+- From this step on AuctionFactory charges the DAO's auction creation fee (C33; 50 ALGO after B3a, 10 ALGO if B3a has not run). `newAuctionCost` includes it, and the SDK and AuctionPlugin v3 pay what `newAuctionCost` quotes. A caller that works the cost out itself is short by the fee and is refused (`errIpay`). Creation sends one more inner payment, so a caller that sets a fixed fee needs 1,000 µA more.
 - Auction child is 8,522 B: +0.1 ALGO MBR per auction.
 - Raffle child is 8,158 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16). It has 30 B left in its four pages: `auction/principal-abi.test.ts` fails if it takes a fifth.
 
