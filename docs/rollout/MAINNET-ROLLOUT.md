@@ -38,7 +38,7 @@ Also changed:
 
 ## Update 2026-11-15
 
-The Guild fee asset is in the tree: a Guild may charge its proposal fees in an asset instead of ALGO. The second audit pass covered it on 2026-11-14 (C18 to C21); the decisions of 2026-11-15 are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md`.
+The Guild fee asset is in the tree: a Guild may charge its proposal fees in an asset instead of ALGO. The second audit pass covered it on 2026-11-14 (C18 to C21); the decisions of 2026-11-15 are in the audit's decision record (kept outside this repository since 2026-11-17).
 
 - **Five programs differ from the release commit.** Guild (10,349 to 12,136 bytes), GuildPlugin (3,993 to 5,238 bytes, 2 extra pages instead of 1) and the three consensus programs, each 12 bytes smaller because fee settings lost their ceiling (C18): FixedSignerGuildConsensus 4,886 (5,424 since the direct plugin use of 2026-11-16), LockedTokenGuildConsensus 3,282, SubscriptionGuildConsensus 4,687. `release/manifest.json` is regenerated; the other 150 programs are unchanged.
 - **H2 keeps its order and commands.** No Guild app is live on TestNet or MainNet (the SDK's Guild app ids are 0 on both), so nothing is migrated, and the scripts size each upload from the program itself.
@@ -48,7 +48,7 @@ The Guild fee asset is in the tree: a Guild may charge its proposal fees in an a
 
 ## Update 2026-11-15: anyone may pay storage and fees
 
-A grouped payment that covers storage or a fee no longer has to come from the caller, and a storage deposit goes back to whoever paid it. The rules, costs and exceptions are in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Third pass").
+A grouped payment that covers storage or a fee no longer has to come from the caller, and a storage deposit goes back to whoever paid it. The rules, costs and exceptions are in the audit's decision record (kept outside this repository since 2026-11-17) ("Third pass").
 
 - **25 more programs differ from the release commit** (28 in all, with the three consensus programs above; 23 and 26 before the empty-account fix C27 of 2026-11-16 added AssetGate and the balance reader). Deployable: AkitaDAO 10,765 B (was 10,421), Guild 12,534 (12,436 before the two install rule changes of 2026-11-15 and 2026-11-16), GuildFactory 2,012, GuildConsensusFactory 1,399, GuildPlugin 5,247 (5,564 since the direct plugin use of 2026-11-16), SocialClaim 2,697 (2,765 before each gift stored its payer, C23 and C26 of 2026-11-16), Auction 8,522, Raffle 8,158, EscrowFactory 1,416, HyperSwap 3,986 (3,936 before the closed payer fix C22 of the fourth pass), Meta 4,436, Poll 2,349, PollFactory 4,339 (4,159 before the poll author fix C24 of 2026-11-16), Rewards 5,243, AkitaSocial 11,499, AkitaSocialGraph 2,609, AkitaSocialImpact 3,160, StakingPool 13,272, Staking 7,302 (7,306 before C27), Subscriptions 10,468 (10,801 since the featured service of 2026-11-16), AssetGate 712 (710 before C27) and AbstractedAccountBalanceReader 283 (284 before C27). Test-only: MockHyperSwap, MockLegacyVoteDAO and MockSharedHelpers. `release/manifest.json` is regenerated.
 - **Pages.** Subscriptions needs 5 extra pages, one more than planned: E2 grows it from 3 to 5 and the DAO wallet sponsors 3,528,000 µA for it (was 3,428,000). Phase 2 sponsorship is 7,056,000 µA (AkitaSocial 3,528,000 and Subscriptions 3,528,000), and 10.65 ALGO with the DAO's own growth. Guild needs 6 extra pages; GuildFactory creates every Guild with 7. PollFactory needs 2 and the live app has 3. No other live app crosses a page.
@@ -61,7 +61,7 @@ A grouped payment that covers storage or a fee no longer has to come from the ca
 
 ## Update 2026-11-16: the open points of the fourth pass are closed
 
-Two programs changed after the fourth pass. Each closes a point that pass left open. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Fifth pass").
+Two programs changed after the fourth pass. Each closes a point that pass left open. The record is in the audit's decision record (kept outside this repository since 2026-11-17) ("Fifth pass").
 
 - **PollFactory is 4,339 bytes (was 4,159), C24.** The caller of `new` is the poll's author: the account the poll records, and the only one that may clear its votes. Anyone may pay for the poll. A payer that is not the author adds 28,500 µALGO, is remembered by the factory under the poll's id, and gets the deposit and that amount back from `deletePoll`. Before, a sponsored poll recorded its sponsor, and only the sponsor could clear the votes. The Poll child program is unchanged (2,349 bytes), and so are `newPollCost`, every method signature and the state schema. A poll created before the upgrade has no payer record and is refunded to the account it records, as before.
 - **Guild is 12,534 bytes (was 12,494), C25.** A proposal that installs a plugin with `defaultToEscrow` and no escrow name is refused when it is drafted. The wallet would refuse it at execution, so it could pass a vote and never execute.
@@ -73,7 +73,7 @@ Two programs changed after the fourth pass. Each closes a point that pass left o
 
 ## Update 2026-11-16 (second): SocialClaim stores each gift's payer, and empty accounts read as zero
 
-Four programs changed after the update above. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Sixth pass").
+Four programs changed after the update above. The record is in the audit's decision record (kept outside this repository since 2026-11-17) ("Sixth pass").
 
 - **SocialClaim is 2,697 bytes (was 2,765), C23 and C26.** Decided 2026-11-16: every gift box stores the account that paid its storage deposit, and the deposit always returns to that account. A gift box costs 41,300 µALGO (was 28,500). The subject entry is still 18,900 µALGO and is never returned. SocialClaim writes no payer record any more, and a payer that is not the caller pays nothing extra. `getGift` returns a third field, `payer`. When the payer's account is empty the deposit goes to the wallet that sent the gift, then to the gift wallet. C26: the check for an empty account failed the call instead of answering, so a payer that closed its account blocked the refund and the prune of its gift. Fixed. SocialClaim has never been deployed, so nothing live changes, and H7 is still held only for the keys.
 - **Who gets the deposit with the SDK.** `sendToAnyone` and `topUp` pay the storage from the account that sends the group. That account gets the deposit back, not the sponsor wallet.
@@ -85,7 +85,7 @@ Four programs changed after the update above. The record is in `projects/akita-s
 
 ## Update 2026-11-16 (third): a deciding signer's direct plugin use, and editable highlights with a featured service
 
-Four programs changed after the update above, for two additions the owner asked for on the evening of 2026-11-16. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Seventh pass").
+Four programs changed after the update above, for two additions the owner asked for on the evening of 2026-11-16. The record is in the audit's decision record (kept outside this repository since 2026-11-17) ("Seventh pass").
 
 - **FixedSignerGuildConsensus is 5,424 bytes (was 4,886).** New method `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void`. A signer whose own weight meets the threshold uses a plugin the Guild's wallet granted to the consensus app, in one send and with no proposal. The consensus app is the named caller of that grant, so the route does nothing until a Guild installs a plugin with its consensus app's address as the caller. The wallet's own checks on the grant still hold: the wallet named in each call, the rekey back, method restrictions, cooldown and escrow allowance. The Guild's vote settings, the proposal fee and the proposal record do not apply to such a use (C29, the design). ALGO the consensus app gains during a use is forwarded to the Guild app, where `sweep` sends it on to the treasury (C28). The program cannot be patched once it is registered at H2. It still needs 2 extra pages and three upload chunks.
 - **GuildPlugin is 5,564 bytes (was 5,247).** New method `usePluginAsSigner`, the wallet-side entry to the route. It works from the creation-only plugin (guild = 0) for every Guild of the factory. Still 2 extra pages.
@@ -99,7 +99,7 @@ Four programs changed after the update above, for two additions the owner asked 
 
 ## Update 2026-11-16 (fourth): a caller may remove its own grant, and the revocation check
 
-One deployable program changed after the update above: the wallet. The record is in `projects/akita-sc/audits/readiness-2026-11-09-decisions.md` ("Eighth pass").
+One deployable program changed after the update above: the wallet. The record is in the audit's decision record (kept outside this repository since 2026-11-17) ("Eighth pass").
 
 - **AbstractedAccount is 8,160 bytes (was 8,139).** Two changes to who may remove a plugin grant, both in `arc58_removePlugin` and the check behind it.
 - **A caller may remove its own grant** (asked for by the owner 2026-11-16). `arc58_removePlugin(plugin, caller, escrow)` also accepts the account named as `caller` in that grant. It is for an agent that shuts down: it frees the storage its grants hold in users' wallets, 38,900 µALGO per grant plus 8,000 per method restriction and 400 per byte of escrow name. The storage returns to the wallet, never to the caller. A grant open to anyone and an admin grant have no such caller. The removal updates `last_change` and leaves `last_user_interaction` alone. An alias, an escrow and its allowances stay until the admin removes them.
@@ -186,7 +186,7 @@ What this order needs, because nothing is on GitHub while the rollout runs:
 - Deploy from one recorded commit of `release/mainnet-rollout`. Write its hash into the first receipt, and run `npm run release:manifest:check` before each stage: it proves the bytes about to be pushed are the bytes the manifest pins.
 - CI has not run on this tree (the workflow only runs on a push). A1 is the same set of steps run by hand; repeat it on the deploy commit.
 - Until the push the only copy of the release is one laptop. Keep a second copy before stage B, for example `git bundle create akita-release.bundle --all` stored somewhere else.
-- The repo is public, so the push also publishes `audits/`, including findings accepted as risks. Decide that before I2.
+- The repo is public. The owner decided on 2026-11-17 that the audit records are not part of it: the `audits/` folder was removed and is kept privately.
 
 ### DEC-6. Independent audit of the immutable new contracts
 
@@ -908,7 +908,7 @@ npm run dao:initialize -- -n mainnet --confirm-initialize
 - **What:** Once the contracts are deployed and updated: check that `networks.ts` and the README carry every new app id (`--register` wrote them as each step ran), rebuild the SDK, commit, push `release/mainnet-rollout`, and tag the release.
 - **Why here:** DEC-5: the push comes after the deployment so it carries the SDK that points at the new apps and ABI methods. The apps are rebuilt against that SDK.
 - **Requires:** stages B to H as far as they are run. **Script:** manual.
-- Decide first whether `audits/` is published with the push (the repo is public).
+- The audit records are not part of the push: the `audits/` folder was removed on 2026-11-17.
 - The contract CI workflow runs for the first time on this push. Repeat A1 on a clean checkout of the tag.
 - Publish the SDK only after the tag, so the published package and the tag are the same tree.
 

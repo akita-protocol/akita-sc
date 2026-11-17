@@ -1,7 +1,7 @@
 # Rollout order: additions from the 2026-10-05 review
 
 These steps add to PHASE-0-SPEC.md §9.5. Each one is now enforced by a script, so an out-of-order run
-stops before it sends anything. Findings: `projects/akita-sc/audits/review-2026-10-05/` (ACCT, ROLLOUT, MISC).
+stops before it sends anything. Findings: the 2026-10-05 review's ACCT, ROLLOUT and MISC records (kept outside this repository).
 
 ## Before Phase 2 StakingPoolFactory (ROLLOUT-1)
 
