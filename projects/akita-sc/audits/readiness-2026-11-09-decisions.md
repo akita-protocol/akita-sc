@@ -641,3 +641,298 @@ Nothing in the contract code that this review knows of. What remains is the owne
 This pass, like the ones before it, is one reviewer's work. C26 and C27 were found by a test
 written for another change, after four review passes had read the same lines. The contracts that
 can never be patched go out on this review and the test suite.
+
+## Seventh pass, 2026-11-16: two additions before the rehearsal
+
+After the release gate passed on 638c6f2e the owner asked for two contract changes and put both in
+this release: a one-send plugin route for a deciding signer of a fixed-signer Guild, and
+creator-edited highlights with a featured service in Subscriptions. Each was built as its own pull
+request against the work branch (#12 and #13) and reviewed here as a diff against 638c6f2e. Four
+programs change. Like the passes before it, this is one reviewer's work.
+
+### The direct plugin use of a deciding signer
+
+- What it is. `FixedSignerGuildConsensus.usePlugin(plugin, escrow, methodOffsets, fundsRequest,
+  calls)`: a signer whose own weight meets the threshold uses a plugin that the Guild's wallet
+  granted to the consensus app, in one send and with no proposal. The consensus app calls
+  `arc58_rekeyToPlugin` on the Guild's wallet as the named caller, sends each plugin call itself,
+  and ends with `arc58_verifyAuthAddress`. `GuildPlugin.usePluginAsSigner` is the wallet-side
+  entry. The owner chose this design and chose to ship it in this release.
+- Who can use it. A draft Guild is refused. The caller's own weight must meet the threshold at
+  that moment, so a signer below it, a removed signer and a non-signer are refused, and raising
+  the threshold above a signer's weight closes the route for that signer. The wallet is read from
+  the Guild's own state and is never an argument.
+- What a deciding signer can do with it. Only what the grant allows. The wallet enforces, as for
+  any named caller: each plugin call names the Guild's wallet as its first argument, the group
+  hands the wallet back, method restrictions, cooldown and escrow allowance. A named grant cannot
+  use an execution key. The Guild never installs a plugin with admin or reclaim rights. A fee
+  reimbursement (`coverFees`) is not paid to a caller that is an app. A plugin cannot call back
+  into the consensus app, because the AVM forbids re-entry.
+- **C28 (low), fixed in the pull request.** The consensus app is the sender of the plugin calls,
+  so a plugin that pays its caller left ALGO in the consensus app, and no method could move it
+  out. `usePlugin` now compares the app's balance before and after the use and forwards any gain
+  to the Guild app, where `sweep` sends it to the treasury.
+- **C29, the design, recorded so nobody is surprised by it.** The route asks one question: does
+  this signer's weight meet the threshold. The Guild's vote settings for the plugin, the proposal
+  fee and the proposal record do not apply to a plugin granted to the consensus app. Whoever can
+  change the threshold, the weights or the signers decides who can use such a grant alone. A Guild
+  that wants a vote or a record for a plugin does not grant it to its consensus app.
+- A nit, fixed: `GuildPlugin.sweep` had lost its description in the app spec.
+- Limits. The route carries only plugin methods that take no transaction arguments, and the SDK
+  has no helper yet to encode `calls`. Locked-token and subscription consensus have no such
+  method, so `usePluginAsSigner` fails for those Guilds.
+- The consensus programs cannot be patched once registered, so this method goes out on this
+  review and its tests.
+
+### Subscriptions: editable highlights and a featured service
+
+- What it is. `updateServiceHighlight(id, highlightMessage, highlightColor)` rewrites the two
+  fixed fields of one of the caller's services, in any status. `setFeaturedService(payment, id)`
+  records one of the caller's services, which must exist and not be shut down, in a new box per
+  creator (prefix `f`). `clearFeaturedService()` deletes it. `getFeaturedService(address)` returns
+  the id, or 0. SubscriptionsPlugin mirrors the three write methods and pays the storage from the
+  wallet's spending account.
+- Authorization. Every write is keyed by the caller's address: the service box and the featured
+  box are both found under `Txn.sender`, so nobody can touch another creator's.
+- Storage. The `Service` struct, the service boxes and every existing method are unchanged. Read
+  on MainNet 2026-11-16 (app 3569556497): 13 boxes, none with prefix `f` or `$`, and all four
+  service boxes decode under the unchanged layout (a fixed head of 117 bytes, the highlight at byte
+  113). After E2 the new method edits those live services in place.
+- Costs. The featured box costs 18,900 µALGO, once. Anyone may pay it: a payer that is not the
+  creator adds 28,500 µALGO for the payer record, and both come back on clear to whoever paid. If
+  that account is closed they go to the creator. Moving the featured service later takes a payment
+  of exactly 0 µALGO, from anyone, and leaves the first payer in place. A storage payment that
+  closes out or rekeys its sender is refused.
+- No fault found. Three points for the apps, none of them a contract change. The featured id is
+  not cleared when that service is shut down later, so a reader checks the service's status.
+  Every later `setFeaturedService` still needs the 0 µALGO payment in the group. `highlightMessage`
+  is not range-checked, as in `newService`.
+
+### Build and manifest
+
+- The two pull requests conflict only in the SDK bundle (`projects/akita-sdk/dist`, 26 files with
+  hashed names). Merged, with the bundle rebuilt, a whole-tree build from the lockfile reproduces
+  every committed artifact.
+- Four programs differ from 638c6f2e: FixedSignerGuildConsensus 5,424 bytes (was 4,886),
+  GuildPlugin 5,564 (5,247), Subscriptions 10,801 (10,468) and SubscriptionsPlugin 4,794 (4,461).
+  No page count changes: 2, 2, 5 and 2 extra pages. `release/manifest.json` changes in those four
+  entries only and the check passes for 155 programs. 29 programs now differ from the release
+  commit (28 before): SubscriptionsPlugin is the new one.
+- The rollout keeps its steps, page counts, sponsorship and upload groups. The runbook has the
+  figures ("Update 2026-11-16 (third)").
+
+### Tests
+
+- `guild-sole-signer.e2e.spec.ts`, 9 tests, from the pull request: the configuration change, the
+  vote and the capped budget in one group, the direct use, and its refusals.
+- `guild-sole-signer-audit.e2e.spec.ts`, 9 tests written for this pass: a call that names another
+  wallet, a use that does not hand the wallet back, method restrictions, a cooldown across
+  signers, a removed grant, a removed signer, the consensus app's balance with fee reimbursement,
+  a draft Guild, and ALGO sent to the consensus app reaching the treasury through `sweep`.
+- `featured.e2e.spec.ts`, 11 tests, from the pull request, and `featured-audit.e2e.spec.ts`, 5
+  tests written for this pass: a sponsor that closed its account, a later set paid by someone
+  else, a storage payment with close-out or rekey, a highlight edit on a service with a description
+  of the maximum length, and a featured service shut down later.
+- The Guild, wallet, Pay, Subscriptions and plugin files together on the merged tree: 45 files,
+  520 tests, 519 passed, none failed, 1 skipped (it needs the backend).
+- SDK: rebuilt, 496 unit tests pass. The type check shows the same 12 errors as before, all in
+  test files.
+- The full suite and the release gate (A1) are repeated on the commit that holds both changes.
+  Their result is recorded with the deploy commit, not here.
+
+### What is left before the first MainNet step
+
+1. The deploy commit. 638c6f2e is no longer it. The commit that holds both changes replaces it
+   once A1 passes there and the owner moves `release/mainnet-rollout` to it.
+2. Rehearse stages B to I on TestNet from that commit (A4).
+3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
+   the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
+   the push (I2).
+
+## Eighth pass, 2026-11-16: a caller may remove its own grant
+
+After the seventh pass the owner asked for one more change in this release: the account named as a
+grant's caller can remove that grant. The case is an agent that Akita runs. When its user points
+the agent's NFD away, the agent is shut down, and the grants users gave it are useless and hold
+storage in their wallets. The owner also said the revocation app is not needed until the plugin
+system opens to others, so none is built here. The change is in the wallet program and one new
+fault in the existing check came out of testing it (C30). This pass wrote the change and reviewed
+it: nobody else has read it.
+
+### The rule
+
+- `arc58_removePlugin(plugin, caller, escrow)` accepts a third sender next to the admin and the
+  revocation app: the account named as `caller` in that grant.
+- Two kinds of grant have no such caller. An admin-type grant is stored under the wallet's own
+  address, and a plugin that holds the main account can send as that address, so that address
+  never counts. A grant open to anyone is stored under the zero address, which cannot send.
+- The storage goes back to the wallet, never to the caller. A wallet whose controlled address is a
+  separate account refunds with an inner payment of fee 0, so the sender covers that fee.
+- A caller's own removal sets `lastChange` and leaves `lastUserInteraction` alone. That also holds
+  when one of the wallet's own keys is the named caller and removes its grant this way. Nothing
+  on-chain reads either value.
+- `arc58_removeNamedPlugin` and `arc58_removeAllowances` keep their check: the admin or the
+  revocation app. A caller that removes its own grant leaves the grant's alias, its escrow and the
+  escrow's allowances for the admin. `arc58_removeNamedPlugin` already accepts an alias whose grant
+  is gone (ACC-05), so the admin can clear it.
+- Why it is not a plugin method. The owner's first wording was a method on every plugin. The
+  wallet does not accept a plugin's address for a removal, so such a method does nothing, and a
+  forwarder named as a wallet's revocation app lets anyone strip that wallet's plugins (ACCT-9).
+  The plugin package's README now says so.
+
+### What was checked
+
+- An open window gives nobody this route. A top-level call to the wallet inside a window is
+  refused. An inner call sent as the wallet's own address is the excluded case above. A plugin
+  that is itself the named caller of a grant can remove that one grant, which is the rule.
+  `arc58_verifyAuthAddress` does not read the grant, so a caller app that removes its own grant
+  inside its own window still closes the window.
+- An account that names itself on a grant it does not hold fails with `errNplg` and changes
+  nothing.
+- A grant with method restrictions, with an escrow, or past its expiry is removed like any other,
+  and the wallet's minimum balance returns to its value before the grant.
+- Guild. The fixed-signer plugin route (seventh pass) never calls a removal. The Guild's own
+  record of a grant exists only for grants open to anyone, which have no caller. A proposal to
+  remove an unnamed grant whose caller has already removed it fails at the wallet with `errNplg`:
+  there is nothing left to remove.
+- DAO. `bootstrapGrants` is a list for readers and no check uses it. If a bootstrap grantee
+  removes its own unnamed grant, that entry stays, because the DAO's removal fails at the wallet
+  before the entry is deleted. For a named grant the DAO removes by name, which succeeds and
+  deletes the entry.
+
+### C30 (low), fixed here
+
+- The fault. `canRevoke()` compared the sender with the address of the wallet's revocation app.
+  With no revocation app the id is 0, and the AVM resolves app 0 to the calling program, so the
+  comparison was with the wallet's own address. A plugin that holds a main-account window can send
+  as that address. On such a wallet it passed as the revocation app and could remove any plugin
+  grant, alias or allowance.
+- Who is affected. Every wallet with no revocation app, which is every wallet the live factory
+  made: its `revocation` is 0 (app 3569556257, read on MainNet 2026-11-16). The live wallet
+  program 1.0.1 has the same check (the DAO wallet 3569559153, same read).
+- Why low. It removes and cannot add, and a plugin with a main-account window already controls the
+  main account for that window. No plugin in this tree calls a wallet removal from inside a
+  window: only the Guild and the DAO call them, as admin of their own wallets. It matters once
+  plugins from others exist.
+- The fix. `canRevoke()` compares the app that calls the wallet with the revocation app, where it
+  compared the sender. No app can call itself, so with id 0 nobody passes. The check is the same
+  size as before. A revocation app passes as it did, because it calls the wallet itself. One
+  difference: an account that only sends as the revocation app's address, without that app being
+  the caller, no longer passes. That takes the revocation app's own account rekeyed to someone
+  else, and nothing here does that.
+- The evidence. The fifth test in `self-revocation.e2e.spec.ts` sets the revocation app to 0 and
+  has a plugin attempt the removal from inside its window. It passed the check before the fix and
+  is refused after it. A wallet with a revocation app still accepts that app:
+  `agent-delegation.e2e.spec.ts`, "configured emergency app removes a Global grant for every
+  caller", passes on the new check.
+- Live wallets keep the old check until F1 and F2 replace the program.
+
+### Size, build and manifest
+
+- AbstractedAccount is 8,160 bytes (was 8,139): the rule is 21 bytes and the C30 fix none. A first
+  form of the fix, which refused the wallet's own address as sender, cost 12 bytes and was
+  replaced for that reason. The limit for a program is 4 pages, 8,192 bytes with the clear
+  program, so 28 bytes are left. The live program is 8,186. A later wallet change has to fit in
+  28 bytes or free some first.
+- No method, schema or page count changes. A whole-tree build changes three programs: the wallet
+  and two that never deploy, Arc58AgentProbePlugin (291 bytes, was 184: a method that attempts
+  the removal from inside a window) and MockBigWallet (10,579, was 10,558: it inherits the wallet).
+- `release/manifest.json`: those three entries change, and Arc58AgentRevoker is now marked as never
+  deployed, which the naming rule had missed. 155 programs, 85 that deploy and 70 that never do.
+  32 programs differ from the release commit, 27 of them programs that deploy: the wallet is the
+  new one.
+- The rollout keeps its steps, page counts and upload groups. The runbook has the figures ("Update
+  2026-11-16 (fourth)").
+- SDK. `wallet.removePlugin` already takes any sender, so no method was added. The text for
+  `errOarp` names the third sender.
+
+### Tests
+
+- `self-revocation.e2e.spec.ts`, 5 tests written for this pass: the named caller removes its grant
+  and the storage returns; restrictions, an escrow and expiry do not block it; a caller cannot
+  remove another caller's grant, a grant open to anyone or an admin grant; a plugin cannot remove
+  an admin grant by sending as the wallet's account; and the C30 case.
+- The wallet, agent, Guild and plugin files (`smart_contracts/arc58/account`, `arc58/guilds`,
+  `arc58/plugins`) with the rule and the first form of the C30 fix: 71 files, 653 tests, 652
+  passed, none failed, 1 skipped (it needs the backend). Then the wallet files, the Guild test on a
+  real wallet and the Guild plugin files again on the final build, with the final form of the fix:
+  20 files, 217 tests, 216 passed, none failed, the same 1 skipped.
+- SDK: rebuilt, 496 unit tests pass. The type check shows the same 12 errors as before, all in
+  test files.
+- The full suite and the release gate (A1) are repeated on the commit that holds this change.
+  Their result is recorded with the deploy commit, not here.
+
+### What is left before the first MainNet step
+
+1. The deploy commit. The gate passed on 740ec90f, which does not hold this change. The commit
+   that does replaces it once A1 passes there and the owner moves `release/mainnet-rollout` to it.
+2. Rehearse stages B to I on TestNet from that commit (A4).
+3. The runbook's own open decisions, unchanged: DEC-4 before stage C, DEC-3 before H1, who holds
+   the SocialClaim attestor and manager keys before H7, and whether `audits/` is published with
+   the push (I2).
+
+## Ninth pass, 2026-11-16: the rollout itself
+
+Asked for by the owner on 2026-11-16: the three changes of this release (the Guild direct plugin
+use, the Subscriptions highlights and featured service, and the caller's own removal of a grant)
+must be one whole, with a rollout script for every step that is ready to run. No contract, artifact
+or SDK source changes in this pass; `release/manifest.json` is unchanged.
+
+### What was checked
+
+Every command of the runbook's Sequence was read against the script it runs: the npm alias or
+file, every flag, every contract, target and plugin name, and the constructor arguments. Then the
+chain was read on MainNet and TestNet (read-only) for what each step would find there.
+
+### What would have failed
+
+- **Six steps had no script.** D2's asset opt-ins for Rewards v2, I1's rescale of the proposal
+  thresholds, I1's `initialize()`, H1's repoint of an app at its DAO escrow (gap G14), the
+  registration of a revenue escrow that is new (G3a, H1, H2), and H6's pay grant on `rec_krby`.
+  Each now has one: `rewards:opt-in`, `dao:rescale-power`, `dao:initialize`,
+  `update:app-dao-escrow`, `register:revenue-escrow`, `install:pay-silo-grant`.
+- **The proposal thresholds change unit with the DAO upgrade.** The live DAO compares a proposer's
+  power in whole token-years, the upgraded DAO in base units. The nine `*_ps` globals (600, 300,
+  200) and the plugin settings boxes would have read a million times too low after B2, so any
+  holder of a fraction of a token could have proposed. Thresholds are not enforced in Draft, so
+  nothing is exposed before `initialize()`. `dao:rescale-power` rewrites the globals; the grant
+  swaps of stage G scale each box as they copy it; `dao:initialize` refuses while a value is
+  still in the old unit.
+- **Rewards v2 could have gone live without an asset Rewards v1 holds.** `deploy:rewards
+  --register` now refuses the cutover until the new app is opted in to every asset the old one
+  holds.
+- **Runbook commands that did not match their scripts.** C4 lacked `--legacy-cutoff` and
+  registered only the Gate; G1 passed a flag the script does not read; H5 named a script that does
+  not exist; the grant swap lacked `--confirm-update`; C2 and C3 would have acted on Gate v1;
+  inline `--config` was read as a file name; version labels were below or equal to live ones. The
+  list is in the runbook, "Script changes made 2026-11-16".
+
+### What holds it in place
+
+- `tests/rollout-runbook.test.ts` reads the Sequence and fails when a command names something
+  that does not exist, lacks the release label, or passes the key on the command line.
+- `tests/rollout-steps.e2e.spec.ts` (12 tests) runs the new steps on LocalNet, ending with a real
+  payment through the pay silo. `tests/migration-scripts.e2e.spec.ts` (46) runs the refused
+  Rewards cutover, the opt-ins and the resumed cutover. `self-revocation.e2e.spec.ts` gained the
+  case of a grant that has a name (6 tests).
+- `rollout:status` tracks every step that leaves a fact on chain, and `dao:initialize` reads the
+  same list, so the launch is refused while a step is unfinished and not named with
+  `--allow-pending`. Five steps can never be left pending: `phase2a`, `dao`, `validator`,
+  `dao-wallet`, `power`.
+- Every `--dry-run` line of the Sequence was run against MainNet and TestNet with no key. Each
+  plans, or stops naming the step it waits for.
+
+### What this does not show
+
+A dry run cannot show a step whose prerequisite is not on chain yet (gap G17). LocalNet starts
+from this tree's programs, not from what is deployed, so a local run of the Sequence would not
+show it either. The Sequence as a whole is proven by the TestNet rehearsal (A4) and by nothing
+before it.
+
+### Inputs the owner sets before the rehearsal
+
+The release label (`$V`, one for every command), the guild creation cost (B3), the heartbeat
+manager (G2a), the `--source` of `rev_nfd` (G3a), the recipient of the pay silo (G2) and of the
+Akita Labs pay grant (H6), and the DualStake registry, or DualStake left out with
+`--allow-pending plugin:dualStakePlugin` at I1. The runbook's own open decisions are unchanged:
+DEC-4 before stage C, DEC-3 before H1, the SocialClaim attestor and manager before H7.

@@ -8,8 +8,8 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8139,
-        "sha256": "307c6daf530b64aa81af7da893504ec44b507d6593b6a4e225cfdcd6e2b04e4f"
+        "bytes": 8160,
+        "sha256": "8d79c7c5a4b619b8b85385fdae80b782bd06a138d89706594eeb6a5a5d54b2da"
       },
       "clear": {
         "bytes": 4,
@@ -57,8 +57,8 @@
       "name": "Arc58AgentProbePlugin",
       "testOnly": true,
       "approval": {
-        "bytes": 184,
-        "sha256": "3212cab2dfa9e7646c05099f8da1c33fd9269604493ba8fb6087948b49fdeac6"
+        "bytes": 291,
+        "sha256": "b28a673a930da000272e1b448886e13946e708290dda1c7a43dd582ee9d23578"
       },
       "clear": {
         "bytes": 4,
@@ -68,6 +68,7 @@
     },
     "arc58/account/Arc58AgentRevoker": {
       "name": "Arc58AgentRevoker",
+      "testOnly": true,
       "approval": {
         "bytes": 115,
         "sha256": "9de44b31eea1261c5e034d5f31eff2ede9608c610b878f3521c7be58e4b4ad75"
@@ -129,8 +130,8 @@
     "arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus": {
       "name": "FixedSignerGuildConsensus",
       "approval": {
-        "bytes": 4886,
-        "sha256": "b3eb7137c9d5d059ac286a9441a221215ad145ec73add963dfcf3ab4ed961c43"
+        "bytes": 5424,
+        "sha256": "6b25ecbb869183f464c95a39a394b0b25fc7454e414491bf1f5d420ee9e8f1de"
       },
       "clear": {
         "bytes": 4,
@@ -340,8 +341,8 @@
     "arc58/plugins/guild/GuildPlugin": {
       "name": "GuildPlugin",
       "approval": {
-        "bytes": 5247,
-        "sha256": "c15ea7739b65eae10dac56af38a27173dc7233e7b1b914daa6ac7d84c3974b78"
+        "bytes": 5564,
+        "sha256": "20afbfb9f0e6c8077702d3a4879314093a7ea4b94e43ba3bcdfa4633d268e001"
       },
       "clear": {
         "bytes": 4,
@@ -582,8 +583,8 @@
     "arc58/plugins/subscriptions/SubscriptionsPlugin": {
       "name": "SubscriptionsPlugin",
       "approval": {
-        "bytes": 4461,
-        "sha256": "35cc3e8ad496df95c3653fd891e27ed7fdd243d143ee687d4d62f0582b18ac72"
+        "bytes": 4794,
+        "sha256": "61a7f1c3f501e7439678786a5be91c0eb5941f26c4d07fac8a38bfc9827c9619"
       },
       "clear": {
         "bytes": 4,
@@ -1071,8 +1072,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 10558,
-        "sha256": "a8e755079f0eb39b8ff5e20b57114fe4b4c58d7d733b3fe95ae91ed1a16e919e"
+        "bytes": 10579,
+        "sha256": "2d96c173012b4c91bfca9f58a382ac1f7130d02600395f3a87cebc0e62c0cfb4"
       },
       "clear": {
         "bytes": 4,
@@ -1875,8 +1876,8 @@
     "subscriptions/Subscriptions": {
       "name": "Subscriptions",
       "approval": {
-        "bytes": 10468,
-        "sha256": "e9acfa9ffe5633e89c68bcafc3617cb817bc1a9e0b9bb7c332cb83f2c0fc67b2"
+        "bytes": 10801,
+        "sha256": "5dbf842425e80db46aa497ff314bc2fbe3fa702f7649bdafb15655017866381b"
       },
       "clear": {
         "bytes": 4,

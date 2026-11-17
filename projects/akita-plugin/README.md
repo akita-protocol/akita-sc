@@ -75,6 +75,20 @@ values were copied from `Txn.sender` / `Global.callerApplicationId` of an authen
 sound only when `spender` is the AVM-authenticated sender of a first hop or comes from a stored
 pair, never a caller-supplied account. Use `ownsAtRest` / `atRestPrincipal` for at-rest questions.
 
+## Removing a grant belongs to the wallet
+
+A plugin needs no method for removal, and should not carry one. The wallet's
+`arc58_removePlugin(plugin, caller, escrow)` accepts three senders: the wallet's admin, its
+revocation app, and the account named as `caller` in that grant. The last one lets a caller give
+up its own access, for example an agent that shuts down and frees the storage its grants hold in
+users' wallets. The storage returns to the wallet, never to the caller.
+
+- A grant open to anyone and an admin grant have no caller that can remove them.
+- A plugin that forwards `arc58_removePlugin` gains nothing: its own address is none of the three
+  senders, and sending as the wallet's own account, which a plugin can do inside its window, is
+  refused too.
+- A wallet that names such a forwarder as its revocation app lets anyone strip its plugins.
+
 ## Keeping the mirror in sync
 
 `principal.ts` is a copy of `projects/akita-sc/smart_contracts/utils/principal.ts`, byte-for-byte

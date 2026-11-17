@@ -9,6 +9,8 @@ export const SubscriptionsBoxPrefixBlocks = 'b'
 export const SubscriptionsBoxPrefixPasses = 'p'
 /** stored principal pair `(W, principal)` of a gated wallet subscription (principal resolution §6.4, Q11) */
 export const SubscriptionsBoxPrefixPrincipals = 'i'
+/** the service a creator shows front and center, keyed by creator (value: service id) */
+export const SubscriptionsBoxPrefixFeatured = 'f'
 
 export const SubscriptionsMBR: uint64 = 60_500
 export const SubscriptionsListMBR: uint64 = 18_900
@@ -24,6 +26,8 @@ export const MinPassesMBR: uint64 = 18_900
 export const LegacyPassesMBR: uint64 = 418_900
 /** 'i' box: key 'i' + 32 + 8 = 41 bytes, value wallet 8 + principal 32 = 40 bytes → 2_500 + 400 * 81 */
 export const SubscriptionPrincipalMBR: uint64 = 34_900
+/** 'f' box: key 'f' + 32 = 33 bytes, value service id 8 bytes → 2_500 + 400 * 41 */
+export const FeaturedServiceMBR: uint64 = 18_900
 
 /** timestamp from which subscriptions are charged the repriced pass MBR (lazily set) */
 export const SubscriptionsGlobalStateKeyPassesRepricedAt = 'passes_repriced_at'

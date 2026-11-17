@@ -11,7 +11,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { immutableCatalog } from './lib/immutable-deployment'
-import { artifactApprovalHash, decodeAllowlistBox, loadArtifact, programHash, subGateBoxName } from './lib/ctx-sub-gates'
+import { artifactApprovalHash, decodeAllowlistBox, loadArtifact, programHash, resolveGateId, subGateBoxName } from './lib/ctx-sub-gates'
 
 const IMPORTS_SEALED_KEY = 'imports_sealed'
 
@@ -23,7 +23,7 @@ runScript(async () => {
   const args = process.argv.slice(2)
   const value = (key: string) => { const i = args.indexOf(key); return i < 0 ? undefined : args[i + 1] }
   const options = parseBaseArgs('seal-gate-imports.ts', `
-  --gate <id>              Gate v2 app id (default: the network's gate id)
+  --gate <id>              Gate v2 app id (default: the Gate receipt in --manifest-dir, else the network's gate id)
   --manifest-dir <dir>     deploy-gates.ts receipt directory; every sub-gate receipt there must be allowlisted
   --sub-gates <list>       Extra Name=id pairs that must be allowlisted`)
   if (!args.includes('--network') && !args.includes('-n')) throw new Error('An explicit --network is required')
@@ -31,11 +31,10 @@ runScript(async () => {
   const algod = ctx.algorand.client.algod
   const gateSpec = loadArtifact(immutableCatalog.Gate.artifact)
 
-  const gateId = BigInt(value('--gate') ?? ctx.appIds.gate ?? 0n)
-  if (gateId <= 0n) throw new Error('--gate is required (no gate id configured for this network)')
+  const gateId = resolveGateId(value('--gate'), value('--manifest-dir'), options.network, ctx.appIds.gate)
   const gate = (await algod.getApplicationByID(gateId).do()).params
   if (!gate) throw new Error(`Gate ${gateId} not found`)
-  if (programHash(gate.approvalProgram) !== artifactApprovalHash(gateSpec)) throw new Error(`Gate ${gateId} does not run the current gates/Gate artifact`)
+  if (programHash(gate.approvalProgram) !== artifactApprovalHash(gateSpec)) throw new Error(`Gate ${gateId} does not run the current gates/Gate artifact. Deploy Gate v2 first (rollout step C1) and pass its receipts with --manifest-dir`)
   const sealed = (gate.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === IMPORTS_SEALED_KEY)?.value.uint
   if (BigInt(sealed ?? 0) !== 0n) { console.log(`Gate ${gateId} imports are already sealed.`); return }
 

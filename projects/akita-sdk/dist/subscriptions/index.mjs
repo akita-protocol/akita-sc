@@ -1,4 +1,5 @@
 import {
+  FEATURED_SERVICE_MBR,
   HighlightMessage,
   MAX_DESCRIPTION_CHUNK_SIZE,
   MAX_DESCRIPTION_LENGTH,
@@ -7,13 +8,14 @@ import {
   SUBSCRIPTION_PRINCIPAL_MBR,
   ServiceStatus,
   SubscriptionsSDK,
-  bytesToHexColor,
   directGateCtx,
+  translateSubscriptionsError
+} from "../chunk-GD3YP3SX.mjs";
+import {
+  bytesToHexColor,
   hexColorToBytes,
-  translateSubscriptionsError,
   validateHexColor
-} from "../chunk-OT2QQFMU.mjs";
-import "../chunk-55IOSZE5.mjs";
+} from "../chunk-DFU3OQJ5.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-GOQ4H3PG.mjs";
 import "../chunk-ITXBJZ4G.mjs";
@@ -21,6 +23,7 @@ import "../chunk-POLXD3ER.mjs";
 import "../chunk-JZMSW77U.mjs";
 import "../chunk-J5LGTIGS.mjs";
 export {
+  FEATURED_SERVICE_MBR,
   HighlightMessage,
   MAX_DESCRIPTION_CHUNK_SIZE,
   MAX_DESCRIPTION_LENGTH,

@@ -9,6 +9,7 @@ import { ProposalActionEnum } from 'akita-sdk/dao'
 import catalog from './immutable-catalog.json'
 import { type ScriptContext, recordNetworkAppDeployment, recordPluginDeployment } from '../script-base'
 import { executeProposal, getAppFundingNeeded } from '../utils'
+import { assertRewardsOptedIn } from './rewards-opt-ins'
 
 export type ConstructorConfig = Record<string, string | string[] | number>
 /** An admin call the deployed app needs before use. `$self` is replaced by the new app's ID. */
@@ -191,7 +192,7 @@ type Receipt = {
 }
 
 export async function deployImmutable(ctx: ScriptContext, name: string, config: ConstructorConfig, receiptPath?: string, register = false,
-  options: { allowDependencyMismatch?: boolean } = {}) {
+  options: { allowDependencyMismatch?: boolean; allowMissingOptIns?: boolean } = {}) {
   const p = prepareImmutable(ctx, name, config)
   if (ctx.options.dryRun) {
     console.log(json({ contract: name, args: p.args, approvalBytes: p.approval.length, clearBytes: p.clear.length,
@@ -244,6 +245,8 @@ export async function deployImmutable(ctx: ScriptContext, name: string, config: 
   receipt.status = 'funded'
   save()
   if (register) {
+    // A Rewards app that lacks an asset the old one pays out would stop that asset's rewards at the cutover.
+    if (p.entry.daoField === 'rewards' && !options.allowMissingOptIns) await assertRewardsOptedIn(ctx, BigInt(receipt.oldAppId ?? '0'), appId)
     if (p.entry.daoField) await registerDaoApp(ctx, p.entry.daoField, appId, BigInt(receipt.oldAppId ?? '0'), {
       proposalId: receipt.registrationProposalId ? BigInt(receipt.registrationProposalId) : undefined,
       unresolved: receipt.registrationStarted && receipt.registrationProposalId === undefined,

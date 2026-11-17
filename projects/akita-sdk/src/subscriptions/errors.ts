@@ -48,6 +48,10 @@ export const SUBSCRIPTIONS_ERROR_MESSAGES: Record<string, string> = withErrorCod
   NLWL: 'Subscriber has no registered Akita wallet to adopt',
   NGTD: 'Subscription is not gated',
 
+  // --- Featured service ---------------------------------------------------
+  NFSV: 'No featured service is set',
+  FSHD: 'A shut down service cannot be featured',
+
   // --- Blocking -----------------------------------------------------------
   UABL: 'User is already blocked',
   UNBL: 'User is not blocked',

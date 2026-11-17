@@ -2,6 +2,9 @@
  * Unit tests for scripts/lib/ctx-sub-gates.ts (no LocalNet): the allowlist planner behind
  * scripts/allowlist-sub-gates.ts and the test fixtures (principal-resolution spec §6.9, Q12).
  */
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import algosdk from 'algosdk'
 import immutableCatalog from '../scripts/lib/immutable-catalog.json'
@@ -15,6 +18,7 @@ import {
   isCtxAwareSpec,
   loadArtifact,
   planAllowlist,
+  resolveGateId,
   SET_SUB_GATE_CTX_SIGNATURE,
   SET_SUB_GATE_SIGNATURE,
   setSubGateCall,
@@ -126,5 +130,32 @@ describe('ctx-sub-gates: planAllowlist', () => {
     const entry = { name: 'SubscriptionGate', appId: 10n, onChainApprovalHash: hash, artifact: subscriptionGate }
     expect(() => planAllowlist(gate, [entry, { ...entry, name: 'AssetGate' }], new Map())).toThrow(/listed twice/)
     expect(() => planAllowlist(gate, [{ ...entry, appId: 0n }], new Map())).toThrow(/invalid app id/)
+  })
+})
+
+describe('ctx-sub-gates: which Gate the allowlist and seal steps act on', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'akita-gate-receipt-'))
+  const receipt = (body: object) => fs.writeFileSync(path.join(dir, 'Gate.json'), JSON.stringify(body))
+
+  test('between the deployment and the cutover the receipt names Gate v2, not the registered v1', () => {
+    receipt({ contract: 'Gate', network: 'mainnet', appId: '4000000001', status: 'funded' })
+    expect(resolveGateId(undefined, dir, 'mainnet', 1111n)).toBe(4000000001n)
+    // An explicit --gate wins; with no receipt the registered gate is used.
+    expect(resolveGateId('77', dir, 'mainnet', 1111n)).toBe(77n)
+    expect(resolveGateId(undefined, path.join(dir, 'absent'), 'mainnet', 1111n)).toBe(1111n)
+    expect(resolveGateId(undefined, undefined, 'mainnet', 1111n)).toBe(1111n)
+  })
+
+  test('a receipt for another network or contract, an unresolved one and a bad --gate are refused', () => {
+    receipt({ contract: 'Gate', network: 'testnet', appId: '5' })
+    expect(() => resolveGateId(undefined, dir, 'mainnet', 1111n)).toThrow('receipt is for Gate on testnet')
+    receipt({ contract: 'Rewards', network: 'mainnet', appId: '5' })
+    expect(() => resolveGateId(undefined, dir, 'mainnet', 1111n)).toThrow('receipt is for Rewards on mainnet')
+    receipt({ contract: 'Gate', network: 'mainnet', status: 'creating' })
+    expect(() => resolveGateId(undefined, dir, 'mainnet', 1111n)).toThrow('unresolved')
+    expect(() => resolveGateId('0', dir, 'mainnet', 1111n)).toThrow('is not an app id')
+    expect(() => resolveGateId('abc', undefined, 'mainnet', 1111n)).toThrow('is not an app id')
+    expect(() => resolveGateId(undefined, undefined, 'mainnet', 0n)).toThrow('--gate is required')
+    fs.rmSync(dir, { recursive: true, force: true })
   })
 })

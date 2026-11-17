@@ -78,6 +78,25 @@ describe('migration dry runs', () => {
     expect(output).not.toMatch(/PluginDex|BinEngine|LaunchManager/)
   }, 30_000)
 
+  test('deploy-immutable --config takes inline JSON or a file, and refuses a bad argument either way', () => {
+    const recipient = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+    const file = path.join(os.tmpdir(), `akita-config-${Date.now()}.json`)
+    fs.writeFileSync(file, JSON.stringify({ recipient }))
+    const run = (config: string) => execFileSync(process.execPath, ['-r', 'ts-node/register/transpile-only', 'scripts/deploy-immutable.ts',
+      '--network', 'localnet', '--dry-run', '--dao-app-id', '1', '--contract', 'PaySiloPlugin', '--config', config],
+      { cwd: path.resolve(__dirname, '..'), encoding: 'utf8', timeout: 30_000, stdio: ['ignore', 'pipe', 'pipe'],
+        env: { ...process.env, ALGOD_SERVER: 'http://127.0.0.1', ALGOD_PORT: '1', ALGOD_TOKEN: 'a'.repeat(64), DEPLOYER_MNEMONIC: '', MNEMONIC: '' } })
+    try {
+      const inline = run(JSON.stringify({ recipient }))
+      const plan = JSON.parse(inline.slice(inline.indexOf('{')))
+      expect(plan).toMatchObject({ contract: 'PaySiloPlugin', args: [recipient], writes: false })
+      expect(run(` ${JSON.stringify({ recipient })}`)).toBe(inline)
+      expect(run(file)).toBe(inline)
+      expect(() => run(JSON.stringify({ recipient: 'bad-address' }))).toThrow()
+      expect(() => run(path.join(os.tmpdir(), 'akita-config-absent.json'))).toThrow('ENOENT')
+    } finally { fs.rmSync(file, { force: true }) }
+  }, 120_000)
+
   test('rejects a mismatched update plugin before inspecting grants', async () => {
     const grants = vi.fn()
     const ctx = { appIds: { updatePlugin: 2n }, updatePlugin: { appId: 2n },

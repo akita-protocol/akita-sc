@@ -139,3 +139,26 @@ export function setSubGateCall(gate: Arc56Like, app: bigint, allowed: boolean, c
     ? { method: SET_SUB_GATE_CTX_SIGNATURE, args: [app, allowed, ctxAware] }
     : { method: SET_SUB_GATE_SIGNATURE, args: [app, allowed] }
 }
+
+/**
+ * The Gate v2 app the allowlist and seal steps act on: `--gate` when given, else the Gate receipt in
+ * the deploy-gates receipt directory, else the network's registered gate. The receipt comes before the
+ * registry because the registry still names Gate v1 until the cutover (rollout C4), and both steps
+ * run before it.
+ */
+export function resolveGateId(explicit: string | undefined, directory: string | undefined, network: string, registered: bigint | undefined): bigint {
+  if (explicit !== undefined) {
+    if (!/^[1-9][0-9]*$/.test(explicit)) throw new Error(`--gate ${explicit} is not an app id`)
+    return BigInt(explicit)
+  }
+  const file = directory ? path.join(directory, 'Gate.json') : undefined
+  if (file && fs.existsSync(file)) {
+    const receipt = JSON.parse(fs.readFileSync(file, 'utf8')) as { contract: string; appId?: string; network: string }
+    if (receipt.contract !== 'Gate' || receipt.network !== network) throw new Error(`${file}: receipt is for ${receipt.contract} on ${receipt.network}`)
+    if (!receipt.appId) throw new Error(`${file}: deployment is unresolved (no appId)`)
+    return BigInt(receipt.appId)
+  }
+  if (!registered || registered <= 0n) throw new Error('--gate is required (no Gate receipt in --manifest-dir and no gate id configured for this network)')
+  return registered
+}
+

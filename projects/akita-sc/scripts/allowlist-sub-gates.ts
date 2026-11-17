@@ -30,6 +30,7 @@ import {
   loadArtifact,
   planAllowlist,
   programHash,
+  resolveGateId,
   setSubGateCall,
   type SubGateCandidate,
   subGateBoxName,
@@ -49,7 +50,7 @@ runScript(async () => {
   const args = process.argv.slice(2)
   const value = (key: string) => { const i = args.indexOf(key); return i < 0 ? undefined : args[i + 1] }
   const options = parseBaseArgs('allowlist-sub-gates.ts', `
-  --gate <id>              Gate v2 app id (default: the network's gate id)
+  --gate <id>              Gate v2 app id (default: the Gate receipt in --manifest-dir, else the network's gate id)
   --manifest-dir <dir>     deploy-gates.ts receipt directory; every sub-gate receipt found there is used
   --sub-gates <list>       Extra Name=id pairs, e.g. SubscriptionGate=1234 (names: ${subGateNames.join(', ')})`)
   if (!args.includes('--network') && !args.includes('-n')) throw new Error('An explicit --network is required')
@@ -57,11 +58,10 @@ runScript(async () => {
   const algod = ctx.algorand.client.algod
 
   const gateSpec = loadArtifact(immutableCatalog.Gate.artifact)
-  const gateId = BigInt(value('--gate') ?? ctx.appIds.gate ?? 0n)
-  if (gateId <= 0n) throw new Error('--gate is required (no gate id configured for this network)')
+  const gateId = resolveGateId(value('--gate'), value('--manifest-dir'), options.network, ctx.appIds.gate)
   const gateInfo = { params: appParams(await algod.getApplicationByID(gateId).do(), gateId) }
   if (programHash(gateInfo.params.approvalProgram) !== artifactApprovalHash(gateSpec)) {
-    throw new Error(`Gate ${gateId} does not run the current gates/Gate artifact; its ABI is unknown`)
+    throw new Error(`Gate ${gateId} does not run the current gates/Gate artifact; its ABI is unknown. Deploy Gate v2 first (rollout step C1) and pass its receipts with --manifest-dir`)
   }
 
   // Candidates: receipts first, then explicit pairs (an explicit pair must not contradict a receipt).

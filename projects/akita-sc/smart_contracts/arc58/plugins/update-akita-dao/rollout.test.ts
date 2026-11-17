@@ -528,7 +528,13 @@ describe('createMigrationPlan (stubbed chain state)', () => {
     start: 1n, escrow: 0n, delegationType: 0, lastValid: 2n ** 64n - 1n, cooldown: 0n, methods: [] as [Uint8Array, bigint][],
     admin: false, useRounds: false, useExecutionKey: true, coverFees: false, canReclaim: false, ...over,
   })
-  const stubCtx = (entries: Array<[{ plugin: bigint; caller: string; escrow: string }, ReturnType<typeof grant>]>, palUpdate: bigint, named: Array<[string, { plugin: bigint; caller: string; escrow: string }]> = []) => {
+  // The plan reads the DAO's program to learn the unit of `power`: the deployed DAO compares whole tokens, the tree's base units.
+  const deployedDao = bytes(apps.dao.approval!)
+  const stubCtx = (entries: Array<[{ plugin: bigint; caller: string; escrow: string }, ReturnType<typeof grant>]>, palUpdate: bigint, named: Array<[string, { plugin: bigint; caller: string; escrow: string }]> = [], daoProgram: Uint8Array = deployedDao) => {
+    const algorand = AlgorandClient.defaultLocalNet()
+    const algod = algorand.client.algod
+    const readApp = algod.getApplicationByID.bind(algod)
+    algod.getApplicationByID = ((id: number | bigint) => (BigInt(id) === 5n ? { do: async () => ({ params: { approvalProgram: daoProgram } }) } : readApp(id))) as never
     const wallet = {
       appId: 77n,
       client: { appAddress: algosdk.getApplicationAddress(77n), state: { box: { plugins: { getMap: async () => new Map(entries) } } } },
@@ -538,7 +544,7 @@ describe('createMigrationPlan (stubbed chain state)', () => {
     }
     return {
       options: { network: 'localnet', version: 't' },
-      algorand: AlgorandClient.defaultLocalNet(),
+      algorand,
       signer: async () => [],
       dao: {
         appId: 5n,
@@ -559,6 +565,16 @@ describe('createMigrationPlan (stubbed chain state)', () => {
     expect(m.actions[1]).toMatchObject({ useExecutionKey: true, ...settings, escrow: '', callerType: CallerType.Global })
     expect((m.actions[1] as { client: { appId: bigint } }).client.appId).toBe(20n)
     expect(m.actions[2]).toMatchObject({ plugin: 10n, caller: ZERO, escrow: '' })
+  })
+
+  test('the copied threshold keeps its unit on the deployed DAO and is rescaled to base units on the upgraded one', async () => {
+    const plan = async (daoProgram?: Uint8Array) => {
+      const ctx = stubCtx([[{ plugin: 10n, caller: ZERO, escrow: '' }, grant()]], 10n, [], daoProgram)
+      const { migrations } = await createMigrationPlan(ctx, { effectiveSender: ZERO, replacements: [{ key: 'updatePlugin', from: 10n, to: 20n }] })
+      return migrations[0].actions[1]
+    }
+    expect(await plan()).toMatchObject(settings)
+    expect(await plan(loadCompiled('arc58/dao/AkitaDAO.arc56.json').approval)).toMatchObject({ ...settings, power: 2_000_000n })
   })
 
   test('a stale Update grant without the role is removed, never replaced', async () => {

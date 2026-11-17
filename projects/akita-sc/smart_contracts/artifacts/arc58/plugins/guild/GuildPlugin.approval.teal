@@ -5,20 +5,20 @@
 main:
     intcblock 0 8 1 6
     bytecblock 0x151f7c75 "ERR:errGnff" "factory" "guild" 0xb56a64a4 "ERR:errGcle" 0x487c4d4e 0xed2b3fba 0x97881e21 0x5081f793 0x9699d108 0xf8e140aa 0x3495781a 0xf1ff28aa 0x809d9e95 0x880950f9 0xd046fb71
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:49
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:53
     // export class GuildPlugin extends Contract {
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@28
-    pushbytess 0xbd282f05 0x2c3d33c1 0x0e0ebe71 0x8348af6b 0x0af52132 0xd2ef344e 0xf8f16a4b 0xd305546a 0xaa8401b8 0xfcc321ce 0x60e1f7a8 0xdaf8cac9 0x969add0f 0x513d2565 0x6d8737ee 0x47a3bc0c 0xc5a7012d 0x4d79fc04 0xce1ae94f 0x4710c6b7 0x0aaa40e5 0x4cab87d5 0x0e83df00 0xda767fec // method "newGuild(uint64,bool,string,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))),byte[],uint64)(uint64,uint64)", method "createGuild(uint64,bool,string,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))),byte[],byte[],string,byte[32],uint64,(uint8,byte[])[],uint64)(uint64,uint64,uint64)", method "configureConsensus(uint64,bool,uint64,byte[],uint64)void", method "setup(uint64,bool,uint64,string,byte[32],uint64)uint64", method "setProposalSettings(uint64,bool,uint64,uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void", method "setProposalActionLimit(uint64,bool,uint64,uint64)void", method "setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void", method "setFeeAsset(uint64,bool,uint64,uint64,uint64)void", method "lockPluginSet(uint64,bool,uint64)void", method "partiallyInitialize(uint64,bool,uint64)void", method "initialize(uint64,bool,uint64)void", method "newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64", method "newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64", method "editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void", method "editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void", method "deleteProposal(uint64,bool,uint64,uint64)void", method "submitProposal(uint64,bool,uint64,uint64,byte[])void", method "voteProposal(uint64,bool,uint64,uint64,uint8,byte[],uint64)void", method "finalizeProposal(uint64,bool,uint64,uint64)void", method "cleanupProposalConsensus(uint64,bool,uint64,uint64,address[])uint64", method "cancelProposal(uint64,bool,uint64,uint64)void", method "executeProposal(uint64,bool,uint64,uint64)void", method "sweep(uint64,bool,uint64)uint64", method "opUp(uint64,bool,uint64)void"
+    bz main_create_NoOp@29
+    pushbytess 0xbd282f05 0x2c3d33c1 0x0e0ebe71 0x8348af6b 0x0af52132 0xd2ef344e 0xf8f16a4b 0xd305546a 0xaa8401b8 0xfcc321ce 0x60e1f7a8 0xdaf8cac9 0x969add0f 0x513d2565 0x6d8737ee 0x47a3bc0c 0xc5a7012d 0x4d79fc04 0xce1ae94f 0x4710c6b7 0x0aaa40e5 0x4cab87d5 0x5aeec040 0x0e83df00 0xda767fec // method "newGuild(uint64,bool,string,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))),byte[],uint64)(uint64,uint64)", method "createGuild(uint64,bool,string,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))),byte[],byte[],string,byte[32],uint64,(uint8,byte[])[],uint64)(uint64,uint64,uint64)", method "configureConsensus(uint64,bool,uint64,byte[],uint64)void", method "setup(uint64,bool,uint64,string,byte[32],uint64)uint64", method "setProposalSettings(uint64,bool,uint64,uint8,(uint64,uint64,uint64,uint64,uint64,uint64))void", method "setProposalActionLimit(uint64,bool,uint64,uint64)void", method "setConsensusActionSettings(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64))void", method "setFeeAsset(uint64,bool,uint64,uint64,uint64)void", method "lockPluginSet(uint64,bool,uint64)void", method "partiallyInitialize(uint64,bool,uint64)void", method "initialize(uint64,bool,uint64)void", method "newProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64)uint64", method "newProposalWithFeeAsset(uint64,bool,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)uint64", method "editProposalWithFeeAsset(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64,uint64,uint64)void", method "editProposal(uint64,bool,uint64,uint64,byte[36],(uint8,byte[])[],byte[],uint64)void", method "deleteProposal(uint64,bool,uint64,uint64)void", method "submitProposal(uint64,bool,uint64,uint64,byte[])void", method "voteProposal(uint64,bool,uint64,uint64,uint8,byte[],uint64)void", method "finalizeProposal(uint64,bool,uint64,uint64)void", method "cleanupProposalConsensus(uint64,bool,uint64,uint64,address[])uint64", method "cancelProposal(uint64,bool,uint64,uint64)void", method "executeProposal(uint64,bool,uint64,uint64)void", method "usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void", method "sweep(uint64,bool,uint64)uint64", method "opUp(uint64,bool,uint64)void"
     txna ApplicationArgs 0
-    match newGuild createGuild configureConsensus setup setProposalSettings setProposalActionLimit setConsensusActionSettings setFeeAsset lockPluginSet partiallyInitialize initialize newProposal newProposalWithFeeAsset editProposalWithFeeAsset editProposal deleteProposal submitProposal voteProposal finalizeProposal cleanupProposalConsensus cancelProposal executeProposal sweep opUp
+    match newGuild createGuild configureConsensus setup setProposalSettings setProposalActionLimit setConsensusActionSettings setFeeAsset lockPluginSet partiallyInitialize initialize newProposal newProposalWithFeeAsset editProposalWithFeeAsset editProposal deleteProposal submitProposal voteProposal finalizeProposal cleanupProposalConsensus cancelProposal executeProposal usePluginAsSigner sweep opUp
     err
 
-main_create_NoOp@28:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:49
+main_create_NoOp@29:
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:53
     // export class GuildPlugin extends Contract {
     pushbytes 0x9479ff63 // method "create(uint64,uint64)void"
     txna ApplicationArgs 0
@@ -90,7 +90,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:58
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -108,7 +108,7 @@ create:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:60
     // loggedAssert(factory.id > 0, errGuildNotFromFactory)
     bnz create_after_assert@3
     bytec_1 // "ERR:errGnff"
@@ -116,11 +116,11 @@ create:
     err // ERR:errGnff
 
 create_after_assert@3:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:57
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:61
     // if (guild.id > 0) {
     dup
     bz create_after_if_else@7
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:62
     // loggedAssert(guild.creator === factory.address, errGuildNotFromFactory)
     dup
     app_params_get AppCreator
@@ -135,21 +135,21 @@ create_after_assert@3:
     err // ERR:errGnff
 
 create_after_if_else@7:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:60
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:64
     // this.factory.value = factory
     uncover 2
     app_global_put
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
     // guild = GlobalState<Application>({ key: 'guild' })
     bytec_3 // "guild"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:61
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:65
     // this.guild.value = guild
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:58
     // @abimethod({ onCreate: 'require' })
     intc_2 // 1
     return
@@ -157,7 +157,7 @@ create_after_if_else@7:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.newGuild[routing]() -> void:
 newGuild:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:83-90
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:87-94
     // newGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -218,13 +218,13 @@ newGuild:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:91
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:95
     // loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
     // guild = GlobalState<Application>({ key: 'guild' })
     bytec_3 // "guild"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:91
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:95
     // loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -234,32 +234,32 @@ newGuild:
     err // ERR:errGnff
 
 newGuild_after_assert@3:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:96
     // const sender = getControlledSpendingAccount(wallet)
     uncover 2
     dup
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:94-98
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:98-102
     // const cost = abiCall<typeof GuildFactory.prototype.cost>({
     //   sender,
     //   appId: this.factory.value,
     //   args: [consensusName],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:100
     // appId: this.factory.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:100
     // appId: this.factory.value,
     app_global_get_ex
     assert // check GlobalState exists
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:94-98
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:98-102
     // const cost = abiCall<typeof GuildFactory.prototype.cost>({
     //   sender,
     //   appId: this.factory.value,
@@ -290,12 +290,12 @@ newGuild_after_assert@3:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:99
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:103
     // this.requireWithinQuote(cost, maxCost)
     dup
     uncover 5
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:101-115
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:105-119
     // const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
     //   sender,
     //   appId: this.factory.value,
@@ -312,13 +312,13 @@ newGuild_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:107
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:111
     // receiver: this.factory.value.address,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:107
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:111
     // receiver: this.factory.value.address,
     app_global_get_ex
     assert // check GlobalState exists
@@ -330,7 +330,7 @@ newGuild_after_assert@3:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:105-109
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:109-113
     // itxn.payment({
     //   sender,
     //   receiver: this.factory.value.address,
@@ -340,7 +340,7 @@ newGuild_after_assert@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:101-115
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:105-119
     // const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
     //   sender,
     //   appId: this.factory.value,
@@ -357,7 +357,7 @@ newGuild_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:114
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:118
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 6
     uncover 4
@@ -365,7 +365,7 @@ newGuild_after_assert@3:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:101-115
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:105-119
     // const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
     //   sender,
     //   appId: this.factory.value,
@@ -405,7 +405,7 @@ newGuild_after_assert@3:
     pushint 16
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildDeployment
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:83-90
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:87-94
     // newGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -426,7 +426,7 @@ newGuild_after_assert@3:
 createGuild:
     pushbytes ""
     dupn 2
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:129-141
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:133-145
     // createGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -544,7 +544,7 @@ createGuild:
     intc_0 // 0
 
 createGuild_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:129-141
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:133-145
     // createGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -601,7 +601,7 @@ createGuild_for_header@1:
 
 createGuild_after_for@4:
     popn 2
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:129-141
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:133-145
     // createGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -627,13 +627,13 @@ createGuild_after_for@4:
     assert // invalid number of bytes for arc4.uint64
     btoi
     bury 14
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:142
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:146
     // loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
     // guild = GlobalState<Application>({ key: 'guild' })
     bytec_3 // "guild"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:142
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:146
     // loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -643,33 +643,33 @@ createGuild_after_for@4:
     err // ERR:errGnff
 
 createGuild_after_assert@7:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:147
     // const sender = getControlledSpendingAccount(wallet)
     dig 1
     callsub getControlledSpendingAccount
     dup
     cover 2
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:145-149
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:149-153
     // const cost = abiCall<typeof GuildFactory.prototype.cost>({
     //   sender,
     //   appId: this.factory.value,
     //   args: [consensusName],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:147
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:151
     // appId: this.factory.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:147
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:151
     // appId: this.factory.value,
     app_global_get_ex
     assert // check GlobalState exists
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:145-149
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:149-153
     // const cost = abiCall<typeof GuildFactory.prototype.cost>({
     //   sender,
     //   appId: this.factory.value,
@@ -700,14 +700,14 @@ createGuild_after_assert@7:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:150
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:154
     // this.requireWithinQuote(cost, maxCost)
     dup
     dig 17
     dup
     cover 5
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:151-160
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:155-164
     // const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
     //   sender,
     //   appId: this.factory.value,
@@ -719,13 +719,13 @@ createGuild_after_assert@7:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:155
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:159
     // itxn.payment({ sender, receiver: this.factory.value.address, amount: cost }),
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:155
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:159
     // itxn.payment({ sender, receiver: this.factory.value.address, amount: cost }),
     app_global_get_ex
     assert // check GlobalState exists
@@ -741,7 +741,7 @@ createGuild_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:151-160
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:155-164
     // const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
     //   sender,
     //   appId: this.factory.value,
@@ -784,12 +784,12 @@ createGuild_after_assert@7:
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildDeployment
     pushint 4
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:161
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:165
     // const guild = deployment.guild
     extract_uint64
     dup
     cover 4
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:163-167
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:167-171
     // const configurationMbr = abiCall<typeof Guild.prototype.consensusConfigurationMbr>({
     //   sender,
     //   appId: guild,
@@ -825,7 +825,7 @@ createGuild_after_assert@7:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:168
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:172
     // this.requireWithinQuote(cost + configurationMbr, maxCost)
     uncover 2
     dig 1
@@ -833,14 +833,14 @@ createGuild_after_assert@7:
     dup
     dig 6
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:169-173
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:173-177
     // abiCall<typeof Guild.prototype.configureConsensus>({
     //   sender,
     //   appId: guild,
     //   args: [itxn.payment({ sender, receiver: guild.address, amount: configurationMbr }), consensusConfig],
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:172
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:176
     // args: [itxn.payment({ sender, receiver: guild.address, amount: configurationMbr }), consensusConfig],
     dig 2
     app_params_get AppAddress
@@ -854,7 +854,7 @@ createGuild_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:169-173
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:173-177
     // abiCall<typeof Guild.prototype.configureConsensus>({
     //   sender,
     //   appId: guild,
@@ -874,7 +874,7 @@ createGuild_after_assert@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:175
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:179
     // const setupCost = abiCall<typeof Guild.prototype.setupCost>({ sender, appId: guild }).returnValue
     itxn_begin
     dig 1
@@ -902,7 +902,7 @@ createGuild_after_assert@7:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:180
     // this.requireWithinQuote(cost + configurationMbr + setupCost, maxCost)
     swap
     dig 1
@@ -911,7 +911,7 @@ createGuild_after_assert@7:
     bury 17
     uncover 4
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:177
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:181
     // itxn.payment({ sender, receiver: guild.address, amount: setupCost }).submit()
     itxn_begin
     dig 1
@@ -926,7 +926,7 @@ createGuild_after_assert@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:179
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:183
     // abiCall<typeof Guild.prototype.setup>({ sender, appId: guild, args: [nickname, salt] }).returnValue,
     itxn_begin
     itxn_field ApplicationID
@@ -957,11 +957,11 @@ createGuild_after_assert@7:
     assert // invalid number of bytes for uint64
     btoi
     swap
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:183
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:187
     // if (funding > 0) {
     dig 8
     bz createGuild_after_if_else@19
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:184
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:188
     // itxn.payment({ sender, receiver: treasury.address, amount: funding }).submit()
     itxn_begin
     dig 1
@@ -979,11 +979,11 @@ createGuild_after_assert@7:
     itxn_submit
 
 createGuild_after_if_else@19:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:187
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:191
     // if (actions.length > 0) {
     uncover 2
     bz createGuild_after_if_else@28
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:189-193
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:193-197
     // const proposalCost = abiCall<typeof Guild.prototype.proposalCost>({
     //   sender,
     //   appId: guild,
@@ -1016,7 +1016,7 @@ createGuild_after_if_else@19:
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalCostInfo
     pushint 12
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:194
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:198
     // this.requireWithinQuote(cost + configurationMbr + setupCost + proposalCost.mbr, maxCost)
     extract_uint64
     dup
@@ -1026,10 +1026,10 @@ createGuild_after_if_else@19:
     +
     dig 12
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:195
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:199
     // if (proposalCost.mbr > 0) {
     bz createGuild_after_if_else@24
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:196
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:200
     // itxn.payment({ sender, receiver: guild.address, amount: proposalCost.mbr }).submit()
     itxn_begin
     dup
@@ -1047,14 +1047,14 @@ createGuild_after_if_else@19:
     itxn_submit
 
 createGuild_after_if_else@24:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:198-202
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:202-206
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
     //   args: [itxn.payment({ sender, receiver: guild.address, amount: 0 }), bzero(36).toFixed({ length: 36 }), actions, Bytes('')],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:201
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:205
     // args: [itxn.payment({ sender, receiver: guild.address, amount: 0 }), bzero(36).toFixed({ length: 36 }), actions, Bytes('')],
     dupn 2
     app_params_get AppAddress
@@ -1069,14 +1069,14 @@ createGuild_after_if_else@24:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:198-202
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:202-206
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
     //   args: [itxn.payment({ sender, receiver: guild.address, amount: 0 }), bzero(36).toFixed({ length: 36 }), actions, Bytes('')],
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:201
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:205
     // args: [itxn.payment({ sender, receiver: guild.address, amount: 0 }), bzero(36).toFixed({ length: 36 }), actions, Bytes('')],
     pushint 36
     bzero
@@ -1084,7 +1084,7 @@ createGuild_after_if_else@24:
     itxn_field ApplicationID
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:198-202
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:202-206
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
@@ -1095,11 +1095,11 @@ createGuild_after_if_else@24:
     itxn_field ApplicationArgs
     dig 8
     itxn_field ApplicationArgs
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:201
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:205
     // args: [itxn.payment({ sender, receiver: guild.address, amount: 0 }), bzero(36).toFixed({ length: 36 }), actions, Bytes('')],
     pushbytes 0x0000
     itxn_field ApplicationArgs
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:198-202
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:202-206
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
@@ -1123,7 +1123,7 @@ createGuild_after_if_else@24:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:203
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:207
     // abiCall<typeof Guild.prototype.executeProposal>({ sender, appId: guild, args: [proposalID] })
     itxn_begin
     uncover 2
@@ -1140,7 +1140,7 @@ createGuild_after_if_else@24:
     itxn_submit
 
 createGuild_after_if_else@28:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:207
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:211
     // itxn.payment({ sender, receiver: sender, amount: 0, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
     itxn_begin
     uncover 5
@@ -1158,7 +1158,7 @@ createGuild_after_if_else@28:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:209
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:213
     // return { guild: guild.id, consensus: deployment.consensus.id, wallet: treasury.id }
     uncover 2
     extract 12 8
@@ -1169,7 +1169,7 @@ createGuild_after_if_else@28:
     swap
     itob
     concat
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:129-141
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:133-145
     // createGuild(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1193,7 +1193,7 @@ createGuild_after_if_else@28:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.configureConsensus[routing]() -> void:
 configureConsensus:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:212
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:216
     // configureConsensus(wallet: Application, rekeyBack: boolean, guild: Application, config: bytes, maxCost: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1234,15 +1234,15 @@ configureConsensus:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:213
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:217
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:214
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:218
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:215-219
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:219-223
     // const amount = abiCall<typeof Guild.prototype.consensusConfigurationMbr>({
     //   sender,
     //   appId: guild,
@@ -1276,12 +1276,12 @@ configureConsensus:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:220
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:224
     // this.requireWithinQuote(amount, maxCost)
     dup
     uncover 3
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:221-233
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:225-237
     // abiCall<typeof Guild.prototype.configureConsensus>({
     //   sender,
     //   appId: guild,
@@ -1296,7 +1296,7 @@ configureConsensus:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:227
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:231
     // receiver: guild.address,
     dig 3
     app_params_get AppAddress
@@ -1305,7 +1305,7 @@ configureConsensus:
     itxn_field Amount
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:225-229
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:229-233
     // itxn.payment({
     //   sender,
     //   receiver: guild.address,
@@ -1315,7 +1315,7 @@ configureConsensus:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:221-233
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:225-237
     // abiCall<typeof Guild.prototype.configureConsensus>({
     //   sender,
     //   appId: guild,
@@ -1330,7 +1330,7 @@ configureConsensus:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:232
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:236
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -1339,7 +1339,7 @@ configureConsensus:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:221-233
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:225-237
     // abiCall<typeof Guild.prototype.configureConsensus>({
     //   sender,
     //   appId: guild,
@@ -1361,7 +1361,7 @@ configureConsensus:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:212
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:216
     // configureConsensus(wallet: Application, rekeyBack: boolean, guild: Application, config: bytes, maxCost: uint64): void {
     intc_2 // 1
     return
@@ -1369,7 +1369,7 @@ configureConsensus:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.setup[routing]() -> void:
 setup:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:236-243
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:240-247
     // setup(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1423,15 +1423,15 @@ setup:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:244
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:248
     // this.requireGuild(guild)
     dig 3
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:245
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:249
     // const sender = getControlledSpendingAccount(wallet)
     dig 5
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:246
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:250
     // const cost = abiCall<typeof Guild.prototype.setupCost>({ sender, appId: guild }).returnValue
     itxn_begin
     dig 4
@@ -1459,12 +1459,12 @@ setup:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:247
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:251
     // this.requireWithinQuote(cost, maxCost)
     dup
     uncover 3
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:249-255
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:253-259
     // itxn
     //   .payment({
     //     sender,
@@ -1473,7 +1473,7 @@ setup:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:252
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:256
     // receiver: guild.address,
     dig 4
     app_params_get AppAddress
@@ -1482,7 +1482,7 @@ setup:
     itxn_field Amount
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:249-254
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:253-258
     // itxn
     //   .payment({
     //     sender,
@@ -1493,7 +1493,7 @@ setup:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:249-255
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:253-259
     // itxn
     //   .payment({
     //     sender,
@@ -1502,7 +1502,7 @@ setup:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:257-262
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:261-266
     // const guildWallet = abiCall<typeof Guild.prototype.setup>({
     //   sender,
     //   appId: guild,
@@ -1510,7 +1510,7 @@ setup:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:261
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:265
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -1519,7 +1519,7 @@ setup:
     uncover 3
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:257-262
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:261-266
     // const guildWallet = abiCall<typeof Guild.prototype.setup>({
     //   sender,
     //   appId: guild,
@@ -1549,7 +1549,7 @@ setup:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:236-243
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:240-247
     // setup(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1568,7 +1568,7 @@ setup:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.setProposalSettings[routing]() -> void:
 setProposalSettings:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:266-272
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:270-276
     // setProposalSettings(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1610,15 +1610,15 @@ setProposalSettings:
     pushint 48
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalSettings
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:273
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:277
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:274
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:278
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:275-280
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:279-284
     // abiCall<typeof Guild.prototype.setProposalSettings>({
     //   sender,
     //   appId: guild,
@@ -1626,7 +1626,7 @@ setProposalSettings:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:279
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:283
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -1635,7 +1635,7 @@ setProposalSettings:
     uncover 3
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:275-280
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:279-284
     // abiCall<typeof Guild.prototype.setProposalSettings>({
     //   sender,
     //   appId: guild,
@@ -1652,7 +1652,7 @@ setProposalSettings:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:266-272
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:270-276
     // setProposalSettings(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1666,7 +1666,7 @@ setProposalSettings:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.setProposalActionLimit[routing]() -> void:
 setProposalActionLimit:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:283
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:287
     // setProposalActionLimit(wallet: Application, rekeyBack: boolean, guild: Application, limit: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1696,15 +1696,15 @@ setProposalActionLimit:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:284
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:288
     // this.requireGuild(guild)
     dig 1
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:285
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:289
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:286-291
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:290-295
     // abiCall<typeof Guild.prototype.setProposalActionLimit>({
     //   sender,
     //   appId: guild,
@@ -1712,7 +1712,7 @@ setProposalActionLimit:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:290
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:294
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -1721,7 +1721,7 @@ setProposalActionLimit:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:286-291
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:290-295
     // abiCall<typeof Guild.prototype.setProposalActionLimit>({
     //   sender,
     //   appId: guild,
@@ -1736,7 +1736,7 @@ setProposalActionLimit:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:283
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:287
     // setProposalActionLimit(wallet: Application, rekeyBack: boolean, guild: Application, limit: uint64): void {
     intc_2 // 1
     return
@@ -1744,7 +1744,7 @@ setProposalActionLimit:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.setConsensusActionSettings[routing]() -> void:
 setConsensusActionSettings:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:294-300
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:298-304
     // setConsensusActionSettings(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1786,15 +1786,15 @@ setConsensusActionSettings:
     pushint 48
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalSettings
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:301
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:305
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:302
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:306
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:303-308
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:307-312
     // abiCall<typeof Guild.prototype.setConsensusActionSettings>({
     //   sender,
     //   appId: guild,
@@ -1802,7 +1802,7 @@ setConsensusActionSettings:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:307
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:311
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -1811,7 +1811,7 @@ setConsensusActionSettings:
     uncover 3
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:303-308
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:307-312
     // abiCall<typeof Guild.prototype.setConsensusActionSettings>({
     //   sender,
     //   appId: guild,
@@ -1828,7 +1828,7 @@ setConsensusActionSettings:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:294-300
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:298-304
     // setConsensusActionSettings(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1842,7 +1842,7 @@ setConsensusActionSettings:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.setFeeAsset[routing]() -> void:
 setFeeAsset:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:312
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:316
     // setFeeAsset(wallet: Application, rekeyBack: boolean, guild: Application, asset: uint64, maxCost: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1879,15 +1879,15 @@ setFeeAsset:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:313
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:317
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:314
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:318
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:315
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:319
     // const cost = abiCall<typeof Guild.prototype.feeAssetCost>({ sender, appId: guild, args: [asset] }).returnValue
     itxn_begin
     dig 3
@@ -1917,12 +1917,12 @@ setFeeAsset:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:316
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:320
     // this.requireWithinQuote(cost, maxCost)
     dup
     uncover 3
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:317-322
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:321-326
     // abiCall<typeof Guild.prototype.setFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -1930,7 +1930,7 @@ setFeeAsset:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:320
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:324
     // args: [itxn.payment({ sender, receiver: guild.address, amount: cost }), asset],
     dig 3
     app_params_get AppAddress
@@ -1943,7 +1943,7 @@ setFeeAsset:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:317-322
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:321-326
     // abiCall<typeof Guild.prototype.setFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -1951,7 +1951,7 @@ setFeeAsset:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:321
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:325
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -1960,7 +1960,7 @@ setFeeAsset:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:317-322
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:321-326
     // abiCall<typeof Guild.prototype.setFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -1975,7 +1975,7 @@ setFeeAsset:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:312
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:316
     // setFeeAsset(wallet: Application, rekeyBack: boolean, guild: Application, asset: uint64, maxCost: uint64): void {
     intc_2 // 1
     return
@@ -1983,7 +1983,7 @@ setFeeAsset:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.lockPluginSet[routing]() -> void:
 lockPluginSet:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:325
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:329
     // lockPluginSet(wallet: Application, rekeyBack: boolean, guild: Application): void {
     txna ApplicationArgs 1
     dup
@@ -2007,22 +2007,22 @@ lockPluginSet:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:326
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:330
     // this.requireGuild(guild)
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:327
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:331
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:328-332
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:332-336
     // abiCall<typeof Guild.prototype.lockPluginSet>({
     //   sender,
     //   appId: guild,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:331
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:335
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -2030,7 +2030,7 @@ lockPluginSet:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:328-332
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:332-336
     // abiCall<typeof Guild.prototype.lockPluginSet>({
     //   sender,
     //   appId: guild,
@@ -2043,7 +2043,7 @@ lockPluginSet:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:325
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:329
     // lockPluginSet(wallet: Application, rekeyBack: boolean, guild: Application): void {
     intc_2 // 1
     return
@@ -2051,7 +2051,7 @@ lockPluginSet:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.partiallyInitialize[routing]() -> void:
 partiallyInitialize:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:335
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:339
     // partiallyInitialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     txna ApplicationArgs 1
     dup
@@ -2075,22 +2075,22 @@ partiallyInitialize:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:336
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:340
     // this.requireGuild(guild)
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:337
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:341
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:338-342
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:342-346
     // abiCall<typeof Guild.prototype.partiallyInitialize>({
     //   sender,
     //   appId: guild,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:341
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:345
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -2098,7 +2098,7 @@ partiallyInitialize:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:338-342
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:342-346
     // abiCall<typeof Guild.prototype.partiallyInitialize>({
     //   sender,
     //   appId: guild,
@@ -2111,7 +2111,7 @@ partiallyInitialize:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:335
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:339
     // partiallyInitialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     intc_2 // 1
     return
@@ -2119,7 +2119,7 @@ partiallyInitialize:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.initialize[routing]() -> void:
 initialize:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:345
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:349
     // initialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     txna ApplicationArgs 1
     dup
@@ -2143,22 +2143,22 @@ initialize:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:346
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:350
     // this.requireGuild(guild)
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:347
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:351
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:348-352
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:352-356
     // abiCall<typeof Guild.prototype.initialize>({
     //   sender,
     //   appId: guild,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:351
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:355
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -2166,7 +2166,7 @@ initialize:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:348-352
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:352-356
     // abiCall<typeof Guild.prototype.initialize>({
     //   sender,
     //   appId: guild,
@@ -2179,7 +2179,7 @@ initialize:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:345
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:349
     // initialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     intc_2 // 1
     return
@@ -2187,7 +2187,7 @@ initialize:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.newProposal[routing]() -> void:
 newProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:357-365
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:361-369
     // newProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2243,7 +2243,7 @@ newProposal:
     intc_0 // 0
 
 newProposal_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:357-365
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:361-369
     // newProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2298,7 +2298,7 @@ newProposal_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:357-365
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:361-369
     // newProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2329,18 +2329,18 @@ newProposal_after_for@4:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:366
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:370
     // this.requireGuild(guild)
     uncover 3
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:367
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:371
     // const sender = getControlledSpendingAccount(wallet)
     uncover 5
     dup
     cover 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:368-372
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:372-376
     // const cost = abiCall<typeof Guild.prototype.proposalCost>({
     //   sender,
     //   appId: guild,
@@ -2375,13 +2375,13 @@ newProposal_after_for@4:
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalCostInfo
     pushint 4
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:373
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:377
     // this.requireWithinQuote(cost.total, maxCost)
     extract_uint64
     dup
     uncover 4
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:375-389
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:379-393
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
@@ -2398,7 +2398,7 @@ newProposal_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:381
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:385
     // receiver: guild.address,
     dig 2
     app_params_get AppAddress
@@ -2407,7 +2407,7 @@ newProposal_after_for@4:
     itxn_field Amount
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:379-383
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:383-387
     // itxn.payment({
     //   sender,
     //   receiver: guild.address,
@@ -2417,7 +2417,7 @@ newProposal_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:375-389
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:379-393
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
@@ -2434,7 +2434,7 @@ newProposal_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:388
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:392
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 6
     uncover 3
@@ -2442,7 +2442,7 @@ newProposal_after_for@4:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:375-389
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:379-393
     // const proposalID = abiCall<typeof Guild.prototype.newProposal>({
     //   sender,
     //   appId: guild,
@@ -2482,7 +2482,7 @@ newProposal_after_for@4:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:357-365
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:361-369
     // newProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2502,7 +2502,7 @@ newProposal_after_for@4:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.newProposalWithFeeAsset[routing]() -> void:
 newProposalWithFeeAsset:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:397-407
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:401-411
     // newProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2562,7 +2562,7 @@ newProposalWithFeeAsset:
     intc_0 // 0
 
 newProposalWithFeeAsset_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:397-407
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:401-411
     // newProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2619,7 +2619,7 @@ newProposalWithFeeAsset_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:397-407
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:401-411
     // newProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2671,18 +2671,18 @@ newProposalWithFeeAsset_after_for@4:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:408
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:412
     // this.requireGuild(guild)
     dig 4
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:409
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:413
     // const sender = getControlledSpendingAccount(wallet)
     dig 7
     callsub getControlledSpendingAccount
     dup
     cover 4
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:410-414
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:414-418
     // const cost = abiCall<typeof Guild.prototype.proposalCost>({
     //   sender,
     //   appId: guild,
@@ -2715,7 +2715,7 @@ newProposalWithFeeAsset_after_for@4:
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalCostInfo
     pushint 68
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:415
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:419
     // loggedAssert(cost.feeAsset === feeAsset, errGuildCostLimitExceeded)
     extract_uint64
     ==
@@ -2725,7 +2725,7 @@ newProposalWithFeeAsset_after_for@4:
     err // ERR:errGcle
 
 newProposalWithFeeAsset_after_assert@8:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:416
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:420
     // this.requireWithinQuote(cost.total, maxCost)
     dup
     pushint 4
@@ -2733,7 +2733,7 @@ newProposalWithFeeAsset_after_assert@8:
     dup
     uncover 5
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:417
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:421
     // this.requireWithinQuote(cost.fee, maxFee)
     swap
     pushint 20
@@ -2741,7 +2741,7 @@ newProposalWithFeeAsset_after_assert@8:
     dup
     uncover 3
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:419-430
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:423-434
     // return abiCall<typeof Guild.prototype.newProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -2755,7 +2755,7 @@ newProposalWithFeeAsset_after_assert@8:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:423
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:427
     // itxn.payment({ sender, receiver: guild.address, amount: cost.total }),
     uncover 4
     dup
@@ -2773,7 +2773,7 @@ newProposalWithFeeAsset_after_assert@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:424
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:428
     // itxn.assetTransfer({ sender, assetReceiver: guild.address, xferAsset: feeAsset, assetAmount: cost.fee }),
     itxn_next
     dig 2
@@ -2790,7 +2790,7 @@ newProposalWithFeeAsset_after_assert@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:419-430
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:423-434
     // return abiCall<typeof Guild.prototype.newProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -2804,7 +2804,7 @@ newProposalWithFeeAsset_after_assert@8:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:429
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:433
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 5
     uncover 4
@@ -2812,7 +2812,7 @@ newProposalWithFeeAsset_after_assert@8:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:419-430
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:423-434
     // return abiCall<typeof Guild.prototype.newProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -2849,7 +2849,7 @@ newProposalWithFeeAsset_after_assert@8:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:397-407
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:401-411
     // newProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2875,7 +2875,7 @@ editProposalWithFeeAsset:
     dup
     pushbytes ""
     dupn 3
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:437-448
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:441-452
     // editProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2944,7 +2944,7 @@ editProposalWithFeeAsset:
     cover 8
 
 editProposalWithFeeAsset_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:437-448
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:441-452
     // editProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3001,7 +3001,7 @@ editProposalWithFeeAsset_for_header@1:
     b editProposalWithFeeAsset_for_header@1
 
 editProposalWithFeeAsset_after_for@4:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:437-448
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:441-452
     // editProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3054,17 +3054,17 @@ editProposalWithFeeAsset_after_for@4:
     assert // invalid number of bytes for arc4.uint64
     btoi
     bury 14
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:449
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:453
     // this.requireGuild(guild)
     dupn 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:450
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:454
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
     dup
     cover 3
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:451-455
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:455-459
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3120,7 +3120,7 @@ editProposalWithFeeAsset_after_for@4:
     bury 13
 
 editProposalWithFeeAsset_for_header@7:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:451-455
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:455-459
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3171,7 +3171,7 @@ editProposalWithFeeAsset_for_header@7:
 
 editProposalWithFeeAsset_after_for@10:
     bury 1
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:451-455
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:455-459
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3182,7 +3182,7 @@ editProposalWithFeeAsset_after_for@10:
     uncover 2
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposal
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:456-460
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:460-464
     // const cost = abiCall<typeof Guild.prototype.proposalCost>({
     //   sender,
     //   appId: guild,
@@ -3217,7 +3217,7 @@ editProposalWithFeeAsset_after_for@10:
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalCostInfo
     pushint 68
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:461
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:465
     // loggedAssert(cost.feeAsset === feeAsset, errGuildCostLimitExceeded)
     extract_uint64
     dig 3
@@ -3228,7 +3228,7 @@ editProposalWithFeeAsset_after_for@10:
     err // ERR:errGcle
 
 editProposalWithFeeAsset_after_assert@13:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:462
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:466
     // const algoTopUp: uint64 = cost.total > proposal.feesPaid ? cost.total - proposal.feesPaid : 0
     dig 16
     pushint 4
@@ -3244,7 +3244,7 @@ editProposalWithFeeAsset_after_assert@13:
     -
 
 editProposalWithFeeAsset_ternary_merge@16:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:463
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:467
     // const tokenTopUp: uint64 = feeAsset !== 0 && cost.fee > proposal.feeTokensPaid ? cost.fee - proposal.feeTokensPaid : 0
     dig 3
     bz editProposalWithFeeAsset_ternary_false@19
@@ -3266,21 +3266,21 @@ editProposalWithFeeAsset_ternary_merge@16:
     swap
 
 editProposalWithFeeAsset_ternary_merge@20:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:464
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:468
     // this.requireWithinQuote(algoTopUp, maxCost)
     dup
     dig 18
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:465
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:469
     // this.requireWithinQuote(tokenTopUp, maxFee)
     dig 1
     dup
     dig 18
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:467
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:471
     // if (tokenTopUp > 0) {
     bz editProposalWithFeeAsset_else_body@25
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:468-480
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:472-484
     // abiCall<typeof Guild.prototype.editProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -3295,7 +3295,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:472
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:476
     // itxn.payment({ sender, receiver: guild.address, amount: algoTopUp }),
     uncover 2
     dup
@@ -3312,7 +3312,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:473
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:477
     // itxn.assetTransfer({ sender, assetReceiver: guild.address, xferAsset: feeAsset, assetAmount: tokenTopUp }),
     itxn_next
     dup
@@ -3329,7 +3329,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:468-480
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:472-484
     // abiCall<typeof Guild.prototype.editProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -3344,7 +3344,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:479
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:483
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -3352,7 +3352,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:468-480
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:472-484
     // abiCall<typeof Guild.prototype.editProposalWithFeeAsset>({
     //   sender,
     //   appId: guild,
@@ -3380,7 +3380,7 @@ editProposalWithFeeAsset_ternary_merge@20:
     itxn_submit
 
 editProposalWithFeeAsset_after_if_else@32:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:437-448
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:441-452
     // editProposalWithFeeAsset(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3400,11 +3400,11 @@ editProposalWithFeeAsset_else_body@25:
     bury 1
     uncover 3
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:481
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:485
     // } else if (algoTopUp > 0) {
     dup
     bz editProposalWithFeeAsset_else_body@29
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:482-487
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:486-491
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3412,7 +3412,7 @@ editProposalWithFeeAsset_else_body@25:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:485
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:489
     // args: [itxn.payment({ sender, receiver: guild.address, amount: algoTopUp }), proposalID, cid, actions, evidence],
     swap
     dup
@@ -3428,7 +3428,7 @@ editProposalWithFeeAsset_else_body@25:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:482-487
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:486-491
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3436,7 +3436,7 @@ editProposalWithFeeAsset_else_body@25:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:486
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:490
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -3444,7 +3444,7 @@ editProposalWithFeeAsset_else_body@25:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:482-487
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:486-491
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3467,7 +3467,7 @@ editProposalWithFeeAsset_else_body@25:
 
 editProposalWithFeeAsset_else_body@29:
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:489-494
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:493-498
     // abiCall<typeof Guild.prototype.editProposal>({
     //   sender,
     //   appId: guild,
@@ -3475,7 +3475,7 @@ editProposalWithFeeAsset_else_body@29:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:493
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:497
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -3483,7 +3483,7 @@ editProposalWithFeeAsset_else_body@29:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:489-494
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:493-498
     // abiCall<typeof Guild.prototype.editProposal>({
     //   sender,
     //   appId: guild,
@@ -3505,7 +3505,7 @@ editProposalWithFeeAsset_else_body@29:
     b editProposalWithFeeAsset_after_if_else@32
 
 editProposalWithFeeAsset_ternary_false@19:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:463
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:467
     // const tokenTopUp: uint64 = feeAsset !== 0 && cost.fee > proposal.feeTokensPaid ? cost.fee - proposal.feeTokensPaid : 0
     intc_0 // 0
     swap
@@ -3513,7 +3513,7 @@ editProposalWithFeeAsset_ternary_false@19:
 
 editProposalWithFeeAsset_ternary_false@15:
     popn 2
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:462
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:466
     // const algoTopUp: uint64 = cost.total > proposal.feesPaid ? cost.total - proposal.feesPaid : 0
     intc_0 // 0
     b editProposalWithFeeAsset_ternary_merge@16
@@ -3521,7 +3521,7 @@ editProposalWithFeeAsset_ternary_false@15:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.editProposal[routing]() -> void:
 editProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:498-507
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:502-511
     // editProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3588,7 +3588,7 @@ editProposal:
     cover 8
 
 editProposal_for_header@1:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:498-507
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:502-511
     // editProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3643,7 +3643,7 @@ editProposal_for_header@1:
     b editProposal_for_header@1
 
 editProposal_after_for@4:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:498-507
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:502-511
     // editProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3678,17 +3678,17 @@ editProposal_after_for@4:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:508
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:512
     // this.requireGuild(guild)
     dupn 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:509
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:513
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
     dup
     cover 3
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:510-514
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:514-518
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3743,7 +3743,7 @@ editProposal_after_for@4:
     bury 14
 
 editProposal_for_header@7:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:510-514
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:514-518
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3794,7 +3794,7 @@ editProposal_for_header@7:
 
 editProposal_after_for@10:
     bury 1
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:510-514
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:514-518
     // const proposal = abiCall<typeof Guild.prototype.getProposal>({
     //   sender,
     //   appId: guild,
@@ -3804,7 +3804,7 @@ editProposal_after_for@10:
     +
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposal
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:515-519
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:519-523
     // const cost = abiCall<typeof Guild.prototype.proposalCost>({
     //   sender,
     //   appId: guild,
@@ -3836,7 +3836,7 @@ editProposal_after_for@10:
     pushint 72
     ==
     assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalCostInfo
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:521
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:525
     // if (proposal.feesPaid < cost.total) {
     uncover 5
     pushint 153
@@ -3849,14 +3849,14 @@ editProposal_after_for@10:
     cover 2
     <
     bz editProposal_else_body@15
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:523
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:527
     // this.requireWithinQuote(cost.total - proposal.feesPaid, maxCost)
     swap
     -
     dup
     uncover 4
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:524-539
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:528-543
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3874,7 +3874,7 @@ editProposal_after_for@10:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:530
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:534
     // receiver: guild.address,
     dig 1
     app_params_get AppAddress
@@ -3884,7 +3884,7 @@ editProposal_after_for@10:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:528-532
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:532-536
     // itxn.payment({
     //   sender,
     //   receiver: guild.address,
@@ -3894,7 +3894,7 @@ editProposal_after_for@10:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:524-539
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:528-543
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3912,7 +3912,7 @@ editProposal_after_for@10:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:538
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:542
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -3920,7 +3920,7 @@ editProposal_after_for@10:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:524-539
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:528-543
     // abiCall<typeof Guild.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: guild,
@@ -3951,7 +3951,7 @@ editProposal_after_for@10:
     itxn_submit
 
 editProposal_after_if_else@17:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:498-507
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:502-511
     // editProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3969,7 +3969,7 @@ editProposal_else_body@15:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:541-546
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:545-550
     // abiCall<typeof Guild.prototype.editProposal>({
     //   sender,
     //   appId: guild,
@@ -3977,7 +3977,7 @@ editProposal_else_body@15:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:545
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:549
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -3985,7 +3985,7 @@ editProposal_else_body@15:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:541-546
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:545-550
     // abiCall<typeof Guild.prototype.editProposal>({
     //   sender,
     //   appId: guild,
@@ -4009,7 +4009,7 @@ editProposal_else_body@15:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.deleteProposal[routing]() -> void:
 deleteProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:550
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:554
     // deleteProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -4039,15 +4039,15 @@ deleteProposal:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:551
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:555
     // this.requireGuild(guild)
     dig 1
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:552
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:556
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:553-558
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:557-562
     // abiCall<typeof Guild.prototype.deleteProposal>({
     //   sender,
     //   appId: guild,
@@ -4055,7 +4055,7 @@ deleteProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:557
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:561
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -4064,7 +4064,7 @@ deleteProposal:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:553-558
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:557-562
     // abiCall<typeof Guild.prototype.deleteProposal>({
     //   sender,
     //   appId: guild,
@@ -4079,7 +4079,7 @@ deleteProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:550
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:554
     // deleteProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     intc_2 // 1
     return
@@ -4087,7 +4087,7 @@ deleteProposal:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.submitProposal[routing]() -> void:
 submitProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:561-567
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:565-571
     // submitProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4133,15 +4133,15 @@ submitProposal:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:568
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:572
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:569
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:573
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:570-575
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:574-579
     // abiCall<typeof Guild.prototype.submitProposal>({
     //   sender,
     //   appId: guild,
@@ -4149,7 +4149,7 @@ submitProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:574
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:578
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -4158,7 +4158,7 @@ submitProposal:
     uncover 3
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:570-575
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:574-579
     // abiCall<typeof Guild.prototype.submitProposal>({
     //   sender,
     //   appId: guild,
@@ -4175,7 +4175,7 @@ submitProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:561-567
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:565-571
     // submitProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4189,7 +4189,7 @@ submitProposal:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.voteProposal[routing]() -> void:
 voteProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:578-586
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:582-590
     // voteProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4250,15 +4250,15 @@ voteProposal:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:587
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:591
     // this.requireGuild(guild)
     dig 4
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:588
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:592
     // const sender = getControlledSpendingAccount(wallet)
     dig 6
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:590
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:594
     // const voteMbr = abiCall<typeof Guild.prototype.voteCost>({ sender, appId: guild, args: [proposalID, sender] }).returnValue
     itxn_begin
     dig 5
@@ -4290,12 +4290,12 @@ voteProposal:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:591
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:595
     // this.requireWithinQuote(voteMbr, maxCost)
     dup
     uncover 3
     callsub requireWithinQuote
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:592-606
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:596-610
     // abiCall<typeof Guild.prototype.voteProposal>({
     //   sender,
     //   appId: guild,
@@ -4312,7 +4312,7 @@ voteProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:598
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:602
     // receiver: guild.address,
     dig 5
     app_params_get AppAddress
@@ -4321,7 +4321,7 @@ voteProposal:
     itxn_field Amount
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:596-600
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:600-604
     // itxn.payment({
     //   sender,
     //   receiver: guild.address,
@@ -4331,7 +4331,7 @@ voteProposal:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:592-606
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:596-610
     // abiCall<typeof Guild.prototype.voteProposal>({
     //   sender,
     //   appId: guild,
@@ -4348,7 +4348,7 @@ voteProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:605
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:609
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 5
     uncover 6
@@ -4357,7 +4357,7 @@ voteProposal:
     uncover 4
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:592-606
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:596-610
     // abiCall<typeof Guild.prototype.voteProposal>({
     //   sender,
     //   appId: guild,
@@ -4385,7 +4385,7 @@ voteProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:578-586
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:582-590
     // voteProposal(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4401,7 +4401,7 @@ voteProposal:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.finalizeProposal[routing]() -> void:
 finalizeProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:609
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:613
     // finalizeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -4431,15 +4431,15 @@ finalizeProposal:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:610
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:614
     // this.requireGuild(guild)
     dig 1
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:611
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:615
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:612-617
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:616-621
     // abiCall<typeof Guild.prototype.finalizeProposal>({
     //   sender,
     //   appId: guild,
@@ -4447,7 +4447,7 @@ finalizeProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:616
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:620
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -4456,7 +4456,7 @@ finalizeProposal:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:612-617
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:616-621
     // abiCall<typeof Guild.prototype.finalizeProposal>({
     //   sender,
     //   appId: guild,
@@ -4471,7 +4471,7 @@ finalizeProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:609
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:613
     // finalizeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     intc_2 // 1
     return
@@ -4479,7 +4479,7 @@ finalizeProposal:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.cleanupProposalConsensus[routing]() -> void:
 cleanupProposalConsensus:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:620-626
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:624-630
     // cleanupProposalConsensus(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4527,15 +4527,15 @@ cleanupProposalConsensus:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<account>
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:627
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:631
     // this.requireGuild(guild)
     dig 2
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:628
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:632
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:629-634
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:633-638
     // const amount = abiCall<typeof Guild.prototype.cleanupProposalConsensus>({
     //   sender,
     //   appId: guild,
@@ -4543,7 +4543,7 @@ cleanupProposalConsensus:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:633
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:637
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -4552,7 +4552,7 @@ cleanupProposalConsensus:
     uncover 3
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:629-634
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:633-638
     // const amount = abiCall<typeof Guild.prototype.cleanupProposalConsensus>({
     //   sender,
     //   appId: guild,
@@ -4582,7 +4582,7 @@ cleanupProposalConsensus:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:620-626
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:624-630
     // cleanupProposalConsensus(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4600,7 +4600,7 @@ cleanupProposalConsensus:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.cancelProposal[routing]() -> void:
 cancelProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:639
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:643
     // cancelProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -4630,15 +4630,15 @@ cancelProposal:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:640
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:644
     // this.requireGuild(guild)
     dig 1
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:641
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:645
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:642-647
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:646-651
     // abiCall<typeof Guild.prototype.cancelProposal>({
     //   sender,
     //   appId: guild,
@@ -4646,7 +4646,7 @@ cancelProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:646
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:650
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -4655,7 +4655,7 @@ cancelProposal:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:642-647
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:646-651
     // abiCall<typeof Guild.prototype.cancelProposal>({
     //   sender,
     //   appId: guild,
@@ -4670,7 +4670,7 @@ cancelProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:639
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:643
     // cancelProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     intc_2 // 1
     return
@@ -4678,7 +4678,7 @@ cancelProposal:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.executeProposal[routing]() -> void:
 executeProposal:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:650
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:654
     // executeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -4708,15 +4708,15 @@ executeProposal:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:651
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:655
     // this.requireGuild(guild)
     dig 1
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:652
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:656
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:653-658
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:657-662
     // abiCall<typeof Guild.prototype.executeProposal>({
     //   sender,
     //   appId: guild,
@@ -4724,7 +4724,7 @@ executeProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:657
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:661
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -4733,7 +4733,7 @@ executeProposal:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:653-658
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:657-662
     // abiCall<typeof Guild.prototype.executeProposal>({
     //   sender,
     //   appId: guild,
@@ -4748,15 +4748,321 @@ executeProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:650
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:654
     // executeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.usePluginAsSigner[routing]() -> void:
+usePluginAsSigner:
+    pushbytes ""
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    swap
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 4
+    dup
+    cover 2
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 6
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 8
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    txna ApplicationArgs 7
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 16
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::FundsRequest>
+    txna ApplicationArgs 8
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    pushint 2
+    *
+    swap
+    dup
+    len
+    cover 3
+    extract 2 0
+    cover 2
+    intc_0 // 0
+
+usePluginAsSigner_for_header@1:
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
+    dup
+    dig 6
+    <
+    bz usePluginAsSigner_after_for@8
+    dup
+    pushint 2
+    *
+    dig 4
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    ==
+    assert // invalid tail pointer for (len+(len+(len+uint8[])[])[])
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 16
+    pushint 2
+    *
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+usePluginAsSigner_for_header@3:
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
+    dup
+    dig 17
+    <
+    bz usePluginAsSigner_after_for@6
+    dup
+    pushint 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    cover 3
+    intc_2 // 1
+    +
+    b usePluginAsSigner_for_header@3
+
+usePluginAsSigner_after_for@6:
+    pop
+    bury 1
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
+    swap
+    pushint 2
+    +
+    uncover 2
+    +
+    swap
+    intc_2 // 1
+    +
+    b usePluginAsSigner_for_header@1
+
+usePluginAsSigner_after_for@8:
+    pop
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
+    pushint 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:680
+    // this.requireGuild(guild)
+    dig 9
+    dup
+    callsub requireGuild
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:681
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 1
+    callsub getControlledSpendingAccount
+    swap
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:683
+    // const [consensus, exists] = op.AppGlobal.getExUint64(guild, Bytes(GuildGlobalStateKeyConsensus))
+    pushbytes "consensus"
+    app_global_get_ex
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:684
+    // loggedAssert(exists, errGuildNotFromFactory)
+    bnz usePluginAsSigner_after_assert@11
+    bytec_1 // "ERR:errGnff"
+    log
+    err // ERR:errGnff
+
+usePluginAsSigner_after_assert@11:
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:685-690
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.usePlugin>({
+    //   sender,
+    //   appId: consensus,
+    //   args: [plugin, escrow, methodOffsets, fundsRequest, calls],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:689
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    dig 12
+    uncover 3
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:685-690
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.usePlugin>({
+    //   sender,
+    //   appId: consensus,
+    //   args: [plugin, escrow, methodOffsets, fundsRequest, calls],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xc1d65650 // method "usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"
+    itxn_field ApplicationArgs
+    dig 7
+    itxn_field ApplicationArgs
+    dig 6
+    itxn_field ApplicationArgs
+    dig 5
+    itxn_field ApplicationArgs
+    dig 4
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:670-679
+    // usePluginAsSigner(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   guild: Application,
+    //   plugin: uint64,
+    //   escrow: string,
+    //   methodOffsets: uint64[],
+    //   fundsRequest: FundsRequest[],
+    //   calls: bytes[][],
+    // ): void {
     intc_2 // 1
     return
 
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.sweep[routing]() -> void:
 sweep:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:662
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:694
     // sweep(wallet: Application, rekeyBack: boolean, guild: Application): uint64 {
     txna ApplicationArgs 1
     dup
@@ -4780,22 +5086,22 @@ sweep:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:663
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:695
     // this.requireGuild(guild)
     dup
     callsub requireGuild
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:664
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:696
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:665-669
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:697-701
     // return abiCall<typeof Guild.prototype.sweep>({
     //   sender,
     //   appId: guild,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:668
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:700
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -4803,7 +5109,7 @@ sweep:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:665-669
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:697-701
     // return abiCall<typeof Guild.prototype.sweep>({
     //   sender,
     //   appId: guild,
@@ -4829,7 +5135,7 @@ sweep:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:662
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:694
     // sweep(wallet: Application, rekeyBack: boolean, guild: Application): uint64 {
     bytec_0 // 0x151f7c75
     swap
@@ -4841,7 +5147,7 @@ sweep:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.opUp[routing]() -> void:
 opUp:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:674
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:706
     // opUp(wallet: Application, rekeyBack: boolean, nonce: uint64): void {}
     txna ApplicationArgs 1
     len
@@ -4864,10 +5170,10 @@ opUp:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.requireGuild(guild: uint64) -> void:
 requireGuild:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:68
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:72
     // private requireGuild(guild: Application): void {
     proto 1 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:69
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:73
     // loggedAssert(guild.id > 0, errGuildNotFromFactory)
     frame_dig -1
     bnz requireGuild_after_assert@2
@@ -4876,24 +5182,24 @@ requireGuild:
     err // ERR:errGnff
 
 requireGuild_after_assert@2:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:70
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:74
     // if (this.guild.value.id > 0) {
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
     // guild = GlobalState<Application>({ key: 'guild' })
     bytec_3 // "guild"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:70
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:74
     // if (this.guild.value.id > 0) {
     app_global_get_ex
     assert // check GlobalState exists
     bz requireGuild_after_if_else@6
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:71
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:75
     // loggedAssert(guild === this.guild.value, errGuildNotFromFactory)
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:56
     // guild = GlobalState<Application>({ key: 'guild' })
     bytec_3 // "guild"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:71
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:75
     // loggedAssert(guild === this.guild.value, errGuildNotFromFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4905,16 +5211,16 @@ requireGuild_after_assert@2:
     err // ERR:errGnff
 
 requireGuild_after_if_else@6:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:73
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:77
     // loggedAssert(guild.creator === this.factory.value.address, errGuildNotFromFactory)
     frame_dig -1
     app_params_get AppCreator
     assert // application exists
     intc_0 // 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:54
     // factory = GlobalState<Application>({ key: 'factory' })
     bytec_2 // "factory"
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:73
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:77
     // loggedAssert(guild.creator === this.factory.value.address, errGuildNotFromFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4932,10 +5238,10 @@ requireGuild_after_assert@8:
 
 // smart_contracts/arc58/plugins/guild/contract.algo.ts::GuildPlugin.requireWithinQuote(cost: uint64, maxCost: uint64) -> void:
 requireWithinQuote:
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:77
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:81
     // private requireWithinQuote(cost: uint64, maxCost: uint64): void {
     proto 2 0
-    // smart_contracts/arc58/plugins/guild/contract.algo.ts:78
+    // smart_contracts/arc58/plugins/guild/contract.algo.ts:82
     // loggedAssert(cost <= maxCost, errGuildCostLimitExceeded)
     frame_dig -2
     frame_dig -1

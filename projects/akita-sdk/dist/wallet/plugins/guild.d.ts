@@ -59,6 +59,11 @@ type FinalizeProposalArgs = WalletPluginArgs<ContractMethodArgs<"finalizeProposa
 type CancelProposalArgs = WalletPluginArgs<ContractMethodArgs<"cancelProposal">>;
 type CleanupProposalConsensusArgs = WalletPluginArgs<ContractMethodArgs<"cleanupProposalConsensus">>;
 type ExecuteProposalArgs = WalletPluginArgs<ContractMethodArgs<"executeProposal">>;
+type UsePluginAsSignerArgs = WalletPluginArgs<Omit<ContractMethodArgs<"usePluginAsSigner">, "escrow" | "methodOffsets" | "fundsRequest"> & {
+    escrow?: string;
+    methodOffsets?: bigint[] | number[];
+    fundsRequest?: [bigint | number, bigint | number][];
+}>;
 type OpUpArgs = WalletPluginArgs<ContractMethodArgs<"opUp">>;
 /** What a proposal costs now: ALGO `total` (storage, plus the fee when `feeAsset` is 0) and `fee` in `feeAsset`. */
 export type GuildProposalQuote = {
@@ -160,6 +165,15 @@ export declare class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
     cancelProposal(args: CancelProposalArgs): PluginSDKReturn;
     executeProposal(): PluginSDKReturn;
     executeProposal(args: ExecuteProposalArgs): PluginSDKReturn;
+    /**
+     * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+     * meets the threshold. No proposal is involved, so this is the whole action in one send. Each entry of
+     * `calls` is the application arguments of one call to `plugin`: the method selector, then the Guild
+     * wallet's ID as a uint64, then the rest of that method's arguments; only the last call hands the Guild
+     * wallet back. The route carries only plugin methods that take no transaction argument.
+     */
+    usePluginAsSigner(): PluginSDKReturn;
+    usePluginAsSigner(args: UsePluginAsSignerArgs): PluginSDKReturn;
     sweep(): PluginSDKReturn;
     sweep(args: GuildOnlyArgs): PluginSDKReturn;
     opUp(): PluginSDKReturn;

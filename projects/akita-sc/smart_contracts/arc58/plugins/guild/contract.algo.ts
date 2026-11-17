@@ -7,12 +7,15 @@ import {
   GlobalState,
   itxn,
   loggedAssert,
+  op,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { bzero } from '@algorandfoundation/algorand-typescript/op'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import type { CID } from '../../../utils/types/base'
+import type { FundsRequest } from '../../account/types'
+import { GuildGlobalStateKeyConsensus } from '../../guilds/core/constants'
 import type {
   GuildBaseConfig,
   GuildDeployment,
@@ -24,6 +27,7 @@ import type {
 import { errGuildCostLimitExceeded, errGuildNotFromFactory } from './errors'
 
 // CONTRACT IMPORTS
+import type { FixedSignerGuildConsensus } from '../../guilds/consensus/fixed-signers/contract.algo'
 import type { Guild } from '../../guilds/core/contract.algo'
 import type { GuildFactory } from '../../guilds/factory/contract.algo'
 
@@ -654,6 +658,34 @@ export class GuildPlugin extends Contract {
       sender,
       appId: guild,
       args: [proposalID],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /**
+   * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+   * meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+   * use itself. A Guild with any other consensus has no such route, and the call fails.
+   */
+  usePluginAsSigner(
+    wallet: Application,
+    rekeyBack: boolean,
+    guild: Application,
+    plugin: uint64,
+    escrow: string,
+    methodOffsets: uint64[],
+    fundsRequest: FundsRequest[],
+    calls: bytes[][],
+  ): void {
+    this.requireGuild(guild)
+    const sender = getControlledSpendingAccount(wallet)
+    // A Guild and its consensus are paired for life, so the Guild's own record names the right app.
+    const [consensus, exists] = op.AppGlobal.getExUint64(guild, Bytes(GuildGlobalStateKeyConsensus))
+    loggedAssert(exists, errGuildNotFromFactory)
+    abiCall<typeof FixedSignerGuildConsensus.prototype.usePlugin>({
+      sender,
+      appId: consensus,
+      args: [plugin, escrow, methodOffsets, fundsRequest, calls],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
   }

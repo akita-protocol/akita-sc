@@ -385,9 +385,14 @@ export class AbstractedAccount extends Contract {
     return domain !== '' && this.domainKeys(Txn.sender).exists && this.domainKeys(Txn.sender).value === domain
   }
 
-  /** @returns whether the caller is the revocation app address */
+  /**
+   * @returns whether the revocation app is the app calling this wallet.
+   * The calling app is compared, not the sender. With no revocation app, id 0 resolves to this
+   * wallet itself, and a plugin can send as the wallet's address inside its window. No app can
+   * call itself, so with id 0 nobody passes.
+   */
   private canRevoke(): boolean {
-    return Txn.sender === this.revocation.value.address
+    return Global.callerApplicationAddress === this.revocation.value.address
   }
 
   /** Resolve the plugin caller address from a CallerType enum value */
@@ -1321,7 +1326,16 @@ export class AbstractedAccount extends Contract {
    * @param escrow The escrow associated with the plugin
   */
   arc58_removePlugin(plugin: uint64, caller: Account, escrow: string): void {
-    this._requireAdminOrRevoke();
+    // A named caller may give up its own grant (an agent that shuts down frees the wallet's MBR).
+    // The app address marks an admin-type grant, and a plugin can send as that address inside its
+    // window, so it never counts as the grant's caller. The zero address (a global grant) cannot send.
+    if (Txn.sender === caller && caller !== Global.currentApplicationAddress) {
+      // The caller leaving is a change to the wallet, but not something its user did.
+      this.updateLastChange()
+    } else {
+      this._requireAdminOrRevoke();
+      this._touchState();
+    }
 
     const key: PluginKey = { plugin, caller: caller, escrow }
     this._requirePlugin(key)
@@ -1330,7 +1344,6 @@ export class AbstractedAccount extends Contract {
     const methodsLength: uint64 = this.plugins(key).value.methods.length
     this.plugins(key).delete();
     this._refundMbrToControlled(this.pluginsMbr(escrow, methodsLength))
-    this._touchState();
   }
 
   /**

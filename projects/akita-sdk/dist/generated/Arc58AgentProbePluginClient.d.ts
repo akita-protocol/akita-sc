@@ -48,6 +48,13 @@ export type Arc58AgentProbePluginArgs = {
             wallet: bigint | number;
             rekeyBack: boolean;
         };
+        'removeGrant(uint64,bool,uint64,address,string)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            plugin: bigint | number;
+            caller: string;
+            escrow: string;
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -55,6 +62,7 @@ export type Arc58AgentProbePluginArgs = {
     tuple: {
         'allowed(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
         'forbidden(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
+        'removeGrant(uint64,bool,uint64,address,string)void': [wallet: bigint | number, rekeyBack: boolean, plugin: bigint | number, caller: string, escrow: string];
     };
 };
 /**
@@ -63,6 +71,7 @@ export type Arc58AgentProbePluginArgs = {
 export type Arc58AgentProbePluginReturns = {
     'allowed(uint64,bool)void': void;
     'forbidden(uint64,bool)void': void;
+    'removeGrant(uint64,bool,uint64,address,string)void': void;
 };
 /**
  * Defines the types of available calls and state of the Arc58AgentProbePlugin smart contract.
@@ -79,6 +88,10 @@ export type Arc58AgentProbePluginTypes = {
         argsObj: Arc58AgentProbePluginArgs['obj']['forbidden(uint64,bool)void'];
         argsTuple: Arc58AgentProbePluginArgs['tuple']['forbidden(uint64,bool)void'];
         returns: Arc58AgentProbePluginReturns['forbidden(uint64,bool)void'];
+    }> & Record<'removeGrant(uint64,bool,uint64,address,string)void' | 'removeGrant', {
+        argsObj: Arc58AgentProbePluginArgs['obj']['removeGrant(uint64,bool,uint64,address,string)void'];
+        argsTuple: Arc58AgentProbePluginArgs['tuple']['removeGrant(uint64,bool,uint64,address,string)void'];
+        returns: Arc58AgentProbePluginReturns['removeGrant(uint64,bool,uint64,address,string)void'];
     }>;
 };
 /**
@@ -135,6 +148,13 @@ export declare abstract class Arc58AgentProbePluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static forbidden(params: CallParams<Arc58AgentProbePluginArgs['obj']['forbidden(uint64,bool)void'] | Arc58AgentProbePluginArgs['tuple']['forbidden(uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the removeGrant(uint64,bool,uint64,address,string)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static removeGrant(params: CallParams<Arc58AgentProbePluginArgs['obj']['removeGrant(uint64,bool,uint64,address,string)void'] | Arc58AgentProbePluginArgs['tuple']['removeGrant(uint64,bool,uint64,address,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the Arc58AgentProbePlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -456,6 +476,15 @@ export declare class Arc58AgentProbePluginClient {
         forbidden: (params: CallParams<Arc58AgentProbePluginArgs["obj"]["forbidden(uint64,bool)void"] | Arc58AgentProbePluginArgs["tuple"]["forbidden(uint64,bool)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Arc58AgentProbePlugin smart contract using the `removeGrant(uint64,bool,uint64,address,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        removeGrant: (params: CallParams<Arc58AgentProbePluginArgs["obj"]["removeGrant(uint64,bool,uint64,address,string)void"] | Arc58AgentProbePluginArgs["tuple"]["removeGrant(uint64,bool,uint64,address,string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
     };
     /**
      * Create transactions for the current app
@@ -488,6 +517,19 @@ export declare class Arc58AgentProbePluginClient {
          * @returns The call transaction
          */
         forbidden: (params: CallParams<Arc58AgentProbePluginArgs["obj"]["forbidden(uint64,bool)void"] | Arc58AgentProbePluginArgs["tuple"]["forbidden(uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Arc58AgentProbePlugin smart contract using the `removeGrant(uint64,bool,uint64,address,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        removeGrant: (params: CallParams<Arc58AgentProbePluginArgs["obj"]["removeGrant(uint64,bool,uint64,address,string)void"] | Arc58AgentProbePluginArgs["tuple"]["removeGrant(uint64,bool,uint64,address,string)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -542,6 +584,24 @@ export declare class Arc58AgentProbePluginClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the Arc58AgentProbePlugin smart contract using the `removeGrant(uint64,bool,uint64,address,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        removeGrant: (params: CallParams<Arc58AgentProbePluginArgs["obj"]["removeGrant(uint64,bool,uint64,address,string)void"] | Arc58AgentProbePluginArgs["tuple"]["removeGrant(uint64,bool,uint64,address,string)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | Arc58AgentProbePluginReturns["removeGrant(uint64,bool,uint64,address,string)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -573,6 +633,14 @@ export type Arc58AgentProbePluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     forbidden(params?: CallParams<Arc58AgentProbePluginArgs['obj']['forbidden(uint64,bool)void'] | Arc58AgentProbePluginArgs['tuple']['forbidden(uint64,bool)void']>): Arc58AgentProbePluginComposer<[...TReturns, Arc58AgentProbePluginReturns['forbidden(uint64,bool)void'] | undefined]>;
+    /**
+     * Calls the removeGrant(uint64,bool,uint64,address,string)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    removeGrant(params?: CallParams<Arc58AgentProbePluginArgs['obj']['removeGrant(uint64,bool,uint64,address,string)void'] | Arc58AgentProbePluginArgs['tuple']['removeGrant(uint64,bool,uint64,address,string)void']>): Arc58AgentProbePluginComposer<[...TReturns, Arc58AgentProbePluginReturns['removeGrant(uint64,bool,uint64,address,string)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the Arc58AgentProbePlugin smart contract.
      *

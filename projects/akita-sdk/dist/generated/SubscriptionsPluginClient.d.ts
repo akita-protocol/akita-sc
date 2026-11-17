@@ -86,6 +86,22 @@ export type SubscriptionsPluginArgs = {
             id: bigint | number;
             title: string;
         };
+        'updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            id: bigint | number;
+            highlightMessage: bigint | number;
+            highlightColor: Uint8Array;
+        };
+        'setFeaturedService(uint64,bool,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            id: bigint | number;
+        };
+        'clearFeaturedService(uint64,bool)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+        };
         'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -179,6 +195,9 @@ export type SubscriptionsPluginArgs = {
         'loadDescription(uint64,uint64,byte[])void': [wallet: bigint | number, offset: bigint | number, data: Uint8Array];
         'newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': [wallet: bigint | number, rekeyBack: boolean, interval: bigint | number, asset: bigint | number, amount: bigint | number, passes: bigint | number, gate: bigint | number, payoutAddress: string, title: string, bannerImage: Uint8Array, highlightMessage: bigint | number, highlightColor: Uint8Array];
         'updateServiceTitle(uint64,bool,uint64,string)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, title: string];
+        'updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, highlightMessage: bigint | number, highlightColor: Uint8Array];
+        'setFeaturedService(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number];
+        'clearFeaturedService(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
         'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, offset: bigint | number, data: Uint8Array];
         'pauseService(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number];
         'shutdownService(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, index: bigint | number];
@@ -206,6 +225,9 @@ export type SubscriptionsPluginReturns = {
     'loadDescription(uint64,uint64,byte[])void': void;
     'newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': bigint;
     'updateServiceTitle(uint64,bool,uint64,string)void': void;
+    'updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void': void;
+    'setFeaturedService(uint64,bool,uint64)void': void;
+    'clearFeaturedService(uint64,bool)void': void;
     'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': void;
     'pauseService(uint64,bool,uint64)void': void;
     'shutdownService(uint64,bool,uint64)void': void;
@@ -253,6 +275,18 @@ export type SubscriptionsPluginTypes = {
         argsObj: SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'];
         argsTuple: SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void'];
         returns: SubscriptionsPluginReturns['updateServiceTitle(uint64,bool,uint64,string)void'];
+    }> & Record<'updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void' | 'updateServiceHighlight', {
+        argsObj: SubscriptionsPluginArgs['obj']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'];
+        returns: SubscriptionsPluginReturns['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'];
+    }> & Record<'setFeaturedService(uint64,bool,uint64)void' | 'setFeaturedService', {
+        argsObj: SubscriptionsPluginArgs['obj']['setFeaturedService(uint64,bool,uint64)void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['setFeaturedService(uint64,bool,uint64)void'];
+        returns: SubscriptionsPluginReturns['setFeaturedService(uint64,bool,uint64)void'];
+    }> & Record<'clearFeaturedService(uint64,bool)void' | 'clearFeaturedService', {
+        argsObj: SubscriptionsPluginArgs['obj']['clearFeaturedService(uint64,bool)void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['clearFeaturedService(uint64,bool)void'];
+        returns: SubscriptionsPluginReturns['clearFeaturedService(uint64,bool)void'];
     }> & Record<'setServiceDescription(uint64,bool,uint64,uint64,byte[])void' | 'setServiceDescription', {
         argsObj: SubscriptionsPluginArgs['obj']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'];
         argsTuple: SubscriptionsPluginArgs['tuple']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'];
@@ -487,6 +521,29 @@ export declare abstract class SubscriptionsPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static updateServiceTitle(params: CallParams<SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'] | SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateServiceHighlight(params: CallParams<SubscriptionsPluginArgs['obj']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'] | SubscriptionsPluginArgs['tuple']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setFeaturedService(uint64,bool,uint64)void ABI method
+     *
+     * setFeaturedService pays the featured box storage from the wallet on the first call only
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setFeaturedService(params: CallParams<SubscriptionsPluginArgs['obj']['setFeaturedService(uint64,bool,uint64)void'] | SubscriptionsPluginArgs['tuple']['setFeaturedService(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the clearFeaturedService(uint64,bool)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static clearFeaturedService(params: CallParams<SubscriptionsPluginArgs['obj']['clearFeaturedService(uint64,bool)void'] | SubscriptionsPluginArgs['tuple']['clearFeaturedService(uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the setServiceDescription(uint64,bool,uint64,uint64,byte[])void ABI method
      *
@@ -1024,6 +1081,35 @@ export declare class SubscriptionsPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"] | SubscriptionsPluginArgs["tuple"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setFeaturedService(uint64,bool,uint64)void` ABI method.
+         *
+         * setFeaturedService pays the featured box storage from the wallet on the first call only
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["setFeaturedService(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["setFeaturedService(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `clearFeaturedService(uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        clearFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["clearFeaturedService(uint64,bool)void"] | SubscriptionsPluginArgs["tuple"]["clearFeaturedService(uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the SubscriptionsPlugin smart contract using the `setServiceDescription(uint64,bool,uint64,uint64,byte[])void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1250,6 +1336,47 @@ export declare class SubscriptionsPluginClient {
          * @returns The call transaction
          */
         updateServiceTitle: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceTitle(uint64,bool,uint64,string)void"] | SubscriptionsPluginArgs["tuple"]["updateServiceTitle(uint64,bool,uint64,string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"] | SubscriptionsPluginArgs["tuple"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setFeaturedService(uint64,bool,uint64)void` ABI method.
+         *
+         * setFeaturedService pays the featured box storage from the wallet on the first call only
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["setFeaturedService(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["setFeaturedService(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `clearFeaturedService(uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        clearFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["clearFeaturedService(uint64,bool)void"] | SubscriptionsPluginArgs["tuple"]["clearFeaturedService(uint64,bool)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1566,6 +1693,62 @@ export declare class SubscriptionsPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | SubscriptionsPluginReturns["updateServiceTitle(uint64,bool,uint64,string)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateServiceHighlight: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"] | SubscriptionsPluginArgs["tuple"]["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsPluginReturns["updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setFeaturedService(uint64,bool,uint64)void` ABI method.
+         *
+         * setFeaturedService pays the featured box storage from the wallet on the first call only
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["setFeaturedService(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["setFeaturedService(uint64,bool,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsPluginReturns["setFeaturedService(uint64,bool,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `clearFeaturedService(uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        clearFeaturedService: (params: CallParams<SubscriptionsPluginArgs["obj"]["clearFeaturedService(uint64,bool)void"] | SubscriptionsPluginArgs["tuple"]["clearFeaturedService(uint64,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | SubscriptionsPluginReturns["clearFeaturedService(uint64,bool)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1951,6 +2134,32 @@ export type SubscriptionsPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateServiceTitle(params?: CallParams<SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'] | SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['updateServiceTitle(uint64,bool,uint64,string)void'] | undefined]>;
+    /**
+     * Calls the updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateServiceHighlight(params?: CallParams<SubscriptionsPluginArgs['obj']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'] | SubscriptionsPluginArgs['tuple']['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['updateServiceHighlight(uint64,bool,uint64,uint8,byte[3])void'] | undefined]>;
+    /**
+     * Calls the setFeaturedService(uint64,bool,uint64)void ABI method.
+     *
+     * setFeaturedService pays the featured box storage from the wallet on the first call only
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setFeaturedService(params?: CallParams<SubscriptionsPluginArgs['obj']['setFeaturedService(uint64,bool,uint64)void'] | SubscriptionsPluginArgs['tuple']['setFeaturedService(uint64,bool,uint64)void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['setFeaturedService(uint64,bool,uint64)void'] | undefined]>;
+    /**
+     * Calls the clearFeaturedService(uint64,bool)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    clearFeaturedService(params?: CallParams<SubscriptionsPluginArgs['obj']['clearFeaturedService(uint64,bool)void'] | SubscriptionsPluginArgs['tuple']['clearFeaturedService(uint64,bool)void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['clearFeaturedService(uint64,bool)void'] | undefined]>;
     /**
      * Calls the setServiceDescription(uint64,bool,uint64,uint64,byte[])void ABI method.
      *

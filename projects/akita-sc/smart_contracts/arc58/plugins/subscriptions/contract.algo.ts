@@ -9,7 +9,7 @@ import { CID } from "../../../utils/types/base"
 
 // CONTRACT IMPORTS
 import { BaseSubscriptions } from "../../../subscriptions/base"
-import { MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
+import { FeaturedServiceMBR, MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
 import type { Subscriptions } from "../../../subscriptions/contract.algo"
 import { errCannotTrigger, errSubscriptionDoesNotExist } from "../../../subscriptions/errors"
 import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable"
@@ -238,6 +238,73 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       sender,
       appId,
       args: [id, title],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  updateServiceHighlight(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: ServiceID,
+    highlightMessage: Uint8,
+    highlightColor: bytes<3>
+  ): void {
+    const sender = getControlledSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.updateServiceHighlight>({
+      sender,
+      appId,
+      args: [id, highlightMessage, highlightColor],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** setFeaturedService pays the featured box storage from the wallet on the first call only */
+  setFeaturedService(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: ServiceID
+  ): void {
+    const sender = getControlledSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    // the featured box exists exactly when a non-zero id is stored
+    const current = abiCall<typeof Subscriptions.prototype.getFeaturedService>({
+      sender,
+      appId,
+      args: [sender],
+    }).returnValue
+
+    abiCall<typeof Subscriptions.prototype.setFeaturedService>({
+      sender,
+      appId,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: appId.address,
+          amount: current === 0 ? FeaturedServiceMBR : 0,
+        }),
+        id,
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  clearFeaturedService(
+    wallet: Application,
+    rekeyBack: boolean
+  ): void {
+    const sender = getControlledSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.clearFeaturedService>({
+      sender,
+      appId,
+      args: [],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
   }

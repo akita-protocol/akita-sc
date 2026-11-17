@@ -32,8 +32,11 @@ function specFiles(dir) {
   return found
 }
 
+/** Test helpers whose names the patterns below do not catch. Arc58AgentRevoker forwards a removal for anyone (ACCT-9). */
+const TEST_ONLY_NAMES = new Set(['Arc58AgentRevoker'])
+
 /** LocalNet-only programs: mocks, probes and stubs that no script deploys to a public network. */
-const isTestOnly = (key, name) => /(^|\/)(mocks|tests)\//.test(key) || /^(Mock|Test)[A-Z]/.test(name) || /(Mock|Probe|Stub)/.test(name)
+const isTestOnly = (key, name) => /(^|\/)(mocks|tests)\//.test(key) || /^(Mock|Test)[A-Z]/.test(name) || /(Mock|Probe|Stub)/.test(name) || TEST_ONLY_NAMES.has(name)
 
 export function buildManifest() {
   const programs = {}

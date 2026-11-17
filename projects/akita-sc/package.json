@@ -191,7 +191,13 @@
     "rollout:status": "ts-node --transpile-only scripts/rollout-status.ts",
     "release:manifest": "node scripts/release-manifest.mjs",
     "release:manifest:check": "node scripts/release-manifest.mjs --check",
-    "seal:gate-imports": "ts-node --transpile-only scripts/seal-gate-imports.ts"
+    "seal:gate-imports": "ts-node --transpile-only scripts/seal-gate-imports.ts",
+    "rewards:opt-in": "ts-node --transpile-only scripts/opt-in-rewards-assets.ts",
+    "dao:rescale-power": "ts-node --transpile-only scripts/rescale-proposal-power.ts",
+    "dao:initialize": "ts-node --transpile-only scripts/initialize-dao.ts",
+    "update:app-dao-escrow": "ts-node --transpile-only scripts/update-app-dao-escrow.ts",
+    "register:revenue-escrow": "ts-node --transpile-only scripts/register-revenue-escrow.ts",
+    "install:pay-silo-grant": "ts-node --transpile-only scripts/install-pay-silo-grant.ts"
   },
   "engines": {
     "node": ">=24.0",
