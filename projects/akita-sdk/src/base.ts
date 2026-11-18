@@ -40,7 +40,9 @@ export abstract class BaseSDK<T> {
     this.appId = resolvedAppId;
     this.algorand = algorand;
     if (readerAccount) { this.readerAccount = readerAccount; }
-    this.sendParams = { ...(sendParams ?? DEFAULT_SEND_PARAMS) };
+    // Caller send params override the defaults rather than replace them, so passing only a sender and
+    // signer keeps resource population, inner-fee coverage and the max fee.
+    this.sendParams = { ...DEFAULT_SEND_PARAMS, ...sendParams };
 
     if (!!factoryParams.defaultSender) {
       this.sendParams.sender = factoryParams.defaultSender;
@@ -50,8 +52,11 @@ export abstract class BaseSDK<T> {
     }
 
     // Create the client with the resolved app ID
+    // AlgoKit Utils 9 needs a sender even for read-only (simulated) calls, so reads fall back to the
+    // reader account when no default sender is given.
     this.client = new factory({ algorand }).getAppClientById({
       ...factoryParams,
+      defaultSender: factoryParams.defaultSender ?? this.readerAccount,
       appId: resolvedAppId,
     });
 

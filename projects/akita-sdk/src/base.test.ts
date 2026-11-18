@@ -9,23 +9,24 @@ import { ExpandedSendParams } from "./types";
 const FIRST_SENDER = "B4NOFTMLUTGTTPBY5NHLW3EHQPB5XCW3BHYDQFMX5XDT2A6Q24Z2HK2WRQ";
 const SECOND_SENDER = "RJZ3KL24OFSFNU6NKOJVGO65VSLHVGIT6TOMN2XKMRQEX3BGE7KWWXKCUQ";
 
-type TestClient = { appId: bigint };
+type TestClient = { appId: bigint; defaultSender?: unknown };
 
 class TestClientFactory {
   constructor(_params: { algorand: AlgorandClient }) {}
 
   getAppClientById(params: AppFactoryAppClientParams): TestClient {
-    return { appId: params.appId };
+    return { appId: params.appId, defaultSender: params.defaultSender };
   }
 }
 
 class TestSDK extends BaseSDK<TestClient> {
-  constructor({ defaultSender, sendParams }: { defaultSender?: string; sendParams?: ExpandedSendParams } = {}) {
+  constructor({ defaultSender, sendParams, readerAccount }: { defaultSender?: string; sendParams?: ExpandedSendParams; readerAccount?: string } = {}) {
     super({
       algorand: {} as AlgorandClient,
       factory: TestClientFactory,
       factoryParams: { appId: 1n, defaultSender },
       sendParams,
+      readerAccount,
     });
   }
 }
@@ -61,5 +62,16 @@ describe("BaseSDK send params", () => {
 
     expect(sdk.sendParams).not.toBe(supplied);
     expect(supplied.sender).toBe(FIRST_SENDER);
+  });
+
+  test("keeps the default fee and resource params when a caller supplies only a sender and signer", () => {
+    const sdk = new TestSDK({ sendParams: { sender: FIRST_SENDER } });
+
+    expect(sdk.sendParams).toMatchObject({ ...DEFAULT_SEND_PARAMS, sender: FIRST_SENDER });
+  });
+
+  test("gives the app client the reader account as its default sender for read-only calls", () => {
+    expect(new TestSDK({ readerAccount: FIRST_SENDER }).client.defaultSender).toBe(FIRST_SENDER);
+    expect(new TestSDK({ readerAccount: FIRST_SENDER, defaultSender: SECOND_SENDER }).client.defaultSender).toBe(SECOND_SENDER);
   });
 });

@@ -55,7 +55,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     this.mbrClient = new AbstractedAccountMbrClient({
       algorand: this.algorand,
       appId: mbrAppId,
-      defaultSender: params.factoryParams.defaultSender,
+      defaultSender: params.factoryParams.defaultSender ?? this.readerAccount,
       defaultSigner: params.factoryParams.defaultSigner,
     });
   }

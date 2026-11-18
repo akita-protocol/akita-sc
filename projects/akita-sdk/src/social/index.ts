@@ -3,6 +3,7 @@ import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand
 import algosdk, { decodeAddress } from "algosdk";
 import { makeEmptyTransactionSigner } from 'algosdk';
 import { DEFAULT_READER, DEFAULT_SEND_PARAMS } from "../constants";
+import { registerAccessListResourceCarrier } from "../simulate/access-list";
 import { ENV_VAR_NAMES, resolveAppIdWithClient, getAppIdFromEnv, detectNetworkFromClient, AkitaNetwork, socialHintedTargets } from "../config";
 import { OptionalAppIdFactoryParams } from "../types";
 import {
@@ -170,7 +171,7 @@ export class SocialSDK {
     this.hintedTargets = socialHintedTargets(this.network, hintedTargets);
     this.daoAppId = daoAppId ?? getAppIdFromEnv(ENV_VAR_NAMES.DAO_APP_ID);
     this.readerAccount = readerAccount;
-    this.sendParams = { ...sendParams };
+    this.sendParams = { ...DEFAULT_SEND_PARAMS, ...sendParams };
     this.ipfsUrl = ipfsUrl;
 
     // Apply factory default sender/signer to sendParams
@@ -190,24 +191,34 @@ export class SocialSDK {
     // Initialize all clients with resolved app IDs
     this.socialClient = new AkitaSocialFactory({ algorand }).getAppClientById({
       ...socialFactoryParams,
+      defaultSender: socialFactoryParams.defaultSender ?? readerAccount,
       appId: resolvedSocialAppId,
     });
     this.graphClient = new AkitaSocialGraphFactory({ algorand }).getAppClientById({
       ...graphFactoryParams,
+      defaultSender: graphFactoryParams.defaultSender ?? readerAccount,
       appId: resolvedGraphAppId,
     });
     this.impactClient = new AkitaSocialImpactFactory({ algorand }).getAppClientById({
       ...impactFactoryParams,
+      defaultSender: impactFactoryParams.defaultSender ?? readerAccount,
       appId: resolvedImpactAppId,
     });
     this.moderationClient = new AkitaSocialModerationFactory({ algorand }).getAppClientById({
       ...moderationFactoryParams,
+      defaultSender: moderationFactoryParams.defaultSender ?? readerAccount,
       appId: resolvedModerationAppId,
     });
 
     // Only create DAO client when a valid daoAppId is provided
     if (this.daoAppId !== undefined && this.daoAppId > 0n) {
-      this.daoClient = new AkitaDaoFactory({ algorand }).getAppClientById({ appId: this.daoAppId });
+      this.daoClient = new AkitaDaoFactory({ algorand }).getAppClientById({ appId: this.daoAppId, defaultSender: readerAccount });
+    }
+
+    // SocialSDK does not extend BaseSDK, so register its apps as Access-list resource carriers here.
+    const algod = (algorand as { client?: { algod?: object } }).client?.algod;
+    for (const client of [this.socialClient, this.graphClient, this.impactClient, this.moderationClient]) {
+      registerAccessListResourceCarrier(client.appId, client.appSpec, algod);
     }
 
     this.socialAppId = this.socialClient.appId;
