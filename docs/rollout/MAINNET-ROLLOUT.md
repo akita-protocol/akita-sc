@@ -137,6 +137,17 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
+## Update 2026-11-18: the revenue split becomes 80/5/15, and its receivers opt in
+
+The owner set the split of every revenue source to Labs 80%, moderators 5%, governance 15%, from 40/20/40. Both networks were read the same day, read-only.
+
+- **One table sets it for every source.** The DAO stores one table, `revenue_splits`. All nine revenue escrows the RevenueManager cycles hold a reference to it and read it at each allocation. One UpdateFields proposal therefore changes every source, and no contract program changes. It is new step B3b.
+- **No program caps a receiver's share.** The owner recalled a ceiling on the Labs share. This release's contracts hold none: the RevenueManager only requires the percentages to total 100%. The DAO program live on MainNet today creates and executes the 80/5/15 proposal in simulation as the creator, and a table that gives `rec_krby` 100% as well. An "Invalid krby percentage" error and a 40% default once sat in the SDK's type and default files, and no contract program in this repository's history read them.
+- **No split has been paid on MainNet yet.** Every revenue escrow's last payout is 0. The first payout divides everything an escrow has built up, at the shares stored then, so B3b comes before the split keeper is enabled (G3).
+- **The three receivers hold no asset.** `rec_krby`, `rec_mod` and `rec_gov` each hold 0.1 ALGO and nothing else. A payout skips an asset share whose receiver has not opted in to the asset, so as things stand no USDC or AKTA would reach any of them. New step G3b opts them in.
+- **A lock does not stop an opt-in made through a plugin grant.** The three receivers are locked and each carries an open OptInPlugin grant. H6 said a lock stops opt-ins. It stops the wallet's own opt-in and allowance calls. H6 is corrected.
+- **Neither step is tracked by `rollout:status`.** For each, the plan is the check.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -299,11 +310,12 @@ git bundle create akita-release.bundle --all
 - **What:** Run every stage on TestNet with the same scripts, checking progress with rollout:status --network testnet after each step. Start with A4a, which gives TestNet's DAO wallet the escrows and grants MainNet's has.
 - **Why here:** TestNet runs the same programs as MainNet for every target (re-read 2026-11-17; the two plugins that differ are replaced by G2), so the ABI guard and the K1 binding run against real deployed bytes. LocalNet runs the tree, so its ABI diff is empty.
 - **Requires:** A2. **Script:** new: rollout-status.ts written today.
-- **The commands differ from the MainNet ones in four places only.**
+- **The commands differ from the MainNet ones in five places only.**
   - `-n testnet` for `-n mainnet`, and `--network testnet` for the tracker.
   - C2 and C3 name the kept sub-gates by app id. On TestNet the list is `MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897`.
   - `deploy:haystack-router-plugin` stops on TestNet, for want of a router id. Skip it there and add `plugin:haystackRouterPlugin` to `--allow-pending` at I1.
   - `deploy:guild-factory` takes `--confirm-mainnet` on MainNet only.
+  - G3b takes `--asset 10458941,752884771` on TestNet, where the revenue escrows hold neither USDC nor AKTA.
 - `deploy:rewards-plugin`, `deploy:nfd-plugin`, `rewards:opt-in` and `rewards:withdraw-v1-credits` pick each network's own apps by themselves.
 - **What TestNet cannot show as it stands** (state read 2026-11-17, see Live state):
   - F2 finds no wallet to sweep: the factory has created only the DAO wallet.
@@ -422,6 +434,26 @@ npm run update:guild-creation-cost -- -n mainnet --cost 200000000
 ```bash
 npm run update:creation-fees -- -n mainnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --dry-run --sender "$CREATOR"
 npm run update:creation-fees -- -n mainnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --confirm
+```
+
+#### B3b. Set the revenue split to 80/5/15
+
+- **What:** One proposal with one UpdateFields action that rewrites the DAO's `revenue_splits`: `rec_krby` (Labs) from 40% to 80%, `rec_mod` (moderators) from 20% to 5%, `rec_gov` (governance) from 40% to 15%. The owner set the shares on 2026-11-18. The receivers and their order stay as they are.
+- **Why here:** In Draft the creator's proposal executes at once. After `initialize()` a change of the split needs a vote. Both networks hold the same table and the same nine revenue escrows that read it (read 2026-11-18), so the same command fits both.
+- **Requires:** B2. **Script:** new 2026-11-18: `update:revenue-splits` (`scripts/update-revenue-splits.ts`; the rules are in `scripts/lib/revenue-splits.ts`). It plans unless `--confirm` is given, and reads the table back after the proposal.
+- **Not tracked by `rollout:status`.** The plan is the check: after the run, the dry run prints "Nothing to change".
+- **It applies to every source at once.** The nine registered revenue escrows hold a reference to this table, and the RevenueManager reads it at each allocation. An escrow registered later by G3a (`rev_nfd`, `rev_guilds`, `rev_meta`) reads it too. The plan lists the escrows that read the table, and names any that holds a split of its own.
+- **It takes effect at the next payout.** A payout divides what a revenue escrow holds when it runs. No split has been paid on MainNet (every escrow's last payout is 0, read 2026-11-18), so the first payout after G3 divides everything built up so far at 80/5/15. Until this step runs, a payout cycle started through an escrow's open grant would divide ALGO at 40/20/40.
+- **No program caps a share.** The RevenueManager requires at most ten entries whose percentages total 100%, and nothing more. The dry run simulates the proposal's creation and execution as the creator against the DAO program live at that moment, and stops if the DAO would reject it.
+- **What the step refuses:** shares that do not total 100%, a share of 0, a receiver that is not in the table today or one left out, a stored table that holds a flat or remainder entry, and a change while a payout cycle is open on an escrow that reads the table. The table is read at each allocation, so a cycle open across the change would pay part at the old shares.
+- **The last entry takes the rounding remainder** of each payout. That is `rec_gov`, before and after.
+- **To undo it,** run the same command with the old shares: `--split rec_krby=40,rec_mod=20,rec_gov=40`.
+- Planned on MainNet and on TestNet on 2026-11-18, read-only: three shares change, nine revenue escrows read the table, the proposal costs the creator no fee and the DAO holds the storage, and the simulation passes on both.
+- Tested by `tests/revenue-splits.test.ts` (the plan, against the table MainNet holds, down to the stored bytes) and `tests/revenue-splits.e2e.spec.ts` (LocalNet: a payout divides 40/20/40 before the proposal, and two other revenue escrows divide 80/5/15 after it; the change is refused while a cycle is open, and the same step moves the table back).
+
+```bash
+npm run update:revenue-splits -- -n mainnet --split rec_krby=80,rec_mod=5,rec_gov=15 --dry-run --sender "$CREATOR"
+npm run update:revenue-splits -- -n mainnet --split rec_krby=80,rec_mod=5,rec_gov=15 --confirm
 ```
 
 ### Stage C: Gate v2
@@ -802,6 +834,7 @@ npm run rewards:withdraw-v1-credits -- -n mainnet --execute
 - **Requires:** B2. **Script:** ready.
 - **Tracked by rollout:status as** `plugin:revenueManagerPlugin`.
 - **Then enable the split keeper** (akita-backend `server/revenue_split.go`). Before G3 the escrow grants stop at processEscrowAllocation, so the keeper refuses every escrow; a read-only dry run on 2026-10-12 found all 9 blocked on the missing finalize grant. After G3, make sure pal.revenueManager is listed in `RevenueManagerPluginAppIDs` (`server/contract_networks.go`), confirm a dry run logs `would_start`, then set `REVENUE_SPLIT_ENABLED=true`. It runs at 23:30, 23:40 and 23:50 UTC, before the 00:10 revenue distribution.
+- **Enable the keeper only after B3b and G3b.** The first payout divides everything the escrows have built up, at the shares stored then, and it skips an asset share whose receiver has not opted in to the asset.
 
 ```bash
 npm run deploy:revenue-manager-plugin -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -823,6 +856,25 @@ npm run deploy:revenue-manager-plugin -- -n mainnet -v "$V"
 ```bash
 npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --dry-run
 npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --confirm
+```
+
+#### G3b. Opt the split's receivers in to the assets the revenue escrows hold
+
+- **What:** Opt `rec_krby`, `rec_mod` and `rec_gov` in to every asset a revenue escrow is registered to pay out and holds a balance of. On MainNet that is USDC (31566704) and AKTA (523683256): six opt-ins (read 2026-11-18). None of the three holds any asset today.
+- **Why here:** A payout sends each receiver its ALGO whatever it holds. It skips an asset share whose receiver has not opted in to the asset and leaves that share in the revenue escrow, and the next payout divides what was left again. A receiver that has not opted in therefore loses its share to the ones that have, cycle after cycle, and with none opted in no asset is paid at all. So all three opt in together, before the split keeper is enabled. `rev_subscriptions` holds 398.50 USDC and `rev_social` 14,720.81 AKTA (read 2026-11-17).
+- **Requires:** nothing on chain: each receiver carries an open OptInPlugin grant on both networks today. Run it after G3a and before the keeper is enabled. **Script:** new 2026-11-18: `opt-in:revenue-receivers` (`scripts/opt-in-revenue-receivers.ts`; the rules are in `scripts/lib/revenue-receiver-opt-ins.ts`). It plans unless `--confirm` is given, skips what a receiver already holds, and reads the holdings back.
+- **Not tracked by `rollout:status`.** The plan is the check: after the run, the dry run prints "Nothing to do".
+- **Any funded account can send it.** The grants are open to every caller. The sender pays 0.1 ALGO of minimum balance for each opt-in, which the receiver then holds: 0.6 ALGO on MainNet, plus fees. The dry run simulates each group as `--sender` against the programs live at that moment.
+- **The receivers are locked, and that does not stop it.** A lock stops the wallet's own opt-in and allowance calls. The OptInPlugin acts on the escrow through the wallet's plugin rekey, which a lock does not guard.
+- **An asset that no revenue escrow holds is left out.** Three single-unit NFTs are registered on `rev_marketplace` on MainNet and it holds none of them, so they need no opt-in. `--asset <id[,id]>` opts the receivers in to an asset ahead of its first payment.
+- **Run it again when a revenue escrow is first paid in a new asset.** The plan names what each receiver lacks.
+- **On TestNet** the revenue escrows hold neither USDC nor AKTA, so the plain command finds nothing to do. To rehearse the step there, name the two assets: `--asset 10458941,752884771`.
+- Planned on MainNet and on TestNet on 2026-11-18, read-only: six opt-ins in three groups on each (TestNet with `--asset`), and every group passes in simulation.
+- Tested by `tests/revenue-splits.e2e.spec.ts` (LocalNet: an account with no role opts the three locked receivers in, they stay locked, and 1,000,003 units of an asset then divide 800,002, 50,000 and 150,001).
+
+```bash
+npm run opt-in:revenue-receivers -- -n mainnet --dry-run --sender "$CREATOR"
+npm run opt-in:revenue-receivers -- -n mainnet --confirm
 ```
 
 #### G4. SDK release with the network switches on
@@ -917,12 +969,13 @@ npm run deploy:wallet-balance-reader -- -n mainnet -v "$V" --manifest receipts/w
 #### H6. Labs revenue pay silo (`rec_krby`)
 
 - **What:** Deploy a PaySiloPlugin pinned to the Akita Labs LLC address, then install it on the DAO wallet scoped to the `rec_krby` escrow with only the `pay` method.
-- **Why here:** `rec_krby` is a DAO-wallet escrow that receives the 40% Labs bucket. The pay silo's recipient is fixed at creation, so the grant can be callable by anyone (or by a backend keeper): every payment can only reach Labs.
+- **Why here:** `rec_krby` is a DAO-wallet escrow that receives the Labs share of every payout: 80% after B3b, 40% before it. The pay silo's recipient is fixed at creation, so the grant can be callable by anyone (or by a backend keeper): every payment can only reach Labs.
 - **Requires:** B2 (AddPlugin on the upgraded DAO). **Script:** deploy ready (`deploy:pay-silo-plugin`); the grant since 2026-11-16: `install:pay-silo-grant` (`scripts/install-pay-silo-grant.ts`). It refuses unless the app runs the tree PaySiloPlugin and pays the address restated with `--recipient`, installs the grant with `pay` only, and reads it back.
 - **Tracked by rollout:status as** `labs-pay-silo`.
 - Two recipients are asked for in this rollout, and they are different things. G2's `<recipient of the live PaySiloPlugin>` is the address the registered pay silo already pays today (the DAO creator's address on both networks), carried over so the replacement behaves the same. This step's `<Akita Labs LLC address>` is where the Labs bucket in `rec_krby` is paid out. Both were open on 2026-11-17.
 - This instance is deployed without `--register`: the registered `paySiloPlugin` is the one from G2. If Akita Labs LLC should receive at the address the G2 instance pays, skip the deploy and pass that instance's id to `--plugin`.
-- `rec_krby` is a locked escrow. A lock stops opt-ins and allowance changes, not a grant or a payment.
+- `rec_krby` is a locked escrow. A lock stops the wallet's own opt-in and allowance calls. It does not stop a grant, a payment, or an opt-in made through the escrow's OptInPlugin grant (G3b).
+- The pay silo sends an asset only to an address that holds it. The Akita Labs LLC address must be opted in to USDC and AKTA before a payment in either.
 
 ```bash
 npm run deploy:pay-silo-plugin -- -n mainnet -v "$V" --config '{"recipient":"<Akita Labs LLC address>"}' --manifest receipts/pay-silo-labs.json
@@ -1045,6 +1098,13 @@ Every command of the Sequence was checked against the script it runs. What would
 Read from MainNet and TestNet on 2026-11-16, read-only: the DAO is in Draft with no tracked bootstrap key; nine `*_ps` globals hold 600, 300 or 200; five plugin settings boxes hold 600 or 300, each with a live DAO wallet grant; `rev_nfd` is the only `rev_*` escrow the RevenueManager does not know; `rec_krby` exists; the DualStake plugin's registry is 0.
 
 Every `--dry-run` and `rollout:status` line of the Sequence was then run against MainNet and against TestNet, read-only and with no key, simulating as the DAO creator. On both networks each line either printed its plan or stopped with a refusal that names the step it waits for: C2 and C3 (Gate v2 has no receipt before C1), `rewards:opt-in` (no receipt before D2's deploy), G2a (Staking is not updated before D1), G3a, H1, H2 and H6's escrow steps (the DAO is not upgraded before B2), `update:app-dao-escrow` (Meta is not recorded before H1's deploy), `deploy:guild-factory` (the wallet factory is not updated before E7) and `dao:initialize` (it lists every unfinished step). The E-stage dry runs print the dependencies they wait for (Gate v2, Rewards v2, Staking) and plan nothing.
+
+## Script changes made 2026-11-18
+
+- `scripts/update-revenue-splits.ts`, `scripts/lib/revenue-splits.ts` (new, `update:revenue-splits`): B3b. It rewrites the shares of the DAO's `revenue_splits` through one proposal, simulates the proposal in a dry run, and reads the table back.
+- `scripts/opt-in-revenue-receivers.ts`, `scripts/lib/revenue-receiver-opt-ins.ts` (new, `opt-in:revenue-receivers`): G3b. It opts the receivers of the table in to the assets the revenue escrows hold, through each receiver's open OptInPlugin grant.
+- Tests: `tests/revenue-splits.test.ts` and `tests/revenue-splits.e2e.spec.ts`.
+- No contract program changes, and `release/manifest.json` is unchanged.
 
 ## Open script gaps
 
