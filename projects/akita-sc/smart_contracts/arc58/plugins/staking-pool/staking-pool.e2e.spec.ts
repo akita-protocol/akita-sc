@@ -310,6 +310,90 @@ describe('StakingPool plugin contract', () => {
       expect(reward.rate).toBe(1_000_000n);
     });
 
+    test('an ALGO reward added through the plugin is funded with the whole amount', async () => {
+      const pool = await createPluginPool('Plugin Reward Budget Pool');
+
+      // The first ALGO reward also creates the pool's ALGO total box, the second one does not.
+      for (const rewardId of [1, 2]) {
+        const freeBefore = await pool.getFreeFunds(0n);
+
+        await wallet.usePlugin({
+          callerType: CallerType.Global,
+          calls: [
+            stakingPoolPluginSdk.addReward({
+              appId: pool.appId,
+              reward: createReward(),
+              amount: 1_000_000n,
+            }),
+          ],
+        });
+
+        // The wallet pays the storage on top of the amount, so the budget covers one full round
+        // at this rate and the pool's own free ALGO is left as it was.
+        expect(await pool.getRewardBudget(rewardId)).toBe(1_000_000n);
+        expect(await pool.getFreeFunds(0n)).toBe(freeBefore);
+      }
+    });
+
+    test('an ASA reward added through the plugin opts the pool in and funds the reward', async () => {
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000n, decimals: 0, assetName: 'Plugin Pool Reward', unitName: 'PPR',
+      });
+      const rewardAsset = BigInt(assetId!);
+
+      await wallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global });
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [akitaUniverse.optInPlugin.optIn({ assets: [rewardAsset] })],
+      });
+      await algorand.send.assetTransfer({
+        sender: deployer.addr, signer: deployer.signer, assetId: rewardAsset, amount: 10_000n, receiver: wallet.client.appAddress,
+      });
+
+      const pool = await createPluginPool('Plugin ASA Reward Pool');
+      const poolHolding = async (): Promise<bigint | undefined> => {
+        const info = await algorand.client.algod.accountInformation(pool.client.appAddress).do();
+        return (info.assets ?? []).find((holding) => BigInt(holding.assetId) === rewardAsset)?.amount;
+      };
+      expect(await poolHolding()).toBeUndefined();
+
+      // The pool does not hold the asset yet: the plugin pays the opt-in the pool quotes, then the reward.
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        consolidateFees: true,
+        calls: [
+          stakingPoolPluginSdk.addReward({
+            appId: pool.appId,
+            reward: createReward({ asset: rewardAsset, rate: 100n }),
+            amount: 2_400n,
+          }),
+        ],
+      });
+
+      expect(await poolHolding()).toBe(2_400n);
+      expect((await pool.getReward(1)).asset).toBe(rewardAsset);
+      expect(await pool.getRewardBudget(1)).toBe(2_400n);
+
+      // The pool holds the asset now. A second reward pays for its own boxes, so the ALGO the
+      // opt-in left for round operations is untouched.
+      const freeBefore = await pool.getFreeFunds(0n);
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        consolidateFees: true,
+        calls: [
+          stakingPoolPluginSdk.addReward({
+            appId: pool.appId,
+            reward: createReward({ asset: rewardAsset, rate: 100n }),
+            amount: 1_200n,
+          }),
+        ],
+      });
+
+      expect(await poolHolding()).toBe(3_600n);
+      expect(await pool.getRewardBudget(2)).toBe(1_200n);
+      expect(await pool.getFreeFunds(0n)).toBe(freeBefore);
+    });
+
     test('finalizePool finalizes a draft pool with future timestamps', async () => {
       const pool = await createPluginPool('Plugin Finalize Pool');
       const timestamps = await finalizePluginPool(pool);

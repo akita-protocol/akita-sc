@@ -372,6 +372,8 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     this.validateRaffleConfig(bidFee, startingBid, weightsListCount)
 
     const isAlgoBid = bidAssetID === 0
+    // the child closes its bid asset to this factory when it is cancelled or deleted
+    loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), errNotOptedIn)
     const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
 
     const costs = this.mbr()

@@ -34,7 +34,7 @@ import {
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-PSDWEJEZ.mjs";
+} from "./chunk-RCF74KMR.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK
@@ -65,13 +65,13 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-5SSZKPWH.mjs";
+} from "./chunk-MNLG43ED.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-VKCXOASL.mjs";
+} from "./chunk-2WWU4MLO.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes

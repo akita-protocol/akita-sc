@@ -119,6 +119,7 @@
     "update:akta-asset": "ts-node --transpile-only scripts/update-akta-asset.ts",
     "opt-in:stickers-akta": "ts-node --transpile-only scripts/opt-in-stickers-escrow-akta.ts",
     "opt-in:revenue-receivers": "ts-node --transpile-only scripts/opt-in-revenue-receivers.ts",
+    "fund:service-accounts": "ts-node --transpile-only scripts/fund-service-accounts.ts",
     "fix:pay-plugin": "ts-node --transpile-only scripts/fix-pay-plugin.ts",
     "report:sizes": "ts-node --transpile-only scripts/report-bytecode-sizes.ts",
     "register:haystack-referrer": "ts-node --transpile-only scripts/register-haystack-referrer.ts --network mainnet",

@@ -148,6 +148,20 @@ The owner set the split of every revenue source to Labs 80%, moderators 5%, gove
 - **A lock does not stop an opt-in made through a plugin grant.** The three receivers are locked and each carries an open OptInPlugin grant. H6 said a lock stops opt-ins. It stops the wallet's own opt-in and allowance calls. H6 is corrected.
 - **Neither step is tracked by `rollout:status`.** For each, the plan is the check.
 
+## Update 2026-11-18 (second): a last pass over every contract
+
+All 85 deployable programs were read once more at the deploy commit, each one against the contracts it calls, and both networks were read the same day, read-only. Two programs change, and one step is new.
+
+- **StakingPoolPlugin is 2,698 bytes (was 2,597).** `addReward` now asks the pool what a reward costs. Two things were wrong, and both reproduce on LocalNet.
+  - An asset reward on a pool that did not hold the asset yet always failed. The plugin read the factory's DAO escrow as a number, and the value is a name with an app id, so the call stopped there. It also worked out the pool's opt-in payment by itself, and the pool requires the exact amount it quotes. The plugin live on MainNet and TestNet has the same fault. The plugin now pays what the pool's `optInCost` returns.
+  - An ALGO reward was funded short. This release's pool keeps a budget for every reward and takes the storage of its budget boxes out of the payment: 18,600 µALGO for a pool's first ALGO reward and 9,300 for each later one. The plugin paid the reward box only, so a reward of 1 ALGO a round funded with 1 ALGO held 0.9814 and could not pay its first round. A round that opens without its budget stays open, and entries, checks and removals are frozen until the pool's creator adds to the budget or aborts the round. The plugin now adds what the pool's `addRewardCost` returns, for ALGO and for asset rewards.
+  - No funds were at risk in either case. Neither network has a pool: the StakingPoolFactory has created none that still exists.
+- **AuctionFactory is 4,890 bytes (was 4,861).** A prize box auction with an asset as its bid asset is refused while the factory does not hold that asset, as an asset auction already is. A cancel or a delete closes the auction's bid asset to the factory, so such an auction could do neither until someone opted the factory in. AuctionPlugin v3 opts the factory in first and is not affected.
+- **Neither change alters an interface or a page count.** The whole-tree build changes these two programs only, and `release/manifest.json` differs in those two entries.
+- **Three live apps hold no ALGO, and no step funded them.** HyperSwap, PrizeBoxFactory and AkitaSocialModeration hold 0 on MainNet; on TestNet PollFactory does too. They charge a caller exactly the storage a call adds, so with an empty account every offer, mint and poll fails with a balance below the minimum. AkitaSocialModeration charges nothing and pays for its boxes itself, so it could not record a moderator. New step E6a sends what is short, 1.3 ALGO on MainNet and 1.4 on TestNet. Every app this rollout creates is funded by the script that creates it.
+- **Still open, not a fault.** The StakingPoolPlugin has no method for the pool's other creator calls: `assignBudget`, `withdrawReward`, `closeReward`, `endPool`, `closeOutAsset`, `abortRound` and a standalone `optIn`. A wallet that created a pool through the plugin makes those calls as itself.
+- **Checked and unchanged.** Every deployable program fits the 8 pages and the 64 global keys the protocol allows (AkitaDAO, AkitaSocial and Subscriptions use all 64 keys). No other program reads another app's stored value in the wrong shape.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -323,7 +337,8 @@ git bundle create akita-release.bundle --all
   - After A4a the DAO wallet holds MainNet's 28 grants and 24 escrows, so the grant swap runs over the same list. Two things stay different. The account escrows `akta_creator` and `collections` are empty stand-ins on TestNet; MainNet's are accounts with holdings. And the three `nfdPlugin` grants sit on TestNet's older NFD plugin until G2 replaces it. Without A4a the wallet lacks the two account escrows and nine of MainNet's grants.
   - There is no Haystack router and no Akita NFD app, so the swap path and the Akita NFD reads are not exercised.
 - **State to make first** (suggested 2026-11-17; the owner decides). TestNet runs the old programs today, so records made on it now are of the kind MainNet holds. Before B1: two or three wallets through the factory, one with automatic updates off; an open Listing; a Poll; a few posts and a follow; a subscription; a staking lock; and one Rewards v1 disbursement with an unclaimed allocation.
-- TestNet PollFactory holds 0 ALGO. Its upgrade plans without funding (dry run 2026-11-17). Fund it before a Poll is created.
+- TestNet PollFactory holds 0 ALGO. Its upgrade plans without funding (dry run 2026-11-17). E6a funds it.
+- **Keep the rehearsal's receipts apart.** The steps write their receipts under `receipts`, and a step that finds a receipt resumes from it. After the rehearsal, rename the folder to `receipts-testnet` before MainNet's A0 makes a new one.
 - **Measure the cost.** Note the DAO creator's balance before B1 and after I1. The difference sizes the MainNet top-up in A5.
 - I1 on TestNet ends the creator's control of the TestNet DAO as it does on MainNet, and every later change there needs a vote. Stop before I1 to keep the TestNet DAO in Draft.
 
@@ -361,7 +376,7 @@ npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"
 - DAO creator (the deployer): 7.63 ALGO free on MainNet (61.10 held, 53.47 minimum balance; read 2026-11-17). It creates every new app, and each one raises its minimum balance. Top it up before B1 by what the TestNet rehearsal spent (A4), with margin.
 - DAO wallet: 10.65 ALGO sponsorship (has 43.37 free). It was 10.55 before Subscriptions took a sixth page on 2026-11-15.
 - StakingPoolFactory box growth +1.842 ALGO and AuctionFactory +14,800 µA; the Phase 2 runner pays both.
-- AkitaSocialModeration, PrizeBoxFactory and HyperSwap hold 0 µA today.
+- AkitaSocialModeration, PrizeBoxFactory and HyperSwap hold 0 µA today. E6a sends them 1.3 ALGO in all.
 
 ### Stage B: Upgrade path and DAO
 
@@ -659,7 +674,7 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 - **Tracked by rollout:status as** `p2:PollFactory`.
 - HyperSwap has never had an offer, so the accept removal strands nothing.
 - Polls created before the upgrade keep working: they have no payer record, and `deletePoll` refunds the account they record, as before (C24).
-- PrizeBoxFactory holds 0 µA today; mint may never have worked on MainNet.
+- PrizeBoxFactory holds 0 µA today, so a mint cannot succeed on MainNet until E6a funds it. The same holds for HyperSwap offers.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target PollFactory --dry-run --sender "$CREATOR"
@@ -669,6 +684,19 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 (cd ../akita-sdk && npm run build)
 npm run update:prize-box -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
 npm run update:prize-box -- -n mainnet -v "$V"
+```
+
+#### E6a. Give the empty service accounts their minimum balance
+
+- **What:** One plain payment to each service app whose account is short: 0.1 ALGO to HyperSwap and to PrizeBoxFactory, and 1.1 ALGO to AkitaSocialModeration, which is its 0.1 ALGO minimum and a float of 1 ALGO. That is 1.3 ALGO on MainNet. On TestNet PollFactory is empty too, so 1.4 ALGO there (both planned 2026-11-18).
+- **Why here:** HyperSwap, PrizeBoxFactory and PollFactory charge a caller exactly the storage a call adds. The account's own 0.1 ALGO minimum is not part of that charge, so while the account is empty every offer, mint and poll fails with a balance below the minimum. AkitaSocialModeration takes no payment: it pays for its moderator, ban, action and activity boxes from its own balance. All three hold 0 on MainNet today.
+- **Requires:** none. Any funded account can send it, before or after the upgrades. **Script:** ready: `fund:service-accounts` plans without `--confirm`, sends only what is short and reads the balances back. A rerun sends nothing.
+- **Tracked by rollout:status as** `service-accounts`.
+- The float pays for about forty moderation boxes: 18,900 µA for a moderator or a ban and 25,300 µA for a moderator's activity record. `--moderation-float` sets another amount in µALGO. The tracker shows the free balance, and reads the step as not done again once less than 44,200 µA is free. Watch it with K4 and K8.
+
+```bash
+npm run fund:service-accounts -- -n mainnet --dry-run --sender "$CREATOR"
+npm run fund:service-accounts -- -n mainnet --confirm
 ```
 
 #### E7. Wallet factory + wallet child (atomic) (one-way)
@@ -1105,6 +1133,13 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - `scripts/opt-in-revenue-receivers.ts`, `scripts/lib/revenue-receiver-opt-ins.ts` (new, `opt-in:revenue-receivers`): G3b. It opts the receivers of the table in to the assets the revenue escrows hold, through each receiver's open OptInPlugin grant.
 - Tests: `tests/revenue-splits.test.ts` and `tests/revenue-splits.e2e.spec.ts`.
 - No contract program changes, and `release/manifest.json` is unchanged.
+
+## Script changes made 2026-11-18 (second)
+
+- `scripts/fund-service-accounts.ts`, `scripts/lib/service-account-funding.ts` (new, `fund:service-accounts`): E6a. It reads the accounts of HyperSwap, PrizeBoxFactory, PollFactory and AkitaSocialModeration and sends each what it is short of its minimum balance, plus the moderation float.
+- `scripts/lib/rollout-steps.ts`: `rollout:status` tracks the new step as `service-accounts`, so `dao:initialize` refuses to launch while one of the four accounts cannot work.
+- Tests: `tests/service-account-funding.e2e.spec.ts`; two more reward tests in `smart_contracts/arc58/plugins/staking-pool/staking-pool.e2e.spec.ts`; one more prize box test in `smart_contracts/auction/auction.e2e.spec.ts`.
+- Two contract programs change, StakingPoolPlugin and AuctionFactory, and `release/manifest.json` with them.
 
 ## Open script gaps
 

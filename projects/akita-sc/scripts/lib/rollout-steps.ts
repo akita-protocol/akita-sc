@@ -15,6 +15,7 @@ import { planRewardsOptIns } from './rewards-opt-ins'
 import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawal'
 import { RewardsSDK } from 'akita-sdk/rewards'
 import { planPowerRescale, powerProblems } from './proposal-power'
+import { planServiceFunding } from './service-account-funding'
 
 type Status = { done: boolean; detail: string }
 type Step = { id: string; stage: string; title: string; requires: readonly string[]; run: string; check: () => Promise<Status> }
@@ -108,6 +109,17 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
     add({ id: `ride:${name}`, stage: 'E', title: `${name} (ride-along, runUpdate)`, requires: ['phase2a'], run,
       check: () => runsTree(name, (ctx.appIds as unknown as Record<string, bigint>)[key], artifact) })
   }
+
+  add({ id: 'service-accounts', stage: 'E', title: 'HyperSwap, PrizeBoxFactory, PollFactory and AkitaSocialModeration hold the ALGO they need', requires: [],
+    run: 'npm run fund:service-accounts -- --confirm', check: async () => {
+      // a network whose SDK table lacks one of the four apps cannot be planned; the step reads as not done
+      const plans = await planServiceFunding(ctx).catch((e: Error) => e)
+      if (plans instanceof Error) return { done: false, detail: plans.message }
+      const short = plans.filter((p) => !p.working)
+      return { done: short.length === 0, detail: short.length
+        ? `cannot work until funded: ${short.map((p) => `${p.name} ${p.appId} (holds ${p.balance}, minimum ${p.minBalance})`).join(', ')}`
+        : plans.map((p) => `${p.name} ${p.free} µALGO free`).join(', ') }
+    } })
 
   add({ id: 'dao-wallet', stage: 'F', title: 'DAO wallet runs the tree (AVM 13) wallet', requires: ['p2:AbstractedAccountFactory'],
     run: 'npm run update:dao-wallet, then npm run update:automatic-wallets', check: () => runsTree('DAO wallet', ctx.appIds.wallet, 'arc58/account/AbstractedAccount.arc56.json') })

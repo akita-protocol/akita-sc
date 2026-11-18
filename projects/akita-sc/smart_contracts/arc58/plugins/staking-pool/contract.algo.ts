@@ -1,10 +1,10 @@
-import { abimethod, Account, Application, Asset, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
-import { btoi, itob } from "@algorandfoundation/algorand-typescript/op";
-import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersion } from "../../../constants";
+import { itob } from "@algorandfoundation/algorand-typescript/op";
+import { GlobalStateKeyAkitaDAO, GlobalStateKeyVersion } from "../../../constants";
 import { GateArgs } from "../../../gates/types";
 import { RootKey } from "../../../meta/types";
-import { PoolGlobalStateKeyPrincipalVersion, WinnerCountCap } from "../../../staking-pool/constants";
+import { PoolGlobalStateKeyPrincipalVersion } from "../../../staking-pool/constants";
 import { AddRewardParams, StakeEntry } from "../../../staking-pool/types";
 import { StakingType } from "../../../staking/types";
 import { GateMustCheckForAbiMethod, getAkitaAppList, getOriginAccount, getControlledSpendingAccount, getStakingPoolGateID, legacyWalletOf, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions";
@@ -48,6 +48,22 @@ export class StakingPoolPlugin extends BaseStakingPool {
   /** True for children built with the hinted `gatedEnter`/`enterCost` (global uint `pv`). */
   private isHintedPool(appId: Application): boolean {
     return op.AppGlobal.getExUint64(appId, Bytes(PoolGlobalStateKeyPrincipalVersion))[1]
+  }
+
+  /**
+   * Storage a reward costs the pool. Children with budgets (global uint `pv`) quote it themselves:
+   * the reward box, the reward's budget box and, the first time, the asset's total box. An ALGO
+   * reward's budget is the payment beyond this quote. Older children store the reward box only.
+   */
+  private rewardStorageCost(sender: Account, appId: Application, winnerCount: uint64, asset: uint64): uint64 {
+    if (!this.isHintedPool(appId)) {
+      return this.rewardsMbr(winnerCount)
+    }
+    return abiCall<typeof StakingPool.prototype.addRewardCost>({
+      sender,
+      appId,
+      args: [winnerCount, asset],
+    }).returnValue
   }
 
   /**
@@ -226,6 +242,9 @@ export class StakingPoolPlugin extends BaseStakingPool {
     const sender = getControlledSpendingAccount(wallet)
 
     if (reward.asset === 0) {
+      // quoted before the reward group is built: the quote is an inner call of its own
+      const storage = this.rewardStorageCost(sender, appId, reward.winnerCount, 0)
+
       abiCall<typeof StakingPool.prototype.addReward>({
         sender,
         appId,
@@ -233,7 +252,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
           itxn.payment({
             sender,
             receiver: appId.address,
-            amount: amount + this.rewardsMbr(reward.winnerCount)
+            amount: amount + storage
           }),
           reward
         ],
@@ -242,15 +261,13 @@ export class StakingPoolPlugin extends BaseStakingPool {
     } else {
       // check if pool is opted into the reward asset
       if (!appId.address.isOptedIn(Asset(reward.asset))) {
-
-        // get the akita dao escrow for the pool factory
-        const escrowBytes = op.AppGlobal.getExBytes(this.factory.value, Bytes(GlobalStateKeyAkitaEscrow))[0]
-        const escrow = Application(btoi(escrowBytes));
-        const optinMBR: uint64 = Global.assetOptInMinBalance * (
-          !escrow.address.isOptedIn(Asset(reward.asset)) ? 4 : 1
-        )
-
-        const rewardsMBR: uint64 = this.rewardsMbr(WinnerCountCap) * 2
+        // The pool quotes its own opt-in: it requires this exact amount, which depends on how many
+        // of the DAO's revenue receivers still have to opt in.
+        const optInCost = abiCall<typeof StakingPool.prototype.optInCost>({
+          sender,
+          appId,
+          args: [Asset(reward.asset)],
+        }).returnValue
 
         abiCall<typeof StakingPool.prototype.optIn>({
           sender,
@@ -259,12 +276,14 @@ export class StakingPoolPlugin extends BaseStakingPool {
             itxn.payment({
               sender,
               receiver: appId.address,
-              amount: optinMBR + rewardsMBR
+              amount: optInCost
             }),
             Asset(reward.asset),
           ]
         })
       }
+
+      const storage = this.rewardStorageCost(sender, appId, reward.winnerCount, reward.asset)
 
       abiCall<typeof StakingPool.prototype.addRewardAsa>({
         sender,
@@ -273,7 +292,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
           itxn.payment({
             sender,
             receiver: appId.address,
-            amount: this.rewardsMbr(reward.winnerCount)
+            amount: storage
           }),
           itxn.assetTransfer({
             sender,
