@@ -1275,6 +1275,46 @@ describe('Auction SDK', () => {
         expect(await balance(escrow) - escrowBefore).toBe(fee)
       })
 
+      test('a prize-box auction is refused while the factory does not hold its bid asset', async () => {
+        const owner = await newSeller()
+        const factory = akitaUniverse.auctionFactory.client
+        await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser.addr, (10).algo())
+        const box = await akitaUniverse.prizeBoxFactory.mint({ sender: owner.addr, signer: owner.signer, owner: owner.addr.toString() })
+        const { assetId: bidAssetId } = await algorand.send.assetCreate({
+          sender: deployer.addr, signer: deployer.signer, total: 1_000_000n, decimals: 0, assetName: 'Box Bid Token', unitName: 'BBT',
+        })
+        const now = await getBlockTimestamp(algorand)
+        const create = async (note: string) => {
+          const cost = await akitaUniverse.auctionFactory.cost({ isPrizeBox: true, bidAssetId, prizeAssetId: 0n, weightsListCount: 0n })
+          return factory.send.newPrizeBoxAuctionApplPayUint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64({
+            sender: owner.addr, signer: owner.signer,
+            args: {
+              prizeBoxTransferTxn: (await box.client.createTransaction.transfer({
+                sender: owner.addr, signer: owner.signer, args: { newOwner: factory.appAddress.toString() }, note,
+              })).transactions[0],
+              payment: await algorand.createTransaction.payment({ sender: owner.addr, receiver: factory.appAddress, amount: cost.microAlgo(), note }),
+              bidAssetId, bidFee: 0n, startingBid: 1_000n, bidMinimumIncrease: 100n,
+              startTimestamp: now + 7_200n, endTimestamp: now + 14_400n, gateId: 0n, marketplace: owner.addr.toString(), weightsListCount: 0n, wallet: 0n,
+            },
+            extraFee: (40_000).microAlgo(),
+          })
+        }
+
+        // A cancel or a delete closes the auction's bid asset to the factory. Created while the factory
+        // does not hold the asset, the auction could do neither, so the creation is refused as an ASA
+        // auction's is.
+        await expect(create('box-bid-unheld')).rejects.toThrow(/errNopt/)
+        expect(await box.owner()).toBe(owner.addr.toString())
+
+        await akitaUniverse.auctionFactory.optIn({ sender: deployer.addr, signer: deployer.signer, asset: bidAssetId })
+        const { return: appId } = await create('box-bid-held')
+        const auction = akitaUniverse.auctionFactory.get({ appId: appId! })
+        expect(await box.owner()).toBe(auction.client.appAddress.toString())
+
+        await cancel(auction, owner)
+        expect(await box.owner()).toBe(owner.addr.toString())
+      })
+
       test('with no fee set an auction costs storage alone and nothing is sent to the escrow', async () => {
         const fee = await auctionFee()
         const withFee = await quote()

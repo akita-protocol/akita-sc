@@ -559,8 +559,8 @@
     "arc58/plugins/staking-pool/StakingPoolPlugin": {
       "name": "StakingPoolPlugin",
       "approval": {
-        "bytes": 2597,
-        "sha256": "a7d60a8f2916803b458a73a9dcc530f3f1d234caec96a98c25ddb77771020559"
+        "bytes": 2698,
+        "sha256": "f130cba7c9148d3c9d9441aaea7e56be32becec1646fbeee2e623202c3a4ddd1"
       },
       "clear": {
         "bytes": 4,
@@ -681,8 +681,8 @@
     "auction/AuctionFactory": {
       "name": "AuctionFactory",
       "approval": {
-        "bytes": 4861,
-        "sha256": "75dd4b35b73dd8d94b7645252914794b882ed6b682caeca2f28737d0c93cc3ff"
+        "bytes": 4890,
+        "sha256": "f50763fbcdefdf3e5ebf13f42d16d9b474b725bd28960c9223501e263e8cbab1"
       },
       "clear": {
         "bytes": 4,
