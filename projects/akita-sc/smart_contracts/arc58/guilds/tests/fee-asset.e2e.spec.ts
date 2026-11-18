@@ -2,7 +2,7 @@
 // directly with the real wallet factory: a Guild without a wallet, sweepFeeTokens, a fee above one
 // million base units, a freeze on the fee asset, a proposer who opted out before a refund, and a wallet
 // proposal approved before a fee asset was set. The freeze and wallet-proposal tests pin behaviour the
-// owner accepted on 2026-11-15 (audits/readiness-2026-11-09-decisions.md, C19 and C20).
+// owner accepted on 2026-11-15 (audit items C19 and C20).
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { getApplicationAddress } from 'algosdk'

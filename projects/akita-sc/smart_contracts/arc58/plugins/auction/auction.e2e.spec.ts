@@ -176,6 +176,15 @@ describe('Auction plugin contract', () => {
         return info.amount - info.minBalance;
       };
       const factoryBefore = await spendable();
+      // C33: the plugin pays the factory's quote, which includes the DAO's auction creation fee
+      const auctionFee = (await akitaUniverse.dao.client.state.global.nftFees())!.auctionCreationFee;
+      const escrowAddress = algosdk.getApplicationAddress((await akitaUniverse.dao.wallet.getEscrow('rev_auction')).id);
+      const escrowBalance = async () => (await algorand.client.algod.accountInformation(escrowAddress).do()).amount;
+      const escrowBefore = await escrowBalance();
+      expect(auctionFee).toBeGreaterThan(0n);
+      // the plugin also opts the factory into the prize, and that payment's share for the escrow's own
+      // opt-ins lands in the same escrow: everything but the factory's own 0.1 ALGO opt-in
+      const escrowOptIn = await akitaUniverse.auctionFactory.client.optInCost({ args: { asset: prizeAssetId } }) - 100_000n;
 
       const now = await getBlockTimestamp(algorand);
       await wallet.usePlugin({
@@ -206,6 +215,12 @@ describe('Auction plugin contract', () => {
       const state = await auction.state();
       expect(state.seller).toBe(wallet.client.appAddress.toString());
       expect(state.weightsBoxCount).toBe(3n);
+      // C33: the fee reached the DAO escrow, and the wallet's recorded deposit is the storage cost alone
+      expect(await escrowBalance() - escrowBefore).toBe(auctionFee + escrowOptIn);
+      const quoted = await akitaUniverse.auctionFactory.cost({ isPrizeBox: false, bidAssetId: 0n, prizeAssetId, weightsListCount: 3n });
+      const funder = await auction.client.state.global.funder();
+      expect(funder?.account).toBe(wallet.client.appAddress.toString());
+      expect(funder?.amount).toBe(quoted - auctionFee);
 
       // AR-04 + AR-14: the seller clears weights and cancels through the plugin before the start
       await wallet.usePlugin({
@@ -224,6 +239,8 @@ describe('Auction plugin contract', () => {
       expect(holding.balance).toBe(1n);
       // AR-13: the factory refunded exactly what it released
       expect(await spendable()).toBe(factoryBefore);
+      // C33: the creation fee is not refunded by a cancel
+      expect(await escrowBalance() - escrowBefore).toBe(auctionFee + escrowOptIn);
       // no spending account is left rekeyed to the plugin
       const walletInfo = await algorand.client.algod.accountInformation(wallet.client.appAddress).do();
       expect(walletInfo.authAddr).toBeUndefined();

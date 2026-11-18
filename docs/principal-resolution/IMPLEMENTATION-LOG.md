@@ -1783,7 +1783,7 @@ This section corrects the "Marketplace track" section above. Where the two disag
 
 ### Fix 3: plugin `purchase` ABI
 
-- The ABI change is the audit MKT-02 `maxPrice` ride-along (Kyle chose "both" in `audits/full-2026-10-02/FIX-PLAN.md`). A no-`maxPrice` overload in the new plugin would reopen the price-change front-run for anyone who uses it, so it is not added.
+- The ABI change is the audit MKT-02 `maxPrice` ride-along (Kyle chose "both" in the 2026-10-02 audit's fix plan, kept outside this repository). A no-`maxPrice` overload in the new plugin would reopen the price-change front-run for anyone who uses it, so it is not added.
 - SDK `MarketplacePluginSDK` (`akita-sdk/src/wallet/plugins/marketplace.ts`) picks the ABI by plugin app id:
   - `MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS = {751968424, 763128885, 3368399474, 3569561455}`. These are all marketplace plugin generations in `networks.ts`. Every committed plugin since Nov 2025 has the same `purchase` signature.
   - For those ids, `purchase()`/`purchase(args)` give selector `0x269e4bb0` and build `purchase(uint64,bool,uint64,address,byte[][])void`. Before it builds the call, the SDK reads the listing price and refuses (`errPamx` text) when the price is above `maxPrice`. This read is not atomic. Rev-3 listings add the 4-round price-change cooldown on chain.
@@ -3551,7 +3551,7 @@ Scope: the final tree, after the B1 exact-shortfall test (`tests/compat`), `mock
 
 ## 2026-10-05 — Review fixes, rollout lane (ACCT-1, ACCT-2, ACCT-3, ROLLOUT-1, ROLLOUT-2, ROLLOUT-3, MISC-6)
 
-Findings: `projects/akita-sc/audits/review-2026-10-05/` (ACCT.md, ROLLOUT.md, MISC.md). Kyle, 2026-10-05: "fix all
+Findings: the 2026-10-05 review's ACCT, ROLLOUT and MISC records (kept outside this repository). Kyle, 2026-10-05: "fix all
 of them". Order rules are summarised in `ROLLOUT-ORDER.md`.
 
 - **ACCT-1.** `SunsetContract`, `WalletFactorySunsetContract` and `AbstractedAccountUpdateStub` now compile at AVM 13

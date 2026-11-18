@@ -1,0 +1,1130 @@
+{
+ "network": "testnet",
+ "dao": "763128236",
+ "wallet": "763128598",
+ "updatePlugin": "763128671",
+ "baseUnits": false,
+ "grants": [
+  {
+   "plugin": "763128820",
+   "key": "asaManagerPlugin",
+   "revision": 2,
+   "isLatest": false,
+   "program": "8357a3a0b22d8b7a9141cee4196f43e391e38f8ace143ecda1851471302e531c",
+   "caller": "R2MOGXW7CILK33VEET2F2DN5ENGNWGSKXG3I4U5KGP7I26TZTHDVOP6BLE",
+   "escrow": "",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128895",
+   "key": "nfdPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "f7b967cd9d732810eafc0985cd038a81f4a123a01230f938ec441a2f101464d7",
+   "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+   "escrow": "rev_nfd",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128795",
+   "key": "optinPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "4b98a1ac536220c4f182c61c06aada7581c3c2634d3897a15988019868df67b2",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rec_gov",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128795",
+   "key": "optinPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "4b98a1ac536220c4f182c61c06aada7581c3c2634d3897a15988019868df67b2",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rec_krby",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128795",
+   "key": "optinPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "4b98a1ac536220c4f182c61c06aada7581c3c2634d3897a15988019868df67b2",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rec_mod",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128821",
+   "key": "payPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "40def5a81010f006189edd5aec165eadd01752990694b5336dd4575a37ab6e69",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "",
+   "settings": {
+    "fee": "10000000",
+    "power": "300",
+    "duration": "432000",
+    "participation": "70000",
+    "approval": "60000"
+   },
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": true,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "",
+   "settings": {
+    "fee": "10000000",
+    "power": "600",
+    "duration": "604800",
+    "participation": "80000",
+    "approval": "70000"
+   },
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": true,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_auction",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_haystack",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_marketplace",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+   "escrow": "rev_nfd",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_poll",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_pool",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_raffle",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_social",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_subscriptions",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "767111831",
+   "key": "revenueManagerPlugin",
+   "revision": 4,
+   "isLatest": true,
+   "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "rev_wallet",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "6835e3bc",
+      "cooldown": "0"
+     },
+     {
+      "selector": "84f34c04",
+      "cooldown": "0"
+     },
+     {
+      "selector": "fe410f44",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128923",
+   "key": "rewardsPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "57024707fe427b1161a77e3b27b251a71a96b25b52088c890218e890d7d3a5d6",
+   "caller": "R2MOGXW7CILK33VEET2F2DN5ENGNWGSKXG3I4U5KGP7I26TZTHDVOP6BLE",
+   "escrow": "stickers",
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [
+     {
+      "selector": "3aae182b",
+      "cooldown": "0"
+     },
+     {
+      "selector": "5c2c910f",
+      "cooldown": "0"
+     },
+     {
+      "selector": "8699ed4c",
+      "cooldown": "0"
+     }
+    ],
+    "useRounds": false,
+    "useExecutionKey": false,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128930",
+   "key": "socialPlugin",
+   "revision": 2,
+   "isLatest": false,
+   "program": "a58d15d2b3c01f32b0be3a79ffc1e4748693550e645cef517f67a5e0c66dbea3",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "",
+   "settings": {
+    "fee": "10000000",
+    "power": "600",
+    "duration": "604800",
+    "participation": "80000",
+    "approval": "70000"
+   },
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": true,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128859",
+   "key": "subscriptionsPlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "bb0dc73fcced35b4eca5cc236c305bdeb54e2e194c5b64813e4b8f4d137daa3f",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "",
+   "settings": {
+    "fee": "10000000",
+    "power": "600",
+    "duration": "604800",
+    "participation": "80000",
+    "approval": "70000"
+   },
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": true,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  },
+  {
+   "plugin": "763128671",
+   "key": "updatePlugin",
+   "revision": 2,
+   "isLatest": true,
+   "program": "0d77cfce4dd988bccebc2fb701dce4fa0adc68e7be9c4d4141676913948188ed",
+   "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+   "escrow": "",
+   "settings": {
+    "fee": "10000000",
+    "power": "600",
+    "duration": "604800",
+    "participation": "80000",
+    "approval": "70000"
+   },
+   "policy": {
+    "delegationType": 0,
+    "lastValid": "18446744073709551615",
+    "cooldown": "0",
+    "methods": [],
+    "useRounds": false,
+    "useExecutionKey": true,
+    "coverFees": false,
+    "admin": false,
+    "canReclaim": false,
+    "defaultEscrow": ""
+   }
+  }
+ ],
+ "escrows": [
+  {
+   "name": "bones_akta",
+   "account": false,
+   "address": "HDLSYHSURWB7EVMCXAB76YLE4YCSFMDBHVR72KKJUVQFG5JE6NHGSXLWFY",
+   "locked": false
+  },
+  {
+   "name": "bones_dau",
+   "account": false,
+   "address": "MFQ5UXQTSYU332XZ3E3L4CRPJ5I654BKNQJRZV3MABI4IJY3IODMEZ2GKM",
+   "locked": false
+  },
+  {
+   "name": "bones_event",
+   "account": false,
+   "address": "BPQEFBDQUUSJ5FITWS2WYVIBPL7GSZ62BHZN545UOVBWGZK7EYB2YOCGLQ",
+   "locked": false
+  },
+  {
+   "name": "bones_gov",
+   "account": false,
+   "address": "6VHKOJ2NVFPMAQS5OYECGK5LCCMQU5HI73426M56HJGJJXD4XUFLQCBB44",
+   "locked": false
+  },
+  {
+   "name": "bones_liquidity",
+   "account": false,
+   "address": "7CIGGUIKOMK3KDTMJYIQPS7H6Z5Z4VFGVEMBEQPHLHX3XXT5B43VIE3KAE",
+   "locked": false
+  },
+  {
+   "name": "bones_nft",
+   "account": false,
+   "address": "RSGNTX4HJA56HHT3MPHO6UXKQPKREEYU2XN3SXG7I4GXLBMC4JXHH7JAEQ",
+   "locked": false
+  },
+  {
+   "name": "bones_public",
+   "account": false,
+   "address": "YVA7ZJJ4D5PON7QTC7GXAYUYVTVTB7TVKZOPVEB2WIAQUP7FQABNQZRA5Y",
+   "locked": false
+  },
+  {
+   "name": "bones_team",
+   "account": false,
+   "address": "3X46AUL36CO44YH3KCCTS6R5LHOGM2Q6VXOQK2BUVYTHWGY6NKGUDEHO7E",
+   "locked": false
+  },
+  {
+   "name": "rec_gov",
+   "account": false,
+   "address": "ZOOSABVHB4UICRXHFKJMW5IBWBW5AXB7X76LO65LEVPZIT5CIVQUUVE6II",
+   "locked": true
+  },
+  {
+   "name": "rec_krby",
+   "account": false,
+   "address": "B7SUT37YYYPE5CWCBXJT4UCYRL75V5OKD4X7SLJFDQXRG4TTST5D2Z7S5E",
+   "locked": true
+  },
+  {
+   "name": "rec_mod",
+   "account": false,
+   "address": "G55W4EQO42WGAZMFUY7MUG5MSFUVKKH4TA6RCSSXQD7UXQQKW7ASQUC62U",
+   "locked": true
+  },
+  {
+   "name": "rev_auction",
+   "account": false,
+   "address": "IEMI2WMNANSWTGWVFIE3SQUSHT6LA3D2LYASSEP5BCIZKQKTYTZJLIKN3I",
+   "locked": true
+  },
+  {
+   "name": "rev_haystack",
+   "account": false,
+   "address": "62SPNWQHPOO2MVQUH5E3QCPFEVOD7QV3RHTFNPY7PGFV22UOFWMWDRHMUY",
+   "locked": true
+  },
+  {
+   "name": "rev_marketplace",
+   "account": false,
+   "address": "PIOMEH6WJA2DZV6K54UBLM2WK5N7ODMM54LM27DPEPCQI2BOUPRDBUCJWA",
+   "locked": true
+  },
+  {
+   "name": "rev_nfd",
+   "account": false,
+   "address": "KEWDOEA6YTUN64KYYCYFUGDK6PJUTIPWTSI535QXXDFQ6F6RR5MOAK7QOM",
+   "locked": false
+  },
+  {
+   "name": "rev_poll",
+   "account": false,
+   "address": "AXNSZB4O7HV7A6BSM6Q4NMYSLPOSWWMCAEYFASM62VOXCBGHV3WMQV34PI",
+   "locked": true
+  },
+  {
+   "name": "rev_pool",
+   "account": false,
+   "address": "GMRCSF667RLRZDJLFUOI4RMGTEMW7QOPBMPLJ53KBO7PCQPXHQWWLGVFOM",
+   "locked": true
+  },
+  {
+   "name": "rev_raffle",
+   "account": false,
+   "address": "QMGERDW6E6HIFVDVZOGIBVRETL37VMVLSUGI5YJBRWWUIOH6MOI7MWOXUA",
+   "locked": true
+  },
+  {
+   "name": "rev_social",
+   "account": false,
+   "address": "UDWUWNGVAMBIKKMP4WWECCBLAULLLKF7OJCPS5ARBG7JPN5ULV5FIBMGNI",
+   "locked": true
+  },
+  {
+   "name": "rev_subscriptions",
+   "account": false,
+   "address": "Z2XUI7MYPWAAHMF3GS2TID72I5UCWNZKCSKWONZ6ZYLWJVLGC7HIYLIM6U",
+   "locked": true
+  },
+  {
+   "name": "rev_wallet",
+   "account": false,
+   "address": "QD3V7CN2PW64ESQMAIMBGNKRBJIEHG6B46FEOHN7TJE6FQUSXS6RDVLPFU",
+   "locked": true
+  },
+  {
+   "name": "stickers",
+   "account": false,
+   "address": "5KKXEM62JPWSZP26TWLUYJR7OG4MTVKC4VIO22ILBQCTMYJ5TDA7OSUEOU",
+   "locked": true
+  }
+ ],
+ "allowances": 0,
+ "named": [],
+ "deployments": {
+  "revenueManagerPlugin": [
+   {
+    "appId": "751972084",
+    "revision": 1,
+    "isLatest": false,
+    "program": "08db074a6df034006c1d4dc2f90890da904f653f5cda25eef9b6a17717e45900"
+   },
+   {
+    "appId": "763128627",
+    "revision": 2,
+    "isLatest": false,
+    "program": "d9f9aee50d8e09acfc69f31628b4dc0f3f1f1fea560b185e73b1673bec8d9b6e"
+   },
+   {
+    "appId": "766094477",
+    "revision": 3,
+    "isLatest": false,
+    "program": "1759ce5117bb0d6e1f1c8dbe29ff532daf4e0c4465c6b2c44b2882d4bd0ba263"
+   },
+   {
+    "appId": "767111831",
+    "revision": 4,
+    "isLatest": true,
+    "program": "64d7fe6b3bc3c20e3885bd78e06dfd58314ee9e4e614c2dc260d39f7a4aa1229"
+   }
+  ],
+  "updatePlugin": [
+   {
+    "appId": "751972139",
+    "revision": 1,
+    "isLatest": false,
+    "program": "29c751142004a5b97ee0bb845e447c29da4f2138742a66a072701c1b4315cf0a"
+   },
+   {
+    "appId": "763128671",
+    "revision": 2,
+    "isLatest": true,
+    "program": "0d77cfce4dd988bccebc2fb701dce4fa0adc68e7be9c4d4141676913948188ed"
+   }
+  ],
+  "optinPlugin": [
+   {
+    "appId": "751968346",
+    "revision": 1,
+    "isLatest": false,
+    "program": "5449de83f96129153d084be32636799d9430c1bf44c88994b0e520d87eb85a3c"
+   },
+   {
+    "appId": "763128795",
+    "revision": 2,
+    "isLatest": true,
+    "program": "4b98a1ac536220c4f182c61c06aada7581c3c2634d3897a15988019868df67b2"
+   }
+  ],
+  "selfOptinPlugin": [
+   {
+    "appId": "763128796",
+    "revision": 1,
+    "isLatest": false,
+    "program": "a6f3692ecfbad3b6eb9c15b3f945e4489827e4394aea798f4a03c9de2e9bd4b7"
+   },
+   {
+    "appId": "767318626",
+    "revision": 2,
+    "isLatest": true,
+    "program": "7f5fc0e43790d7605108abc7f3e70c91ce40a5d02649d77298eee3129d258daa"
+   }
+  ],
+  "asaManagerPlugin": [
+   {
+    "appId": "751968373",
+    "revision": 1,
+    "isLatest": false,
+    "program": "5dfddbca31a3357bbbf58354934446b785907a90d3882f8d9eab686e46997a5b"
+   },
+   {
+    "appId": "763128820",
+    "revision": 2,
+    "isLatest": false,
+    "program": "8357a3a0b22d8b7a9141cee4196f43e391e38f8ace143ecda1851471302e531c"
+   },
+   {
+    "appId": "764705920",
+    "revision": 3,
+    "isLatest": true,
+    "program": "cbd245e9b53f4511a37be69bf32979e9f9c031f305e83af2f0e8f704432a40d9"
+   }
+  ],
+  "payPlugin": [
+   {
+    "appId": "751968379",
+    "revision": 1,
+    "isLatest": false,
+    "program": "40def5a81010f006189edd5aec165eadd01752990694b5336dd4575a37ab6e69"
+   },
+   {
+    "appId": "763128821",
+    "revision": 2,
+    "isLatest": true,
+    "program": "40def5a81010f006189edd5aec165eadd01752990694b5336dd4575a37ab6e69"
+   }
+  ],
+  "haystackRouterPlugin": [
+   {
+    "appId": "763128851",
+    "revision": 1,
+    "isLatest": true,
+    "program": "ad7867bfe4c2f905edee8d9a10055d112fafa54e88f52515e3054ce624af22c6"
+   }
+  ],
+  "hyperSwapPlugin": [
+   {
+    "appId": "751972295",
+    "revision": 1,
+    "isLatest": false,
+    "program": "aabd763c0dfa2f32cb385e08723841e3e2d736b1f63641915bd65d02d5005f8f"
+   },
+   {
+    "appId": "763128858",
+    "revision": 2,
+    "isLatest": true,
+    "program": "f7e2886841fa33f26e5b758720e99715e44b5f7ea5061bfe6bf7617f3f3dad13"
+   }
+  ],
+  "subscriptionsPlugin": [
+   {
+    "appId": "751968395",
+    "revision": 1,
+    "isLatest": false,
+    "program": "6f9bd792c216c7d279cc65e11e4c6fa8776071db7e53cedac293dd190459433a"
+   },
+   {
+    "appId": "763128859",
+    "revision": 2,
+    "isLatest": true,
+    "program": "bb0dc73fcced35b4eca5cc236c305bdeb54e2e194c5b64813e4b8f4d137daa3f"
+   }
+  ],
+  "auctionPlugin": [
+   {
+    "appId": "751972301",
+    "revision": 1,
+    "isLatest": false,
+    "program": "65e768a1a1b0f0379992fc802a913830c98860e38bf2160003567f4f5ecc2fe1"
+   },
+   {
+    "appId": "763128866",
+    "revision": 2,
+    "isLatest": true,
+    "program": "13d0326cc9e326c3374895075f7c1aff0cb8809e967fed9c8b9c443c0cec3148"
+   }
+  ],
+  "daoPlugin": [
+   {
+    "appId": "751972311",
+    "revision": 1,
+    "isLatest": false,
+    "program": "223ebac5837842660fa41ee325d0ec11e46e53ffe0a7d0764d4fa153e6851e4c"
+   },
+   {
+    "appId": "763128876",
+    "revision": 2,
+    "isLatest": true,
+    "program": "04dd239972e1db742dc012063999db4469e57f03fbc970691986f219c4ba920a"
+   }
+  ],
+  "dualStakePlugin": [
+   {
+    "appId": "751972317",
+    "revision": 1,
+    "isLatest": false,
+    "program": "8ff75a554cfccf06244f13e76b24ea2d0580d118d91e4209bfb21a92495e2975"
+   },
+   {
+    "appId": "763128877",
+    "revision": 2,
+    "isLatest": true,
+    "program": "8670cf143904d1c34326d8d20abf359959f126e88804658ed9da3c86a1abe71b"
+   }
+  ],
+  "gatePlugin": [
+   {
+    "appId": "751972318",
+    "revision": 1,
+    "isLatest": false,
+    "program": "2c010671c18064002a349d7ae6864cddb41350a30d4936998c4d507d0a15f891"
+   },
+   {
+    "appId": "763128884",
+    "revision": 2,
+    "isLatest": true,
+    "program": "b338baa2db84ca7a939d85488775dae48860b9408fae0ed75d2d0571856b6377"
+   }
+  ],
+  "marketplacePlugin": [
+   {
+    "appId": "751968424",
+    "revision": 1,
+    "isLatest": false,
+    "program": "2b23424474639c8f14b5824923aaf8bbec24caad9fa10fcf5c91bde0fd7ab26d"
+   },
+   {
+    "appId": "763128885",
+    "revision": 2,
+    "isLatest": true,
+    "program": "ddd82ee94783f366de4b446d8c6e33ac9f711d132f7992d6fa5a237bd781d36b"
+   }
+  ],
+  "nfdPlugin": [
+   {
+    "appId": "751972324",
+    "revision": 1,
+    "isLatest": false,
+    "program": "44393783cc8c6db7e780f9b266952836c008dfc02641b55fe1fd159633a5d7b4"
+   },
+   {
+    "appId": "763128895",
+    "revision": 2,
+    "isLatest": true,
+    "program": "f7b967cd9d732810eafc0985cd038a81f4a123a01230f938ec441a2f101464d7"
+   }
+  ],
+  "paySiloPlugin": [
+   {
+    "appId": "751972334",
+    "revision": 1,
+    "isLatest": false,
+    "program": "1a40891610bac95964a5eca43350ef38a930a7734d1797e858fd66a3d8dee767"
+   },
+   {
+    "appId": "763128904",
+    "revision": 2,
+    "isLatest": true,
+    "program": "1a40891610bac95964a5eca43350ef38a930a7734d1797e858fd66a3d8dee767"
+   }
+  ],
+  "paySiloFactoryPlugin": [
+   {
+    "appId": "751968441",
+    "revision": 1,
+    "isLatest": false,
+    "program": "2b35a3eb4a2a78c544ca3b25f8b846c4bb04dbcbb55576dac9b5d58bf50becb8"
+   },
+   {
+    "appId": "763128905",
+    "revision": 2,
+    "isLatest": true,
+    "program": "eb992e1f91f306f15d3aef474a1bb18ebd5ab6fad15268ec60ac89cb8f75ea25"
+   }
+  ],
+  "pollPlugin": [
+   {
+    "appId": "751972340",
+    "revision": 1,
+    "isLatest": false,
+    "program": "6eddb31d6dd642b74eba406ff2350d663df37e73df3be6cf9b73dea63ef0865f"
+   },
+   {
+    "appId": "763128906",
+    "revision": 2,
+    "isLatest": true,
+    "program": "d810ba825c124622c1d2ade90bcd468b3b16e558a431348fd191ae36b113b56b"
+   }
+  ],
+  "rafflePlugin": [
+   {
+    "appId": "751972341",
+    "revision": 1,
+    "isLatest": false,
+    "program": "a4b415427ec5d896aa5f6d20b56a0d3de7a96cb6de230dfe0329b1d0c8702e25"
+   },
+   {
+    "appId": "763128922",
+    "revision": 2,
+    "isLatest": true,
+    "program": "2755a533147af88d387a5587099d6dadad008a12039b19cf114e52b5841f3877"
+   }
+  ],
+  "rewardsPlugin": [
+   {
+    "appId": "751972347",
+    "revision": 1,
+    "isLatest": false,
+    "program": "bdad51f78bc907da14059ae72917e11c25ebb0831748126e78f19e7e0b8cfe50"
+   },
+   {
+    "appId": "763128923",
+    "revision": 2,
+    "isLatest": true,
+    "program": "57024707fe427b1161a77e3b27b251a71a96b25b52088c890218e890d7d3a5d6"
+   }
+  ],
+  "socialPlugin": [
+   {
+    "appId": "751972357",
+    "revision": 1,
+    "isLatest": false,
+    "program": "c22b17f1f8f829dedd5ab1b302b6d088dbfdad1c628aa76ca1f2857f0bb2244a"
+   },
+   {
+    "appId": "763128930",
+    "revision": 2,
+    "isLatest": false,
+    "program": "a58d15d2b3c01f32b0be3a79ffc1e4748693550e645cef517f67a5e0c66dbea3"
+   },
+   {
+    "appId": "766098156",
+    "revision": 3,
+    "isLatest": false,
+    "program": "cc467dcbdc3dfb7a36c72b3d4d34ad742809bc7b91657ebef020ef707124d6fd"
+   },
+   {
+    "appId": "767297986",
+    "revision": 4,
+    "isLatest": false,
+    "program": "cf59fa14447fb8dcb952cc638ba5635dee8e6200e024e7d39c6736e5c2148752"
+   },
+   {
+    "appId": "767298319",
+    "revision": 5,
+    "isLatest": true,
+    "program": "b9c7e0d91178d80b26df0aff01e8f3017a438052273ec9aef01116c130053e75"
+   }
+  ],
+  "stakingPlugin": [
+   {
+    "appId": "751972363",
+    "revision": 1,
+    "isLatest": false,
+    "program": "e034ce8b98636a08383209d72d28bedbf1e5187a5d22e84d587cb942f3ec498b"
+   },
+   {
+    "appId": "763128931",
+    "revision": 2,
+    "isLatest": false,
+    "program": "96f35c80baaf33132394aeb0941c61bb5056f3b5e3ae275387dc8ae117894399"
+   },
+   {
+    "appId": "767116005",
+    "revision": 3,
+    "isLatest": true,
+    "program": "46ef9dec6ff69d44b3c0f190740f8f957a04d5f19d744df14a7960d9f04ebfc3"
+   }
+  ],
+  "stakingPoolPlugin": [
+   {
+    "appId": "751972365",
+    "revision": 1,
+    "isLatest": false,
+    "program": "632f1f51187bd318e71578fbb71529bc174777884ceca549ad443e3e7cdc60c0"
+   },
+   {
+    "appId": "763128941",
+    "revision": 2,
+    "isLatest": false,
+    "program": "94abec8ddf3f2cb40ff29f3ebb3e84da04c15457134d847b678b666c5276c0a0"
+   },
+   {
+    "appId": "767118261",
+    "revision": 3,
+    "isLatest": true,
+    "program": "c65da3849b06075430cf59c24fdfb72737015924eb877007c0d9de0c47d0e211"
+   }
+  ]
+ }
+}

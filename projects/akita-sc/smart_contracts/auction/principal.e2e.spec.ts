@@ -80,6 +80,14 @@ describe('Auction principal resolution (§6.6)', () => {
   const rewardsBalance = async (): Promise<bigint> =>
     (await algorand.client.algod.accountInformation(algosdk.getApplicationAddress(universe.rewards.appId)).do()).amount
 
+  /** the DAO's `rev_auction` escrow, where the factory sends the auction creation fee (C33) */
+  const auctionEscrowBalance = async (): Promise<bigint> => {
+    const escrow = await universe.dao.wallet.getEscrow('rev_auction')
+    return (await algorand.client.algod.accountInformation(algosdk.getApplicationAddress(escrow.id)).do()).amount
+  }
+
+  const auctionCreationFee = async (): Promise<bigint> => (await universe.dao.client.state.global.nftFees())!.auctionCreationFee
+
   const auctionClient = (appId: bigint) =>
     algorand.client.getTypedAppClientById(AuctionClient, { appId, defaultSender: deployer.addr, defaultSigner: deployer.signer })
 
@@ -233,6 +241,7 @@ describe('Auction principal resolution (§6.6)', () => {
       const prize = await prizeFor(Wr)
       const factory = universe.auctionFactory.client.appAddress.toString()
       const before = await createdApps(factory)
+      const escrowBefore = await auctionEscrowBalance()
       const now = await blockTimestamp()
       await inWindow(Wr, legacyCaller.appId, [await legacyCaller.params.newAuction({
         ...send(deployer),
@@ -241,24 +250,33 @@ describe('Auction principal resolution (§6.6)', () => {
       })])
       const appId = await newestApp(factory, before)
       expect(await sellerReferrerOf(appId)).toBe(R2)
+      // C33: an old-ABI caller that pays the factory's quote pays the creation fee with it
+      expect(await auctionEscrowBalance() - escrowBefore).toBe(await auctionCreationFee())
     })
 
     test('P2-REF-01: a direct old-ABI creation by an EOA (no registry wallet) stores the zero address', async () => {
       const prize = await prizeFor()
       const factory: AuctionFactoryClient = universe.auctionFactory.client
       const cost = await factory.newAuctionCost({ args: { isPrizeBox: false, bidAssetId: 0n, prizeAssetId: prize, weightsListCount: 0n } })
+      const fee = await auctionCreationFee()
+      const escrowBefore = await auctionEscrowBalance()
       const now = await blockTimestamp()
-      const { return: appId } = await factory.send.newAuctionPayAxferStringByte_32Uint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64({
+      const create = async (amount: bigint) => factory.send.newAuctionPayAxferStringByte_32Uint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64({
         ...send(deployer),
         args: {
-          payment: await algorand.createTransaction.payment({ ...send(deployer), receiver: factory.appAddress, amount: microAlgo(cost) }),
-          assetXfer: await algorand.createTransaction.assetTransfer({ ...send(deployer), receiver: factory.appAddress, assetId: prize, amount: 1n }),
+          payment: await algorand.createTransaction.payment({ ...send(deployer), receiver: factory.appAddress, amount: microAlgo(amount), note: `legacy-${amount}` }),
+          assetXfer: await algorand.createTransaction.assetTransfer({ ...send(deployer), receiver: factory.appAddress, assetId: prize, amount: 1n, note: `legacy-${amount}` }),
           name: '', proof: [], bidAssetId: 0n, bidFee: 0n, startingBid: 1_000_000n, bidMinimumIncrease: 100_000n,
           startTimestamp: now, endTimestamp: now + ONE_DAY, gateId: 0n, marketplace: deployer.addr.toString(), weightsListCount: 0n,
         },
         extraFee: FEE,
       })
+      // C33: the old-ABI selector charges the creation fee as well: the storage cost alone is refused
+      expect(fee).toBeGreaterThan(0n)
+      await expect(create(cost - fee)).rejects.toThrow(/errIpay/)
+      const { return: appId } = await create(cost)
       expect(await sellerReferrerOf(appId!)).toBe(ALGORAND_ZERO_ADDRESS_STRING)
+      expect(await auctionEscrowBalance() - escrowBefore).toBe(fee)
     })
   })
 

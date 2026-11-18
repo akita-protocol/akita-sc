@@ -4,10 +4,12 @@ import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/al
 import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { AuctionSDK } from 'akita-sdk/auction'
+import { ProposalActionEnum } from 'akita-sdk/dao'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
+import { proposeAndExecute } from '../arc58/dao/tests/utils'
 import { MockRandomnessBeaconClient, MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 
 algokit.Config.configure({ populateAppCallResources: true })
@@ -1143,6 +1145,165 @@ describe('Auction SDK', () => {
       await cleanupAndDelete(auction, owner)
       expect(await getAccountBalance(algorand, leaver.addr.toString())).toBe(0n)
       expect(await getAccountBalance(algorand, factoryAddress()) - factoryBefore).toBe(50_000n + bids + bidsByAddress)
+    })
+
+    // C33 (2026-11-17): the factory charges the DAO's auction creation fee on every creation path,
+    // sends it to the DAO escrow, and records only the storage cost as the funder's deposit.
+    describe('C33: auction creation fee', () => {
+      const balance = (address: string | Address) => getAccountBalance(algorand, address.toString())
+      /** balance above the account's minimum: what the factory could pay out without closing anything */
+      const freeBalance = async (address: string) => {
+        const info = await algorand.account.getInformation(address)
+        return info.balance.microAlgo - info.minBalance.microAlgo
+      }
+      const escrowAddress = async () => getApplicationAddress((await akitaUniverse.dao.wallet.getEscrow('rev_auction')).id).toString()
+      const auctionFee = async () => (await akitaUniverse.dao.client.state.global.nftFees())!.auctionCreationFee
+      const quote = (isPrizeBox = false) =>
+        akitaUniverse.auctionFactory.cost({ isPrizeBox, bidAssetId: 0n, prizeAssetId: isPrizeBox ? 0n : testAssetId, weightsListCount: 0n })
+      const setAuctionFee = async (fee: bigint) => {
+        await proposeAndExecute(akitaUniverse.dao, [{ type: ProposalActionEnum.UpdateFields, field: 'nft_fees', value: { auctionCreationFee: fee } }])
+        expect(await auctionFee()).toBe(fee)
+      }
+      const cancel = (auction: AuctionSDK, owner: TransactionSignerAccount) =>
+        akitaUniverse.auctionFactory.cancelAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      // not yet started, so the seller can cancel
+      const notStarted = { bidFee: 0n, startIn: 7_200n, duration: 14_400n }
+
+      test('the seller pays the fee on top of storage, the DAO escrow receives it, and a cancel refunds storage only', async () => {
+        const fee = await auctionFee()
+        expect(fee).toBeGreaterThan(0n)
+        const owner = await newSeller()
+        const escrow = await escrowAddress()
+        const cost = await quote()
+        const [escrowBefore, factoryBefore, factoryFreeBefore, sellerBefore] = [
+          await balance(escrow), await balance(factoryAddress()), await freeBalance(factoryAddress()), await balance(owner.addr),
+        ]
+
+        const auction = await createAuction(owner, notStarted)
+        expect(await balance(escrow) - escrowBefore).toBe(fee)
+        // the factory keeps none of it
+        expect(await freeBalance(factoryAddress())).toBe(factoryFreeBefore)
+        // the recorded deposit is the storage cost alone
+        const funder = await auction.client.state.global.funder()
+        expect(funder?.account).toBe(owner.addr.toString())
+        expect(funder?.amount).toBe(cost - fee)
+        const paid = sellerBefore - await balance(owner.addr)
+        expect(paid).toBeGreaterThanOrEqual(cost)
+        expect(paid).toBeLessThan(cost + 100_000n) // the quote plus transaction fees
+
+        await cancel(auction, owner)
+        expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+        expect(await balance(factoryAddress())).toBe(factoryBefore)
+        // the fee stays with the DAO: the seller is out the fee and transaction fees, nothing else
+        expect(await balance(escrow) - escrowBefore).toBe(fee)
+        const lost = sellerBefore - await balance(owner.addr)
+        expect(lost).toBeGreaterThanOrEqual(fee)
+        expect(lost).toBeLessThan(fee + 100_000n)
+      })
+
+      test('a payment of the storage cost alone, or of more than the quote, is refused', async () => {
+        const fee = await auctionFee()
+        const owner = await newSeller()
+        const cost = await quote()
+        const factory = akitaUniverse.auctionFactory.client
+        const now = await getBlockTimestamp(algorand)
+        const create = async (amount: bigint) => factory.send.newAuctionPayAxferStringByte_32Uint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64({
+          sender: owner.addr, signer: owner.signer,
+          args: {
+            payment: await algorand.createTransaction.payment({ sender: owner.addr, receiver: factory.appAddress, amount: amount.microAlgo(), note: `c33-${amount}` }),
+            assetXfer: await algorand.createTransaction.assetTransfer({ sender: owner.addr, receiver: factory.appAddress, assetId: testAssetId, amount: 1n, note: `c33-${amount}` }),
+            name: '', proof: [], bidAssetId: 0n, bidFee: 0n, startingBid: 1_000_000n, bidMinimumIncrease: 100_000n,
+            startTimestamp: now + 7_200n, endTimestamp: now + 14_400n, gateId: 0n, marketplace: owner.addr.toString(), weightsListCount: 0n, wallet: 0n,
+          },
+          extraFee: (40_000).microAlgo(),
+        })
+        const escrowBefore = await balance(await escrowAddress())
+        await expect(create(cost - fee)).rejects.toThrow(/errIpay/)
+        await expect(create(cost - 1n)).rejects.toThrow(/errIpay/)
+        await expect(create(cost + 1n)).rejects.toThrow(/errIpay/)
+        expect(await balance(await escrowAddress())).toBe(escrowBefore)
+        expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+
+        const { return: appId } = await create(cost)
+        expect(appId).toBeGreaterThan(0n)
+        expect(await balance(await escrowAddress()) - escrowBefore).toBe(fee)
+      })
+
+      test('a prize-box auction pays the same fee, and a payment without it is refused', async () => {
+        const fee = await auctionFee()
+        const owner = await newSeller()
+        const escrow = await escrowAddress()
+        const factory = akitaUniverse.auctionFactory.client
+        await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser.addr, (10).algo())
+        const box = await akitaUniverse.prizeBoxFactory.mint({ sender: owner.addr, signer: owner.signer, owner: owner.addr.toString() })
+        const cost = await quote(true)
+        // a prize-box auction holds no prize asset, so it costs less storage than an ASA auction, plus the same fee
+        expect(cost).toBeLessThan(await quote())
+        expect(cost).toBeGreaterThan(fee)
+        const now = await getBlockTimestamp(algorand)
+        // the SDK's prize-box path looks the prize-box factory up by network, which LocalNet does not have
+        const create = async (amount: bigint) => factory.send.newPrizeBoxAuctionApplPayUint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64({
+          sender: owner.addr, signer: owner.signer,
+          args: {
+            prizeBoxTransferTxn: (await box.client.createTransaction.transfer({
+              sender: owner.addr, signer: owner.signer, args: { newOwner: factory.appAddress.toString() }, note: `c33-box-${amount}`,
+            })).transactions[0],
+            payment: await algorand.createTransaction.payment({ sender: owner.addr, receiver: factory.appAddress, amount: amount.microAlgo(), note: `c33-box-${amount}` }),
+            bidAssetId: 0n, bidFee: 0n, startingBid: 1_000_000n, bidMinimumIncrease: 100_000n,
+            startTimestamp: now + 7_200n, endTimestamp: now + 14_400n, gateId: 0n, marketplace: owner.addr.toString(), weightsListCount: 0n, wallet: 0n,
+          },
+          extraFee: (40_000).microAlgo(),
+        })
+        const [escrowBefore, factoryBefore, factoryFreeBefore] = [await balance(escrow), await balance(factoryAddress()), await freeBalance(factoryAddress())]
+
+        await expect(create(cost - fee)).rejects.toThrow(/errIpay/)
+        await expect(create(cost + 1n)).rejects.toThrow(/errIpay/)
+        expect(await balance(escrow)).toBe(escrowBefore)
+
+        const { return: appId } = await create(cost)
+        const auction = akitaUniverse.auctionFactory.get({ appId: appId! })
+        expect(await balance(escrow) - escrowBefore).toBe(fee)
+        expect(await freeBalance(factoryAddress())).toBe(factoryFreeBefore)
+        expect((await auction.client.state.global.funder())?.amount).toBe(cost - fee)
+        expect((await auction.state()).isPrizeBox).toBeTruthy()
+
+        expect(await box.owner()).toBe(auction.client.appAddress.toString())
+
+        await cancel(auction, owner)
+        expect(await box.owner()).toBe(owner.addr.toString())
+        expect(await balance(factoryAddress())).toBe(factoryBefore)
+        expect(await balance(escrow) - escrowBefore).toBe(fee)
+      })
+
+      test('with no fee set an auction costs storage alone and nothing is sent to the escrow', async () => {
+        const fee = await auctionFee()
+        const withFee = await quote()
+        try {
+          await setAuctionFee(0n)
+          const cost = await quote()
+          expect(cost).toBe(withFee - fee)
+          expect(await quote(true)).toBeLessThan(cost)
+
+          const owner = await newSeller()
+          const escrow = await escrowAddress()
+          const [escrowBefore, factoryBefore] = [await balance(escrow), await balance(factoryAddress())]
+          const auction = await createAuction(owner, notStarted)
+          expect(await balance(escrow)).toBe(escrowBefore)
+          expect((await auction.client.state.global.funder())?.amount).toBe(cost)
+          await cancel(auction, owner)
+          expect(await balance(factoryAddress())).toBe(factoryBefore)
+
+          // the factory reads the fee on every call: a new amount applies to the next auction
+          await setAuctionFee(fee + 40_000_000n)
+          expect(await quote()).toBe(withFee + 40_000_000n)
+          const next = await createAuction(owner, notStarted)
+          expect(await balance(escrow) - escrowBefore).toBe(fee + 40_000_000n)
+          await cancel(next, owner)
+        } finally {
+          await setAuctionFee(fee)
+        }
+        expect(await quote()).toBe(withFee)
+      })
     })
   })
 })

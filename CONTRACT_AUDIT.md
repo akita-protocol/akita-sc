@@ -341,7 +341,7 @@ pools.
 >   hook-free emergency exit are included.
 > - `createPool` measures the real cost and refunds any overpayment.
 >
-> Audit items PD-01 and PD-02 are resolved (`projects/akita-sc/audits/full-2026-10-02/fix-marketplace.md`).
+> Audit items PD-01 and PD-02 are resolved (the 2026-10-02 audit's marketplace fix record, kept outside this repository).
 > Design and tests: `projects/akita-sc/smart_contracts/plugin-dex/ARCHITECTURE.md`.
 
 `SunsetContract`, `SunsetPlugin`, and `WalletFactorySunsetContract` implement a

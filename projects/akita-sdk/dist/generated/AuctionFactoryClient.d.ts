@@ -480,7 +480,8 @@ export declare abstract class AuctionFactoryParamsFactory {
     * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
     seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
     (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-    child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+    child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+    auction creation fee.
   
      *
      * @param params Parameters for the call
@@ -532,6 +533,10 @@ export declare abstract class AuctionFactoryParamsFactory {
     static cancelAuction(params: CallParams<AuctionFactoryArgs['obj']['cancelAuction(uint64)void'] | AuctionFactoryArgs['tuple']['cancelAuction(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the newAuctionCost(bool,uint64,uint64,uint64)uint64 ABI method
+     *
+    * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+    plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -1176,7 +1181,8 @@ export declare class AuctionFactoryClient {
         * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
         seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
         (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+        auction creation fee.
     
          *
          * @param params The params for the smart contract call
@@ -1242,6 +1248,10 @@ export declare class AuctionFactoryClient {
          * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+        plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1383,7 +1393,8 @@ export declare class AuctionFactoryClient {
         * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
         seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
         (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+        auction creation fee.
     
          *
          * @param params The params for the smart contract call
@@ -1473,6 +1484,10 @@ export declare class AuctionFactoryClient {
          * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+        plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -1661,7 +1676,8 @@ export declare class AuctionFactoryClient {
         * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
         seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
         (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+        child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+        auction creation fee.
     
          *
          * @param params The params for the smart contract call
@@ -1781,6 +1797,10 @@ export declare class AuctionFactoryClient {
          * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+        plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -1991,6 +2011,10 @@ export declare class AuctionFactoryClient {
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
+    * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+    plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+  
+     *
      * @param params The params for the smart contract call
      * @returns The call result
      */
@@ -2065,7 +2089,8 @@ export type AuctionFactoryComposer<TReturns extends [...any[]] = []> = {
     * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
     seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
     (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
-    child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+    child pays at settlement. The +50,000 µA global is part of `newAuctionCost`, and so is the DAO's
+    auction creation fee.
   
      *
      * @param args The arguments for the contract call
@@ -2123,6 +2148,10 @@ export type AuctionFactoryComposer<TReturns extends [...any[]] = []> = {
     cancelAuction(params?: CallParams<AuctionFactoryArgs['obj']['cancelAuction(uint64)void'] | AuctionFactoryArgs['tuple']['cancelAuction(uint64)void']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['cancelAuction(uint64)void'] | undefined]>;
     /**
      * Calls the newAuctionCost(bool,uint64,uint64,uint64)uint64 ABI method.
+     *
+    * exact ALGO payment `newAuction` / `newPrizeBoxAuction` require: the DAO's auction creation fee
+    plus the storage costs of the child. Only the storage part is the funder's refundable deposit.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call

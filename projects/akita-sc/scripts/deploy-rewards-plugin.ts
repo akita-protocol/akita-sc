@@ -7,7 +7,8 @@
  * support and records it as the current network deployment.
  *
  * `--legacy-rewards <id>` pins the previous Rewards app the plugin may still withdraw credits from
- * and close disbursements on (default: MainNet Rewards v1 3569556095 on mainnet, none elsewhere).
+ * and close disbursements on. Default: the network's Rewards v1 as the SDK registry names it
+ * (`rewardsV1`: 3569556095 on MainNet, 763128244 on TestNet), and none where the registry names none.
  *
  * Usage:
  *   npm run deploy:rewards-plugin -- -n testnet -m "your mnemonic" -v "1.0.0"
@@ -17,16 +18,16 @@ import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, se
 import { RewardsPluginSDK } from 'akita-sdk/wallet'
 import { RewardsPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/rewards/RewardsPluginClient'
 
-const MAINNET_REWARDS_V1 = 3569556095n
-
 runScript(async () => {
-  const options = parseBaseArgs('deploy-rewards-plugin.ts', '\n  --legacy-rewards <id>  Previous Rewards app (default: MainNet v1 on mainnet, 0 elsewhere)')
+  const options = parseBaseArgs('deploy-rewards-plugin.ts', '\n  --legacy-rewards <id>  Previous Rewards app (default: the network\'s Rewards v1 in the SDK registry, 0 where it names none)')
   const argv = process.argv.slice(2)
   const legacyFlag = argv.indexOf('--legacy-rewards')
-  const legacyRewards = legacyFlag >= 0 ? BigInt(argv[legacyFlag + 1]) : options.network === 'mainnet' ? MAINNET_REWARDS_V1 : 0n
   console.log(`\nStarting RewardsPlugin deployment on ${options.network}...\n`)
 
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
+  // The registry names each network's Rewards v1, so one command pins the right app on MainNet and on TestNet.
+  const legacyRewards = legacyFlag >= 0 ? BigInt(argv[legacyFlag + 1]) : ctx.appIds.rewardsV1 ?? 0n
+  console.log(`Legacy Rewards: ${legacyRewards}${legacyFlag >= 0 ? '' : ' (SDK registry)'}\n`)
 
   if (options.dryRun) {
     console.log('DRY RUN - Would deploy new RewardsPlugin contract\n')

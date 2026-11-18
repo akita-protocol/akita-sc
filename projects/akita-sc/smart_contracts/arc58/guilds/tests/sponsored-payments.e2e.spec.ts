@@ -1,8 +1,7 @@
 // Storage and fees paid by someone other than the caller (a sponsor or paymaster). The Guild takes
 // the payment from anyone, keeps the authority with the caller, and returns every refund to the
 // account that paid: a proposal records its `payer`, and a vote paid by someone else keeps a payer
-// record until the receipt is cleaned up (audits/readiness-2026-11-09-decisions.md, payer change of
-// 2026-11-15).
+// record until the receipt is cleaned up (the payer change of 2026-11-15).
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import type { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'

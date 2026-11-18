@@ -796,7 +796,7 @@ create:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.newAuction[routing]() -> void:
 newAuction:
-    // smart_contracts/auction/factory.algo.ts:233-248
+    // smart_contracts/auction/factory.algo.ts:257-272
     // newAuction(
     //   payment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -921,27 +921,27 @@ newAuction:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/auction/factory.algo.ts:249
+    // smart_contracts/auction/factory.algo.ts:273
     // const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:249
+    // smart_contracts/auction/factory.algo.ts:273
     // const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
     app_global_get_ex
     assert // check GlobalState exists
     swap
     callsub principalOf
     extract 104 32
-    // smart_contracts/auction/factory.algo.ts:250-253
+    // smart_contracts/auction/factory.algo.ts:274-277
     // return this.newAuctionImpl(
     //   payment, assetXfer, name, proof, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
     //   startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, sellerReferrer
     // )
     callsub newAuctionImpl
     pop
-    // smart_contracts/auction/factory.algo.ts:233-248
+    // smart_contracts/auction/factory.algo.ts:257-272
     // newAuction(
     //   payment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -969,7 +969,7 @@ newAuction:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.legacyNewAuction[routing]() -> void:
 legacyNewAuction:
-    // smart_contracts/auction/factory.algo.ts:260
+    // smart_contracts/auction/factory.algo.ts:284
     // @abimethod({ name: 'newAuction' })
     txn GroupIndex
     intc_3 // 2
@@ -1072,17 +1072,17 @@ legacyNewAuction:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/auction/factory.algo.ts:278
+    // smart_contracts/auction/factory.algo.ts:302
     // startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
     callsub legacySellerReferrer
-    // smart_contracts/auction/factory.algo.ts:276-279
+    // smart_contracts/auction/factory.algo.ts:300-303
     // return this.newAuctionImpl(
     //   payment, assetXfer, name, proof, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
     //   startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
     // )
     callsub newAuctionImpl
     pop
-    // smart_contracts/auction/factory.algo.ts:260
+    // smart_contracts/auction/factory.algo.ts:284
     // @abimethod({ name: 'newAuction' })
     itob
     bytec_2 // 0x151f7c75
@@ -1095,7 +1095,7 @@ legacyNewAuction:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.newPrizeBoxAuction[routing]() -> void:
 newPrizeBoxAuction:
-    // smart_contracts/auction/factory.algo.ts:283-296
+    // smart_contracts/auction/factory.algo.ts:307-320
     // newPrizeBoxAuction(
     //   prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     //   payment: gtxn.PaymentTxn,
@@ -1195,26 +1195,26 @@ newPrizeBoxAuction:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/auction/factory.algo.ts:297
+    // smart_contracts/auction/factory.algo.ts:321
     // const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:297
+    // smart_contracts/auction/factory.algo.ts:321
     // const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
     app_global_get_ex
     assert // check GlobalState exists
     swap
     callsub principalOf
     extract 104 32
-    // smart_contracts/auction/factory.algo.ts:298-301
+    // smart_contracts/auction/factory.algo.ts:322-325
     // return this.newPrizeBoxAuctionImpl(
     //   prizeBoxTransferTxn, payment, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
     //   startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, sellerReferrer
     // )
     callsub newPrizeBoxAuctionImpl
-    // smart_contracts/auction/factory.algo.ts:283-296
+    // smart_contracts/auction/factory.algo.ts:307-320
     // newPrizeBoxAuction(
     //   prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     //   payment: gtxn.PaymentTxn,
@@ -1240,7 +1240,7 @@ newPrizeBoxAuction:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.legacyNewPrizeBoxAuction[routing]() -> void:
 legacyNewPrizeBoxAuction:
-    // smart_contracts/auction/factory.algo.ts:305
+    // smart_contracts/auction/factory.algo.ts:329
     // @abimethod({ name: 'newPrizeBoxAuction' })
     txn GroupIndex
     intc_3 // 2
@@ -1320,16 +1320,16 @@ legacyNewPrizeBoxAuction:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/auction/factory.algo.ts:321
+    // smart_contracts/auction/factory.algo.ts:345
     // startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
     callsub legacySellerReferrer
-    // smart_contracts/auction/factory.algo.ts:319-322
+    // smart_contracts/auction/factory.algo.ts:343-346
     // return this.newPrizeBoxAuctionImpl(
     //   prizeBoxTransferTxn, payment, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
     //   startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
     // )
     callsub newPrizeBoxAuctionImpl
-    // smart_contracts/auction/factory.algo.ts:305
+    // smart_contracts/auction/factory.algo.ts:329
     // @abimethod({ name: 'newPrizeBoxAuction' })
     itob
     bytec_2 // 0x151f7c75
@@ -1342,7 +1342,7 @@ legacyNewPrizeBoxAuction:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.deleteAuctionApp[routing]() -> void:
 deleteAuctionApp:
-    // smart_contracts/auction/factory.algo.ts:461
+    // smart_contracts/auction/factory.algo.ts:488
     // deleteAuctionApp(appId: Application): void {
     txna ApplicationArgs 1
     dup
@@ -1352,7 +1352,7 @@ deleteAuctionApp:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/auction/factory.algo.ts:462
+    // smart_contracts/auction/factory.algo.ts:489
     // loggedAssert(appId.creator === Global.currentApplicationAddress, errNotAnAuction)
     app_params_get AppCreator
     assert // application exists
@@ -1364,13 +1364,13 @@ deleteAuctionApp:
     err // ERR:errNauc
 
 deleteAuctionApp_after_assert@3:
-    // smart_contracts/auction/factory.algo.ts:463
+    // smart_contracts/auction/factory.algo.ts:490
     // const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
     dup
     bytec 19 // "seller"
     app_global_get_ex
     pop
-    // smart_contracts/auction/factory.algo.ts:464
+    // smart_contracts/auction/factory.algo.ts:491
     // loggedAssert(seller === Txn.sender, errNotPrizeBoxOwner)
     txn Sender
     ==
@@ -1380,12 +1380,12 @@ deleteAuctionApp_after_assert@3:
     err // ERR:errNpbo
 
 deleteAuctionApp_after_assert@5:
-    // smart_contracts/auction/factory.algo.ts:467
+    // smart_contracts/auction/factory.algo.ts:494
     // const balanceBefore: uint64 = Global.currentApplicationAddress.balance
     global CurrentApplicationAddress
     acct_params_get AcctBalance
     assert // account funded
-    // smart_contracts/auction/factory.algo.ts:468
+    // smart_contracts/auction/factory.algo.ts:495
     // const minBefore: uint64 = Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
@@ -1397,14 +1397,14 @@ deleteAuctionApp_after_assert@5:
     bytec 20 // "funder"
     app_global_get_ex
     pop
-    // smart_contracts/auction/factory.algo.ts:469
+    // smart_contracts/auction/factory.algo.ts:496
     // const { account: receiver, amount } = getFunder(appId)
     dup
     extract 0 32
     swap
     pushint 32
     extract_uint64
-    // smart_contracts/auction/factory.algo.ts:473
+    // smart_contracts/auction/factory.algo.ts:500
     // auction.call.deleteApplication({ appId })
     itxn_begin
     pushint 5
@@ -1418,14 +1418,14 @@ deleteAuctionApp_after_assert@5:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:475
+    // smart_contracts/auction/factory.algo.ts:502
     // this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
     uncover 3
     uncover 3
     intc_0 // 0
     callsub refundReleased
     pop
-    // smart_contracts/auction/factory.algo.ts:461
+    // smart_contracts/auction/factory.algo.ts:488
     // deleteAuctionApp(appId: Application): void {
     intc_1 // 1
     return
@@ -1433,7 +1433,7 @@ deleteAuctionApp_after_assert@5:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.cancelAuction[routing]() -> void:
 cancelAuction:
-    // smart_contracts/auction/factory.algo.ts:478
+    // smart_contracts/auction/factory.algo.ts:505
     // cancelAuction(appId: Application): void {
     txna ApplicationArgs 1
     dup
@@ -1443,7 +1443,7 @@ cancelAuction:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/auction/factory.algo.ts:479
+    // smart_contracts/auction/factory.algo.ts:506
     // loggedAssert(appId.creator === Global.currentApplicationAddress, errNotAnAuction)
     app_params_get AppCreator
     assert // application exists
@@ -1455,13 +1455,13 @@ cancelAuction:
     err // ERR:errNauc
 
 cancelAuction_after_assert@3:
-    // smart_contracts/auction/factory.algo.ts:480
+    // smart_contracts/auction/factory.algo.ts:507
     // const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
     dup
     bytec 19 // "seller"
     app_global_get_ex
     pop
-    // smart_contracts/auction/factory.algo.ts:481
+    // smart_contracts/auction/factory.algo.ts:508
     // loggedAssert(seller === Txn.sender, errNotPrizeBoxOwner)
     txn Sender
     ==
@@ -1471,12 +1471,12 @@ cancelAuction_after_assert@3:
     err // ERR:errNpbo
 
 cancelAuction_after_assert@5:
-    // smart_contracts/auction/factory.algo.ts:484
+    // smart_contracts/auction/factory.algo.ts:511
     // const balanceBefore: uint64 = Global.currentApplicationAddress.balance
     global CurrentApplicationAddress
     acct_params_get AcctBalance
     assert // account funded
-    // smart_contracts/auction/factory.algo.ts:485
+    // smart_contracts/auction/factory.algo.ts:512
     // const minBefore: uint64 = Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
@@ -1488,14 +1488,14 @@ cancelAuction_after_assert@5:
     bytec 20 // "funder"
     app_global_get_ex
     pop
-    // smart_contracts/auction/factory.algo.ts:486
+    // smart_contracts/auction/factory.algo.ts:513
     // const { account: receiver, amount } = getFunder(appId)
     dup
     extract 0 32
     swap
     pushint 32
     extract_uint64
-    // smart_contracts/auction/factory.algo.ts:490
+    // smart_contracts/auction/factory.algo.ts:517
     // auction.call.cancel({ appId })
     itxn_begin
     pushint 5
@@ -1509,14 +1509,14 @@ cancelAuction_after_assert@5:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:492
+    // smart_contracts/auction/factory.algo.ts:519
     // this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
     uncover 3
     uncover 3
     intc_0 // 0
     callsub refundReleased
     pop
-    // smart_contracts/auction/factory.algo.ts:478
+    // smart_contracts/auction/factory.algo.ts:505
     // cancelAuction(appId: Application): void {
     intc_1 // 1
     return
@@ -1525,7 +1525,7 @@ cancelAuction_after_assert@5:
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.newAuctionCost[routing]() -> void:
 newAuctionCost:
     pushbytes ""
-    // smart_contracts/auction/factory.algo.ts:495
+    // smart_contracts/auction/factory.algo.ts:526
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1561,11 +1561,11 @@ newAuctionCost:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 5
-    // smart_contracts/auction/factory.algo.ts:498
+    // smart_contracts/auction/factory.algo.ts:529
     // const isAlgoBid = bidAssetID === 0
     !
     swap
-    // smart_contracts/auction/factory.algo.ts:499
+    // smart_contracts/auction/factory.algo.ts:530
     // const optinMBR: uint64 = Global.assetOptInMinBalance * (isPrizeBox ? (isAlgoBid ? 0 : 1) : (isAlgoBid ? 1 : 2))
     global AssetOptInMinBalance
     swap
@@ -1574,21 +1574,21 @@ newAuctionCost:
     !
 
 newAuctionCost_ternary_merge@4:
-    // smart_contracts/auction/factory.algo.ts:499
+    // smart_contracts/auction/factory.algo.ts:530
     // const optinMBR: uint64 = Global.assetOptInMinBalance * (isPrizeBox ? (isAlgoBid ? 0 : 1) : (isAlgoBid ? 1 : 2))
     *
     bury 5
-    // smart_contracts/auction/factory.algo.ts:507
+    // smart_contracts/auction/factory.algo.ts:538
     // if (!isPrizeBox) {
     uncover 2
     bnz newAuctionCost_else_body@9
-    // smart_contracts/auction/factory.algo.ts:508
+    // smart_contracts/auction/factory.algo.ts:539
     // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeAssetID)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:508
+    // smart_contracts/auction/factory.algo.ts:539
     // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeAssetID)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1597,10 +1597,10 @@ newAuctionCost_ternary_merge@4:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 79800
-    // smart_contracts/auction/factory.algo.ts:508
+    // smart_contracts/auction/factory.algo.ts:539
     // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeAssetID)
     +
-    // smart_contracts/auction/factory.algo.ts:509
+    // smart_contracts/auction/factory.algo.ts:540
     // if (isAlgoBid) {
     dig 1
     bnz newAuctionCost_else_body@7
@@ -1608,12 +1608,12 @@ newAuctionCost_ternary_merge@4:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 79800
-    // smart_contracts/auction/factory.algo.ts:510
+    // smart_contracts/auction/factory.algo.ts:541
     // disbursementMBR += disbursementCost(1)
     +
 
 newAuctionCost_after_if_else@13:
-    // smart_contracts/auction/factory.algo.ts:520
+    // smart_contracts/auction/factory.algo.ts:551
     // const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     global MinBalance
     dig 3
@@ -1623,7 +1623,7 @@ newAuctionCost_after_if_else@13:
     *
     +
     +
-    // smart_contracts/auction/factory.algo.ts:522
+    // smart_contracts/auction/factory.algo.ts:553
     // this.childPagesMbr(auction.clearStateProgram.length) +
     pushint 4
     // smart_contracts/utils/base-contracts/factory.ts:95
@@ -1635,19 +1635,23 @@ newAuctionCost_after_if_else@13:
     +
     intc 6 // 100000
     *
-    // smart_contracts/auction/factory.algo.ts:522-524
+    // smart_contracts/auction/factory.algo.ts:553-555
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     intc 7 // 1262500
     +
-    // smart_contracts/auction/factory.algo.ts:522-525
+    // smart_contracts/auction/factory.algo.ts:553-556
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     // childAppMBR
     +
-    // smart_contracts/auction/factory.algo.ts:495
+    // smart_contracts/auction/factory.algo.ts:559
+    // return totalMBR + this.creationFee()
+    callsub creationFee
+    +
+    // smart_contracts/auction/factory.algo.ts:526
     // @abimethod({ readonly: true })
     itob
     bytec_2 // 0x151f7c75
@@ -1658,13 +1662,13 @@ newAuctionCost_after_if_else@13:
     return
 
 newAuctionCost_else_body@7:
-    // smart_contracts/auction/factory.algo.ts:512
+    // smart_contracts/auction/factory.algo.ts:543
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:512
+    // smart_contracts/auction/factory.algo.ts:543
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1673,7 +1677,7 @@ newAuctionCost_else_body@7:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 10 // 399000
-    // smart_contracts/auction/factory.algo.ts:512
+    // smart_contracts/auction/factory.algo.ts:543
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     +
     +
@@ -1681,7 +1685,7 @@ newAuctionCost_else_body@7:
 
 newAuctionCost_else_body@9:
     bury 1
-    // smart_contracts/auction/factory.algo.ts:514
+    // smart_contracts/auction/factory.algo.ts:545
     // } else if (isAlgoBid) {
     dup
     bnz newAuctionCost_else_body@11
@@ -1692,13 +1696,13 @@ newAuctionCost_else_body@9:
     b newAuctionCost_after_if_else@13
 
 newAuctionCost_else_body@11:
-    // smart_contracts/auction/factory.algo.ts:517
+    // smart_contracts/auction/factory.algo.ts:548
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:517
+    // smart_contracts/auction/factory.algo.ts:548
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1707,13 +1711,13 @@ newAuctionCost_else_body@11:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 11 // 319200
-    // smart_contracts/auction/factory.algo.ts:517
+    // smart_contracts/auction/factory.algo.ts:548
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     +
     b newAuctionCost_after_if_else@13
 
 newAuctionCost_ternary_false@3:
-    // smart_contracts/auction/factory.algo.ts:499
+    // smart_contracts/auction/factory.algo.ts:530
     // const optinMBR: uint64 = Global.assetOptInMinBalance * (isPrizeBox ? (isAlgoBid ? 0 : 1) : (isAlgoBid ? 1 : 2))
     intc_3 // 2
     intc_1 // 1
@@ -2787,19 +2791,100 @@ validateRaffleConfig_else_body@6:
     err // ERR:errWnbf
 
 
+// smart_contracts/auction/factory.algo.ts::AuctionFactory.creationFee() -> uint64:
+creationFee:
+    // smart_contracts/auction/factory.algo.ts:59
+    // return getNFTFees(this.akitaDAO.value).auctionCreationFee
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/auction/factory.algo.ts:59
+    // return getNFTFees(this.akitaDAO.value).auctionCreationFee
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:255
+    // const [nftFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysNFTFees))
+    pushbytes "nft_fees"
+    app_global_get_ex
+    pop
+    // smart_contracts/auction/factory.algo.ts:59
+    // return getNFTFees(this.akitaDAO.value).auctionCreationFee
+    pushint 48
+    extract_uint64
+    retsub
+
+
+// smart_contracts/auction/factory.algo.ts::AuctionFactory.payCreationFee(fee: uint64) -> void:
+payCreationFee:
+    // smart_contracts/auction/factory.algo.ts:63
+    // private payCreationFee(fee: uint64): void {
+    proto 1 0
+    // smart_contracts/auction/factory.algo.ts:64
+    // if (fee > 0) {
+    frame_dig -1
+    bz payCreationFee_after_if_else@3
+    // smart_contracts/auction/factory.algo.ts:65-70
+    // itxn
+    //   .payment({
+    //     receiver: this.akitaDAOEscrow.value.app.address,
+    //     amount: fee,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/auction/factory.algo.ts:67
+    // receiver: this.akitaDAOEscrow.value.app.address,
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec_3 // "akita_escrow"
+    // smart_contracts/auction/factory.algo.ts:67
+    // receiver: this.akitaDAOEscrow.value.app.address,
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_3 // 2
+    extract_uint64
+    app_params_get AppAddress
+    assert // application exists
+    frame_dig -1
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/auction/factory.algo.ts:65-69
+    // itxn
+    //   .payment({
+    //     receiver: this.akitaDAOEscrow.value.app.address,
+    //     amount: fee,
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/auction/factory.algo.ts:65-70
+    // itxn
+    //   .payment({
+    //     receiver: this.akitaDAOEscrow.value.app.address,
+    //     amount: fee,
+    //   })
+    //   .submit()
+    itxn_submit
+
+payCreationFee_after_if_else@3:
+    retsub
+
+
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.legacySellerReferrer() -> bytes:
 legacySellerReferrer:
-    // smart_contracts/auction/factory.algo.ts:60
+    // smart_contracts/auction/factory.algo.ts:80
     // private legacySellerReferrer(): Account {
     proto 0 1
     intc_0 // 0
-    // smart_contracts/auction/factory.algo.ts:61
+    // smart_contracts/auction/factory.algo.ts:81
     // return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
     dup
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:61
+    // smart_contracts/auction/factory.algo.ts:81
     // return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
     app_global_get_ex
     assert // check GlobalState exists
@@ -2881,7 +2966,7 @@ legacySellerReferrer_after_inlined_smart_contracts/utils/functions.ts::legacyWal
     bury 1
 
 legacySellerReferrer_after_inlined_smart_contracts/utils/functions.ts::referrerOr@9:
-    // smart_contracts/auction/factory.algo.ts:61
+    // smart_contracts/auction/factory.algo.ts:81
     // return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
     frame_bury 0
     retsub
@@ -2965,7 +3050,7 @@ legacySellerReferrer_bool_false@16:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.newAuctionImpl(payment: uint64, assetXfer: uint64, name: bytes, proof: bytes, bidAssetID: uint64, bidFee: uint64, startingBid: uint64, bidMinimumIncrease: uint64, startTimestamp: uint64, endTimestamp: uint64, gateID: uint64, marketplace: bytes, weightsListCount: uint64, sellerReferrer: bytes) -> uint64, bytes:
 newAuctionImpl:
-    // smart_contracts/auction/factory.algo.ts:64-79
+    // smart_contracts/auction/factory.algo.ts:84-99
     // private newAuctionImpl(
     //   payment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -2986,7 +3071,7 @@ newAuctionImpl:
     intc_0 // 0
     pushbytes ""
     dup
-    // smart_contracts/auction/factory.algo.ts:80
+    // smart_contracts/auction/factory.algo.ts:100
     // loggedAssert(bidMinimumIncrease > 0, errBidsMustAlwaysIncrease)
     frame_dig -7
     bnz newAuctionImpl_after_assert@2
@@ -2995,7 +3080,7 @@ newAuctionImpl:
     err // ERR:errBinc
 
 newAuctionImpl_after_assert@2:
-    // smart_contracts/auction/factory.algo.ts:81
+    // smart_contracts/auction/factory.algo.ts:101
     // loggedAssert(endTimestamp > startTimestamp + 300, errEndMustBeAtleastFiveMinutesAfterStart)
     frame_dig -6
     pushint 300
@@ -3011,7 +3096,7 @@ newAuctionImpl_after_assert@4:
     // smart_contracts/utils/base-contracts/factory.ts:66
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/auction/factory.algo.ts:82
+    // smart_contracts/auction/factory.algo.ts:102
     // loggedAssert(this.boxedContract.exists, errContractNotSet)
     box_len
     bury 1
@@ -3021,17 +3106,17 @@ newAuctionImpl_after_assert@4:
     err // ERR:errCnst
 
 newAuctionImpl_after_assert@6:
-    // smart_contracts/auction/factory.algo.ts:83
+    // smart_contracts/auction/factory.algo.ts:103
     // this.validateRaffleConfig(bidFee, startingBid, weightsListCount)
     frame_dig -9
     frame_dig -8
     frame_dig -2
     callsub validateRaffleConfig
-    // smart_contracts/auction/factory.algo.ts:85
+    // smart_contracts/auction/factory.algo.ts:105
     // const isAlgoBid = bidAssetID === 0
     frame_dig -10
     !
-    // smart_contracts/auction/factory.algo.ts:87
+    // smart_contracts/auction/factory.algo.ts:107
     // loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), errNotOptedIn)
     frame_dig -10
     bz newAuctionImpl_bool_true@8
@@ -3045,7 +3130,7 @@ newAuctionImpl_bool_true@8:
     intc_1 // 1
 
 newAuctionImpl_bool_merge@10:
-    // smart_contracts/auction/factory.algo.ts:87
+    // smart_contracts/auction/factory.algo.ts:107
     // loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), errNotOptedIn)
     bnz newAuctionImpl_after_assert@12
     pushbytes "ERR:errNopt"
@@ -3053,7 +3138,7 @@ newAuctionImpl_bool_merge@10:
     err // ERR:errNopt
 
 newAuctionImpl_after_assert@12:
-    // smart_contracts/auction/factory.algo.ts:89
+    // smart_contracts/auction/factory.algo.ts:109
     // const optinMBR: uint64 = Global.assetOptInMinBalance * (isAlgoBid ? 1 : 2)
     global AssetOptInMinBalance
     intc_3 // 2
@@ -3062,13 +3147,13 @@ newAuctionImpl_after_assert@12:
     select
     *
     frame_bury 1
-    // smart_contracts/auction/factory.algo.ts:99
+    // smart_contracts/auction/factory.algo.ts:119
     // let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, assetXfer.xferAsset.id)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:99
+    // smart_contracts/auction/factory.algo.ts:119
     // let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, assetXfer.xferAsset.id)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3080,27 +3165,27 @@ newAuctionImpl_after_assert@12:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 79800
-    // smart_contracts/auction/factory.algo.ts:99
+    // smart_contracts/auction/factory.algo.ts:119
     // let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, assetXfer.xferAsset.id)
     +
     swap
-    // smart_contracts/auction/factory.algo.ts:100
+    // smart_contracts/auction/factory.algo.ts:120
     // if (isAlgoBid) {
     frame_dig -10
     bnz newAuctionImpl_else_body@14
-    // smart_contracts/auction/factory.algo.ts:101
+    // smart_contracts/auction/factory.algo.ts:121
     // disbursementMBR += disbursementCost(1)
     swap
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 79800
-    // smart_contracts/auction/factory.algo.ts:101
+    // smart_contracts/auction/factory.algo.ts:121
     // disbursementMBR += disbursementCost(1)
     +
     swap
 
 newAuctionImpl_after_if_else@15:
-    // smart_contracts/auction/factory.algo.ts:106
+    // smart_contracts/auction/factory.algo.ts:126
     // const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     global MinBalance
     frame_dig 1
@@ -3113,7 +3198,7 @@ newAuctionImpl_after_if_else@15:
     +
     dig 2
     +
-    // smart_contracts/auction/factory.algo.ts:108
+    // smart_contracts/auction/factory.algo.ts:128
     // this.childPagesMbr(auction.clearStateProgram.length) +
     pushint 4
     // smart_contracts/utils/base-contracts/factory.ts:95
@@ -3125,20 +3210,24 @@ newAuctionImpl_after_if_else@15:
     +
     intc 6 // 100000
     *
-    // smart_contracts/auction/factory.algo.ts:108-110
+    // smart_contracts/auction/factory.algo.ts:128-130
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     intc 7 // 1262500
     +
-    // smart_contracts/auction/factory.algo.ts:108-111
+    // smart_contracts/auction/factory.algo.ts:128-131
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     // childAppMBR
     +
-    swap
-    // smart_contracts/auction/factory.algo.ts:115
+    cover 2
+    // smart_contracts/auction/factory.algo.ts:135
+    // const creationFee = this.creationFee()
+    callsub creationFee
+    cover 2
+    // smart_contracts/auction/factory.algo.ts:136
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     frame_dig -14
     gtxns Receiver
@@ -3150,11 +3239,13 @@ newAuctionImpl_after_if_else@15:
     err // ERR:errIpay
 
 newAuctionImpl_after_assert@17:
-    // smart_contracts/auction/factory.algo.ts:116
-    // loggedAssert(payment.amount === totalMBR, errInvalidPayment)
+    // smart_contracts/auction/factory.algo.ts:137
+    // loggedAssert(payment.amount === totalMBR + creationFee, errInvalidPayment)
     frame_dig -14
     gtxns Amount
-    dig 2
+    dig 4
+    dig 4
+    +
     ==
     bnz newAuctionImpl_after_assert@19
     bytec 9 // "ERR:errIpay"
@@ -3162,7 +3253,7 @@ newAuctionImpl_after_assert@17:
     err // ERR:errIpay
 
 newAuctionImpl_after_assert@19:
-    // smart_contracts/auction/factory.algo.ts:119
+    // smart_contracts/auction/factory.algo.ts:140
     // loggedAssert(assetXfer.sender === Txn.sender, errInvalidTransfer)
     frame_dig -13
     gtxns Sender
@@ -3174,7 +3265,7 @@ newAuctionImpl_after_assert@19:
     err // ERR:errIxfr
 
 newAuctionImpl_after_assert@21:
-    // smart_contracts/auction/factory.algo.ts:121
+    // smart_contracts/auction/factory.algo.ts:142
     // loggedAssert(assetXfer.xferAsset.id !== bidAssetID, errPrizeIsBidAsset)
     dup
     frame_dig -10
@@ -3185,7 +3276,7 @@ newAuctionImpl_after_assert@21:
     err // ERR:errPiba
 
 newAuctionImpl_after_assert@23:
-    // smart_contracts/auction/factory.algo.ts:122
+    // smart_contracts/auction/factory.algo.ts:143
     // loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
     frame_dig -13
     gtxns AssetReceiver
@@ -3197,19 +3288,19 @@ newAuctionImpl_after_assert@23:
     err // ERR:errIxfr
 
 newAuctionImpl_after_assert@25:
-    // smart_contracts/auction/factory.algo.ts:123
+    // smart_contracts/auction/factory.algo.ts:144
     // loggedAssert(assetXfer.assetAmount > 0, errInvalidTransfer)
     frame_dig -13
     gtxns AssetAmount
     dup
-    cover 4
+    cover 5
     bnz newAuctionImpl_after_assert@27
     bytec 12 // "ERR:errIxfr"
     log
     err // ERR:errIxfr
 
 newAuctionImpl_after_assert@27:
-    // smart_contracts/auction/factory.algo.ts:125
+    // smart_contracts/auction/factory.algo.ts:146
     // assetXfer.xferAsset.clawback === Global.zeroAddress && assetXfer.xferAsset.freeze === Global.zeroAddress,
     dup
     asset_params_get AssetClawback
@@ -3226,7 +3317,7 @@ newAuctionImpl_after_assert@27:
     intc_1 // 1
 
 newAuctionImpl_bool_merge@31:
-    // smart_contracts/auction/factory.algo.ts:124-127
+    // smart_contracts/auction/factory.algo.ts:145-148
     // loggedAssert(
     //   assetXfer.xferAsset.clawback === Global.zeroAddress && assetXfer.xferAsset.freeze === Global.zeroAddress,
     //   errPrizeSeizable
@@ -3237,13 +3328,13 @@ newAuctionImpl_bool_merge@31:
     err // ERR:errPszb
 
 newAuctionImpl_after_assert@33:
-    // smart_contracts/auction/factory.algo.ts:129
+    // smart_contracts/auction/factory.algo.ts:150
     // const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:129
+    // smart_contracts/auction/factory.algo.ts:150
     // const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3253,7 +3344,11 @@ newAuctionImpl_after_assert@33:
     callsub royalties
     frame_bury -11
     swap
-    // smart_contracts/auction/factory.algo.ts:132-161
+    // smart_contracts/auction/factory.algo.ts:152
+    // this.payCreationFee(creationFee)
+    uncover 3
+    callsub payCreationFee
+    // smart_contracts/auction/factory.algo.ts:155-184
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -3285,62 +3380,62 @@ newAuctionImpl_after_assert@33:
     //     extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
     //   })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:135
+    // smart_contracts/auction/factory.algo.ts:158
     // assetXfer.xferAsset.id,
     dup
     itob
-    // smart_contracts/auction/factory.algo.ts:137
+    // smart_contracts/auction/factory.algo.ts:160
     // bidAssetID,
     frame_dig -10
     itob
     dup
     cover 3
     frame_bury 0
-    // smart_contracts/auction/factory.algo.ts:138
+    // smart_contracts/auction/factory.algo.ts:161
     // bidFee,
     frame_dig -9
     itob
-    // smart_contracts/auction/factory.algo.ts:139
+    // smart_contracts/auction/factory.algo.ts:162
     // startingBid,
     frame_dig -8
     itob
-    // smart_contracts/auction/factory.algo.ts:140
+    // smart_contracts/auction/factory.algo.ts:163
     // bidMinimumIncrease,
     frame_dig -7
     itob
-    // smart_contracts/auction/factory.algo.ts:141
+    // smart_contracts/auction/factory.algo.ts:164
     // startTimestamp,
     frame_dig -6
     itob
-    // smart_contracts/auction/factory.algo.ts:142
+    // smart_contracts/auction/factory.algo.ts:165
     // endTimestamp,
     frame_dig -5
     itob
-    // smart_contracts/auction/factory.algo.ts:143
+    // smart_contracts/auction/factory.algo.ts:166
     // { account: payment.sender, amount: totalMBR },
     frame_dig -14
     gtxns Sender
-    uncover 10
+    uncover 11
     itob
     concat
-    // smart_contracts/auction/factory.algo.ts:144
+    // smart_contracts/auction/factory.algo.ts:167
     // Txn.sender,
     txn Sender
-    // smart_contracts/auction/factory.algo.ts:145
+    // smart_contracts/auction/factory.algo.ts:168
     // creatorRoyalty,
     uncover 10
     itob
-    // smart_contracts/auction/factory.algo.ts:146
+    // smart_contracts/auction/factory.algo.ts:169
     // gateID,
     frame_dig -4
     itob
-    // smart_contracts/auction/factory.algo.ts:148
+    // smart_contracts/auction/factory.algo.ts:171
     // this.childContractVersion.value,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:62
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/auction/factory.algo.ts:148
+    // smart_contracts/auction/factory.algo.ts:171
     // this.childContractVersion.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -3350,13 +3445,13 @@ newAuctionImpl_after_assert@33:
     extract 6 2
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:149
+    // smart_contracts/auction/factory.algo.ts:172
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:149
+    // smart_contracts/auction/factory.algo.ts:172
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     app_global_get_ex
     assert // check GlobalState exists
@@ -3364,7 +3459,7 @@ newAuctionImpl_after_assert@33:
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec_3 // "akita_escrow"
-    // smart_contracts/auction/factory.algo.ts:149
+    // smart_contracts/auction/factory.algo.ts:172
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     app_global_get_ex
     assert // check GlobalState exists
@@ -3374,7 +3469,7 @@ newAuctionImpl_after_assert@33:
     concat
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:149-150
+    // smart_contracts/auction/factory.algo.ts:172-173
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     // sellerReferrer,
     bytec 26 // 0x0022
@@ -3382,33 +3477,33 @@ newAuctionImpl_after_assert@33:
     concat
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:154
+    // smart_contracts/auction/factory.algo.ts:177
     // this.childApprovalChunk(0),
     intc_0 // 0
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:155
+    // smart_contracts/auction/factory.algo.ts:178
     // this.childApprovalChunk(1),
     intc_1 // 1
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:156
+    // smart_contracts/auction/factory.algo.ts:179
     // this.childApprovalChunk(2),
     intc_3 // 2
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:157
+    // smart_contracts/auction/factory.algo.ts:180
     // this.childApprovalChunk(3),
     pushint 3
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:160
+    // smart_contracts/auction/factory.algo.ts:183
     // extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
     pushint 4
     callsub childExtraPages
-    // smart_contracts/auction/factory.algo.ts:93
+    // smart_contracts/auction/factory.algo.ts:113
     // const auction = compileArc4(Auction)
     pushint 11
     itxn_field GlobalNumByteSlice
     pushint 25
     itxn_field GlobalNumUint
-    // smart_contracts/auction/factory.algo.ts:132-161
+    // smart_contracts/auction/factory.algo.ts:155-184
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -3442,7 +3537,7 @@ newAuctionImpl_after_assert@33:
     intc_0 // 0
     itxn_field OnCompletion
     itxn_field ExtraProgramPages
-    // smart_contracts/auction/factory.algo.ts:93
+    // smart_contracts/auction/factory.algo.ts:113
     // const auction = compileArc4(Auction)
     bytec 27 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -3453,7 +3548,7 @@ newAuctionImpl_after_assert@33:
     swap
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // smart_contracts/auction/factory.algo.ts:132-161
+    // smart_contracts/auction/factory.algo.ts:155-184
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -3488,7 +3583,7 @@ newAuctionImpl_after_assert@33:
     itxn_field ApplicationArgs
     dig 11
     itxn_field ApplicationArgs
-    // smart_contracts/auction/factory.algo.ts:136
+    // smart_contracts/auction/factory.algo.ts:159
     // false,
     bytec 10 // 0x00
     itxn_field ApplicationArgs
@@ -3517,7 +3612,7 @@ newAuctionImpl_after_assert@33:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/auction/factory.algo.ts:132-161
+    // smart_contracts/auction/factory.algo.ts:155-184
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -3553,7 +3648,7 @@ newAuctionImpl_after_assert@33:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:132-163
+    // smart_contracts/auction/factory.algo.ts:155-186
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -3589,7 +3684,7 @@ newAuctionImpl_after_assert@33:
     gitxn 0 CreatedApplicationID
     dup
     cover 3
-    // smart_contracts/auction/factory.algo.ts:166-171
+    // smart_contracts/auction/factory.algo.ts:189-194
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -3597,19 +3692,19 @@ newAuctionImpl_after_assert@33:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:168
+    // smart_contracts/auction/factory.algo.ts:191
     // receiver: auctionApp.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/auction/factory.algo.ts:169
+    // smart_contracts/auction/factory.algo.ts:192
     // amount: Global.minBalance + disbursementMBR
     global MinBalance
     uncover 6
     +
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:166-170
+    // smart_contracts/auction/factory.algo.ts:189-193
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -3619,7 +3714,7 @@ newAuctionImpl_after_assert@33:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:166-171
+    // smart_contracts/auction/factory.algo.ts:189-194
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -3627,7 +3722,7 @@ newAuctionImpl_after_assert@33:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:174-183
+    // smart_contracts/auction/factory.algo.ts:197-206
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -3639,17 +3734,17 @@ newAuctionImpl_after_assert@33:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:178
+    // smart_contracts/auction/factory.algo.ts:201
     // receiver: auctionApp.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/auction/factory.algo.ts:179
+    // smart_contracts/auction/factory.algo.ts:202
     // amount: Global.assetOptInMinBalance
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:177-180
+    // smart_contracts/auction/factory.algo.ts:200-203
     // itxn.payment({
     //   receiver: auctionApp.address,
     //   amount: Global.assetOptInMinBalance
@@ -3658,7 +3753,7 @@ newAuctionImpl_after_assert@33:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:174-183
+    // smart_contracts/auction/factory.algo.ts:197-206
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -3683,7 +3778,7 @@ newAuctionImpl_after_assert@33:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:186-192
+    // smart_contracts/auction/factory.algo.ts:209-215
     // itxn
     //   .assetTransfer({
     //     assetReceiver: auctionApp.address,
@@ -3692,7 +3787,7 @@ newAuctionImpl_after_assert@33:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:188
+    // smart_contracts/auction/factory.algo.ts:211
     // assetReceiver: auctionApp.address,
     app_params_get AppAddress
     assert // application exists
@@ -3701,7 +3796,7 @@ newAuctionImpl_after_assert@33:
     uncover 2
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    // smart_contracts/auction/factory.algo.ts:186-191
+    // smart_contracts/auction/factory.algo.ts:209-214
     // itxn
     //   .assetTransfer({
     //     assetReceiver: auctionApp.address,
@@ -3712,7 +3807,7 @@ newAuctionImpl_after_assert@33:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:186-192
+    // smart_contracts/auction/factory.algo.ts:209-215
     // itxn
     //   .assetTransfer({
     //     assetReceiver: auctionApp.address,
@@ -3721,11 +3816,11 @@ newAuctionImpl_after_assert@33:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:194
+    // smart_contracts/auction/factory.algo.ts:217
     // if (!isAlgoBid) {
     frame_dig -10
     bz newAuctionImpl_after_if_else@44
-    // smart_contracts/auction/factory.algo.ts:196-205
+    // smart_contracts/auction/factory.algo.ts:219-228
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -3737,17 +3832,17 @@ newAuctionImpl_after_assert@33:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:200
+    // smart_contracts/auction/factory.algo.ts:223
     // receiver: auctionApp.address,
     dupn 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/auction/factory.algo.ts:201
+    // smart_contracts/auction/factory.algo.ts:224
     // amount: Global.assetOptInMinBalance
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:199-202
+    // smart_contracts/auction/factory.algo.ts:222-225
     // itxn.payment({
     //   receiver: auctionApp.address,
     //   amount: Global.assetOptInMinBalance
@@ -3756,7 +3851,7 @@ newAuctionImpl_after_assert@33:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:196-205
+    // smart_contracts/auction/factory.algo.ts:219-228
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -3782,11 +3877,11 @@ newAuctionImpl_after_assert@33:
     itxn_submit
 
 newAuctionImpl_after_if_else@44:
-    // smart_contracts/auction/factory.algo.ts:209
+    // smart_contracts/auction/factory.algo.ts:232
     // if (bidFee > 0) {
     frame_dig -9
     bz newAuctionImpl_after_if_else@48
-    // smart_contracts/auction/factory.algo.ts:212-221
+    // smart_contracts/auction/factory.algo.ts:235-244
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -3798,7 +3893,7 @@ newAuctionImpl_after_if_else@44:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:216
+    // smart_contracts/auction/factory.algo.ts:239
     // receiver: Application(auctionApp.id).address,
     dupn 2
     app_params_get AppAddress
@@ -3806,7 +3901,7 @@ newAuctionImpl_after_if_else@44:
     frame_dig 2
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:215-218
+    // smart_contracts/auction/factory.algo.ts:238-241
     // itxn.payment({
     //   receiver: Application(auctionApp.id).address,
     //   amount: weightsMBR
@@ -3815,7 +3910,7 @@ newAuctionImpl_after_if_else@44:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:212-221
+    // smart_contracts/auction/factory.algo.ts:235-244
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -3827,11 +3922,11 @@ newAuctionImpl_after_if_else@44:
     //   ]
     // })
     itxn_next
-    // smart_contracts/auction/factory.algo.ts:219
+    // smart_contracts/auction/factory.algo.ts:242
     // weightsListCount,
     frame_dig -2
     itob
-    // smart_contracts/auction/factory.algo.ts:212-221
+    // smart_contracts/auction/factory.algo.ts:235-244
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -3856,7 +3951,7 @@ newAuctionImpl_after_if_else@44:
     itxn_submit
 
 newAuctionImpl_after_if_else@48:
-    // smart_contracts/auction/factory.algo.ts:224
+    // smart_contracts/auction/factory.algo.ts:247
     // return auctionApp.id
     frame_dig -11
     frame_bury 1
@@ -3868,13 +3963,13 @@ newAuctionImpl_bool_false@30:
     b newAuctionImpl_bool_merge@31
 
 newAuctionImpl_else_body@14:
-    // smart_contracts/auction/factory.algo.ts:103
+    // smart_contracts/auction/factory.algo.ts:123
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:103
+    // smart_contracts/auction/factory.algo.ts:123
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3883,7 +3978,7 @@ newAuctionImpl_else_body@14:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 10 // 399000
-    // smart_contracts/auction/factory.algo.ts:103
+    // smart_contracts/auction/factory.algo.ts:123
     // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     +
     uncover 2
@@ -3898,7 +3993,7 @@ newAuctionImpl_bool_false@9:
 
 // smart_contracts/auction/factory.algo.ts::AuctionFactory.newPrizeBoxAuctionImpl(prizeBoxTransferTxn: uint64, payment: uint64, bidAssetID: uint64, bidFee: uint64, startingBid: uint64, bidMinimumIncrease: uint64, startTimestamp: uint64, endTimestamp: uint64, gateID: uint64, marketplace: bytes, weightsListCount: uint64, sellerReferrer: bytes) -> uint64:
 newPrizeBoxAuctionImpl:
-    // smart_contracts/auction/factory.algo.ts:325-338
+    // smart_contracts/auction/factory.algo.ts:349-362
     // private newPrizeBoxAuctionImpl(
     //   prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     //   payment: gtxn.PaymentTxn,
@@ -3917,28 +4012,28 @@ newPrizeBoxAuctionImpl:
     intc_0 // 0
     pushbytes ""
     dup
-    // smart_contracts/auction/factory.algo.ts:341
+    // smart_contracts/auction/factory.algo.ts:365
     // prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
     frame_dig -12
     gtxnsa ApplicationArgs 0
     bytec 30 // method "transfer(address)void"
     ==
-    // smart_contracts/auction/factory.algo.ts:341-342
+    // smart_contracts/auction/factory.algo.ts:365-366
     // prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
     // prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
     bz newPrizeBoxAuctionImpl_bool_false@3
-    // smart_contracts/auction/factory.algo.ts:342
+    // smart_contracts/auction/factory.algo.ts:366
     // prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
     frame_dig -12
     gtxns OnCompletion
-    // smart_contracts/auction/factory.algo.ts:341-342
+    // smart_contracts/auction/factory.algo.ts:365-366
     // prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
     // prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
     bnz newPrizeBoxAuctionImpl_bool_false@3
     intc_1 // 1
 
 newPrizeBoxAuctionImpl_bool_merge@4:
-    // smart_contracts/auction/factory.algo.ts:340-343
+    // smart_contracts/auction/factory.algo.ts:364-367
     // loggedAssert((
     //   prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
     //   prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
@@ -3949,13 +4044,13 @@ newPrizeBoxAuctionImpl_bool_merge@4:
     err // ERR:errBmpt
 
 newPrizeBoxAuctionImpl_after_assert@6:
-    // smart_contracts/auction/factory.algo.ts:344
+    // smart_contracts/auction/factory.algo.ts:368
     // loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, errNotPrizeBoxOwner)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:344
+    // smart_contracts/auction/factory.algo.ts:368
     // loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, errNotPrizeBoxOwner)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3987,7 +4082,7 @@ newPrizeBoxAuctionImpl_after_assert@6:
     pushbytes "owner"
     app_global_get_ex
     pop
-    // smart_contracts/auction/factory.algo.ts:344
+    // smart_contracts/auction/factory.algo.ts:368
     // loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, errNotPrizeBoxOwner)
     global CurrentApplicationAddress
     ==
@@ -3997,7 +4092,7 @@ newPrizeBoxAuctionImpl_after_assert@6:
     err // ERR:errNpbo
 
 newPrizeBoxAuctionImpl_after_assert@8:
-    // smart_contracts/auction/factory.algo.ts:345
+    // smart_contracts/auction/factory.algo.ts:369
     // loggedAssert(bidMinimumIncrease > 0, errBidsMustAlwaysIncrease)
     frame_dig -7
     bnz newPrizeBoxAuctionImpl_after_assert@10
@@ -4006,7 +4101,7 @@ newPrizeBoxAuctionImpl_after_assert@8:
     err // ERR:errBinc
 
 newPrizeBoxAuctionImpl_after_assert@10:
-    // smart_contracts/auction/factory.algo.ts:346
+    // smart_contracts/auction/factory.algo.ts:370
     // loggedAssert(endTimestamp > startTimestamp + 300, errEndMustBeAtleastFiveMinutesAfterStart)
     frame_dig -6
     pushint 300
@@ -4022,7 +4117,7 @@ newPrizeBoxAuctionImpl_after_assert@12:
     // smart_contracts/utils/base-contracts/factory.ts:66
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/auction/factory.algo.ts:347
+    // smart_contracts/auction/factory.algo.ts:371
     // loggedAssert(this.boxedContract.exists, errContractNotSet)
     box_len
     bury 1
@@ -4032,20 +4127,20 @@ newPrizeBoxAuctionImpl_after_assert@12:
     err // ERR:errCnst
 
 newPrizeBoxAuctionImpl_after_assert@14:
-    // smart_contracts/auction/factory.algo.ts:348
+    // smart_contracts/auction/factory.algo.ts:372
     // this.validateRaffleConfig(bidFee, startingBid, weightsListCount)
     frame_dig -9
     frame_dig -8
     frame_dig -2
     callsub validateRaffleConfig
-    // smart_contracts/auction/factory.algo.ts:351
+    // smart_contracts/auction/factory.algo.ts:375
     // const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
     frame_dig -10
     bnz newPrizeBoxAuctionImpl_ternary_false@16
     intc_0 // 0
 
 newPrizeBoxAuctionImpl_ternary_merge@17:
-    // smart_contracts/auction/factory.algo.ts:362
+    // smart_contracts/auction/factory.algo.ts:386
     // if (isAlgoBid) {
     frame_dig -10
     bnz newPrizeBoxAuctionImpl_else_body@19
@@ -4055,7 +4150,7 @@ newPrizeBoxAuctionImpl_ternary_merge@17:
     swap
 
 newPrizeBoxAuctionImpl_after_if_else@20:
-    // smart_contracts/auction/factory.algo.ts:368
+    // smart_contracts/auction/factory.algo.ts:392
     // const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     global MinBalance
     +
@@ -4067,7 +4162,7 @@ newPrizeBoxAuctionImpl_after_if_else@20:
     +
     dig 1
     +
-    // smart_contracts/auction/factory.algo.ts:370
+    // smart_contracts/auction/factory.algo.ts:394
     // this.childPagesMbr(auction.clearStateProgram.length) +
     pushint 4
     // smart_contracts/utils/base-contracts/factory.ts:95
@@ -4079,19 +4174,22 @@ newPrizeBoxAuctionImpl_after_if_else@20:
     +
     intc 6 // 100000
     *
-    // smart_contracts/auction/factory.algo.ts:370-372
+    // smart_contracts/auction/factory.algo.ts:394-396
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     intc 7 // 1262500
     +
-    // smart_contracts/auction/factory.algo.ts:370-373
+    // smart_contracts/auction/factory.algo.ts:394-397
     // this.childPagesMbr(auction.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
     // childAppMBR
     +
-    // smart_contracts/auction/factory.algo.ts:377
+    // smart_contracts/auction/factory.algo.ts:401
+    // const creationFee = this.creationFee()
+    callsub creationFee
+    // smart_contracts/auction/factory.algo.ts:402
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     frame_dig -11
     gtxns Receiver
@@ -4103,11 +4201,13 @@ newPrizeBoxAuctionImpl_after_if_else@20:
     err // ERR:errIpay
 
 newPrizeBoxAuctionImpl_after_assert@22:
-    // smart_contracts/auction/factory.algo.ts:378
-    // loggedAssert(payment.amount === totalMBR, errInvalidPayment)
+    // smart_contracts/auction/factory.algo.ts:403
+    // loggedAssert(payment.amount === totalMBR + creationFee, errInvalidPayment)
     frame_dig -11
     gtxns Amount
-    dig 1
+    dig 2
+    dig 2
+    +
     ==
     bnz newPrizeBoxAuctionImpl_after_assert@24
     bytec 9 // "ERR:errIpay"
@@ -4115,13 +4215,13 @@ newPrizeBoxAuctionImpl_after_assert@22:
     err // ERR:errIpay
 
 newPrizeBoxAuctionImpl_after_assert@24:
-    // smart_contracts/auction/factory.algo.ts:380
+    // smart_contracts/auction/factory.algo.ts:405
     // const creatorRoyalty = royalties(this.akitaDAO.value, Asset(0), '', [])
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:380
+    // smart_contracts/auction/factory.algo.ts:405
     // const creatorRoyalty = royalties(this.akitaDAO.value, Asset(0), '', [])
     app_global_get_ex
     assert // check GlobalState exists
@@ -4130,7 +4230,11 @@ newPrizeBoxAuctionImpl_after_assert@24:
     bytec 22 // 0x0000
     callsub royalties
     pop
-    // smart_contracts/auction/factory.algo.ts:383-412
+    // smart_contracts/auction/factory.algo.ts:407
+    // this.payCreationFee(creationFee)
+    swap
+    callsub payCreationFee
+    // smart_contracts/auction/factory.algo.ts:410-439
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -4162,64 +4266,64 @@ newPrizeBoxAuctionImpl_after_assert@24:
     //     extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
     //   })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:386
+    // smart_contracts/auction/factory.algo.ts:413
     // prizeBoxTransferTxn.appId.id,
     frame_dig 1
     dup
     cover 2
     itob
-    // smart_contracts/auction/factory.algo.ts:388
+    // smart_contracts/auction/factory.algo.ts:415
     // bidAssetID,
     frame_dig -10
     itob
     dup
     cover 3
     frame_bury 0
-    // smart_contracts/auction/factory.algo.ts:389
+    // smart_contracts/auction/factory.algo.ts:416
     // bidFee,
     frame_dig -9
     itob
-    // smart_contracts/auction/factory.algo.ts:390
+    // smart_contracts/auction/factory.algo.ts:417
     // startingBid,
     frame_dig -8
     itob
-    // smart_contracts/auction/factory.algo.ts:391
+    // smart_contracts/auction/factory.algo.ts:418
     // bidMinimumIncrease,
     frame_dig -7
     itob
-    // smart_contracts/auction/factory.algo.ts:392
+    // smart_contracts/auction/factory.algo.ts:419
     // startTimestamp,
     frame_dig -6
     itob
-    // smart_contracts/auction/factory.algo.ts:393
+    // smart_contracts/auction/factory.algo.ts:420
     // endTimestamp,
     frame_dig -5
     itob
-    // smart_contracts/auction/factory.algo.ts:394
+    // smart_contracts/auction/factory.algo.ts:421
     // { account: payment.sender, amount: totalMBR },
     frame_dig -11
     gtxns Sender
     uncover 10
     itob
     concat
-    // smart_contracts/auction/factory.algo.ts:395
+    // smart_contracts/auction/factory.algo.ts:422
     // Txn.sender,
     txn Sender
-    // smart_contracts/auction/factory.algo.ts:396
+    // smart_contracts/auction/factory.algo.ts:423
     // creatorRoyalty,
     uncover 8
     itob
-    // smart_contracts/auction/factory.algo.ts:397
+    // smart_contracts/auction/factory.algo.ts:424
     // gateID,
     frame_dig -4
     itob
-    // smart_contracts/auction/factory.algo.ts:399
+    // smart_contracts/auction/factory.algo.ts:426
     // this.childContractVersion.value,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:62
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/auction/factory.algo.ts:399
+    // smart_contracts/auction/factory.algo.ts:426
     // this.childContractVersion.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -4229,13 +4333,13 @@ newPrizeBoxAuctionImpl_after_assert@24:
     extract 6 2
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:400
+    // smart_contracts/auction/factory.algo.ts:427
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:400
+    // smart_contracts/auction/factory.algo.ts:427
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     app_global_get_ex
     assert // check GlobalState exists
@@ -4243,7 +4347,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec_3 // "akita_escrow"
-    // smart_contracts/auction/factory.algo.ts:400
+    // smart_contracts/auction/factory.algo.ts:427
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     app_global_get_ex
     assert // check GlobalState exists
@@ -4253,7 +4357,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     concat
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:400-401
+    // smart_contracts/auction/factory.algo.ts:427-428
     // { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
     // sellerReferrer,
     bytec 26 // 0x0022
@@ -4261,33 +4365,33 @@ newPrizeBoxAuctionImpl_after_assert@24:
     concat
     swap
     concat
-    // smart_contracts/auction/factory.algo.ts:405
+    // smart_contracts/auction/factory.algo.ts:432
     // this.childApprovalChunk(0),
     intc_0 // 0
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:406
+    // smart_contracts/auction/factory.algo.ts:433
     // this.childApprovalChunk(1),
     intc_1 // 1
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:407
+    // smart_contracts/auction/factory.algo.ts:434
     // this.childApprovalChunk(2),
     intc_3 // 2
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:408
+    // smart_contracts/auction/factory.algo.ts:435
     // this.childApprovalChunk(3),
     pushint 3
     callsub childApprovalChunk
-    // smart_contracts/auction/factory.algo.ts:411
+    // smart_contracts/auction/factory.algo.ts:438
     // extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
     pushint 4
     callsub childExtraPages
-    // smart_contracts/auction/factory.algo.ts:355
+    // smart_contracts/auction/factory.algo.ts:379
     // const auction = compileArc4(Auction)
     pushint 11
     itxn_field GlobalNumByteSlice
     pushint 25
     itxn_field GlobalNumUint
-    // smart_contracts/auction/factory.algo.ts:383-412
+    // smart_contracts/auction/factory.algo.ts:410-439
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -4321,7 +4425,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     intc_0 // 0
     itxn_field OnCompletion
     itxn_field ExtraProgramPages
-    // smart_contracts/auction/factory.algo.ts:355
+    // smart_contracts/auction/factory.algo.ts:379
     // const auction = compileArc4(Auction)
     bytec 27 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
@@ -4332,7 +4436,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     swap
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // smart_contracts/auction/factory.algo.ts:383-412
+    // smart_contracts/auction/factory.algo.ts:410-439
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -4367,7 +4471,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     itxn_field ApplicationArgs
     uncover 11
     itxn_field ApplicationArgs
-    // smart_contracts/auction/factory.algo.ts:387
+    // smart_contracts/auction/factory.algo.ts:414
     // true,
     pushbytes 0x80
     itxn_field ApplicationArgs
@@ -4396,7 +4500,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/auction/factory.algo.ts:383-412
+    // smart_contracts/auction/factory.algo.ts:410-439
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -4432,7 +4536,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:383-414
+    // smart_contracts/auction/factory.algo.ts:410-441
     // const auctionApp = auction.call
     //   .create({
     //     args: [
@@ -4468,20 +4572,20 @@ newPrizeBoxAuctionImpl_after_assert@24:
     gitxn 0 CreatedApplicationID
     dup
     cover 2
-    // smart_contracts/auction/factory.algo.ts:416-419
+    // smart_contracts/auction/factory.algo.ts:443-446
     // abiCall<typeof PrizeBox.prototype.transfer>({
     //   appId: prizeBoxTransferTxn.appId,
     //   args: [auctionApp.address]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:418
+    // smart_contracts/auction/factory.algo.ts:445
     // args: [auctionApp.address]
     dup
     app_params_get AppAddress
     assert // application exists
     uncover 2
     itxn_field ApplicationID
-    // smart_contracts/auction/factory.algo.ts:416-419
+    // smart_contracts/auction/factory.algo.ts:443-446
     // abiCall<typeof PrizeBox.prototype.transfer>({
     //   appId: prizeBoxTransferTxn.appId,
     //   args: [auctionApp.address]
@@ -4494,7 +4598,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:422-427
+    // smart_contracts/auction/factory.algo.ts:449-454
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -4502,18 +4606,18 @@ newPrizeBoxAuctionImpl_after_assert@24:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:424
+    // smart_contracts/auction/factory.algo.ts:451
     // receiver: auctionApp.address,
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/auction/factory.algo.ts:425
+    // smart_contracts/auction/factory.algo.ts:452
     // amount: Global.minBalance + disbursementMBR
     global MinBalance
     uncover 3
     +
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:422-426
+    // smart_contracts/auction/factory.algo.ts:449-453
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -4523,7 +4627,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:422-427
+    // smart_contracts/auction/factory.algo.ts:449-454
     // itxn
     //   .payment({
     //     receiver: auctionApp.address,
@@ -4531,11 +4635,11 @@ newPrizeBoxAuctionImpl_after_assert@24:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/auction/factory.algo.ts:429
+    // smart_contracts/auction/factory.algo.ts:456
     // if (!isAlgoBid) {
     frame_dig -10
     bz newPrizeBoxAuctionImpl_after_if_else@31
-    // smart_contracts/auction/factory.algo.ts:431-440
+    // smart_contracts/auction/factory.algo.ts:458-467
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -4547,17 +4651,17 @@ newPrizeBoxAuctionImpl_after_assert@24:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:435
+    // smart_contracts/auction/factory.algo.ts:462
     // receiver: auctionApp.address,
     dupn 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/auction/factory.algo.ts:436
+    // smart_contracts/auction/factory.algo.ts:463
     // amount: Global.assetOptInMinBalance
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:434-437
+    // smart_contracts/auction/factory.algo.ts:461-464
     // itxn.payment({
     //   receiver: auctionApp.address,
     //   amount: Global.assetOptInMinBalance
@@ -4566,7 +4670,7 @@ newPrizeBoxAuctionImpl_after_assert@24:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:431-440
+    // smart_contracts/auction/factory.algo.ts:458-467
     // auction.call.optin({
     //   appId: auctionApp,
     //   args: [
@@ -4592,11 +4696,11 @@ newPrizeBoxAuctionImpl_after_assert@24:
     itxn_submit
 
 newPrizeBoxAuctionImpl_after_if_else@31:
-    // smart_contracts/auction/factory.algo.ts:444
+    // smart_contracts/auction/factory.algo.ts:471
     // if (bidFee > 0) {
     frame_dig -9
     bz newPrizeBoxAuctionImpl_after_if_else@35
-    // smart_contracts/auction/factory.algo.ts:446-455
+    // smart_contracts/auction/factory.algo.ts:473-482
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -4608,7 +4712,7 @@ newPrizeBoxAuctionImpl_after_if_else@31:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/auction/factory.algo.ts:450
+    // smart_contracts/auction/factory.algo.ts:477
     // receiver: Application(auctionApp.id).address,
     dupn 2
     app_params_get AppAddress
@@ -4616,7 +4720,7 @@ newPrizeBoxAuctionImpl_after_if_else@31:
     frame_dig 2
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/auction/factory.algo.ts:449-452
+    // smart_contracts/auction/factory.algo.ts:476-479
     // itxn.payment({
     //   receiver: Application(auctionApp.id).address,
     //   amount: weightsMBR
@@ -4625,7 +4729,7 @@ newPrizeBoxAuctionImpl_after_if_else@31:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/auction/factory.algo.ts:446-455
+    // smart_contracts/auction/factory.algo.ts:473-482
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -4637,11 +4741,11 @@ newPrizeBoxAuctionImpl_after_if_else@31:
     //   ]
     // })
     itxn_next
-    // smart_contracts/auction/factory.algo.ts:453
+    // smart_contracts/auction/factory.algo.ts:480
     // weightsListCount,
     frame_dig -2
     itob
-    // smart_contracts/auction/factory.algo.ts:446-455
+    // smart_contracts/auction/factory.algo.ts:473-482
     // auction.call.init({
     //   appId: auctionApp.id,
     //   args: [
@@ -4666,19 +4770,19 @@ newPrizeBoxAuctionImpl_after_if_else@31:
     itxn_submit
 
 newPrizeBoxAuctionImpl_after_if_else@35:
-    // smart_contracts/auction/factory.algo.ts:458
+    // smart_contracts/auction/factory.algo.ts:485
     // return auctionApp.id
     frame_bury 0
     retsub
 
 newPrizeBoxAuctionImpl_else_body@19:
-    // smart_contracts/auction/factory.algo.ts:365
+    // smart_contracts/auction/factory.algo.ts:389
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/auction/factory.algo.ts:365
+    // smart_contracts/auction/factory.algo.ts:389
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4687,14 +4791,14 @@ newPrizeBoxAuctionImpl_else_body@19:
     // smart_contracts/utils/functions.ts:732
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 11 // 319200
-    // smart_contracts/auction/factory.algo.ts:365
+    // smart_contracts/auction/factory.algo.ts:389
     // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     +
     swap
     b newPrizeBoxAuctionImpl_after_if_else@20
 
 newPrizeBoxAuctionImpl_ternary_false@16:
-    // smart_contracts/auction/factory.algo.ts:351
+    // smart_contracts/auction/factory.algo.ts:375
     // const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
     global AssetOptInMinBalance
     b newPrizeBoxAuctionImpl_ternary_merge@17

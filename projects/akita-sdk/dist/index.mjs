@@ -34,7 +34,7 @@ import {
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-2RSXQD4J.mjs";
+} from "./chunk-PSDWEJEZ.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK
@@ -65,7 +65,7 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-SPQGHLFI.mjs";
+} from "./chunk-5SSZKPWH.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
