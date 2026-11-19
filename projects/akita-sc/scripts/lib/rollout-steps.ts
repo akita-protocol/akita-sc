@@ -199,7 +199,7 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
     ['guild-plugin', 'Creation-only GuildPlugin deployed and registered', 'guildPlugin', 'arc58/plugins/guild/GuildPlugin.arc56.json', ['guild-factory'], 'npm run deploy:guild-plugin -- --config \'{"factory":"<guild factory id>","guild":"0"}\' --manifest receipts/guild-plugin.json --register'],
     ['welcome-plugin', 'WelcomePlugin deployed and registered', 'welcomePlugin', 'arc58/plugins/welcome/WelcomePlugin.arc56.json', ['p2:AbstractedAccountFactory'], 'runbook G1 (Phase 3 deploys it)'],
     ['balance-reader', 'Wallet balance reader deployed and registered', 'walletBalanceReader', 'arc58/account/AbstractedAccountBalanceReader.arc56.json', [], 'npm run deploy:wallet-balance-reader -- --manifest receipts/wallet-balance-reader.json --register'],
-    ['social-claim', 'SocialClaim deployed and registered (held until its two key holders are named)', 'socialClaim', 'arc58/social-claim/SocialClaim.arc56.json', ['welcome-plugin', 'plugin:payPlugin'], 'npm run deploy:immutable -- --contract SocialClaim --config social-claim.json --manifest receipts/social-claim.json --register'],
+    ['social-claim', 'SocialClaim deployed and registered (not in release 2.0.0: name it in --allow-pending at I1)', 'socialClaim', 'arc58/social-claim/SocialClaim.arc56.json', ['welcome-plugin', 'plugin:payPlugin'], 'npm run deploy:immutable -- --contract SocialClaim --config social-claim.json --manifest receipts/social-claim.json --register'],
   ]
   for (const [id, title, key, artifact, requires, run] of products) {
     add({ id, stage: 'H', title, requires, run, check: async () => {
