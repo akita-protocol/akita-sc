@@ -162,6 +162,15 @@ All 85 deployable programs were read once more at the deploy commit, each one ag
 - **Still open, not a fault.** The StakingPoolPlugin has no method for the pool's other creator calls: `assignBudget`, `withdrawReward`, `closeReward`, `endPool`, `closeOutAsset`, `abortRound` and a standalone `optIn`. A wallet that created a pool through the plugin makes those calls as itself.
 - **Checked and unchanged.** Every deployable program fits the 8 pages and the 64 global keys the protocol allows (AkitaDAO, AkitaSocial and Subscriptions use all 64 keys). No other program reads another app's stored value in the wrong shape.
 
+## Update 2026-11-19: SocialClaim is left out of this release
+
+The owner decided on 2026-11-19 that SocialClaim is not part of release 2.0.0.
+
+- **H7 is skipped.** Nothing is deployed for it, and the SDK's `socialClaim` id stays 0 on both networks. No other step depends on it. WelcomePlugin (H3) and PayPlugin (G2) are deployed as before.
+- **I1 names it.** `dao:initialize` refuses while a tracked step is not done, so its commands now carry `--allow-pending plugin:dualStakePlugin,social-claim`.
+- **The program stays in the tree.** SocialClaim is still built, tested and pinned in `release/manifest.json` (155 programs), and its SDK module is unchanged. No contract program changes with this update.
+- **A later deploy covers new gifts only.** `bind` records a wallet in the group that creates it, with SocialClaim as that wallet's admin. A wallet that WelcomePlugin created with another admin cannot be brought under SocialClaim afterwards.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -242,7 +251,7 @@ What this order needs, because nothing is on GitHub while the rollout runs:
 
 ### DEC-6. Independent audit of the immutable new contracts
 
-**Parked 2026-11-11 with the Plugin DEX.** The independent audit was recommended for PluginDex v2, before H4. Stages B to H ship on the internal reviews and the 2026-11-09 readiness audit. The contracts in this rollout that cannot be patched after deploy are Gate v2 and the sub-gates, Rewards v2, the Phase 2a Update plugin, SocialClaim and every rotated or new plugin. Upgradeable apps can be fixed later through the DAO.
+**Parked 2026-11-11 with the Plugin DEX.** The independent audit was recommended for PluginDex v2, before H4. Stages B to H ship on the internal reviews and the 2026-11-09 readiness audit. The contracts in this rollout that cannot be patched after deploy are Gate v2 and the sub-gates, Rewards v2, the Phase 2a Update plugin and every rotated or new plugin. SocialClaim was one of them until it was left out on 2026-11-19. Upgradeable apps can be fixed later through the DAO.
 
 ## Sequence
 
@@ -1011,16 +1020,17 @@ npm run install:pay-silo-grant -- -n mainnet --plugin <Labs PaySiloPlugin app id
 npm run install:pay-silo-grant -- -n mainnet --plugin <Labs PaySiloPlugin app id> --escrow rec_krby --recipient <Akita Labs LLC address> --confirm
 ```
 
-#### H7. SocialClaim (held)
+#### H7. SocialClaim (not in this release)
 
+- **Not in release 2.0.0 (owner, 2026-11-19).** Skip this step, and name `social-claim` in `--allow-pending` at I1. The rest of this step describes a later deploy.
 - **What:** Deploy SocialClaim, the admin of send-to-anyone wallets until a platform identity claims them. Constructor: the WelcomePlugin app id, the PayPlugin app id, the attestor public key (32 bytes) and the manager address.
 - **Why here:** It creates wallets through WelcomePlugin, so it needs E7 and H3. It is immutable: the two plugin ids are fixed at create.
 - **Requires:** H3. **Script:** ready since 2026-11-10: SocialClaim is in the immutable catalog, `--register` records the `socialClaim` SDK key and fills its README row (audit R7). Test: `tests/release-deployments.test.ts`.
 - **Referrer (audit C5, decided 2026-11-11):** the sender who pays to create a recipient's wallet is that wallet's referrer, and stays so after later gifts from other senders and after the claim. That is the incentive to send first. Nothing in the program changed. Test: `social-claim.e2e.spec.ts`.
-- **Held until one thing is decided:** who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
+- **To decide before a later deploy:** who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
 - **Payer rule (audit C23, decided 2026-11-16).** Every gift box stores the account that paid for its storage, 41,300 µALGO a box, and returns the deposit to that account when the gift is refunded, dropped or pruned. Anyone may pay and every payer pays the same. With the SDK the account that sends the group pays, so that account is refunded, not the sponsor wallet. A payer whose account is empty by then forfeits the deposit to the wallet that sent the gift. Nothing can change after the deploy.
 - The deploy tooling does not verify the two plugin ids on chain. Check each against its receipt first.
-- **Tracked by rollout:status as** `social-claim`. While it is held, name `social-claim` in `--allow-pending` at I1; after `initialize()` it is still a plain deploy, with no proposal.
+- **Tracked by rollout:status as** `social-claim`. While it is not deployed, name `social-claim` in `--allow-pending` at I1; after `initialize()` it is still a plain deploy, with no proposal.
 - The constructor arguments go in a file, `social-claim.json`: `{"welcome":"<WelcomePlugin app id>","pay":"<PayPlugin app id>","attestor":[<32 numbers>],"manager":"<address>"}`. `--config` also takes the same JSON inline.
 
 ```bash
@@ -1041,8 +1051,8 @@ No script supports a voting DAO end to end, so everything above runs first.
 - **Tracked by rollout:status as** `power`, `initialize`.
 - Expired proposal #107 stays inert; 19 expired execution boxes hold ~420k µA.
 - `dao:rescale-power` rewrites each `*_ps` global whose power is still in whole tokens (x 1e6; see B2), keeps every other setting, and reads each back. It refuses a value neither unit explains (above 1,000 and below 1,000,000). The plugin settings were rescaled by the grant swaps; the tracker's `power` step names any that were not. The Update plugin's own settings are never read (the DAO drives it through UpgradeApp only) and are left as they are.
-- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first.
-- `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, for example `social-claim` while H7 is held. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
+- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19).
+- `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, as `social-claim` is while H7 is left out. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
 
 ```bash
 npm run rollout:status -- --network mainnet
@@ -1050,8 +1060,8 @@ npm run dao:rescale-power -- -n mainnet --dry-run
 npm run dao:rescale-power -- -n mainnet --confirm-rescale
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --confirm-revoke
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin --dry-run
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin --confirm-initialize
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --dry-run
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --confirm-initialize
 ```
 
 #### I2. Push and tag the release
