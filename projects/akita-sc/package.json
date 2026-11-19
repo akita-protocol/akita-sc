@@ -110,7 +110,6 @@
     "fix:pay-plugin": "ts-node --transpile-only scripts/fix-pay-plugin.ts",
     "report:sizes": "ts-node --transpile-only scripts/report-bytecode-sizes.ts",
     "register:haystack-referrer": "ts-node --transpile-only scripts/register-haystack-referrer.ts --network mainnet",
-
     "lint": "eslint smart_contracts",
     "lint:fix": "eslint smart_contracts --fix",
     "audit": "better-npm-audit audit",
@@ -162,7 +161,8 @@
   },
   "dependencies": {
     "@algorandfoundation/puya-ts": "1.2.0-beta.28",
-    "akita-sdk": "file:../akita-sdk"
+    "akita-sdk": "file:../akita-sdk",
+    "lib-pcg-algots": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
