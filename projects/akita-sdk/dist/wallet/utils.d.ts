@@ -1,11 +1,17 @@
 import { Address } from "algosdk";
 import { AllowanceInfo as SubAllowanceInfo } from "../generated/AbstractedAccountClient";
-import { AddAllowanceArgs, AllowanceInfo, EscrowTeardown } from "./types";
+import { AddAllowanceArgs, AllowanceInfo, EscrowDeleteWarning, EscrowTeardown } from "./types";
 import { PluginHookParams, PluginTxn } from "../types";
 type ComposerTransactionWithMaxFee<TFee> = {
     type: string;
     maxFee?: TFee;
 };
+/**
+ * What a person has to be told before they confirm the delete of an escrow: what becomes of its
+ * address. An escrow with app id 0 is an ordinary account rekeyed to the wallet, and any other is the
+ * account of an app the escrow factory made.
+ */
+export declare function escrowDeleteWarnings(id: bigint, address: string): EscrowDeleteWarning[];
 /** Throw, naming the reason, when an escrow cannot be deleted as the chain shows it. */
 export declare function assertEscrowCanBeDeleted(plan: EscrowTeardown, unlock: boolean): void;
 /**

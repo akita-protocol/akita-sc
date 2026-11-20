@@ -587,6 +587,9 @@ describe('ARC58 escrow deletion', () => {
       expect(plan.allowances.sort()).toEqual([0n, asset].sort());
       expect(plan.assets).toEqual([asset]);
       expect(plan.blockers).toEqual([]);
+      // what an app has to tell the person first: nobody controls this address after the delete
+      expect(plan.warnings.map(({ code }) => code)).toEqual(['address-under-nobodys-control']);
+      expect(plan.warnings[0].message).toContain(address);
 
       const escrowHeld = (await account(address)).balance.microAlgos;
       const before = await account(wallet.client.appAddress.toString());
@@ -693,6 +696,9 @@ describe('ARC58 escrow deletion', () => {
       expect(plan.allowances).toEqual([0n]);
       expect(plan.assets).toEqual([asset]);
       expect(plan.blockers).toEqual([]);
+      // what an app has to tell the person first: the address goes back to whoever holds its key
+      expect(plan.warnings.map(({ code }) => code)).toEqual(['address-returns-to-its-key']);
+      expect(plan.warnings[0].message).toContain(address);
 
       const held = (await account(address)).balance.microAlgos;
       const before = await account(wallet.client.appAddress.toString());

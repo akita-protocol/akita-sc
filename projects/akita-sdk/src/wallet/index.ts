@@ -7,7 +7,7 @@ import { EscrowFactorySDK } from '../escrow';
 import { ENV_VAR_NAMES, resolveAppIdWithClient, shouldWriteRegistry } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
-import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, assertEscrowCanBeDeleted, domainBoxKey, executionBoxKey, ValueMap } from './utils';
+import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, assertEscrowCanBeDeleted, domainBoxKey, escrowDeleteWarnings, executionBoxKey, ValueMap } from './utils';
 import { addPluginExtraFee, controlledMbrFee, deleteEscrowExtraFee, MaxGroupSize, newEscrowExtraFee, ReclaimsPerCall, RemoveAllowancesPerCall } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
@@ -951,6 +951,9 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   /**
    * Read everything the chain lists for an escrow: the grants and aliases that name it, its
    * allowances, the assets it holds, and anything that stands in the way of deleting it.
+   *
+   * The plan's `warnings` say what becomes of the escrow's address after a delete. An app that offers
+   * the delete builds its confirmation from this plan and shows every warning prominently in it.
    */
   async getEscrowTeardown(escrow: string): Promise<EscrowTeardown> {
     const { id, address, locked } = await this.getEscrow(escrow);
@@ -1036,6 +1039,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       allowances: Array.from(allowances.keys()).filter((key) => key.escrow === escrow).map((key) => key.asset),
       assets,
       blockers,
+      warnings: escrowDeleteWarnings(id, address),
     };
   }
 
@@ -1059,7 +1063,12 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
    * An escrow made before the wallet counted plugins and allowances is not checked by the wallet when
    * it is deleted. What this removes for such an escrow is what the chain listed when it was called.
    *
-   * Afterwards the escrow's address is under nobody's control, so funds sent there are lost.
+   * What becomes of the escrow's address depends on the kind of escrow, and cannot be undone. The
+   * address of an escrow the factory made is under nobody's control afterwards, so funds sent there
+   * are lost. An escrow that is an ordinary account rekeyed to the wallet is closed, which ends its
+   * rekey: the address then belongs to whoever holds its private key. `getEscrowTeardown` returns
+   * this as `warnings`. An app must show them prominently before it asks the person to confirm, and
+   * this method does not show or ask anything itself.
    *
    * @returns one entry for each group sent; the last holds the delete
    */

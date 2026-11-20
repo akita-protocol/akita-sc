@@ -94,14 +94,14 @@ import {
   socialClaimSubject,
   translateWalletError,
   voteOnGuildProposal
-} from "../chunk-L5XTFBNH.mjs";
+} from "../chunk-VMIZBGQZ.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-47AKUWST.mjs";
 import "../chunk-7ZQXVHCF.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-LGBCH6R3.mjs";
-import "../chunk-XPAUMB2K.mjs";
+import "../chunk-SI4SPLUK.mjs";
 import "../chunk-C5XM3R7G.mjs";
 import "../chunk-RUHR54B7.mjs";
 import "../chunk-GOQ4H3PG.mjs";

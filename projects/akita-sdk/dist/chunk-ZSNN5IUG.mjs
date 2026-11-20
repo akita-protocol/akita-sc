@@ -3,7 +3,7 @@ import {
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-L5XTFBNH.mjs";
+} from "./chunk-VMIZBGQZ.mjs";
 import {
   AkitaDaoFactory
 } from "./chunk-6WHBC6LR.mjs";
@@ -16,7 +16,7 @@ import {
 import {
   AllowancesToTuple,
   assertEscrowCanBeDeleted
-} from "./chunk-XPAUMB2K.mjs";
+} from "./chunk-SI4SPLUK.mjs";
 import {
   withErrorCodeAliases
 } from "./chunk-GOQ4H3PG.mjs";
@@ -2137,6 +2137,10 @@ var AkitaDaoSDK = class extends BaseSDK {
    * It throws when something stands in the way that no action can undo: the escrow is opted in to
    * an app, or holds an asset the wallet's account cannot receive. An alias whose grant is already
    * gone does not stand in the way and is left alone.
+   *
+   * What becomes of the escrow's address afterwards cannot be undone, and differs with the kind of
+   * escrow. Before an app lets a person create this proposal, it shows the `warnings` of
+   * `(await dao.getWallet()).getEscrowTeardown(escrow)` prominently.
    */
   async deleteEscrowActions({ escrow, unlock = false }) {
     const plan = await (await this.getWallet()).getEscrowTeardown(escrow);
@@ -2440,4 +2444,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-4YFKQZVO.mjs.map
+//# sourceMappingURL=chunk-ZSNN5IUG.mjs.map

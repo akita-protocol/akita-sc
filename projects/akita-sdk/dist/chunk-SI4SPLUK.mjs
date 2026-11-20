@@ -1,6 +1,18 @@
 // src/wallet/utils.ts
 import { decodeAddress } from "algosdk";
 import { encodeLease } from "@algorandfoundation/algokit-utils";
+function escrowDeleteWarnings(id, address) {
+  if (id === 0n) {
+    return [{
+      code: "address-returns-to-its-key",
+      message: `Deleting this escrow closes the account ${address} and ends its rekey to the wallet. From then on the address is controlled by whoever holds its private key, and no longer by this wallet. Anything sent to it afterwards goes to that key holder. This cannot be undone.`
+    }];
+  }
+  return [{
+    code: "address-under-nobodys-control",
+    message: `After this delete nobody controls the escrow's address ${address}. Anything sent to it afterwards is lost for good. This cannot be undone.`
+  }];
+}
 function assertEscrowCanBeDeleted(plan, unlock) {
   if (plan.blockers.length > 0) {
     throw new Error(`Escrow '${plan.escrow}' cannot be deleted: ${plan.blockers.join("; ")}`);
@@ -150,6 +162,7 @@ var ValueMap = class {
 var getTxns = async ({}) => [];
 
 export {
+  escrowDeleteWarnings,
   assertEscrowCanBeDeleted,
   applyDefaultAppCallMaxFees,
   AllowancesToTuple,
@@ -159,4 +172,4 @@ export {
   ValueMap,
   getTxns
 };
-//# sourceMappingURL=chunk-XPAUMB2K.mjs.map
+//# sourceMappingURL=chunk-SI4SPLUK.mjs.map

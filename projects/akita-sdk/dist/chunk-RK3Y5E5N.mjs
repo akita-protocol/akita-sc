@@ -4,7 +4,7 @@ import {
 } from "./chunk-LGBCH6R3.mjs";
 import {
   assertEscrowCanBeDeleted
-} from "./chunk-XPAUMB2K.mjs";
+} from "./chunk-SI4SPLUK.mjs";
 import {
   BaseSDK
 } from "./chunk-QHL4DXI3.mjs";
@@ -6368,4 +6368,4 @@ export {
   SubscriptionGuildConsensusSDK,
   guildBallotOutcome
 };
-//# sourceMappingURL=chunk-7X6MWVB6.mjs.map
+//# sourceMappingURL=chunk-RK3Y5E5N.mjs.map

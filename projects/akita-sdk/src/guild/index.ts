@@ -476,6 +476,10 @@ export const removeAllowancesAction = (escrow: string, assets: bigint[]): GuildP
  * order: the wallet refuses the delete while a plugin or an allowance still names the escrow.
  *
  * An alias whose grant is already gone does not stand in the way and is left alone.
+ *
+ * What becomes of the escrow's address afterwards cannot be undone, and differs with the kind of
+ * escrow. Before an app lets a person create this proposal, it shows the plan's `warnings`
+ * prominently.
  */
 export const deleteEscrowActions = (plan: EscrowTeardown, { unlock = false }: { unlock?: boolean } = {}): GuildProposalAction[] => {
   assertEscrowCanBeDeleted(plan, unlock);
