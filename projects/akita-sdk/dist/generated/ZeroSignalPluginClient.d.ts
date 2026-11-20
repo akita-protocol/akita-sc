@@ -48,6 +48,49 @@ export type ZeroSignalPluginArgs = {
             rekeyBack: boolean;
             payments: [string, bigint | number, bigint | number][];
         };
+        'depositMbr(uint64,bool,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            amount: bigint | number;
+        };
+        'withdrawMbr(uint64,bool,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            amount: bigint | number;
+        };
+        'closeDeposit(uint64,bool)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+        };
+        'settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            ticketId: Uint8Array;
+            amountCharged: bigint | number;
+            receiptDigest: Uint8Array;
+            ttftMs: bigint | number;
+            decodeMs: bigint | number;
+            inputCount: bigint | number;
+            outputCount: bigint | number;
+            outputUsageType: bigint | number;
+            auxOutputUsageType: bigint | number;
+            auxOutputCount: bigint | number;
+        };
+        'refundInactive(uint64,bool,byte[])void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            ticketId: Uint8Array;
+        };
+        'protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            ticketId: Uint8Array;
+            amountCharged: bigint | number;
+            receiptDigest: Uint8Array;
+            receiptSig: Uint8Array;
+            disputeExcerpt: Uint8Array;
+            reasonCode: bigint | number;
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -55,6 +98,12 @@ export type ZeroSignalPluginArgs = {
     tuple: {
         'create(uint64)void': [escrowApp: bigint | number];
         'pay(uint64,bool,(address,uint64,uint64)[])void': [wallet: bigint | number, rekeyBack: boolean, payments: [string, bigint | number, bigint | number][]];
+        'depositMbr(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, amount: bigint | number];
+        'withdrawMbr(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, amount: bigint | number];
+        'closeDeposit(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
+        'settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, ticketId: Uint8Array, amountCharged: bigint | number, receiptDigest: Uint8Array, ttftMs: bigint | number, decodeMs: bigint | number, inputCount: bigint | number, outputCount: bigint | number, outputUsageType: bigint | number, auxOutputUsageType: bigint | number, auxOutputCount: bigint | number];
+        'refundInactive(uint64,bool,byte[])void': [wallet: bigint | number, rekeyBack: boolean, ticketId: Uint8Array];
+        'protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void': [wallet: bigint | number, rekeyBack: boolean, ticketId: Uint8Array, amountCharged: bigint | number, receiptDigest: Uint8Array, receiptSig: Uint8Array, disputeExcerpt: Uint8Array, reasonCode: bigint | number];
     };
 };
 /**
@@ -63,6 +112,12 @@ export type ZeroSignalPluginArgs = {
 export type ZeroSignalPluginReturns = {
     'create(uint64)void': void;
     'pay(uint64,bool,(address,uint64,uint64)[])void': void;
+    'depositMbr(uint64,bool,uint64)void': void;
+    'withdrawMbr(uint64,bool,uint64)void': void;
+    'closeDeposit(uint64,bool)void': void;
+    'settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void': void;
+    'refundInactive(uint64,bool,byte[])void': void;
+    'protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void': void;
 };
 /**
  * Defines the types of available calls and state of the ZeroSignalPlugin smart contract.
@@ -79,6 +134,30 @@ export type ZeroSignalPluginTypes = {
         argsObj: ZeroSignalPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'];
         argsTuple: ZeroSignalPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void'];
         returns: ZeroSignalPluginReturns['pay(uint64,bool,(address,uint64,uint64)[])void'];
+    }> & Record<'depositMbr(uint64,bool,uint64)void' | 'depositMbr', {
+        argsObj: ZeroSignalPluginArgs['obj']['depositMbr(uint64,bool,uint64)void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['depositMbr(uint64,bool,uint64)void'];
+        returns: ZeroSignalPluginReturns['depositMbr(uint64,bool,uint64)void'];
+    }> & Record<'withdrawMbr(uint64,bool,uint64)void' | 'withdrawMbr', {
+        argsObj: ZeroSignalPluginArgs['obj']['withdrawMbr(uint64,bool,uint64)void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['withdrawMbr(uint64,bool,uint64)void'];
+        returns: ZeroSignalPluginReturns['withdrawMbr(uint64,bool,uint64)void'];
+    }> & Record<'closeDeposit(uint64,bool)void' | 'closeDeposit', {
+        argsObj: ZeroSignalPluginArgs['obj']['closeDeposit(uint64,bool)void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['closeDeposit(uint64,bool)void'];
+        returns: ZeroSignalPluginReturns['closeDeposit(uint64,bool)void'];
+    }> & Record<'settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void' | 'settle', {
+        argsObj: ZeroSignalPluginArgs['obj']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'];
+        returns: ZeroSignalPluginReturns['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'];
+    }> & Record<'refundInactive(uint64,bool,byte[])void' | 'refundInactive', {
+        argsObj: ZeroSignalPluginArgs['obj']['refundInactive(uint64,bool,byte[])void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['refundInactive(uint64,bool,byte[])void'];
+        returns: ZeroSignalPluginReturns['refundInactive(uint64,bool,byte[])void'];
+    }> & Record<'protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void' | 'protest', {
+        argsObj: ZeroSignalPluginArgs['obj']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'];
+        argsTuple: ZeroSignalPluginArgs['tuple']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'];
+        returns: ZeroSignalPluginReturns['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -87,7 +166,7 @@ export type ZeroSignalPluginTypes = {
         global: {
             keys: {
                 /**
-                 * the ZeroSignal escrow app every payment must go to
+                 * the ZeroSignal escrow app this plugin pays and calls. Set at creation and never changed
                  */
                 escrowApp: bigint;
             };
@@ -188,14 +267,72 @@ export declare abstract class ZeroSignalPluginParamsFactory {
     /**
      * Constructs a no op call for the pay(uint64,bool,(address,uint64,uint64)[])void ABI method
      *
-    * Pay ALGO or an asset from the wallet's spending account to the escrow.
-    A zero amount is allowed.
+    * Pay the escrow. This is the payer's part of opening a ticket: the serving node sends the
+    escrow's `open` itself.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static pay(params: CallParams<ZeroSignalPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'] | ZeroSignalPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the depositMbr(uint64,bool,uint64)void ABI method
+     *
+    * Fund the payer's prepaid pool for ticket storage. The first deposit opts the spending account
+    in to the escrow, later ones top it up.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static depositMbr(params: CallParams<ZeroSignalPluginArgs['obj']['depositMbr(uint64,bool,uint64)void'] | ZeroSignalPluginArgs['tuple']['depositMbr(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the withdrawMbr(uint64,bool,uint64)void ABI method
+     *
+     * Take unreserved ALGO back out of the payer's prepaid pool
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static withdrawMbr(params: CallParams<ZeroSignalPluginArgs['obj']['withdrawMbr(uint64,bool,uint64)void'] | ZeroSignalPluginArgs['tuple']['withdrawMbr(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the closeDeposit(uint64,bool)void ABI method
+     *
+     * Close the payer's prepaid pool and opt the spending account out of the escrow
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static closeDeposit(params: CallParams<ZeroSignalPluginArgs['obj']['closeDeposit(uint64,bool)void'] | ZeroSignalPluginArgs['tuple']['closeDeposit(uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void ABI method
+     *
+    * The payer's half of a settle: confirm the amount and receipt the operator claimed. Always sent
+    as the payer, never as the operator.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static settle(params: CallParams<ZeroSignalPluginArgs['obj']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'] | ZeroSignalPluginArgs['tuple']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the refundInactive(uint64,bool,byte[])void ABI method
+     *
+     * Take back the payment for a ticket no operator ever claimed
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static refundInactive(params: CallParams<ZeroSignalPluginArgs['obj']['refundInactive(uint64,bool,byte[])void'] | ZeroSignalPluginArgs['tuple']['refundInactive(uint64,bool,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void ABI method
+     *
+     * Dispute an operator's claim with the receipt the node signed
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static protest(params: CallParams<ZeroSignalPluginArgs['obj']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'] | ZeroSignalPluginArgs['tuple']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the ZeroSignalPlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -559,14 +696,84 @@ export declare class ZeroSignalPluginClient {
         /**
          * Makes a call to the ZeroSignalPlugin smart contract using the `pay(uint64,bool,(address,uint64,uint64)[])void` ABI method.
          *
-        * Pay ALGO or an asset from the wallet's spending account to the escrow.
-        A zero amount is allowed.
+        * Pay the escrow. This is the payer's part of opening a ticket: the serving node sends the
+        escrow's `open` itself.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
         pay: (params: CallParams<ZeroSignalPluginArgs["obj"]["pay(uint64,bool,(address,uint64,uint64)[])void"] | ZeroSignalPluginArgs["tuple"]["pay(uint64,bool,(address,uint64,uint64)[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `depositMbr(uint64,bool,uint64)void` ABI method.
+         *
+        * Fund the payer's prepaid pool for ticket storage. The first deposit opts the spending account
+        in to the escrow, later ones top it up.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        depositMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["depositMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["depositMbr(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `withdrawMbr(uint64,bool,uint64)void` ABI method.
+         *
+         * Take unreserved ALGO back out of the payer's prepaid pool
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        withdrawMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["withdrawMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["withdrawMbr(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `closeDeposit(uint64,bool)void` ABI method.
+         *
+         * Close the payer's prepaid pool and opt the spending account out of the escrow
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        closeDeposit: (params: CallParams<ZeroSignalPluginArgs["obj"]["closeDeposit(uint64,bool)void"] | ZeroSignalPluginArgs["tuple"]["closeDeposit(uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void` ABI method.
+         *
+        * The payer's half of a settle: confirm the amount and receipt the operator claimed. Always sent
+        as the payer, never as the operator.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        settle: (params: CallParams<ZeroSignalPluginArgs["obj"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"] | ZeroSignalPluginArgs["tuple"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `refundInactive(uint64,bool,byte[])void` ABI method.
+         *
+         * Take back the payment for a ticket no operator ever claimed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        refundInactive: (params: CallParams<ZeroSignalPluginArgs["obj"]["refundInactive(uint64,bool,byte[])void"] | ZeroSignalPluginArgs["tuple"]["refundInactive(uint64,bool,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void` ABI method.
+         *
+         * Dispute an operator's claim with the receipt the node signed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        protest: (params: CallParams<ZeroSignalPluginArgs["obj"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"] | ZeroSignalPluginArgs["tuple"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -584,14 +791,108 @@ export declare class ZeroSignalPluginClient {
         /**
          * Makes a call to the ZeroSignalPlugin smart contract using the `pay(uint64,bool,(address,uint64,uint64)[])void` ABI method.
          *
-        * Pay ALGO or an asset from the wallet's spending account to the escrow.
-        A zero amount is allowed.
+        * Pay the escrow. This is the payer's part of opening a ticket: the serving node sends the
+        escrow's `open` itself.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
         pay: (params: CallParams<ZeroSignalPluginArgs["obj"]["pay(uint64,bool,(address,uint64,uint64)[])void"] | ZeroSignalPluginArgs["tuple"]["pay(uint64,bool,(address,uint64,uint64)[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `depositMbr(uint64,bool,uint64)void` ABI method.
+         *
+        * Fund the payer's prepaid pool for ticket storage. The first deposit opts the spending account
+        in to the escrow, later ones top it up.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        depositMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["depositMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["depositMbr(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `withdrawMbr(uint64,bool,uint64)void` ABI method.
+         *
+         * Take unreserved ALGO back out of the payer's prepaid pool
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        withdrawMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["withdrawMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["withdrawMbr(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `closeDeposit(uint64,bool)void` ABI method.
+         *
+         * Close the payer's prepaid pool and opt the spending account out of the escrow
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        closeDeposit: (params: CallParams<ZeroSignalPluginArgs["obj"]["closeDeposit(uint64,bool)void"] | ZeroSignalPluginArgs["tuple"]["closeDeposit(uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void` ABI method.
+         *
+        * The payer's half of a settle: confirm the amount and receipt the operator claimed. Always sent
+        as the payer, never as the operator.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        settle: (params: CallParams<ZeroSignalPluginArgs["obj"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"] | ZeroSignalPluginArgs["tuple"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `refundInactive(uint64,bool,byte[])void` ABI method.
+         *
+         * Take back the payment for a ticket no operator ever claimed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        refundInactive: (params: CallParams<ZeroSignalPluginArgs["obj"]["refundInactive(uint64,bool,byte[])void"] | ZeroSignalPluginArgs["tuple"]["refundInactive(uint64,bool,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void` ABI method.
+         *
+         * Dispute an operator's claim with the receipt the node signed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        protest: (params: CallParams<ZeroSignalPluginArgs["obj"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"] | ZeroSignalPluginArgs["tuple"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -613,8 +914,8 @@ export declare class ZeroSignalPluginClient {
         /**
          * Makes a call to the ZeroSignalPlugin smart contract using the `pay(uint64,bool,(address,uint64,uint64)[])void` ABI method.
          *
-        * Pay ALGO or an asset from the wallet's spending account to the escrow.
-        A zero amount is allowed.
+        * Pay the escrow. This is the payer's part of opening a ticket: the serving node sends the
+        escrow's `open` itself.
     
          *
          * @param params The params for the smart contract call
@@ -624,6 +925,130 @@ export declare class ZeroSignalPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | ZeroSignalPluginReturns["pay(uint64,bool,(address,uint64,uint64)[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `depositMbr(uint64,bool,uint64)void` ABI method.
+         *
+        * Fund the payer's prepaid pool for ticket storage. The first deposit opts the spending account
+        in to the escrow, later ones top it up.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        depositMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["depositMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["depositMbr(uint64,bool,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["depositMbr(uint64,bool,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `withdrawMbr(uint64,bool,uint64)void` ABI method.
+         *
+         * Take unreserved ALGO back out of the payer's prepaid pool
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        withdrawMbr: (params: CallParams<ZeroSignalPluginArgs["obj"]["withdrawMbr(uint64,bool,uint64)void"] | ZeroSignalPluginArgs["tuple"]["withdrawMbr(uint64,bool,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["withdrawMbr(uint64,bool,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `closeDeposit(uint64,bool)void` ABI method.
+         *
+         * Close the payer's prepaid pool and opt the spending account out of the escrow
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        closeDeposit: (params: CallParams<ZeroSignalPluginArgs["obj"]["closeDeposit(uint64,bool)void"] | ZeroSignalPluginArgs["tuple"]["closeDeposit(uint64,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["closeDeposit(uint64,bool)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void` ABI method.
+         *
+        * The payer's half of a settle: confirm the amount and receipt the operator claimed. Always sent
+        as the payer, never as the operator.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        settle: (params: CallParams<ZeroSignalPluginArgs["obj"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"] | ZeroSignalPluginArgs["tuple"]["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `refundInactive(uint64,bool,byte[])void` ABI method.
+         *
+         * Take back the payment for a ticket no operator ever claimed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        refundInactive: (params: CallParams<ZeroSignalPluginArgs["obj"]["refundInactive(uint64,bool,byte[])void"] | ZeroSignalPluginArgs["tuple"]["refundInactive(uint64,bool,byte[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["refundInactive(uint64,bool,byte[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the ZeroSignalPlugin smart contract using the `protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void` ABI method.
+         *
+         * Dispute an operator's claim with the receipt the node signed
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        protest: (params: CallParams<ZeroSignalPluginArgs["obj"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"] | ZeroSignalPluginArgs["tuple"]["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | ZeroSignalPluginReturns["protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -664,8 +1089,8 @@ export type ZeroSignalPluginComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the pay(uint64,bool,(address,uint64,uint64)[])void ABI method.
      *
-    * Pay ALGO or an asset from the wallet's spending account to the escrow.
-    A zero amount is allowed.
+    * Pay the escrow. This is the payer's part of opening a ticket: the serving node sends the
+    escrow's `open` itself.
   
      *
      * @param args The arguments for the contract call
@@ -673,6 +1098,70 @@ export type ZeroSignalPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     pay(params?: CallParams<ZeroSignalPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'] | ZeroSignalPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['pay(uint64,bool,(address,uint64,uint64)[])void'] | undefined]>;
+    /**
+     * Calls the depositMbr(uint64,bool,uint64)void ABI method.
+     *
+    * Fund the payer's prepaid pool for ticket storage. The first deposit opts the spending account
+    in to the escrow, later ones top it up.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    depositMbr(params?: CallParams<ZeroSignalPluginArgs['obj']['depositMbr(uint64,bool,uint64)void'] | ZeroSignalPluginArgs['tuple']['depositMbr(uint64,bool,uint64)void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['depositMbr(uint64,bool,uint64)void'] | undefined]>;
+    /**
+     * Calls the withdrawMbr(uint64,bool,uint64)void ABI method.
+     *
+     * Take unreserved ALGO back out of the payer's prepaid pool
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    withdrawMbr(params?: CallParams<ZeroSignalPluginArgs['obj']['withdrawMbr(uint64,bool,uint64)void'] | ZeroSignalPluginArgs['tuple']['withdrawMbr(uint64,bool,uint64)void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['withdrawMbr(uint64,bool,uint64)void'] | undefined]>;
+    /**
+     * Calls the closeDeposit(uint64,bool)void ABI method.
+     *
+     * Close the payer's prepaid pool and opt the spending account out of the escrow
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    closeDeposit(params?: CallParams<ZeroSignalPluginArgs['obj']['closeDeposit(uint64,bool)void'] | ZeroSignalPluginArgs['tuple']['closeDeposit(uint64,bool)void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['closeDeposit(uint64,bool)void'] | undefined]>;
+    /**
+     * Calls the settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void ABI method.
+     *
+    * The payer's half of a settle: confirm the amount and receipt the operator claimed. Always sent
+    as the payer, never as the operator.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    settle(params?: CallParams<ZeroSignalPluginArgs['obj']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'] | ZeroSignalPluginArgs['tuple']['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['settle(uint64,bool,byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the refundInactive(uint64,bool,byte[])void ABI method.
+     *
+     * Take back the payment for a ticket no operator ever claimed
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    refundInactive(params?: CallParams<ZeroSignalPluginArgs['obj']['refundInactive(uint64,bool,byte[])void'] | ZeroSignalPluginArgs['tuple']['refundInactive(uint64,bool,byte[])void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['refundInactive(uint64,bool,byte[])void'] | undefined]>;
+    /**
+     * Calls the protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void ABI method.
+     *
+     * Dispute an operator's claim with the receipt the node signed
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    protest(params?: CallParams<ZeroSignalPluginArgs['obj']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'] | ZeroSignalPluginArgs['tuple']['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void']>): ZeroSignalPluginComposer<[...TReturns, ZeroSignalPluginReturns['protest(uint64,bool,byte[],uint64,byte[],byte[],byte[],uint64)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the ZeroSignalPlugin smart contract.
      *

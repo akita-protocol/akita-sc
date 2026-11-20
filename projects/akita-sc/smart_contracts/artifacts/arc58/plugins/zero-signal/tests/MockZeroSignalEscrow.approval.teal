@@ -1,0 +1,516 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 2
+    bytecblock "" "calls" "last" "caller" "ticket" "amount" "rest" "as_operator"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:11
+    // calls = GlobalState<uint64>({ key: 'calls', initialValue: 0 })
+    bytec_1 // "calls"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:13
+    // last = GlobalState<bytes>({ key: 'last', initialValue: Bytes('') })
+    bytec_2 // "last"
+    bytec_0 // ""
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:15
+    // caller = GlobalState<Account>({ key: 'caller', initialValue: Global.zeroAddress })
+    bytec_3 // "caller"
+    global ZeroAddress
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:17
+    // ticket = GlobalState<bytes>({ key: 'ticket', initialValue: Bytes('') })
+    bytec 4 // "ticket"
+    bytec_0 // ""
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:19
+    // amount = GlobalState<uint64>({ key: 'amount', initialValue: 0 })
+    bytec 5 // "amount"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:21
+    // rest = GlobalState<bytes>({ key: 'rest', initialValue: Bytes('') })
+    bytec 6 // "rest"
+    bytec_0 // ""
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:23
+    // asOperator = GlobalState<boolean>({ key: 'as_operator', initialValue: false })
+    bytec 7 // "as_operator"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:9
+    // export class MockZeroSignalEscrow extends Contract {
+    pushbytess 0x330a3fc4 0xd62d1046 // method "depositMbr(pay)void", method "closeDeposit()void"
+    txna ApplicationArgs 0
+    match main_depositMbr_route@4 main_closeDeposit_route@5
+
+main_switch_case_next@6:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:9
+    // export class MockZeroSignalEscrow extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@13
+    pushbytess 0x045b1356 0x861598c3 0x4abd86cf 0xdf1f55d7 // method "withdrawMbr(uint64)void", method "settle(byte[],uint64,byte[],uint64,uint64,uint64,uint64,uint64,uint64,uint64,bool)void", method "refundInactive(byte[])void", method "protest(byte[],uint64,byte[],byte[],byte[],uint64)void"
+    txna ApplicationArgs 0
+    match withdrawMbr settle refundInactive protest
+    err
+
+main_create_NoOp@13:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:9
+    // export class MockZeroSignalEscrow extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@14
+    err
+
+main_create_route@14:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:25
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+main_closeDeposit_route@5:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:48
+    // @abimethod({ allowActions: ['CloseOut'] })
+    txn OnCompletion
+    intc_3 // CloseOut
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b closeDeposit
+
+main_depositMbr_route@4:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:37
+    // @abimethod({ allowActions: ['OptIn', 'NoOp'] })
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    pushint 3
+    &
+    txn ApplicationID
+    &&
+    assert
+    b depositMbr
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.depositMbr[routing]() -> void:
+depositMbr:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:37
+    // @abimethod({ allowActions: ['OptIn', 'NoOp'] })
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:39
+    // assert(payment.sender === Txn.sender, 'payment not from the caller')
+    dup
+    gtxns Sender
+    txn Sender
+    ==
+    assert // payment not from the caller
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:40
+    // assert(payment.receiver === Global.currentApplicationAddress, 'payment not to the escrow')
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // payment not to the escrow
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:41
+    // this.record(Bytes('depositMbr'), Bytes(''), payment.amount, Bytes(''))
+    gtxns Amount
+    pushbytes "depositMbr"
+    bytec_0 // ""
+    uncover 2
+    bytec_0 // ""
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:37
+    // @abimethod({ allowActions: ['OptIn', 'NoOp'] })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.withdrawMbr[routing]() -> void:
+withdrawMbr:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:44
+    // withdrawMbr(amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:45
+    // this.record(Bytes('withdrawMbr'), Bytes(''), amount, Bytes(''))
+    pushbytes "withdrawMbr"
+    bytec_0 // ""
+    uncover 2
+    bytec_0 // ""
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:44
+    // withdrawMbr(amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.closeDeposit[routing]() -> void:
+closeDeposit:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:50
+    // this.record(Bytes('closeDeposit'), Bytes(''), 0, Bytes(''))
+    pushbytes "closeDeposit"
+    bytec_0 // ""
+    intc_0 // 0
+    bytec_0 // ""
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:48
+    // @abimethod({ allowActions: ['CloseOut'] })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.settle[routing]() -> void:
+settle:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:53-65
+    // settle(
+    //   ticketId: bytes,
+    //   amountCharged: uint64,
+    //   receiptDigest: bytes,
+    //   ttftMs: uint64,
+    //   decodeMs: uint64,
+    //   inputCount: uint64,
+    //   outputCount: uint64,
+    //   outputUsageType: uint64,
+    //   auxOutputUsageType: uint64,
+    //   auxOutputCount: uint64,
+    //   asOperator: boolean,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 8
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 9
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 10
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 11
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:66
+    // const counts: uint64 = ttftMs + decodeMs + inputCount + outputCount + outputUsageType + auxOutputUsageType + auxOutputCount
+    uncover 7
+    uncover 7
+    +
+    uncover 6
+    +
+    uncover 5
+    +
+    uncover 4
+    +
+    uncover 3
+    +
+    uncover 2
+    +
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:67
+    // this.record(Bytes('settle'), ticketId, amountCharged + counts, receiptDigest)
+    uncover 3
+    +
+    pushbytes "settle"
+    uncover 4
+    uncover 2
+    uncover 4
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:23
+    // asOperator = GlobalState<boolean>({ key: 'as_operator', initialValue: false })
+    bytec 7 // "as_operator"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:68
+    // this.asOperator.value = asOperator
+    swap
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:53-65
+    // settle(
+    //   ticketId: bytes,
+    //   amountCharged: uint64,
+    //   receiptDigest: bytes,
+    //   ttftMs: uint64,
+    //   decodeMs: uint64,
+    //   inputCount: uint64,
+    //   outputCount: uint64,
+    //   outputUsageType: uint64,
+    //   auxOutputUsageType: uint64,
+    //   auxOutputCount: uint64,
+    //   asOperator: boolean,
+    // ): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.refundInactive[routing]() -> void:
+refundInactive:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:71
+    // refundInactive(ticketId: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:72
+    // this.record(Bytes('refundInactive'), ticketId, 0, Bytes(''))
+    pushbytes "refundInactive"
+    swap
+    intc_0 // 0
+    bytec_0 // ""
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:71
+    // refundInactive(ticketId: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.protest[routing]() -> void:
+protest:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:75-82
+    // protest(
+    //   ticketId: bytes,
+    //   amountCharged: uint64,
+    //   receiptDigest: bytes,
+    //   receiptSig: bytes,
+    //   disputeExcerpt: bytes,
+    //   reasonCode: uint64,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:83
+    // this.record(Bytes('protest'), ticketId, amountCharged + reasonCode, receiptDigest.concat(receiptSig).concat(disputeExcerpt))
+    uncover 4
+    +
+    uncover 3
+    uncover 3
+    concat
+    uncover 2
+    concat
+    pushbytes "protest"
+    cover 3
+    callsub record
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:75-82
+    // protest(
+    //   ticketId: bytes,
+    //   amountCharged: uint64,
+    //   receiptDigest: bytes,
+    //   receiptSig: bytes,
+    //   disputeExcerpt: bytes,
+    //   reasonCode: uint64,
+    // ): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts::MockZeroSignalEscrow.record(name: bytes, ticketId: bytes, amount: uint64, rest: bytes) -> void:
+record:
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:28
+    // private record(name: bytes, ticketId: bytes, amount: uint64, rest: bytes): void {
+    proto 4 0
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:29
+    // this.calls.value += 1
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:11
+    // calls = GlobalState<uint64>({ key: 'calls', initialValue: 0 })
+    bytec_1 // "calls"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:29
+    // this.calls.value += 1
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_1 // 1
+    +
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:11
+    // calls = GlobalState<uint64>({ key: 'calls', initialValue: 0 })
+    bytec_1 // "calls"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:29
+    // this.calls.value += 1
+    swap
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:13
+    // last = GlobalState<bytes>({ key: 'last', initialValue: Bytes('') })
+    bytec_2 // "last"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:30
+    // this.last.value = name
+    frame_dig -4
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:15
+    // caller = GlobalState<Account>({ key: 'caller', initialValue: Global.zeroAddress })
+    bytec_3 // "caller"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:31
+    // this.caller.value = Txn.sender
+    txn Sender
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:17
+    // ticket = GlobalState<bytes>({ key: 'ticket', initialValue: Bytes('') })
+    bytec 4 // "ticket"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:32
+    // this.ticket.value = ticketId
+    frame_dig -3
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:19
+    // amount = GlobalState<uint64>({ key: 'amount', initialValue: 0 })
+    bytec 5 // "amount"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:33
+    // this.amount.value = amount
+    frame_dig -2
+    app_global_put
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:21
+    // rest = GlobalState<bytes>({ key: 'rest', initialValue: Bytes('') })
+    bytec 6 // "rest"
+    // smart_contracts/arc58/plugins/zero-signal/tests/mock-escrow.algo.ts:34
+    // this.rest.value = rest
+    frame_dig -1
+    app_global_put
+    retsub

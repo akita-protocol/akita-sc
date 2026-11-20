@@ -657,8 +657,21 @@
     "arc58/plugins/zero-signal/ZeroSignalPlugin": {
       "name": "ZeroSignalPlugin",
       "approval": {
-        "bytes": 374,
-        "sha256": "663b103077d1bfb47054acebf3766a3a6b7a5dbc0faffaa63bce16423bab8b67"
+        "bytes": 1068,
+        "sha256": "6e26685580ce62f7b773d1bed84b0f6d7f335f6e9ae6d325157de54920010985"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
+    "arc58/plugins/zero-signal/tests/MockZeroSignalEscrow": {
+      "name": "MockZeroSignalEscrow",
+      "testOnly": true,
+      "approval": {
+        "bytes": 642,
+        "sha256": "be6ddd75a2b90636db2fdf770757234937b70a80daa312472a2a9520d0e681da"
       },
       "clear": {
         "bytes": 4,

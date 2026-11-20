@@ -1,9 +1,12 @@
 /**
- * ZeroSignalPlugin: a pay plugin with PayPlugin's `pay` signature whose every receiver must be the
- * address of the escrow app fixed at creation.
+ * ZeroSignalPlugin: reaches one app only, the escrow fixed at creation. `pay` has PayPlugin's `pay`
+ * signature and refuses any receiver but that app's address. The other methods call that app as the
+ * wallet's spending account.
  *
- * The escrow here is a stand-in: a second wallet, which is simply an app with an account that can
- * hold ALGO and an asset. The plugin only ever looks at the app's address.
+ * Two stand-ins play the escrow. For `pay` it is a second wallet, which is simply an app with an
+ * account that can hold ALGO and an asset: `pay` only ever looks at the app's address. For the
+ * calls it is MockZeroSignalEscrow, which has the real escrow's payer-side signatures and records
+ * each call.
  */
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
@@ -17,6 +20,7 @@ import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/da
 import { expectContractError } from '../../../../tests/utils/errors';
 import { APP_SPEC as PaySpec } from '../../../artifacts/arc58/plugins/pay/PayPluginClient';
 import { APP_SPEC as ZeroSignalSpec, ZeroSignalPluginFactory } from '../../../artifacts/arc58/plugins/zero-signal/ZeroSignalPluginClient';
+import { MockZeroSignalEscrowFactory } from '../../../artifacts/arc58/plugins/zero-signal/tests/MockZeroSignalEscrowClient';
 import { errNoEscrowApp, errReceiverNotEscrow } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
@@ -36,6 +40,27 @@ describe('ZeroSignal plugin contract', () => {
   /** The same app through PayPlugin's client, which lets a test name any receiver. */
   let raw: PayPluginSDK;
   let asset: bigint;
+  /** A second plugin instance, created for the mock escrow. */
+  let caller: ZeroSignalPluginSDK;
+  let mockEscrowId: bigint;
+
+  /** What the mock escrow recorded about the last call it took. */
+  const recorded = async () => {
+    const state = await algorand.app.getGlobalState(mockEscrowId);
+    const raw = (key: string) => Buffer.from((state[key] as { valueRaw: Uint8Array }).valueRaw);
+    return {
+      calls: BigInt(state.calls.value as bigint | number),
+      last: raw('last').toString(),
+      caller: algosdk.encodeAddress(raw('caller')),
+      ticket: raw('ticket').toString('hex'),
+      amount: BigInt(state.amount.value as bigint | number),
+      rest: raw('rest').toString('hex'),
+      asOperator: BigInt(state.as_operator.value as bigint | number),
+    };
+  };
+  const optedIn = async () =>
+    ((await algorand.client.algod.accountInformation(wallet.client.appAddress).do()).appsLocalState ?? []).some((app) => app.id === mockEscrowId);
+  const use = (call: ReturnType<ZeroSignalPluginSDK['pay']>) => wallet.usePlugin({ callerType: CallerType.Global, calls: [call] });
 
   const algoOf = async (address: string) => (await algorand.account.getInformation(address)).balance.microAlgos;
   const assetOf = async (address: string) =>
@@ -75,6 +100,14 @@ describe('ZeroSignal plugin contract', () => {
     await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
     await wallet.addPlugin({ client: plugin, callerType: CallerType.Global });
 
+    const mockFactory = algorand.client.getTypedAppFactory(MockZeroSignalEscrowFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer });
+    const { appClient: mockEscrow } = await mockFactory.send.create.create({ args: {} });
+    mockEscrowId = mockEscrow.appId;
+    await mockEscrow.appClient.fundAppAccount({ amount: algokit.microAlgo(1_000_000n) });
+    const { appClient: callerClient } = await factory.send.create.create({ args: { escrowApp: mockEscrowId } });
+    caller = new ZeroSignalPluginSDK({ algorand, factoryParams: { appId: callerClient.appId, defaultSender: user.addr, defaultSigner: user.signer } });
+    await wallet.addPlugin({ client: caller, callerType: CallerType.Global });
+
     const minted = await wallet.usePlugin({
       callerType: CallerType.Global,
       calls: [
@@ -113,7 +146,9 @@ describe('ZeroSignal plugin contract', () => {
       expect(Buffer.from(ours.getSelector()).toString('hex')).toBe(Buffer.from(theirs.getSelector()).toString('hex'));
       // the selector and three arguments: four app args
       expect(ours.args.length).toBe(3);
-      expect(ZeroSignalSpec.methods.map((m) => m.name).sort()).toEqual(['create', 'pay']);
+      expect(ZeroSignalSpec.methods.map((m) => m.name).sort()).toEqual([
+        'closeDeposit', 'create', 'depositMbr', 'pay', 'protest', 'refundInactive', 'settle', 'withdrawMbr',
+      ]);
     });
 
     test('the release manifest gives it no extra pages', () => {
@@ -223,6 +258,97 @@ describe('ZeroSignal plugin contract', () => {
         await expectContractError(wallet.usePlugin({ callerType: CallerType.Global, calls: [raw.pay({ payments })] }), errReceiverNotEscrow);
       }
       expect(await algoOf(escrowAddress)).toBe(before);
+    });
+  });
+
+  describe('escrow calls', () => {
+    const ticketId = Uint8Array.from({ length: 16 }, (_, i) => i + 1);
+    const receiptDigest = Uint8Array.from({ length: 32 }, (_, i) => 255 - i);
+    const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString('hex');
+    const settleArgs = {
+      ticketId,
+      amountCharged: 1_000n,
+      receiptDigest,
+      ttftMs: 1n,
+      decodeMs: 2n,
+      inputCount: 3n,
+      outputCount: 4n,
+      outputUsageType: 5n,
+      auxOutputUsageType: 6n,
+      auxOutputCount: 7n,
+    };
+
+    test('settle reaches the escrow as the wallet, as the payer, with its arguments unchanged', async () => {
+      const before = (await recorded()).calls;
+      await use(caller.settle(settleArgs));
+      expect(await recorded()).toEqual({
+        calls: before + 1n,
+        last: 'settle',
+        caller: wallet.client.appAddress.toString(),
+        ticket: hex(ticketId),
+        amount: 1_028n,
+        rest: hex(receiptDigest),
+        asOperator: 0n,
+      });
+      const account = await algorand.client.algod.accountInformation(wallet.client.appAddress).do();
+      expect(account.authAddr).toBeUndefined();
+    });
+
+    test('protest passes the receipt, its signature and the excerpt through', async () => {
+      const receiptSig = Uint8Array.from({ length: 64 }, (_, i) => i);
+      const disputeExcerpt = new TextEncoder().encode('the model returned nothing');
+      await use(caller.protest({ ticketId, amountCharged: 900n, receiptDigest, receiptSig, disputeExcerpt, reasonCode: 3n }));
+      const call = await recorded();
+      expect(call.last).toBe('protest');
+      expect(call.caller).toBe(wallet.client.appAddress.toString());
+      expect(call.ticket).toBe(hex(ticketId));
+      expect(call.amount).toBe(903n);
+      expect(call.rest).toBe(hex(receiptDigest) + hex(receiptSig) + hex(disputeExcerpt));
+    });
+
+    test('refundInactive names the ticket', async () => {
+      await use(caller.refundInactive({ ticketId }));
+      const call = await recorded();
+      expect(call.last).toBe('refundInactive');
+      expect(call.caller).toBe(wallet.client.appAddress.toString());
+      expect(call.ticket).toBe(hex(ticketId));
+    });
+
+    test('the deposit pool: the first deposit opts in, the next tops up, then withdraw and close', async () => {
+      const escrowAccount = algosdk.getApplicationAddress(mockEscrowId).toString();
+      expect(await optedIn()).toBe(false);
+
+      const before = await algoOf(escrowAccount);
+      await use(caller.depositMbr({ amount: 500_000n }));
+      expect(await optedIn()).toBe(true);
+      expect((await algoOf(escrowAccount)) - before).toBe(500_000n);
+      let call = await recorded();
+      expect(call.last).toBe('depositMbr');
+      expect(call.caller).toBe(wallet.client.appAddress.toString());
+      expect(call.amount).toBe(500_000n);
+
+      await use(caller.depositMbr({ amount: 200_000n }));
+      expect(await optedIn()).toBe(true);
+      expect((await algoOf(escrowAccount)) - before).toBe(700_000n);
+      expect((await recorded()).amount).toBe(200_000n);
+
+      await use(caller.withdrawMbr({ amount: 150_000n }));
+      call = await recorded();
+      expect(call.last).toBe('withdrawMbr');
+      expect(call.caller).toBe(wallet.client.appAddress.toString());
+      expect(call.amount).toBe(150_000n);
+
+      await use(caller.closeDeposit({}));
+      expect((await recorded()).last).toBe('closeDeposit');
+      expect(await optedIn()).toBe(false);
+    });
+
+    test('a call goes to the escrow of its own instance only', async () => {
+      // `plugin` was created for the stand-in wallet, which has none of these methods, so the call fails
+      // there and never reaches the mock escrow.
+      const before = (await recorded()).calls;
+      await expect(use(plugin.refundInactive({ ticketId }))).rejects.toThrow();
+      expect((await recorded()).calls).toBe(before);
     });
   });
 

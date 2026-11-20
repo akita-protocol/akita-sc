@@ -294,7 +294,7 @@
     "daoField": null,
     "notes": [
       "Constructor: escrowApp = the ZeroSignal escrow app id (3628061142 on MainNet, 765860477 on TestNet). It is fixed for the life of the app and this tooling does not verify it: check it against the network before deploying.",
-      "A pay plugin whose every receiver must be that escrow app's address. No update or delete route."
+      "Reaches that escrow app only: pay sends to its address, and settle, protest, refundInactive, depositMbr, withdrawMbr and closeDeposit call it as the wallet's spending account. No update or delete route."
     ]
   }
 }
