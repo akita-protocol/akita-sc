@@ -16,7 +16,7 @@ TypeScript (PuyaTs 1.3.1).
 | `getSpendingAccount(wallet)` | The raw `spending_address` global (no check). |
 | `rekeyAddress(rekeyBack, wallet)` / `rekeyBackIfNecessary(rekeyBack, wallet)` | Return the spending account to the wallet on your last inner transaction. |
 | `controls(account)` | `account.authAddress == this app`. |
-| `getOriginAccount`, `getReferrerAccount`, `getAccounts` | **Display only, not identity** (see below). |
+| `getOriginAccount`, `getReferrerAccount`, `getAccounts` | **Display only, not identity** (see below). `getOriginAccount` fails with `errIwlt` on an app that has no 32-byte `controlled_address`. |
 
 ## Identity: use `pluginPrincipal` / `resolvePrincipal`, never raw `getOriginAccount`
 
