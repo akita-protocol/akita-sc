@@ -1,6 +1,6 @@
 import { Application, Asset, Global, gtxn, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript";
 import { Contract } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { errInvalidPayment } from "./errors";
 import { CreateAssetParams } from "./types";
 

@@ -25,8 +25,8 @@ import {
   usesLegacyEscrowActionShape,
   voteCost,
   voteReceiptBoxName
-} from "../chunk-3F6WDBS2.mjs";
-import "../chunk-52VUSITZ.mjs";
+} from "../chunk-LZHWUPAG.mjs";
+import "../chunk-3KAPE6U5.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-47AKUWST.mjs";

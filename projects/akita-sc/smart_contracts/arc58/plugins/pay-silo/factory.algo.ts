@@ -1,6 +1,6 @@
 import { Account, Application, Contract, uint64 } from "@algorandfoundation/algorand-typescript";
 import { compileArc4 } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { PaySiloPlugin } from "./contract.algo";
 
 // OKAY SO THIS IS THE PLAN

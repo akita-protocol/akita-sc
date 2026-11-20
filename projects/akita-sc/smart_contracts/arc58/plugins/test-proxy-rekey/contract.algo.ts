@@ -1,6 +1,6 @@
 import { Account, Application, Asset, Contract, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { PayPlugin } from "../pay/contract.algo";
 
 /**

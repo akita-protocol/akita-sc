@@ -1,6 +1,6 @@
 import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
-import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions';
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey, DualStakePluginGlobalStateKeyLSTID } from './constants';
 import { errNotADualstakeApp, errNotEnoughOfAsa } from './errors';
 

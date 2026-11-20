@@ -26,6 +26,29 @@ main_create_NoOp@6:
     err
 
 
+// @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
 // smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
 isGenuineWallet:
     // smart_contracts/utils/principal.ts:101
@@ -80,29 +103,6 @@ isGenuineWallet_bool_merge@7:
 isGenuineWallet_bool_false@6:
     intc_0 // 0
     b isGenuineWallet_bool_merge@7
-
-
-// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
-rekeyAddress:
-    // smart_contracts/utils/functions.ts:546
-    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
-    proto 2 1
-    // smart_contracts/utils/functions.ts:547
-    // if (!rekeyBack) {
-    frame_dig -2
-    bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:548
-    // return Global.zeroAddress
-    global ZeroAddress
-    retsub
-
-rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:551
-    // return wallet.address
-    frame_dig -1
-    app_params_get AppAddress
-    assert // application exists
-    retsub
 
 
 // smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.create[routing]() -> void:
@@ -372,19 +372,19 @@ newWallet:
     err // ERR:welcomeInvalidAdmin
 
 newWallet_after_assert@2:
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -9
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_2 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop

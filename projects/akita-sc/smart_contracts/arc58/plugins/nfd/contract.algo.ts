@@ -2,7 +2,7 @@ import { Account, Application, bytes, Bytes, Global, GlobalState, itxn, loggedAs
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
-import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeyOwner, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry } from './constants'
 import { errCannotAutoRenew, errNotAnNfd, errNotNfdOwner, errNoSaleAmount, errPriceAboveMax } from './errors'
 

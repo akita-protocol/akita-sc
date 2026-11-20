@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 2 8
     bytecblock "akita_dao" 0x151f7c75
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:19
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:20
     // export class GatePlugin extends AkitaBaseContract {
     txn OnCompletion
     !
@@ -24,7 +24,7 @@ main_opUp_route@5:
     return
 
 main_create_NoOp@7:
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:19
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:20
     // export class GatePlugin extends AkitaBaseContract {
     pushbytes 0x6f9817f6 // method "create(uint64,string)void"
     txna ApplicationArgs 0
@@ -34,7 +34,7 @@ main_create_NoOp@7:
 
 // smart_contracts/arc58/plugins/gate/contract.algo.ts::GatePlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:23
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:24
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -57,18 +57,18 @@ create:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:25
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:26
     // this.version.value = version
     swap
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:26
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:27
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:23
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:24
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -76,7 +76,7 @@ create:
 
 // smart_contracts/arc58/plugins/gate/contract.algo.ts::GatePlugin.register[routing]() -> void:
 register:
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:31-36
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:32-37
     // register(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -129,7 +129,7 @@ register:
     intc_0 // 0
 
 register_for_header@1:
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:31-36
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:32-37
     // register(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -170,7 +170,7 @@ register_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:31-36
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:32-37
     // register(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -181,25 +181,25 @@ register_after_for@4:
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:494
-    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
     global CurrentApplicationAddress
@@ -210,13 +210,13 @@ register_after_for@4:
     err // ERR:errNath
 
 register_after_assert@7:
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:38
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:39
     // const gate = Application(getAkitaAppList(this.akitaDAO.value).gate)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:38
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:39
     // const gate = Application(getAkitaAppList(this.akitaDAO.value).gate)
     app_global_get_ex
     assert // check GlobalState exists
@@ -225,12 +225,12 @@ register_after_assert@7:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:38
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:39
     // const gate = Application(getAkitaAppList(this.akitaDAO.value).gate)
     pushint 40
     extract_uint64
     dup
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:40-44
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:41-45
     // const amount = abiCall<typeof Gate.prototype.cost>({
     //   sender,
     //   appId: gate,
@@ -268,7 +268,7 @@ register_after_assert@7:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:46-59
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:47-60
     // return abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: gate,
@@ -284,7 +284,7 @@ register_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:53
     // receiver: gate.address,
     swap
     app_params_get AppAddress
@@ -292,7 +292,7 @@ register_after_assert@7:
     itxn_field Receiver
     itxn_field Amount
     itxn_field Sender
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:50-54
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:51-55
     // itxn.payment({
     //   sender,
     //   receiver: gate.address,
@@ -302,7 +302,7 @@ register_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:46-59
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:47-60
     // return abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: gate,
@@ -318,21 +318,21 @@ register_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/utils/functions.ts:547
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     uncover 5
     bnz register_after_if_else@13
     uncover 3
     pop
-    // smart_contracts/utils/functions.ts:548
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
 
-register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@14:
+register_after_inlined_@akita-protocol/plugin/functions.ts::rekeyAddress@14:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:46-59
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:47-60
     // return abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: gate,
@@ -369,7 +369,7 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@14:
     intc_3 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:31-36
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:32-37
     // register(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -384,14 +384,14 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@14:
     return
 
 register_after_if_else@13:
-    // smart_contracts/utils/functions.ts:551
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     uncover 3
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:59
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    b register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@14
+    b register_after_inlined_@akita-protocol/plugin/functions.ts::rekeyAddress@14
 
 
 // smart_contracts/utils/base-contracts/upgradeable.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:

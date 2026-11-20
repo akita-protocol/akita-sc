@@ -1,7 +1,8 @@
 import { Application, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateArgs, GateFilter } from "../../../gates/types";
-import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
+import { getAkitaAppList } from "../../../utils/functions";
 
 // CONTRACT IMPORTS
 import type { Gate } from "../../../gates/contract.algo";

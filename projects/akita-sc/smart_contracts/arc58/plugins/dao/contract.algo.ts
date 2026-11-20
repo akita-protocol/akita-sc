@@ -1,6 +1,6 @@
 import { Application, bytes, Contract, GlobalState, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { CID } from "../../../utils/types/base";
 import { DAOParticipationMBR, DAOProposalVotesMBR, ProposalStatusDraft } from "../../dao/constants";
 import { ProposalAction, ProposalVoteType } from "../../dao/types";
