@@ -3,23 +3,23 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 2 1 32
+    intcblock 0 2 1 4
     bytecblock 0x151f7c75
     // smart_contracts/arc58/dao/types.algo.ts:4
     // export class AkitaDAOTypes extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@22
+    bz main___algots__.defaultCreate@23
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x92b35896 0x7ee4bab7 0x82d5f3ff 0xf3941a2c 0xf1cf22cc 0xbd4ef730 0xebab5e14 0x6b8abd2f 0xfcaf8420 0x55ce5ca9 0xe458d544 0x50aab81d 0x149d3ccb 0x1a402d1b 0x7896ea5a // method "proposalUpgradeAppShape((uint64,byte[32],byte[32][],uint64,uint64))(uint64,byte[32],byte[32][],uint64,uint64)", method "proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalRemovePluginShape((uint64,address,string))(uint64,address,string)", method "proposalRemoveNamedPluginShape((string,uint64,address,string))(string,uint64,address,string)", method "proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64)", method "proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64)", method "proposalRemoveExecutePluginShape((byte[32]))(byte[32])", method "proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalRemoveAllowancesShape((string,uint64[]))(string,uint64[])", method "proposalNewEscrowShape((string,address))(string,address)", method "proposalToggleEscrowLockShape((string))(string)", method "proposalUpdateFieldShape((string,byte[]))(string,byte[])", method "proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])", method "proposalChangeAdminShape((address))(address)"
+    pushbytess 0x92b35896 0x7ee4bab7 0x82d5f3ff 0xf3941a2c 0xf1cf22cc 0xbd4ef730 0xebab5e14 0x6b8abd2f 0xfcaf8420 0x55ce5ca9 0xe458d544 0x50aab81d 0x149d3ccb 0x1a402d1b 0x7896ea5a 0xe0306a4b // method "proposalUpgradeAppShape((uint64,byte[32],byte[32][],uint64,uint64))(uint64,byte[32],byte[32][],uint64,uint64)", method "proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalRemovePluginShape((uint64,address,string))(uint64,address,string)", method "proposalRemoveNamedPluginShape((string,uint64,address,string))(string,uint64,address,string)", method "proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64)", method "proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64)", method "proposalRemoveExecutePluginShape((byte[32]))(byte[32])", method "proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[])", method "proposalRemoveAllowancesShape((string,uint64[]))(string,uint64[])", method "proposalNewEscrowShape((string,address))(string,address)", method "proposalToggleEscrowLockShape((string))(string)", method "proposalUpdateFieldShape((string,byte[]))(string,byte[])", method "proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])", method "proposalChangeAdminShape((address))(address)", method "proposalDeleteEscrowShape((string))(string)"
     txna ApplicationArgs 0
-    match proposalUpgradeAppShape proposalAddPluginShape proposalAddNamedPluginShape proposalRemovePluginShape proposalRemoveNamedPluginShape proposalExecutePluginShape proposalExecuteNamedPluginShape proposalRemoveExecutePluginShape proposalAddAllowancesShape proposalRemoveAllowancesShape proposalNewEscrowShape proposalToggleEscrowLockShape proposalUpdateFieldShape proposalReclaimShape proposalChangeAdminShape
+    match proposalUpgradeAppShape proposalAddPluginShape proposalAddNamedPluginShape proposalRemovePluginShape proposalRemoveNamedPluginShape proposalExecutePluginShape proposalExecuteNamedPluginShape proposalRemoveExecutePluginShape proposalAddAllowancesShape proposalRemoveAllowancesShape proposalNewEscrowShape proposalToggleEscrowLockShape proposalUpdateFieldShape proposalReclaimShape proposalChangeAdminShape proposalDeleteEscrowShape
     err
 
-main___algots__.defaultCreate@22:
+main___algots__.defaultCreate@23:
     // smart_contracts/arc58/dao/types.algo.ts:4
     // export class AkitaDAOTypes extends Contract {
     txn OnCompletion
@@ -50,7 +50,7 @@ proposalUpgradeAppShape:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 32
+    pushint 32
     *
     pushint 60
     +
@@ -363,7 +363,7 @@ proposalExecutePluginShape:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 32
+    pushint 32
     *
     intc_1 // 2
     +
@@ -413,7 +413,7 @@ proposalExecuteNamedPluginShape:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 32
+    pushint 32
     *
     intc_1 // 2
     +
@@ -435,7 +435,7 @@ proposalRemoveExecutePluginShape:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 32
+    pushint 32
     ==
     assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveExecutePlugin
     bytec_0 // 0x151f7c75
@@ -457,7 +457,7 @@ proposalAddAllowancesShape:
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
-    pushint 4
+    intc_3 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))
     dig 2
@@ -507,7 +507,7 @@ proposalRemoveAllowancesShape:
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
-    pushint 4
+    intc_3 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint64[]))
     dig 2
@@ -598,7 +598,7 @@ proposalToggleEscrowLockShape:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 4
+    intc_3 // 4
     +
     ==
     assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalToggleEscrowLock
@@ -621,7 +621,7 @@ proposalUpdateFieldShape:
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
-    pushint 4
+    intc_3 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]))
     dig 2
@@ -669,7 +669,7 @@ proposalReclaimShape:
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
-    pushint 4
+    intc_3 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint64,bool1)[]))
     dig 2
@@ -715,9 +715,41 @@ proposalChangeAdminShape:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 32
+    pushint 32
     ==
     assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalChangeAdmin
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalDeleteEscrowShape[routing]() -> void:
+proposalDeleteEscrowShape:
+    // smart_contracts/arc58/dao/types.algo.ts:80
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_1 // 2
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 4
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalDeleteEscrow
     bytec_0 // 0x151f7c75
     swap
     concat

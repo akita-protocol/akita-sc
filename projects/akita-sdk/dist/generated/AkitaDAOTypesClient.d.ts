@@ -96,6 +96,13 @@ export type ProposalChangeAdmin = {
  * Converts the ABI tuple representation of a ProposalChangeAdmin to the struct representation
  */
 export declare function ProposalChangeAdminFromTuple(abiTuple: [string]): ProposalChangeAdmin;
+export type ProposalDeleteEscrow = {
+    escrow: string;
+};
+/**
+ * Converts the ABI tuple representation of a ProposalDeleteEscrow to the struct representation
+ */
+export declare function ProposalDeleteEscrowFromTuple(abiTuple: [string]): ProposalDeleteEscrow;
 export type ProposalExecuteNamedPlugin = {
     name: string;
     executionKey: Uint8Array;
@@ -248,6 +255,9 @@ export type AkitaDaoTypesArgs = {
         'proposalChangeAdminShape((address))(address)': {
             shape: ProposalChangeAdmin;
         };
+        'proposalDeleteEscrowShape((string))(string)': {
+            shape: ProposalDeleteEscrow;
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -268,6 +278,7 @@ export type AkitaDaoTypesArgs = {
         'proposalUpdateFieldShape((string,byte[]))(string,byte[])': [shape: ProposalUpdateField];
         'proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])': [shape: ProposalReclaim];
         'proposalChangeAdminShape((address))(address)': [shape: ProposalChangeAdmin];
+        'proposalDeleteEscrowShape((string))(string)': [shape: ProposalDeleteEscrow];
     };
 };
 /**
@@ -289,6 +300,7 @@ export type AkitaDaoTypesReturns = {
     'proposalUpdateFieldShape((string,byte[]))(string,byte[])': ProposalUpdateField;
     'proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])': ProposalReclaim;
     'proposalChangeAdminShape((address))(address)': ProposalChangeAdmin;
+    'proposalDeleteEscrowShape((string))(string)': ProposalDeleteEscrow;
 };
 /**
  * Defines the types of available calls and state of the AkitaDaoTypes smart contract.
@@ -357,6 +369,10 @@ export type AkitaDaoTypesTypes = {
         argsObj: AkitaDaoTypesArgs['obj']['proposalChangeAdminShape((address))(address)'];
         argsTuple: AkitaDaoTypesArgs['tuple']['proposalChangeAdminShape((address))(address)'];
         returns: AkitaDaoTypesReturns['proposalChangeAdminShape((address))(address)'];
+    }> & Record<'proposalDeleteEscrowShape((string))(string)' | 'proposalDeleteEscrowShape', {
+        argsObj: AkitaDaoTypesArgs['obj']['proposalDeleteEscrowShape((string))(string)'];
+        argsTuple: AkitaDaoTypesArgs['tuple']['proposalDeleteEscrowShape((string))(string)'];
+        returns: AkitaDaoTypesReturns['proposalDeleteEscrowShape((string))(string)'];
     }>;
 };
 /**
@@ -508,6 +524,13 @@ export declare abstract class AkitaDaoTypesParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static proposalChangeAdminShape(params: CallParams<AkitaDaoTypesArgs['obj']['proposalChangeAdminShape((address))(address)'] | AkitaDaoTypesArgs['tuple']['proposalChangeAdminShape((address))(address)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the proposalDeleteEscrowShape((string))(string) ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static proposalDeleteEscrowShape(params: CallParams<AkitaDaoTypesArgs['obj']['proposalDeleteEscrowShape((string))(string)'] | AkitaDaoTypesArgs['tuple']['proposalDeleteEscrowShape((string))(string)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the AkitaDAOTypes smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -981,6 +1004,17 @@ export declare class AkitaDaoTypesClient {
         proposalChangeAdminShape: (params: CallParams<AkitaDaoTypesArgs["obj"]["proposalChangeAdminShape((address))(address)"] | AkitaDaoTypesArgs["tuple"]["proposalChangeAdminShape((address))(address)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the AkitaDAOTypes smart contract using the `proposalDeleteEscrowShape((string))(string)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        proposalDeleteEscrowShape: (params: CallParams<AkitaDaoTypesArgs["obj"]["proposalDeleteEscrowShape((string))(string)"] | AkitaDaoTypesArgs["tuple"]["proposalDeleteEscrowShape((string))(string)"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
     };
     /**
      * Create transactions for the current app
@@ -1212,6 +1246,21 @@ export declare class AkitaDaoTypesClient {
          * @returns The call transaction
          */
         proposalChangeAdminShape: (params: CallParams<AkitaDaoTypesArgs["obj"]["proposalChangeAdminShape((address))(address)"] | AkitaDaoTypesArgs["tuple"]["proposalChangeAdminShape((address))(address)"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaDAOTypes smart contract using the `proposalDeleteEscrowShape((string))(string)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        proposalDeleteEscrowShape: (params: CallParams<AkitaDaoTypesArgs["obj"]["proposalDeleteEscrowShape((string))(string)"] | AkitaDaoTypesArgs["tuple"]["proposalDeleteEscrowShape((string))(string)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1530,6 +1579,26 @@ export declare class AkitaDaoTypesClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the AkitaDAOTypes smart contract using the `proposalDeleteEscrowShape((string))(string)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        proposalDeleteEscrowShape: (params: CallParams<AkitaDaoTypesArgs["obj"]["proposalDeleteEscrowShape((string))(string)"] | AkitaDaoTypesArgs["tuple"]["proposalDeleteEscrowShape((string))(string)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AkitaDaoTypesReturns["proposalDeleteEscrowShape((string))(string)"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -1674,6 +1743,15 @@ export declare class AkitaDaoTypesClient {
      */
     proposalChangeAdminShape(params: CallParams<AkitaDaoTypesArgs['obj']['proposalChangeAdminShape((address))(address)'] | AkitaDaoTypesArgs['tuple']['proposalChangeAdminShape((address))(address)']>): Promise<ProposalChangeAdmin>;
     /**
+     * Makes a readonly (simulated) call to the AkitaDAOTypes smart contract using the `proposalDeleteEscrowShape((string))(string)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    proposalDeleteEscrowShape(params: CallParams<AkitaDaoTypesArgs['obj']['proposalDeleteEscrowShape((string))(string)'] | AkitaDaoTypesArgs['tuple']['proposalDeleteEscrowShape((string))(string)']>): Promise<ProposalDeleteEscrow>;
+    /**
      * Methods to access state for the current AkitaDAOTypes app
      */
     state: {};
@@ -1800,6 +1878,14 @@ export type AkitaDaoTypesComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     proposalChangeAdminShape(params?: CallParams<AkitaDaoTypesArgs['obj']['proposalChangeAdminShape((address))(address)'] | AkitaDaoTypesArgs['tuple']['proposalChangeAdminShape((address))(address)']>): AkitaDaoTypesComposer<[...TReturns, AkitaDaoTypesReturns['proposalChangeAdminShape((address))(address)'] | undefined]>;
+    /**
+     * Calls the proposalDeleteEscrowShape((string))(string) ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    proposalDeleteEscrowShape(params?: CallParams<AkitaDaoTypesArgs['obj']['proposalDeleteEscrowShape((string))(string)'] | AkitaDaoTypesArgs['tuple']['proposalDeleteEscrowShape((string))(string)']>): AkitaDaoTypesComposer<[...TReturns, AkitaDaoTypesReturns['proposalDeleteEscrowShape((string))(string)'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the AkitaDAOTypes smart contract.
      *

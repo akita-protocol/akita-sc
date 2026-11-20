@@ -17,6 +17,69 @@ export type FundsRequest = {
 export type PluginInfo = Omit<ClientPluginInfo, 'methods'> & {
     methods: MethodOffset[];
 };
+/** A grant that names an escrow, and the aliases that point at it. */
+export type EscrowPluginRef = {
+    plugin: bigint;
+    caller: string;
+    /** The escrow part of the grant's key: the escrow's name, or '' for a grant that defaults to the escrow. */
+    escrow: string;
+    names: string[];
+};
+/**
+ * What becomes of an escrow's address once the escrow is deleted. It differs with the kind of escrow,
+ * and in both cases it cannot be undone:
+ *
+ * - `address-returns-to-its-key`: the escrow is an ordinary account that was rekeyed to the wallet.
+ *   The delete closes it, and closing an account ends its rekey. From then on the address belongs to
+ *   whoever holds its private key, and no longer to the wallet.
+ * - `address-under-nobodys-control`: the escrow is the account of an app the escrow factory made. The
+ *   delete removes that app, and nobody controls the address afterwards. Anything sent to it is lost.
+ */
+export type EscrowDeleteWarningCode = 'address-returns-to-its-key' | 'address-under-nobodys-control';
+/**
+ * Something a person has to be told before they confirm the delete of an escrow.
+ *
+ * An app that offers the delete shows every warning of the plan where it cannot be missed, in the
+ * confirmation itself and not behind a link or a tooltip, and asks for the confirmation only after it.
+ * The same holds where the delete is put into a DAO or Guild proposal: show it to the person who
+ * creates the proposal.
+ */
+export type EscrowDeleteWarning = {
+    /** A stable code, for an app to key its own wording, translation and styling on. */
+    code: EscrowDeleteWarningCode;
+    /** The warning in plain English, ready to show as it is. */
+    message: string;
+};
+/** What the chain lists for one escrow: everything that has to go before the escrow can be deleted. */
+export type EscrowTeardown = {
+    escrow: string;
+    id: bigint;
+    address: string;
+    locked: boolean;
+    /** Whether the escrow factory has the escrow on record. A delete registers one that is not. */
+    registered: boolean;
+    /**
+     * How many plugins and allowances the wallet counts for the escrow. While this is above zero the
+     * wallet refuses to delete it. Undefined for an escrow made before the wallet kept this count: the
+     * wallet cannot check a delete of such an escrow, so remove everything listed here with it.
+     */
+    counted: bigint | undefined;
+    /** Grants that name the escrow. */
+    plugins: EscrowPluginRef[];
+    /** Aliases that name the escrow and whose grant is already gone. */
+    staleNames: string[];
+    /** Assets the escrow has an allowance for. */
+    allowances: bigint[];
+    /** Assets the escrow holds or is opted in to. */
+    assets: bigint[];
+    /** What stands in the way that no call of the wallet can undo. Empty when the escrow can be deleted. */
+    blockers: string[];
+    /**
+     * What the person has to be told before they confirm the delete. Never empty: it always says what
+     * becomes of the escrow's address. An app must show all of it prominently (see `EscrowDeleteWarning`).
+     */
+    warnings: EscrowDeleteWarning[];
+};
 export type MbrParams = {
     escrow: string;
     methodCount: bigint | number;

@@ -23,6 +23,8 @@ import { btoi, Global, len, Txn } from '@algorandfoundation/algorand-typescript/
 import {
   AbstractAccountBoxPrefixAllowances,
   AbstractAccountBoxPrefixDomainKeys,
+  AbstractAccountBoxPrefixDefaultEscrows,
+  AbstractAccountBoxPrefixEscrowRefs,
   AbstractAccountBoxPrefixEscrows,
   AbstractAccountBoxPrefixExecutions,
   AbstractAccountBoxPrefixNamedPlugins,
@@ -51,6 +53,8 @@ import {
   MethodRestrictionByteLength,
   MinAllowanceMBR,
   MinDomainKeysMBR,
+  MinDefaultEscrowMBR,
+  MinEscrowRefsMBR,
   MinEscrowsMBR,
   MinExecutionsMBR,
   MinNamedPluginMBR,
@@ -68,6 +72,7 @@ import {
   errCannotCallOtherAppsDuringRekey,
   errEscrowAlreadyExists,
   errEscrowDoesNotExist,
+  errEscrowInUse,
   errEscrowLocked,
   errEscrowNameRequired,
   errEscrowRequiredToBeSetAsDefault,
@@ -174,6 +179,20 @@ export class AbstractedAccount extends Contract {
   namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: AbstractAccountBoxPrefixNamedPlugins });
   /** the escrows that this wallet has created for specific callers with allowances */
   escrows = BoxMap<string, EscrowInfo>({ keyPrefix: AbstractAccountBoxPrefixEscrows })
+  /**
+   * How many plugins and allowances still name an escrow, kept from the moment the escrow is made.
+   * An escrow made before this count existed has no box here, and nothing is counted for it.
+   *
+   * The count is kept under the escrow's name, never its app id: the id of an app made in a
+   * transaction is not known when that transaction is built, so a box named after it could not be
+   * referenced by the call that makes the escrow.
+   */
+  escrowRefs = BoxMap<string, uint64>({ keyPrefix: AbstractAccountBoxPrefixEscrowRefs })
+  /**
+   * The name of the escrow a plugin uses by default. Such a plugin is stored under the empty escrow
+   * name with only the escrow's app id, so this is what leads from the plugin back to the escrow's count.
+   */
+  defaultEscrows = BoxMap<PluginKey, string>({ keyPrefix: AbstractAccountBoxPrefixDefaultEscrows })
   /** The Allowances for plugins installed on the smart contract with useAllowance set to true */
   allowances = BoxMap<AllowanceKey, AllowanceInfo>({ keyPrefix: AbstractAccountBoxPrefixAllowances }) // 38_500
   /** execution keys */
@@ -315,6 +334,49 @@ export class AbstractedAccount extends Contract {
     return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
   }
 
+  private escrowRefsMbr(escrow: string): uint64 {
+    return MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length)
+  }
+
+  private defaultEscrowMbr(escrow: string): uint64 {
+    return MinDefaultEscrowMBR + this._calcBCPB(Bytes(escrow).length)
+  }
+
+  /** Count plugins or allowances added to or removed from an escrow, where the escrow has a count. */
+  private countEscrowRefs(escrow: string, added: uint64, removed: uint64): void {
+    if (escrow === '' || !this.escrowRefs(escrow).exists) {
+      return
+    }
+    const refs: uint64 = this.escrowRefs(escrow).value + added
+    this.escrowRefs(escrow).value = refs > removed ? refs - removed : 0
+  }
+
+  /**
+   * A plugin is going: take it off the count of the escrow it named.
+   *
+   * @param key the plugin's key
+   * @param id the escrow app id the plugin recorded
+   * @returns the storage to refund beyond the plugin's own box
+   */
+  private uncountPlugin(key: PluginKey, id: uint64): uint64 {
+    let escrow: string = key.escrow
+    let refund: uint64 = 0
+    if (escrow === '') {
+      // no escrow at all, or a default one recorded before the wallet kept its name
+      if (id === 0 || !this.defaultEscrows(key).exists) {
+        return 0
+      }
+      escrow = this.defaultEscrows(key).value
+      refund = this.defaultEscrowMbr(escrow)
+      this.defaultEscrows(key).delete()
+    }
+    // a plugin left over from an earlier escrow of the same name was never counted for this one
+    if (this.escrows(escrow).exists && this.escrows(escrow).value.id === id) {
+      this.countEscrowRefs(escrow, 0, 1)
+    }
+    return refund
+  }
+
   private allowancesMbr(escrow: string): uint64 {
     return MinAllowanceMBR + this._calcBCPB(Bytes(escrow).length)
   }
@@ -349,7 +411,7 @@ export class AbstractedAccount extends Contract {
   }
 
   private newEscrow(escrow: string, address: Account): uint64 {
-    this._payMbrFromControlled(this.escrowsMbr(escrow))
+    this._payMbrFromControlled(this.escrowsMbr(escrow) + this.escrowRefsMbr(escrow))
 
     let id: uint64 = 0;
     if (address === Global.zeroAddress) {
@@ -371,6 +433,8 @@ export class AbstractedAccount extends Contract {
     }
 
     this.escrows(escrow).value = { id, address, locked: false }
+
+    this.escrowRefs(escrow).value = 0
 
     return id;
   }
@@ -1217,12 +1281,17 @@ export class AbstractedAccount extends Contract {
     if (isNamed) {
       totalMbr += this.namedPluginsMbr(name)
     }
+    if (defaultToEscrow) {
+      totalMbr += this.defaultEscrowMbr(escrow)
+    }
     this._payMbrFromControlled(totalMbr)
 
     const escrowID = this.maybeNewEscrow(escrow);
     if (defaultToEscrow) {
       assert(escrowID !== 0)
+      this.defaultEscrows(key).value = escrow
     }
+    this.countEscrowRefs(escrow, 1, 0)
     const epochRef = useRounds ? Global.round : Global.latestTimestamp;
 
     this.plugins(key).value = {
@@ -1342,8 +1411,9 @@ export class AbstractedAccount extends Contract {
 
     // ACC-05: refund exactly what _addPlugin charged (pluginsMbr(key.escrow, methods)).
     const methodsLength: uint64 = this.plugins(key).value.methods.length
+    const uncounted = this.uncountPlugin(key, this.plugins(key).value.escrow)
     this.plugins(key).delete();
-    this._refundMbrToControlled(this.pluginsMbr(escrow, methodsLength))
+    this._refundMbrToControlled(this.pluginsMbr(escrow, methodsLength) + uncounted)
   }
 
   /**
@@ -1413,6 +1483,7 @@ export class AbstractedAccount extends Contract {
     let refund: uint64 = this.namedPluginsMbr(name)
     if (this.plugins(app).exists) {
       refund += this.pluginsMbr(app.escrow, this.plugins(app).value.methods.length)
+      refund += this.uncountPlugin(app, this.plugins(app).value.escrow)
       this.plugins(app).delete();
     }
 
@@ -1461,6 +1532,76 @@ export class AbstractedAccount extends Contract {
     this._requireForbiddenAdmin()
     this._requireEscrow(escrow);
     this.reclaim(escrow, reclaims, true);
+  }
+
+  /**
+   * Delete an escrow by closing its account out to the controlled address.
+   *
+   * The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+   * arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+   * group may do all of that. An escrow made before plugins and allowances were counted has no
+   * count to check: remove its plugins and allowances first, because one left behind stays stored,
+   * and an allowance applies again to a new escrow of the same name. The address of a deleted
+   * escrow is under nobody's control: never pay it again.
+   *
+   * @param escrow The escrow to delete
+  */
+  arc58_deleteEscrow(escrow: string): void {
+    this._requireForbiddenAdmin()
+    this._requireEscrow(escrow)
+    this._requireUnlockedEscrow(escrow)
+
+    const { id, address } = this.escrows(escrow).value
+
+    let boxRefund: uint64 = this.escrowsMbr(escrow)
+    if (this.escrowRefs(escrow).exists) {
+      loggedAssert(this.escrowRefs(escrow).value === 0, errEscrowInUse)
+      this.escrowRefs(escrow).delete()
+      boxRefund += this.escrowRefsMbr(escrow)
+    }
+
+    // Close the account from here, where it is authorised: the escrow's account is rekeyed to
+    // this wallet, so its own app cannot spend from it until it is closed.
+    itxn
+      .payment({
+        sender: address,
+        receiver: this.controlledAddress.value,
+        closeRemainderTo: this.controlledAddress.value
+      })
+      .submit()
+
+    if (id !== 0) {
+      const factory = this.escrowFactory.value
+      // The factory pays this app what it held for the escrow app and for its record of it. The
+      // controlled address paid for the app (newEscrow).
+      let factoryRefund: uint64 = NewCostForARC58
+
+      // The factory deletes only an escrow it has on record. Put this one on record if it is not:
+      // the controlled address pays for the record and gets that back below. For an escrow already
+      // on record this app paid (register), and keeps what the factory returns for it.
+      const onRecord = abiCall<typeof EscrowFactory.prototype.exists>({ appId: factory, args: [address] }).returnValue
+      if (!onRecord) {
+        abiCall<typeof EscrowFactory.prototype.register>({
+          appId: factory,
+          args: [
+            itxn.payment({
+              sender: this.controlledAddress.value,
+              receiver: factory.address,
+              amount: ARC58WalletIDsByAccountsMbr
+            }),
+            id
+          ]
+        })
+        factoryRefund += ARC58WalletIDsByAccountsMbr
+      }
+
+      abiCall<typeof EscrowFactory.prototype.delete>({ appId: factory, args: [id] })
+      this._refundMbrToControlled(factoryRefund)
+    }
+
+    this.escrows(escrow).delete()
+    this._refundMbrToControlled(boxRefund)
+    this._touchState()
   }
 
   /**
@@ -1555,6 +1696,7 @@ export class AbstractedAccount extends Contract {
     this._requireUnlockedEscrow(escrow);
 
     this._payMbrFromControlled(this.allowancesMbr(escrow) * allowances.length)
+    this.countEscrowRefs(escrow, allowances.length, 0)
 
     for (let i: uint64 = 0; i < allowances.length; i += 1) {
       const { asset, type, amount, max, interval, useRounds } = allowances[i];
@@ -1587,8 +1729,12 @@ export class AbstractedAccount extends Contract {
   */
   arc58_removeAllowances(escrow: string, assets: uint64[]): void {
     loggedAssert(this.isAdmin() || this.canRevoke(), errOnlyAdminOrRevocationAppCanRemoveMethodRestriction);
-    this._requireEscrow(escrow);
-    this._requireUnlockedEscrow(escrow);
+    // An escrow made before allowances were counted can be deleted with allowances left behind, and
+    // their storage must stay recoverable, so only an escrow that still exists has to be unlocked.
+    if (this.escrows(escrow).exists) {
+      this._requireUnlockedEscrow(escrow);
+      this.countEscrowRefs(escrow, 0, assets.length)
+    }
 
     this._refundMbrToControlled(this.allowancesMbr(escrow) * assets.length)
 

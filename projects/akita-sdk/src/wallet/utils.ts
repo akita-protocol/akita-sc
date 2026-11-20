@@ -1,6 +1,6 @@
 import { Address, decodeAddress } from "algosdk";
 import { AllowanceInfo as SubAllowanceInfo } from "../generated/AbstractedAccountClient";
-import { AddAllowanceArgs, AllowanceInfo } from "./types";
+import { AddAllowanceArgs, AllowanceInfo, EscrowDeleteWarning, EscrowTeardown } from "./types";
 import { encodeLease } from "@algorandfoundation/algokit-utils";
 import { PluginHookParams, PluginTxn } from "../types";
 
@@ -8,6 +8,37 @@ type ComposerTransactionWithMaxFee<TFee> = {
   type: string;
   maxFee?: TFee;
 };
+
+/**
+ * What a person has to be told before they confirm the delete of an escrow: what becomes of its
+ * address. An escrow with app id 0 is an ordinary account rekeyed to the wallet, and any other is the
+ * account of an app the escrow factory made.
+ */
+export function escrowDeleteWarnings(id: bigint, address: string): EscrowDeleteWarning[] {
+  if (id === 0n) {
+    return [{
+      code: 'address-returns-to-its-key',
+      message: `Deleting this escrow closes the account ${address} and ends its rekey to the wallet. `
+        + 'From then on the address is controlled by whoever holds its private key, and no longer by this wallet. '
+        + 'Anything sent to it afterwards goes to that key holder. This cannot be undone.',
+    }];
+  }
+  return [{
+    code: 'address-under-nobodys-control',
+    message: `After this delete nobody controls the escrow's address ${address}. `
+      + 'Anything sent to it afterwards is lost for good. This cannot be undone.',
+  }];
+}
+
+/** Throw, naming the reason, when an escrow cannot be deleted as the chain shows it. */
+export function assertEscrowCanBeDeleted(plan: EscrowTeardown, unlock: boolean): void {
+  if (plan.blockers.length > 0) {
+    throw new Error(`Escrow '${plan.escrow}' cannot be deleted: ${plan.blockers.join('; ')}`);
+  }
+  if (plan.locked && !unlock) {
+    throw new Error(`Escrow '${plan.escrow}' is locked: unlock it first, or pass unlock`);
+  }
+}
 
 /**
  * Applies a default max fee to composer inputs that resolve to app calls.

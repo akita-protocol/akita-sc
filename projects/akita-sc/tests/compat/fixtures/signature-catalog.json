@@ -338,6 +338,9 @@
     "119bc698": [
       "new(pay,uint8,uint64,uint64,string,string[],uint64)uint64"
     ],
+    "11b9c931": [
+      "arc58_deleteEscrow(string)void"
+    ],
     "11edb79d": [
       "create(string,uint64,byte[36],uint64,(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64),((uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64)))void"
     ],

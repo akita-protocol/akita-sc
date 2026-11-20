@@ -20,6 +20,8 @@ import { LockedTokenGuildConsensusClient, LockedTokenGuildConsensusFactory } fro
 import { FixedSignerGuildConsensusClient, FixedSignerGuildConsensusFactory } from "../generated/FixedSignerGuildConsensusClient";
 import { SubscriptionGuildConsensusClient, SubscriptionGuildConsensusFactory } from "../generated/SubscriptionGuildConsensusClient";
 import type { NewContractSDKParams } from "../types";
+import type { EscrowTeardown } from "../wallet/types";
+import { assertEscrowCanBeDeleted } from "../wallet/utils";
 
 export type {
   EscrowConfig,
@@ -67,6 +69,7 @@ export enum GuildActionType {
   NewEscrow = 70,
   ToggleEscrowLock = 71,
   Reclaim = 72,
+  DeleteEscrow = 73,
   SetProposalSettings = 80,
   SetProposalActionLimit = 81,
   /** Create a fresh wallet through the DAO wallet factory; Guilds never adopt existing wallets. */
@@ -364,6 +367,13 @@ export const reclaimAction = (escrow: string, reclaims: EscrowReclaimInput[]): G
   ]);
 };
 
+/**
+ * Build action 73: delete an escrow of the Guild wallet by closing its account. Put the actions that
+ * remove its plugins and allowances and close out its assets before this one in the same proposal.
+ */
+export const deleteEscrowAction = (escrow: string): GuildProposalAction =>
+  encodeGuildAction(GuildActionType.DeleteEscrow, "(string)", [escrow]);
+
 /** Build action 91: hand the Guild wallet to another administrator and free the wallet slot. */
 export const changeAdminAction = (admin: string): GuildProposalAction =>
   encodeGuildAction(GuildActionType.ChangeAdmin, "(address)", [admin]);
@@ -441,6 +451,52 @@ export const executePluginAction = ({
 /** Remove `plugin`'s grant for `caller` from the Guild's wallet. */
 export const removePluginAction = ({ plugin, caller, escrow = "" }: { plugin: bigint; caller: string; escrow?: string }): GuildProposalAction =>
   encodeGuildAction(GuildActionType.RemovePlugin, "(uint64,address,string)", [plugin, caller, escrow]);
+
+/**
+ * Build action 41: remove the alias `name` from the Guild's wallet, with the grant it points at. The
+ * grant's key is part of what is voted on, and the action fails if the alias points elsewhere by then.
+ */
+export const removeNamedPluginAction = ({ name, plugin, caller, escrow = "" }: { name: string; plugin: bigint; caller: string; escrow?: string }): GuildProposalAction =>
+  encodeGuildAction(GuildActionType.RemoveNamedPlugin, "(string,uint64,address,string)", [name, plugin, caller, escrow]);
+
+/** Build action 60: remove an escrow's allowances for `assets`. */
+export const removeAllowancesAction = (escrow: string, assets: bigint[]): GuildProposalAction => {
+  if (assets.length === 0) throw new Error("At least one asset is required");
+  return encodeGuildAction(GuildActionType.RemoveAllowances, "(string,uint64[])", [escrow, assets]);
+};
+
+/**
+ * Build the actions that delete an escrow of a Guild's wallet, in the order the wallet needs them,
+ * from what the chain lists for the escrow (`WalletSDK.getEscrowTeardown`): unlock it if asked,
+ * remove every grant and alias that names it, remove its allowances, close its assets out to the
+ * wallet, then delete it.
+ *
+ * Put them in one proposal so the whole removal runs in one transaction group. When they are more
+ * than the Guild's action limit allows, split them over proposals in this order and execute those in
+ * order: the wallet refuses the delete while a plugin or an allowance still names the escrow.
+ *
+ * An alias whose grant is already gone does not stand in the way and is left alone.
+ *
+ * What becomes of the escrow's address afterwards cannot be undone, and differs with the kind of
+ * escrow. Before an app lets a person create this proposal, it shows the plan's `warnings`
+ * prominently.
+ */
+export const deleteEscrowActions = (plan: EscrowTeardown, { unlock = false }: { unlock?: boolean } = {}): GuildProposalAction[] => {
+  assertEscrowCanBeDeleted(plan, unlock);
+
+  const actions: GuildProposalAction[] = [];
+  if (plan.locked) actions.push(toggleEscrowLockAction(plan.escrow));
+  for (const { plugin, caller, escrow, names } of plan.plugins) {
+    if (names.length === 0) actions.push(removePluginAction({ plugin, caller, escrow }));
+    for (const name of names) actions.push(removeNamedPluginAction({ name, plugin, caller, escrow }));
+  }
+  if (plan.allowances.length > 0) actions.push(removeAllowancesAction(plan.escrow, plan.allowances));
+  if (plan.assets.length > 0) {
+    actions.push(reclaimAction(plan.escrow, plan.assets.map((asset) => ({ asset, amount: 0n, closeOut: true }))));
+  }
+  actions.push(deleteEscrowAction(plan.escrow));
+  return actions;
+};
 
 /** Build action 31. */
 export const removeExecutionAction = (executionKey: Uint8Array): GuildProposalAction => {

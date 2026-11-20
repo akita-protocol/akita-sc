@@ -125,6 +125,15 @@ export type ProposalReclaim = {
   reclaims: EscrowReclaim[]
 }
 
+/**
+ * Delete an escrow of the DAO wallet and take back everything it held. The wallet refuses while a
+ * plugin or an allowance still names the escrow or it holds an asset, so the actions that remove
+ * those come earlier in the same proposal.
+ */
+export type ProposalDeleteEscrow = {
+  escrow: string
+}
+
 /** Hand administration of the DAO wallet to another account. */
 export type ProposalChangeAdmin = {
   admin: Account

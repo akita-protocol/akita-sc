@@ -3,7 +3,7 @@
   "sources": [
     "../../../arc58/dao/types.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;AAGA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACG;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "mappings": ";;;;;;;;;;;;;;AAGA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACG;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,7 +11,7 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 2 1 32"
+      "op": "intcblock 0 2 1 4"
     },
     "7": {
       "op": "bytecblock 0x151f7c75"
@@ -26,7 +26,7 @@
       ]
     },
     "16": {
-      "op": "bz main___algots__.defaultCreate@22",
+      "op": "bz main___algots__.defaultCreate@23",
       "stack_out": []
     },
     "19": {
@@ -65,12 +65,13 @@
       "stack_out": []
     },
     "26": {
-      "op": "pushbytess 0x92b35896 0x7ee4bab7 0x82d5f3ff 0xf3941a2c 0xf1cf22cc 0xbd4ef730 0xebab5e14 0x6b8abd2f 0xfcaf8420 0x55ce5ca9 0xe458d544 0x50aab81d 0x149d3ccb 0x1a402d1b 0x7896ea5a // method \"proposalUpgradeAppShape((uint64,byte[32],byte[32][],uint64,uint64))(uint64,byte[32],byte[32][],uint64,uint64)\", method \"proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemovePluginShape((uint64,address,string))(uint64,address,string)\", method \"proposalRemoveNamedPluginShape((string,uint64,address,string))(string,uint64,address,string)\", method \"proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64)\", method \"proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64)\", method \"proposalRemoveExecutePluginShape((byte[32]))(byte[32])\", method \"proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemoveAllowancesShape((string,uint64[]))(string,uint64[])\", method \"proposalNewEscrowShape((string,address))(string,address)\", method \"proposalToggleEscrowLockShape((string))(string)\", method \"proposalUpdateFieldShape((string,byte[]))(string,byte[])\", method \"proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])\", method \"proposalChangeAdminShape((address))(address)\"",
+      "op": "pushbytess 0x92b35896 0x7ee4bab7 0x82d5f3ff 0xf3941a2c 0xf1cf22cc 0xbd4ef730 0xebab5e14 0x6b8abd2f 0xfcaf8420 0x55ce5ca9 0xe458d544 0x50aab81d 0x149d3ccb 0x1a402d1b 0x7896ea5a 0xe0306a4b // method \"proposalUpgradeAppShape((uint64,byte[32],byte[32][],uint64,uint64))(uint64,byte[32],byte[32][],uint64,uint64)\", method \"proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemovePluginShape((uint64,address,string))(uint64,address,string)\", method \"proposalRemoveNamedPluginShape((string,uint64,address,string))(string,uint64,address,string)\", method \"proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64)\", method \"proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64)\", method \"proposalRemoveExecutePluginShape((byte[32]))(byte[32])\", method \"proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemoveAllowancesShape((string,uint64[]))(string,uint64[])\", method \"proposalNewEscrowShape((string,address))(string,address)\", method \"proposalToggleEscrowLockShape((string))(string)\", method \"proposalUpdateFieldShape((string,byte[]))(string,byte[])\", method \"proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[])\", method \"proposalChangeAdminShape((address))(address)\", method \"proposalDeleteEscrowShape((string))(string)\"",
       "defined_out": [
         "Method(proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalChangeAdminShape((address))(address))",
+        "Method(proposalDeleteEscrowShape((string))(string))",
         "Method(proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64))",
         "Method(proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64))",
         "Method(proposalNewEscrowShape((string,address))(string,address))",
@@ -98,16 +99,18 @@
         "Method(proposalToggleEscrowLockShape((string))(string))",
         "Method(proposalUpdateFieldShape((string,byte[]))(string,byte[]))",
         "Method(proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[]))",
-        "Method(proposalChangeAdminShape((address))(address))"
+        "Method(proposalChangeAdminShape((address))(address))",
+        "Method(proposalDeleteEscrowShape((string))(string))"
       ]
     },
-    "103": {
+    "108": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
         "Method(proposalChangeAdminShape((address))(address))",
+        "Method(proposalDeleteEscrowShape((string))(string))",
         "Method(proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64))",
         "Method(proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64))",
         "Method(proposalNewEscrowShape((string,address))(string,address))",
@@ -137,18 +140,19 @@
         "Method(proposalUpdateFieldShape((string,byte[]))(string,byte[]))",
         "Method(proposalReclaimShape((string,(uint64,uint64,bool)[]))(string,(uint64,uint64,bool)[]))",
         "Method(proposalChangeAdminShape((address))(address))",
+        "Method(proposalDeleteEscrowShape((string))(string))",
         "tmp%6#0"
       ]
     },
-    "106": {
-      "op": "match proposalUpgradeAppShape proposalAddPluginShape proposalAddNamedPluginShape proposalRemovePluginShape proposalRemoveNamedPluginShape proposalExecutePluginShape proposalExecuteNamedPluginShape proposalRemoveExecutePluginShape proposalAddAllowancesShape proposalRemoveAllowancesShape proposalNewEscrowShape proposalToggleEscrowLockShape proposalUpdateFieldShape proposalReclaimShape proposalChangeAdminShape",
+    "111": {
+      "op": "match proposalUpgradeAppShape proposalAddPluginShape proposalAddNamedPluginShape proposalRemovePluginShape proposalRemoveNamedPluginShape proposalExecutePluginShape proposalExecuteNamedPluginShape proposalRemoveExecutePluginShape proposalAddAllowancesShape proposalRemoveAllowancesShape proposalNewEscrowShape proposalToggleEscrowLockShape proposalUpdateFieldShape proposalReclaimShape proposalChangeAdminShape proposalDeleteEscrowShape",
       "stack_out": []
     },
-    "138": {
+    "145": {
       "op": "err"
     },
-    "139": {
-      "block": "main___algots__.defaultCreate@22",
+    "146": {
+      "block": "main___algots__.defaultCreate@23",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
@@ -158,7 +162,7 @@
         "tmp%7#0"
       ]
     },
-    "141": {
+    "148": {
       "op": "!",
       "defined_out": [
         "tmp%8#0"
@@ -167,7 +171,7 @@
         "tmp%8#0"
       ]
     },
-    "142": {
+    "149": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%8#0",
@@ -178,7 +182,7 @@
         "tmp%9#0"
       ]
     },
-    "144": {
+    "151": {
       "op": "!",
       "defined_out": [
         "tmp%10#0",
@@ -189,7 +193,7 @@
         "tmp%10#0"
       ]
     },
-    "145": {
+    "152": {
       "op": "&&",
       "defined_out": [
         "tmp%11#0"
@@ -198,12 +202,12 @@
         "tmp%11#0"
       ]
     },
-    "146": {
+    "153": {
       "op": "return",
       "defined_out": [],
       "stack_out": []
     },
-    "147": {
+    "154": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalUpgradeAppShape[routing]",
       "params": {},
       "block": "proposalUpgradeAppShape",
@@ -216,7 +220,7 @@
         "shape#0"
       ]
     },
-    "150": {
+    "157": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -227,7 +231,7 @@
         "shape#0 (copy)"
       ]
     },
-    "151": {
+    "158": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -238,7 +242,7 @@
         "tuple_len%0#0"
       ]
     },
-    "152": {
+    "159": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -246,7 +250,7 @@
         "shape#0 (copy)"
       ]
     },
-    "154": {
+    "161": {
       "op": "pushint 40",
       "defined_out": [
         "40",
@@ -261,7 +265,7 @@
         "40"
       ]
     },
-    "156": {
+    "163": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -275,7 +279,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "157": {
+    "164": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -290,7 +294,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "158": {
+    "165": {
       "op": "pushint 58",
       "defined_out": [
         "58",
@@ -307,7 +311,7 @@
         "58"
       ]
     },
-    "160": {
+    "167": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -322,7 +326,7 @@
         "eq%0#0"
       ]
     },
-    "161": {
+    "168": {
       "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[32][]),uint64,uint64)",
       "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
@@ -331,7 +335,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "162": {
+    "169": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -340,7 +344,7 @@
         "shape#0 (copy)"
       ]
     },
-    "164": {
+    "171": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -349,7 +353,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "165": {
+    "172": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -366,7 +370,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "167": {
+    "174": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -379,7 +383,7 @@
         "substring3%0#0"
       ]
     },
-    "168": {
+    "175": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -394,7 +398,7 @@
         "0"
       ]
     },
-    "169": {
+    "176": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -408,8 +412,8 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "170": {
-      "op": "intc_3 // 32",
+    "177": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "aggregate%array_length%0#0",
@@ -423,7 +427,7 @@
         "32"
       ]
     },
-    "171": {
+    "179": {
       "op": "*",
       "defined_out": [
         "mul%0#0",
@@ -436,7 +440,7 @@
         "mul%0#0"
       ]
     },
-    "172": {
+    "180": {
       "op": "pushint 60",
       "defined_out": [
         "60",
@@ -451,7 +455,7 @@
         "60"
       ]
     },
-    "174": {
+    "182": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -464,7 +468,7 @@
         "add%1#0"
       ]
     },
-    "175": {
+    "183": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -475,14 +479,14 @@
         "eq%1#0"
       ]
     },
-    "176": {
+    "184": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpgradeApp",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpgradeApp",
       "stack_out": [
         "shape#0"
       ]
     },
-    "177": {
+    "185": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -493,14 +497,14 @@
         "0x151f7c75"
       ]
     },
-    "178": {
+    "186": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "179": {
+    "187": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -509,11 +513,11 @@
         "tmp%2#0"
       ]
     },
-    "180": {
+    "188": {
       "op": "log",
       "stack_out": []
     },
-    "181": {
+    "189": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -522,11 +526,11 @@
         "1"
       ]
     },
-    "182": {
+    "190": {
       "op": "return",
       "stack_out": []
     },
-    "183": {
+    "191": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddPluginShape[routing]",
       "params": {},
       "block": "proposalAddPluginShape",
@@ -539,7 +543,7 @@
         "shape#0"
       ]
     },
-    "186": {
+    "194": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -550,7 +554,7 @@
         "shape#0 (copy)"
       ]
     },
-    "187": {
+    "195": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -561,7 +565,7 @@
         "tuple_len%0#0"
       ]
     },
-    "188": {
+    "196": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -569,7 +573,7 @@
         "shape#0 (copy)"
       ]
     },
-    "190": {
+    "198": {
       "op": "pushint 40",
       "defined_out": [
         "40",
@@ -584,7 +588,7 @@
         "40"
       ]
     },
-    "192": {
+    "200": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -598,7 +602,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "193": {
+    "201": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -613,7 +617,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "194": {
+    "202": {
       "op": "pushint 106",
       "defined_out": [
         "106",
@@ -630,7 +634,7 @@
         "106"
       ]
     },
-    "196": {
+    "204": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -645,7 +649,7 @@
         "eq%0#0"
       ]
     },
-    "197": {
+    "205": {
       "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -654,7 +658,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "198": {
+    "206": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -663,7 +667,7 @@
         "shape#0 (copy)"
       ]
     },
-    "200": {
+    "208": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -672,7 +676,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "201": {
+    "209": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -689,7 +693,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "203": {
+    "211": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -702,7 +706,7 @@
         "substring3%0#0"
       ]
     },
-    "204": {
+    "212": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -717,7 +721,7 @@
         "0"
       ]
     },
-    "205": {
+    "213": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -731,7 +735,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "206": {
+    "214": {
       "op": "pushint 108",
       "defined_out": [
         "108",
@@ -746,7 +750,7 @@
         "108"
       ]
     },
-    "208": {
+    "216": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -759,7 +763,7 @@
         "add%1#0"
       ]
     },
-    "209": {
+    "217": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -768,7 +772,7 @@
         "shape#0 (copy)"
       ]
     },
-    "211": {
+    "219": {
       "op": "pushint 59",
       "defined_out": [
         "59",
@@ -785,7 +789,7 @@
         "59"
       ]
     },
-    "213": {
+    "221": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -801,7 +805,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "214": {
+    "222": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -818,7 +822,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "215": {
+    "223": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -837,7 +841,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "217": {
+    "225": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -854,7 +858,7 @@
         "eq%1#0"
       ]
     },
-    "218": {
+    "226": {
       "error": "invalid tail pointer at index 6 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 6 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -864,7 +868,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "219": {
+    "227": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -874,7 +878,7 @@
         "shape#0 (copy)"
       ]
     },
-    "221": {
+    "229": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -884,7 +888,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "222": {
+    "230": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -895,7 +899,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "224": {
+    "232": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -910,7 +914,7 @@
         "substring3%1#0"
       ]
     },
-    "225": {
+    "233": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -920,7 +924,7 @@
         "0"
       ]
     },
-    "226": {
+    "234": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -936,7 +940,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "227": {
+    "235": {
       "op": "pushint 12",
       "defined_out": [
         "12",
@@ -953,7 +957,7 @@
         "12"
       ]
     },
-    "229": {
+    "237": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -968,7 +972,7 @@
         "mul%1#0"
       ]
     },
-    "230": {
+    "238": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -985,7 +989,7 @@
         "2"
       ]
     },
-    "231": {
+    "239": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -1000,7 +1004,7 @@
         "add%2#0"
       ]
     },
-    "232": {
+    "240": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -1013,7 +1017,7 @@
         "add%3#0"
       ]
     },
-    "233": {
+    "241": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -1022,7 +1026,7 @@
         "shape#0 (copy)"
       ]
     },
-    "235": {
+    "243": {
       "op": "pushint 102",
       "defined_out": [
         "102",
@@ -1039,7 +1043,7 @@
         "102"
       ]
     },
-    "237": {
+    "245": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -1055,7 +1059,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "238": {
+    "246": {
       "op": "dup",
       "defined_out": [
         "add%3#0",
@@ -1072,7 +1076,7 @@
         "extract_uint16%2#0 (copy)"
       ]
     },
-    "239": {
+    "247": {
       "op": "dig 2",
       "defined_out": [
         "add%3#0",
@@ -1091,7 +1095,7 @@
         "add%3#0 (copy)"
       ]
     },
-    "241": {
+    "249": {
       "op": "==",
       "defined_out": [
         "add%3#0",
@@ -1108,7 +1112,7 @@
         "eq%2#0"
       ]
     },
-    "242": {
+    "250": {
       "error": "invalid tail pointer at index 16 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 16 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -1118,7 +1122,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "243": {
+    "251": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1128,7 +1132,7 @@
         "shape#0 (copy)"
       ]
     },
-    "245": {
+    "253": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -1138,7 +1142,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "246": {
+    "254": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1149,7 +1153,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "248": {
+    "256": {
       "op": "substring3",
       "defined_out": [
         "add%3#0",
@@ -1164,7 +1168,7 @@
         "substring3%2#0"
       ]
     },
-    "249": {
+    "257": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -1174,7 +1178,7 @@
         "0"
       ]
     },
-    "250": {
+    "258": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1190,7 +1194,7 @@
         "aggregate%array_length%2#0"
       ]
     },
-    "251": {
+    "259": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -1200,7 +1204,7 @@
         "2"
       ]
     },
-    "252": {
+    "260": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -1215,7 +1219,7 @@
         "add%4#0"
       ]
     },
-    "253": {
+    "261": {
       "op": "+",
       "defined_out": [
         "add%5#0",
@@ -1228,7 +1232,7 @@
         "add%5#0"
       ]
     },
-    "254": {
+    "262": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -1237,7 +1241,7 @@
         "shape#0 (copy)"
       ]
     },
-    "256": {
+    "264": {
       "op": "pushint 104",
       "defined_out": [
         "104",
@@ -1254,7 +1258,7 @@
         "104"
       ]
     },
-    "258": {
+    "266": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -1270,7 +1274,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "259": {
+    "267": {
       "op": "dup",
       "defined_out": [
         "add%5#0",
@@ -1287,7 +1291,7 @@
         "extract_uint16%3#0 (copy)"
       ]
     },
-    "260": {
+    "268": {
       "op": "dig 2",
       "defined_out": [
         "add%5#0",
@@ -1306,7 +1310,7 @@
         "add%5#0 (copy)"
       ]
     },
-    "262": {
+    "270": {
       "op": "==",
       "defined_out": [
         "add%5#0",
@@ -1323,7 +1327,7 @@
         "eq%3#0"
       ]
     },
-    "263": {
+    "271": {
       "error": "invalid tail pointer at index 17 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 17 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -1333,7 +1337,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "264": {
+    "272": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1343,7 +1347,7 @@
         "shape#0 (copy)"
       ]
     },
-    "266": {
+    "274": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -1353,7 +1357,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "267": {
+    "275": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1364,7 +1368,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "269": {
+    "277": {
       "op": "substring3",
       "defined_out": [
         "add%5#0",
@@ -1379,7 +1383,7 @@
         "substring3%3#0"
       ]
     },
-    "270": {
+    "278": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -1389,7 +1393,7 @@
         "0"
       ]
     },
-    "271": {
+    "279": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1405,7 +1409,7 @@
         "aggregate%array_length%3#0"
       ]
     },
-    "272": {
+    "280": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -1422,7 +1426,7 @@
         "34"
       ]
     },
-    "274": {
+    "282": {
       "op": "*",
       "defined_out": [
         "add%5#0",
@@ -1437,7 +1441,7 @@
         "mul%3#0"
       ]
     },
-    "275": {
+    "283": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -1447,7 +1451,7 @@
         "2"
       ]
     },
-    "276": {
+    "284": {
       "op": "+",
       "defined_out": [
         "add%5#0",
@@ -1462,7 +1466,7 @@
         "add%6#0"
       ]
     },
-    "277": {
+    "285": {
       "op": "+",
       "defined_out": [
         "add%7#0",
@@ -1475,7 +1479,7 @@
         "add%7#0"
       ]
     },
-    "278": {
+    "286": {
       "op": "==",
       "defined_out": [
         "eq%4#0",
@@ -1486,14 +1490,14 @@
         "eq%4#0"
       ]
     },
-    "279": {
+    "287": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddPlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddPlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "280": {
+    "288": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -1504,14 +1508,14 @@
         "0x151f7c75"
       ]
     },
-    "281": {
+    "289": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "282": {
+    "290": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -1520,11 +1524,11 @@
         "tmp%2#0"
       ]
     },
-    "283": {
+    "291": {
       "op": "log",
       "stack_out": []
     },
-    "284": {
+    "292": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -1533,11 +1537,11 @@
         "1"
       ]
     },
-    "285": {
+    "293": {
       "op": "return",
       "stack_out": []
     },
-    "286": {
+    "294": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddNamedPluginShape[routing]",
       "params": {},
       "block": "proposalAddNamedPluginShape",
@@ -1550,7 +1554,7 @@
         "shape#0"
       ]
     },
-    "289": {
+    "297": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -1561,7 +1565,7 @@
         "shape#0 (copy)"
       ]
     },
-    "290": {
+    "298": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -1572,7 +1576,7 @@
         "tuple_len%0#0"
       ]
     },
-    "291": {
+    "299": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -1580,7 +1584,7 @@
         "shape#0 (copy)"
       ]
     },
-    "293": {
+    "301": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -1595,7 +1599,7 @@
         "0"
       ]
     },
-    "294": {
+    "302": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -1609,7 +1613,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "295": {
+    "303": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -1624,7 +1628,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "296": {
+    "304": {
       "op": "pushint 108",
       "defined_out": [
         "108",
@@ -1641,7 +1645,7 @@
         "108"
       ]
     },
-    "298": {
+    "306": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -1656,7 +1660,7 @@
         "eq%0#0"
       ]
     },
-    "299": {
+    "307": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -1665,7 +1669,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "300": {
+    "308": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -1674,7 +1678,7 @@
         "shape#0 (copy)"
       ]
     },
-    "302": {
+    "310": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -1683,7 +1687,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "303": {
+    "311": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -1700,7 +1704,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "305": {
+    "313": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -1713,7 +1717,7 @@
         "substring3%0#0"
       ]
     },
-    "306": {
+    "314": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -1722,7 +1726,7 @@
         "0"
       ]
     },
-    "307": {
+    "315": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1736,7 +1740,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "308": {
+    "316": {
       "op": "pushint 110",
       "defined_out": [
         "110",
@@ -1751,7 +1755,7 @@
         "110"
       ]
     },
-    "310": {
+    "318": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -1764,7 +1768,7 @@
         "add%1#0"
       ]
     },
-    "311": {
+    "319": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -1773,7 +1777,7 @@
         "shape#0 (copy)"
       ]
     },
-    "313": {
+    "321": {
       "op": "pushint 42",
       "defined_out": [
         "42",
@@ -1790,7 +1794,7 @@
         "42"
       ]
     },
-    "315": {
+    "323": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -1806,7 +1810,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "316": {
+    "324": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -1823,7 +1827,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "317": {
+    "325": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -1842,7 +1846,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "319": {
+    "327": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -1859,7 +1863,7 @@
         "eq%1#0"
       ]
     },
-    "320": {
+    "328": {
       "error": "invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -1869,7 +1873,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "321": {
+    "329": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1879,7 +1883,7 @@
         "shape#0 (copy)"
       ]
     },
-    "323": {
+    "331": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -1889,7 +1893,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "324": {
+    "332": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -1900,7 +1904,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "326": {
+    "334": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -1915,7 +1919,7 @@
         "substring3%1#0"
       ]
     },
-    "327": {
+    "335": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -1925,7 +1929,7 @@
         "0"
       ]
     },
-    "328": {
+    "336": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1941,7 +1945,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "329": {
+    "337": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -1958,7 +1962,7 @@
         "2"
       ]
     },
-    "330": {
+    "338": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -1973,7 +1977,7 @@
         "add%2#0"
       ]
     },
-    "331": {
+    "339": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -1986,7 +1990,7 @@
         "add%3#0"
       ]
     },
-    "332": {
+    "340": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -1995,7 +1999,7 @@
         "shape#0 (copy)"
       ]
     },
-    "334": {
+    "342": {
       "op": "pushint 61",
       "defined_out": [
         "61",
@@ -2012,7 +2016,7 @@
         "61"
       ]
     },
-    "336": {
+    "344": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -2028,7 +2032,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "337": {
+    "345": {
       "op": "dup",
       "defined_out": [
         "add%3#0",
@@ -2045,7 +2049,7 @@
         "extract_uint16%2#0 (copy)"
       ]
     },
-    "338": {
+    "346": {
       "op": "dig 2",
       "defined_out": [
         "add%3#0",
@@ -2064,7 +2068,7 @@
         "add%3#0 (copy)"
       ]
     },
-    "340": {
+    "348": {
       "op": "==",
       "defined_out": [
         "add%3#0",
@@ -2081,7 +2085,7 @@
         "eq%2#0"
       ]
     },
-    "341": {
+    "349": {
       "error": "invalid tail pointer at index 7 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 7 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -2091,7 +2095,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "342": {
+    "350": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2101,7 +2105,7 @@
         "shape#0 (copy)"
       ]
     },
-    "344": {
+    "352": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -2111,7 +2115,7 @@
         "extract_uint16%2#0"
       ]
     },
-    "345": {
+    "353": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2122,7 +2126,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "347": {
+    "355": {
       "op": "substring3",
       "defined_out": [
         "add%3#0",
@@ -2137,7 +2141,7 @@
         "substring3%2#0"
       ]
     },
-    "348": {
+    "356": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -2147,7 +2151,7 @@
         "0"
       ]
     },
-    "349": {
+    "357": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2163,7 +2167,7 @@
         "aggregate%array_length%2#0"
       ]
     },
-    "350": {
+    "358": {
       "op": "pushint 12",
       "defined_out": [
         "12",
@@ -2180,7 +2184,7 @@
         "12"
       ]
     },
-    "352": {
+    "360": {
       "op": "*",
       "defined_out": [
         "add%3#0",
@@ -2195,7 +2199,7 @@
         "mul%2#0"
       ]
     },
-    "353": {
+    "361": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -2205,7 +2209,7 @@
         "2"
       ]
     },
-    "354": {
+    "362": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -2220,7 +2224,7 @@
         "add%4#0"
       ]
     },
-    "355": {
+    "363": {
       "op": "+",
       "defined_out": [
         "add%5#0",
@@ -2233,7 +2237,7 @@
         "add%5#0"
       ]
     },
-    "356": {
+    "364": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -2242,7 +2246,7 @@
         "shape#0 (copy)"
       ]
     },
-    "358": {
+    "366": {
       "op": "pushint 104",
       "defined_out": [
         "104",
@@ -2259,7 +2263,7 @@
         "104"
       ]
     },
-    "360": {
+    "368": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -2275,7 +2279,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "361": {
+    "369": {
       "op": "dup",
       "defined_out": [
         "add%5#0",
@@ -2292,7 +2296,7 @@
         "extract_uint16%3#0 (copy)"
       ]
     },
-    "362": {
+    "370": {
       "op": "dig 2",
       "defined_out": [
         "add%5#0",
@@ -2311,7 +2315,7 @@
         "add%5#0 (copy)"
       ]
     },
-    "364": {
+    "372": {
       "op": "==",
       "defined_out": [
         "add%5#0",
@@ -2328,7 +2332,7 @@
         "eq%3#0"
       ]
     },
-    "365": {
+    "373": {
       "error": "invalid tail pointer at index 17 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 17 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -2338,7 +2342,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "366": {
+    "374": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2348,7 +2352,7 @@
         "shape#0 (copy)"
       ]
     },
-    "368": {
+    "376": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -2358,7 +2362,7 @@
         "extract_uint16%3#0"
       ]
     },
-    "369": {
+    "377": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2369,7 +2373,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "371": {
+    "379": {
       "op": "substring3",
       "defined_out": [
         "add%5#0",
@@ -2384,7 +2388,7 @@
         "substring3%3#0"
       ]
     },
-    "372": {
+    "380": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -2394,7 +2398,7 @@
         "0"
       ]
     },
-    "373": {
+    "381": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2410,7 +2414,7 @@
         "aggregate%array_length%3#0"
       ]
     },
-    "374": {
+    "382": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -2420,7 +2424,7 @@
         "2"
       ]
     },
-    "375": {
+    "383": {
       "op": "+",
       "defined_out": [
         "add%5#0",
@@ -2435,7 +2439,7 @@
         "add%6#0"
       ]
     },
-    "376": {
+    "384": {
       "op": "+",
       "defined_out": [
         "add%7#0",
@@ -2448,7 +2452,7 @@
         "add%7#0"
       ]
     },
-    "377": {
+    "385": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -2457,7 +2461,7 @@
         "shape#0 (copy)"
       ]
     },
-    "379": {
+    "387": {
       "op": "pushint 106",
       "defined_out": [
         "106",
@@ -2474,7 +2478,7 @@
         "106"
       ]
     },
-    "381": {
+    "389": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -2490,7 +2494,7 @@
         "extract_uint16%4#0"
       ]
     },
-    "382": {
+    "390": {
       "op": "dup",
       "defined_out": [
         "add%7#0",
@@ -2507,7 +2511,7 @@
         "extract_uint16%4#0 (copy)"
       ]
     },
-    "383": {
+    "391": {
       "op": "dig 2",
       "defined_out": [
         "add%7#0",
@@ -2526,7 +2530,7 @@
         "add%7#0 (copy)"
       ]
     },
-    "385": {
+    "393": {
       "op": "==",
       "defined_out": [
         "add%7#0",
@@ -2543,7 +2547,7 @@
         "eq%4#0"
       ]
     },
-    "386": {
+    "394": {
       "error": "invalid tail pointer at index 18 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 18 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -2553,7 +2557,7 @@
         "extract_uint16%4#0"
       ]
     },
-    "387": {
+    "395": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2563,7 +2567,7 @@
         "shape#0 (copy)"
       ]
     },
-    "389": {
+    "397": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -2573,7 +2577,7 @@
         "extract_uint16%4#0"
       ]
     },
-    "390": {
+    "398": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -2584,7 +2588,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "392": {
+    "400": {
       "op": "substring3",
       "defined_out": [
         "add%7#0",
@@ -2599,7 +2603,7 @@
         "substring3%4#0"
       ]
     },
-    "393": {
+    "401": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -2609,7 +2613,7 @@
         "0"
       ]
     },
-    "394": {
+    "402": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2625,7 +2629,7 @@
         "aggregate%array_length%4#0"
       ]
     },
-    "395": {
+    "403": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -2642,7 +2646,7 @@
         "34"
       ]
     },
-    "397": {
+    "405": {
       "op": "*",
       "defined_out": [
         "add%7#0",
@@ -2657,7 +2661,7 @@
         "mul%4#0"
       ]
     },
-    "398": {
+    "406": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -2667,7 +2671,7 @@
         "2"
       ]
     },
-    "399": {
+    "407": {
       "op": "+",
       "defined_out": [
         "add%7#0",
@@ -2682,7 +2686,7 @@
         "add%8#0"
       ]
     },
-    "400": {
+    "408": {
       "op": "+",
       "defined_out": [
         "add%9#0",
@@ -2695,7 +2699,7 @@
         "add%9#0"
       ]
     },
-    "401": {
+    "409": {
       "op": "==",
       "defined_out": [
         "eq%5#0",
@@ -2706,14 +2710,14 @@
         "eq%5#0"
       ]
     },
-    "402": {
+    "410": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddNamedPlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddNamedPlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "403": {
+    "411": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -2724,14 +2728,14 @@
         "0x151f7c75"
       ]
     },
-    "404": {
+    "412": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "405": {
+    "413": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -2740,11 +2744,11 @@
         "tmp%2#0"
       ]
     },
-    "406": {
+    "414": {
       "op": "log",
       "stack_out": []
     },
-    "407": {
+    "415": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -2753,11 +2757,11 @@
         "1"
       ]
     },
-    "408": {
+    "416": {
       "op": "return",
       "stack_out": []
     },
-    "409": {
+    "417": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemovePluginShape[routing]",
       "params": {},
       "block": "proposalRemovePluginShape",
@@ -2770,7 +2774,7 @@
         "shape#0"
       ]
     },
-    "412": {
+    "420": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -2781,7 +2785,7 @@
         "shape#0 (copy)"
       ]
     },
-    "413": {
+    "421": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -2792,7 +2796,7 @@
         "tuple_len%0#0"
       ]
     },
-    "414": {
+    "422": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -2800,7 +2804,7 @@
         "shape#0 (copy)"
       ]
     },
-    "416": {
+    "424": {
       "op": "pushint 40",
       "defined_out": [
         "40",
@@ -2815,7 +2819,7 @@
         "40"
       ]
     },
-    "418": {
+    "426": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -2829,7 +2833,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "419": {
+    "427": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -2844,7 +2848,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "420": {
+    "428": {
       "op": "pushint 42",
       "defined_out": [
         "42",
@@ -2861,7 +2865,7 @@
         "42"
       ]
     },
-    "422": {
+    "430": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2876,7 +2880,7 @@
         "eq%0#0"
       ]
     },
-    "423": {
+    "431": {
       "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]))",
       "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]))",
       "stack_out": [
@@ -2885,7 +2889,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "424": {
+    "432": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -2894,7 +2898,7 @@
         "shape#0 (copy)"
       ]
     },
-    "426": {
+    "434": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -2903,7 +2907,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "427": {
+    "435": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -2920,7 +2924,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "429": {
+    "437": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -2933,7 +2937,7 @@
         "substring3%0#0"
       ]
     },
-    "430": {
+    "438": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2948,7 +2952,7 @@
         "0"
       ]
     },
-    "431": {
+    "439": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2962,7 +2966,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "432": {
+    "440": {
       "op": "pushint 44",
       "defined_out": [
         "44",
@@ -2977,7 +2981,7 @@
         "44"
       ]
     },
-    "434": {
+    "442": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -2990,7 +2994,7 @@
         "add%1#0"
       ]
     },
-    "435": {
+    "443": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -3001,14 +3005,14 @@
         "eq%1#0"
       ]
     },
-    "436": {
+    "444": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemovePlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemovePlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "437": {
+    "445": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -3019,14 +3023,14 @@
         "0x151f7c75"
       ]
     },
-    "438": {
+    "446": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "439": {
+    "447": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -3035,11 +3039,11 @@
         "tmp%2#0"
       ]
     },
-    "440": {
+    "448": {
       "op": "log",
       "stack_out": []
     },
-    "441": {
+    "449": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -3048,11 +3052,11 @@
         "1"
       ]
     },
-    "442": {
+    "450": {
       "op": "return",
       "stack_out": []
     },
-    "443": {
+    "451": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveNamedPluginShape[routing]",
       "params": {},
       "block": "proposalRemoveNamedPluginShape",
@@ -3065,7 +3069,7 @@
         "shape#0"
       ]
     },
-    "446": {
+    "454": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -3076,7 +3080,7 @@
         "shape#0 (copy)"
       ]
     },
-    "447": {
+    "455": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -3087,7 +3091,7 @@
         "tuple_len%0#0"
       ]
     },
-    "448": {
+    "456": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -3095,7 +3099,7 @@
         "shape#0 (copy)"
       ]
     },
-    "450": {
+    "458": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -3110,7 +3114,7 @@
         "0"
       ]
     },
-    "451": {
+    "459": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -3124,7 +3128,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "452": {
+    "460": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -3139,7 +3143,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "453": {
+    "461": {
       "op": "pushint 44",
       "defined_out": [
         "44",
@@ -3156,7 +3160,7 @@
         "44"
       ]
     },
-    "455": {
+    "463": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3171,7 +3175,7 @@
         "eq%0#0"
       ]
     },
-    "456": {
+    "464": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
       "stack_out": [
@@ -3180,7 +3184,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "457": {
+    "465": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -3189,7 +3193,7 @@
         "shape#0 (copy)"
       ]
     },
-    "459": {
+    "467": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -3198,7 +3202,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "460": {
+    "468": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -3215,7 +3219,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "462": {
+    "470": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -3228,7 +3232,7 @@
         "substring3%0#0"
       ]
     },
-    "463": {
+    "471": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -3237,7 +3241,7 @@
         "0"
       ]
     },
-    "464": {
+    "472": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -3251,7 +3255,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "465": {
+    "473": {
       "op": "pushint 46",
       "defined_out": [
         "46",
@@ -3266,7 +3270,7 @@
         "46"
       ]
     },
-    "467": {
+    "475": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -3279,7 +3283,7 @@
         "add%1#0"
       ]
     },
-    "468": {
+    "476": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -3288,7 +3292,7 @@
         "shape#0 (copy)"
       ]
     },
-    "470": {
+    "478": {
       "op": "pushint 42",
       "defined_out": [
         "42",
@@ -3305,7 +3309,7 @@
         "42"
       ]
     },
-    "472": {
+    "480": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -3321,7 +3325,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "473": {
+    "481": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -3338,7 +3342,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "474": {
+    "482": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -3357,7 +3361,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "476": {
+    "484": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -3374,7 +3378,7 @@
         "eq%1#0"
       ]
     },
-    "477": {
+    "485": {
       "error": "invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
       "op": "assert // invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
       "stack_out": [
@@ -3384,7 +3388,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "478": {
+    "486": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -3394,7 +3398,7 @@
         "shape#0 (copy)"
       ]
     },
-    "480": {
+    "488": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -3404,7 +3408,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "481": {
+    "489": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -3415,7 +3419,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "483": {
+    "491": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -3430,7 +3434,7 @@
         "substring3%1#0"
       ]
     },
-    "484": {
+    "492": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -3440,7 +3444,7 @@
         "0"
       ]
     },
-    "485": {
+    "493": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -3456,7 +3460,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "486": {
+    "494": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -3473,7 +3477,7 @@
         "2"
       ]
     },
-    "487": {
+    "495": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -3488,7 +3492,7 @@
         "add%2#0"
       ]
     },
-    "488": {
+    "496": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -3501,7 +3505,7 @@
         "add%3#0"
       ]
     },
-    "489": {
+    "497": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -3512,14 +3516,14 @@
         "eq%2#0"
       ]
     },
-    "490": {
+    "498": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveNamedPlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveNamedPlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "491": {
+    "499": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -3530,14 +3534,14 @@
         "0x151f7c75"
       ]
     },
-    "492": {
+    "500": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "493": {
+    "501": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -3546,11 +3550,11 @@
         "tmp%2#0"
       ]
     },
-    "494": {
+    "502": {
       "op": "log",
       "stack_out": []
     },
-    "495": {
+    "503": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -3559,11 +3563,11 @@
         "1"
       ]
     },
-    "496": {
+    "504": {
       "op": "return",
       "stack_out": []
     },
-    "497": {
+    "505": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalExecutePluginShape[routing]",
       "params": {},
       "block": "proposalExecutePluginShape",
@@ -3576,7 +3580,7 @@
         "shape#0"
       ]
     },
-    "500": {
+    "508": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -3587,7 +3591,7 @@
         "shape#0 (copy)"
       ]
     },
-    "501": {
+    "509": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -3598,7 +3602,7 @@
         "tuple_len%0#0"
       ]
     },
-    "502": {
+    "510": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -3606,7 +3610,7 @@
         "shape#0 (copy)"
       ]
     },
-    "504": {
+    "512": {
       "op": "pushint 8",
       "defined_out": [
         "8",
@@ -3621,7 +3625,7 @@
         "8"
       ]
     },
-    "506": {
+    "514": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -3635,7 +3639,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "507": {
+    "515": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -3650,7 +3654,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "508": {
+    "516": {
       "op": "pushint 60",
       "defined_out": [
         "60",
@@ -3667,7 +3671,7 @@
         "60"
       ]
     },
-    "510": {
+    "518": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3682,7 +3686,7 @@
         "eq%0#0"
       ]
     },
-    "511": {
+    "519": {
       "error": "invalid tail pointer at index 1 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "op": "assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
@@ -3691,7 +3695,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "512": {
+    "520": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -3700,7 +3704,7 @@
         "shape#0 (copy)"
       ]
     },
-    "514": {
+    "522": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -3709,7 +3713,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "515": {
+    "523": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -3726,7 +3730,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "517": {
+    "525": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -3739,7 +3743,7 @@
         "substring3%0#0"
       ]
     },
-    "518": {
+    "526": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -3754,7 +3758,7 @@
         "0"
       ]
     },
-    "519": {
+    "527": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -3768,7 +3772,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "520": {
+    "528": {
       "op": "pushint 62",
       "defined_out": [
         "62",
@@ -3783,7 +3787,7 @@
         "62"
       ]
     },
-    "522": {
+    "530": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -3796,7 +3800,7 @@
         "add%1#0"
       ]
     },
-    "523": {
+    "531": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -3805,7 +3809,7 @@
         "shape#0 (copy)"
       ]
     },
-    "525": {
+    "533": {
       "op": "pushint 42",
       "defined_out": [
         "42",
@@ -3822,7 +3826,7 @@
         "42"
       ]
     },
-    "527": {
+    "535": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -3838,7 +3842,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "528": {
+    "536": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -3855,7 +3859,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "529": {
+    "537": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -3874,7 +3878,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "531": {
+    "539": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -3891,7 +3895,7 @@
         "eq%1#0"
       ]
     },
-    "532": {
+    "540": {
       "error": "invalid tail pointer at index 3 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "op": "assert // invalid tail pointer at index 3 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
@@ -3901,7 +3905,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "533": {
+    "541": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -3911,7 +3915,7 @@
         "shape#0 (copy)"
       ]
     },
-    "535": {
+    "543": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -3921,7 +3925,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "536": {
+    "544": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -3932,7 +3936,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "538": {
+    "546": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -3947,7 +3951,7 @@
         "substring3%1#0"
       ]
     },
-    "539": {
+    "547": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -3957,7 +3961,7 @@
         "0"
       ]
     },
-    "540": {
+    "548": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -3973,8 +3977,8 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "541": {
-      "op": "intc_3 // 32",
+    "549": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "add%1#0",
@@ -3990,7 +3994,7 @@
         "32"
       ]
     },
-    "542": {
+    "551": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -4005,7 +4009,7 @@
         "mul%1#0"
       ]
     },
-    "543": {
+    "552": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -4022,7 +4026,7 @@
         "2"
       ]
     },
-    "544": {
+    "553": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -4037,7 +4041,7 @@
         "add%2#0"
       ]
     },
-    "545": {
+    "554": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -4050,7 +4054,7 @@
         "add%3#0"
       ]
     },
-    "546": {
+    "555": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -4061,14 +4065,14 @@
         "eq%2#0"
       ]
     },
-    "547": {
+    "556": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecutePlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecutePlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "548": {
+    "557": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4079,14 +4083,14 @@
         "0x151f7c75"
       ]
     },
-    "549": {
+    "558": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "550": {
+    "559": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -4095,11 +4099,11 @@
         "tmp%2#0"
       ]
     },
-    "551": {
+    "560": {
       "op": "log",
       "stack_out": []
     },
-    "552": {
+    "561": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -4108,11 +4112,11 @@
         "1"
       ]
     },
-    "553": {
+    "562": {
       "op": "return",
       "stack_out": []
     },
-    "554": {
+    "563": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalExecuteNamedPluginShape[routing]",
       "params": {},
       "block": "proposalExecuteNamedPluginShape",
@@ -4125,7 +4129,7 @@
         "shape#0"
       ]
     },
-    "557": {
+    "566": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -4136,7 +4140,7 @@
         "shape#0 (copy)"
       ]
     },
-    "558": {
+    "567": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -4147,7 +4151,7 @@
         "tuple_len%0#0"
       ]
     },
-    "559": {
+    "568": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -4155,7 +4159,7 @@
         "shape#0 (copy)"
       ]
     },
-    "561": {
+    "570": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4170,7 +4174,7 @@
         "0"
       ]
     },
-    "562": {
+    "571": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -4184,7 +4188,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "563": {
+    "572": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -4199,7 +4203,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "564": {
+    "573": {
       "op": "pushint 52",
       "defined_out": [
         "52",
@@ -4216,7 +4220,7 @@
         "52"
       ]
     },
-    "566": {
+    "575": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4231,7 +4235,7 @@
         "eq%0#0"
       ]
     },
-    "567": {
+    "576": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
@@ -4240,7 +4244,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "568": {
+    "577": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -4249,7 +4253,7 @@
         "shape#0 (copy)"
       ]
     },
-    "570": {
+    "579": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -4258,7 +4262,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "571": {
+    "580": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -4275,7 +4279,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "573": {
+    "582": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -4288,7 +4292,7 @@
         "substring3%0#0"
       ]
     },
-    "574": {
+    "583": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -4297,7 +4301,7 @@
         "0"
       ]
     },
-    "575": {
+    "584": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -4311,7 +4315,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "576": {
+    "585": {
       "op": "pushint 54",
       "defined_out": [
         "54",
@@ -4326,7 +4330,7 @@
         "54"
       ]
     },
-    "578": {
+    "587": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -4339,7 +4343,7 @@
         "add%1#0"
       ]
     },
-    "579": {
+    "588": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -4348,7 +4352,7 @@
         "shape#0 (copy)"
       ]
     },
-    "581": {
+    "590": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -4365,7 +4369,7 @@
         "34"
       ]
     },
-    "583": {
+    "592": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -4381,7 +4385,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "584": {
+    "593": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -4398,7 +4402,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "585": {
+    "594": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -4417,7 +4421,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "587": {
+    "596": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -4434,7 +4438,7 @@
         "eq%1#0"
       ]
     },
-    "588": {
+    "597": {
       "error": "invalid tail pointer at index 2 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "op": "assert // invalid tail pointer at index 2 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
@@ -4444,7 +4448,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "589": {
+    "598": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -4454,7 +4458,7 @@
         "shape#0 (copy)"
       ]
     },
-    "591": {
+    "600": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -4464,7 +4468,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "592": {
+    "601": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -4475,7 +4479,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "594": {
+    "603": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -4490,7 +4494,7 @@
         "substring3%1#0"
       ]
     },
-    "595": {
+    "604": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -4500,7 +4504,7 @@
         "0"
       ]
     },
-    "596": {
+    "605": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -4516,8 +4520,8 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "597": {
-      "op": "intc_3 // 32",
+    "606": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "add%1#0",
@@ -4533,7 +4537,7 @@
         "32"
       ]
     },
-    "598": {
+    "608": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -4548,7 +4552,7 @@
         "mul%1#0"
       ]
     },
-    "599": {
+    "609": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -4565,7 +4569,7 @@
         "2"
       ]
     },
-    "600": {
+    "610": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -4580,7 +4584,7 @@
         "add%2#0"
       ]
     },
-    "601": {
+    "611": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -4593,7 +4597,7 @@
         "add%3#0"
       ]
     },
-    "602": {
+    "612": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -4604,14 +4608,14 @@
         "eq%2#0"
       ]
     },
-    "603": {
+    "613": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecuteNamedPlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecuteNamedPlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "604": {
+    "614": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4622,14 +4626,14 @@
         "0x151f7c75"
       ]
     },
-    "605": {
+    "615": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "606": {
+    "616": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -4638,11 +4642,11 @@
         "tmp%2#0"
       ]
     },
-    "607": {
+    "617": {
       "op": "log",
       "stack_out": []
     },
-    "608": {
+    "618": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -4651,11 +4655,11 @@
         "1"
       ]
     },
-    "609": {
+    "619": {
       "op": "return",
       "stack_out": []
     },
-    "610": {
+    "620": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveExecutePluginShape[routing]",
       "params": {},
       "block": "proposalRemoveExecutePluginShape",
@@ -4668,7 +4672,7 @@
         "shape#0"
       ]
     },
-    "613": {
+    "623": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -4679,7 +4683,7 @@
         "shape#0 (copy)"
       ]
     },
-    "614": {
+    "624": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -4690,8 +4694,8 @@
         "len%0#0"
       ]
     },
-    "615": {
-      "op": "intc_3 // 32",
+    "625": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -4703,7 +4707,7 @@
         "32"
       ]
     },
-    "616": {
+    "627": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4714,14 +4718,14 @@
         "eq%0#0"
       ]
     },
-    "617": {
+    "628": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveExecutePlugin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveExecutePlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "618": {
+    "629": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4732,14 +4736,14 @@
         "0x151f7c75"
       ]
     },
-    "619": {
+    "630": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "620": {
+    "631": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -4748,11 +4752,11 @@
         "tmp%2#0"
       ]
     },
-    "621": {
+    "632": {
       "op": "log",
       "stack_out": []
     },
-    "622": {
+    "633": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -4761,11 +4765,11 @@
         "1"
       ]
     },
-    "623": {
+    "634": {
       "op": "return",
       "stack_out": []
     },
-    "624": {
+    "635": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddAllowancesShape[routing]",
       "params": {},
       "block": "proposalAddAllowancesShape",
@@ -4778,7 +4782,7 @@
         "shape#0"
       ]
     },
-    "627": {
+    "638": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -4789,7 +4793,7 @@
         "shape#0 (copy)"
       ]
     },
-    "628": {
+    "639": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -4800,7 +4804,7 @@
         "tuple_len%0#0"
       ]
     },
-    "629": {
+    "640": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -4808,7 +4812,7 @@
         "shape#0 (copy)"
       ]
     },
-    "631": {
+    "642": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4823,7 +4827,7 @@
         "0"
       ]
     },
-    "632": {
+    "643": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -4837,7 +4841,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "633": {
+    "644": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -4852,8 +4856,8 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "634": {
-      "op": "pushint 4",
+    "645": {
+      "op": "intc_3 // 4",
       "defined_out": [
         "4",
         "extract_uint16%0#0",
@@ -4869,7 +4873,7 @@
         "4"
       ]
     },
-    "636": {
+    "646": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4884,7 +4888,7 @@
         "eq%0#0"
       ]
     },
-    "637": {
+    "647": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -4893,7 +4897,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "638": {
+    "648": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -4902,7 +4906,7 @@
         "shape#0 (copy)"
       ]
     },
-    "640": {
+    "650": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -4911,7 +4915,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "641": {
+    "651": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -4928,7 +4932,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "643": {
+    "653": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -4941,7 +4945,7 @@
         "substring3%0#0"
       ]
     },
-    "644": {
+    "654": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -4950,7 +4954,7 @@
         "0"
       ]
     },
-    "645": {
+    "655": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -4964,7 +4968,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "646": {
+    "656": {
       "op": "pushint 6",
       "defined_out": [
         "6",
@@ -4979,7 +4983,7 @@
         "6"
       ]
     },
-    "648": {
+    "658": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -4992,7 +4996,7 @@
         "add%1#0"
       ]
     },
-    "649": {
+    "659": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -5001,7 +5005,7 @@
         "shape#0 (copy)"
       ]
     },
-    "651": {
+    "661": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -5018,7 +5022,7 @@
         "2"
       ]
     },
-    "652": {
+    "662": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -5034,7 +5038,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "653": {
+    "663": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -5051,7 +5055,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "654": {
+    "664": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -5070,7 +5074,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "656": {
+    "666": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -5087,7 +5091,7 @@
         "eq%1#0"
       ]
     },
-    "657": {
+    "667": {
       "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -5097,7 +5101,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "658": {
+    "668": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -5107,7 +5111,7 @@
         "shape#0 (copy)"
       ]
     },
-    "660": {
+    "670": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -5117,7 +5121,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "661": {
+    "671": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -5128,7 +5132,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "663": {
+    "673": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -5143,7 +5147,7 @@
         "substring3%1#0"
       ]
     },
-    "664": {
+    "674": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -5153,7 +5157,7 @@
         "0"
       ]
     },
-    "665": {
+    "675": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -5169,7 +5173,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "666": {
+    "676": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -5186,7 +5190,7 @@
         "34"
       ]
     },
-    "668": {
+    "678": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -5201,7 +5205,7 @@
         "mul%1#0"
       ]
     },
-    "669": {
+    "679": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -5211,7 +5215,7 @@
         "2"
       ]
     },
-    "670": {
+    "680": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -5226,7 +5230,7 @@
         "add%2#0"
       ]
     },
-    "671": {
+    "681": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -5239,7 +5243,7 @@
         "add%3#0"
       ]
     },
-    "672": {
+    "682": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -5250,14 +5254,14 @@
         "eq%2#0"
       ]
     },
-    "673": {
+    "683": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddAllowances",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddAllowances",
       "stack_out": [
         "shape#0"
       ]
     },
-    "674": {
+    "684": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -5268,14 +5272,14 @@
         "0x151f7c75"
       ]
     },
-    "675": {
+    "685": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "676": {
+    "686": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -5284,11 +5288,11 @@
         "tmp%2#0"
       ]
     },
-    "677": {
+    "687": {
       "op": "log",
       "stack_out": []
     },
-    "678": {
+    "688": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -5297,11 +5301,11 @@
         "1"
       ]
     },
-    "679": {
+    "689": {
       "op": "return",
       "stack_out": []
     },
-    "680": {
+    "690": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveAllowancesShape[routing]",
       "params": {},
       "block": "proposalRemoveAllowancesShape",
@@ -5314,7 +5318,7 @@
         "shape#0"
       ]
     },
-    "683": {
+    "693": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -5325,7 +5329,7 @@
         "shape#0 (copy)"
       ]
     },
-    "684": {
+    "694": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -5336,7 +5340,7 @@
         "tuple_len%0#0"
       ]
     },
-    "685": {
+    "695": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -5344,7 +5348,7 @@
         "shape#0 (copy)"
       ]
     },
-    "687": {
+    "697": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -5359,7 +5363,7 @@
         "0"
       ]
     },
-    "688": {
+    "698": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -5373,7 +5377,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "689": {
+    "699": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -5388,8 +5392,8 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "690": {
-      "op": "pushint 4",
+    "700": {
+      "op": "intc_3 // 4",
       "defined_out": [
         "4",
         "extract_uint16%0#0",
@@ -5405,7 +5409,7 @@
         "4"
       ]
     },
-    "692": {
+    "701": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -5420,7 +5424,7 @@
         "eq%0#0"
       ]
     },
-    "693": {
+    "702": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+uint64[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint64[]))",
       "stack_out": [
@@ -5429,7 +5433,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "694": {
+    "703": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -5438,7 +5442,7 @@
         "shape#0 (copy)"
       ]
     },
-    "696": {
+    "705": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -5447,7 +5451,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "697": {
+    "706": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -5464,7 +5468,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "699": {
+    "708": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -5477,7 +5481,7 @@
         "substring3%0#0"
       ]
     },
-    "700": {
+    "709": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -5486,7 +5490,7 @@
         "0"
       ]
     },
-    "701": {
+    "710": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -5500,7 +5504,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "702": {
+    "711": {
       "op": "pushint 6",
       "defined_out": [
         "6",
@@ -5515,7 +5519,7 @@
         "6"
       ]
     },
-    "704": {
+    "713": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -5528,7 +5532,7 @@
         "add%1#0"
       ]
     },
-    "705": {
+    "714": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -5537,7 +5541,7 @@
         "shape#0 (copy)"
       ]
     },
-    "707": {
+    "716": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -5554,7 +5558,7 @@
         "2"
       ]
     },
-    "708": {
+    "717": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -5570,7 +5574,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "709": {
+    "718": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -5587,7 +5591,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "710": {
+    "719": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -5606,7 +5610,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "712": {
+    "721": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -5623,7 +5627,7 @@
         "eq%1#0"
       ]
     },
-    "713": {
+    "722": {
       "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+uint64[]))",
       "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint64[]))",
       "stack_out": [
@@ -5633,7 +5637,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "714": {
+    "723": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -5643,7 +5647,7 @@
         "shape#0 (copy)"
       ]
     },
-    "716": {
+    "725": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -5653,7 +5657,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "717": {
+    "726": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -5664,7 +5668,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "719": {
+    "728": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -5679,7 +5683,7 @@
         "substring3%1#0"
       ]
     },
-    "720": {
+    "729": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -5689,7 +5693,7 @@
         "0"
       ]
     },
-    "721": {
+    "730": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -5705,7 +5709,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "722": {
+    "731": {
       "op": "pushint 8",
       "defined_out": [
         "8",
@@ -5722,7 +5726,7 @@
         "8"
       ]
     },
-    "724": {
+    "733": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -5737,7 +5741,7 @@
         "mul%1#0"
       ]
     },
-    "725": {
+    "734": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -5747,7 +5751,7 @@
         "2"
       ]
     },
-    "726": {
+    "735": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -5762,7 +5766,7 @@
         "add%2#0"
       ]
     },
-    "727": {
+    "736": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -5775,7 +5779,7 @@
         "add%3#0"
       ]
     },
-    "728": {
+    "737": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -5786,14 +5790,14 @@
         "eq%2#0"
       ]
     },
-    "729": {
+    "738": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveAllowances",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveAllowances",
       "stack_out": [
         "shape#0"
       ]
     },
-    "730": {
+    "739": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -5804,14 +5808,14 @@
         "0x151f7c75"
       ]
     },
-    "731": {
+    "740": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "732": {
+    "741": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -5820,11 +5824,11 @@
         "tmp%2#0"
       ]
     },
-    "733": {
+    "742": {
       "op": "log",
       "stack_out": []
     },
-    "734": {
+    "743": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -5833,11 +5837,11 @@
         "1"
       ]
     },
-    "735": {
+    "744": {
       "op": "return",
       "stack_out": []
     },
-    "736": {
+    "745": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalNewEscrowShape[routing]",
       "params": {},
       "block": "proposalNewEscrowShape",
@@ -5850,7 +5854,7 @@
         "shape#0"
       ]
     },
-    "739": {
+    "748": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -5861,7 +5865,7 @@
         "shape#0 (copy)"
       ]
     },
-    "740": {
+    "749": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -5872,7 +5876,7 @@
         "tuple_len%0#0"
       ]
     },
-    "741": {
+    "750": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -5880,7 +5884,7 @@
         "shape#0 (copy)"
       ]
     },
-    "743": {
+    "752": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -5895,7 +5899,7 @@
         "0"
       ]
     },
-    "744": {
+    "753": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -5909,7 +5913,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "745": {
+    "754": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -5924,7 +5928,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "746": {
+    "755": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -5941,7 +5945,7 @@
         "34"
       ]
     },
-    "748": {
+    "757": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -5956,7 +5960,7 @@
         "eq%0#0"
       ]
     },
-    "749": {
+    "758": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint8[32])",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint8[32])",
       "stack_out": [
@@ -5965,7 +5969,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "750": {
+    "759": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -5974,7 +5978,7 @@
         "shape#0 (copy)"
       ]
     },
-    "752": {
+    "761": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -5983,7 +5987,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "753": {
+    "762": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -6000,7 +6004,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "755": {
+    "764": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -6013,7 +6017,7 @@
         "substring3%0#0"
       ]
     },
-    "756": {
+    "765": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -6022,7 +6026,7 @@
         "0"
       ]
     },
-    "757": {
+    "766": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -6036,7 +6040,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "758": {
+    "767": {
       "op": "pushint 36",
       "defined_out": [
         "36",
@@ -6051,7 +6055,7 @@
         "36"
       ]
     },
-    "760": {
+    "769": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -6064,7 +6068,7 @@
         "add%1#0"
       ]
     },
-    "761": {
+    "770": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -6075,14 +6079,14 @@
         "eq%1#0"
       ]
     },
-    "762": {
+    "771": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalNewEscrow",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalNewEscrow",
       "stack_out": [
         "shape#0"
       ]
     },
-    "763": {
+    "772": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -6093,14 +6097,14 @@
         "0x151f7c75"
       ]
     },
-    "764": {
+    "773": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "765": {
+    "774": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -6109,11 +6113,11 @@
         "tmp%2#0"
       ]
     },
-    "766": {
+    "775": {
       "op": "log",
       "stack_out": []
     },
-    "767": {
+    "776": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -6122,11 +6126,11 @@
         "1"
       ]
     },
-    "768": {
+    "777": {
       "op": "return",
       "stack_out": []
     },
-    "769": {
+    "778": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalToggleEscrowLockShape[routing]",
       "params": {},
       "block": "proposalToggleEscrowLockShape",
@@ -6139,7 +6143,7 @@
         "shape#0"
       ]
     },
-    "772": {
+    "781": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -6150,7 +6154,7 @@
         "shape#0 (copy)"
       ]
     },
-    "773": {
+    "782": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -6161,7 +6165,7 @@
         "tuple_len%0#0"
       ]
     },
-    "774": {
+    "783": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -6169,7 +6173,7 @@
         "shape#0 (copy)"
       ]
     },
-    "776": {
+    "785": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -6184,7 +6188,7 @@
         "0"
       ]
     },
-    "777": {
+    "786": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -6198,7 +6202,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "778": {
+    "787": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -6213,7 +6217,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "779": {
+    "788": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -6230,7 +6234,7 @@
         "2"
       ]
     },
-    "780": {
+    "789": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -6245,7 +6249,7 @@
         "eq%0#0"
       ]
     },
-    "781": {
+    "790": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]))",
       "stack_out": [
@@ -6254,7 +6258,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "782": {
+    "791": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -6263,7 +6267,7 @@
         "shape#0 (copy)"
       ]
     },
-    "784": {
+    "793": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -6272,7 +6276,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "785": {
+    "794": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -6289,7 +6293,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "787": {
+    "796": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -6302,7 +6306,7 @@
         "substring3%0#0"
       ]
     },
-    "788": {
+    "797": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -6311,7 +6315,7 @@
         "0"
       ]
     },
-    "789": {
+    "798": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -6325,8 +6329,8 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "790": {
-      "op": "pushint 4",
+    "799": {
+      "op": "intc_3 // 4",
       "defined_out": [
         "4",
         "aggregate%array_length%0#0",
@@ -6340,7 +6344,7 @@
         "4"
       ]
     },
-    "792": {
+    "800": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -6353,7 +6357,7 @@
         "add%1#0"
       ]
     },
-    "793": {
+    "801": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -6364,14 +6368,14 @@
         "eq%1#0"
       ]
     },
-    "794": {
+    "802": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalToggleEscrowLock",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalToggleEscrowLock",
       "stack_out": [
         "shape#0"
       ]
     },
-    "795": {
+    "803": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -6382,14 +6386,14 @@
         "0x151f7c75"
       ]
     },
-    "796": {
+    "804": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "797": {
+    "805": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -6398,11 +6402,11 @@
         "tmp%2#0"
       ]
     },
-    "798": {
+    "806": {
       "op": "log",
       "stack_out": []
     },
-    "799": {
+    "807": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -6411,11 +6415,11 @@
         "1"
       ]
     },
-    "800": {
+    "808": {
       "op": "return",
       "stack_out": []
     },
-    "801": {
+    "809": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalUpdateFieldShape[routing]",
       "params": {},
       "block": "proposalUpdateFieldShape",
@@ -6428,7 +6432,7 @@
         "shape#0"
       ]
     },
-    "804": {
+    "812": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -6439,7 +6443,7 @@
         "shape#0 (copy)"
       ]
     },
-    "805": {
+    "813": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -6450,7 +6454,7 @@
         "tuple_len%0#0"
       ]
     },
-    "806": {
+    "814": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -6458,7 +6462,7 @@
         "shape#0 (copy)"
       ]
     },
-    "808": {
+    "816": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -6473,7 +6477,7 @@
         "0"
       ]
     },
-    "809": {
+    "817": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -6487,7 +6491,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "810": {
+    "818": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -6502,8 +6506,8 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "811": {
-      "op": "pushint 4",
+    "819": {
+      "op": "intc_3 // 4",
       "defined_out": [
         "4",
         "extract_uint16%0#0",
@@ -6519,7 +6523,7 @@
         "4"
       ]
     },
-    "813": {
+    "820": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -6534,7 +6538,7 @@
         "eq%0#0"
       ]
     },
-    "814": {
+    "821": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]))",
       "stack_out": [
@@ -6543,7 +6547,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "815": {
+    "822": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -6552,7 +6556,7 @@
         "shape#0 (copy)"
       ]
     },
-    "817": {
+    "824": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -6561,7 +6565,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "818": {
+    "825": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -6578,7 +6582,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "820": {
+    "827": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -6591,7 +6595,7 @@
         "substring3%0#0"
       ]
     },
-    "821": {
+    "828": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -6600,7 +6604,7 @@
         "0"
       ]
     },
-    "822": {
+    "829": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -6614,7 +6618,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "823": {
+    "830": {
       "op": "pushint 6",
       "defined_out": [
         "6",
@@ -6629,7 +6633,7 @@
         "6"
       ]
     },
-    "825": {
+    "832": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -6642,7 +6646,7 @@
         "add%1#0"
       ]
     },
-    "826": {
+    "833": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -6651,7 +6655,7 @@
         "shape#0 (copy)"
       ]
     },
-    "828": {
+    "835": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -6668,7 +6672,7 @@
         "2"
       ]
     },
-    "829": {
+    "836": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -6684,7 +6688,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "830": {
+    "837": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -6701,7 +6705,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "831": {
+    "838": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -6720,7 +6724,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "833": {
+    "840": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -6737,7 +6741,7 @@
         "eq%1#0"
       ]
     },
-    "834": {
+    "841": {
       "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]))",
       "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]))",
       "stack_out": [
@@ -6747,7 +6751,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "835": {
+    "842": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -6757,7 +6761,7 @@
         "shape#0 (copy)"
       ]
     },
-    "837": {
+    "844": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -6767,7 +6771,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "838": {
+    "845": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -6778,7 +6782,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "840": {
+    "847": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -6793,7 +6797,7 @@
         "substring3%1#0"
       ]
     },
-    "841": {
+    "848": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -6803,7 +6807,7 @@
         "0"
       ]
     },
-    "842": {
+    "849": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -6819,7 +6823,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "843": {
+    "850": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -6829,7 +6833,7 @@
         "2"
       ]
     },
-    "844": {
+    "851": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -6844,7 +6848,7 @@
         "add%2#0"
       ]
     },
-    "845": {
+    "852": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -6857,7 +6861,7 @@
         "add%3#0"
       ]
     },
-    "846": {
+    "853": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -6868,14 +6872,14 @@
         "eq%2#0"
       ]
     },
-    "847": {
+    "854": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpdateField",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpdateField",
       "stack_out": [
         "shape#0"
       ]
     },
-    "848": {
+    "855": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -6886,14 +6890,14 @@
         "0x151f7c75"
       ]
     },
-    "849": {
+    "856": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "850": {
+    "857": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -6902,11 +6906,11 @@
         "tmp%2#0"
       ]
     },
-    "851": {
+    "858": {
       "op": "log",
       "stack_out": []
     },
-    "852": {
+    "859": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -6915,11 +6919,11 @@
         "1"
       ]
     },
-    "853": {
+    "860": {
       "op": "return",
       "stack_out": []
     },
-    "854": {
+    "861": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalReclaimShape[routing]",
       "params": {},
       "block": "proposalReclaimShape",
@@ -6932,7 +6936,7 @@
         "shape#0"
       ]
     },
-    "857": {
+    "864": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -6943,7 +6947,7 @@
         "shape#0 (copy)"
       ]
     },
-    "858": {
+    "865": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -6954,7 +6958,7 @@
         "tuple_len%0#0"
       ]
     },
-    "859": {
+    "866": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -6962,7 +6966,7 @@
         "shape#0 (copy)"
       ]
     },
-    "861": {
+    "868": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -6977,7 +6981,7 @@
         "0"
       ]
     },
-    "862": {
+    "869": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -6991,7 +6995,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "863": {
+    "870": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -7006,8 +7010,8 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "864": {
-      "op": "pushint 4",
+    "871": {
+      "op": "intc_3 // 4",
       "defined_out": [
         "4",
         "extract_uint16%0#0",
@@ -7023,7 +7027,7 @@
         "4"
       ]
     },
-    "866": {
+    "872": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -7038,7 +7042,7 @@
         "eq%0#0"
       ]
     },
-    "867": {
+    "873": {
       "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -7047,7 +7051,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "868": {
+    "874": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -7056,7 +7060,7 @@
         "shape#0 (copy)"
       ]
     },
-    "870": {
+    "876": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -7065,7 +7069,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "871": {
+    "877": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -7082,7 +7086,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "873": {
+    "879": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -7095,7 +7099,7 @@
         "substring3%0#0"
       ]
     },
-    "874": {
+    "880": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -7104,7 +7108,7 @@
         "0"
       ]
     },
-    "875": {
+    "881": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -7118,7 +7122,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "876": {
+    "882": {
       "op": "pushint 6",
       "defined_out": [
         "6",
@@ -7133,7 +7137,7 @@
         "6"
       ]
     },
-    "878": {
+    "884": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -7146,7 +7150,7 @@
         "add%1#0"
       ]
     },
-    "879": {
+    "885": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -7155,7 +7159,7 @@
         "shape#0 (copy)"
       ]
     },
-    "881": {
+    "887": {
       "op": "intc_1 // 2",
       "defined_out": [
         "2",
@@ -7172,7 +7176,7 @@
         "2"
       ]
     },
-    "882": {
+    "888": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -7188,7 +7192,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "883": {
+    "889": {
       "op": "dup",
       "defined_out": [
         "add%1#0",
@@ -7205,7 +7209,7 @@
         "extract_uint16%1#0 (copy)"
       ]
     },
-    "884": {
+    "890": {
       "op": "dig 2",
       "defined_out": [
         "add%1#0",
@@ -7224,7 +7228,7 @@
         "add%1#0 (copy)"
       ]
     },
-    "886": {
+    "892": {
       "op": "==",
       "defined_out": [
         "add%1#0",
@@ -7241,7 +7245,7 @@
         "eq%1#0"
       ]
     },
-    "887": {
+    "893": {
       "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint64,bool1)[]))",
       "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint64,bool1)[]))",
       "stack_out": [
@@ -7251,7 +7255,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "888": {
+    "894": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -7261,7 +7265,7 @@
         "shape#0 (copy)"
       ]
     },
-    "890": {
+    "896": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -7271,7 +7275,7 @@
         "extract_uint16%1#0"
       ]
     },
-    "891": {
+    "897": {
       "op": "dig 3",
       "stack_out": [
         "shape#0",
@@ -7282,7 +7286,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "893": {
+    "899": {
       "op": "substring3",
       "defined_out": [
         "add%1#0",
@@ -7297,7 +7301,7 @@
         "substring3%1#0"
       ]
     },
-    "894": {
+    "900": {
       "op": "intc_0 // 0",
       "stack_out": [
         "shape#0",
@@ -7307,7 +7311,7 @@
         "0"
       ]
     },
-    "895": {
+    "901": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -7323,7 +7327,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "896": {
+    "902": {
       "op": "pushint 17",
       "defined_out": [
         "17",
@@ -7340,7 +7344,7 @@
         "17"
       ]
     },
-    "898": {
+    "904": {
       "op": "*",
       "defined_out": [
         "add%1#0",
@@ -7355,7 +7359,7 @@
         "mul%1#0"
       ]
     },
-    "899": {
+    "905": {
       "op": "intc_1 // 2",
       "stack_out": [
         "shape#0",
@@ -7365,7 +7369,7 @@
         "2"
       ]
     },
-    "900": {
+    "906": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -7380,7 +7384,7 @@
         "add%2#0"
       ]
     },
-    "901": {
+    "907": {
       "op": "+",
       "defined_out": [
         "add%3#0",
@@ -7393,7 +7397,7 @@
         "add%3#0"
       ]
     },
-    "902": {
+    "908": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -7404,14 +7408,14 @@
         "eq%2#0"
       ]
     },
-    "903": {
+    "909": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalReclaim",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalReclaim",
       "stack_out": [
         "shape#0"
       ]
     },
-    "904": {
+    "910": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -7422,14 +7426,14 @@
         "0x151f7c75"
       ]
     },
-    "905": {
+    "911": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "906": {
+    "912": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -7438,11 +7442,11 @@
         "tmp%2#0"
       ]
     },
-    "907": {
+    "913": {
       "op": "log",
       "stack_out": []
     },
-    "908": {
+    "914": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -7451,11 +7455,11 @@
         "1"
       ]
     },
-    "909": {
+    "915": {
       "op": "return",
       "stack_out": []
     },
-    "910": {
+    "916": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalChangeAdminShape[routing]",
       "params": {},
       "block": "proposalChangeAdminShape",
@@ -7468,7 +7472,7 @@
         "shape#0"
       ]
     },
-    "913": {
+    "919": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -7479,7 +7483,7 @@
         "shape#0 (copy)"
       ]
     },
-    "914": {
+    "920": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -7490,8 +7494,8 @@
         "len%0#0"
       ]
     },
-    "915": {
-      "op": "intc_3 // 32",
+    "921": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -7503,7 +7507,7 @@
         "32"
       ]
     },
-    "916": {
+    "923": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -7514,14 +7518,14 @@
         "eq%0#0"
       ]
     },
-    "917": {
+    "924": {
       "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalChangeAdmin",
       "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalChangeAdmin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "918": {
+    "925": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -7532,14 +7536,14 @@
         "0x151f7c75"
       ]
     },
-    "919": {
+    "926": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "920": {
+    "927": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -7548,11 +7552,11 @@
         "tmp%2#0"
       ]
     },
-    "921": {
+    "928": {
       "op": "log",
       "stack_out": []
     },
-    "922": {
+    "929": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
@@ -7561,7 +7565,296 @@
         "1"
       ]
     },
-    "923": {
+    "930": {
+      "op": "return",
+      "stack_out": []
+    },
+    "931": {
+      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalDeleteEscrowShape[routing]",
+      "params": {},
+      "block": "proposalDeleteEscrowShape",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "934": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "935": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "936": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "938": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "939": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "940": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "941": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "2"
+      ]
+    },
+    "942": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "943": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "944": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "946": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "947": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "949": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "950": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "951": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "952": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "4"
+      ]
+    },
+    "953": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "954": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%1#0"
+      ]
+    },
+    "955": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalDeleteEscrow",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalDeleteEscrow",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "956": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "957": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "shape#0"
+      ]
+    },
+    "958": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "959": {
+      "op": "log",
+      "stack_out": []
+    },
+    "960": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "961": {
       "op": "return",
       "stack_out": []
     }

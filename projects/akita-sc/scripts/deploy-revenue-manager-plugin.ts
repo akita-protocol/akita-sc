@@ -13,7 +13,7 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, RevenueManagerPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, RevenueManagerPluginSDK, defaultEscrowGrantMbr } from 'akita-sdk/wallet'
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import type { PluginInfo, PluginKey } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
 import type { ProposalSettings } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
@@ -762,6 +762,8 @@ Resume example:
       groups: installation.info.useExecutionKey ? EXECUTION_GROUP_BUFFER : 0n,
     })
     temporaryMbr += mbr.plugins
+    // a grant that uses an escrow by default also stores that escrow's name
+    if (installation.defaultToEscrow) temporaryMbr += defaultEscrowGrantMbr(installation.escrow)
   }
   if (!extra.allowStateReset && pendingMigrationIds.size > 0 && !currentPluginMap.has(migrationGrant)) {
     const migrationGrantMbr = await wallet.getMbr({ escrow: '', methodCount: 1n, plugin: '', groups: 0n })
