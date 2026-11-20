@@ -66,8 +66,10 @@ describe('session key multisig', () => {
 describe('session key protocol', () => {
   test('authenticates a connect request', () => {
     const secret = createConnectSecret()
-    const envelope = authenticateConnectMessage({ requestId: 'request-1', secret, payload: request() })
-    expect(verifyConnectMessage({ envelope, requestId: 'request-1', secret })).toEqual(request())
+    // One request for both sides: request() reads the clock, so two calls can differ by a second.
+    const payload = request()
+    const envelope = authenticateConnectMessage({ requestId: 'request-1', secret, payload })
+    expect(verifyConnectMessage({ envelope, requestId: 'request-1', secret })).toEqual(payload)
   })
 
   test('rejects bad connect requests', () => {
