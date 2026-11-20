@@ -18,6 +18,7 @@ export * from './marketplace';
 export * from './nfd';
 export * from './pay-silo';
 export * from './pay-silo-factory';
+export * from './zero-signal';
 export * from './poll';
 export * from './raffle';
 export * from './rewards';

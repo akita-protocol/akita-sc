@@ -1039,6 +1039,24 @@ npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config s
 (cd ../akita-sdk && npm run build)
 ```
 
+#### H8. ZeroSignalPlugin
+
+- **What:** Deploy the ZeroSignalPlugin with a receipt and record its id. It is a pay plugin with PayPlugin's `pay` signature whose every receiver must be the ZeroSignal escrow app's address. Constructor: `escrowApp`, the escrow app id, `3628061142` on MainNet and `765860477` on TestNet.
+- **Why here:** No dependencies. It is a plain immutable deploy with no DAO proposal, so it may run before or after I1. If it has not run by I1, add `zero-signal-plugin` to `--allow-pending` there, as `social-claim` is: `dao:initialize` refuses while a tracked step is pending.
+- **Requires:** none. **Script:** ready: ZeroSignalPlugin is in the immutable catalog, `--register` records the `zeroSignalPlugin` SDK key and fills its README row.
+- **Tracked by rollout:status as** `zero-signal-plugin`.
+- The escrow app id is written to the global `escrow_app` at creation and has no setter, and the program has no update or delete route. An id of 0 is refused. A wrong id costs a redeploy and a new app id, and nothing in the tooling checks it: `--dry-run` prints the plan without simulating the create, and after the deploy the tool compares only the creator and the program hashes. So check it by hand, twice:
+  1. **Before the deploy,** read the escrow app from the network (`GET /v2/applications/<escrow app id>` on algod, or its page in an explorer) and confirm its address. MainNet `3628061142` is `VGUN3OJPE4Z4VQDRMLH24GH4LYHTNP5MCUT7E7BM25JBUKYKG6NUE2DHJE`; TestNet `765860477` is `VC7V4XZZYFIMF4APOTMJ2WKECVXRTNOSY6TA5D3PJ3JSOHOCQCTXM4YJKE`.
+  2. **Straight after the deploy,** read the new plugin app the same way and confirm its only global, `escrow_app`, is a uint equal to the id in the command. If it is not, do not register or announce the app: deploy again with the right id.
+- On TestNet the same commands run with `-n testnet` and `{"escrowApp":"765860477"}`.
+- The approval program's sha256 is pinned outside this repository once it is shared, so the program deployed must be the one in `release/manifest.json`.
+
+```bash
+npm run deploy:zero-signal-plugin -- -n mainnet -v "$V" --config '{"escrowApp":"3628061142"}' --dry-run --sender "$CREATOR"
+npm run deploy:zero-signal-plugin -- -n mainnet -v "$V" --config '{"escrowApp":"3628061142"}' --manifest receipts/zero-signal-plugin.json --register
+(cd ../akita-sdk && npm run build)
+```
+
 ### Stage I: Launch the DAO
 
 No script supports a voting DAO end to end, so everything above runs first.
@@ -1051,7 +1069,7 @@ No script supports a voting DAO end to end, so everything above runs first.
 - **Tracked by rollout:status as** `power`, `initialize`.
 - Expired proposal #107 stays inert; 19 expired execution boxes hold ~420k µA.
 - `dao:rescale-power` rewrites each `*_ps` global whose power is still in whole tokens (x 1e6; see B2), keeps every other setting, and reads each back. It refuses a value neither unit explains (above 1,000 and below 1,000,000). The plugin settings were rescaled by the grant swaps; the tracker's `power` step names any that were not. The Update plugin's own settings are never read (the DAO drives it through UpgradeApp only) and are left as they are.
-- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19).
+- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19). If H8 has not run yet, add `zero-signal-plugin` to the list as well; H8 is a plain deploy and may follow I1.
 - `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, as `social-claim` is while H7 is left out. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
 
 ```bash

@@ -1,12 +1,12 @@
-# @akta/plugin
+# @akita-protocol/plugin
 
 Utility library for building ARC-58 plugins for Akita abstracted-account wallets with Algorand
 TypeScript (PuyaTs 1.3.1).
 
 > **Importing from contracts.** PuyaTs 1.3.1 does not compile `export { … } from` re-exports, so a
 > contract file cannot import from the package root (`index.ts`). Import from the module files:
-> `@akta/plugin/functions`, `@akta/plugin/principal`, `@akta/plugin/base.algo`,
-> `@akta/plugin/constants`. `index.ts` is the TypeScript (type-checking) entry point.
+> `@akita-protocol/plugin/functions`, `@akita-protocol/plugin/principal`, `@akita-protocol/plugin/base.algo`,
+> `@akita-protocol/plugin/constants`. `index.ts` is the TypeScript (type-checking) entry point.
 
 ## Spending helpers (`functions.ts`)
 
@@ -66,7 +66,7 @@ repoint the wallet's `akita_dao` global at a fake DAO.
 5. **Pass the hint last, as `uint64`.** Pass `0` when acting as yourself.
 6. **A plugin hints its own window only** (added 2026-10-04, Phase 0 review). A plugin must pass exactly the wallet whose window it serves (its pinned first argument, `wallet.id`; use `windowHint(wallet)`) as the hint, never a value the caller supplies. A proxy `B` must receive that value from `P` and forward it unchanged. Reason: F2 pins only the plugin's `appArgs(1)`; the plugin arm binds any other hint `Wf` to `S` only through `Wf.spending_address`, which an admin-updated (forged) wallet sets freely. A plugin method that forwards a caller-chosen hint therefore lets anyone attribute the open window's `S` to `Wf`'s controlled address and referrer (T47).
 
-**Not part of the package surface** (neither from `index.ts` nor from `@akta/plugin/principal`):
+**Not part of the package surface** (neither from `index.ts` nor from `@akita-protocol/plugin/principal`):
 `resolvePrincipalCtx` and `walletControlsLive` exist in `principal.ts` but are not exported, and
 the Akita-only `resolvePrincipalFromDexCtx` and `tipWalletFor` are stripped from this mirror. The
 context resolvers trust a caller-supplied `(sender, callerApp)`, which is sound only when those

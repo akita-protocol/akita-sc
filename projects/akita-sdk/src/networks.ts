@@ -109,6 +109,8 @@ export interface NetworkAppIds {
   /** creation-only GuildPlugin (guild = 0) */
   guildPlugin?: bigint;
   welcomePlugin?: bigint;
+  /** ZeroSignalPlugin: a pay plugin that can only pay the ZeroSignal escrow app */
+  zeroSignalPlugin?: bigint;
   /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
   socialClaim?: bigint;
   /** AbstractedAccountBalanceReader */
@@ -468,6 +470,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   guildConsensusFactory: 0n,
   guildPlugin: 0n,
   welcomePlugin: 0n,
+  zeroSignalPlugin: 0n,
   socialClaim: 0n,
   walletBalanceReader: 0n,
   rewardsV1: 763128244n,
@@ -572,6 +575,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   guildConsensusFactory: 0n,
   guildPlugin: 0n,
   welcomePlugin: 0n,
+  zeroSignalPlugin: 0n,
   socialClaim: 0n,
   walletBalanceReader: 0n,
   rewardsV1: 3569556095n,
@@ -909,6 +913,7 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   GUILD_CONSENSUS_FACTORY_APP_ID: 'guildConsensusFactory',
   GUILD_PLUGIN_APP_ID: 'guildPlugin',
   WELCOME_PLUGIN_APP_ID: 'welcomePlugin',
+  ZERO_SIGNAL_PLUGIN_APP_ID: 'zeroSignalPlugin',
   SOCIAL_CLAIM_APP_ID: 'socialClaim',
   WALLET_BALANCE_READER_APP_ID: 'walletBalanceReader',
   REWARDS_V1_APP_ID: 'rewardsV1',

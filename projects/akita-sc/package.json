@@ -181,6 +181,7 @@
     "deploy:hyper-swap-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract HyperSwapPlugin",
     "deploy:pay-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PayPlugin",
     "deploy:pay-silo-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PaySiloPlugin",
+    "deploy:zero-signal-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract ZeroSignalPlugin",
     "deploy:pay-silo-factory-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PaySiloFactoryPlugin",
     "deploy:poll-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PollPluginContract",
     "deploy:guild-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract GuildPlugin",

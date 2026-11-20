@@ -25,19 +25,19 @@
 
 
 
-var _chunkL73PHMYJjs = require('../chunk-L73PHMYJ.js');
-require('../chunk-UJ5FVFAW.js');
+var _chunk2DCIUNI2js = require('../chunk-2DCIUNI2.js');
+require('../chunk-GE7CQKFI.js');
 require('../chunk-L3UKL2HH.js');
 require('../chunk-F244CUWJ.js');
-require('../chunk-QWWJBGHA.js');
+require('../chunk-KWSTQWL3.js');
 require('../chunk-XHV7O2CS.js');
 require('../chunk-AP6ZTMST.js');
 require('../chunk-6VQGOH65.js');
 require('../chunk-YKKIQIRO.js');
 require('../chunk-J43IZCZC.js');
 require('../chunk-ZGCVKZRL.js');
-require('../chunk-7VSUJWG7.js');
-require('../chunk-LNVZHCCX.js');
+require('../chunk-FTMSI4PN.js');
+require('../chunk-EG446GRH.js');
 require('../chunk-WXNDITZI.js');
 require('../chunk-PZ5AY32C.js');
 
@@ -67,5 +67,5 @@ require('../chunk-PZ5AY32C.js');
 
 
 
-exports.AkitaDaoSDK = _chunkL73PHMYJjs.AkitaDaoSDK; exports.DAOBootstrapKeyBoxPrefix = _chunkL73PHMYJjs.DAOBootstrapKeyBoxPrefix; exports.DAOLegacyProposalVotesMBR = _chunkL73PHMYJjs.DAOLegacyProposalVotesMBR; exports.DAOLegacyVoteReceiptBoxPrefix = _chunkL73PHMYJjs.DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = _chunkL73PHMYJjs.DAOParticipationBoxPrefix; exports.DAOParticipationMBR = _chunkL73PHMYJjs.DAOParticipationMBR; exports.DAOProposalTallyMBR = _chunkL73PHMYJjs.DAOProposalTallyMBR; exports.DAOProposalVotesMBR = _chunkL73PHMYJjs.DAOProposalVotesMBR; exports.DAOVoteReceiptBoxPrefix = _chunkL73PHMYJjs.DAOVoteReceiptBoxPrefix; exports.DAO_ERROR_MESSAGES = _chunkL73PHMYJjs.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunkL73PHMYJjs.EMPTY_CID; exports.LEGACY_DAO_ACTION_STRUCTS = _chunkL73PHMYJjs.LEGACY_DAO_ACTION_STRUCTS; exports.MaxBootstrapKeyRounds = _chunkL73PHMYJjs.MaxBootstrapKeyRounds; exports.ProposalActionEnum = _chunkL73PHMYJjs.ProposalActionEnum; exports.ProposalStatusEnum = _chunkL73PHMYJjs.ProposalStatusEnum; exports.SplitDistributionType = _chunkL73PHMYJjs.SplitDistributionType; exports.SplitsToTuples = _chunkL73PHMYJjs.SplitsToTuples; exports.decodeGovernanceParticipation = _chunkL73PHMYJjs.decodeGovernanceParticipation; exports.decodeLegacyProposalNewEscrow = _chunkL73PHMYJjs.decodeLegacyProposalNewEscrow; exports.decodeVoteReceipt = _chunkL73PHMYJjs.decodeVoteReceipt; exports.parseDaoErrorCode = _chunkL73PHMYJjs.parseDaoErrorCode; exports.participationBoxName = _chunkL73PHMYJjs.participationBoxName; exports.translateDaoError = _chunkL73PHMYJjs.translateDaoError; exports.usesLegacyEscrowActionShape = _chunkL73PHMYJjs.usesLegacyEscrowActionShape; exports.voteCost = _chunkL73PHMYJjs.voteCost; exports.voteReceiptBoxName = _chunkL73PHMYJjs.voteReceiptBoxName;
+exports.AkitaDaoSDK = _chunk2DCIUNI2js.AkitaDaoSDK; exports.DAOBootstrapKeyBoxPrefix = _chunk2DCIUNI2js.DAOBootstrapKeyBoxPrefix; exports.DAOLegacyProposalVotesMBR = _chunk2DCIUNI2js.DAOLegacyProposalVotesMBR; exports.DAOLegacyVoteReceiptBoxPrefix = _chunk2DCIUNI2js.DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = _chunk2DCIUNI2js.DAOParticipationBoxPrefix; exports.DAOParticipationMBR = _chunk2DCIUNI2js.DAOParticipationMBR; exports.DAOProposalTallyMBR = _chunk2DCIUNI2js.DAOProposalTallyMBR; exports.DAOProposalVotesMBR = _chunk2DCIUNI2js.DAOProposalVotesMBR; exports.DAOVoteReceiptBoxPrefix = _chunk2DCIUNI2js.DAOVoteReceiptBoxPrefix; exports.DAO_ERROR_MESSAGES = _chunk2DCIUNI2js.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunk2DCIUNI2js.EMPTY_CID; exports.LEGACY_DAO_ACTION_STRUCTS = _chunk2DCIUNI2js.LEGACY_DAO_ACTION_STRUCTS; exports.MaxBootstrapKeyRounds = _chunk2DCIUNI2js.MaxBootstrapKeyRounds; exports.ProposalActionEnum = _chunk2DCIUNI2js.ProposalActionEnum; exports.ProposalStatusEnum = _chunk2DCIUNI2js.ProposalStatusEnum; exports.SplitDistributionType = _chunk2DCIUNI2js.SplitDistributionType; exports.SplitsToTuples = _chunk2DCIUNI2js.SplitsToTuples; exports.decodeGovernanceParticipation = _chunk2DCIUNI2js.decodeGovernanceParticipation; exports.decodeLegacyProposalNewEscrow = _chunk2DCIUNI2js.decodeLegacyProposalNewEscrow; exports.decodeVoteReceipt = _chunk2DCIUNI2js.decodeVoteReceipt; exports.parseDaoErrorCode = _chunk2DCIUNI2js.parseDaoErrorCode; exports.participationBoxName = _chunk2DCIUNI2js.participationBoxName; exports.translateDaoError = _chunk2DCIUNI2js.translateDaoError; exports.usesLegacyEscrowActionShape = _chunk2DCIUNI2js.usesLegacyEscrowActionShape; exports.voteCost = _chunk2DCIUNI2js.voteCost; exports.voteReceiptBoxName = _chunk2DCIUNI2js.voteReceiptBoxName;
 //# sourceMappingURL=index.js.map

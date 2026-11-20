@@ -35,7 +35,9 @@ describe('migration deployment and update scripts', () => {
       legacyCutoff: '1',
       // SocialClaim: the WelcomePlugin and PayPlugin deployed above, a 32-byte attestor key and its manager
       welcome: deployed.WelcomePlugin?.toString() ?? '', pay: deployed.PayPlugin?.toString() ?? '',
-      attestor: Array.from({ length: 32 }, (_, i) => i + 1) as unknown as string[], manager: ctx.sender }
+      attestor: Array.from({ length: 32 }, (_, i) => i + 1) as unknown as string[], manager: ctx.sender,
+      // ZeroSignalPlugin: any live app stands in for the escrow; only its address is used
+      escrowApp: ctx.dao.appId.toString() }
     // Only supply fields declared by this contract; argument spelling comes from ARC-56.
     const catalog = await import('../scripts/lib/immutable-catalog.json')
     const entry = catalog.default[name as keyof typeof catalog.default]
