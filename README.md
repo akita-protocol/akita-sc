@@ -257,6 +257,7 @@ A dash means not deployed on that network yet. Each deployment script's receipt
 | `guildConsensusFactory` | — | — |
 | `guildPlugin` | — | — |
 | `welcomePlugin` | — | — |
+| `zeroSignalPlugin` | — | — |
 | `socialClaim` | — | — |
 | `assetInboxPlugin` | — | — |
 | `walletBalanceReader` | — | — |

@@ -1039,6 +1039,21 @@ npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config s
 (cd ../akita-sdk && npm run build)
 ```
 
+#### H8. ZeroSignalPlugin
+
+- **What:** Deploy the ZeroSignalPlugin with a receipt and record its id. It is a pay plugin with PayPlugin's `pay` signature whose every receiver must be the ZeroSignal escrow app's address. Constructor: `escrowApp`, the escrow app id, `3628061142` on MainNet and `765860477` on TestNet.
+- **Why here:** No dependencies. It is a plain immutable deploy with no DAO proposal, so it may run before or after I1.
+- **Requires:** none. **Script:** ready: ZeroSignalPlugin is in the immutable catalog, `--register` records the `zeroSignalPlugin` SDK key and fills its README row.
+- **Tracked by rollout:status as** `zero-signal-plugin`.
+- The escrow app id is written to the global `escrow_app` at creation and has no setter, and the program has no update or delete route. The deploy tooling does not verify the id on chain: check it against the network first. An id of 0 is refused.
+- The approval program's sha256 is pinned outside this repository once it is shared, so the program deployed must be the one in `release/manifest.json`.
+
+```bash
+npm run deploy:zero-signal-plugin -- -n mainnet -v "$V" --config '{"escrowApp":"3628061142"}' --dry-run --sender "$CREATOR"
+npm run deploy:zero-signal-plugin -- -n mainnet -v "$V" --config '{"escrowApp":"3628061142"}' --manifest receipts/zero-signal-plugin.json --register
+(cd ../akita-sdk && npm run build)
+```
+
 ### Stage I: Launch the DAO
 
 No script supports a voting DAO end to end, so everything above runs first.

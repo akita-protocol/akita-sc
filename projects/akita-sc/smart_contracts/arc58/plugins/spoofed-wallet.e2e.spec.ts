@@ -32,6 +32,7 @@ import { APP_SPEC as StakingPoolSpec } from '../../artifacts/arc58/plugins/staki
 import { APP_SPEC as StakingSpec } from '../../artifacts/arc58/plugins/staking/StakingPluginClient'
 import { APP_SPEC as SubscriptionsSpec } from '../../artifacts/arc58/plugins/subscriptions/SubscriptionsPluginClient'
 import { APP_SPEC as SunsetSpec } from '../../artifacts/arc58/plugins/sunset/SunsetPluginClient'
+import { APP_SPEC as ZeroSignalSpec } from '../../artifacts/arc58/plugins/zero-signal/ZeroSignalPluginClient'
 import { MockFakeWalletFactory } from '../../artifacts/mocks/fake-wallet/MockFakeWalletClient'
 import { errPluginNotAuthAddr } from '../../utils/errors'
 
@@ -127,6 +128,12 @@ const cases: Case[] = [
   {
     name: 'PayPlugin',
     spec: PaySpec,
+    calls: [{ method: 'pay', args: ({ attacker }) => [[[attacker, 0n, 100_000n]]] }],
+  },
+  {
+    name: 'ZeroSignalPlugin',
+    spec: ZeroSignalSpec,
+    create: { method: 'create', args: ({ anyApp }) => [anyApp] },
     calls: [{ method: 'pay', args: ({ attacker }) => [[[attacker, 0n, 100_000n]]] }],
   },
   {

@@ -286,5 +286,15 @@
       "Constructor: welcome = the WelcomePlugin app id and pay = the PayPlugin app id (both fixed for the life of the app; check each id against its receipt before deploying, this tooling does not verify them), attestor = the 32-byte ed25519 public key that signs platform attestations (a JSON array of 32 numbers), manager = the address that may replace the attestor or the manager.",
       "Whoever holds the attestor key can bind any handle to any wallet, and the manager can replace the attestor. Decide who holds each before deploying: the manager should not be a hot key."
     ]
+  },
+  "ZeroSignalPlugin": {
+    "artifact": "arc58/plugins/zero-signal/ZeroSignalPlugin.arc56.json",
+    "registryKey": "zeroSignalPlugin",
+    "plugin": true,
+    "daoField": null,
+    "notes": [
+      "Constructor: escrowApp = the ZeroSignal escrow app id (3628061142 on MainNet, 765860477 on TestNet). It is fixed for the life of the app and this tooling does not verify it: check it against the network before deploying.",
+      "A pay plugin whose every receiver must be that escrow app's address. No update or delete route."
+    ]
   }
 }

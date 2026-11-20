@@ -654,6 +654,18 @@
       },
       "extraPages": 0
     },
+    "arc58/plugins/zero-signal/ZeroSignalPlugin": {
+      "name": "ZeroSignalPlugin",
+      "approval": {
+        "bytes": 374,
+        "sha256": "663b103077d1bfb47054acebf3766a3a6b7a5dbc0faffaa63bce16423bab8b67"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
     "arc58/social-claim/SocialClaim": {
       "name": "SocialClaim",
       "approval": {

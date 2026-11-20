@@ -90,6 +90,8 @@ export interface NetworkAppIds {
     /** creation-only GuildPlugin (guild = 0) */
     guildPlugin?: bigint;
     welcomePlugin?: bigint;
+    /** ZeroSignalPlugin: a pay plugin that can only pay the ZeroSignal escrow app */
+    zeroSignalPlugin?: bigint;
     /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
     socialClaim?: bigint;
     /** AbstractedAccountBalanceReader */
