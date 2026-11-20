@@ -171,20 +171,25 @@ The owner decided on 2026-11-19 that SocialClaim is not part of release 2.0.0.
 - **The program stays in the tree.** SocialClaim is still built, tested and pinned in `release/manifest.json` (155 programs), and its SDK module is unchanged. No contract program changes with this update.
 - **A later deploy covers new gifts only.** `bind` records a wallet in the group that creates it, with SocialClaim as that wallet's admin. A wallet that WelcomePlugin created with another admin cannot be brought under SocialClaim afterwards.
 
-## Update 2026-11-20: the wallet's admin can delete an escrow
+## Update 2026-11-20: an escrow can be deleted, by a wallet's admin, the DAO or a guild
 
-One deployable program changes: the wallet. The owner asked for it on 2026-11-20.
+Six deployable programs change, the wallet takes a fifth program page, and the sequence gains a step. The owner asked for it on 2026-11-20.
 
-- **AbstractedAccount is 8,112 bytes (was 8,160).** New method `arc58_deleteEscrow(string)void`, for the wallet's admin only. The read-only `arc58_getDomainKeys(address[])string[]` is removed to make room.
-- **What a delete does.** It closes the escrow's account out to the controlled address, has the EscrowFactory delete the escrow app, and deletes the wallet's own record of the escrow. The wallet gets back all the ALGO the escrow held, its 0.1 ALGO minimum included, the 150,000 µALGO the factory held for the app, the 12,100 the factory held for its record, and the storage of the wallet's record (19,300 plus 400 per byte of the name).
-- **Before a delete.** The escrow must be unlocked and hold no asset. An account that holds an asset cannot be closed, so the admin closes each asset out with `arc58_reclaim` first. The factory deletes only an escrow it has on record, so an escrow that is not on record is registered first with `register`. The SDK's `deleteEscrow` registers and deletes in one group.
+- **Programs.** AbstractedAccount is 8,743 bytes (was 8,160) with the new method `arc58_deleteEscrow(string)void`. AbstractedAccountMBR is 308 (was 304). AkitaDAO is 10,823 (was 10,765), AkitaDAOProposalValidator 3,682 (was 3,633), AkitaDAOTypes 962 (was 924) and Guild 12,586 (was 12,534): each gains the proposal action `DeleteEscrow` (type 73).
+- **What a delete does.** It closes the escrow's account out to the controlled address, has the EscrowFactory delete the escrow app, and deletes the wallet's record and count of the escrow. The wallet gets back all the ALGO the escrow held, its 0.1 ALGO minimum included, the 150,000 µALGO the factory held for the app, the 12,100 the factory held for its record, and the storage of the wallet's two boxes. An escrow the factory has no record of is put on record by the same call, which costs nothing in the end.
 - **Why the wallet closes the account itself.** An escrow's account is rekeyed to its wallet, so the escrow's own app cannot spend from it and the factory's delete fails on it. Once the wallet has closed the account the rekey is gone, and the factory's delete goes through. The EscrowFactory on MainNet (3569555755) cannot be updated, and it keeps whatever an escrow still held when it closed. Closing the account first leaves it nothing to keep. This is tested against that program and against the program of the 37 escrows it has made.
-- **What stays behind.** A grant that names the escrow stops working, because a grant records its escrow's app id, and a new escrow of the same name is a new app. Such a grant can still be removed. An allowance is kept under the escrow's name, so one left behind applies again to a new escrow of that name. The SDK's `deleteEscrow` therefore removes the escrow's allowances in the same group, and `arc58_removeAllowances` no longer requires the escrow to exist, so one left behind by a direct call can still be removed. The address of a deleted escrow is under nobody's control: anything sent there afterwards is lost.
-- **The DAO's own wallet is not covered.** Its admin is the DAO, and the DAO has no proposal action that calls this method. 22 of the 37 escrows on MainNet belong to it.
-- **Room.** The method takes 135 bytes and the wallet had 28 left in its four pages. `arc58_getDomainKeys` took 189. No contract and no SDK code calls it, and the SDK reads a domain key from its box. 76 B of headroom are left. The wallet can instead grow to a fifth page, since the factory grows a wallet's pages when it updates it. By the factory's own notes the account that sends such an update takes over the wallet's whole storage cost, and each new wallet would cost 0.1 ALGO more. That path was not measured for this change.
-- **Nothing in the sequence changes.** The wallet keeps its 3 extra pages and its schema. E7 still uploads five chunks, and F1 and F2 run as written with no growth cost.
+- **What a delete refuses.** The wallet counts, per escrow, the plugin grants and the allowances that name it. A grant that uses the escrow by default is counted too. `arc58_deleteEscrow` fails with `errEuse` while the count is above zero, so every plugin has to be removed and every allowance too, though all of it may happen earlier in the same group. The escrow must also be unlocked and hold no asset: an account that holds an asset cannot be closed, so each asset is closed out with `arc58_reclaim` first.
+- **One group.** The SDK's `wallet.deleteEscrow` reads what the chain lists for the escrow and builds the removals of its plugins and allowances, the close-out of its assets and the delete into one group, the delete last. Sixteen transactions fit a group. A longer removal is sent as several groups in order, and the delete is in the last one.
+- **The DAO and a guild.** `DeleteEscrow` uses the proposal settings of `ToggleEscrowLock` and `Reclaim`. One proposal holds the `RemovePlugin`, `RemoveNamedPlugin`, `RemoveAllowances` and `Reclaim` actions and then `DeleteEscrow`; `dao.deleteEscrowActions` and the guild SDK's `deleteEscrowActions` build that list. The DAO's `proposalActionLimit` is 5 by default, so an escrow with more to remove takes more than one proposal, with `DeleteEscrow` in the last.
+- **Escrows made before this version are not counted.** That is all 37 on MainNet. The wallet makes the count with a new escrow, so it has none for these and cannot refuse their delete. The SDK and the proposal builders still remove everything the chain lists for the escrow in the same group. A direct call can leave a grant behind, which no longer works and can be removed, or an allowance, which can be removed and would otherwise apply again to a new escrow of the same name.
+- **Why the count is kept under the escrow's name.** The app id of a new escrow is not known when the call that creates it is built, so a box named after that id could not be listed by the call. A test builds the calls, lets other transactions land, and then sends them.
+- **Storage.** A new escrow costs 6,100 µALGO plus 400 per byte of its name more than before, for the count. A grant that uses an escrow by default costs 20,500 µALGO plus 400 per byte of the escrow's name more, for the name it stores, and gets it back when the grant is removed. The address of a deleted escrow is under nobody's control: anything sent there afterwards is lost.
+- **A new helper app (F0).** The SDK asks the immutable AbstractedAccountMBR what a wallet's boxes cost. The deployed helper (MainNet 3642282698, TestNet 767110471) runs the 304-byte program and does not know the count. F0 deploys the tree's and points `walletMbr` at it. Its method and return type are unchanged, so an SDK reads either helper. Neither quotes the extra cost of a grant that uses an escrow by default: the SDK's `defaultEscrowGrantMbr` gives it, and the three rollout scripts that install such grants add it.
+- **The fifth page.** Every live wallet has four pages: 73 on MainNet, the DAO wallet among them, and 1 on TestNet (read 2026-11-20). The factory grows a wallet's pages when it updates it. The factory sends the update and it created the wallet, so its minimum balance rises by 100,000 µALGO per wallet and it pays nothing out; the wallet's own account and its boxes are untouched. This is measured on a wallet that runs the MainNet program (`tests/compat`). `updateWallet` takes no payment and the factory has 1,121 µALGO free on MainNet, 800 on TestNet. F1 and F2 therefore read what the factory lacks and pay it from the sender before they update anything: 7.3 ALGO for MainNet's 73 wallets, 0.1 ALGO on TestNet.
+- **New wallets.** From E7 on a wallet is created with five pages and costs 0.1 ALGO more. The factory's `cost` quotes it. Reading the staged wallet from the factory's box now takes five box entries where it took four.
+- **Do not delete an escrow that a revenue split pays.** The revenue manager refuses to pay a split whose receiver escrow is gone. Change the splits first.
 - **One test changed for the node.** `methods on cooldown, single group` sent the same call twice. algod 5.1.1 refuses a group that repeats a transaction before it evaluates it, so the second call now pays another amount. The wallet's cooldown rule is unchanged.
-- **Manifest.** `release/manifest.json` differs in two entries: AbstractedAccount, and the test-only MockBigWallet (10,531 B, was 10,579), which inherits the wallet.
+- **Manifest.** `release/manifest.json` is regenerated. It differs in the six programs above and in two test-only ones that inherit them: MockBigWallet (11,162 B, was 10,579) and MockLegacyVoteDAO (11,054 B, was 10,996).
 
 ## Live state (read 2026-10-10)
 
@@ -399,6 +404,7 @@ npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"
 - **Requires:** none. **Script:** manual.
 - DAO creator (the deployer): 7.63 ALGO free on MainNet (61.10 held, 53.47 minimum balance; read 2026-11-17). It creates every new app, and each one raises its minimum balance. Top it up before B1 by what the TestNet rehearsal spent (A4), with margin.
 - DAO wallet: 10.65 ALGO sponsorship (has 43.37 free). It was 10.55 before Subscriptions took a sixth page on 2026-11-15.
+- Wallet factory (3569556257): 7.3 ALGO for the fifth program page of its 73 wallets, 0.1 ALGO each. It has 1,121 µALGO free (read 2026-11-20). F1 and F2 pay it from the deployer as they run, so the deployer's top-up includes it. F0 creates one more app, which holds 0.1 ALGO of the deployer's balance.
 - StakingPoolFactory box growth +1.842 ALGO and AuctionFactory +14,800 µA; the Phase 2 runner pays both.
 - AkitaSocialModeration, PrizeBoxFactory and HyperSwap hold 0 µA today. E6a sends them 1.3 ALGO in all.
 
@@ -732,6 +738,8 @@ npm run fund:service-accounts -- -n mainnet --confirm
 - K2 lockstep: ship the SDK release and every wallet-creating frontend/backend in the same hour.
 - From this moment anyone can push the AVM 13 wallet into any automatic wallet, the DAO wallet included. Run F right after.
 - Never change aal.wallet: every principal check pins wallet genuineness to it.
+- The child is 8,743 B since 2026-11-20: five upload chunks as before, in the one group. The factory's child box grows by 557 B, 222,800 µALGO, which the runner pays. A wallet created from here on has five program pages and costs 0.1 ALGO more; the factory's `cost` quotes it.
+- Until F1 and F2 have funded the factory, a push into a four-page wallet fails: the factory cannot hold the fifth page.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target AbstractedAccountFactory --dry-run --sender "$CREATOR"
@@ -742,6 +750,20 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 
 AVM 13 is one-way; do it deliberately right after E7.
 
+#### F0. New storage quote helper for wallets
+
+- **What:** Deploy the tree's AbstractedAccountMBR and point the SDK's `walletMbr` at it.
+- **Why here:** The helper cannot be updated. The deployed one does not know the count a new escrow stores since 2026-11-20 (6,100 µALGO plus 400 per byte of the name), so on an updated wallet it quotes a new escrow too low, and the rollout's own scripts fund the DAO wallet from that quote.
+- **Requires:** none. Any funded account can deploy it. **Script:** ready. A run that finds the SDK's helper on the tree program deploys nothing.
+- **Tracked by rollout:status as** `wallet-mbr`.
+- The old helper (3642282698) stays on chain for SDK versions that name it. On a wallet that is not updated yet the new helper quotes a new escrow too high by the count's cost, which is harmless. The SDK with the new id ships in the K2 lockstep.
+
+```bash
+npm run deploy:wallet-mbr -- -n mainnet --dry-run --sender "$CREATOR"
+npm run deploy:wallet-mbr -- -n mainnet --register
+(cd ../akita-sdk && npm run build)
+```
+
 #### F1. Upgrade the DAO wallet (one-way)
 
 - **What:** UpdateWallet proposal: the factory pushes the staged wallet into the DAO wallet.
@@ -749,6 +771,7 @@ AVM 13 is one-way; do it deliberately right after E7.
 - **Requires:** E7. **Script:** ready.
 - **Tracked by rollout:status as** `dao-wallet`.
 - Spec §9.5 step 4 puts this before Phase 2; that cannot run (ROLLOUT-5). This order is the executable one.
+- The DAO wallet gains a fifth program page. The script reads what the wallet factory lacks for it, 100,000 µALGO, prints it, and pays it from the sender before the proposal. The dry run prints the amount and pays nothing.
 
 ```bash
 npm run update:dao-wallet -- -n mainnet --dry-run --sender "$CREATOR"
@@ -760,7 +783,9 @@ npm run update:dao-wallet -- -n mainnet
 - **What:** Push the tree wallet into every automatic-update wallet.
 - **Why here:** R-STALE (the stale escrow registry) closes per wallet only when it runs the new program.
 - **Requires:** E7. **Script:** ready.
-- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,112 B since the escrow deletion of 2026-11-20, 76 B of headroom), so no growth cost.
+- Resumable with --skip-current. A rerun pays the factory only what is still short.
+- Each wallet gains a fifth program page, which raises the wallet factory's minimum balance by 100,000 µALGO. The script reads the staged program and every wallet's pages, prints what the factory lacks, and pays it from the sender before the first update: 7.2 ALGO for the 72 wallets left after F1. It covers the wallets it does not update too, so a wallet whose admin updates it later does not fail. `--targets-only` covers this run's wallets alone.
+- One update costs about 2,100 µALGO in fees.
 
 ```bash
 npm run update:automatic-wallets -- -n mainnet --dry-run
@@ -1165,6 +1190,15 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - `scripts/lib/rollout-steps.ts`: `rollout:status` tracks the new step as `service-accounts`, so `dao:initialize` refuses to launch while one of the four accounts cannot work.
 - Tests: `tests/service-account-funding.e2e.spec.ts`; two more reward tests in `smart_contracts/arc58/plugins/staking-pool/staking-pool.e2e.spec.ts`; one more prize box test in `smart_contracts/auction/auction.e2e.spec.ts`.
 - Two contract programs change, StakingPoolPlugin and AuctionFactory, and `release/manifest.json` with them.
+
+## Script changes made 2026-11-20
+
+- `scripts/lib/wallet-page-growth.ts` (new): reads the staged wallet program, each wallet's program pages and the wallet factory's free balance, and says what the factory lacks before wallets grow a page.
+- `scripts/update-dao-wallet.ts` (F1) and `scripts/update-automatic-wallets.ts` (F2): print that plan, and pay the factory what it lacks from the sender before the first update. A dry run pays nothing. F2 gains `--targets-only`.
+- `scripts/deploy-wallet-mbr.ts` (F0): deploys nothing when the SDK's helper already runs the tree program; `--register` writes the new id into `networks.ts` and the README.
+- `scripts/lib/rollout-steps.ts`: `rollout:status` tracks F0 as `wallet-mbr`.
+- `scripts/lib/dao-wallet-parity.ts`, `scripts/lib/dao-wallet-plugin-migration.ts`, `scripts/deploy-revenue-manager-plugin.ts`: a grant that uses an escrow by default is funded with the storage of the name it now stores (the SDK's `defaultEscrowGrantMbr`).
+- Tests: `tests/wallet-page-growth.test.ts`; `tests/compat/compat.e2e.spec.ts` updates a wallet on the MainNet program with the call F2 sends, and deletes an escrow made before the update; `smart_contracts/arc58/account/delete-escrow.e2e.spec.ts`; the DAO's and the Guild's proposal tests.
 
 ## Open script gaps
 

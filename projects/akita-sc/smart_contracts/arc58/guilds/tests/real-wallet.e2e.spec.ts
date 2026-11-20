@@ -5,10 +5,12 @@ import { assignGroupID as groupTransactions, Transaction } from 'algosdk';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { TimeWarp } from '../../../../tests/utils/time'
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
+import { deployOptInPlugin } from '../../../../tests/fixtures/plugins/optin'
 import { deployPayPlugin } from '../../../../tests/fixtures/plugins/pay'
 import { expectContractError } from '../../../../tests/utils/errors'
 import { errAdminOnly } from '../../account/errors'
 import { sendPrepared } from 'akita-sdk'
+import { deleteEscrowActions } from 'akita-sdk/guild'
 import { CallerType, WalletSDK } from 'akita-sdk/wallet'
 import {
   AbstractedAccountClient,
@@ -363,6 +365,71 @@ describe('Guild production ARC-58 wallet integration', () => {
     await approve(guild, [removePluginAction(pay.appId, ALGORAND_ZERO_ADDRESS_STRING, '')])
     expect((await wallet.state.box.plugins.getMap()).size).toBe(0)
   }, 360_000)
+
+  test('removes an escrow with its plugins, its allowance and its asset in one proposal, and refuses the delete alone', async () => {
+    const { guild, wallet } = await createRealWalletGuild()
+    const { creator, algorand } = environment
+    await wallet.appClient.fundAppAccount({ amount: microAlgo(6_000_000n) })
+    const pay = await deployPayPlugin({ fixture, sender: creator.addr, signer: creator.signer })
+    const optIn = await deployOptInPlugin({ fixture, sender: creator.addr, signer: creator.signer })
+    const sdk = new WalletSDK({
+      algorand, readerAccount: creator.addr.toString(),
+      factoryParams: { appId: wallet.appId, defaultSender: creator.addr, defaultSigner: creator.signer },
+    })
+    const { assetId: asset } = await algorand.send.assetCreate({ sender: creator.addr, signer: creator.signer, total: 1_000n, decimals: 0 })
+
+    // the Guild's wallet holds the asset, so it can take it back from the escrow
+    await approve(guild, [addPluginAction(optIn.appId, ALGORAND_ZERO_ADDRESS_STRING, '', proposalSettings(), false)])
+    await sdk.usePlugin({ sender: creator.addr, signer: creator.signer, callerType: CallerType.Global, calls: [optIn.optIn({ assets: [asset] })] })
+
+    // an escrow that three grants name: one directly callable, one voted policy with an alias, and one
+    // that uses the escrow by default for a named caller
+    await approve(guild, [newEscrowAction('ops', ALGORAND_ZERO_ADDRESS_STRING)])
+    await approve(guild, [addPluginAction(optIn.appId, ALGORAND_ZERO_ADDRESS_STRING, 'ops', proposalSettings(), false)])
+    await approve(guild, [addNamedPluginAction('ops_pay', pay.appId, ALGORAND_ZERO_ADDRESS_STRING, 'ops')])
+    await approve(guild, [addPluginAction(pay.appId, creator.addr.toString(), 'ops', proposalSettings(), false, false, true)])
+    await approve(guild, [addAllowancesAction('ops', [[0n, 1, 5n, 5n, 60n, false]])])
+    await sdk.usePlugin({ sender: creator.addr, signer: creator.signer, callerType: CallerType.Global, escrow: 'ops', calls: [optIn.optIn({ assets: [asset] })] })
+
+    const { id, address } = await sdk.getEscrow('ops')
+    await algorand.send.assetTransfer({ sender: creator.addr, signer: creator.signer, receiver: address, assetId: asset, amount: 40n })
+    await algorand.send.payment({ sender: creator.addr, signer: creator.signer, receiver: address, amount: microAlgo(300_000n) })
+    expect(await sdk.getEscrowRefs('ops')).toBe(4n)
+    expect(await guild.state.box.plugins.value({ plugin: pay.appId, escrow: 'ops' })).toBeDefined()
+
+    // The delete by itself is approved, and refused by the wallet when it runs; the proposal waits.
+    const alone = await approveOnly(guild, [action(73, encodeAbi('(string)', ['ops']))])
+    await expectContractError(executeProposal(guild, alone), 'errEuse')
+    expect((await guild.getProposal({ args: { proposalId: alone } })).status).toBe(40)
+    expect((await sdk.getEscrow('ops')).id).toBe(id)
+
+    // what the SDK builds from the chain: every removal, the close-out, and the delete last
+    const actions = deleteEscrowActions(await sdk.getEscrowTeardown('ops'))
+    expect(actions.map(([type]) => Number(type)).sort((a, b) => a - b)).toEqual([40, 40, 41, 60, 72, 73])
+    expect(Number(actions[actions.length - 1][0])).toBe(73)
+
+    const walletBefore = await environment.algorand.account.getInformation(wallet.appAddress)
+    const escrowHeld = await balanceOf(environment, address)
+
+    await approve(guild, actions.map(([type, data]) => action(Number(type), data as AbiBytes)))
+
+    // the escrow, its app, its record, its count, its grants, its alias and its allowance are gone
+    expect((await sdk.getEscrows()).has('ops')).toBe(false)
+    await expect(algorand.client.algod.getApplicationByID(id).do()).rejects.toThrow()
+    expect(await sdk.getEscrowRefs('ops')).toBeUndefined()
+    expect(Array.from((await wallet.state.box.plugins.getMap()).keys()).map((key) => key.plugin)).toEqual([optIn.appId])
+    expect((await wallet.state.box.namedPlugins.getMap()).size).toBe(0)
+    expect((await wallet.state.box.allowances.getMap()).size).toBe(0)
+    // the Guild forgot the voted policy of the removed plugin
+    expect((await guild.state.box.plugins.getMap()).size).toBe(0)
+    // and the wallet has the asset and the ALGO back: what the escrow held, the 150,000 the factory held
+    // for its app, and the storage the Guild held for the voted plugin's policy, which the Guild pays to
+    // its wallet when the plugin goes (26,900 and 400 per byte of the escrow's name)
+    const walletAfter = await environment.algorand.account.getInformation(wallet.appAddress)
+    expect(await balanceOf(environment, address)).toBe(0n)
+    expect(walletAfter.assets?.find((holding) => holding.assetId === asset)?.amount).toBe(40n)
+    expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(escrowHeld + 150_000n + 26_900n + 400n * 3n)
+  }, 600_000)
 
   test('re-deploys the wallet program through its factory only on governance approval', async () => {
     const { guild, wallet } = await createRealWalletGuild()

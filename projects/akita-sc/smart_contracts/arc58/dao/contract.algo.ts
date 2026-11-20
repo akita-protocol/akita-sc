@@ -10,9 +10,9 @@ import { CID } from "../../utils/types/base";
 import { AbstractAccountBoxPrefixExecutions, AbstractAccountBoxPrefixPlugins } from "../account/constants";
 import { AddAllowanceInfo, EscrowInfo, EscrowReclaim, PluginKey } from "../account/types";
 import { Split } from "../plugins/revenue-manager/types";
-import { AkitaDAOBoxPrefixBootstrapGrants, AkitaDAOBoxPrefixParticipation, AkitaDAOBoxPrefixVoteReceipts, DAOLegacyProposalVotesMBR, DAOParticipationMBR, MaxGovernanceLockDays, AkitaDAOBoxPrefixUpgradeLeases, DAOUpgradeLeaseMBR, AkitaDAOBoxPrefixBootstrapKeys, AkitaDAOBoxPrefixProposals, AkitaDAOBoxPrefixTallies, AkitaDAOGlobalStateKeysBootstrapKeyCount, DAOProposalTallyMBR, MaxBootstrapKeyRounds, ProposalStatusInvalid, AkitaDAOBoxPrefixProposalVotes, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysGuildFees, AkitaDAOGlobalStateKeysInitialized, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysProposalID, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees, AkitaDAONumGlobalBytes, AkitaDAONumGlobalUints, DAOExecutionMBR, DAOProposalVotesMBR, DaoStateDraft, DaoStateFullyInitialized, DaoStatePartiallyInitialized, MinDAOPluginMBR, MinDAOProposalActionMbr, MinDAOProposalMBR, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeChangeAdmin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeReclaim, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp, ProposalStatusApproved, ProposalStatusDraft, ProposalStatusExecuted, ProposalStatusRejected, ProposalStatusVoting, ProposalVoteTypeAbstain, ProposalVoteTypeApprove, ProposalVoteTypeReject } from "./constants";
+import { AkitaDAOBoxPrefixBootstrapGrants, AkitaDAOBoxPrefixParticipation, AkitaDAOBoxPrefixVoteReceipts, DAOLegacyProposalVotesMBR, DAOParticipationMBR, MaxGovernanceLockDays, AkitaDAOBoxPrefixUpgradeLeases, DAOUpgradeLeaseMBR, AkitaDAOBoxPrefixBootstrapKeys, AkitaDAOBoxPrefixProposals, AkitaDAOBoxPrefixTallies, AkitaDAOGlobalStateKeysBootstrapKeyCount, DAOProposalTallyMBR, MaxBootstrapKeyRounds, ProposalStatusInvalid, AkitaDAOBoxPrefixProposalVotes, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysGuildFees, AkitaDAOGlobalStateKeysInitialized, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysProposalID, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees, AkitaDAONumGlobalBytes, AkitaDAONumGlobalUints, DAOExecutionMBR, DAOProposalVotesMBR, DaoStateDraft, DaoStateFullyInitialized, DaoStatePartiallyInitialized, MinDAOPluginMBR, MinDAOProposalActionMbr, MinDAOProposalMBR, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeChangeAdmin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeDeleteEscrow, ProposalActionTypeReclaim, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp, ProposalStatusApproved, ProposalStatusDraft, ProposalStatusExecuted, ProposalStatusRejected, ProposalStatusVoting, ProposalVoteTypeAbstain, ProposalVoteTypeApprove, ProposalVoteTypeReject } from "./constants";
 import { errBootstrapExpired, errBootstrapForbidden, errBootstrapKeyActive, errBootstrapKeysOutstanding, errExecutionKeyReused, errVotesOutstanding, errAlreadyInitialized, errDaoNotInitialized, errEmptyActionList, errExecutionKeyNotFound, errForbidden, errIncorrectSender, errInsufficientProposalThreshold, errInvalidPayment, errInvalidProposalAction, errInvalidProposalState, errInvalidUpgrade, errNoVotingPower, errNotAkitaDao, errPaymentNotRequired, errPaymentRequired, errProposalDoesNotExist, errProposalVoteNotFound, errTooManyActions, errVersionCannotBeEmpty, errVotingDurationNotMet, errWalletAlreadySetup } from "./errors";
-import { AkitaAppList, AkitaAssets, AkitaDAOApps, AkitaDAOFees, AkitaSocialAppList, DAOPluginKey, DaoState, ExecutionMetadata, GovernanceParticipation, GovernanceWeight, GuildFees, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalActionType, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalCostInfo, ProposalDetails, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalTally, ProposalToggleEscrowLock, UpgradeLease, ProposalUpdateField, ProposalUpgradeApp, ProposalVoteInfo, ProposalVoteKey, ProposalVoteReceipt, ProposalVoteTotals, ProposalVoteType, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
+import { AkitaAppList, AkitaAssets, AkitaDAOApps, AkitaDAOFees, AkitaSocialAppList, DAOPluginKey, DaoState, ExecutionMetadata, GovernanceParticipation, GovernanceWeight, GuildFees, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalActionType, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalCostInfo, ProposalDeleteEscrow, ProposalDetails, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalTally, ProposalToggleEscrowLock, UpgradeLease, ProposalUpdateField, ProposalUpgradeApp, ProposalVoteInfo, ProposalVoteKey, ProposalVoteReceipt, ProposalVoteTotals, ProposalVoteType, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
 
 // CONTRACT IMPORTS
 import type { Staking } from "../../staking/contract.algo";
@@ -471,7 +471,8 @@ export class AkitaDAO extends Contract {
         return this.newEscrowProposalSettings.value
       }
       case ProposalActionTypeToggleEscrowLock:
-      case ProposalActionTypeReclaim: {
+      case ProposalActionTypeReclaim:
+      case ProposalActionTypeDeleteEscrow: {
         return this.toggleEscrowLockProposalSettings.value
       }
       case ProposalActionTypeUpdateFields: {
@@ -634,6 +635,13 @@ export class AkitaDAO extends Contract {
     abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
       appId: this.wallet.value,
       args: [escrow, reclaims]
+    })
+  }
+
+  private deleteEscrow(escrow: string): void {
+    abiCall<typeof AbstractedAccount.prototype.arc58_deleteEscrow>({
+      appId: this.wallet.value,
+      args: [escrow]
     })
   }
 
@@ -1439,6 +1447,11 @@ export class AkitaDAO extends Contract {
         case ProposalActionTypeReclaim: {
           const { escrow, reclaims } = decodeArc4<ProposalReclaim>(data)
           this.reclaim(escrow, reclaims)
+          break
+        }
+        case ProposalActionTypeDeleteEscrow: {
+          const { escrow } = decodeArc4<ProposalDeleteEscrow>(data)
+          this.deleteEscrow(escrow)
           break
         }
         case ProposalActionTypeChangeAdmin: {

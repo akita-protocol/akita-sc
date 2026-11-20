@@ -1,14 +1,14 @@
 import { AbstractedAccountArgs, AbstractedAccountFactory, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer, PluginInfoFromTuple, EscrowInfoFromTuple } from '../generated/AbstractedAccountClient'
 import { AbstractAccountBoxMbrData, AbstractedAccountMbrClient } from '../generated/AbstractedAccountMBRClient'
-import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CallerType, CanCallParams, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
+import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CallerType, CanCallParams, EscrowPluginRef, EscrowTeardown, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
 import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, hasSenderSigner, ExpandedSendParamsWithSigner, PluginTxn } from '../types';
 import { BaseSDK } from '../base';
 import { EscrowFactorySDK } from '../escrow';
 import { ENV_VAR_NAMES, resolveAppIdWithClient, shouldWriteRegistry } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
-import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, domainBoxKey, executionBoxKey, ValueMap } from './utils';
-import { addPluginExtraFee, controlledMbrFee, deleteEscrowExtraFee, newEscrowExtraFee, RegisterEscrowFeeAmount, RemoveAllowancesPerCall } from './constants';
+import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, assertEscrowCanBeDeleted, domainBoxKey, executionBoxKey, ValueMap } from './utils';
+import { addPluginExtraFee, controlledMbrFee, deleteEscrowExtraFee, MaxGroupSize, newEscrowExtraFee, ReclaimsPerCall, RemoveAllowancesPerCall } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 import { BoxIdentifier, BoxReference } from '@algorandfoundation/algokit-utils/types/app-manager';
@@ -933,69 +933,193 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   /**
-   * Delete an escrow by closing its account out to the wallet. Admin only.
-   *
-   * Everything the escrow held in ALGO comes back, with what the escrow factory held for its app and
-   * the storage of the wallet's record of it. Before calling this:
-   * - close every asset out of the escrow (`reclaimFunds` with `closeOut: true`): an account that
-   *   holds an asset cannot be closed, and the call fails;
-   * - unlock the escrow if it is locked.
-   *
-   * The factory deletes only an escrow it has on record. If this one is not, it is registered in the
-   * same group, and what registering costs comes back with the delete.
-   *
-   * The wallet keeps allowances under the escrow's name, so one left behind would apply again to a
-   * new escrow of that name. This removes the escrow's allowances in the same group.
-   *
-   * Afterwards the escrow's address is under nobody's control, so funds sent there are lost. Grants
-   * that name the escrow stop working: remove them with `removePlugin`.
+   * How many plugins and allowances the wallet counts for an escrow. Undefined for an escrow made
+   * before the wallet kept this count.
    */
-  async deleteEscrow({ sender, signer, escrow }: ContractArgs['arc58_deleteEscrow(string)void'] & MaybeSigner): Promise<GroupReturn> {
+  async getEscrowRefs(escrow: string): Promise<bigint | undefined> {
+    try {
+      return await this.client.state.box.escrowRefs.value(escrow);
+    } catch (error) {
+      // only a missing box means "not counted": anything else is a failed read
+      if (/box not found|404/i.test(error instanceof Error ? error.message : String(error))) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
 
-    const sendParams = this.getSendParams({ sender, signer });
-    const hasExternalControlledAddress = await this.hasExternalControlledAddress();
+  /**
+   * Read everything the chain lists for an escrow: the grants and aliases that name it, its
+   * allowances, the assets it holds, and anything that stands in the way of deleting it.
+   */
+  async getEscrowTeardown(escrow: string): Promise<EscrowTeardown> {
+    const { id, address, locked } = await this.getEscrow(escrow);
+    if (escrow === '' || address === ALGORAND_ZERO_ADDRESS_STRING) {
+      throw new Error(`Escrow '${escrow}' does not exist`);
+    }
 
-    const { id, address } = await this.getEscrow(escrow);
-    const minted = id !== 0n;
+    const [plugins, named, allowances, account, controlledAddress, factoryAppId] = await Promise.all([
+      this.client.state.box.plugins.getMap(),
+      this.client.state.box.namedPlugins.getMap(),
+      this.client.state.box.allowances.getMap(),
+      this.algorand.account.getInformation(address),
+      this.client.state.global.controlledAddress(),
+      this.client.state.global.escrowFactory(),
+    ]);
 
-    const group = this.client.newGroup();
+    const keyOf = (key: PluginKey) => `${key.plugin}|${key.caller}|${key.escrow}`;
+    const namesByKey = new Map<string, string[]>();
+    for (const [name, key] of named) {
+      namesByKey.set(keyOf(key), [...(namesByKey.get(keyOf(key)) ?? []), name]);
+    }
 
-    if (minted) {
-      const factoryAppId = await this.client.state.global.escrowFactory();
+    // A grant names the escrow in its key, or, when it defaults to the escrow, by the escrow's app id.
+    const refs: EscrowPluginRef[] = [];
+    const installed = new Set<string>();
+    for (const [key, info] of plugins) {
+      installed.add(keyOf(key));
+      if (key.escrow === escrow || (key.escrow === '' && id !== 0n && info.escrow === id)) {
+        refs.push({ plugin: key.plugin, caller: key.caller, escrow: key.escrow, names: namesByKey.get(keyOf(key)) ?? [] });
+      }
+    }
+
+    const staleNames = Array.from(named)
+      .filter(([, key]) => key.escrow === escrow && !installed.has(keyOf(key)))
+      .map(([name]) => name);
+
+    const assets = (account.assets ?? []).map((holding) => holding.assetId);
+
+    const blockers: string[] = [];
+    const apps = (account.appsLocalState ?? []).map((state) => state.id);
+    if (apps.length > 0) {
+      blockers.push(`it is opted in to ${apps.length === 1 ? 'app' : 'apps'} ${apps.join(', ')}: close out of ${apps.length === 1 ? 'it' : 'them'} with the plugin that opted in`);
+    }
+    if ((account.createdAssets ?? []).length > 0) {
+      blockers.push(`it created ${account.createdAssets!.length === 1 ? 'an asset' : 'assets'} that still ${account.createdAssets!.length === 1 ? 'exists' : 'exist'} (${account.createdAssets!.map((asset) => asset.index).join(', ')})`);
+    }
+    if ((account.createdApps ?? []).length > 0) {
+      blockers.push(`it created ${account.createdApps!.length === 1 ? 'an app' : 'apps'} that still ${account.createdApps!.length === 1 ? 'exists' : 'exist'} (${account.createdApps!.map((app) => app.id).join(', ')})`);
+    }
+    const frozen = (account.assets ?? []).filter((holding) => holding.isFrozen).map((holding) => holding.assetId);
+    if (frozen.length > 0) {
+      blockers.push(`its holding of ${frozen.join(', ')} is frozen`);
+    }
+    if (assets.length > 0 && controlledAddress !== undefined) {
+      const receiver = await this.algorand.account.getInformation(controlledAddress);
+      const receivable = new Set((receiver.assets ?? []).map((holding) => holding.assetId));
+      const missing = assets.filter((asset) => !receivable.has(asset));
+      if (missing.length > 0) {
+        blockers.push(`the wallet's account is not opted in to ${missing.join(', ')}, which the escrow holds: opt it in first`);
+      }
+    }
+
+    let registered = false;
+    if (id !== 0n) {
       if (factoryAppId === undefined) throw new Error('This wallet names no escrow factory');
       const factory = new EscrowFactorySDK({
         algorand: this.algorand,
         factoryParams: { appId: factoryAppId },
         readerAccount: this.readerAccount,
       });
+      registered = await factory.exists({ address });
+    }
 
-      if (!(await factory.exists({ address }))) {
-        group.register({ ...sendParams, args: { escrow }, extraFee: microAlgo(RegisterEscrowFeeAmount) });
+    return {
+      escrow,
+      id,
+      address,
+      locked,
+      registered,
+      counted: await this.getEscrowRefs(escrow),
+      plugins: refs,
+      staleNames,
+      allowances: Array.from(allowances.keys()).filter((key) => key.escrow === escrow).map((key) => key.asset),
+      assets,
+      blockers,
+    };
+  }
+
+  /**
+   * Delete an escrow by closing its account out to the wallet. Admin only.
+   *
+   * The wallet refuses to delete an escrow while a plugin or an allowance still names it, and the
+   * network refuses to close an account that holds an asset. So this removes every grant and alias
+   * that names the escrow, removes its allowances, closes its assets out to the wallet and deletes
+   * it, all in one group: either the whole removal happens or none of it. Only an escrow with more
+   * than a group holds (16 calls) is spread over several groups, sent one after another, with the
+   * delete in the last.
+   *
+   * Everything the escrow held comes back to the wallet's account, with what the escrow factory held
+   * for its app and the wallet's own storage for it.
+   *
+   * A locked escrow is not touched unless `unlock` is set: the group then unlocks it first.
+   * It throws, sending nothing, when something stands in the way that the wallet cannot undo: the
+   * escrow is opted in to an app, or holds an asset the wallet's account cannot receive.
+   *
+   * An escrow made before the wallet counted plugins and allowances is not checked by the wallet when
+   * it is deleted. What this removes for such an escrow is what the chain listed when it was called.
+   *
+   * Afterwards the escrow's address is under nobody's control, so funds sent there are lost.
+   *
+   * @returns one entry for each group sent; the last holds the delete
+   */
+  async deleteEscrow({ sender, signer, escrow, unlock = false }: ContractArgs['arc58_deleteEscrow(string)void'] & MaybeSigner & { unlock?: boolean }): Promise<GroupReturn[]> {
+
+    const sendParams = this.getSendParams({ sender, signer });
+    const hasExternalControlledAddress = await this.hasExternalControlledAddress();
+    const mbrFee = microAlgo(controlledMbrFee(hasExternalControlledAddress));
+
+    const plan = await this.getEscrowTeardown(escrow);
+    assertEscrowCanBeDeleted(plan, unlock);
+
+    type Group = ReturnType<typeof this.client.newGroup>;
+    const calls: ((group: Group) => void)[] = [];
+
+    if (plan.locked) {
+      calls.push((group) => group.arc58ToggleEscrowLock({ ...sendParams, args: { escrow } }));
+    }
+
+    for (const { plugin, caller, escrow: keyEscrow, names } of plan.plugins) {
+      if (names.length === 0) {
+        calls.push((group) => group.arc58RemovePlugin({ ...sendParams, args: { plugin, caller, escrow: keyEscrow }, extraFee: mbrFee }));
+      }
+      // the first alias takes the grant with it, the others are only aliases
+      for (const name of names) {
+        calls.push((group) => group.arc58RemoveNamedPlugin({ ...sendParams, args: { name }, extraFee: mbrFee }));
       }
     }
-
-    const assets = Array.from(await this.client.state.box.allowances.getMap(), ([key]) => key)
-      .filter((key) => key.escrow === escrow)
-      .map((key) => key.asset);
-    // one group holds 16 calls: the delete, a registration, and the removals
-    if (assets.length > RemoveAllowancesPerCall * 14) {
-      throw new Error(`Escrow '${escrow}' has ${assets.length} allowances: remove them with removeAllowances first`);
+    for (const name of plan.staleNames) {
+      calls.push((group) => group.arc58RemoveNamedPlugin({ ...sendParams, args: { name }, extraFee: mbrFee }));
     }
-    for (let i = 0; i < assets.length; i += RemoveAllowancesPerCall) {
-      group.arc58RemoveAllowances({
+
+    for (let i = 0; i < plan.allowances.length; i += RemoveAllowancesPerCall) {
+      const assets = plan.allowances.slice(i, i + RemoveAllowancesPerCall);
+      calls.push((group) => group.arc58RemoveAllowances({ ...sendParams, args: { escrow, assets }, extraFee: mbrFee }));
+    }
+
+    for (let i = 0; i < plan.assets.length; i += ReclaimsPerCall) {
+      const assets = plan.assets.slice(i, i + ReclaimsPerCall);
+      calls.push((group) => group.arc58Reclaim({
         ...sendParams,
-        args: { escrow, assets: assets.slice(i, i + RemoveAllowancesPerCall) },
-        extraFee: microAlgo(controlledMbrFee(hasExternalControlledAddress)),
-      });
+        // nothing is named as an amount: the close-out moves whatever the escrow holds when it runs
+        args: { escrow, reclaims: assets.map((asset) => [asset, 0n, true]) },
+        extraFee: microAlgo(1_000n * BigInt(assets.length)),
+      }));
     }
 
-    group.arc58DeleteEscrow({
+    calls.push((group) => group.arc58DeleteEscrow({
       ...sendParams,
       args: { escrow },
-      extraFee: microAlgo(deleteEscrowExtraFee(minted, hasExternalControlledAddress)),
-    });
+      extraFee: microAlgo(deleteEscrowExtraFee(plan.id !== 0n, hasExternalControlledAddress, plan.registered)),
+    }));
 
-    return await group.send({ ...sendParams });
+    const sent: GroupReturn[] = [];
+    for (let i = 0; i < calls.length; i += MaxGroupSize) {
+      const group = this.client.newGroup();
+      for (const call of calls.slice(i, i + MaxGroupSize)) call(group);
+      sent.push(await group.send({ ...sendParams }));
+    }
+    return sent;
   }
 
   async optInEscrow({ sender, signer, ...args }: ContractArgs['arc58_optInEscrow(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>> {

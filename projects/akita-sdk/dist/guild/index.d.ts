@@ -7,6 +7,7 @@ import { LockedTokenGuildConsensusClient, LockedTokenGuildConsensusFactory } fro
 import { FixedSignerGuildConsensusClient, FixedSignerGuildConsensusFactory } from "../generated/FixedSignerGuildConsensusClient";
 import { SubscriptionGuildConsensusClient, SubscriptionGuildConsensusFactory } from "../generated/SubscriptionGuildConsensusClient";
 import type { NewContractSDKParams } from "../types";
+import type { EscrowTeardown } from "../wallet/types";
 export type { EscrowConfig, GuildBaseConfig, GuildConsensusBallot, GuildConsensusRequirements, GuildDeployment, GuildExecutionMetadata, GuildPluginKey, GuildProposal, GuildProposalCostInfo, GuildProposalSettings, GuildProposalSettingsConfig, GuildVoteTotals, };
 export { FixedSignerGuildConsensusClient, FixedSignerGuildConsensusFactory, GuildClient, GuildContractFactory, GuildConsensusFactoryClient, GuildConsensusFactoryFactory, GuildFactoryClient, GuildFactoryFactory, LockedTokenGuildConsensusClient, LockedTokenGuildConsensusFactory, SubscriptionGuildConsensusClient, SubscriptionGuildConsensusFactory, };
 /** On-chain Guild proposal action discriminants. */
@@ -25,6 +26,7 @@ export declare enum GuildActionType {
     NewEscrow = 70,
     ToggleEscrowLock = 71,
     Reclaim = 72,
+    DeleteEscrow = 73,
     SetProposalSettings = 80,
     SetProposalActionLimit = 81,
     /** Create a fresh wallet through the DAO wallet factory; Guilds never adopt existing wallets. */
@@ -189,6 +191,11 @@ export declare const newEscrowAction: (escrow: string, address: string) => Guild
 export declare const toggleEscrowLockAction: (escrow: string) => GuildProposalAction;
 /** Build action 72: move escrowed funds back to the Guild wallet. */
 export declare const reclaimAction: (escrow: string, reclaims: EscrowReclaimInput[]) => GuildProposalAction;
+/**
+ * Build action 73: delete an escrow of the Guild wallet by closing its account. Put the actions that
+ * remove its plugins and allowances and close out its assets before this one in the same proposal.
+ */
+export declare const deleteEscrowAction: (escrow: string) => GuildProposalAction;
 /** Build action 91: hand the Guild wallet to another administrator and free the wallet slot. */
 export declare const changeAdminAction: (admin: string) => GuildProposalAction;
 /**
@@ -230,6 +237,33 @@ export declare const removePluginAction: ({ plugin, caller, escrow }: {
     caller: string;
     escrow?: string;
 }) => GuildProposalAction;
+/**
+ * Build action 41: remove the alias `name` from the Guild's wallet, with the grant it points at. The
+ * grant's key is part of what is voted on, and the action fails if the alias points elsewhere by then.
+ */
+export declare const removeNamedPluginAction: ({ name, plugin, caller, escrow }: {
+    name: string;
+    plugin: bigint;
+    caller: string;
+    escrow?: string;
+}) => GuildProposalAction;
+/** Build action 60: remove an escrow's allowances for `assets`. */
+export declare const removeAllowancesAction: (escrow: string, assets: bigint[]) => GuildProposalAction;
+/**
+ * Build the actions that delete an escrow of a Guild's wallet, in the order the wallet needs them,
+ * from what the chain lists for the escrow (`WalletSDK.getEscrowTeardown`): unlock it if asked,
+ * remove every grant and alias that names it, remove its allowances, close its assets out to the
+ * wallet, then delete it.
+ *
+ * Put them in one proposal so the whole removal runs in one transaction group. When they are more
+ * than the Guild's action limit allows, split them over proposals in this order and execute those in
+ * order: the wallet refuses the delete while a plugin or an allowance still names the escrow.
+ *
+ * An alias whose grant is already gone does not stand in the way and is left alone.
+ */
+export declare const deleteEscrowActions: (plan: EscrowTeardown, { unlock }?: {
+    unlock?: boolean;
+}) => GuildProposalAction[];
 /** Build action 31. */
 export declare const removeExecutionAction: (executionKey: Uint8Array) => GuildProposalAction;
 /** Build action 90 or 100 or 110 (actions without a payload). */

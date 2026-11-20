@@ -34,6 +34,7 @@ import {
   GuildActionExecutePlugin,
   GuildActionFullyInitialize,
   GuildActionLockPluginSet,
+  GuildActionDeleteEscrow,
   GuildActionNewEscrow,
   GuildActionReclaim,
   GuildActionRemoveAllowances,
@@ -135,6 +136,7 @@ import type {
   GuildProposalConsensusActionSettings,
   GuildProposalCostInfo,
   GuildProposalExecution,
+  GuildProposalDeleteEscrow,
   GuildProposalNewEscrow,
   GuildProposalReclaim,
   GuildProposalRemoveAllowances,
@@ -544,7 +546,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       type === GuildActionRemoveAllowances ||
       type === GuildActionNewEscrow ||
       type === GuildActionToggleEscrowLock ||
-      type === GuildActionReclaim
+      type === GuildActionReclaim ||
+      type === GuildActionDeleteEscrow
     )
   }
 
@@ -581,7 +584,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         return this.newEscrowProposalSettings.value
       }
       case GuildActionToggleEscrowLock:
-      case GuildActionReclaim: {
+      case GuildActionReclaim:
+      case GuildActionDeleteEscrow: {
         return this.toggleEscrowLockProposalSettings.value
       }
       default: {
@@ -872,6 +876,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         break
       case GuildActionToggleEscrowLock:
       case GuildActionReclaim:
+      case GuildActionDeleteEscrow:
         this.toggleEscrowLockProposalSettings.value = clone(settings)
         break
       default:
@@ -1608,6 +1613,15 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
           abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
             appId: this.wallet.value,
             args: [action.escrow, action.reclaims],
+          })
+          break
+        }
+        case GuildActionDeleteEscrow: {
+          // The wallet refuses while a plugin or an allowance still names the escrow or it holds an asset.
+          const action = decodeArc4<GuildProposalDeleteEscrow>(data)
+          abiCall<typeof AbstractedAccount.prototype.arc58_deleteEscrow>({
+            appId: this.wallet.value,
+            args: [action.escrow],
           })
           break
         }

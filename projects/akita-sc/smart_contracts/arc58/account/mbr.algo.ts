@@ -5,7 +5,7 @@ import { abiCall } from "@algorandfoundation/algorand-typescript/arc4";
 
 import type { AbstractedAccount } from "./contract.algo.ts";
 import { BoxCostPerByte } from "../../utils/constants";
-import { MethodRestrictionByteLength, MinAllowanceMBR, MinDomainKeysMBR, MinEscrowsMBR, MinExecutionsMBR, MinNamedPluginMBR, MinPluginMBR } from "./constants";
+import { MethodRestrictionByteLength, MinAllowanceMBR, MinDomainKeysMBR, MinEscrowRefsMBR, MinEscrowsMBR, MinExecutionsMBR, MinNamedPluginMBR, MinPluginMBR } from "./constants";
 
 export class AbstractedAccountMBR extends Contract {
 
@@ -21,8 +21,9 @@ export class AbstractedAccountMBR extends Contract {
     return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
   }
 
+  /** A new escrow stores its record and its count of plugins and allowances. */
   private escrowsMbr(escrow: string): uint64 {
-    return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
+    return MinEscrowsMBR + MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length) * 2
   }
 
   private allowancesMbr(escrow: string): uint64 {
@@ -44,7 +45,9 @@ export class AbstractedAccountMBR extends Contract {
   * @param methodCount The number of method restrictions on the plugin
   * @param plugin The plugin name to calculate named plugin MBR for
   * @param groups The number of execution groups to calculate MBR for
-  * @returns The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+  * @returns The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+  * A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+  * `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
   */
   @abimethod({ readonly: true })
   mbr(

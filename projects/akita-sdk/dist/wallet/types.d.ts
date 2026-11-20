@@ -17,6 +17,39 @@ export type FundsRequest = {
 export type PluginInfo = Omit<ClientPluginInfo, 'methods'> & {
     methods: MethodOffset[];
 };
+/** A grant that names an escrow, and the aliases that point at it. */
+export type EscrowPluginRef = {
+    plugin: bigint;
+    caller: string;
+    /** The escrow part of the grant's key: the escrow's name, or '' for a grant that defaults to the escrow. */
+    escrow: string;
+    names: string[];
+};
+/** What the chain lists for one escrow: everything that has to go before the escrow can be deleted. */
+export type EscrowTeardown = {
+    escrow: string;
+    id: bigint;
+    address: string;
+    locked: boolean;
+    /** Whether the escrow factory has the escrow on record. A delete registers one that is not. */
+    registered: boolean;
+    /**
+     * How many plugins and allowances the wallet counts for the escrow. While this is above zero the
+     * wallet refuses to delete it. Undefined for an escrow made before the wallet kept this count: the
+     * wallet cannot check a delete of such an escrow, so remove everything listed here with it.
+     */
+    counted: bigint | undefined;
+    /** Grants that name the escrow. */
+    plugins: EscrowPluginRef[];
+    /** Aliases that name the escrow and whose grant is already gone. */
+    staleNames: string[];
+    /** Assets the escrow has an allowance for. */
+    allowances: bigint[];
+    /** Assets the escrow holds or is opted in to. */
+    assets: bigint[];
+    /** What stands in the way that no call of the wallet can undo. Empty when the escrow can be deleted. */
+    blockers: string[];
+};
 export type MbrParams = {
     escrow: string;
     methodCount: bigint | number;

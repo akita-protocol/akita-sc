@@ -103,6 +103,47 @@ dynamic_array_read_dynamic_element:
     retsub
 
 
+// smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
+splitOptInCount:
+    // smart_contracts/utils/functions.ts:884
+    // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
+    proto 3 1
+    // smart_contracts/utils/functions.ts:885
+    // let count: uint64 = 0
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:887
+    // if (!escrow.isOptedIn(asset)) {
+    frame_dig -2
+    frame_dig -1
+    asset_holding_get AssetBalance
+    bury 1
+    bnz splitOptInCount_after_if_else@2
+    // smart_contracts/utils/functions.ts:265
+    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
+    frame_dig -3
+    pushbytes "revenue_splits"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:891
+    // count += splits.length
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    // smart_contracts/utils/functions.ts:888
+    // count += 1
+    intc_1 // 1
+    // smart_contracts/utils/functions.ts:891
+    // count += splits.length
+    +
+    frame_bury 0
+
+splitOptInCount_after_if_else@2:
+    // smart_contracts/utils/functions.ts:894
+    // return count
+    frame_dig 0
+    swap
+    retsub
+
+
 // smart_contracts/utils/programs.ts::programExtraPages(approvalSize: uint64, clearSize: uint64, minExtraPages: uint64) -> uint64:
 programExtraPages:
     // smart_contracts/utils/programs.ts:41
@@ -175,47 +216,6 @@ boxedProgramSize:
 boxedProgramSize_after_assert@2:
     // smart_contracts/utils/programs.ts:84
     // return size
-    retsub
-
-
-// smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
-splitOptInCount:
-    // smart_contracts/utils/functions.ts:884
-    // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-    proto 3 1
-    // smart_contracts/utils/functions.ts:885
-    // let count: uint64 = 0
-    intc_0 // 0
-    // smart_contracts/utils/functions.ts:887
-    // if (!escrow.isOptedIn(asset)) {
-    frame_dig -2
-    frame_dig -1
-    asset_holding_get AssetBalance
-    bury 1
-    bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:265
-    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
-    frame_dig -3
-    pushbytes "revenue_splits"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:888
-    // count += 1
-    intc_1 // 1
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    +
-    frame_bury 0
-
-splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:894
-    // return count
-    frame_dig 0
-    swap
     retsub
 
 

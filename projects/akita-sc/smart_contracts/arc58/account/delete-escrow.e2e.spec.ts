@@ -5,15 +5,18 @@
  *   - the escrow account's ALGO, base minimum included        -> closed out to the controlled address
  *   - the escrow app and the factory's record of it           -> EscrowFactory.delete, which only the
  *                                                                wallet app may call for its own escrow
- *   - the wallet's own record of the escrow (a box)           -> deleted here, its storage refunded
+ *   - the wallet's own record of the escrow and its count of  -> deleted here, their storage refunded
+ *     the plugins and allowances that name it (two boxes)
  *
- * The factory deletes only an escrow it has on record, so an escrow is registered before it is deleted.
+ * The wallet refuses the delete while a plugin or an allowance still names the escrow, and the network
+ * refuses to close an account that holds an asset. Calls earlier in the same group may remove all of
+ * that, which is what the SDK's deleteEscrow sends.
  */
-import { Config, microAlgo } from '@algorandfoundation/algokit-utils';
+import { Config, microAlgo, populateAppCallResources } from '@algorandfoundation/algokit-utils';
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { CallerType, newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
+import { CallerType, defaultEscrowGrantMbr, escrowCountMbr, newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk';
 import { approvalBytes, clearBytes } from '../../../tests/compat/lib/snapshot';
 import { sha256Hex } from '../../../tests/compat/lib/teal-facts';
@@ -23,13 +26,18 @@ import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { expectContractError } from '../../../tests/utils/errors';
 import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient';
-import { errDoesntExist } from '../../escrow/errors';
-import { errEscrowDoesNotExist, errEscrowLocked, errForbidden } from './errors';
+import { errEscrowDoesNotExist, errEscrowInUse, errEscrowLocked, errForbidden } from './errors';
 
 /** What the factory returns for an escrow app and its record: 100,000 + 50,000 + 12,100. */
 const FACTORY_REFUND = 162_100n;
+/** What the factory's record of an escrow costs. A delete pays it for an escrow not on record, and gets it back. */
+const FACTORY_RECORD = 12_100n;
 /** The wallet's record of an escrow: 19,300 plus 400 per byte of its name. */
 const escrowRecordMbr = (name: string) => 19_300n + 400n * BigInt(Buffer.from(name).length);
+/** The wallet's count of the plugins and allowances that name an escrow: 6,100 plus 400 per byte of its name. */
+const countMbr = escrowCountMbr;
+/** What the wallet stores to find the escrow of a plugin that uses it by default: 20,500 plus 400 per byte of its name. */
+const defaultEscrowMbr = defaultEscrowGrantMbr;
 
 describe('ARC58 escrow deletion', () => {
   const localnet = algorandFixture();
@@ -55,18 +63,28 @@ describe('ARC58 escrow deletion', () => {
   const hasRecord = async (escrow: string) => (await wallet.getEscrows()).has(escrow);
   /** Whether the factory has the escrow's address on record. */
   const registered = async (address: string) => (await universe.escrowFactory.send.exists({ args: { address } })).return;
+  /** How many plugins and allowances the wallet counts for an escrow. */
+  const counted = (escrow: string) => wallet.getEscrowRefs(escrow);
 
-  /** A new escrow made by the factory, optionally registered there. Returns its app id and address. */
-  const newEscrow = async (escrow: string, register = true) => {
-    await wallet.client.appClient.fundAppAccount({ amount: microAlgo(2_000_000n) });
+  /** A new escrow made by the factory, optionally put on the factory's record. Returns its app id and address. */
+  const newEscrow = async (escrow: string, register = false) => {
     await wallet.newEscrow({ escrow, address: ALGORAND_ZERO_ADDRESS_STRING });
     if (register) await wallet.register({ escrow });
     const { id } = await wallet.getEscrow(escrow);
     return { id, address: getApplicationAddress(id).toString() };
   };
 
+  /** The contract call alone, with nothing removed first. */
   const deleteEscrow = (escrow: string, from = sender) =>
     wallet.client.send.arc58DeleteEscrow({ sender: from, args: { escrow }, ...fees });
+
+  /** An asset the wallet's own account is opted in to, so the wallet can take it back from an escrow. */
+  const assetTheWalletHolds = async () => {
+    const { assetId } = await localnet.algorand.send.assetCreate({ sender, total: 1_000n, decimals: 0, assetName: 'Held' });
+    await wallet.addPlugin({ client: optInPluginSdk, callerType: CallerType.Global });
+    await wallet.usePlugin({ callerType: CallerType.Global, calls: [optInPluginSdk.optIn({ assets: [assetId] })] });
+    return assetId;
+  };
 
   beforeAll(async () => {
     Config.configure({ debug: true });
@@ -94,308 +112,467 @@ describe('ARC58 escrow deletion', () => {
       algorand,
       nickname: 'test_wallet',
     });
+    // enough for every escrow, grant and allowance a test makes
+    await wallet.client.appClient.fundAppAccount({ amount: (10).algos() });
   });
 
-  test('deletes an escrow and returns everything it held and everything it cost', async () => {
-    const escrow = 'to_delete';
-    const { id, address } = await newEscrow(escrow);
+  describe('the contract call', () => {
+    test('deletes an escrow and returns everything it held and everything it cost', async () => {
+      const escrow = 'to_delete';
+      const { id, address } = await newEscrow(escrow, true);
+      expect(await counted(escrow)).toBe(0n);
 
-    // leave something in it beyond its 0.1 ALGO minimum
-    await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(750_000n) });
+      // leave something in it beyond its 0.1 ALGO minimum
+      await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(750_000n) });
 
-    const escrowBefore = await account(address);
-    const walletBefore = await account(wallet.client.appAddress.toString());
-    expect(escrowBefore.balance.microAlgos).toBe(850_000n);
-    expect(escrowBefore.authAddr?.toString()).toBe(wallet.client.appAddress.toString());
+      const escrowBefore = await account(address);
+      const walletBefore = await account(wallet.client.appAddress.toString());
+      expect(escrowBefore.balance.microAlgos).toBe(850_000n);
+      expect(escrowBefore.authAddr?.toString()).toBe(wallet.client.appAddress.toString());
 
-    await deleteEscrow(escrow);
+      await deleteEscrow(escrow);
 
-    const escrowAfter = await account(address);
-    const walletAfter = await account(wallet.client.appAddress.toString());
+      const escrowAfter = await account(address);
+      const walletAfter = await account(wallet.client.appAddress.toString());
 
-    // the account is closed: no balance, and no longer rekeyed to anything
-    expect(escrowAfter.balance.microAlgos).toBe(0n);
-    expect(escrowAfter.authAddr).toBeUndefined();
-    // the app is gone, the factory has forgotten it, and so has the wallet
-    expect(await appExists(id)).toBe(false);
-    expect(await registered(address)).toBe(false);
-    expect(await hasRecord(escrow)).toBe(false);
-    // everything came back to the wallet: what the escrow held, and what the factory was holding for it
-    expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(850_000n + FACTORY_REFUND);
-    // and the wallet's own storage for the record is released
-    expect(walletBefore.minBalance.microAlgos - walletAfter.minBalance.microAlgos).toBe(escrowRecordMbr(escrow));
-  });
-
-  test('strands nothing in the factory', async () => {
-    const escrow = 'no_strand';
-    const factoryAddress = universe.escrowFactory.appAddress.toString();
-    const before = await account(factoryAddress);
-    const spare = before.balance.microAlgos - before.minBalance.microAlgos;
-
-    const { address } = await newEscrow(escrow);
-    await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(400_000n) });
-    await deleteEscrow(escrow);
-
-    const after = await account(factoryAddress);
-    expect(after.minBalance.microAlgos).toBe(before.minBalance.microAlgos);
-    expect(after.balance.microAlgos - after.minBalance.microAlgos).toBe(spare);
-  });
-
-  test('refuses while the escrow still holds an asset, and works once the asset is closed out', async () => {
-    const escrow = 'with_asset';
-    const { id, address } = await newEscrow(escrow);
-
-    const created = await localnet.algorand.send.assetCreate({ sender, total: 1_000n, decimals: 0, assetName: 'Held' });
-    const asset = created.assetId;
-
-    // the wallet opts in so it can take the asset back, then the escrow opts in and is sent some
-    await wallet.addPlugin({ client: optInPluginSdk, callerType: CallerType.Global });
-    await wallet.addAllowances({ escrow, allowances: [{ asset, type: 'flat', amount: 25n }] });
-    await wallet.usePlugin({ callerType: CallerType.Global, calls: [optInPluginSdk.optIn({ assets: [asset] })] });
-    await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [asset] }, ...fees });
-    await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: asset, amount: 25n });
-
-    // an account that holds an asset cannot be closed, so the whole call fails and nothing changes
-    await expect(deleteEscrow(escrow)).rejects.toThrow();
-    expect(await appExists(id)).toBe(true);
-    expect(await hasRecord(escrow)).toBe(true);
-    expect((await account(address)).authAddr?.toString()).toBe(wallet.client.appAddress.toString());
-
-    // the admin closes the asset out of the escrow, and then the escrow can go
-    await wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[asset, 25n, true]] }, ...fees });
-    const walletBefore = await account(wallet.client.appAddress.toString());
-
-    await deleteEscrow(escrow);
-
-    const walletAfter = await account(wallet.client.appAddress.toString());
-    expect(await appExists(id)).toBe(false);
-    expect(await hasRecord(escrow)).toBe(false);
-    expect((await account(address)).balance.microAlgos).toBe(0n);
-    // the escrow's minimum and the minimum it held for the asset both come back
-    expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(200_000n + FACTORY_REFUND);
-  });
-
-  test('refuses a locked escrow', async () => {
-    const escrow = 'locked';
-    const { id } = await newEscrow(escrow);
-    await wallet.toggleEscrowLock({ escrow });
-
-    await expectContractError(deleteEscrow(escrow), errEscrowLocked);
-    expect(await appExists(id)).toBe(true);
-
-    await wallet.toggleEscrowLock({ escrow });
-    await deleteEscrow(escrow);
-    expect(await appExists(id)).toBe(false);
-  });
-
-  test('refuses anyone but the admin', async () => {
-    const escrow = 'not_yours';
-    const { id } = await newEscrow(escrow);
-    const stranger = await localnet.context.generateAccount({ initialFunds: (5).algos() });
-
-    await expectContractError(
-      wallet.client.send.arc58DeleteEscrow({ sender: stranger.addr, signer: stranger.signer, args: { escrow }, ...fees }),
-      errForbidden,
-    );
-    expect(await appExists(id)).toBe(true);
-    expect(await hasRecord(escrow)).toBe(true);
-  });
-
-  test('refuses an escrow that does not exist', async () => {
-    await expectContractError(deleteEscrow('never_made'), errEscrowDoesNotExist);
-  });
-
-  test('an escrow the factory has no record of is refused by the factory, and registering it makes it work', async () => {
-    const escrow = 'unregistered';
-    const { id, address } = await newEscrow(escrow, false);
-    expect(await registered(address)).toBe(false);
-
-    await expectContractError(deleteEscrow(escrow), errDoesntExist);
-    // nothing moved: the close-out is undone with the rest of the call
-    expect((await account(address)).balance.microAlgos).toBe(100_000n);
-    expect(await appExists(id)).toBe(true);
-
-    await wallet.register({ escrow });
-    await deleteEscrow(escrow);
-    expect(await appExists(id)).toBe(false);
-    expect(await hasRecord(escrow)).toBe(false);
-  });
-
-  test('an escrow that is an outside account rekeyed to the wallet is closed out and forgotten', async () => {
-    const escrow = 'outside';
-    const outside = await localnet.context.generateAccount({ initialFunds: (3).algos() });
-    await localnet.algorand.send.payment({
-      sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
-      rekeyTo: wallet.client.appAddress,
+      // the account is closed: no balance, and no longer rekeyed to anything
+      expect(escrowAfter.balance.microAlgos).toBe(0n);
+      expect(escrowAfter.authAddr).toBeUndefined();
+      // the app is gone, the factory has forgotten it, and so has the wallet
+      expect(await appExists(id)).toBe(false);
+      expect(await registered(address)).toBe(false);
+      expect(await hasRecord(escrow)).toBe(false);
+      expect(await counted(escrow)).toBeUndefined();
+      // everything came back to the wallet: what the escrow held, and what the factory was holding for it
+      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(850_000n + FACTORY_REFUND);
+      // and the wallet's own storage for the record and the count is released
+      expect(walletBefore.minBalance.microAlgos - walletAfter.minBalance.microAlgos).toBe(escrowRecordMbr(escrow) + countMbr(escrow));
     });
 
-    await wallet.client.appClient.fundAppAccount({ amount: microAlgo(1_000_000n) });
-    await wallet.newEscrow({ escrow, address: outside.addr.toString() });
-    expect((await wallet.getEscrow(escrow)).id).toBe(0n);
-
-    const held = (await account(outside.addr.toString())).balance.microAlgos;
-    const walletBefore = await account(wallet.client.appAddress.toString());
-
-    await deleteEscrow(escrow);
-
-    const walletAfter = await account(wallet.client.appAddress.toString());
-    expect((await account(outside.addr.toString())).balance.microAlgos).toBe(0n);
-    expect((await account(outside.addr.toString())).authAddr).toBeUndefined();
-    expect(await hasRecord(escrow)).toBe(false);
-    // no app and no factory record were involved, so only what the account held comes back
-    expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(held);
-    expect(walletBefore.minBalance.microAlgos - walletAfter.minBalance.microAlgos).toBe(escrowRecordMbr(escrow));
-  });
-
-  test('a grant on a deleted escrow stops working, and stays dead when the name is made again', async () => {
-    const escrow = 'reused';
-    const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-    await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins * 2n + mbr.newEscrowMintCost * 2n + 2_000_000n) });
-    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
-    if (!(await registered(getApplicationAddress((await wallet.getEscrow(escrow)).id).toString()))) await wallet.register({ escrow });
-    const first = await wallet.getEscrow(escrow);
-
-    const pay = () => wallet.usePlugin({
-      escrow,
-      callerType: CallerType.Global,
-      calls: [payPluginSdk.pay({ payments: [{ receiver: sender, amount: 0n, asset: 0n }] })],
-    });
-    await pay();
-
-    await deleteEscrow(escrow);
-    // the grant's box is still there, but the escrow it names is gone
-    await expect(pay()).rejects.toThrow();
-
-    // A grant records the app id of its escrow. A new escrow of the same name is a new app, so the
-    // old grant does not pass to it: it has to be removed and added again.
-    await wallet.newEscrow({ escrow, address: ALGORAND_ZERO_ADDRESS_STRING });
-    const second = await wallet.getEscrow(escrow);
-    expect(second.id).not.toBe(first.id);
-    await expect(pay()).rejects.toThrow();
-
-    await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
-    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
-    await pay();
-  });
-
-  test('a grant and an allowance left behind by a deleted escrow can still be removed, and their storage comes back', async () => {
-    const escrow = 'leftovers';
-    const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-    await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost + mbr.allowances + 2_000_000n) });
-    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
-    await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
-    if (!(await registered(getApplicationAddress((await wallet.getEscrow(escrow)).id).toString()))) await wallet.register({ escrow });
-
-    await deleteEscrow(escrow);
-    expect(await hasRecord(escrow)).toBe(false);
-
-    const before = await account(wallet.client.appAddress.toString());
-    await wallet.removeAllowances({ escrow, assets: [0n] });
-    await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
-    const after = await account(wallet.client.appAddress.toString());
-
-    expect((await wallet.getAllowances()).size).toBe(0);
-    expect(before.minBalance.microAlgos - after.minBalance.microAlgos).toBe(mbr.plugins + mbr.allowances);
-  });
-
-  test('an allowance left behind applies again to a new escrow of the same name', async () => {
-    const escrow = 'same_name';
-    const allowed = 1_000_000n;
-    const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-    await wallet.client.appClient.fundAppAccount({
-      amount: microAlgo(allowed + mbr.plugins * 2n + mbr.newEscrowMintCost * 2n + mbr.allowances + 2_000_000n),
-    });
-    await wallet.addPlugin({
-      client: payPluginSdk, callerType: CallerType.Global, escrow,
-      allowances: [{ type: 'flat', asset: 0n, amount: allowed }],
-    });
-    if (!(await registered(getApplicationAddress((await wallet.getEscrow(escrow)).id).toString()))) await wallet.register({ escrow });
-
-    // the contract call alone: it deletes the escrow and leaves its allowance and its grant in place
-    await deleteEscrow(escrow);
-    expect((await wallet.getAllowances()).size).toBe(1);
-
-    // a new escrow of the same name, and a new grant for it with no allowance of its own
-    await wallet.newEscrow({ escrow, address: ALGORAND_ZERO_ADDRESS_STRING });
-    await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
-    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
-
-    // An allowance is kept under the escrow's name, so the old one lets the new grant draw funds
-    // into the new escrow. This is why the SDK's deleteEscrow removes an escrow's allowances with it.
-    const amount = 400_000n;
-    await wallet.usePlugin({
-      escrow,
-      callerType: CallerType.Global,
-      calls: [payPluginSdk.pay({ payments: [{ receiver: sender, amount, asset: 0n }] })],
-      fundsRequest: [{ amount, asset: 0n }],
-    });
-    const allowance = (await wallet.getAllowances()).get({ asset: 0n, escrow })!;
-    expect('spent' in allowance && allowance.spent).toBe(amount);
-  });
-
-  test('a locked escrow still keeps its allowances from being removed', async () => {
-    const escrow = 'still_locked';
-    const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-    await newEscrow(escrow);
-    await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.allowances) });
-    await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
-    await wallet.toggleEscrowLock({ escrow });
-
-    await expectContractError(wallet.removeAllowances({ escrow, assets: [0n] }), errEscrowLocked);
-  });
-
-  describe('through the SDK', () => {
-    test('deleteEscrow registers an escrow the factory has no record of, in the same group', async () => {
-      const escrow = 'sdk_unregistered';
-      const { id, address } = await newEscrow(escrow, false);
+    test('puts an escrow the factory has no record of on record itself, and gets that cost back', async () => {
+      const escrow = 'unregistered';
+      const { id, address } = await newEscrow(escrow);
       expect(await registered(address)).toBe(false);
       const walletBefore = await account(wallet.client.appAddress.toString());
 
-      const result = await wallet.deleteEscrow({ escrow });
+      await deleteEscrow(escrow);
 
-      // one group of two calls: register, then delete
-      expect(result.txIds.length).toBe(2);
       expect(await appExists(id)).toBe(false);
       expect(await registered(address)).toBe(false);
       expect(await hasRecord(escrow)).toBe(false);
-      // registering cost 12,100 and the delete returned it with the rest
+      // the record was paid for and refunded inside the call, so only the escrow's minimum and what the
+      // factory held for its app arrive
       const walletAfter = await account(wallet.client.appAddress.toString());
-      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(100_000n + FACTORY_REFUND - 12_100n);
+      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(100_000n + FACTORY_REFUND - FACTORY_RECORD);
     });
 
-    test('deleteEscrow removes the allowances of the escrow in the same group', async () => {
-      const escrow = 'sdk_allowances';
-      const other = 'sdk_other';
-      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-      await newEscrow(escrow);
-      await newEscrow(other);
-      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.allowances * 3n) });
+    test('strands nothing in the factory, on record or not', async () => {
+      const factoryAddress = universe.escrowFactory.appAddress.toString();
+      const before = await account(factoryAddress);
+      const spare = before.balance.microAlgos - before.minBalance.microAlgos;
+
+      for (const [escrow, register] of [['no_strand_a', true], ['no_strand_b', false]] as const) {
+        const { address } = await newEscrow(escrow, register);
+        await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(400_000n) });
+        await deleteEscrow(escrow);
+      }
+
+      const after = await account(factoryAddress);
+      expect(after.minBalance.microAlgos).toBe(before.minBalance.microAlgos);
+      expect(after.balance.microAlgos - after.minBalance.microAlgos).toBe(spare);
+    });
+
+    test('a new escrow and its count are made by a call built before other transactions landed', async () => {
+      // On a live network other transactions land between building a call and its confirmation, and each
+      // one moves the app id the new escrow will get. So nothing the wallet stores for a new escrow may be
+      // named after that id: the call could not reference it. This builds the calls, with every
+      // reference they need, then lets other transactions land, then sends them.
+      const { algorand } = localnet;
+      const build = async (group: { composer: () => Promise<{ build: () => Promise<{ atc: algosdk.AtomicTransactionComposer }> }> }) =>
+        populateAppCallResources((await (await group.composer()).build()).atc, algorand.client.algod);
+      const laterTransactions = async () => {
+        for (let i = 0; i < 3; i += 1) {
+          await algorand.send.payment({ sender, receiver: sender, amount: microAlgo(0n), note: `between ${Date.now()} ${i}` });
+        }
+      };
+      const methods: [Uint8Array, bigint][] = [];
+      const grant = {
+        plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, admin: false, delegationType: 0, lastValid: 2n ** 64n - 1n,
+        cooldown: 0n, methods, useRounds: false, useExecutionKey: false, coverFees: false, canReclaim: false,
+      };
+
+      // an escrow made by itself
+      const alone = await build(wallet.client.newGroup().arc58NewEscrow({
+        sender, args: { escrow: 'built_early', address: ALGORAND_ZERO_ADDRESS_STRING }, extraFee: microAlgo(10_000n),
+      }));
+      await laterTransactions();
+      await alone.execute(algorand.client.algod, 4);
+      expect(await hasRecord('built_early')).toBe(true);
+      expect(await counted('built_early')).toBe(0n);
+
+      // an escrow made by the plugin that names it, and one made by a plugin that uses it by default
+      const withPlugins = await build(wallet.client.newGroup()
+        .arc58AddPlugin({ sender, args: { ...grant, escrow: 'built_named', defaultToEscrow: false }, extraFee: microAlgo(10_000n) })
+        .arc58AddPlugin({ sender, args: { ...grant, escrow: 'built_default', defaultToEscrow: true }, extraFee: microAlgo(10_000n) }));
+      await laterTransactions();
+      await withPlugins.execute(algorand.client.algod, 4);
+      expect(await counted('built_named')).toBe(1n);
+      expect(await counted('built_default')).toBe(1n);
+    });
+
+    test('refuses while a plugin still names the escrow', async () => {
+      const escrow = 'has_plugin';
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      const { id } = await wallet.getEscrow(escrow);
+      expect(await counted(escrow)).toBe(1n);
+
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+      expect(await appExists(id)).toBe(true);
+      expect(await hasRecord(escrow)).toBe(true);
+
+      await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
+      expect(await counted(escrow)).toBe(0n);
+      await deleteEscrow(escrow);
+      expect(await appExists(id)).toBe(false);
+    });
+
+    test('refuses while an allowance is left on the escrow', async () => {
+      const escrow = 'has_allowance';
+      const { id } = await newEscrow(escrow);
       await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
-      await wallet.addAllowances({ escrow: other, allowances: [{ asset: 0n, type: 'flat', amount: 2_000n }] });
-      const before = await account(wallet.client.appAddress.toString());
+      expect(await counted(escrow)).toBe(1n);
 
-      const result = await wallet.deleteEscrow({ escrow });
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+      expect(await appExists(id)).toBe(true);
 
-      // one group of two calls: the removal, then the delete
-      expect(result.txIds.length).toBe(2);
+      await wallet.removeAllowances({ escrow, assets: [0n] });
+      expect(await counted(escrow)).toBe(0n);
+      await deleteEscrow(escrow);
+      expect(await appExists(id)).toBe(false);
+      expect((await wallet.getAllowances()).size).toBe(0);
+    });
+
+    test('counts a grant that uses the escrow by default, though the grant is not stored under its name', async () => {
+      const escrow = 'default_for';
+      const { id } = await newEscrow(escrow);
+      const walletAddress = wallet.client.appAddress.toString();
+      const minimumBefore = (await account(walletAddress)).minBalance.microAlgos;
+      const { plugins: grantMbr } = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow, defaultToEscrow: true });
+      expect(await counted(escrow)).toBe(1n);
+      // beside the grant, the wallet stores the escrow's name under the grant's key, to find the count again
+      expect((await account(walletAddress)).minBalance.microAlgos - minimumBefore).toBe(grantMbr + defaultEscrowMbr(escrow));
+
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+
+      // such a grant is removed under the empty escrow name, and all its storage is released
+      await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '' });
+      expect(await counted(escrow)).toBe(0n);
+      expect((await account(walletAddress)).minBalance.microAlgos).toBe(minimumBefore);
+      await deleteEscrow(escrow);
+      expect(await appExists(id)).toBe(false);
+    });
+
+    test('a grant removed through its alias, or given up by its own caller, no longer counts', async () => {
+      const escrow = 'two_ways_out';
+      const agent = await localnet.context.generateAccount({ initialFunds: (2).algos() });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow, name: 'payer' });
+      await wallet.addPlugin({ client: payPluginSdk, caller: agent.addr.toString(), escrow });
+      const { id } = await wallet.getEscrow(escrow);
+      expect(await counted(escrow)).toBe(2n);
+
+      await wallet.removeNamedPlugin({ name: 'payer' });
+      expect(await counted(escrow)).toBe(1n);
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+
+      // the named caller leaves by itself
+      await wallet.client.send.arc58RemovePlugin({
+        sender: agent.addr, signer: agent.signer,
+        args: { plugin: payPluginSdk.appId, caller: agent.addr.toString(), escrow },
+        ...fees,
+      });
+      expect(await counted(escrow)).toBe(0n);
+      await deleteEscrow(escrow);
+      expect(await appExists(id)).toBe(false);
+    });
+
+    test('keeps count across several plugins and allowances, and other escrows do not count', async () => {
+      const escrow = 'busy';
+      const other = 'bystander';
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      await wallet.addPlugin({ client: optInPluginSdk, callerType: CallerType.Global, escrow });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow: other });
+      const created = await localnet.algorand.send.assetCreate({ sender, total: 10n, decimals: 0 });
+      await wallet.addAllowances({
+        escrow,
+        allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }, { asset: created.assetId, type: 'flat', amount: 5n }],
+      });
+      await wallet.addAllowances({ escrow: other, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
+      const { id } = await wallet.getEscrow(escrow);
+      expect(await counted(escrow)).toBe(4n);
+      expect(await counted(other)).toBe(2n);
+
+      await wallet.removePlugin({ plugin: optInPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
+      await wallet.removeAllowances({ escrow, assets: [created.assetId] });
+      expect(await counted(escrow)).toBe(2n);
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+
+      await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
+      await wallet.removeAllowances({ escrow, assets: [0n] });
+      expect(await counted(escrow)).toBe(0n);
+      await deleteEscrow(escrow);
+
       expect(await hasRecord(escrow)).toBe(false);
-      // this escrow's allowance is gone with its storage, and the other escrow's is untouched
+      expect(await hasRecord(other)).toBe(true);
+      expect(await counted(other)).toBe(2n);
+    });
+
+    test('refuses while the escrow still holds an asset, and works once the asset is closed out', async () => {
+      const escrow = 'with_asset';
+      const { id, address } = await newEscrow(escrow);
+      const asset = await assetTheWalletHolds();
+      await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [asset] }, ...fees });
+      await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: asset, amount: 25n });
+
+      // an account that holds an asset cannot be closed, so the whole call fails and nothing changes
+      await expect(deleteEscrow(escrow)).rejects.toThrow();
+      expect(await appExists(id)).toBe(true);
+      expect(await hasRecord(escrow)).toBe(true);
+      expect((await account(address)).authAddr?.toString()).toBe(wallet.client.appAddress.toString());
+
+      // the admin closes the asset out of the escrow, and then the escrow can go
+      await wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[asset, 0n, true]] }, ...fees });
+      const walletBefore = await account(wallet.client.appAddress.toString());
+
+      await deleteEscrow(escrow);
+
+      const walletAfter = await account(wallet.client.appAddress.toString());
+      expect(await appExists(id)).toBe(false);
+      expect(await hasRecord(escrow)).toBe(false);
+      expect((await account(address)).balance.microAlgos).toBe(0n);
+      // the escrow's minimum and the minimum it held for the asset both come back
+      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(200_000n + FACTORY_REFUND - FACTORY_RECORD);
+      expect(walletAfter.assets?.find((holding) => holding.assetId === asset)?.amount).toBe(25n);
+    });
+
+    test('refuses a locked escrow', async () => {
+      const escrow = 'locked';
+      const { id } = await newEscrow(escrow);
+      await wallet.toggleEscrowLock({ escrow });
+
+      await expectContractError(deleteEscrow(escrow), errEscrowLocked);
+      expect(await appExists(id)).toBe(true);
+
+      await wallet.toggleEscrowLock({ escrow });
+      await deleteEscrow(escrow);
+      expect(await appExists(id)).toBe(false);
+    });
+
+    test('refuses anyone but the admin', async () => {
+      const escrow = 'not_yours';
+      const { id } = await newEscrow(escrow);
+      const stranger = await localnet.context.generateAccount({ initialFunds: (5).algos() });
+
+      await expectContractError(
+        wallet.client.send.arc58DeleteEscrow({ sender: stranger.addr, signer: stranger.signer, args: { escrow }, ...fees }),
+        errForbidden,
+      );
+      expect(await appExists(id)).toBe(true);
+      expect(await hasRecord(escrow)).toBe(true);
+    });
+
+    test('refuses an escrow that does not exist', async () => {
+      await expectContractError(deleteEscrow('never_made'), errEscrowDoesNotExist);
+    });
+
+    test('an escrow that is an outside account rekeyed to the wallet is counted, closed out and forgotten', async () => {
+      const escrow = 'outside';
+      const outside = await localnet.context.generateAccount({ initialFunds: (3).algos() });
+      await localnet.algorand.send.payment({
+        sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
+        rekeyTo: wallet.client.appAddress,
+      });
+
+      await wallet.newEscrow({ escrow, address: outside.addr.toString() });
+      expect((await wallet.getEscrow(escrow)).id).toBe(0n);
+      expect(await counted(escrow)).toBe(0n);
+
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      expect(await counted(escrow)).toBe(1n);
+      await expectContractError(deleteEscrow(escrow), errEscrowInUse);
+      await wallet.removePlugin({ plugin: payPluginSdk.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow });
+
+      const held = (await account(outside.addr.toString())).balance.microAlgos;
+      const walletBefore = await account(wallet.client.appAddress.toString());
+
+      await deleteEscrow(escrow);
+
+      const walletAfter = await account(wallet.client.appAddress.toString());
+      expect((await account(outside.addr.toString())).balance.microAlgos).toBe(0n);
+      expect((await account(outside.addr.toString())).authAddr).toBeUndefined();
+      expect(await hasRecord(escrow)).toBe(false);
+      expect(await counted(escrow)).toBeUndefined();
+      // no app and no factory record were involved, so only what the account held comes back
+      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(held);
+      expect(walletBefore.minBalance.microAlgos - walletAfter.minBalance.microAlgos).toBe(escrowRecordMbr(escrow) + countMbr(escrow));
+    });
+
+    test('a name made again is a new escrow that starts with nothing', async () => {
+      const escrow = 'reused';
+      await wallet.addPlugin({
+        client: payPluginSdk, callerType: CallerType.Global, escrow,
+        allowances: [{ type: 'flat', asset: 0n, amount: 1_000_000n }],
+      });
+      const first = await wallet.getEscrow(escrow);
+      expect(await counted(escrow)).toBe(2n);
+
+      await wallet.deleteEscrow({ escrow });
+
+      await wallet.newEscrow({ escrow, address: ALGORAND_ZERO_ADDRESS_STRING });
+      const second = await wallet.getEscrow(escrow);
+      expect(second.id).not.toBe(first.id);
+      expect(await counted(escrow)).toBe(0n);
+      // nothing of the first escrow is left to apply to the second: no grant and no allowance
+      expect((await wallet.getAllowances()).size).toBe(0);
+      const pay = () => wallet.usePlugin({
+        escrow,
+        callerType: CallerType.Global,
+        calls: [payPluginSdk.pay({ payments: [{ receiver: sender, amount: 0n, asset: 0n }] })],
+      });
+      await expect(pay()).rejects.toThrow();
+
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      await pay();
+    });
+
+    test('a locked escrow still keeps its allowances from being removed', async () => {
+      const escrow = 'still_locked';
+      await newEscrow(escrow);
+      await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
+      await wallet.toggleEscrowLock({ escrow });
+
+      await expectContractError(wallet.removeAllowances({ escrow, assets: [0n] }), errEscrowLocked);
+    });
+
+    test('the address of a deleted escrow is no longer under the wallet, so nothing there can be reclaimed', async () => {
+      const escrow = 'gone';
+      const { address } = await newEscrow(escrow);
+      await deleteEscrow(escrow);
+
+      await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(300_000n) });
+      await expectContractError(
+        wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[0n, 100_000n, false]] }, ...fees }),
+        errEscrowDoesNotExist,
+      );
+      // funds sent to a deleted escrow's address are lost: its app is gone and nothing controls the address
+      expect((await account(address)).balance.microAlgos).toBe(300_000n);
+      expect(algosdk.isValidAddress(address)).toBe(true);
+    });
+  });
+
+  describe('through the SDK', () => {
+    test('deleteEscrow removes the plugins and allowances, closes out the assets and deletes the escrow in one group', async () => {
+      const escrow = 'sdk_whole';
+      const other = 'sdk_other';
+      const asset = await assetTheWalletHolds();
+
+      // three grants that name the escrow in the three ways a grant can: by its name, by its name with
+      // an alias, and by using it as the default
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      await wallet.addPlugin({ client: optInPluginSdk, callerType: CallerType.Global, escrow, name: 'escrow_opt_in' });
+      await wallet.addPlugin({ client: payPluginSdk, caller: sender, escrow, defaultToEscrow: true });
+      await wallet.addAllowances({
+        escrow,
+        allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }, { asset, type: 'flat', amount: 5n }],
+      });
+      const { id, address } = await wallet.getEscrow(escrow);
+      await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [asset] }, ...fees });
+      await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: asset, amount: 25n });
+      await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(300_000n) });
+
+      // another escrow with a grant and an allowance of its own, which must be left alone
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow: other });
+      await wallet.addAllowances({ escrow: other, allowances: [{ asset: 0n, type: 'flat', amount: 2_000n }] });
+
+      const plan = await wallet.getEscrowTeardown(escrow);
+      expect(plan.counted).toBe(5n);
+      expect(plan.plugins.length).toBe(3);
+      expect(plan.allowances.sort()).toEqual([0n, asset].sort());
+      expect(plan.assets).toEqual([asset]);
+      expect(plan.blockers).toEqual([]);
+
+      const escrowHeld = (await account(address)).balance.microAlgos;
+      const before = await account(wallet.client.appAddress.toString());
+      const pluginsBefore = (await wallet.getPlugins()).size;
+
+      const sent = await wallet.deleteEscrow({ escrow });
+
+      // one group: three plugin removals, one allowance removal, one asset close-out, the delete
+      expect(sent.length).toBe(1);
+      expect(sent[0].txIds.length).toBe(6);
+
+      expect(await appExists(id)).toBe(false);
+      expect(await hasRecord(escrow)).toBe(false);
+      expect(await counted(escrow)).toBeUndefined();
+      expect((await account(address)).balance.microAlgos).toBe(0n);
+
+      // the three grants and the alias are gone, and the other escrow's grant and the wallet's own are not
+      expect((await wallet.getPlugins()).size).toBe(pluginsBefore - 3);
+      expect((await wallet.getNamedPlugins()).has('escrow_opt_in')).toBe(false);
       const allowances = await wallet.getAllowances();
       expect(allowances.size).toBe(1);
       expect(allowances.get({ asset: 0n, escrow: other })).toBeDefined();
+      expect(await counted(other)).toBe(2n);
+
+      // the asset and every microALGO came back to the wallet (the sender paid the fees)
       const after = await account(wallet.client.appAddress.toString());
-      expect(before.minBalance.microAlgos - after.minBalance.microAlgos).toBe(escrowRecordMbr(escrow) + mbr.allowances);
+      expect(after.assets?.find((holding) => holding.assetId === asset)?.amount).toBe(25n);
+      expect(after.balance.microAlgos - before.balance.microAlgos).toBe(escrowHeld + FACTORY_REFUND - FACTORY_RECORD);
     });
 
-    test('deleteEscrow sends one call for an escrow already on record', async () => {
-      const escrow = 'sdk_registered';
+    test('deleteEscrow sends one call for an escrow nothing names, on the factory record or not', async () => {
+      for (const [escrow, register] of [['sdk_registered', true], ['sdk_unregistered', false]] as const) {
+        const { id } = await newEscrow(escrow, register);
+
+        const sent = await wallet.deleteEscrow({ escrow });
+
+        expect(sent.length).toBe(1);
+        expect(sent[0].txIds.length).toBe(1);
+        expect(await appExists(id)).toBe(false);
+        expect(await hasRecord(escrow)).toBe(false);
+      }
+    });
+
+    test('deleteEscrow leaves a locked escrow alone unless told to unlock it', async () => {
+      const escrow = 'sdk_locked';
       const { id } = await newEscrow(escrow);
+      await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
+      await wallet.toggleEscrowLock({ escrow });
 
-      const result = await wallet.deleteEscrow({ escrow });
+      await expect(wallet.deleteEscrow({ escrow })).rejects.toThrow(/is locked/);
+      expect(await appExists(id)).toBe(true);
+      expect((await wallet.getEscrow(escrow)).locked).toBe(true);
 
-      expect(result.txIds.length).toBe(1);
+      // one group: the unlock, the allowance removal, the delete
+      const sent = await wallet.deleteEscrow({ escrow, unlock: true });
+      expect(sent.length).toBe(1);
+      expect(sent[0].txIds.length).toBe(3);
       expect(await appExists(id)).toBe(false);
-      expect(await hasRecord(escrow)).toBe(false);
+    });
+
+    test('deleteEscrow sends nothing when the wallet could not take back an asset the escrow holds', async () => {
+      const escrow = 'sdk_blocked';
+      const { id, address } = await newEscrow(escrow);
+      const created = await localnet.algorand.send.assetCreate({ sender, total: 10n, decimals: 0 });
+      await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [created.assetId] }, ...fees });
+      await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: created.assetId, amount: 3n });
+
+      const plan = await wallet.getEscrowTeardown(escrow);
+      expect(plan.blockers.length).toBe(1);
+      await expect(wallet.deleteEscrow({ escrow })).rejects.toThrow(/not opted in/);
+      expect(await appExists(id)).toBe(true);
+      expect(await hasRecord(escrow)).toBe(true);
     });
 
     test('deleteEscrow closes out an adopted account with one call', async () => {
@@ -405,30 +582,32 @@ describe('ARC58 escrow deletion', () => {
         sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
         rekeyTo: wallet.client.appAddress,
       });
-      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(1_000_000n) });
       await wallet.newEscrow({ escrow, address: outside.addr.toString() });
 
-      const result = await wallet.deleteEscrow({ escrow });
+      const sent = await wallet.deleteEscrow({ escrow });
 
-      expect(result.txIds.length).toBe(1);
+      expect(sent.length).toBe(1);
+      expect(sent[0].txIds.length).toBe(1);
       expect((await account(outside.addr.toString())).balance.microAlgos).toBe(0n);
       expect(await hasRecord(escrow)).toBe(false);
     });
-  });
 
-  test('the address of a deleted escrow is no longer under the wallet, so nothing there can be reclaimed', async () => {
-    const escrow = 'gone';
-    const { address } = await newEscrow(escrow);
-    await deleteEscrow(escrow);
+    test('deleteEscrow spreads a removal too long for one group over two, with the delete last', async () => {
+      const escrow = 'sdk_many';
+      // 16 grants and the delete are 17 calls, one more than a group holds
+      for (let i = 0; i < 16; i += 1) {
+        await wallet.addPlugin({ client: payPluginSdk, caller: localnet.algorand.account.random().addr.toString(), escrow });
+      }
+      const { id } = await wallet.getEscrow(escrow);
+      expect(await counted(escrow)).toBe(16n);
 
-    await localnet.algorand.send.payment({ sender, receiver: address, amount: microAlgo(300_000n) });
-    await expectContractError(
-      wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[0n, 100_000n, false]] }, ...fees }),
-      errEscrowDoesNotExist,
-    );
-    // funds sent to a deleted escrow's address are lost: its app is gone and nothing controls the address
-    expect((await account(address)).balance.microAlgos).toBe(300_000n);
-    expect(algosdk.isValidAddress(address)).toBe(true);
+      const sent = await wallet.deleteEscrow({ escrow });
+
+      expect(sent.map((group) => group.txIds.length)).toEqual([16, 1]);
+      expect(await appExists(id)).toBe(false);
+      expect(await hasRecord(escrow)).toBe(false);
+      expect((await wallet.getPlugins()).size).toBe(0);
+    });
   });
 
   test('a wallet whose funds sit at an outside address gets everything back at that address', async () => {
@@ -461,22 +640,24 @@ describe('ARC58 escrow deletion', () => {
     await external.newEscrow({ escrow, address: ALGORAND_ZERO_ADDRESS_STRING });
     const { id } = await external.getEscrow(escrow);
     const address = getApplicationAddress(id).toString();
-    // the outside address paid for the escrow app (250,000) and for the wallet's record of it
-    expect((await account(controlled)).balance.microAlgos).toBe(controlledStart - 250_000n - escrowRecordMbr(escrow));
+    // the outside address paid for the escrow app (250,000) and for the wallet's record and count of it
+    expect((await account(controlled)).balance.microAlgos).toBe(controlledStart - 250_000n - escrowRecordMbr(escrow) - countMbr(escrow));
     expect(await spare(appAddress)).toBe(appSpareStart);
 
+    await external.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
     await algorand.send.payment({ sender, receiver: address, amount: microAlgo(400_000n) });
 
-    // not on the factory's record, so the SDK registers it (the wallet app pays 12,100) and deletes it
-    const result = await external.deleteEscrow({ escrow });
-    expect(result.txIds.length).toBe(2);
+    // one group: the allowance removal, then the delete, which puts the escrow on the factory's record itself
+    const sent = await external.deleteEscrow({ escrow });
+    expect(sent.length).toBe(1);
+    expect(sent[0].txIds.length).toBe(2);
 
     expect(await appExists(id)).toBe(false);
     expect((await account(address)).balance.microAlgos).toBe(0n);
     expect((await external.getEscrows()).has(escrow)).toBe(false);
     // the outside address has back all it paid, and what the escrow had been sent
     expect((await account(controlled)).balance.microAlgos).toBe(controlledStart + 400_000n);
-    // the wallet app's own account ends where it began: it paid for the record and got that back
+    // the wallet app's own account ends where it began
     expect(await spare(appAddress)).toBe(appSpareStart);
   });
 });
@@ -564,16 +745,17 @@ describe('ARC58 escrow deletion with the escrow factory and escrow programs depl
     const factorySpare = await spare(liveFactoryAddress);
     const walletBefore = await account(wallet.client.appAddress.toString());
 
-    // not on the factory's record yet, so the SDK registers it and deletes it in one group
-    const result = await wallet.deleteEscrow({ escrow });
-    expect(result.txIds.length).toBe(2);
+    // not on the factory's record yet, so the delete puts it there itself, in the one call
+    const sent = await wallet.deleteEscrow({ escrow });
+    expect(sent.length).toBe(1);
+    expect(sent[0].txIds.length).toBe(1);
 
     const walletAfter = await account(wallet.client.appAddress.toString());
     await expect(fixture.algorand.client.algod.getApplicationByID(id).do()).rejects.toThrow();
     expect((await account(address)).balance.microAlgos).toBe(0n);
     expect((await wallet.getEscrows()).has(escrow)).toBe(false);
     // what the escrow held (740,000) and what the factory held for its app (150,000) are back. The
-    // 12,100 paid to put it on record in this group came back with them, so it nets to nothing.
+    // 12,100 paid to put it on record in this call came back with them, so it nets to nothing.
     expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(740_000n + 150_000n);
     // the factory is exactly where it was
     expect(await spare(liveFactoryAddress)).toBe(factorySpare);

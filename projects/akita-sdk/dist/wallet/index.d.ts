@@ -1,6 +1,6 @@
 import { AbstractedAccountArgs, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer } from '../generated/AbstractedAccountClient';
 import { AbstractAccountBoxMbrData, AbstractedAccountMbrClient } from '../generated/AbstractedAccountMBRClient';
-import { AddAllowanceArgs, AllowanceInfo, BuildWalletUsePluginParams, CanCallParams, ExecutionBuildGroup, MbrParams, PluginInfo, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
+import { AddAllowanceArgs, AllowanceInfo, BuildWalletUsePluginParams, CanCallParams, EscrowTeardown, ExecutionBuildGroup, MbrParams, PluginInfo, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
 import { MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, ExpandedSendParamsWithSigner } from '../types';
 import { BaseSDK } from '../base';
 import { Address } from 'algosdk';
@@ -150,24 +150,42 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
     reclaimFunds({ sender, signer, ...args }: ContractArgs['arc58_reclaim(string,(uint64,uint64,bool)[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     /**
+     * How many plugins and allowances the wallet counts for an escrow. Undefined for an escrow made
+     * before the wallet kept this count.
+     */
+    getEscrowRefs(escrow: string): Promise<bigint | undefined>;
+    /**
+     * Read everything the chain lists for an escrow: the grants and aliases that name it, its
+     * allowances, the assets it holds, and anything that stands in the way of deleting it.
+     */
+    getEscrowTeardown(escrow: string): Promise<EscrowTeardown>;
+    /**
      * Delete an escrow by closing its account out to the wallet. Admin only.
      *
-     * Everything the escrow held in ALGO comes back, with what the escrow factory held for its app and
-     * the storage of the wallet's record of it. Before calling this:
-     * - close every asset out of the escrow (`reclaimFunds` with `closeOut: true`): an account that
-     *   holds an asset cannot be closed, and the call fails;
-     * - unlock the escrow if it is locked.
+     * The wallet refuses to delete an escrow while a plugin or an allowance still names it, and the
+     * network refuses to close an account that holds an asset. So this removes every grant and alias
+     * that names the escrow, removes its allowances, closes its assets out to the wallet and deletes
+     * it, all in one group: either the whole removal happens or none of it. Only an escrow with more
+     * than a group holds (16 calls) is spread over several groups, sent one after another, with the
+     * delete in the last.
      *
-     * The factory deletes only an escrow it has on record. If this one is not, it is registered in the
-     * same group, and what registering costs comes back with the delete.
+     * Everything the escrow held comes back to the wallet's account, with what the escrow factory held
+     * for its app and the wallet's own storage for it.
      *
-     * The wallet keeps allowances under the escrow's name, so one left behind would apply again to a
-     * new escrow of that name. This removes the escrow's allowances in the same group.
+     * A locked escrow is not touched unless `unlock` is set: the group then unlocks it first.
+     * It throws, sending nothing, when something stands in the way that the wallet cannot undo: the
+     * escrow is opted in to an app, or holds an asset the wallet's account cannot receive.
      *
-     * Afterwards the escrow's address is under nobody's control, so funds sent there are lost. Grants
-     * that name the escrow stop working: remove them with `removePlugin`.
+     * An escrow made before the wallet counted plugins and allowances is not checked by the wallet when
+     * it is deleted. What this removes for such an escrow is what the chain listed when it was called.
+     *
+     * Afterwards the escrow's address is under nobody's control, so funds sent there are lost.
+     *
+     * @returns one entry for each group sent; the last holds the delete
      */
-    deleteEscrow({ sender, signer, escrow }: ContractArgs['arc58_deleteEscrow(string)void'] & MaybeSigner): Promise<GroupReturn>;
+    deleteEscrow({ sender, signer, escrow, unlock }: ContractArgs['arc58_deleteEscrow(string)void'] & MaybeSigner & {
+        unlock?: boolean;
+    }): Promise<GroupReturn[]>;
     optInEscrow({ sender, signer, ...args }: ContractArgs['arc58_optInEscrow(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     addAllowances({ sender, signer, escrow, allowances }: {
         escrow: string;

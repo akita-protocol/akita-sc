@@ -95,6 +95,7 @@ export const errExecutionKeyUpdateMustMatchLastValid = 'errEklv'
 // --- Escrows ----------------------------------------------------------------
 
 export const errEscrowLocked = 'errEscl'
+export const errEscrowInUse = 'errEuse'
 export const errEscrowAlreadyExists = 'errEesc'
 export const errEscrowNameRequired = 'errEnrq'
 export const errEscrowDoesNotExist = 'errNesc'

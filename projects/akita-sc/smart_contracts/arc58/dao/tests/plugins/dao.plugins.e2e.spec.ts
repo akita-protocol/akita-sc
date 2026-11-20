@@ -561,4 +561,84 @@ describe('ARC58 DAO Plugins', () => {
       }
     });
   });
+
+  describe('Escrow Deletion', () => {
+    test('removes an escrow with its plugins, its allowance and its asset in one proposal, and refuses the delete alone', async () => {
+      const { fixture, dao, sender, signer } = context;
+      const { algorand } = fixture.context;
+      const deployer = await fixture.context.generateAccount({ initialFunds: (5).algos() });
+      const optIn = await deployOptInPlugin({ fixture, sender: deployer.toString(), signer: deployer.signer });
+      const pay = await deployPayPlugin({ fixture, sender: deployer.toString(), signer: deployer.signer });
+      const escrow = getUniqueName('gone');
+      const alias = getUniqueName('gone_pay');
+      const { assetId: asset } = await algorand.send.assetCreate({ sender, signer, total: 1_000n, decimals: 0, assetName: 'Held' });
+      await dao.wallet.client.appClient.fundAppAccount({ amount: microAlgo(10_000_000n) });
+
+      // the DAO wallet holds the asset, so it can take it back from the escrow
+      await proposeAndExecute(dao, [buildAddPluginAction({ client: optIn, callerType: CallerType.Global, useExecutionKey: false })]);
+      await dao.wallet.usePlugin({ sender, signer, callerType: CallerType.Global, calls: [optIn.optIn({ assets: [asset] })] });
+
+      // an escrow with two grants (one of them voted policy with an alias), an allowance and an asset
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING }]);
+      await proposeAndExecute(dao, [buildAddPluginAction({ client: optIn, callerType: CallerType.Global, useExecutionKey: false, escrow })]);
+      await proposeAndExecute(dao, [buildAddPluginAction({
+        name: alias, client: pay, callerType: CallerType.Global, useExecutionKey: true, escrow,
+        governance: { power: 1n, duration: 60n, participation: 10_000n, approval: 50_000n },
+      })]);
+      await proposeAndExecute(dao, [{
+        type: ProposalActionEnum.AddAllowances, escrow, allowances: [{ type: 'flat', asset: 0n, amount: 1_000n }],
+      }]);
+      await dao.wallet.usePlugin({ sender, signer, callerType: CallerType.Global, escrow, calls: [optIn.optIn({ assets: [asset] })] });
+      const { id, address } = await dao.wallet.getEscrow(escrow);
+      await algorand.send.assetTransfer({ sender, signer, receiver: address, assetId: asset, amount: 40n });
+      await algorand.send.payment({ sender, signer, receiver: address, amount: microAlgo(300_000n) });
+
+      expect(await dao.wallet.getEscrowRefs(escrow)).toBe(3n);
+      expect(await dao.client.state.box.plugins.value({ plugin: pay.appId, escrow })).toBeDefined();
+
+      // the delete by itself passes validation (the escrow exists) and is refused by the wallet when it runs
+      await expectContractError(proposeAndExecute(dao, [{ type: ProposalActionEnum.DeleteEscrow, escrow }]), 'errEuse');
+      expect((await dao.wallet.getEscrow(escrow)).id).toBe(id);
+
+      const actions = await dao.deleteEscrowActions({ escrow });
+      expect(actions.map(action => action.type).sort()).toEqual([
+        ProposalActionEnum.RemovePlugin,
+        ProposalActionEnum.RemoveNamedPlugin,
+        ProposalActionEnum.RemoveAllowances,
+        ProposalActionEnum.Reclaim,
+        ProposalActionEnum.DeleteEscrow,
+      ].sort());
+      expect(actions[actions.length - 1].type).toBe(ProposalActionEnum.DeleteEscrow);
+
+      const controlled = (await dao.wallet.client.state.global.controlledAddress())!;
+      const before = await algorand.account.getInformation(controlled);
+      const escrowHeld = (await algorand.account.getInformation(address)).balance.microAlgos;
+
+      await proposeAndExecute(dao, actions);
+
+      // the escrow, its app, its record, its count, its grants, its alias and its allowance are gone
+      expect((await dao.wallet.getEscrows()).has(escrow)).toBe(false);
+      await expect(algorand.client.algod.getApplicationByID(id).do()).rejects.toThrow();
+      expect(await dao.wallet.getEscrowRefs(escrow)).toBeUndefined();
+      expect(Array.from((await dao.wallet.client.state.box.plugins.getMap()).keys()).some(key => key.escrow === escrow)).toBe(false);
+      expect((await dao.wallet.client.state.box.namedPlugins.getMap()).has(alias)).toBe(false);
+      expect(Array.from((await dao.wallet.client.state.box.allowances.getMap()).keys()).some(key => key.escrow === escrow)).toBe(false);
+      // the DAO forgot the voted policy of the removed plugin
+      expect(Array.from((await dao.client.state.box.plugins.getMap()).keys()).some(key => key.plugin === pay.appId && key.escrow === escrow)).toBe(false);
+      // and the wallet has the asset and the ALGO back
+      const after = await algorand.account.getInformation(controlled);
+      expect((await algorand.account.getInformation(address)).balance.microAlgos).toBe(0n);
+      expect((after.assets?.find(holding => holding.assetId === asset)?.amount ?? 0n) - (before.assets?.find(holding => holding.assetId === asset)?.amount ?? 0n)).toBe(40n);
+      // what the escrow held, and the 150,000 the factory held for its app
+      expect(after.balance.microAlgos - before.balance.microAlgos).toBe(escrowHeld + 150_000n);
+    });
+
+    test('rejects a proposal to delete an escrow that does not exist', async () => {
+      const { dao } = context;
+      await expectContractError(
+        proposeAndExecute(dao, [{ type: ProposalActionEnum.DeleteEscrow, escrow: 'does-not-exist' }]),
+        'errNesc',
+      );
+    });
+  });
 });

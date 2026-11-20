@@ -22,7 +22,7 @@ import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { NETWORK_PLUGIN_DEPLOYMENTS, PLUGIN_APP_ID_KEYS, resolvePluginDeployment, type AkitaNetwork, type PluginAppIdKey, type SDKClient } from 'akita-sdk'
 import { ProposalActionEnum, type ProposalAction } from 'akita-sdk/dao'
-import { CallerType } from 'akita-sdk/wallet'
+import { CallerType, defaultEscrowGrantMbr } from 'akita-sdk/wallet'
 import type { ScriptContext } from '../script-base'
 import { executeProposal, getAppFundingNeeded } from '../utils'
 import { createPluginClient, DAO_STATE_FULLY_INITIALIZED, DEFAULT_SOURCE_LINK, pluginKeyId } from './dao-wallet-plugin-migration'
@@ -378,14 +378,20 @@ export async function parityActions(ctx: ScriptContext, plan: ParityPlan, source
       else units.push(toggle)
     }
   }
+  // a grant that uses an escrow by default also stores that escrow's name
+  const grantMbr = async (g: { source: { escrow: string; policy: { methods: readonly unknown[]; defaultEscrow: string } } }) => {
+    const { escrow, policy } = g.source
+    const plugins = (await mbr(escrow, policy.methods.length)).plugins
+    return policy.defaultEscrow === '' ? plugins : plugins + defaultEscrowGrantMbr(policy.defaultEscrow)
+  }
   for (const g of plan.replace) {
     const id = `replace:${pluginKeyId(g.target)}`
-    walletMbr += (await mbr(g.source.escrow, g.source.policy.methods.length)).plugins
+    walletMbr += await grantMbr(g)
     units.push({ id, actions: [removeAction(g.target)] })
     later.push({ after: id, actions: [addAction(ctx, g, source, target, options.sender, sourceLink)] })
   }
   for (const g of plan.add) {
-    walletMbr += (await mbr(g.source.escrow, g.source.policy.methods.length)).plugins
+    walletMbr += await grantMbr(g)
     units.push({ actions: [addAction(ctx, g, source, target, options.sender, sourceLink)] })
   }
   for (const g of plan.remove) units.push({ actions: [removeAction(g)] })

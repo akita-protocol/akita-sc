@@ -136,6 +136,7 @@ export const ProposalActionTypeRemoveAllowances: ProposalActionType = new Uint8(
 export const ProposalActionTypeNewEscrow: ProposalActionType = new Uint8(70)
 export const ProposalActionTypeToggleEscrowLock: ProposalActionType = new Uint8(71)
 export const ProposalActionTypeReclaim: ProposalActionType = new Uint8(72)
+export const ProposalActionTypeDeleteEscrow: ProposalActionType = new Uint8(73)
 export const ProposalActionTypeUpdateFields: ProposalActionType = new Uint8(80)
 export const ProposalActionTypeUpdateWallet: ProposalActionType = new Uint8(90)
 export const ProposalActionTypeChangeAdmin: ProposalActionType = new Uint8(91)

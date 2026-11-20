@@ -41,6 +41,8 @@ export const AbstractAccountBoxPrefixEscrows = 'e'
 export const AbstractAccountBoxPrefixAllowances = 'a'
 export const AbstractAccountBoxPrefixDomainKeys = 'd'
 export const AbstractAccountBoxPrefixExecutions = 'x'
+export const AbstractAccountBoxPrefixEscrowRefs = 'r'
+export const AbstractAccountBoxPrefixDefaultEscrows = 'g'
 
 export const MethodRestrictionByteLength: uint64 = 20
 
@@ -48,6 +50,10 @@ export const MinPluginMBR: uint64 = 38_900
 // name box: 1-byte prefix + the 44-byte empty PluginKey ARC-4 value
 export const MinNamedPluginMBR: uint64 = 20_500
 export const MinEscrowsMBR: uint64 = 19_300
+// reference count box: 1-byte prefix + the escrow's name + 8-byte count
+export const MinEscrowRefsMBR: uint64 = 6_100
+// default escrow box: 1-byte prefix + the 44-byte PluginKey ARC-4 value of an empty escrow + the escrow's name
+export const MinDefaultEscrowMBR: uint64 = 20_500
 export const MinAllowanceMBR: uint64 = 27_700
 // execution box: 33-byte name + 20-byte empty ExecutionInfo ARC-4 value
 export const MinExecutionsMBR: uint64 = 23_700

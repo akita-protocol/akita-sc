@@ -274,6 +274,8 @@ export type GuildProposalNewEscrow = {
 
 export type GuildProposalToggleEscrowLock = { escrow: string }
 export type GuildProposalReclaim = { escrow: string; reclaims: EscrowReclaim[] }
+/** Delete an escrow of the Guild's wallet. Earlier actions of the proposal remove its plugins, allowances and assets. */
+export type GuildProposalDeleteEscrow = { escrow: string }
 export type GuildProposalSetSettings = { actionType: GuildActionType; settings: GuildProposalSettings }
 export type GuildProposalSetActionLimit = { limit: uint64 }
 export type GuildProposalNewWallet = { nickname: string; salt: bytes<32> }

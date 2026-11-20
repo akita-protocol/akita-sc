@@ -1,6 +1,6 @@
 import { Address, decodeAddress } from "algosdk";
 import { AllowanceInfo as SubAllowanceInfo } from "../generated/AbstractedAccountClient";
-import { AddAllowanceArgs, AllowanceInfo } from "./types";
+import { AddAllowanceArgs, AllowanceInfo, EscrowTeardown } from "./types";
 import { encodeLease } from "@algorandfoundation/algokit-utils";
 import { PluginHookParams, PluginTxn } from "../types";
 
@@ -8,6 +8,16 @@ type ComposerTransactionWithMaxFee<TFee> = {
   type: string;
   maxFee?: TFee;
 };
+
+/** Throw, naming the reason, when an escrow cannot be deleted as the chain shows it. */
+export function assertEscrowCanBeDeleted(plan: EscrowTeardown, unlock: boolean): void {
+  if (plan.blockers.length > 0) {
+    throw new Error(`Escrow '${plan.escrow}' cannot be deleted: ${plan.blockers.join('; ')}`);
+  }
+  if (plan.locked && !unlock) {
+    throw new Error(`Escrow '${plan.escrow}' is locked: unlock it first, or pass unlock`);
+  }
+}
 
 /**
  * Applies a default max fee to composer inputs that resolve to app calls.

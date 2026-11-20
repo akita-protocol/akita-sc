@@ -612,6 +612,12 @@ export type MockBigWalletArgs = {
              */
             leases: Uint8Array[];
         };
+        'arc58_getDomainKeys(address[])string[]': {
+            /**
+             * The addresses to look up domain keys for
+             */
+            addresses: string[];
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -659,6 +665,7 @@ export type MockBigWalletArgs = {
         'arc58_getEscrows(string[])(uint64,address,bool)[]': [escrows: string[]];
         'arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[]': [escrow: string, assets: bigint[] | number[]];
         'arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]': [leases: Uint8Array[]];
+        'arc58_getDomainKeys(address[])string[]': [addresses: string[]];
     };
 };
 /**
@@ -707,6 +714,7 @@ export type MockBigWalletReturns = {
     'arc58_getEscrows(string[])(uint64,address,bool)[]': [bigint, string, boolean][];
     'arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[]': [number, bigint, bigint, bigint, bigint, bigint, bigint, boolean][];
     'arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]': [Uint8Array[], bigint, bigint][];
+    'arc58_getDomainKeys(address[])string[]': string[];
 };
 /**
  * Defines the types of available calls and state of the MockBigWallet smart contract.
@@ -901,6 +909,13 @@ export type MockBigWalletTypes = {
          * The execution info for each lease, or empty execution info if the lease does not exist
          */
         returns: MockBigWalletReturns['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'];
+    }> & Record<'arc58_getDomainKeys(address[])string[]' | 'arc58_getDomainKeys', {
+        argsObj: MockBigWalletArgs['obj']['arc58_getDomainKeys(address[])string[]'];
+        argsTuple: MockBigWalletArgs['tuple']['arc58_getDomainKeys(address[])string[]'];
+        /**
+         * The domain string for each address, or empty string if no domain is assigned
+         */
+        returns: MockBigWalletReturns['arc58_getDomainKeys(address[])string[]'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -1006,6 +1021,22 @@ export type MockBigWalletTypes = {
                  * the escrows that this wallet has created for specific callers with allowances
                  */
                 escrows: Map<string, EscrowInfo>;
+                /**
+                * How many plugins and allowances still name an escrow, kept from the moment the escrow is made.
+                An escrow made before this count existed has no box here, and nothing is counted for it.
+        
+                The count is kept under the escrow's name, never its app id: the id of an app made in a
+                transaction is not known when that transaction is built, so a box named after it could not be
+                referenced by the call that makes the escrow.
+        
+                 */
+                escrowRefs: Map<string, bigint>;
+                /**
+                * The name of the escrow a plugin uses by default. Such a plugin is stored under the empty escrow
+                name with only the escrow's app id, so this is what leads from the plugin back to the escrow's count.
+        
+                 */
+                defaultEscrows: Map<PluginKey, string>;
                 /**
                  * The Allowances for plugins installed on the smart contract with useAllowance set to true
                  */
@@ -1406,12 +1437,12 @@ export declare abstract class MockBigWalletParamsFactory {
      *
     * Delete an escrow by closing its account out to the controlled address.
   
-    The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
-    An escrow the factory created must be on the factory's record (see register), because the
-    factory deletes only what it has on record. Grants that name the escrow stop working and can
-    still be removed. Allowances are kept under the escrow's name: remove them with
-    arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
-    nobody's control afterwards: never pay it again.
+    The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+    arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+    group may do all of that. An escrow made before plugins and allowances were counted has no
+    count to check: remove its plugins and allowances first, because one left behind stays stored,
+    and an allowance applies again to a new escrow of the same name. The address of a deleted
+    escrow is under nobody's control: never pay it again.
   
      *
      * @param params Parameters for the call
@@ -1548,6 +1579,15 @@ export declare abstract class MockBigWalletParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static arc58GetExecutions(params: CallParams<MockBigWalletArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | MockBigWalletArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the arc58_getDomainKeys(address[])string[] ABI method
+     *
+     * Get domain key assignments for a list of addresses
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static arc58GetDomainKeys(params: CallParams<MockBigWalletArgs['obj']['arc58_getDomainKeys(address[])string[]'] | MockBigWalletArgs['tuple']['arc58_getDomainKeys(address[])string[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the MockBigWallet smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -2398,12 +2438,12 @@ export declare class MockBigWalletClient {
          *
         * Delete an escrow by closing its account out to the controlled address.
     
-        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
-        An escrow the factory created must be on the factory's record (see register), because the
-        factory deletes only what it has on record. Grants that name the escrow stop working and can
-        still be removed. Allowances are kept under the escrow's name: remove them with
-        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
-        nobody's control afterwards: never pay it again.
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
     
          *
          * @param params The params for the smart contract call
@@ -2582,6 +2622,19 @@ export declare class MockBigWalletClient {
          * @returns The call params: The execution info for each lease, or empty execution info if the lease does not exist
          */
         arc58GetExecutions: (params: CallParams<MockBigWalletArgs["obj"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"] | MockBigWalletArgs["tuple"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockBigWallet smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Get domain key assignments for a list of addresses
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params: The domain string for each address, or empty string if no domain is assigned
+         */
+        arc58GetDomainKeys: (params: CallParams<MockBigWalletArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | MockBigWalletArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -2995,12 +3048,12 @@ export declare class MockBigWalletClient {
          *
         * Delete an escrow by closing its account out to the controlled address.
     
-        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
-        An escrow the factory created must be on the factory's record (see register), because the
-        factory deletes only what it has on record. Grants that name the escrow stop working and can
-        still be removed. Allowances are kept under the escrow's name: remove them with
-        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
-        nobody's control afterwards: never pay it again.
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
     
          *
          * @param params The params for the smart contract call
@@ -3235,6 +3288,23 @@ export declare class MockBigWalletClient {
          * @returns The call transaction: The execution info for each lease, or empty execution info if the lease does not exist
          */
         arc58GetExecutions: (params: CallParams<MockBigWalletArgs["obj"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"] | MockBigWalletArgs["tuple"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockBigWallet smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Get domain key assignments for a list of addresses
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction: The domain string for each address, or empty string if no domain is assigned
+         */
+        arc58GetDomainKeys: (params: CallParams<MockBigWalletArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | MockBigWalletArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3784,12 +3854,12 @@ export declare class MockBigWalletClient {
          *
         * Delete an escrow by closing its account out to the controlled address.
     
-        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
-        An escrow the factory created must be on the factory's record (see register), because the
-        factory deletes only what it has on record. Grants that name the escrow stop working and can
-        still be removed. Allowances are kept under the escrow's name: remove them with
-        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
-        nobody's control afterwards: never pay it again.
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
     
          *
          * @param params The params for the smart contract call
@@ -4105,6 +4175,28 @@ export declare class MockBigWalletClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the MockBigWallet smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Get domain key assignments for a list of addresses
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result: The domain string for each address, or empty string if no domain is assigned
+         */
+        arc58GetDomainKeys: (params: CallParams<MockBigWalletArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | MockBigWalletArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockBigWalletReturns["arc58_getDomainKeys(address[])string[]"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -4203,6 +4295,17 @@ export declare class MockBigWalletClient {
      * @returns The call result: The execution info for each lease, or empty execution info if the lease does not exist
      */
     arc58GetExecutions(params: CallParams<MockBigWalletArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | MockBigWalletArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']>): Promise<[Uint8Array<ArrayBufferLike>[], bigint, bigint][]>;
+    /**
+     * Makes a readonly (simulated) call to the MockBigWallet smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Get domain key assignments for a list of addresses
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result: The domain string for each address, or empty string if no domain is assigned
+     */
+    arc58GetDomainKeys(params: CallParams<MockBigWalletArgs['obj']['arc58_getDomainKeys(address[])string[]'] | MockBigWalletArgs['tuple']['arc58_getDomainKeys(address[])string[]']>): Promise<string[]>;
     /**
      * Methods to access state for the current MockBigWallet app
      */
@@ -4342,6 +4445,32 @@ export declare class MockBigWalletClient {
                  * Get a current value of the escrows map by key from box state
                  */
                 value: (key: string) => Promise<EscrowInfo | undefined>;
+            };
+            /**
+             * Get values from the escrowRefs map in box state
+             */
+            escrowRefs: {
+                /**
+                 * Get all current values of the escrowRefs map in box state
+                 */
+                getMap: () => Promise<Map<string, bigint>>;
+                /**
+                 * Get a current value of the escrowRefs map by key from box state
+                 */
+                value: (key: string) => Promise<bigint | undefined>;
+            };
+            /**
+             * Get values from the defaultEscrows map in box state
+             */
+            defaultEscrows: {
+                /**
+                 * Get all current values of the defaultEscrows map in box state
+                 */
+                getMap: () => Promise<Map<PluginKey, string>>;
+                /**
+                 * Get a current value of the defaultEscrows map by key from box state
+                 */
+                value: (key: PluginKey) => Promise<string | undefined>;
             };
             /**
              * Get values from the allowances map in box state
@@ -4643,12 +4772,12 @@ export type MockBigWalletComposer<TReturns extends [...any[]] = []> = {
      *
     * Delete an escrow by closing its account out to the controlled address.
   
-    The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
-    An escrow the factory created must be on the factory's record (see register), because the
-    factory deletes only what it has on record. Grants that name the escrow stop working and can
-    still be removed. Allowances are kept under the escrow's name: remove them with
-    arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
-    nobody's control afterwards: never pay it again.
+    The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+    arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+    group may do all of that. An escrow made before plugins and allowances were counted has no
+    count to check: remove its plugins and allowances first, because one left behind stays stored,
+    and an allowance applies again to a new escrow of the same name. The address of a deleted
+    escrow is under nobody's control: never pay it again.
   
      *
      * @param args The arguments for the contract call
@@ -4800,6 +4929,16 @@ export type MockBigWalletComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     arc58GetExecutions(params?: CallParams<MockBigWalletArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | MockBigWalletArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']>): MockBigWalletComposer<[...TReturns, MockBigWalletReturns['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | undefined]>;
+    /**
+     * Calls the arc58_getDomainKeys(address[])string[] ABI method.
+     *
+     * Get domain key assignments for a list of addresses
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    arc58GetDomainKeys(params?: CallParams<MockBigWalletArgs['obj']['arc58_getDomainKeys(address[])string[]'] | MockBigWalletArgs['tuple']['arc58_getDomainKeys(address[])string[]']>): MockBigWalletComposer<[...TReturns, MockBigWalletReturns['arc58_getDomainKeys(address[])string[]'] | undefined]>;
     /**
      * Gets available update methods
      */

@@ -5,6 +5,7 @@ import {
   ProposalAddNamedPlugin,
   ProposalAddPlugin,
   ProposalChangeAdmin,
+  ProposalDeleteEscrow,
   ProposalExecutePlugin,
   ProposalNewEscrow,
   ProposalReclaim,
@@ -30,7 +31,7 @@ import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { prepareGroup, sendPrepared } from "../simulate/prepare";
 import { emptySigner, MAX_UINT64 } from "../constants";
 import { EMPTY_CID } from "./constants"
-import { AllowancesToTuple } from '../wallet/utils';
+import { AllowancesToTuple, assertEscrowCanBeDeleted } from '../wallet/utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 import { getDaoEscrowActionV2Cutover } from '../networks';
 import { decodeLegacyProposalNewEscrow, usesLegacyEscrowActionShape } from './legacy';
@@ -332,6 +333,13 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
           abiAction = { escrow, reclaims: reclaims.map(({ asset, amount, closeOut }) => [asset, amount, closeOut]) };
           structType = 'ProposalReclaim';
+          break;
+        }
+        case ProposalActionEnum.DeleteEscrow: {
+          const { type, ...action } = typedAction
+
+          abiAction = action;
+          structType = 'ProposalDeleteEscrow';
           break;
         }
         case ProposalActionEnum.ChangeAdmin: {
@@ -844,6 +852,43 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
   }
 
   /**
+   * Build the actions that delete an escrow of the DAO wallet, in the order the wallet needs them,
+   * from what the chain lists for the escrow: unlock it if asked, remove every grant and alias that
+   * names it, remove its allowances, close its assets out to the wallet, then delete it.
+   *
+   * Put them in one proposal so the whole removal runs in one transaction group. When they are more
+   * than the DAO's action limit allows, split them over proposals in this order and execute those in
+   * order: the wallet refuses the delete while a plugin or an allowance still names the escrow.
+   *
+   * It throws when something stands in the way that no action can undo: the escrow is opted in to
+   * an app, or holds an asset the wallet's account cannot receive. An alias whose grant is already
+   * gone does not stand in the way and is left alone.
+   */
+  async deleteEscrowActions({ escrow, unlock = false }: { escrow: string; unlock?: boolean }): Promise<ProposalAction<SDKClient>[]> {
+    const plan = await (await this.getWallet()).getEscrowTeardown(escrow);
+    assertEscrowCanBeDeleted(plan, unlock);
+
+    const actions: ProposalAction<SDKClient>[] = [];
+    if (plan.locked) actions.push({ type: ProposalActionEnum.ToggleEscrowLock, escrow });
+    for (const { plugin, caller, escrow: keyEscrow, names } of plan.plugins) {
+      if (names.length === 0) actions.push({ type: ProposalActionEnum.RemovePlugin, plugin, caller, escrow: keyEscrow });
+      for (const name of names) actions.push({ type: ProposalActionEnum.RemoveNamedPlugin, name });
+    }
+    if (plan.allowances.length > 0) {
+      actions.push({ type: ProposalActionEnum.RemoveAllowances, escrow, assets: plan.allowances });
+    }
+    if (plan.assets.length > 0) {
+      actions.push({
+        type: ProposalActionEnum.Reclaim,
+        escrow,
+        reclaims: plan.assets.map((asset) => ({ asset, amount: 0n, closeOut: true })),
+      });
+    }
+    actions.push({ type: ProposalActionEnum.DeleteEscrow, escrow });
+    return actions;
+  }
+
+  /**
    * Delete one of your proposals (draft, rejected, executed, cancelled, or a leftover bootstrap proposal).
    * Voted proposals require every vote receipt to be cleared first (`deleteProposalVotes`).
    */
@@ -997,6 +1042,8 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         return 'ProposalToggleEscrowLock';
       case ProposalActionEnum.Reclaim:
         return 'ProposalReclaim';
+      case ProposalActionEnum.DeleteEscrow:
+        return 'ProposalDeleteEscrow';
       case ProposalActionEnum.UpdateFields:
         return 'ProposalUpdateField';
       case ProposalActionEnum.UpdateWallet:
@@ -1072,6 +1119,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       case ProposalActionEnum.Reclaim: {
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalReclaim;
         return { type: ProposalActionEnum.Reclaim, ...decoded };
+      }
+      case ProposalActionEnum.DeleteEscrow: {
+        const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalDeleteEscrow;
+        return { type: ProposalActionEnum.DeleteEscrow, ...decoded };
       }
       case ProposalActionEnum.ChangeAdmin: {
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalChangeAdmin;

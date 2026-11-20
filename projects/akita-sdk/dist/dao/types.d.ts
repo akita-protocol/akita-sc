@@ -1,5 +1,5 @@
 import { AkitaAppList, AkitaAssets, AkitaDaoArgs, AkitaSocialAppList, GlobalKeysState, GuildFees, NftFees, OtherAppList, PluginAppList, ProposalSettings, ProposalVoteTotals, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../generated/AkitaDAOClient";
-import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "../generated/AkitaDAOTypesClient";
+import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalDeleteEscrow, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "../generated/AkitaDAOTypesClient";
 import { ProposalActionEnum } from "./constants";
 import { AddAllowanceArgs, AddPluginArgs, WalletAddPluginParams } from "../wallet";
 import { MaybeSigner, SDKClient } from "../types";
@@ -67,6 +67,13 @@ export type ProposalAction<TClient extends SDKClient> = ({
         amount: bigint;
         closeOut: boolean;
     }[];
+} | {
+    /**
+     * Delete an escrow of the DAO wallet by closing its account. Earlier actions of the same
+     * proposal remove its plugins and allowances and close out its assets.
+     */
+    type: ProposalActionEnum.DeleteEscrow;
+    escrow: string;
 } | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields;
 } | {
@@ -184,6 +191,8 @@ export type DecodedProposalAction = (({
 } & ProposalToggleEscrowLock) | ({
     type: ProposalActionEnum.Reclaim;
 } & ProposalReclaim) | ({
+    type: ProposalActionEnum.DeleteEscrow;
+} & ProposalDeleteEscrow) | ({
     type: ProposalActionEnum.UpdateFields;
 } & ProposalUpdateField) | {
     type: ProposalActionEnum.UpdateWallet;
