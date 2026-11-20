@@ -656,16 +656,38 @@ describe('ARC58 Admin & Profile', () => {
     // ==================================================================================
 
     describe('Get Admin', () => {
-        test('arc58_getAdmin executes as a confirmed ungrouped NoOp from the global admin', async () => {
+        test('arc58_getAdmin executes as a confirmed ungrouped NoOp from the global admin, given read budget for the program', async () => {
             const { algorand, context: { testAccount } } = localnet;
             const sender = testAccount.toString();
 
             const method = algosdk.ABIMethod.fromSignature('arc58_getAdmin()address');
-            const result = await algorand.send.appCall({
+            const bare = {
                 sender,
                 signer: testAccount.signer,
                 appId: wallet.client.appId,
                 args: [method.getSelector()],
+            };
+
+            // The wallet program has been larger than 8,192 bytes since 2026-11-20. The node charges a
+            // program's bytes above 8,192 to the group's box read budget, once for each such app the group
+            // touches, so a group that names no box is refused before the call runs.
+            const app = await algorand.app.getById(wallet.client.appId);
+            const above = app.approvalProgram.length + app.clearStateProgram.length - 8_192;
+            expect(above).toBeGreaterThan(0);
+            await expect(algorand.send.appCall({ ...bare, note: 'no box reference', populateAppCallResources: false }))
+                .rejects.toThrow(`read budget exceeded (${above} > 0)`);
+
+            // Left to the SDK's builder, the same call goes out as one transaction at the minimum fee, with
+            // the one reference the builder found by simulation.
+            const built = await algorand.send.appCall({ ...bare, note: 'built by the SDK', populateAppCallResources: true });
+            expect(built.transactions).toHaveLength(1);
+            expect(built.transactions[0].fee).toBe(1_000n);
+            expect(built.transactions[0].applicationCall?.access).toHaveLength(1);
+
+            // A hand-built call needs one box reference, which may be empty: it adds 2,048 bytes of budget.
+            const result = await algorand.send.appCall({
+                ...bare,
+                boxReferences: [{ appId: 0n, name: new Uint8Array(0) }],
                 populateAppCallResources: false,
             });
 
@@ -751,13 +773,18 @@ describe('ARC58 Admin & Profile', () => {
             }
             expect(error).toContain(errAdminOnly);
 
-            // The admin can still pull the factory's code
-            await walletFactory.client.send.updateWallet({
+            // The admin can still pull the factory's code. The inner update carries the wallet program, and a
+            // program above 8,192 bytes costs more than one minimum fee (56 µALGO more for the tree wallet),
+            // so the client sizes the fee, under a ceiling.
+            const updated = await walletFactory.client.send.updateWallet({
                 sender,
                 signer,
-                extraFee: microAlgo(1_000),
+                coverAppCallInnerTransactionFees: true,
+                maxFee: microAlgo(10_000),
                 args: { wallet: manualWallet.appId },
             });
+            expect(updated.transactions[0].fee).toBeGreaterThan(2_000n);
+            expect(updated.transactions[0].fee).toBeLessThan(3_000n);
         });
 
         test('admin can set factory update settings', async () => {

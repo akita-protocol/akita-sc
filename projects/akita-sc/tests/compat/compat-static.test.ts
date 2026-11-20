@@ -460,14 +460,18 @@ describe('CMP-S11 working-tree programs that call a wallet method LIVE wallets d
    * wallet program (Phase 3 `--unname-aliases` emits RemoveNamedPlugin). The Guild creates its own (tree)
    * wallets. The factory's new `create` is how NEW wallets get the tree program. Listed so the set cannot grow
    * silently; reported to the update-plugin / rollout track in IMPLEMENTATION-LOG.
+   *
+   * Since 2026-11-20 the live program also lacks `arc58_deleteEscrow`. The tree DAO and the Guild call it on a
+   * wallet for a DeleteEscrow action (type 73), so a DeleteEscrow proposal reverts until the DAO wallet runs the
+   * tree wallet program (rollout step F1). The proposal validator does not call it.
    */
   const KNOWN: Record<string, string[]> = {
-    'arc58/dao/AkitaDAO.arc56.json': ['arc58_getNamedPluginKey(string)(uint64,address,string)'],
+    'arc58/dao/AkitaDAO.arc56.json': ['arc58_deleteEscrow(string)void', 'arc58_getNamedPluginKey(string)(uint64,address,string)'],
     'arc58/dao/AkitaDAOProposalValidator.arc56.json': ['arc58_getNamedPluginKey(string)(uint64,address,string)'],
-    'arc58/guilds/core/Guild.arc56.json': ['arc58_getNamedPluginKey(string)(uint64,address,string)'],
+    'arc58/guilds/core/Guild.arc56.json': ['arc58_deleteEscrow(string)void', 'arc58_getNamedPluginKey(string)(uint64,address,string)'],
     'arc58/account/AbstractedAccountFactory.arc56.json': ['create(string,uint64,address,address,string,uint64,uint64,string,address,byte[32],bool)void'],
     // test-only subclass of the tree DAO (legacy vote receipts); never deployed
-    'mocks/legacy-vote-dao/MockLegacyVoteDAO.arc56.json': ['arc58_getNamedPluginKey(string)(uint64,address,string)'],
+    'mocks/legacy-vote-dao/MockLegacyVoteDAO.arc56.json': ['arc58_deleteEscrow(string)void', 'arc58_getNamedPluginKey(string)(uint64,address,string)'],
   }
 
   test('exactly the known callers, with exactly the known methods', () => {
