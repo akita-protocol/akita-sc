@@ -26,22 +26,22 @@ main_create_NoOp@5:
     err
 
 
-// @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:138
+    // smart_contracts/utils/functions.ts:546
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:139
+    // smart_contracts/utils/functions.ts:547
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:140
+    // smart_contracts/utils/functions.ts:548
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:142
+    // smart_contracts/utils/functions.ts:551
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -119,20 +119,20 @@ pay:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/pay/types.ts::PayParams>
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:20
-    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // smart_contracts/utils/functions.ts:481
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:18-21
+    // smart_contracts/utils/functions.ts:479-482
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     app_global_get_ex
     pop
     dup
     cover 4
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:38
-    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
+    // smart_contracts/utils/functions.ts:494
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
     global CurrentApplicationAddress

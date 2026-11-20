@@ -1,6 +1,6 @@
 import { Application, Contract, Global, GlobalState, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abimethod } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { PayParams } from "../pay/types";
 import { ZeroSignalPluginGlobalStateKeyEscrowApp } from "./constants";
 import { errNoEscrowApp, errReceiverNotEscrow } from "./errors";
