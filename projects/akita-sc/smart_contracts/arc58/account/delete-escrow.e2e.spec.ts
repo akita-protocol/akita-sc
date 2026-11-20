@@ -74,6 +74,17 @@ describe('ARC58 escrow deletion', () => {
     return { id, address: getApplicationAddress(id).toString() };
   };
 
+  /** An outside account rekeyed to the wallet and registered as an escrow, which the factory has no part in. Returns its address. */
+  const adoptOutsideAccount = async (escrow: string) => {
+    const outside = await localnet.context.generateAccount({ initialFunds: (3).algos() });
+    await localnet.algorand.send.payment({
+      sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
+      rekeyTo: wallet.client.appAddress,
+    });
+    await wallet.newEscrow({ escrow, address: outside.addr.toString() });
+    return outside.addr.toString();
+  };
+
   /** The contract call alone, with nothing removed first. */
   const deleteEscrow = (escrow: string, from = sender) =>
     wallet.client.send.arc58DeleteEscrow({ sender: from, args: { escrow }, ...fees });
@@ -418,6 +429,81 @@ describe('ARC58 escrow deletion', () => {
       expect(walletBefore.minBalance.microAlgos - walletAfter.minBalance.microAlgos).toBe(escrowRecordMbr(escrow) + countMbr(escrow));
     });
 
+    test('an outside account that still holds an asset is refused, and goes once the asset is closed out', async () => {
+      const escrow = 'outside_asset';
+      const address = await adoptOutsideAccount(escrow);
+      const asset = await assetTheWalletHolds();
+      await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [asset] }, ...fees });
+      await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: asset, amount: 25n });
+
+      // an account that holds an asset cannot be closed, so the whole call fails and nothing changes
+      await expect(deleteEscrow(escrow)).rejects.toThrow();
+      expect(await hasRecord(escrow)).toBe(true);
+      expect(await counted(escrow)).toBe(0n);
+      expect((await account(address)).authAddr?.toString()).toBe(wallet.client.appAddress.toString());
+
+      // the admin closes the asset out of the account, and then the account can go
+      await wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[asset, 0n, true]] }, ...fees });
+      const held = (await account(address)).balance.microAlgos;
+      const walletBefore = await account(wallet.client.appAddress.toString());
+
+      await deleteEscrow(escrow);
+
+      const walletAfter = await account(wallet.client.appAddress.toString());
+      expect(await hasRecord(escrow)).toBe(false);
+      expect(await counted(escrow)).toBeUndefined();
+      expect((await account(address)).balance.microAlgos).toBe(0n);
+      // closing the account ends its rekey: the address is its own key's again
+      expect((await account(address)).authAddr).toBeUndefined();
+      // what the account held comes back, the minimum it held for the asset included
+      expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(held);
+      expect(walletAfter.assets?.find((holding) => holding.assetId === asset)?.amount).toBe(25n);
+    });
+
+    test('an outside account that created an asset cannot be closed: the call fails, and the SDK says why and sends nothing', async () => {
+      const escrow = 'outside_creator';
+      const outside = await localnet.context.generateAccount({ initialFunds: (3).algos() });
+      const { assetId } = await localnet.algorand.send.assetCreate({
+        sender: outside.addr, signer: outside.signer, total: 10n, decimals: 0, assetName: 'Made',
+      });
+      await localnet.algorand.send.payment({
+        sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
+        rekeyTo: wallet.client.appAddress,
+      });
+      const address = outside.addr.toString();
+      await wallet.newEscrow({ escrow, address });
+
+      // the network closes no account while an asset it created exists, so the whole call fails and nothing changes
+      await expect(deleteEscrow(escrow)).rejects.toThrow();
+      expect(await hasRecord(escrow)).toBe(true);
+      expect((await account(address)).authAddr?.toString()).toBe(wallet.client.appAddress.toString());
+
+      // the SDK reads that from the chain, names it, and sends nothing
+      const plan = await wallet.getEscrowTeardown(escrow);
+      expect(plan.blockers.some((blocker) => blocker.includes(`it created an asset that still exists (${assetId})`))).toBe(true);
+      await expect(wallet.deleteEscrow({ escrow })).rejects.toThrow(/cannot be deleted/);
+      expect(await hasRecord(escrow)).toBe(true);
+      expect((await account(address)).authAddr?.toString()).toBe(wallet.client.appAddress.toString());
+    });
+
+    test('an outside account registered under two names is closed by the first delete, and the second name can then not be deleted', async () => {
+      const first = 'twice_a';
+      const second = 'twice_b';
+      const address = await adoptOutsideAccount(first);
+      // the wallet does not check that an account is registered only once
+      await wallet.newEscrow({ escrow: second, address });
+
+      await deleteEscrow(first);
+      expect((await account(address)).balance.microAlgos).toBe(0n);
+      expect((await account(address)).authAddr).toBeUndefined();
+
+      // The account is no longer rekeyed to the wallet, so the wallet cannot close it a second time. The
+      // second record stays, and with it the storage the wallet holds for the record and its count.
+      await expect(deleteEscrow(second)).rejects.toThrow(/unauthorized/);
+      expect(await hasRecord(second)).toBe(true);
+      expect(await counted(second)).toBe(0n);
+    });
+
     test('a name made again is a new escrow that starts with nothing', async () => {
       const escrow = 'reused';
       await wallet.addPlugin({
@@ -590,6 +676,42 @@ describe('ARC58 escrow deletion', () => {
       expect(sent[0].txIds.length).toBe(1);
       expect((await account(outside.addr.toString())).balance.microAlgos).toBe(0n);
       expect(await hasRecord(escrow)).toBe(false);
+    });
+
+    test('deleteEscrow takes an adopted account apart in one group: its plugin, its allowance, its asset and the account', async () => {
+      const escrow = 'sdk_outside_whole';
+      const address = await adoptOutsideAccount(escrow);
+      const asset = await assetTheWalletHolds();
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      await wallet.addAllowances({ escrow, allowances: [{ asset: 0n, type: 'flat', amount: 1_000n }] });
+      await wallet.client.send.arc58OptInEscrow({ sender, args: { escrow, assets: [asset] }, ...fees });
+      await localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId: asset, amount: 25n });
+
+      const plan = await wallet.getEscrowTeardown(escrow);
+      expect(plan.counted).toBe(2n);
+      expect(plan.plugins.length).toBe(1);
+      expect(plan.allowances).toEqual([0n]);
+      expect(plan.assets).toEqual([asset]);
+      expect(plan.blockers).toEqual([]);
+
+      const held = (await account(address)).balance.microAlgos;
+      const before = await account(wallet.client.appAddress.toString());
+
+      const sent = await wallet.deleteEscrow({ escrow });
+
+      // one group: the plugin removal, the allowance removal, the asset close-out, the delete
+      expect(sent.length).toBe(1);
+      expect(sent[0].txIds.length).toBe(4);
+      expect(await hasRecord(escrow)).toBe(false);
+      expect(await counted(escrow)).toBeUndefined();
+      expect((await account(address)).balance.microAlgos).toBe(0n);
+      expect((await account(address)).authAddr).toBeUndefined();
+      expect((await wallet.getAllowances()).size).toBe(0);
+
+      // no app and no factory record were involved: the asset and what the account held come back
+      const after = await account(wallet.client.appAddress.toString());
+      expect(after.assets?.find((holding) => holding.assetId === asset)?.amount).toBe(25n);
+      expect(after.balance.microAlgos - before.balance.microAlgos).toBe(held);
     });
 
     test('deleteEscrow spreads a removal too long for one group over two, with the delete last', async () => {

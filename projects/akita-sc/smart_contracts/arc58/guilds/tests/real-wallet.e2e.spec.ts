@@ -431,6 +431,52 @@ describe('Guild production ARC-58 wallet integration', () => {
     expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(escrowHeld + 150_000n + 26_900n + 400n * 3n)
   }, 600_000)
 
+  test('removes an escrow that is an outside account rekeyed to the Guild wallet, which the factory has no part in', async () => {
+    const { guild, wallet } = await createRealWalletGuild()
+    const { creator, algorand } = environment
+    await wallet.appClient.fundAppAccount({ amount: microAlgo(3_000_000n) })
+    const pay = await deployPayPlugin({ fixture, sender: creator.addr, signer: creator.signer })
+    const sdk = new WalletSDK({
+      algorand, readerAccount: creator.addr.toString(),
+      factoryParams: { appId: wallet.appId, defaultSender: creator.addr, defaultSigner: creator.signer },
+    })
+
+    const outside = algorand.account.random()
+    await algorand.send.payment({ sender: creator.addr, signer: creator.signer, receiver: outside.addr, amount: microAlgo(2_000_000n) })
+    await algorand.send.payment({ sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n), rekeyTo: wallet.appAddress })
+    const address = outside.addr.toString()
+
+    // the proposal registers the account under the name: there is no escrow app, so the record's id is 0
+    await approve(guild, [newEscrowAction('adopted', address)])
+    expect((await sdk.getEscrow('adopted')).id).toBe(0n)
+    await approve(guild, [addPluginAction(pay.appId, ALGORAND_ZERO_ADDRESS_STRING, 'adopted', proposalSettings(), false)])
+    expect(await sdk.getEscrowRefs('adopted')).toBe(1n)
+
+    // it is counted like any escrow, so the delete alone is refused when it runs
+    const alone = await approveOnly(guild, [action(73, encodeAbi('(string)', ['adopted']))])
+    await expectContractError(executeProposal(guild, alone), 'errEuse')
+
+    // the plugin's removal, then the delete
+    const actions = deleteEscrowActions(await sdk.getEscrowTeardown('adopted'))
+    expect(actions.map(([type]) => Number(type))).toEqual([40, 73])
+
+    const walletBefore = await algorand.account.getInformation(wallet.appAddress)
+    const held = await balanceOf(environment, address)
+
+    await approve(guild, actions.map(([type, data]) => action(Number(type), data as AbiBytes)))
+
+    expect((await sdk.getEscrows()).has('adopted')).toBe(false)
+    expect(await sdk.getEscrowRefs('adopted')).toBeUndefined()
+    expect((await wallet.state.box.plugins.getMap()).size).toBe(0)
+    // the account is closed out, and closing it ended its rekey to the wallet
+    const closed = await algorand.account.getInformation(address)
+    expect(closed.balance.microAlgos).toBe(0n)
+    expect(closed.authAddr).toBeUndefined()
+    // only what the account held comes back: no app and no factory record were involved
+    const walletAfter = await algorand.account.getInformation(wallet.appAddress)
+    expect(walletAfter.balance.microAlgos - walletBefore.balance.microAlgos).toBe(held)
+  }, 600_000)
+
   test('re-deploys the wallet program through its factory only on governance approval', async () => {
     const { guild, wallet } = await createRealWalletGuild()
     const versionBefore = (await wallet.state.global.getAll()).version

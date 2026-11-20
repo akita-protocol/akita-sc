@@ -633,6 +633,51 @@ describe('ARC58 DAO Plugins', () => {
       expect(after.balance.microAlgos - before.balance.microAlgos).toBe(escrowHeld + 150_000n);
     });
 
+    test('removes an escrow that is an outside account rekeyed to the DAO wallet, which the factory has no part in', async () => {
+      const { fixture, dao } = context;
+      const { algorand } = fixture.context;
+      const deployer = await fixture.context.generateAccount({ initialFunds: (5).algos() });
+      const pay = await deployPayPlugin({ fixture, sender: deployer.toString(), signer: deployer.signer });
+      const escrow = getUniqueName('adopted');
+      await dao.wallet.client.appClient.fundAppAccount({ amount: microAlgo(5_000_000n) });
+
+      const outside = await fixture.context.generateAccount({ initialFunds: (2).algos() });
+      await algorand.send.payment({
+        sender: outside.addr, signer: outside.signer, receiver: outside.addr, amount: microAlgo(0n),
+        rekeyTo: dao.wallet.client.appAddress,
+      });
+      const address = outside.addr.toString();
+
+      // the proposal registers the account under the name: there is no escrow app, so the record's id is 0
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow, address }]);
+      expect((await dao.wallet.getEscrow(escrow)).id).toBe(0n);
+      await proposeAndExecute(dao, [buildAddPluginAction({ client: pay, callerType: CallerType.Global, useExecutionKey: false, escrow })]);
+      expect(await dao.wallet.getEscrowRefs(escrow)).toBe(1n);
+
+      // it is counted like any escrow, so the delete alone is refused
+      await expectContractError(proposeAndExecute(dao, [{ type: ProposalActionEnum.DeleteEscrow, escrow }]), 'errEuse');
+
+      const actions = await dao.deleteEscrowActions({ escrow });
+      expect(actions.map(action => action.type)).toEqual([ProposalActionEnum.RemovePlugin, ProposalActionEnum.DeleteEscrow]);
+
+      const controlled = (await dao.wallet.client.state.global.controlledAddress())!;
+      const before = await algorand.account.getInformation(controlled);
+      const held = (await algorand.account.getInformation(address)).balance.microAlgos;
+
+      await proposeAndExecute(dao, actions);
+
+      expect((await dao.wallet.getEscrows()).has(escrow)).toBe(false);
+      expect(await dao.wallet.getEscrowRefs(escrow)).toBeUndefined();
+      expect(Array.from((await dao.wallet.client.state.box.plugins.getMap()).keys()).some(key => key.escrow === escrow)).toBe(false);
+      // the account is closed out, and closing it ended its rekey to the wallet
+      const closed = await algorand.account.getInformation(address);
+      expect(closed.balance.microAlgos).toBe(0n);
+      expect(closed.authAddr).toBeUndefined();
+      // only what the account held comes back: no app and no factory record were involved
+      const after = await algorand.account.getInformation(controlled);
+      expect(after.balance.microAlgos - before.balance.microAlgos).toBe(held);
+    });
+
     test('rejects a proposal to delete an escrow that does not exist', async () => {
       const { dao } = context;
       await expectContractError(

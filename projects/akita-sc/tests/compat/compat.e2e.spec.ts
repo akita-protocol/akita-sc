@@ -721,6 +721,11 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
      * with a grant and an allowance. The last tests of this section update it to the tree program.
      */
     let Wd: WalletSDK
+    /**
+     * an outside account rekeyed to Wd, which the deployed code registered as Wd's escrow 'o' with a grant. The
+     * escrow factory has no part in such an escrow: its record has no app id.
+     */
+    let WdOutside: TransactionSignerAccount
 
     const resolveIn = async (w: WalletSDK, escrow = ''): Promise<{ target: Principal; plugin: Principal }> => {
       const [pluginSide, targetSide] = await inWindow(w, principalPlugin.appId, [
@@ -838,6 +843,12 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
           ...send(deployer), args: { escrow, allowances: [[0n, 1, 1_000n, 0n, 0n, false]] }, extraFee: FEE, populateAppCallResources: true,
         })
       }
+      WdOutside = await fixture.context.generateAccount({ initialFunds: (2).algo() })
+      await algorand.send.payment({ ...send(WdOutside), receiver: WdOutside.addr, amount: microAlgo(0), rekeyTo: Wd.client.appAddress })
+      await Wd.client.send.arc58NewEscrow({
+        ...send(deployer), args: { escrow: 'o', address: WdOutside.addr.toString() }, extraFee: FEE, populateAppCallResources: true,
+      })
+      await addRawPlugin(Wd, { plugin: principalPlugin.appId, escrow: 'o' }, send(deployer))
     }, 900_000)
 
     test('the wallets run the MainNet wallet program and stay genuine (creator = the DAO wallet factory)', async () => {
@@ -1023,6 +1034,35 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
         const sent = await Wd.deleteEscrow({ ...send(deployer), escrow: 'f' })
         expect(sent.length).toBe(1)
         expect(await appExists(second.id)).toBe(false)
+      })
+
+      test('an outside account the deployed code registered as an escrow is closed out by the updated wallet', async () => {
+        const address = WdOutside.addr.toString()
+        const record = await Wd.getEscrow('o')
+        // no escrow app: the deployed code stored the account itself, and the tree code reads that record
+        expect(record.id).toBe(0n)
+        expect(record.address.toString()).toBe(address)
+        expect(await Wd.getEscrowRefs('o')).toBeUndefined()
+        expect((await algorand.account.getInformation(address)).authAddr?.toString()).toBe(Wd.client.appAddress.toString())
+        expect(await grantsNaming('o')).toBe(1)
+
+        const held = (await algorand.account.getInformation(address)).balance.microAlgos
+        const before = await algorand.account.getInformation(Wd.client.appAddress)
+        const sent = await Wd.deleteEscrow({ ...send(deployer), escrow: 'o' })
+
+        // one group: the grant, then the delete
+        expect(sent.length).toBe(1)
+        expect(sent[0].txIds.length).toBe(2)
+        expect(await escrowNames()).not.toContain('o')
+        expect(await grantsNaming('o')).toBe(0)
+        // the account is closed out, and closing it ended its rekey to the wallet
+        const closed = await algorand.account.getInformation(address)
+        expect(closed.balance.microAlgos).toBe(0n)
+        expect(closed.authAddr).toBeUndefined()
+        // what the account held comes back, and the storage for the record and the grant is released
+        const after = await algorand.account.getInformation(Wd.client.appAddress)
+        expect(after.balance.microAlgos - before.balance.microAlgos).toBe(held)
+        expect(after.minBalance.microAlgos).toBeLessThan(before.minBalance.microAlgos)
       })
     })
   })
