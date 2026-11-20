@@ -1464,6 +1464,50 @@ export class AbstractedAccount extends Contract {
   }
 
   /**
+   * Delete an escrow by closing its account out to the controlled address.
+   *
+   * The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+   * An escrow the factory created must be on the factory's record (see register), because the
+   * factory deletes only what it has on record. Grants that name the escrow stop working and can
+   * still be removed. Allowances are kept under the escrow's name: remove them with
+   * arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+   * nobody's control afterwards: never pay it again.
+   *
+   * @param escrow The escrow to delete
+  */
+  arc58_deleteEscrow(escrow: string): void {
+    this._requireForbiddenAdmin()
+    this._requireEscrow(escrow)
+    this._requireUnlockedEscrow(escrow)
+
+    const { id, address } = this.escrows(escrow).value
+
+    // Close the account from here, where it is authorised: the escrow's account is rekeyed to
+    // this wallet, so its own app cannot spend from it until it is closed.
+    itxn
+      .payment({
+        sender: address,
+        receiver: this.controlledAddress.value,
+        closeRemainderTo: this.controlledAddress.value
+      })
+      .submit()
+
+    if (id !== 0) {
+      abiCall<typeof EscrowFactory.prototype.delete>({
+        appId: this.escrowFactory.value,
+        args: [id]
+      })
+      // The factory pays this app what it held for the escrow app and for its record. The
+      // controlled address paid for the app (newEscrow) and this app for the record (register).
+      this._refundMbrToControlled(NewCostForARC58)
+    }
+
+    this.escrows(escrow).delete()
+    this._refundMbrToControlled(this.escrowsMbr(escrow))
+    this._touchState()
+  }
+
+  /**
    * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
    * The plugin must have canReclaim set to true. CloseOut on asset transfers is blocked when the escrow is locked.
    *
@@ -1587,8 +1631,11 @@ export class AbstractedAccount extends Contract {
   */
   arc58_removeAllowances(escrow: string, assets: uint64[]): void {
     loggedAssert(this.isAdmin() || this.canRevoke(), errOnlyAdminOrRevocationAppCanRemoveMethodRestriction);
-    this._requireEscrow(escrow);
-    this._requireUnlockedEscrow(escrow);
+    // An allowance outlives a deleted escrow (arc58_deleteEscrow), and its storage must stay
+    // recoverable, so only an escrow that still exists has to be unlocked.
+    if (this.escrows(escrow).exists) {
+      this._requireUnlockedEscrow(escrow);
+    }
 
     this._refundMbrToControlled(this.allowancesMbr(escrow) * assets.length)
 
@@ -1767,25 +1814,6 @@ export class AbstractedAccount extends Contract {
         continue
       }
       result.push(emptyExecutionInfo())
-    }
-    return result
-  }
-
-  /**
-   * Get domain key assignments for a list of addresses
-   *
-   * @param addresses The addresses to look up domain keys for
-   * @returns The domain string for each address, or empty string if no domain is assigned
-  */
-  @abimethod({ readonly: true })
-  arc58_getDomainKeys(addresses: Account[]): string[] {
-    let result: string[] = []
-    for (let i: uint64 = 0; i < addresses.length; i += 1) {
-      if (this.domainKeys(addresses[i]).exists) {
-        result.push(this.domainKeys(addresses[i]).value)
-        continue
-      }
-      result.push("")
     }
     return result
   }

@@ -473,6 +473,12 @@ export type AbstractedAccountArgs = {
              */
             reclaims: [bigint | number, bigint | number, boolean][];
         };
+        'arc58_deleteEscrow(string)void': {
+            /**
+             * The escrow to delete
+             */
+            escrow: string;
+        };
         'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': {
             /**
              * The plugin app ID
@@ -605,12 +611,6 @@ export type AbstractedAccountArgs = {
              */
             leases: Uint8Array[];
         };
-        'arc58_getDomainKeys(address[])string[]': {
-            /**
-             * The addresses to look up domain keys for
-             */
-            addresses: string[];
-        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -642,6 +642,7 @@ export type AbstractedAccountArgs = {
         'arc58_newEscrow(string,address)uint64': [escrow: string, address: string];
         'arc58_toggleEscrowLock(string)(uint64,address,bool)': [escrow: string];
         'arc58_reclaim(string,(uint64,uint64,bool)[])void': [escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
+        'arc58_deleteEscrow(string)void': [escrow: string];
         'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': [plugin: bigint | number, caller: string, escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
         'arc58_optInEscrow(string,uint64[])void': [escrow: string, assets: bigint[] | number[]];
         'arc58_pluginOptInEscrow(uint64,address,string,uint64[],pay)void': [plugin: bigint | number, caller: string, escrow: string, assets: bigint[] | number[], mbrPayment: AppMethodCallTransactionArgument];
@@ -656,7 +657,6 @@ export type AbstractedAccountArgs = {
         'arc58_getEscrows(string[])(uint64,address,bool)[]': [escrows: string[]];
         'arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[]': [escrow: string, assets: bigint[] | number[]];
         'arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]': [leases: Uint8Array[]];
-        'arc58_getDomainKeys(address[])string[]': [addresses: string[]];
     };
 };
 /**
@@ -689,6 +689,7 @@ export type AbstractedAccountReturns = {
     'arc58_newEscrow(string,address)uint64': bigint;
     'arc58_toggleEscrowLock(string)(uint64,address,bool)': EscrowInfo;
     'arc58_reclaim(string,(uint64,uint64,bool)[])void': void;
+    'arc58_deleteEscrow(string)void': void;
     'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': void;
     'arc58_optInEscrow(string,uint64[])void': void;
     'arc58_pluginOptInEscrow(uint64,address,string,uint64[],pay)void': void;
@@ -703,7 +704,6 @@ export type AbstractedAccountReturns = {
     'arc58_getEscrows(string[])(uint64,address,bool)[]': [bigint, string, boolean][];
     'arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[]': [number, bigint, bigint, bigint, bigint, bigint, bigint, boolean][];
     'arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]': [Uint8Array[], bigint, bigint][];
-    'arc58_getDomainKeys(address[])string[]': string[];
 };
 /**
  * Defines the types of available calls and state of the AbstractedAccount smart contract.
@@ -819,6 +819,10 @@ export type AbstractedAccountTypes = {
         argsObj: AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         returns: AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
+    }> & Record<'arc58_deleteEscrow(string)void' | 'arc58_deleteEscrow', {
+        argsObj: AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'];
+        argsTuple: AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void'];
+        returns: AbstractedAccountReturns['arc58_deleteEscrow(string)void'];
     }> & Record<'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void' | 'arc58_pluginReclaim', {
         argsObj: AbstractedAccountArgs['obj']['arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void'];
@@ -890,13 +894,6 @@ export type AbstractedAccountTypes = {
          * The execution info for each lease, or empty execution info if the lease does not exist
          */
         returns: AbstractedAccountReturns['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'];
-    }> & Record<'arc58_getDomainKeys(address[])string[]' | 'arc58_getDomainKeys', {
-        argsObj: AbstractedAccountArgs['obj']['arc58_getDomainKeys(address[])string[]'];
-        argsTuple: AbstractedAccountArgs['tuple']['arc58_getDomainKeys(address[])string[]'];
-        /**
-         * The domain string for each address, or empty string if no domain is assigned
-         */
-        returns: AbstractedAccountReturns['arc58_getDomainKeys(address[])string[]'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -1391,6 +1388,23 @@ export declare abstract class AbstractedAccountParamsFactory {
      */
     static arc58Reclaim(params: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the arc58_deleteEscrow(string)void ABI method
+     *
+    * Delete an escrow by closing its account out to the controlled address.
+  
+    The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+    An escrow the factory created must be on the factory's record (see register), because the
+    factory deletes only what it has on record. Grants that name the escrow stop working and can
+    still be removed. Allowances are kept under the escrow's name: remove them with
+    arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+    nobody's control afterwards: never pay it again.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static arc58DeleteEscrow(params: CallParams<AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'] | AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void ABI method
      *
     * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -1520,15 +1534,6 @@ export declare abstract class AbstractedAccountParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static arc58GetExecutions(params: CallParams<AbstractedAccountArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | AbstractedAccountArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the arc58_getDomainKeys(address[])string[] ABI method
-     *
-     * Get domain key assignments for a list of addresses
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static arc58GetDomainKeys(params: CallParams<AbstractedAccountArgs['obj']['arc58_getDomainKeys(address[])string[]'] | AbstractedAccountArgs['tuple']['arc58_getDomainKeys(address[])string[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the AbstractedAccount smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -2366,6 +2371,25 @@ export declare class AbstractedAccountClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+        An escrow the factory created must be on the factory's record (see register), because the
+        factory deletes only what it has on record. Grants that name the escrow stop working and can
+        still be removed. Allowances are kept under the escrow's name: remove them with
+        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+        nobody's control afterwards: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void` ABI method.
          *
         * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -2535,19 +2559,6 @@ export declare class AbstractedAccountClient {
          * @returns The call params: The execution info for each lease, or empty execution info if the lease does not exist
          */
         arc58GetExecutions: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"] | AbstractedAccountArgs["tuple"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the AbstractedAccount smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * Get domain key assignments for a list of addresses
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params: The domain string for each address, or empty string if no domain is assigned
-         */
-        arc58GetDomainKeys: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | AbstractedAccountArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -2944,6 +2955,29 @@ export declare class AbstractedAccountClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+        An escrow the factory created must be on the factory's record (see register), because the
+        factory deletes only what it has on record. Grants that name the escrow stop working and can
+        still be removed. Allowances are kept under the escrow's name: remove them with
+        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+        nobody's control afterwards: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void` ABI method.
          *
         * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -3165,23 +3199,6 @@ export declare class AbstractedAccountClient {
          * @returns The call transaction: The execution info for each lease, or empty execution info if the lease does not exist
          */
         arc58GetExecutions: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"] | AbstractedAccountArgs["tuple"]["arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the AbstractedAccount smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * Get domain key assignments for a list of addresses
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction: The domain string for each address, or empty string if no domain is assigned
-         */
-        arc58GetDomainKeys: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | AbstractedAccountArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3709,6 +3726,34 @@ export declare class AbstractedAccountClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+        An escrow the factory created must be on the factory's record (see register), because the
+        factory deletes only what it has on record. Grants that name the escrow stop working and can
+        still be removed. Allowances are kept under the escrow's name: remove them with
+        arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+        nobody's control afterwards: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AbstractedAccountReturns["arc58_deleteEscrow(string)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void` ABI method.
          *
         * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -4006,28 +4051,6 @@ export declare class AbstractedAccountClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
-        /**
-         * Makes a call to the AbstractedAccount smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * Get domain key assignments for a list of addresses
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result: The domain string for each address, or empty string if no domain is assigned
-         */
-        arc58GetDomainKeys: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_getDomainKeys(address[])string[]"] | AbstractedAccountArgs["tuple"]["arc58_getDomainKeys(address[])string[]"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | AbstractedAccountReturns["arc58_getDomainKeys(address[])string[]"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
     };
     /**
      * Clone this app client with different params
@@ -4126,17 +4149,6 @@ export declare class AbstractedAccountClient {
      * @returns The call result: The execution info for each lease, or empty execution info if the lease does not exist
      */
     arc58GetExecutions(params: CallParams<AbstractedAccountArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | AbstractedAccountArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']>): Promise<[Uint8Array<ArrayBufferLike>[], bigint, bigint][]>;
-    /**
-     * Makes a readonly (simulated) call to the AbstractedAccount smart contract using the `arc58_getDomainKeys(address[])string[]` ABI method.
-     *
-     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-     *
-     * Get domain key assignments for a list of addresses
-     *
-     * @param params The params for the smart contract call
-     * @returns The call result: The domain string for each address, or empty string if no domain is assigned
-     */
-    arc58GetDomainKeys(params: CallParams<AbstractedAccountArgs['obj']['arc58_getDomainKeys(address[])string[]'] | AbstractedAccountArgs['tuple']['arc58_getDomainKeys(address[])string[]']>): Promise<string[]>;
     /**
      * Methods to access state for the current AbstractedAccount app
      */
@@ -4565,6 +4577,24 @@ export type AbstractedAccountComposer<TReturns extends [...any[]] = []> = {
      */
     arc58Reclaim(params?: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | undefined]>;
     /**
+     * Calls the arc58_deleteEscrow(string)void ABI method.
+     *
+    * Delete an escrow by closing its account out to the controlled address.
+  
+    The escrow must be unlocked and hold no assets: close them out with arc58_reclaim first.
+    An escrow the factory created must be on the factory's record (see register), because the
+    factory deletes only what it has on record. Grants that name the escrow stop working and can
+    still be removed. Allowances are kept under the escrow's name: remove them with
+    arc58_removeAllowances, or they apply again to a new escrow of that name. The address is under
+    nobody's control afterwards: never pay it again.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    arc58DeleteEscrow(params?: CallParams<AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'] | AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_deleteEscrow(string)void'] | undefined]>;
+    /**
      * Calls the arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void ABI method.
      *
     * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -4708,16 +4738,6 @@ export type AbstractedAccountComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     arc58GetExecutions(params?: CallParams<AbstractedAccountArgs['obj']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | AbstractedAccountArgs['tuple']['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_getExecutions(byte[32][])(byte[32][],uint64,uint64)[]'] | undefined]>;
-    /**
-     * Calls the arc58_getDomainKeys(address[])string[] ABI method.
-     *
-     * Get domain key assignments for a list of addresses
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    arc58GetDomainKeys(params?: CallParams<AbstractedAccountArgs['obj']['arc58_getDomainKeys(address[])string[]'] | AbstractedAccountArgs['tuple']['arc58_getDomainKeys(address[])string[]']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_getDomainKeys(address[])string[]'] | undefined]>;
     /**
      * Gets available update methods
      */

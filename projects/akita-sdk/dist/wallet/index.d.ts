@@ -149,6 +149,25 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>>;
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
     reclaimFunds({ sender, signer, ...args }: ContractArgs['arc58_reclaim(string,(uint64,uint64,bool)[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
+    /**
+     * Delete an escrow by closing its account out to the wallet. Admin only.
+     *
+     * Everything the escrow held in ALGO comes back, with what the escrow factory held for its app and
+     * the storage of the wallet's record of it. Before calling this:
+     * - close every asset out of the escrow (`reclaimFunds` with `closeOut: true`): an account that
+     *   holds an asset cannot be closed, and the call fails;
+     * - unlock the escrow if it is locked.
+     *
+     * The factory deletes only an escrow it has on record. If this one is not, it is registered in the
+     * same group, and what registering costs comes back with the delete.
+     *
+     * The wallet keeps allowances under the escrow's name, so one left behind would apply again to a
+     * new escrow of that name. This removes the escrow's allowances in the same group.
+     *
+     * Afterwards the escrow's address is under nobody's control, so funds sent there are lost. Grants
+     * that name the escrow stop working: remove them with `removePlugin`.
+     */
+    deleteEscrow({ sender, signer, escrow }: ContractArgs['arc58_deleteEscrow(string)void'] & MaybeSigner): Promise<GroupReturn>;
     optInEscrow({ sender, signer, ...args }: ContractArgs['arc58_optInEscrow(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     addAllowances({ sender, signer, escrow, allowances }: {
         escrow: string;

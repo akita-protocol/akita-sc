@@ -5,6 +5,7 @@ import {
   CallerType,
   ControlledMbrMoveFee,
   DAOPluginSDK,
+  DeleteEscrowFeeAmount,
   DualStakePluginSDK,
   GUILD_EXECUTION_WINDOWS,
   GatePluginSDK,
@@ -30,6 +31,8 @@ import {
   RAFFLE_PLUGIN_NEW_RAFFLE,
   RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES,
   RafflePluginSDK,
+  RegisterEscrowFeeAmount,
+  RemoveAllowancesPerCall,
   RevenueManagerPluginSDK,
   RewardsPluginSDK,
   SOCIAL_CLAIM_ATTESTATION_DOMAIN,
@@ -59,6 +62,7 @@ import {
   decodeMetadataScope,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,
+  deleteEscrowExtraFee,
   estimateRoundAfter,
   findGuildPlugin,
   finishGuildProposal,
@@ -86,10 +90,11 @@ import {
   socialClaimSubject,
   translateWalletError,
   voteOnGuildProposal
-} from "../chunk-2WWU4MLO.mjs";
+} from "../chunk-3AQXXHXR.mjs";
 import "../chunk-DFU3OQJ5.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-47AKUWST.mjs";
+import "../chunk-7ZQXVHCF.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-K7IKWEOR.mjs";
 import "../chunk-C5XM3R7G.mjs";
@@ -107,6 +112,7 @@ export {
   CallerType,
   ControlledMbrMoveFee,
   DAOPluginSDK,
+  DeleteEscrowFeeAmount,
   DualStakePluginSDK,
   GUILD_EXECUTION_WINDOWS,
   GatePluginSDK,
@@ -132,6 +138,8 @@ export {
   RAFFLE_PLUGIN_NEW_RAFFLE,
   RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES,
   RafflePluginSDK,
+  RegisterEscrowFeeAmount,
+  RemoveAllowancesPerCall,
   RevenueManagerPluginSDK,
   RewardsPluginSDK,
   SOCIAL_CLAIM_ATTESTATION_DOMAIN,
@@ -161,6 +169,7 @@ export {
   decodeMetadataScope,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,
+  deleteEscrowExtraFee,
   estimateRoundAfter,
   findGuildPlugin,
   finishGuildProposal,

@@ -32,3 +32,26 @@ export declare function addPluginExtraFee(isNewEscrow: boolean, hasExternalContr
  * existing account (address != zero) makes no factory call.
  */
 export declare function newEscrowExtraFee(mintsEscrow: boolean, hasExternalControlledAddress: boolean): bigint;
+/**
+ * Deleting an escrow the factory made takes 5 extra transactions
+ * 1 payment that closes the escrow account out to the controlled address
+ * 1 'delete' app call to the escrow factory
+ * 1 delete application call from the escrow factory to the escrow
+ * 1 payment from the escrow that closes its (now empty) account
+ * 1 payment from the escrow factory that returns what it held for the escrow
+ */
+export declare const DeleteEscrowFeeAmount: bigint;
+/**
+ * Registering an escrow with the factory takes 2 extra transactions
+ * 1 payment to the escrow factory for its record
+ * 1 'register' app call to the escrow factory
+ */
+export declare const RegisterEscrowFeeAmount: bigint;
+/** How many allowances one `arc58_removeAllowances` call removes when an escrow is deleted: each is a box reference. */
+export declare const RemoveAllowancesPerCall: number;
+/**
+ * Extra fee for `arc58_deleteEscrow`. An escrow the factory made (`mintedEscrow`) costs
+ * `DeleteEscrowFeeAmount` and two refunds to an external controlled address: what the factory held
+ * for the app, and the escrow's box. An adopted account is closed with one payment and has one refund.
+ */
+export declare function deleteEscrowExtraFee(mintedEscrow: boolean, hasExternalControlledAddress: boolean): bigint;

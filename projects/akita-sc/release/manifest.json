@@ -8,8 +8,8 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8160,
-        "sha256": "8d79c7c5a4b619b8b85385fdae80b782bd06a138d89706594eeb6a5a5d54b2da"
+        "bytes": 8112,
+        "sha256": "dfbb2eac5d5361d9ab5646a773bbaaa2b829fe93c1dc1d24f0216a736fd5674d"
       },
       "clear": {
         "bytes": 4,
@@ -1072,8 +1072,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 10579,
-        "sha256": "2d96c173012b4c91bfca9f58a382ac1f7130d02600395f3a87cebc0e62c0cfb4"
+        "bytes": 10531,
+        "sha256": "7e1a2fb90d8388fcc29494014fef11b63543f124d3b8bdffe1c4745ce10c27a8"
       },
       "clear": {
         "bytes": 4,

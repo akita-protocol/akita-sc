@@ -282,12 +282,7 @@ describe('ARC58 Admin & Profile', () => {
             });
 
             // Verify domain key was assigned
-            const result = await wallet.client.send.arc58GetDomainKeys({
-                sender,
-                args: { addresses: [passkey.toString()] },
-            });
-
-            expect(result.return?.[0]).toBe('akita.community');
+            expect(await wallet.getDomainKey(passkey.toString())).toBe('akita.community');
         });
 
         test('domain key holder can act as admin', async () => {
@@ -348,12 +343,6 @@ describe('ARC58 Admin & Profile', () => {
 
             await wallet.removeDomainKey({ sender, address: passkey.toString() });
             expect(await wallet.getDomainKey(passkey.toString())).toBeUndefined();
-
-            const result = await wallet.client.send.arc58GetDomainKeys({
-                sender,
-                args: { addresses: [passkey.toString()] },
-            });
-            expect(result.return?.[0]).toBe('');
 
             let error = 'no error thrown';
             try {
@@ -550,12 +539,7 @@ describe('ARC58 Admin & Profile', () => {
             await externalWallet.assignDomain({ sender, signer, caller: passkey.toString(), domain: second });
             expect(await balanceOf(controlled)).toBe(before - mbrSecond);
 
-            const result = await externalWallet.client.send.arc58GetDomainKeys({
-                sender,
-                signer,
-                args: { addresses: [passkey.toString()] },
-            });
-            expect(result.return?.[0]).toBe(second);
+            expect(await externalWallet.getDomainKey(passkey.toString())).toBe(second);
 
             await externalWallet.removeDomainKey({ sender, signer, address: passkey.toString() });
             expect(await balanceOf(controlled)).toBe(before);

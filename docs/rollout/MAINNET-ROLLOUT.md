@@ -104,7 +104,7 @@ One deployable program changed after the update above: the wallet. The record is
 - **AbstractedAccount is 8,160 bytes (was 8,139).** Two changes to who may remove a plugin grant, both in `arc58_removePlugin` and the check behind it.
 - **A caller may remove its own grant** (asked for by the owner 2026-11-16). `arc58_removePlugin(plugin, caller, escrow)` also accepts the account named as `caller` in that grant. It is for an agent that shuts down: it frees the storage its grants hold in users' wallets, 38,900 µALGO per grant plus 8,000 per method restriction and 400 per byte of escrow name. The storage returns to the wallet, never to the caller. A grant open to anyone and an admin grant have no such caller. The removal updates `last_change` and leaves `last_user_interaction` alone. An alias, an escrow and its allowances stay until the admin removes them.
 - **C30, low, fixed.** With no revocation app (id 0, the state of every wallet the live factory made) the revocation check compared the sender with the wallet's own address, because app id 0 resolves to the app that asks. A plugin can send as that address inside a main-account window, so it could remove any plugin grant, alias or allowance of that wallet. The check now compares the app that calls the wallet, where it compared the sender, and no app can call itself. The live wallet program (1.0.1, read 2026-11-16 on the DAO wallet 3569559153) has the same check. F1 and F2 replace it.
-- **No method, schema or page count changed.** The wallet still needs 3 extra pages, with 28 B of headroom (was 49). E7 still uploads five chunks, and F1 and F2 run as written with no growth cost. Four pages is the most a program can have, so a later wallet change has to fit in those 28 bytes or free space first.
+- **No method, schema or page count changed.** The wallet still needs 3 extra pages, with 28 B of headroom (was 49). E7 still uploads five chunks, and F1 and F2 run as written with no growth cost. Every live wallet has four pages, so a later wallet change has to fit in those 28 bytes, free space first, or grow the wallet to a fifth page (corrected 2026-11-20: four pages is not the protocol's limit).
 - **Test-only programs.** Arc58AgentProbePlugin (291 B, was 184) gained the hostile case the new tests use, and MockBigWallet (10,579 B, was 10,558) inherits the wallet.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest of the update above in these three entries, and Arc58AgentRevoker is now marked test-only: 85 programs are deployable and 70 are test-only. Nothing deploys the revoker; the manifest's naming rule had missed it. 32 programs differ from the release commit, and the wallet is the new deployable one.
 - **SDK.** `wallet.removePlugin` takes any sender, so a caller uses it as it is. The text for `errOarp` now names the caller.
@@ -170,6 +170,21 @@ The owner decided on 2026-11-19 that SocialClaim is not part of release 2.0.0.
 - **I1 names it.** `dao:initialize` refuses while a tracked step is not done, so its commands now carry `--allow-pending plugin:dualStakePlugin,social-claim`.
 - **The program stays in the tree.** SocialClaim is still built, tested and pinned in `release/manifest.json` (155 programs), and its SDK module is unchanged. No contract program changes with this update.
 - **A later deploy covers new gifts only.** `bind` records a wallet in the group that creates it, with SocialClaim as that wallet's admin. A wallet that WelcomePlugin created with another admin cannot be brought under SocialClaim afterwards.
+
+## Update 2026-11-20: the wallet's admin can delete an escrow
+
+One deployable program changes: the wallet. The owner asked for it on 2026-11-20.
+
+- **AbstractedAccount is 8,112 bytes (was 8,160).** New method `arc58_deleteEscrow(string)void`, for the wallet's admin only. The read-only `arc58_getDomainKeys(address[])string[]` is removed to make room.
+- **What a delete does.** It closes the escrow's account out to the controlled address, has the EscrowFactory delete the escrow app, and deletes the wallet's own record of the escrow. The wallet gets back all the ALGO the escrow held, its 0.1 ALGO minimum included, the 150,000 µALGO the factory held for the app, the 12,100 the factory held for its record, and the storage of the wallet's record (19,300 plus 400 per byte of the name).
+- **Before a delete.** The escrow must be unlocked and hold no asset. An account that holds an asset cannot be closed, so the admin closes each asset out with `arc58_reclaim` first. The factory deletes only an escrow it has on record, so an escrow that is not on record is registered first with `register`. The SDK's `deleteEscrow` registers and deletes in one group.
+- **Why the wallet closes the account itself.** An escrow's account is rekeyed to its wallet, so the escrow's own app cannot spend from it and the factory's delete fails on it. Once the wallet has closed the account the rekey is gone, and the factory's delete goes through. The EscrowFactory on MainNet (3569555755) cannot be updated, and it keeps whatever an escrow still held when it closed. Closing the account first leaves it nothing to keep. This is tested against that program and against the program of the 37 escrows it has made.
+- **What stays behind.** A grant that names the escrow stops working, because a grant records its escrow's app id, and a new escrow of the same name is a new app. Such a grant can still be removed. An allowance is kept under the escrow's name, so one left behind applies again to a new escrow of that name. The SDK's `deleteEscrow` therefore removes the escrow's allowances in the same group, and `arc58_removeAllowances` no longer requires the escrow to exist, so one left behind by a direct call can still be removed. The address of a deleted escrow is under nobody's control: anything sent there afterwards is lost.
+- **The DAO's own wallet is not covered.** Its admin is the DAO, and the DAO has no proposal action that calls this method. 22 of the 37 escrows on MainNet belong to it.
+- **Room.** The method takes 135 bytes and the wallet had 28 left in its four pages. `arc58_getDomainKeys` took 189. No contract and no SDK code calls it, and the SDK reads a domain key from its box. 76 B of headroom are left. The wallet can instead grow to a fifth page, since the factory grows a wallet's pages when it updates it. By the factory's own notes the account that sends such an update takes over the wallet's whole storage cost, and each new wallet would cost 0.1 ALGO more. That path was not measured for this change.
+- **Nothing in the sequence changes.** The wallet keeps its 3 extra pages and its schema. E7 still uploads five chunks, and F1 and F2 run as written with no growth cost.
+- **One test changed for the node.** `methods on cooldown, single group` sent the same call twice. algod 5.1.1 refuses a group that repeats a transaction before it evaluates it, so the second call now pays another amount. The wallet's cooldown rule is unchanged.
+- **Manifest.** `release/manifest.json` differs in two entries: AbstractedAccount, and the test-only MockBigWallet (10,531 B, was 10,579), which inherits the wallet.
 
 ## Live state (read 2026-10-10)
 
@@ -745,7 +760,7 @@ npm run update:dao-wallet -- -n mainnet
 - **What:** Push the tree wallet into every automatic-update wallet.
 - **Why here:** R-STALE (the stale escrow registry) closes per wallet only when it runs the new program.
 - **Requires:** E7. **Script:** ready.
-- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,160 B since the caller removal rule of 2026-11-16, 28 B of headroom), so no growth cost.
+- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,112 B since the escrow deletion of 2026-11-20, 76 B of headroom), so no growth cost.
 
 ```bash
 npm run update:automatic-wallets -- -n mainnet --dry-run
