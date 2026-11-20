@@ -194,6 +194,18 @@ Six deployable programs change, the wallet takes a fifth program page, and the s
 - **One test changed for the node.** `methods on cooldown, single group` sent the same call twice. algod 5.1.1 refuses a group that repeats a transaction before it evaluates it, so the second call now pays another amount. The wallet's cooldown rule is unchanged.
 - **Manifest.** `release/manifest.json` is regenerated. It differs in the six programs above and in two test-only ones that inherit them: MockBigWallet (11,162 B, was 10,579) and MockLegacyVoteDAO (11,054 B, was 10,996).
 
+## Update 2026-11-20 (second): the plugins take their wallet helpers from the plugin package
+
+No step of the sequence changes. Nine plugin programs get other bytes at the same size, and each of the nine is deployed as a new app in this rollout. The owner asked for it on 2026-11-20.
+
+- **What changed.** The 29 plugin contracts import `getSpendingAccount`, `getControlledSpendingAccount`, `getOriginAccount`, `rekeyAddress` and `rekeyBackIfNecessary` from `@akita-protocol/plugin/functions`, the package third parties build plugins on. They imported them from `smart_contracts/utils/functions` before. The copies there stay for the contracts that are not plugins and for the test mocks.
+- **The package's helper was brought to the tree's first.** The package's `getOriginAccount` returned whatever an app held under `controlled_address`. The tree's fails with `errIwlt` unless the key holds 32 bytes, and the package's now does the same. Without that, RevenueManagerPlugin and StakingPoolPlugin would have lost the check.
+- **Programs.** AuctionPlugin (3,809 bytes), MarketplacePlugin (2,677), RafflePlugin (4,300), RevenueManagerPlugin (4,987), AkitaSocialPlugin (8,174), StakingPoolPlugin (2,698), SubscriptionsPlugin (4,794), UpdateAkitaDAOPlugin (2,809) and WelcomePlugin (1,310) have other bytes and the size they had. Each holds the same routines and the same constants as before. The compiler lays the routines out in another order, and in AuctionPlugin and StakingPoolPlugin two constants swap slots in the constant block. Every other program is byte-identical, the 20 other plugins included.
+- **Rollout.** B1 deploys UpdateAkitaDAOPlugin, G1 the seven Phase 3 plugins and G3 RevenueManagerPlugin, each as a new app from the tree. They deploy the new bytes with no change to a command.
+- **Package names.** The packages are `@akita-protocol/plugin` and `@akita-protocol/sdk`, as on `main`. They were `@akta/plugin` and `@akta/sdk`. Run `npm ci` once after pulling, so the workspace links carry the new names. Version 1.2.0 of the plugin package is not published. The commit from `main` also brings the workflow that publishes a package when a tag named `sdk-v<version>` or `plugin-v<version>` is pushed (step I2).
+- **Build output.** A TEAL comment names a source outside `projects/akita-sc` by a path relative to that project (`../../node_modules/@akita-protocol/plugin/functions.ts`), so a build writes the same files in any checkout.
+- **Manifest.** `release/manifest.json` is regenerated. The nine hashes above move.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -1115,6 +1127,7 @@ npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,soci
 - The audit records are not part of the push: the `audits/` folder was removed on 2026-11-17.
 - The contract CI workflow runs for the first time on this push. Repeat A1 on a clean checkout of the tag.
 - Publish the SDK only after the tag, so the published package and the tag are the same tree.
+- A pushed tag named `sdk-v<version>` or `plugin-v<version>` makes `.github/workflows/publish.yml` publish that package to npm. Give the release tag another name, and push one of those two only to publish.
 
 ```bash
 npm run release:manifest:check
