@@ -13,12 +13,17 @@
  * so it is not recorded there: the backend serves its id to apps from
  * GET /agents/inference-billing/:network.
  *
+ * Outside LocalNet the compiled program must match the PaySiloPlugin entry in
+ * release/manifest.json, so it only runs from a release checkout.
+ *
  * Usage:
  *   npm run deploy:inference-silo -- -n localnet --recipient <address>
  *   npm run deploy:inference-silo -- -n testnet -m "your mnemonic" --recipient <address>
  */
 
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import algosdk from 'algosdk'
 import { parseBaseArgs, setupContext, runScript } from './script-base'
 import { PaySiloPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/pay-silo/PaySiloPluginClient'
@@ -32,6 +37,25 @@ function recipientArg(): string {
     process.exit(1)
   }
   return recipient
+}
+
+const MANIFEST_PATH = join(__dirname, '..', 'release', 'manifest.json')
+const MANIFEST_KEY = 'arc58/plugins/pay-silo/PaySiloPlugin'
+
+/**
+ * The PaySiloPlugin approval hash recorded in the release manifest. Outside
+ * LocalNet the silo must be deployed from a release checkout, so the script
+ * refuses to run without a manifest entry: main can hold an older PaySilo
+ * than the release line.
+ */
+function releaseApprovalSha256(): string | undefined {
+  try {
+    const manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'))
+    const sha = manifest?.programs?.[MANIFEST_KEY]?.approval?.sha256
+    return typeof sha === 'string' ? sha : undefined
+  } catch {
+    return undefined
+  }
 }
 
 runScript(async () => {
@@ -50,6 +74,18 @@ runScript(async () => {
   })
   const compiled = await factory.appFactory.compile()
   const approvalSha256 = createHash('sha256').update(compiled.approvalProgram).digest('hex')
+
+  const releaseSha256 = releaseApprovalSha256()
+  if (options.network !== 'localnet') {
+    if (!releaseSha256) {
+      throw new Error(`no ${MANIFEST_KEY} entry in ${MANIFEST_PATH}: deploy from the release branch`)
+    }
+    if (releaseSha256 !== approvalSha256) {
+      throw new Error(`compiled PaySilo ${approvalSha256} does not match the release manifest ${releaseSha256}`)
+    }
+  } else if (releaseSha256 && releaseSha256 !== approvalSha256) {
+    console.warn(`Warning: compiled PaySilo ${approvalSha256} differs from the release manifest ${releaseSha256}`)
+  }
 
   if (options.dryRun) {
     console.log(`DRY RUN - would create a PaySiloPlugin paying ${recipient}`)
