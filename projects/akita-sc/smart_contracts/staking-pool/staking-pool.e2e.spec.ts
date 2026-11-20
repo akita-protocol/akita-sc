@@ -3851,7 +3851,8 @@ describe('Staking Pool Contract', () => {
       const drawn = await pool.getReward(1)
       expect(drawn.winningTickets).toHaveLength(1)
       expect(drawn.vrfFailureCount).toBe(0n)
-    })
+      // warps about 1,000 rounds, which outruns the default 120 s when the shard is busy
+    }, 300_000)
 
     test('an Even reward whose split would round to 0 per staker closes the round without paying the royalty', async () => {
       const pool = await newPool()
