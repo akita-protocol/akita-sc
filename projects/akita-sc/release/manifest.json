@@ -8,14 +8,14 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8160,
-        "sha256": "8d79c7c5a4b619b8b85385fdae80b782bd06a138d89706594eeb6a5a5d54b2da"
+        "bytes": 8743,
+        "sha256": "581b76571f621538d6d881b131c88687a7f10dda4de9bc67f54622a97e21ef73"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
       },
-      "extraPages": 3
+      "extraPages": 4
     },
     "arc58/account/AbstractedAccountBalanceReader": {
       "name": "AbstractedAccountBalanceReader",
@@ -44,8 +44,8 @@
     "arc58/account/AbstractedAccountMBR": {
       "name": "AbstractedAccountMBR",
       "approval": {
-        "bytes": 304,
-        "sha256": "fbccc9f99dede3bdd1ff6eedece06be74dba66dee56612ea6cfbe7a34f5e5c38"
+        "bytes": 308,
+        "sha256": "9a7cc405dea458e0db28ef4b158689f877272ae372ccc72bdd13ba2ed157d95e"
       },
       "clear": {
         "bytes": 4,
@@ -82,8 +82,8 @@
     "arc58/dao/AkitaDAO": {
       "name": "AkitaDAO",
       "approval": {
-        "bytes": 10765,
-        "sha256": "f41f054b5bcd9a97f6d43c1d641d1b54410a0aaf2155ee302380ce32a673af95"
+        "bytes": 10823,
+        "sha256": "2256b293b083c22339df020cdba8a0a03fc9e2be07d4fb7d947510004fa9423c"
       },
       "clear": {
         "bytes": 4,
@@ -94,8 +94,8 @@
     "arc58/dao/AkitaDAOProposalValidator": {
       "name": "AkitaDAOProposalValidator",
       "approval": {
-        "bytes": 3633,
-        "sha256": "51cd67f37827e5f1e338d7fff8014312d9ad35123abffe1c19088af680e21cbf"
+        "bytes": 3682,
+        "sha256": "1d27ff533f9d80be3222397e81ea09a762c1803152d38d13d2e652727da25167"
       },
       "clear": {
         "bytes": 4,
@@ -106,8 +106,8 @@
     "arc58/dao/AkitaDAOTypes": {
       "name": "AkitaDAOTypes",
       "approval": {
-        "bytes": 924,
-        "sha256": "ebd4db40ab30ea3befdde1be922e301d215e5dfd3f1e156fc17e12e7c9fb2b07"
+        "bytes": 962,
+        "sha256": "26091f7d6f65f6a45f9ceea2d762c31591d3e282f62eb5f37ac1a9c67419a0a4"
       },
       "clear": {
         "bytes": 4,
@@ -166,8 +166,8 @@
     "arc58/guilds/core/Guild": {
       "name": "Guild",
       "approval": {
-        "bytes": 12534,
-        "sha256": "57228bc57e97a9758d9f5f401de1a1455a630a2742b8c8612676b46d94ed3aaa"
+        "bytes": 12586,
+        "sha256": "aa664b4a610250855a1286ae00bb042b6d363130b786ace01709d8277f3643c1"
       },
       "clear": {
         "bytes": 4,
@@ -1072,8 +1072,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 10579,
-        "sha256": "2d96c173012b4c91bfca9f58a382ac1f7130d02600395f3a87cebc0e62c0cfb4"
+        "bytes": 11162,
+        "sha256": "9153ae44c447c7dde6bc8ae72ee278b7a5dd4f21f4ae1092cba46b517348afdc"
       },
       "clear": {
         "bytes": 4,
@@ -1293,8 +1293,8 @@
       "name": "MockLegacyVoteDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 10996,
-        "sha256": "ffe93a36c092c72715dd7c80726cedcdfcad694e92e5484bc39194200cb49836"
+        "bytes": 11054,
+        "sha256": "9d7d83496d57c0b84813656120b3a01e60ca7d69f9bf711c1a8da67b060bcc54"
       },
       "clear": {
         "bytes": 4,

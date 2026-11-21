@@ -65,6 +65,7 @@ import {
   StakingPoolPluginSDK,
   SubscriptionsPluginSDK,
   UpdateAkitaDAOPluginSDK,
+  defaultEscrowGrantMbr,
 } from 'akita-sdk/wallet'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
@@ -546,6 +547,8 @@ export async function createMigrationPlan(
       groups: 0n,
     })
     requiredWalletMbr += mbr.plugins
+    // a grant that uses an escrow by default also stores that escrow's name
+    if (defaultToEscrow) requiredWalletMbr += defaultEscrowGrantMbr(configuredEscrow)
     migrations.push({
       key,
       info,

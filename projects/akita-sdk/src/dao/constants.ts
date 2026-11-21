@@ -11,6 +11,7 @@ export enum ProposalActionEnum {
   NewEscrow = 70,
   ToggleEscrowLock = 71,
   Reclaim = 72,
+  DeleteEscrow = 73,
   UpdateFields = 80,
   UpdateWallet = 90,
   ChangeAdmin = 91,

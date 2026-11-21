@@ -98,7 +98,10 @@ export type AbstractedAccountMbrTypes = {
         argsObj: AbstractedAccountMbrArgs['obj']['mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)'];
         argsTuple: AbstractedAccountMbrArgs['tuple']['mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)'];
         /**
-         * The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+        * The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+        A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+        `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
+  
          */
         returns: AbstractedAccountMbrReturns['mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)'];
     }>;
@@ -472,7 +475,10 @@ export declare class AbstractedAccountMbrClient {
          * Calculate the minimum balance requirements for various box operations
          *
          * @param params The params for the smart contract call
-         * @returns The call params: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+        * @returns The call params: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+        A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+        `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
+    
          */
         mbr: (params: CallParams<AbstractedAccountMbrArgs["obj"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"] | AbstractedAccountMbrArgs["tuple"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
@@ -497,7 +503,10 @@ export declare class AbstractedAccountMbrClient {
          * Calculate the minimum balance requirements for various box operations
          *
          * @param params The params for the smart contract call
-         * @returns The call transaction: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+        * @returns The call transaction: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+        A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+        `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
+    
          */
         mbr: (params: CallParams<AbstractedAccountMbrArgs["obj"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"] | AbstractedAccountMbrArgs["tuple"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
@@ -526,7 +535,10 @@ export declare class AbstractedAccountMbrClient {
          * Calculate the minimum balance requirements for various box operations
          *
          * @param params The params for the smart contract call
-         * @returns The call result: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+        * @returns The call result: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+        A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+        `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
+    
          */
         mbr: (params: CallParams<AbstractedAccountMbrArgs["obj"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"] | AbstractedAccountMbrArgs["tuple"]["mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
@@ -556,7 +568,10 @@ export declare class AbstractedAccountMbrClient {
      * Calculate the minimum balance requirements for various box operations
      *
      * @param params The params for the smart contract call
-     * @returns The call result: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation
+    * @returns The call result: The MBR costs for plugins, named plugins, escrows, allowances, domain keys, executions, and new escrow creation.
+    A grant that uses an escrow by default also stores that escrow's name, which this does not quote: the SDK's
+    `defaultEscrowGrantMbr` does. The return type is the one the deployed helper has, so an SDK reads either.
+  
      */
     mbr(params: CallParams<AbstractedAccountMbrArgs['obj']['mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)'] | AbstractedAccountMbrArgs['tuple']['mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)']>): Promise<AbstractAccountBoxMbrData>;
     /**

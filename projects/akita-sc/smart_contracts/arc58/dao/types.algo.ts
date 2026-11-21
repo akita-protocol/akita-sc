@@ -1,5 +1,5 @@
 import { abimethod, Contract } from "@algorandfoundation/algorand-typescript";
-import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalExecuteNamedPlugin, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "./types";
+import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalDeleteEscrow, ProposalExecuteNamedPlugin, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "./types";
 
 export class AkitaDAOTypes extends Contract {
   @abimethod({ readonly: true })
@@ -74,6 +74,11 @@ export class AkitaDAOTypes extends Contract {
 
   @abimethod({ readonly: true })
   proposalChangeAdminShape(shape: ProposalChangeAdmin): ProposalChangeAdmin {
+    return shape
+  }
+
+  @abimethod({ readonly: true })
+  proposalDeleteEscrowShape(shape: ProposalDeleteEscrow): ProposalDeleteEscrow {
     return shape
   }
 }

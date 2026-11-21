@@ -8,6 +8,7 @@ import {
   domainBoxKey,
   ValueMap,
   applyDefaultAppCallMaxFees,
+  escrowDeleteWarnings,
 } from './utils'
 import type { AddAllowanceArgs } from './types'
 import type { AllowanceInfo as SubAllowanceInfo } from '../generated/AbstractedAccountClient'
@@ -328,5 +329,28 @@ describe('ValueMap', () => {
     const seen: [string, string][] = []
     for (const [k, v] of m) seen.push([k, v])
     expect(seen).toEqual([['1:a', 'x'], ['2:b', 'y']])
+  })
+})
+
+describe('escrowDeleteWarnings', () => {
+  const address = encodeAddress(new Uint8Array(32).fill(7))
+
+  test('an ordinary account rekeyed to the wallet (app id 0) goes back to its own key', () => {
+    const warnings = escrowDeleteWarnings(0n, address)
+    expect(warnings.map(({ code }) => code)).toEqual(['address-returns-to-its-key'])
+    expect(warnings[0].message).toContain(address)
+    expect(warnings[0].message).toContain('whoever holds its private key')
+    expect(warnings[0].message).toContain('cannot be undone')
+  })
+
+  test('the account of an escrow app is under nobody\'s control afterwards', () => {
+    const warnings = escrowDeleteWarnings(1234n, address)
+    expect(warnings.map(({ code }) => code)).toEqual(['address-under-nobodys-control'])
+    expect(warnings[0].message).toContain(address)
+    // only ALGO can be lost there: an asset transfer to an address that is opted in to nothing fails
+    expect(warnings[0].message).toContain('ALGO sent to it afterwards is lost for good')
+    expect(warnings[0].message).toContain('An asset can no longer be sent to it')
+    expect(warnings[0].message).not.toContain('Anything')
+    expect(warnings[0].message).toContain('cannot be undone')
   })
 })

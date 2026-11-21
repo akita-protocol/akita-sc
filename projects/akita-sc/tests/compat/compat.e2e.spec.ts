@@ -51,6 +51,8 @@ import { RaffleClient } from '../../smart_contracts/artifacts/raffle/RaffleClien
 import { RaffleFactoryClient } from '../../smart_contracts/artifacts/raffle/RaffleFactoryClient'
 import { MockRandomnessBeaconFactory } from '../../smart_contracts/artifacts/utils/types/MockRandomnessBeaconClient'
 import { DEPLOYED_NEW_RAFFLE, deployedRaffleCost, deployLegacyRaffleFactory } from '../../smart_contracts/raffle/compat/deployed'
+import { APP_SPEC as WALLET_SPEC } from '../../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
+import { clearProgramSize, fundWalletGrowth, readWalletGrowth, walletUpdateParams } from '../../scripts/lib/wallet-page-growth'
 import { AkitaUniverse, buildAkitaUniverse } from '../fixtures/dao'
 import { addRawPlugin, assertUnregistered, newUnregisteredWallet } from '../fixtures/unregistered-wallet'
 import { inScopePlugins } from './lib/analysis'
@@ -714,6 +716,16 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
     let Wx: WalletSDK
     let Cx: TransactionSignerAccount
     let WxE: string
+    /**
+     * a wallet running the MainNet wallet program, with two escrows ('e' and 'f') the deployed code made, each
+     * with a grant and an allowance. The last tests of this section update it to the tree program.
+     */
+    let Wd: WalletSDK
+    /**
+     * an outside account rekeyed to Wd, which the deployed code registered as Wd's escrow 'o' with a grant. The
+     * escrow factory has no part in such an escrow: its record has no app id.
+     */
+    let WdOutside: TransactionSignerAccount
 
     const resolveIn = async (w: WalletSDK, escrow = ''): Promise<{ target: Principal; plugin: Principal }> => {
       const [pluginSide, targetSide] = await inWindow(w, principalPlugin.appId, [
@@ -812,6 +824,8 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       Cx = await fixture.context.generateAccount({ initialFunds: (20).algo() })
       Wx = await createLiveWallet('compat-live-x', R1, Cx)
       await algorand.send.payment({ ...send(deployer), receiver: Wx.client.appAddress, amount: (20).algo() })
+      Wd = await createLiveWallet('compat-live-d', R1)
+      await algorand.send.payment({ ...send(deployer), receiver: Wd.client.appAddress, amount: (20).algo() })
 
       // Phase 2: the factory and its child go back to the working tree; the live wallets keep the deployed program
       await pushWalletFactory(tree.approvalProgram, tree.clearStateProgram, treeChild, 'tree')
@@ -823,6 +837,18 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       await addRawPlugin(Wx, { plugin: principalPlugin.appId }, send(deployer))
       await addRawPlugin(Wx, { plugin: principalPlugin.appId, escrow: 'e' }, send(deployer))
       WxE = (await Wx.client.state.box.escrows.value('e'))!.address
+      for (const escrow of ['e', 'f']) {
+        await addRawPlugin(Wd, { plugin: principalPlugin.appId, escrow }, send(deployer))
+        await Wd.client.send.arc58AddAllowances({
+          ...send(deployer), args: { escrow, allowances: [[0n, 1, 1_000n, 0n, 0n, false]] }, extraFee: FEE, populateAppCallResources: true,
+        })
+      }
+      WdOutside = await fixture.context.generateAccount({ initialFunds: (2).algo() })
+      await algorand.send.payment({ ...send(WdOutside), receiver: WdOutside.addr, amount: microAlgo(0), rekeyTo: Wd.client.appAddress })
+      await Wd.client.send.arc58NewEscrow({
+        ...send(deployer), args: { escrow: 'o', address: WdOutside.addr.toString() }, extraFee: FEE, populateAppCallResources: true,
+      })
+      await addRawPlugin(Wd, { plugin: principalPlugin.appId, escrow: 'o' }, send(deployer))
     }, 900_000)
 
     test('the wallets run the MainNet wallet program and stay genuine (creator = the DAO wallet factory)', async () => {
@@ -879,6 +905,165 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       })
       expect(await allocationsFor(algorand, universe.rewards.appId, R1)).toBeGreaterThan(before)
       await assertUnregistered(universe.escrowFactory, [addr(Wl)])
+    })
+
+    describe('escrow deletion on a live wallet updated to the tree program', () => {
+      const appExists = async (id: bigint): Promise<boolean> => algorand.app.getById(id).then(() => true, () => false)
+      const escrowNames = async () => Array.from((await Wd.client.state.box.escrows.getMap()).keys())
+      const grantsNaming = async (escrow: string) =>
+        Array.from((await Wd.client.state.box.plugins.getMap()).keys()).filter((key) => key.escrow === escrow).length
+      const allowancesOf = async (escrow: string) =>
+        Array.from((await Wd.client.state.box.allowances.getMap()).keys()).filter((key) => key.escrow === escrow).length
+
+      test('the update grows the wallet from four program pages to five, and the wallet factory pays for the page', async () => {
+        const factoryAddress = algosdk.getApplicationAddress(universe.walletFactory.appId)
+        const treeChild = await algorand.app.getBoxValue(universe.walletFactory.appId, new Uint8Array(Buffer.from('bc')))
+        // the tree program no longer fits the four pages every MainNet wallet was created with
+        expect(treeChild.length).toBeGreaterThan(4 * 2048 - 4)
+        expect(treeChild.length).toBeLessThanOrEqual(5 * 2048 - 4)
+        await assertRunsDeployed(algorand, Wd.client.appId, 'AbstractedAccount')
+        expect((await algorand.client.algod.getApplicationByID(Wd.client.appId).do()).params?.extraProgramPages ?? 0).toBe(3)
+
+        // Rollout steps F1 and F2 read this plan before they send anything (scripts/lib/wallet-page-growth.ts).
+        const plan = await readWalletGrowth(algorand, universe.walletFactory.appId, [Wd.client.appId], clearProgramSize(WALLET_SPEC))
+        expect(plan.neededExtraPages).toBe(4)
+        expect(plan.growing).toEqual([{ wallet: Wd.client.appId, extraPages: 3, added: 1 }])
+        expect(plan.required).toBe(100_000n)
+
+        // The step pays the factory exactly what it lacks, and refuses when the sender cannot spare it.
+        const payer = { algorand, sender: deployer.addr.toString(), signer: deployer.signer }
+        const unfunded = await algorand.account.getInformation(factoryAddress)
+        expect(await fundWalletGrowth(payer, universe.walletFactory.appId, { ...plan, shortfall: 123_456n })).toBe(123_456n)
+        expect((await algorand.account.getInformation(factoryAddress)).balance.microAlgos).toBe(unfunded.balance.microAlgos + 123_456n)
+        const poor = algorand.account.random()
+        await algorand.account.ensureFunded(poor.addr, dispenser.addr, microAlgo(150_000n))
+        await expect(fundWalletGrowth({ algorand, sender: poor.addr.toString(), signer: poor.signer }, universe.walletFactory.appId, { ...plan, shortfall: 1_000_000n }))
+          .rejects.toThrow(/needs 1000000 µALGO more/)
+        // this factory already holds enough for one page, so the real plan pays nothing
+        expect(await fundWalletGrowth(payer, universe.walletFactory.appId, plan)).toBe(plan.shortfall)
+        const factoryBefore = await algorand.account.getInformation(factoryAddress)
+        expect(factoryBefore.balance.microAlgos - factoryBefore.minBalance.microAlgos).toBeGreaterThanOrEqual(100_000n)
+        const walletBefore = await algorand.account.getInformation(Wd.client.appAddress)
+        const escrowsBefore = await Wd.client.state.box.escrows.getMap()
+
+        // the call exactly as the rollout script sends it
+        const sent = await universe.walletFactory.client.send.updateWallet({ ...send(deployer), ...walletUpdateParams(Wd.client.appId) })
+        // one outer call and one inner update; the fee grows a little with the size of the group
+        expect(sent.transaction.fee).toBeGreaterThanOrEqual(2_000n)
+        expect(sent.transaction.fee).toBeLessThan(10_000n)
+
+        const updated = await algorand.client.algod.getApplicationByID(Wd.client.appId).do()
+        expect(sha256Hex(updated.params!.approvalProgram)).toBe(sha256Hex(treeChild))
+        expect(updated.params!.extraProgramPages).toBe(4)
+        // nothing is left to grow, so a second run of the step would fund nothing
+        const again = await readWalletGrowth(algorand, universe.walletFactory.appId, [Wd.client.appId], clearProgramSize(WALLET_SPEC))
+        expect(again.pages).toBe(0)
+        expect(again.shortfall).toBe(0n)
+        // The factory created the wallet, so it already held the wallet's minimum. Growing costs it one more
+        // page, 100,000 microALGO, and it pays nothing out.
+        const factoryAfter = await algorand.account.getInformation(factoryAddress)
+        expect(factoryAfter.minBalance.microAlgos - factoryBefore.minBalance.microAlgos).toBe(100_000n)
+        expect(factoryAfter.balance.microAlgos).toBe(factoryBefore.balance.microAlgos)
+        // the wallet's own account, its escrows and their records are untouched
+        const walletAfter = await algorand.account.getInformation(Wd.client.appAddress)
+        expect(walletAfter.balance.microAlgos).toBe(walletBefore.balance.microAlgos)
+        expect(walletAfter.minBalance.microAlgos).toBe(walletBefore.minBalance.microAlgos)
+        expect(await Wd.client.state.box.escrows.getMap()).toEqual(escrowsBefore)
+      })
+
+      test('an escrow made before the update has no count, and the SDK removes its grant and allowance with it in one group', async () => {
+        const { id, address } = await Wd.getEscrow('e')
+        expect(await Wd.getEscrowRefs('e')).toBeUndefined()
+
+        const plan = await Wd.getEscrowTeardown('e')
+        expect(plan.counted).toBeUndefined()
+        expect(plan.plugins.map((grant) => grant.plugin)).toEqual([principalPlugin.appId])
+        expect(plan.allowances).toEqual([0n])
+
+        const before = await algorand.account.getInformation(Wd.client.appAddress)
+        const sent = await Wd.deleteEscrow({ ...send(deployer), escrow: 'e' })
+
+        // one group: the grant, the allowance, the delete
+        expect(sent.length).toBe(1)
+        expect(sent[0].txIds.length).toBe(3)
+        expect(await appExists(id)).toBe(false)
+        expect(await escrowNames()).not.toContain('e')
+        expect(await grantsNaming('e')).toBe(0)
+        expect(await allowancesOf('e')).toBe(0)
+        expect((await algorand.account.getInformation(address)).balance.microAlgos).toBe(0n)
+        // the wallet's storage for the record, the grant and the allowance is released
+        const after = await algorand.account.getInformation(Wd.client.appAddress)
+        expect(after.minBalance.microAlgos).toBeLessThan(before.minBalance.microAlgos)
+        expect(after.balance.microAlgos).toBeGreaterThan(before.balance.microAlgos)
+      })
+
+      test('the wallet cannot check the delete of such an escrow: what the bare call leaves behind stays removable, and does not count against a new escrow of the name', async () => {
+        const first = await Wd.getEscrow('f')
+        expect(await Wd.getEscrowRefs('f')).toBeUndefined()
+
+        // The bare contract call, with nothing removed first. A counted escrow would be refused here (errEuse).
+        await Wd.client.send.arc58DeleteEscrow({
+          ...send(deployer), args: { escrow: 'f' }, coverAppCallInnerTransactionFees: true, maxFee: FEE, populateAppCallResources: true,
+        })
+        expect(await appExists(first.id)).toBe(false)
+        expect(await grantsNaming('f')).toBe(1)
+        expect(await allowancesOf('f')).toBe(1)
+
+        // a new escrow of the same name is a new app with a count of its own, which starts at nothing
+        await Wd.newEscrow({ ...send(deployer), escrow: 'f', address: ZERO })
+        const second = await Wd.getEscrow('f')
+        expect(second.id).not.toBe(first.id)
+        expect(await Wd.getEscrowRefs('f')).toBe(0n)
+
+        // the grant left behind names the first escrow's app, so it does not work on the second
+        await expect(inWindow(Wd, principalPlugin.appId, [
+          await principalPlugin.params.principal({ ...send(deployer), args: { wallet: Wd.client.appId }, extraFee: FEE }),
+        ], 'f')).rejects.toThrow()
+
+        // both leftovers can still be removed, their storage comes back, and the new escrow's count stays at nothing
+        const before = await algorand.account.getInformation(Wd.client.appAddress)
+        await Wd.removeAllowances({ ...send(deployer), escrow: 'f', assets: [0n] })
+        await Wd.removePlugin({ ...send(deployer), plugin: principalPlugin.appId, caller: ZERO, escrow: 'f' })
+        const after = await algorand.account.getInformation(Wd.client.appAddress)
+        expect(await grantsNaming('f')).toBe(0)
+        expect(await allowancesOf('f')).toBe(0)
+        expect(after.minBalance.microAlgos).toBeLessThan(before.minBalance.microAlgos)
+        expect(await Wd.getEscrowRefs('f')).toBe(0n)
+
+        // and the new escrow is deleted like any counted one
+        const sent = await Wd.deleteEscrow({ ...send(deployer), escrow: 'f' })
+        expect(sent.length).toBe(1)
+        expect(await appExists(second.id)).toBe(false)
+      })
+
+      test('an outside account the deployed code registered as an escrow is closed out by the updated wallet', async () => {
+        const address = WdOutside.addr.toString()
+        const record = await Wd.getEscrow('o')
+        // no escrow app: the deployed code stored the account itself, and the tree code reads that record
+        expect(record.id).toBe(0n)
+        expect(record.address.toString()).toBe(address)
+        expect(await Wd.getEscrowRefs('o')).toBeUndefined()
+        expect((await algorand.account.getInformation(address)).authAddr?.toString()).toBe(Wd.client.appAddress.toString())
+        expect(await grantsNaming('o')).toBe(1)
+
+        const held = (await algorand.account.getInformation(address)).balance.microAlgos
+        const before = await algorand.account.getInformation(Wd.client.appAddress)
+        const sent = await Wd.deleteEscrow({ ...send(deployer), escrow: 'o' })
+
+        // one group: the grant, then the delete
+        expect(sent.length).toBe(1)
+        expect(sent[0].txIds.length).toBe(2)
+        expect(await escrowNames()).not.toContain('o')
+        expect(await grantsNaming('o')).toBe(0)
+        // the account is closed out, and closing it ended its rekey to the wallet
+        const closed = await algorand.account.getInformation(address)
+        expect(closed.balance.microAlgos).toBe(0n)
+        expect(closed.authAddr).toBeUndefined()
+        // what the account held comes back, and the storage for the record and the grant is released
+        const after = await algorand.account.getInformation(Wd.client.appAddress)
+        expect(after.balance.microAlgos - before.balance.microAlgos).toBe(held)
+        expect(after.minBalance.microAlgos).toBeLessThan(before.minBalance.microAlgos)
+      })
     })
   })
 })

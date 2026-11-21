@@ -123,6 +123,9 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
 
   add({ id: 'dao-wallet', stage: 'F', title: 'DAO wallet runs the tree (AVM 13) wallet', requires: ['p2:AbstractedAccountFactory'],
     run: 'npm run update:dao-wallet, then npm run update:automatic-wallets', check: () => runsTree('DAO wallet', ctx.appIds.wallet, 'arc58/account/AbstractedAccount.arc56.json') })
+  // The helper is immutable and the SDK names it, so a wallet that stores new boxes needs a new helper before it is quoted.
+  add({ id: 'wallet-mbr', stage: 'F', title: 'SDK wallet storage helper runs the tree program', requires: [],
+    run: 'npm run deploy:wallet-mbr -- --register, then rebuild the SDK', check: () => runsTree('walletMbr', ctx.appIds.walletMbr, 'arc58/account/AbstractedAccountMBR.arc56.json') })
 
   const plugins: readonly [PluginAppIdKey, string, readonly string[]][] = [
     ['socialPlugin', 'arc58/plugins/social/AkitaSocialPlugin.arc56.json', ['p2:AkitaSocial', 'p2:AkitaSocialGraph', 'gate']],

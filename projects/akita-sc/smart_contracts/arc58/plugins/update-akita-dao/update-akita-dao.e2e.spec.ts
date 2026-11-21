@@ -377,16 +377,19 @@ describe('UpdateAkitaDAO plugin contract', () => {
       await daoWallet.client.appClient.fundAppAccount({ amount: microAlgo(10_000_000n) });
       await deployerDao.client.appClient.fundAppAccount({ amount: microAlgo(1_000_000n) });
 
-      // A wallet created earlier with the legacy 3 extra pages
+      // A wallet created earlier from the tree's wallet program, with the pages the factory derived for it.
+      // The tree wallet has had five pages (4 extra) since 2026-11-20. A wallet that grows from the 3 extra
+      // pages of the MainNet program is covered in tests/compat/compat.e2e.spec.ts, section D.
       const before = await algorand.app.getById(wallet.appId);
-      expect(before.extraProgramPages).toBe(3);
+      const treeExtraPages = Math.ceil((before.approvalProgram.length + before.clearStateProgram.length) / 2_048) - 1;
+      expect(before.extraProgramPages).toBe(treeExtraPages);
 
-      // Push a > 8 KB wallet program (the real wallet plus padding) into the factory box
+      // Push a larger wallet program (the real wallet plus padding) into the factory box
       const bigFactory = algorand.client.getTypedAppFactory(MockBigWalletFactory, { defaultSender: sender, defaultSigner: signer });
       const compiled = await bigFactory.appFactory.compile();
       expect(compiled.approvalProgram.length).toBeGreaterThan(8_192);
       const neededExtraPages = Math.ceil((compiled.approvalProgram.length + compiled.clearStateProgram.length) / 2_048) - 1;
-      expect(neededExtraPages).toBeGreaterThan(3);
+      expect(neededExtraPages).toBeGreaterThan(treeExtraPages);
 
       const programMbr = 2_500n + 400n * (2n + BigInt(compiled.approvalProgram.length));
       await algorand.account.ensureFunded(updateAkitaDAOPluginSdk.client.appAddress, dispenser.addr, microAlgo(programMbr));
@@ -419,7 +422,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
       expect(Buffer.from(created.approvalProgram)).toEqual(Buffer.from(compiled.approvalProgram));
       expect((await bigWallet.client.state.global.getAll()).nickname).toBe('Big Wallet');
 
-      // Existing 3-page wallets grow on updateWallet. The factory sends the update and becomes the
+      // Existing wallets with fewer pages grow on updateWallet. The factory sends the update and becomes the
       // wallet's size sponsor, so it must hold the wallet's full program + schema MBR first.
       await walletFactory.client.appClient.fundAppAccount({ amount: microAlgo(5_000_000n) });
       // Growing pages makes the inner update cost more than one min fee on LocalNet (observed
