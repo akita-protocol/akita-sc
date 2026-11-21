@@ -1,4 +1,4 @@
-# @akta/sdk
+# @akita-protocol/sdk
 
 TypeScript SDK for the Akita protocol on Algorand. A thin typed layer over on-chain apps. Import a subpath; the root export is a barrel.
 
@@ -6,8 +6,8 @@ TypeScript SDK for the Akita protocol on Algorand. A thin typed layer over on-ch
 
 ```mermaid
 flowchart LR
-  dapp[Your app] --> wallet["@akta/sdk/wallet"]
-  dapp --> connect["@akta/sdk/connect"]
+  dapp[Your app] --> wallet["@akita-protocol/sdk/wallet"]
+  dapp --> connect["@akita-protocol/sdk/connect"]
   dapp --> modules[Protocol modules]
   wallet --> arc58[ARC-58 wallet + plugins]
   connect --> uri["liquid:// + auth envelopes"]
@@ -19,15 +19,15 @@ flowchart LR
 
 | You want to… | Use |
 | --- | --- |
-| Create or drive an ARC-58 wallet | [`@akta/sdk/wallet`](./src/wallet/README.md) |
-| Pair a dApp to Hyperspace over QR / WebRTC | [`@akta/sdk/connect`](./src/connect/README.md) |
+| Create or drive an ARC-58 wallet | [`@akita-protocol/sdk/wallet`](./src/wallet/README.md) |
+| Pair a dApp to Hyperspace over QR / WebRTC | [`@akita-protocol/sdk/connect`](./src/connect/README.md) |
 | Plug Akita into TxnLab use-wallet v5 | [`@akta/use-wallet-akita`](../../../akita-use-wallet/README.md) |
-| Call a protocol app directly | `@akta/sdk/<module>` |
+| Call a protocol app directly | `@akita-protocol/sdk/<module>` |
 
 ## Install
 
 ```bash
-pnpm add @akta/sdk
+pnpm add @akita-protocol/sdk
 pnpm add algosdk @algorandfoundation/algokit-utils
 ```
 
@@ -41,7 +41,7 @@ Connect v3 and the use-wallet adapter are unpublished; this repo file-links the 
 
 ```ts
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { newWallet, PayPluginSDK, CallerType } from '@akta/sdk/wallet'
+import { newWallet, PayPluginSDK, CallerType } from '@akita-protocol/sdk/wallet'
 
 const algorand = AlgorandClient.fromEnvironment()
 const wallet = await newWallet({

@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 8 6 9300 39200 79800
     bytecblock "akita_dao" "sal" "" 0x151f7c75 "akita_assets" "social_fees" "aal" 0x9b147d2c "ERR:errIrfl" 0x00 "spending_address" 0x98b81f78 0x0a0000000000000000 "controlled_address" "ERR:errNath" 0xf13600d1 0x739ea70b 0xc022be89 "referrer" "ERR:errHnwl" "ERR:errHnbd" "ERR:errIwlt"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:30
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:31
     // export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     txn OnCompletion
     !
@@ -24,12 +24,74 @@ main_opUp_route@36:
     return
 
 main_create_NoOp@41:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:30
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:31
     // export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
     match create
     err
+
+
+// @akita-protocol/plugin/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
+getControlledSpendingAccount:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:37
+    // export function getControlledSpendingAccount(wallet: Application): Account {
+    proto 1 1
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    frame_dig -1
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    bytec 10 // "spending_address"
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz getControlledSpendingAccount_after_assert@2
+    bytec 14 // "ERR:errNath"
+    log
+    err // ERR:errNath
+
+getControlledSpendingAccount_after_assert@2:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:40
+    // return sender
+    retsub
+
+
+// @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
 
 
 // smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
@@ -147,71 +209,9 @@ walletControlsLive_after_if_else@6:
     retsub
 
 
-// smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
-getControlledSpendingAccount:
-    // smart_contracts/utils/functions.ts:492
-    // export function getControlledSpendingAccount(wallet: Application): Account {
-    proto 1 1
-    // smart_contracts/utils/functions.ts:479-482
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    frame_dig -1
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec 10 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    dup
-    // smart_contracts/utils/functions.ts:494
-    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
-    acct_params_get AcctAuthAddr
-    assert // account funded
-    global CurrentApplicationAddress
-    ==
-    bnz getControlledSpendingAccount_after_assert@2
-    bytec 14 // "ERR:errNath"
-    log
-    err // ERR:errNath
-
-getControlledSpendingAccount_after_assert@2:
-    // smart_contracts/utils/functions.ts:495
-    // return sender
-    retsub
-
-
-// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
-rekeyAddress:
-    // smart_contracts/utils/functions.ts:546
-    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
-    proto 2 1
-    // smart_contracts/utils/functions.ts:547
-    // if (!rekeyBack) {
-    frame_dig -2
-    bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:548
-    // return Global.zeroAddress
-    global ZeroAddress
-    retsub
-
-rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:551
-    // return wallet.address
-    frame_dig -1
-    app_params_get AppAddress
-    assert // application exists
-    retsub
-
-
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:34
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:35
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -234,18 +234,18 @@ create:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:36
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:37
     // this.version.value = version
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:37
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:38
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:34
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:35
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -253,7 +253,7 @@ create:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.post[routing]() -> void:
 post:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:163-173
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:164-174
     // post(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -323,17 +323,17 @@ post:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:174
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:175
     // const sender = getControlledSpendingAccount(wallet)
     dig 8
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:177
     // const akitaSocial = Application(getAkitaSocialAppList(this.akitaDAO.value).social)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:177
     // const akitaSocial = Application(getAkitaSocialAppList(this.akitaDAO.value).social)
     app_global_get_ex
     assert // check GlobalState exists
@@ -342,11 +342,11 @@ post:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:177
     // const akitaSocial = Application(getAkitaSocialAppList(this.akitaDAO.value).social)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:177
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:178
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     dig 6
     bytec_2 // ""
@@ -361,7 +361,7 @@ post:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:179
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:180
     // const mbrAmount: uint64 = posts + votes + votelist + this.referralQuote(wallet)
     cover 2
     +
@@ -369,18 +369,18 @@ post:
     dig 11
     callsub referralQuote
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:182
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:183
     // receiver: akitaSocial.address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:186
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:187
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:186
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:187
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -390,7 +390,7 @@ post:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:186
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:187
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -400,16 +400,16 @@ post:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:187
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:188
     // const { postFee } = getSocialFees(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:190
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:191
     // assetReceiver: akitaSocial.address,
     dig 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:195-211
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:196-212
     // abiCall<typeof AkitaSocial.prototype.post>({
     //   sender,
     //   appId: akitaSocial,
@@ -434,7 +434,7 @@ post:
     itxn_field Receiver
     dig 4
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:180-184
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:181-185
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: akitaSocial.address,
@@ -444,7 +444,7 @@ post:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:200
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:201
     // tip,
     itxn_next
     itxn_field AssetReceiver
@@ -452,7 +452,7 @@ post:
     itxn_field XferAsset
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:188-193
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:189-194
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: akitaSocial.address,
@@ -463,7 +463,7 @@ post:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:195-211
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:196-212
     // abiCall<typeof AkitaSocial.prototype.post>({
     //   sender,
     //   appId: akitaSocial,
@@ -482,7 +482,7 @@ post:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:210
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:211
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 9
     uncover 10
@@ -490,7 +490,7 @@ post:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:195-211
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:196-212
     // abiCall<typeof AkitaSocial.prototype.post>({
     //   sender,
     //   appId: akitaSocial,
@@ -529,7 +529,7 @@ post:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:163-173
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:164-174
     // post(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -547,7 +547,7 @@ post:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.editPost[routing]() -> void:
 editPost:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:214-220
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:215-221
     // editPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -589,17 +589,17 @@ editPost:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:221
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:222
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:223
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:224
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:223
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:224
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -608,11 +608,11 @@ editPost:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:223
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:224
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:224
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:225
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     dig 4
     bytec_2 // ""
@@ -627,7 +627,7 @@ editPost:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:225
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:226
     // const mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + this.referralQuote(wallet)
     cover 2
     +
@@ -637,18 +637,18 @@ editPost:
     dig 7
     callsub referralQuote
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:228
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:229
     // receiver: Application(social).address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:232
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:233
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:232
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:233
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -658,7 +658,7 @@ editPost:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:232
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:233
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -668,16 +668,16 @@ editPost:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:233
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:234
     // const { postFee } = getSocialFees(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:236
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:237
     // assetReceiver: Application(social).address,
     dig 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:242-254
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:243-255
     // abiCall<typeof AkitaSocial.prototype.editPost>({
     //   sender,
     //   appId: social,
@@ -698,7 +698,7 @@ editPost:
     itxn_field Receiver
     dig 4
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:226-230
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:227-231
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -708,7 +708,7 @@ editPost:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:247
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:248
     // tip,
     itxn_next
     itxn_field AssetReceiver
@@ -716,7 +716,7 @@ editPost:
     itxn_field XferAsset
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:234-239
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:235-240
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -727,7 +727,7 @@ editPost:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:242-254
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:243-255
     // abiCall<typeof AkitaSocial.prototype.editPost>({
     //   sender,
     //   appId: social,
@@ -742,7 +742,7 @@ editPost:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:253
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:254
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 5
     uncover 6
@@ -750,7 +750,7 @@ editPost:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:242-254
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:243-255
     // abiCall<typeof AkitaSocial.prototype.editPost>({
     //   sender,
     //   appId: social,
@@ -777,7 +777,7 @@ editPost:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:214-220
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:215-221
     // editPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -791,7 +791,7 @@ editPost:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.gatedReply[routing]() -> void:
 gatedReply:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:257-270
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:258-271
     // gatedReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -890,7 +890,7 @@ gatedReply:
     intc_0 // 0
 
 gatedReply_for_header@1:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:257-270
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:258-271
     // gatedReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -937,7 +937,7 @@ gatedReply_for_header@1:
 
 gatedReply_after_for@4:
     popn 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:257-270
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:258-271
     // gatedReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -977,20 +977,20 @@ gatedReply_after_for@4:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:271
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:272
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     dup
     callsub getControlledSpendingAccount
     dup
     cover 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:273
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:274
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:273
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:274
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -999,12 +999,12 @@ gatedReply_after_for@4:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:273
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:274
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     cover 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:274
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:275
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     dig 7
     bytec_2 // ""
@@ -1019,7 +1019,7 @@ gatedReply_after_for@4:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:275
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:276
     // const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     uncover 7
     dup
@@ -1044,7 +1044,7 @@ gatedReply_after_for@4:
     uncover 2
     extract 41 8
     cover 8
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:277
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:278
     // let mbrAmount: uint64 = posts + votes + votelist + ReplyParentRefMBR + this.tipReferralQuote(wallet, creator)
     uncover 4
     uncover 4
@@ -1058,10 +1058,10 @@ gatedReply_after_for@4:
     callsub tipReferralQuote
     +
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:279
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:280
     // if (!postExists) {
     bnz gatedReply_after_if_else@7
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:280
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:281
     // mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
     intc_0 // 0
     bzero
@@ -1073,13 +1073,13 @@ gatedReply_after_for@4:
     +
 
 gatedReply_after_if_else@7:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:283
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:284
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:283
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:284
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -1089,19 +1089,19 @@ gatedReply_after_if_else@7:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:287
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:288
     // receiver: Application(social).address,
     uncover 2
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:291
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:292
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:291
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:292
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1111,7 +1111,7 @@ gatedReply_after_if_else@7:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:291
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:292
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -1121,11 +1121,11 @@ gatedReply_after_if_else@7:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:292
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:293
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:295
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:296
     // assetReceiver: Application(social).address,
     dig 4
     app_params_get AppAddress
@@ -1136,17 +1136,17 @@ gatedReply_after_if_else@7:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:304
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:305
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     pushint 40
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:307
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:308
     // this.gateCtxArg(wallet),
     uncover 9
     dup
     cover 5
     callsub gateCtxArg
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:313-332
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:314-333
     // abiCall<typeof AkitaSocial.prototype.gatedReply>({
     //   sender,
     //   appId: social,
@@ -1175,7 +1175,7 @@ gatedReply_after_if_else@7:
     uncover 8
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:285-289
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:286-290
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -1185,7 +1185,7 @@ gatedReply_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:318
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:319
     // tip,
     itxn_next
     uncover 4
@@ -1196,7 +1196,7 @@ gatedReply_after_if_else@7:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:293-298
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:294-299
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -1207,10 +1207,10 @@ gatedReply_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:319
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:320
     // gateTxn,
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:306
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:307
     // methodSelector(GateMustCheckForAbiMethod),
     bytec 7 // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     itxn_field ApplicationArgs
@@ -1224,7 +1224,7 @@ gatedReply_after_if_else@7:
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:302-311
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:303-312
     // const gateTxn = itxn.applicationCall({
     //   sender,
     //   appId: getAkitaAppList(this.akitaDAO.value).gate,
@@ -1239,7 +1239,7 @@ gatedReply_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:313-332
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:314-333
     // abiCall<typeof AkitaSocial.prototype.gatedReply>({
     //   sender,
     //   appId: social,
@@ -1261,7 +1261,7 @@ gatedReply_after_if_else@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:331
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:332
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     dig 14
     uncover 2
@@ -1269,7 +1269,7 @@ gatedReply_after_if_else@7:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:313-332
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:314-333
     // abiCall<typeof AkitaSocial.prototype.gatedReply>({
     //   sender,
     //   appId: social,
@@ -1315,7 +1315,7 @@ gatedReply_after_if_else@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:257-270
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:258-271
     // gatedReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1336,7 +1336,7 @@ gatedReply_after_if_else@7:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.reply[routing]() -> void:
 reply:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:335-347
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:336-348
     // reply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1439,19 +1439,19 @@ reply:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:348
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:349
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
     dup
     cover 5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:350
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:351
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:350
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:351
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1460,12 +1460,12 @@ reply:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:350
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:351
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     cover 5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:351
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:352
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     uncover 3
     bytec_2 // ""
@@ -1480,7 +1480,7 @@ reply:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:352
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:353
     // const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     dig 4
     uncover 6
@@ -1501,7 +1501,7 @@ reply:
     pushint 33
     extract_uint64
     cover 6
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:354
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:355
     // let mbrAmount: uint64 = posts + votes + votelist + ReplyParentRefMBR + this.tipReferralQuote(wallet, creator)
     uncover 4
     uncover 4
@@ -1515,10 +1515,10 @@ reply:
     callsub tipReferralQuote
     +
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:356
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:357
     // if (!postExists) {
     bnz reply_after_if_else@3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:357
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:358
     // mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
     intc_0 // 0
     bzero
@@ -1530,13 +1530,13 @@ reply:
     +
 
 reply_after_if_else@3:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:360
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:361
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:360
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:361
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -1546,19 +1546,19 @@ reply_after_if_else@3:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:364
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:365
     // receiver: Application(social).address,
     swap
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:368
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:369
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:368
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:369
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1568,7 +1568,7 @@ reply_after_if_else@3:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:368
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:369
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -1578,16 +1578,16 @@ reply_after_if_else@3:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:369
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:370
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:372
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:373
     // assetReceiver: Application(social).address,
     dig 3
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:377-395
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:378-396
     // abiCall<typeof AkitaSocial.prototype.reply>({
     //   sender,
     //   appId: social,
@@ -1615,7 +1615,7 @@ reply_after_if_else@3:
     uncover 4
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:362-366
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:363-367
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -1625,7 +1625,7 @@ reply_after_if_else@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:382
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:383
     // tip,
     itxn_next
     uncover 2
@@ -1636,7 +1636,7 @@ reply_after_if_else@3:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:370-375
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:371-376
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -1647,7 +1647,7 @@ reply_after_if_else@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:377-395
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:378-396
     // abiCall<typeof AkitaSocial.prototype.reply>({
     //   sender,
     //   appId: social,
@@ -1668,7 +1668,7 @@ reply_after_if_else@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:394
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:395
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 12
@@ -1676,7 +1676,7 @@ reply_after_if_else@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:377-395
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:378-396
     // abiCall<typeof AkitaSocial.prototype.reply>({
     //   sender,
     //   appId: social,
@@ -1721,7 +1721,7 @@ reply_after_if_else@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:335-347
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:336-348
     // reply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1741,7 +1741,7 @@ reply_after_if_else@3:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.gatedEditReply[routing]() -> void:
 gatedEditReply:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:398-405
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:399-406
     // gatedEditReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1794,7 +1794,7 @@ gatedEditReply:
     intc_0 // 0
 
 gatedEditReply_for_header@1:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:398-405
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:399-406
     // gatedEditReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1837,7 +1837,7 @@ gatedEditReply_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:398-405
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:399-406
     // gatedEditReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1856,18 +1856,18 @@ gatedEditReply_after_for@4:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:406
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:407
     // const sender = getControlledSpendingAccount(wallet)
     uncover 4
     dup
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:408
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:409
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:408
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:409
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1876,11 +1876,11 @@ gatedEditReply_after_for@4:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:408
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:409
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:409
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:410
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     uncover 6
     dup
@@ -1897,14 +1897,14 @@ gatedEditReply_after_for@4:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:411
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:412
     // let mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + ReplyParentRefMBR
     cover 2
     +
     +
     intc 5 // 39200
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:413-417
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:414-418
     // const postBeingAmended = abiCall<typeof AkitaSocial.prototype.getPost>({
     //   sender,
     //   appId: social,
@@ -1955,7 +1955,7 @@ gatedEditReply_after_for@4:
     uncover 2
     ==
     assert // invalid number of bytes for smart_contracts/social/types.ts::PostValue
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:420
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:421
     // const originalPostRef = postBeingAmended.ref.slice(36, 68).toFixed({ length: 32 })
     extract 2 0
     dup
@@ -1980,7 +1980,7 @@ gatedEditReply_after_for@4:
     pushint 32
     ==
     assert // Length must be 32
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:422
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:423
     // const { creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
     intc_1 // 1
     dig 4
@@ -1993,20 +1993,20 @@ gatedEditReply_after_for@4:
     extract_uint64
     uncover 2
     extract 41 8
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:423
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:424
     // mbrAmount += this.tipReferralQuote(wallet, creator)
     dig 6
     dig 3
     callsub tipReferralQuote
     uncover 4
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:424
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:425
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:424
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:425
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -2016,18 +2016,18 @@ gatedEditReply_after_for@4:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:428
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:429
     // receiver: Application(social).address,
     dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:432
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:433
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:432
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:433
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2037,7 +2037,7 @@ gatedEditReply_after_for@4:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:432
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:433
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -2047,11 +2047,11 @@ gatedEditReply_after_for@4:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:433
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:434
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:436
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:437
     // assetReceiver: Application(social).address,
     dig 6
     app_params_get AppAddress
@@ -2062,15 +2062,15 @@ gatedEditReply_after_for@4:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:444
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:445
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     pushint 40
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:447
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:448
     // this.gateCtxArg(wallet),
     dig 9
     callsub gateCtxArg
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:453-466
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:454-467
     // abiCall<typeof AkitaSocial.prototype.gatedEditReply>({
     //   sender,
     //   appId: social,
@@ -2092,7 +2092,7 @@ gatedEditReply_after_for@4:
     itxn_field Receiver
     dig 7
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:426-430
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:427-431
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -2102,7 +2102,7 @@ gatedEditReply_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:458
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:459
     // tip,
     itxn_next
     uncover 3
@@ -2113,7 +2113,7 @@ gatedEditReply_after_for@4:
     itxn_field AssetReceiver
     dig 4
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:434-439
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:435-440
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -2124,10 +2124,10 @@ gatedEditReply_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:459
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:460
     // gateTxn,
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:446
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:447
     // methodSelector(GateMustCheckForAbiMethod),
     bytec 7 // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     itxn_field ApplicationArgs
@@ -2139,7 +2139,7 @@ gatedEditReply_after_for@4:
     itxn_field ApplicationID
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:442-451
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:443-452
     // const gateTxn = itxn.applicationCall({
     //   sender,
     //   appId: getAkitaAppList(this.akitaDAO.value).gate,
@@ -2154,7 +2154,7 @@ gatedEditReply_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:453-466
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:454-467
     // abiCall<typeof AkitaSocial.prototype.gatedEditReply>({
     //   sender,
     //   appId: social,
@@ -2170,7 +2170,7 @@ gatedEditReply_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:465
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:466
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 6
     uncover 3
@@ -2178,7 +2178,7 @@ gatedEditReply_after_for@4:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:453-466
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:454-467
     // abiCall<typeof AkitaSocial.prototype.gatedEditReply>({
     //   sender,
     //   appId: social,
@@ -2205,7 +2205,7 @@ gatedEditReply_after_for@4:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:398-405
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:399-406
     // gatedEditReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2220,7 +2220,7 @@ gatedEditReply_after_for@4:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.editReply[routing]() -> void:
 editReply:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:469-475
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:470-476
     // editReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2262,17 +2262,17 @@ editReply:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:476
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:477
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:478
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:479
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:478
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:479
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2281,11 +2281,11 @@ editReply:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:478
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:479
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:479
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:480
     // const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     dig 4
     bytec_2 // ""
@@ -2300,14 +2300,14 @@ editReply:
     uncover 2
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:481
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:482
     // let mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + ReplyParentRefMBR
     cover 2
     +
     +
     intc 5 // 39200
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:483-487
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:484-488
     // const postBeingAmended = abiCall<typeof AkitaSocial.prototype.getPost>({
     //   sender,
     //   appId: social,
@@ -2356,7 +2356,7 @@ editReply:
     uncover 2
     ==
     assert // invalid number of bytes for smart_contracts/social/types.ts::PostValue
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:490
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:491
     // const originalPostRef = postBeingAmended.ref.slice(36, 68).toFixed({ length: 32 })
     extract 2 0
     dup
@@ -2381,7 +2381,7 @@ editReply:
     pushint 32
     ==
     assert // Length must be 32
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:492
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:493
     // const { creator, creatorWallet } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
     intc_1 // 1
     dig 4
@@ -2392,20 +2392,20 @@ editReply:
     swap
     pushint 33
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:493
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:494
     // mbrAmount += this.tipReferralQuote(wallet, creator)
     dig 9
     dig 2
     callsub tipReferralQuote
     uncover 3
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:494
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:495
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:494
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:495
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -2415,18 +2415,18 @@ editReply:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:498
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:499
     // receiver: Application(social).address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:502
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:503
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:502
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:503
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2436,7 +2436,7 @@ editReply:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:502
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:503
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -2446,16 +2446,16 @@ editReply:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:503
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:504
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:506
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:507
     // assetReceiver: Application(social).address,
     dig 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:511-523
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:512-524
     // abiCall<typeof AkitaSocial.prototype.editReply>({
     //   sender,
     //   appId: social,
@@ -2476,7 +2476,7 @@ editReply:
     itxn_field Receiver
     dig 4
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:496-500
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:497-501
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -2486,7 +2486,7 @@ editReply:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:516
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:517
     // tip,
     itxn_next
     itxn_field AssetReceiver
@@ -2494,7 +2494,7 @@ editReply:
     itxn_field XferAsset
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:504-509
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:505-510
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -2505,7 +2505,7 @@ editReply:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:511-523
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:512-524
     // abiCall<typeof AkitaSocial.prototype.editReply>({
     //   sender,
     //   appId: social,
@@ -2520,7 +2520,7 @@ editReply:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:522
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:523
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 5
     uncover 6
@@ -2528,7 +2528,7 @@ editReply:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:511-523
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:512-524
     // abiCall<typeof AkitaSocial.prototype.editReply>({
     //   sender,
     //   appId: social,
@@ -2555,7 +2555,7 @@ editReply:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:469-475
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:470-476
     // editReply(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2569,7 +2569,7 @@ editReply:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.vote[routing]() -> void:
 vote:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:526-532
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:527-533
     // vote(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2627,19 +2627,19 @@ vote:
     intc_0 // 0
     getbit
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:533
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:534
     // const sender = getControlledSpendingAccount(wallet)
     uncover 2
     callsub getControlledSpendingAccount
     dup
     cover 4
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:535
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:536
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:535
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:536
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2648,12 +2648,12 @@ vote:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:535
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:536
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:536
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:537
     // const { votelist, posts, votes } = this.mbr(op.bzero(0), '', Bytes(''))
     intc_0 // 0
     bzero
@@ -2671,12 +2671,12 @@ vote:
     pushint 24
     extract_uint64
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:539
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:540
     // const refBytes = this.refKey(type, ref)
     dig 1
     uncover 3
     callsub refKey
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:541
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:542
     // const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
     callsub getCreatorDetails
     dup
@@ -2689,17 +2689,17 @@ vote:
     pushint 33
     extract_uint64
     cover 13
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:544
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:545
     // if (!postExists) {
     bz vote_if_body@2
     popn 2
 
 vote_after_if_else@3:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:548
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:549
     // if (isUp) {
     uncover 2
     bz vote_after_if_else@5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:549
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:550
     // mbrAmount += this.tipReferralQuote(wallet, creator)
     dig 3
     dig 11
@@ -2708,13 +2708,13 @@ vote_after_if_else@3:
     callsub tipReferralQuote
     uncover 2
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:550
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:551
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:550
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:551
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -2726,19 +2726,19 @@ vote_after_if_else@3:
     +
 
 vote_after_if_else@5:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:555
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:556
     // receiver: Application(social).address,
     swap
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:559
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:560
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:559
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:560
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2748,7 +2748,7 @@ vote_after_if_else@5:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:559
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:560
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -2758,16 +2758,16 @@ vote_after_if_else@5:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:560
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:561
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:563
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:564
     // assetReceiver: Application(social).address,
     dig 3
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:568-580
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:569-581
     // abiCall<typeof AkitaSocial.prototype.vote>({
     //   sender,
     //   appId: social,
@@ -2789,7 +2789,7 @@ vote_after_if_else@5:
     uncover 4
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:553-557
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:554-558
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -2799,7 +2799,7 @@ vote_after_if_else@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:573
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:574
     // tip,
     itxn_next
     uncover 2
@@ -2810,7 +2810,7 @@ vote_after_if_else@5:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:561-566
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:562-567
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -2821,7 +2821,7 @@ vote_after_if_else@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:568-580
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:569-581
     // abiCall<typeof AkitaSocial.prototype.vote>({
     //   sender,
     //   appId: social,
@@ -2836,7 +2836,7 @@ vote_after_if_else@5:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:579
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:580
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 3
@@ -2844,7 +2844,7 @@ vote_after_if_else@5:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:568-580
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:569-581
     // abiCall<typeof AkitaSocial.prototype.vote>({
     //   sender,
     //   appId: social,
@@ -2871,7 +2871,7 @@ vote_after_if_else@5:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:526-532
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:527-533
     // vote(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2883,7 +2883,7 @@ vote_after_if_else@5:
     return
 
 vote_if_body@2:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:545
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:546
     // mbrAmount += posts + votes
     +
     +
@@ -2892,7 +2892,7 @@ vote_if_body@2:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.editVote[routing]() -> void:
 editVote:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:583-588
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:584-589
     // editVote(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2934,19 +2934,19 @@ editVote:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:589
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:590
     // const sender = getControlledSpendingAccount(wallet)
     uncover 2
     callsub getControlledSpendingAccount
     dup
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:591
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:592
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:591
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:592
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2956,13 +2956,13 @@ editVote:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:591
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:592
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     dup
     cover 8
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:593-597
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:594-598
     // const { isUp: wasUp } = abiCall<typeof AkitaSocial.prototype.getVote>({
     //   sender,
     //   appId: social,
@@ -3000,14 +3000,14 @@ editVote:
     pushint 64
     getbit
     cover 10
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:601
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:602
     // receiver: Application(social).address,
     dup
     app_params_get AppAddress
     swap
     cover 4
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:602
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:603
     // amount: 0,
     intc_0 // 0
     cover 11
@@ -3017,32 +3017,32 @@ editVote:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:605
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:606
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:609
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:610
     // assetReceiver: Application(social).address,
     app_params_get AppAddress
     swap
     cover 3
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:611
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:612
     // assetAmount: 0,
     intc_0 // 0
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:614
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:615
     // if (flip) {
     bz editVote_after_if_else@6
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:615
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:616
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:615
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:616
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3051,15 +3051,15 @@ editVote:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:615
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:616
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:620
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:621
     // if (!wasUp) {
     dig 12
     bnz editVote_after_if_else@5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:622
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:623
     // const { creator, creatorWallet } = this.getCreatorDetails(RefTypePost, sender, ref.toFixed({ length: 32 }))
     intc_1 // 1
     dig 5
@@ -3070,7 +3070,7 @@ editVote:
     swap
     pushint 33
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:623
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:624
     // const flipMbr: uint64 = this.tipReferralQuote(wallet, creator) + this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     dig 8
     dig 2
@@ -3079,7 +3079,7 @@ editVote:
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:623
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:624
     // const flipMbr: uint64 = this.tipReferralQuote(wallet, creator) + this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -3095,7 +3095,7 @@ editVote_after_if_else@5:
     b editVote_after_if_else@6
 
 editVote_after_if_else@6:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:628-639
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:629-640
     // abiCall<typeof AkitaSocial.prototype.editVote>({
     //   sender,
     //   appId: social,
@@ -3116,7 +3116,7 @@ editVote_after_if_else@6:
     uncover 3
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:599-603
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:600-604
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -3126,7 +3126,7 @@ editVote_after_if_else@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:633
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:634
     // tip,
     itxn_next
     swap
@@ -3137,7 +3137,7 @@ editVote_after_if_else@6:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:607-612
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:608-613
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -3148,7 +3148,7 @@ editVote_after_if_else@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:628-639
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:629-640
     // abiCall<typeof AkitaSocial.prototype.editVote>({
     //   sender,
     //   appId: social,
@@ -3162,7 +3162,7 @@ editVote_after_if_else@6:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:638
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:639
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 3
@@ -3171,7 +3171,7 @@ editVote_after_if_else@6:
     uncover 2
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:628-639
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:629-640
     // abiCall<typeof AkitaSocial.prototype.editVote>({
     //   sender,
     //   appId: social,
@@ -3194,7 +3194,7 @@ editVote_after_if_else@6:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:583-588
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:584-589
     // editVote(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3208,7 +3208,7 @@ editVote_after_if_else@6:
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.gatedReact[routing]() -> void:
 gatedReact:
     bytec_2 // ""
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:642-649
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:643-650
     // gatedReact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3281,7 +3281,7 @@ gatedReact:
     intc_0 // 0
 
 gatedReact_for_header@1:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:642-649
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:643-650
     // gatedReact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3324,7 +3324,7 @@ gatedReact_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:642-649
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:643-650
     // gatedReact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3337,26 +3337,26 @@ gatedReact_after_for@4:
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:650
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:651
     // const sender = getControlledSpendingAccount(wallet)
     dig 1
     callsub getControlledSpendingAccount
     dup
     cover 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:651
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:652
     // const refBytes = this.refKey(type, ref)
     dig 1
     uncover 6
     callsub refKey
     dup
     uncover 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:653
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:654
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:653
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:654
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3365,13 +3365,13 @@ gatedReact_after_for@4:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:653
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:654
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     dup
     cover 5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:655-659
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:656-660
     // const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
     //   sender,
     //   appId: social,
@@ -3405,7 +3405,7 @@ gatedReact_after_for@4:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:661
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:662
     // const { reactions, reactionlist, posts } = this.mbr(op.bzero(0), '', Bytes(''))
     intc_0 // 0
     bzero
@@ -3423,7 +3423,7 @@ gatedReact_after_for@4:
     pushint 16
     extract_uint64
     bury 15
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:663-665
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:664-666
     // let mbrAmount: uint64 = reactionExists
     //   ? reactionlist
     //   : reactions + reactionlist
@@ -3431,7 +3431,7 @@ gatedReact_after_for@4:
     bury 1
 
 gatedReact_ternary_merge@9:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:669
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:670
     // const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, refBytes)
     uncover 2
     dig 4
@@ -3450,10 +3450,10 @@ gatedReact_ternary_merge@9:
     swap
     extract 41 8
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:670
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:671
     // if (!postExists) {
     bnz gatedReact_after_if_else@11
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:671
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:672
     // mbrAmount += posts
     swap
     dig 13
@@ -3461,7 +3461,7 @@ gatedReact_ternary_merge@9:
     swap
 
 gatedReact_after_if_else@11:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:673
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:674
     // mbrAmount += this.tipReferralQuote(wallet, creator)
     uncover 6
     dup
@@ -3471,13 +3471,13 @@ gatedReact_after_if_else@11:
     callsub tipReferralQuote
     uncover 4
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:675
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:676
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:675
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:676
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -3487,19 +3487,19 @@ gatedReact_after_if_else@11:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:679
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:680
     // receiver: Application(social).address,
     uncover 3
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:683
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:684
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:683
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:684
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3509,7 +3509,7 @@ gatedReact_after_if_else@11:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:683
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:684
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -3519,11 +3519,11 @@ gatedReact_after_if_else@11:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:684
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:685
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:687
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:688
     // assetReceiver: Application(social).address,
     dig 4
     app_params_get AppAddress
@@ -3534,15 +3534,15 @@ gatedReact_after_if_else@11:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:695
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:696
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     pushint 40
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:698
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:699
     // this.gateCtxArg(wallet),
     dig 7
     callsub gateCtxArg
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:704-717
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:705-718
     // abiCall<typeof AkitaSocial.prototype.gatedReact>({
     //   sender,
     //   appId: social,
@@ -3565,7 +3565,7 @@ gatedReact_after_if_else@11:
     uncover 8
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:677-681
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:678-682
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -3575,7 +3575,7 @@ gatedReact_after_if_else@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:709
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:710
     // tip,
     itxn_next
     uncover 4
@@ -3586,7 +3586,7 @@ gatedReact_after_if_else@11:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:685-690
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:686-691
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -3597,10 +3597,10 @@ gatedReact_after_if_else@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:710
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:711
     // gateTxn,
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:697
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:698
     // methodSelector(GateMustCheckForAbiMethod),
     bytec 7 // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     itxn_field ApplicationArgs
@@ -3614,7 +3614,7 @@ gatedReact_after_if_else@11:
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:693-702
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:694-703
     // const gateTxn = itxn.applicationCall({
     //   sender,
     //   appId: getAkitaAppList(this.akitaDAO.value).gate,
@@ -3629,7 +3629,7 @@ gatedReact_after_if_else@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:704-717
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:705-718
     // abiCall<typeof AkitaSocial.prototype.gatedReact>({
     //   sender,
     //   appId: social,
@@ -3645,7 +3645,7 @@ gatedReact_after_if_else@11:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:716
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:717
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 6
     uncover 3
@@ -3653,7 +3653,7 @@ gatedReact_after_if_else@11:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:704-717
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:705-718
     // abiCall<typeof AkitaSocial.prototype.gatedReact>({
     //   sender,
     //   appId: social,
@@ -3681,7 +3681,7 @@ gatedReact_after_if_else@11:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:642-649
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:643-650
     // gatedReact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3694,7 +3694,7 @@ gatedReact_after_if_else@11:
     return
 
 gatedReact_ternary_false@8:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:665
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:666
     // : reactions + reactionlist
     +
     b gatedReact_ternary_merge@9
@@ -3702,7 +3702,7 @@ gatedReact_ternary_false@8:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.react[routing]() -> void:
 react:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:720-726
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:721-727
     // react(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3759,14 +3759,14 @@ react:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:727
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:728
     // const sender = getControlledSpendingAccount(wallet)
     uncover 3
     callsub getControlledSpendingAccount
     dup
     cover 2
     cover 5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:728
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:729
     // const refBytes = this.refKey(type, ref)
     uncover 2
     uncover 3
@@ -3774,13 +3774,13 @@ react:
     dup
     cover 2
     cover 3
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:730
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:731
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:730
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:731
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3789,13 +3789,13 @@ react:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:730
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:731
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     dup
     cover 5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:732-736
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:733-737
     // const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
     //   sender,
     //   appId: social,
@@ -3830,7 +3830,7 @@ react:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:738
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:739
     // const { reactions, reactionlist, posts } = this.mbr(op.bzero(0), '', Bytes(''))
     intc_0 // 0
     bzero
@@ -3848,7 +3848,7 @@ react:
     pushint 16
     extract_uint64
     cover 13
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:740-742
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:741-743
     // let mbrAmount: uint64 = reactionExists
     //   ? reactionlist
     //   : reactions + reactionlist
@@ -3856,7 +3856,7 @@ react:
     bury 1
 
 react_ternary_merge@5:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:746
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:747
     // const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
     uncover 3
     dig 4
@@ -3872,10 +3872,10 @@ react_ternary_merge@5:
     pushint 33
     extract_uint64
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:747
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:748
     // if (!postExists) {
     bnz react_after_if_else@7
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:748
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:749
     // mbrAmount += posts
     swap
     dig 11
@@ -3883,7 +3883,7 @@ react_ternary_merge@5:
     swap
 
 react_after_if_else@7:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:750
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:751
     // mbrAmount += this.tipReferralQuote(wallet, creator)
     uncover 5
     dup
@@ -3893,13 +3893,13 @@ react_after_if_else@7:
     callsub tipReferralQuote
     uncover 4
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:752
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:753
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:752
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:753
     // mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     app_global_get_ex
     assert // check GlobalState exists
@@ -3909,19 +3909,19 @@ react_after_if_else@7:
     intc_1 // 1
     extract_uint64
     +
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:756
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:757
     // receiver: Application(social).address,
     uncover 2
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:760
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:761
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:760
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:761
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3931,7 +3931,7 @@ react_after_if_else@7:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:760
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:761
     // const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -3941,16 +3941,16 @@ react_after_if_else@7:
     bytec 5 // "social_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:761
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:762
     // const { reactFee } = getSocialFees(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:764
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:765
     // assetReceiver: Application(social).address,
     dig 3
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:769-781
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:770-782
     // abiCall<typeof AkitaSocial.prototype.react>({
     //   sender,
     //   appId: social,
@@ -3972,7 +3972,7 @@ react_after_if_else@7:
     uncover 5
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:754-758
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:755-759
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -3982,7 +3982,7 @@ react_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:774
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:775
     // tip,
     itxn_next
     uncover 2
@@ -3993,7 +3993,7 @@ react_after_if_else@7:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:762-767
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:763-768
     // const tip = itxn.assetTransfer({
     //   sender,
     //   assetReceiver: Application(social).address,
@@ -4004,7 +4004,7 @@ react_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:769-781
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:770-782
     // abiCall<typeof AkitaSocial.prototype.react>({
     //   sender,
     //   appId: social,
@@ -4019,7 +4019,7 @@ react_after_if_else@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:780
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:781
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 6
     uncover 3
@@ -4027,7 +4027,7 @@ react_after_if_else@7:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:769-781
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:770-782
     // abiCall<typeof AkitaSocial.prototype.react>({
     //   sender,
     //   appId: social,
@@ -4054,7 +4054,7 @@ react_after_if_else@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:720-726
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:721-727
     // react(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4066,7 +4066,7 @@ react_after_if_else@7:
     return
 
 react_ternary_false@4:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:742
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:743
     // : reactions + reactionlist
     +
     b react_ternary_merge@5
@@ -4074,7 +4074,7 @@ react_ternary_false@4:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.deleteReaction[routing]() -> void:
 deleteReaction:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:784-789
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:785-790
     // deleteReaction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4108,17 +4108,17 @@ deleteReaction:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:790
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:791
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:792
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:793
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:792
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:793
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4127,11 +4127,11 @@ deleteReaction:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:792
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:793
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:794-799
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:795-800
     // abiCall<typeof AkitaSocial.prototype.deleteReaction>({
     //   sender,
     //   appId: social,
@@ -4139,7 +4139,7 @@ deleteReaction:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:798
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:799
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -4147,7 +4147,7 @@ deleteReaction:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:794-799
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:795-800
     // abiCall<typeof AkitaSocial.prototype.deleteReaction>({
     //   sender,
     //   appId: social,
@@ -4164,7 +4164,7 @@ deleteReaction:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:784-789
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:785-790
     // deleteReaction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4177,7 +4177,7 @@ deleteReaction:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.gatedFollow[routing]() -> void:
 gatedFollow:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:802-807
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:803-808
     // gatedFollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4222,7 +4222,7 @@ gatedFollow:
     intc_0 // 0
 
 gatedFollow_for_header@1:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:802-807
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:803-808
     // gatedFollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4263,7 +4263,7 @@ gatedFollow_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:802-807
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:803-808
     // gatedFollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4274,18 +4274,18 @@ gatedFollow_after_for@4:
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:808
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:809
     // const sender = getControlledSpendingAccount(wallet)
     uncover 2
     dup
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:810
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:811
     // const { social, graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:810
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:811
     // const { social, graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4294,7 +4294,7 @@ gatedFollow_after_for@4:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:810
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:811
     // const { social, graph } = getAkitaSocialAppList(this.akitaDAO.value)
     dup
     intc_0 // 0
@@ -4302,7 +4302,7 @@ gatedFollow_after_for@4:
     swap
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:812-816
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:813-817
     // const { followGateID } = abiCall<typeof AkitaSocial.prototype.getMeta>({
     //   sender,
     //   appId: social,
@@ -4337,12 +4337,12 @@ gatedFollow_after_for@4:
     ==
     assert // invalid number of bytes for smart_contracts/social/types.ts::MetaValue
     extract 54 8
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:820
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:821
     // receiver: Application(graph).address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:821
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:822
     // amount: this.mbr(op.bzero(0), '', Bytes('')).follows
     intc_0 // 0
     bzero
@@ -4351,13 +4351,13 @@ gatedFollow_after_for@4:
     callsub smart_contracts/social/base.ts::BaseSocial.mbr
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:827
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:828
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:827
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:828
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     app_global_get_ex
     assert // check GlobalState exists
@@ -4366,15 +4366,15 @@ gatedFollow_after_for@4:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:827
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:828
     // appId: getAkitaAppList(this.akitaDAO.value).gate,
     pushint 40
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:830
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:831
     // this.gateCtxArg(wallet),
     dig 6
     callsub gateCtxArg
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:836-846
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:837-847
     // abiCall<typeof AkitaSocialGraph.prototype.gatedFollow>({
     //   sender,
     //   appId: graph,
@@ -4393,7 +4393,7 @@ gatedFollow_after_for@4:
     itxn_field Receiver
     dig 4
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:818-822
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:819-823
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(graph).address,
@@ -4403,10 +4403,10 @@ gatedFollow_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:841
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:842
     // gateTxn,
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:829
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:830
     // methodSelector(GateMustCheckForAbiMethod),
     bytec 7 // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     itxn_field ApplicationArgs
@@ -4418,7 +4418,7 @@ gatedFollow_after_for@4:
     itxn_field ApplicationID
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:825-834
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:826-835
     // const gateTxn = itxn.applicationCall({
     //   sender,
     //   appId: getAkitaAppList(this.akitaDAO.value).gate,
@@ -4433,7 +4433,7 @@ gatedFollow_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:836-846
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:837-847
     // abiCall<typeof AkitaSocialGraph.prototype.gatedFollow>({
     //   sender,
     //   appId: graph,
@@ -4446,7 +4446,7 @@ gatedFollow_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:845
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:846
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 3
@@ -4454,7 +4454,7 @@ gatedFollow_after_for@4:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:836-846
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:837-847
     // abiCall<typeof AkitaSocialGraph.prototype.gatedFollow>({
     //   sender,
     //   appId: graph,
@@ -4475,7 +4475,7 @@ gatedFollow_after_for@4:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:802-807
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:803-808
     // gatedFollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4488,7 +4488,7 @@ gatedFollow_after_for@4:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.follow[routing]() -> void:
 follow:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:849-853
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:850-854
     // follow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4515,17 +4515,17 @@ follow:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:854
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:855
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:856
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:857
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:856
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:857
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4534,16 +4534,16 @@ follow:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:856
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:857
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:860
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:861
     // receiver: Application(graph).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:861
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:862
     // amount: this.mbr(op.bzero(0), '', Bytes('')).follows
     intc_0 // 0
     bzero
@@ -4552,7 +4552,7 @@ follow:
     callsub smart_contracts/social/base.ts::BaseSocial.mbr
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:864-872
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:865-873
     // abiCall<typeof AkitaSocialGraph.prototype.follow>({
     //   sender,
     //   appId: graph,
@@ -4567,7 +4567,7 @@ follow:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:858-862
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:859-863
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(graph).address,
@@ -4577,7 +4577,7 @@ follow:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:864-872
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:865-873
     // abiCall<typeof AkitaSocialGraph.prototype.follow>({
     //   sender,
     //   appId: graph,
@@ -4588,7 +4588,7 @@ follow:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:871
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:872
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -4596,7 +4596,7 @@ follow:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:864-872
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:865-873
     // abiCall<typeof AkitaSocialGraph.prototype.follow>({
     //   sender,
     //   appId: graph,
@@ -4614,7 +4614,7 @@ follow:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:849-853
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:850-854
     // follow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4626,7 +4626,7 @@ follow:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.unfollow[routing]() -> void:
 unfollow:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:875-879
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:876-880
     // unfollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4653,17 +4653,17 @@ unfollow:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:880
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:881
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:882
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:883
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:882
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:883
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4672,11 +4672,11 @@ unfollow:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:882
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:883
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:884-889
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:885-890
     // abiCall<typeof AkitaSocialGraph.prototype.unfollow>({
     //   sender,
     //   appId: graph,
@@ -4684,7 +4684,7 @@ unfollow:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:888
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:889
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -4692,7 +4692,7 @@ unfollow:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:884-889
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:885-890
     // abiCall<typeof AkitaSocialGraph.prototype.unfollow>({
     //   sender,
     //   appId: graph,
@@ -4707,7 +4707,7 @@ unfollow:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:875-879
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:876-880
     // unfollow(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4719,7 +4719,7 @@ unfollow:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.block[routing]() -> void:
 block:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:894-898
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:895-899
     // block(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4746,17 +4746,17 @@ block:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:899
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:900
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:901
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:902
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:901
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:902
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4765,16 +4765,16 @@ block:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:901
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:902
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:905
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:906
     // receiver: Application(graph).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:906
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:907
     // amount: this.mbr(op.bzero(0), '', Bytes('')).blocks
     intc_0 // 0
     bzero
@@ -4783,7 +4783,7 @@ block:
     callsub smart_contracts/social/base.ts::BaseSocial.mbr
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:909-914
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:910-915
     // abiCall<typeof AkitaSocialGraph.prototype.block>({
     //   sender,
     //   appId: graph,
@@ -4795,7 +4795,7 @@ block:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:903-907
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:904-908
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(graph).address,
@@ -4805,7 +4805,7 @@ block:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:909-914
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:910-915
     // abiCall<typeof AkitaSocialGraph.prototype.block>({
     //   sender,
     //   appId: graph,
@@ -4813,7 +4813,7 @@ block:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:913
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:914
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -4821,7 +4821,7 @@ block:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:909-914
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:910-915
     // abiCall<typeof AkitaSocialGraph.prototype.block>({
     //   sender,
     //   appId: graph,
@@ -4836,7 +4836,7 @@ block:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:894-898
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:895-899
     // block(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4848,7 +4848,7 @@ block:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.unblock[routing]() -> void:
 unblock:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:917-921
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:918-922
     // unblock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4875,17 +4875,17 @@ unblock:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:922
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:923
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:924
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:925
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:924
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:925
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4894,11 +4894,11 @@ unblock:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:924
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:925
     // const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_2 // 8
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:926-931
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:927-932
     // abiCall<typeof AkitaSocialGraph.prototype.unblock>({
     //   sender,
     //   appId: graph,
@@ -4906,7 +4906,7 @@ unblock:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:930
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:931
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -4914,7 +4914,7 @@ unblock:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:926-931
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:927-932
     // abiCall<typeof AkitaSocialGraph.prototype.unblock>({
     //   sender,
     //   appId: graph,
@@ -4929,7 +4929,7 @@ unblock:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:917-921
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:918-922
     // unblock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4941,7 +4941,7 @@ unblock:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.addModerator[routing]() -> void:
 addModerator:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:934-938
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:935-939
     // addModerator(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -4968,17 +4968,17 @@ addModerator:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:939
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:940
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:941
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:942
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:941
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:942
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -4987,11 +4987,11 @@ addModerator:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:941
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:942
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:943-948
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:944-949
     // abiCall<typeof AkitaSocialModeration.prototype.addModerator>({
     //   sender,
     //   appId: moderation,
@@ -4999,7 +4999,7 @@ addModerator:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:947
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:948
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5007,7 +5007,7 @@ addModerator:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:943-948
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:944-949
     // abiCall<typeof AkitaSocialModeration.prototype.addModerator>({
     //   sender,
     //   appId: moderation,
@@ -5022,7 +5022,7 @@ addModerator:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:934-938
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:935-939
     // addModerator(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5034,7 +5034,7 @@ addModerator:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.removeModerator[routing]() -> void:
 removeModerator:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:952-956
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:953-957
     // removeModerator(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5061,17 +5061,17 @@ removeModerator:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:957
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:958
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:959
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:960
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:959
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:960
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5080,11 +5080,11 @@ removeModerator:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:959
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:960
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:961-966
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:962-967
     // abiCall<typeof AkitaSocialModeration.prototype.removeModerator>({
     //   sender,
     //   appId: moderation,
@@ -5092,7 +5092,7 @@ removeModerator:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:965
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:966
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5100,7 +5100,7 @@ removeModerator:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:961-966
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:962-967
     // abiCall<typeof AkitaSocialModeration.prototype.removeModerator>({
     //   sender,
     //   appId: moderation,
@@ -5115,7 +5115,7 @@ removeModerator:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:952-956
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:953-957
     // removeModerator(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5127,7 +5127,7 @@ removeModerator:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.ban[routing]() -> void:
 ban:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:969-974
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:970-975
     // ban(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5161,17 +5161,17 @@ ban:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:975
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:976
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:977
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:978
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:977
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:978
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5180,11 +5180,11 @@ ban:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:977
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:978
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:979-984
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:980-985
     // abiCall<typeof AkitaSocialModeration.prototype.ban>({
     //   sender,
     //   appId: moderation,
@@ -5192,7 +5192,7 @@ ban:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:983
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:984
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -5200,7 +5200,7 @@ ban:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:979-984
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:980-985
     // abiCall<typeof AkitaSocialModeration.prototype.ban>({
     //   sender,
     //   appId: moderation,
@@ -5217,7 +5217,7 @@ ban:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:969-974
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:970-975
     // ban(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5230,7 +5230,7 @@ ban:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.flagPost[routing]() -> void:
 flagPost:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:987-991
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:988-992
     // flagPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5257,17 +5257,17 @@ flagPost:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:992
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:993
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:994
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:995
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:994
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:995
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5276,11 +5276,11 @@ flagPost:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:994
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:995
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:996-1001
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:997-1002
     // abiCall<typeof AkitaSocialModeration.prototype.flagPost>({
     //   sender,
     //   appId: moderation,
@@ -5288,7 +5288,7 @@ flagPost:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1000
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1001
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5296,7 +5296,7 @@ flagPost:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:996-1001
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:997-1002
     // abiCall<typeof AkitaSocialModeration.prototype.flagPost>({
     //   sender,
     //   appId: moderation,
@@ -5311,7 +5311,7 @@ flagPost:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:987-991
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:988-992
     // flagPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5323,7 +5323,7 @@ flagPost:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.unflagPost[routing]() -> void:
 unflagPost:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1004-1008
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1005-1009
     // unflagPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5350,17 +5350,17 @@ unflagPost:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1009
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1010
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1011
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1012
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1011
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1012
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5369,11 +5369,11 @@ unflagPost:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1011
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1012
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1013-1018
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1014-1019
     // abiCall<typeof AkitaSocialModeration.prototype.unflagPost>({
     //   sender,
     //   appId: moderation,
@@ -5381,7 +5381,7 @@ unflagPost:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1017
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1018
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5389,7 +5389,7 @@ unflagPost:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1013-1018
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1014-1019
     // abiCall<typeof AkitaSocialModeration.prototype.unflagPost>({
     //   sender,
     //   appId: moderation,
@@ -5404,7 +5404,7 @@ unflagPost:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1004-1008
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1005-1009
     // unflagPost(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5416,7 +5416,7 @@ unflagPost:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.unban[routing]() -> void:
 unban:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1021-1025
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1022-1026
     // unban(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5443,17 +5443,17 @@ unban:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1026
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1027
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1028
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1029
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1028
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1029
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5462,11 +5462,11 @@ unban:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1028
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1029
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1030-1035
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1031-1036
     // abiCall<typeof AkitaSocialModeration.prototype.unban>({
     //   sender,
     //   appId: moderation,
@@ -5474,7 +5474,7 @@ unban:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1034
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1035
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5482,7 +5482,7 @@ unban:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1030-1035
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1031-1036
     // abiCall<typeof AkitaSocialModeration.prototype.unban>({
     //   sender,
     //   appId: moderation,
@@ -5497,7 +5497,7 @@ unban:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1021-1025
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1022-1026
     // unban(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5509,7 +5509,7 @@ unban:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.addAction[routing]() -> void:
 addAction:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1038-1043
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1039-1044
     // addAction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5543,17 +5543,17 @@ addAction:
     pushint 36
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1044
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1045
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1046
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1047
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1046
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1047
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5562,11 +5562,11 @@ addAction:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1046
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1047
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1048-1056
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1049-1057
     // abiCall<typeof AkitaSocialModeration.prototype.addAction>({
     //   sender,
     //   appId: moderation,
@@ -5577,7 +5577,7 @@ addAction:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1055
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1056
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -5585,7 +5585,7 @@ addAction:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1048-1056
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1049-1057
     // abiCall<typeof AkitaSocialModeration.prototype.addAction>({
     //   sender,
     //   appId: moderation,
@@ -5605,7 +5605,7 @@ addAction:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1038-1043
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1039-1044
     // addAction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5618,7 +5618,7 @@ addAction:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.removeAction[routing]() -> void:
 removeAction:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1059-1063
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1060-1064
     // removeAction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5645,17 +5645,17 @@ removeAction:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1064
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1065
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1066
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1067
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1066
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1067
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5664,11 +5664,11 @@ removeAction:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1066
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1067
     // const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 24
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1068-1073
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1069-1074
     // abiCall<typeof AkitaSocialModeration.prototype.removeAction>({
     //   sender,
     //   appId: moderation,
@@ -5676,7 +5676,7 @@ removeAction:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1072
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1073
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -5684,7 +5684,7 @@ removeAction:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1068-1073
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1069-1074
     // abiCall<typeof AkitaSocialModeration.prototype.removeAction>({
     //   sender,
     //   appId: moderation,
@@ -5699,7 +5699,7 @@ removeAction:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1059-1063
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1060-1064
     // removeAction(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5711,7 +5711,7 @@ removeAction:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.initMeta[routing]() -> void:
 initMeta:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1076-1084
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1077-1085
     // initMeta(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5767,17 +5767,17 @@ initMeta:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1085
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1086
     // const sender = getControlledSpendingAccount(wallet)
     dig 6
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1087
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1088
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1087
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1088
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5786,11 +5786,11 @@ initMeta:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1087
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1088
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1089-1106
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1090-1107
     // const impact = abiCall<typeof AkitaSocial.prototype.initMeta>({
     //   sender,
     //   appId: social,
@@ -5810,12 +5810,12 @@ initMeta:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1095
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1096
     // receiver: Application(social).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1096
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1097
     // amount: this.mbr(op.bzero(0), '', Bytes('')).meta + ImpactMetaMBR
     intc_0 // 0
     bzero
@@ -5830,7 +5830,7 @@ initMeta:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1093-1097
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1094-1098
     // itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -5840,7 +5840,7 @@ initMeta:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1089-1106
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1090-1107
     // const impact = abiCall<typeof AkitaSocial.prototype.initMeta>({
     //   sender,
     //   appId: social,
@@ -5860,7 +5860,7 @@ initMeta:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1105
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1106
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 7
     uncover 8
@@ -5868,7 +5868,7 @@ initMeta:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1089-1106
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1090-1107
     // const impact = abiCall<typeof AkitaSocial.prototype.initMeta>({
     //   sender,
     //   appId: social,
@@ -5917,7 +5917,7 @@ initMeta:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1076-1084
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1077-1085
     // initMeta(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -5937,7 +5937,7 @@ initMeta:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.setMetaWallet[routing]() -> void:
 setMetaWallet:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1116-1119
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1117-1120
     // setMetaWallet(
     //   wallet: Application,
     //   rekeyBack: boolean
@@ -5958,17 +5958,17 @@ setMetaWallet:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1120
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1121
     // const sender = getControlledSpendingAccount(wallet)
     dig 1
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1122
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1123
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1122
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1123
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -5977,11 +5977,11 @@ setMetaWallet:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1122
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1123
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1124-1129
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1125-1130
     // abiCall<typeof AkitaSocial.prototype.setMetaWallet>({
     //   sender,
     //   appId: social,
@@ -5989,7 +5989,7 @@ setMetaWallet:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1129
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 3
@@ -5997,7 +5997,7 @@ setMetaWallet:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1124-1129
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1125-1130
     // abiCall<typeof AkitaSocial.prototype.setMetaWallet>({
     //   sender,
     //   appId: social,
@@ -6012,7 +6012,7 @@ setMetaWallet:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1116-1119
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1117-1120
     // setMetaWallet(
     //   wallet: Application,
     //   rekeyBack: boolean
@@ -6023,7 +6023,7 @@ setMetaWallet:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.updateMeta[routing]() -> void:
 updateMeta:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1132-1141
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1133-1142
     // updateMeta(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6095,18 +6095,18 @@ updateMeta:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1144
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1145
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1146
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1145
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1146
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -6115,19 +6115,19 @@ updateMeta:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1145
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1146
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1148
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1149
     // let wallMbr: uint64 = 0
     intc_0 // 0
     cover 11
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1149
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1150
     // if (addressGateID !== 0) {
     bz updateMeta_after_if_else@6
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1150-1154
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1151-1155
     // const wallExists = abiCall<typeof AkitaSocial.prototype.getPostExists>({
     //   sender,
     //   appId: social,
@@ -6162,10 +6162,10 @@ updateMeta:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1155
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1156
     // if (!wallExists) {
     bnz updateMeta_after_if_else@6
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1156
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1157
     // wallMbr = this.mbr(op.bzero(0), '', Bytes('')).posts
     intc_0 // 0
     bzero
@@ -6177,7 +6177,7 @@ updateMeta:
     bury 11
 
 updateMeta_after_if_else@6:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160-1177
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1161-1178
     // abiCall<typeof AkitaSocial.prototype.updateMeta>({
     //   sender,
     //   appId: social,
@@ -6197,7 +6197,7 @@ updateMeta_after_if_else@6:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1166
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1167
     // receiver: Application(social).address,
     dup
     app_params_get AppAddress
@@ -6208,7 +6208,7 @@ updateMeta_after_if_else@6:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1164-1168
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1165-1169
     // itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -6218,7 +6218,7 @@ updateMeta_after_if_else@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160-1177
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1161-1178
     // abiCall<typeof AkitaSocial.prototype.updateMeta>({
     //   sender,
     //   appId: social,
@@ -6238,7 +6238,7 @@ updateMeta_after_if_else@6:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1176
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1177
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 9
@@ -6246,7 +6246,7 @@ updateMeta_after_if_else@6:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160-1177
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1161-1178
     // abiCall<typeof AkitaSocial.prototype.updateMeta>({
     //   sender,
     //   appId: social,
@@ -6283,7 +6283,7 @@ updateMeta_after_if_else@6:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1132-1141
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1133-1142
     // updateMeta(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6300,7 +6300,7 @@ updateMeta_after_if_else@6:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.updateSubscriptionStateModifier[routing]() -> void:
 updateSubscriptionStateModifier:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1180-1185
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1181-1186
     // updateSubscriptionStateModifier(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6334,17 +6334,17 @@ updateSubscriptionStateModifier:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1186
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1187
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1187
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1188
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1187
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1188
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -6353,11 +6353,11 @@ updateSubscriptionStateModifier:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1187
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1188
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 16
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1189-1202
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1190-1203
     // abiCall<typeof AkitaSocialImpact.prototype.updateSubscriptionStateModifier>({
     //   sender,
     //   appId: impact,
@@ -6373,19 +6373,19 @@ updateSubscriptionStateModifier:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1195
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1196
     // receiver: Application(impact).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1196
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1197
     // amount: SubscriptionStateModifierMBR
     intc 4 // 9300
     itxn_field Amount
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1193-1197
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1194-1198
     // itxn.payment({
     //   sender,
     //   receiver: Application(impact).address,
@@ -6395,7 +6395,7 @@ updateSubscriptionStateModifier:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1189-1202
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1190-1203
     // abiCall<typeof AkitaSocialImpact.prototype.updateSubscriptionStateModifier>({
     //   sender,
     //   appId: impact,
@@ -6411,7 +6411,7 @@ updateSubscriptionStateModifier:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1201
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1202
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -6419,7 +6419,7 @@ updateSubscriptionStateModifier:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1189-1202
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1190-1203
     // abiCall<typeof AkitaSocialImpact.prototype.updateSubscriptionStateModifier>({
     //   sender,
     //   appId: impact,
@@ -6444,7 +6444,7 @@ updateSubscriptionStateModifier:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1180-1185
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1181-1186
     // updateSubscriptionStateModifier(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6457,7 +6457,7 @@ updateSubscriptionStateModifier:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.commitStakingImpact[routing]() -> void:
 commitStakingImpact:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1205-1210
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1206-1211
     // commitStakingImpact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6491,17 +6491,17 @@ commitStakingImpact:
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1211
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1212
     // const sender = getControlledSpendingAccount(wallet)
     dig 3
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1212
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1213
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1212
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1213
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -6510,11 +6510,11 @@ commitStakingImpact:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1212
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1213
     // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     pushint 16
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1215-1219
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1216-1220
     // const cost = abiCall<typeof AkitaSocialImpact.prototype.stakingImpactCost>({
     //   sender,
     //   appId: impactApp,
@@ -6548,7 +6548,7 @@ commitStakingImpact:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1221-1234
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1222-1235
     // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
     //   sender,
     //   appId: impactApp,
@@ -6564,7 +6564,7 @@ commitStakingImpact:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1227
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1228
     // receiver: impactApp.address,
     dig 1
     app_params_get AppAddress
@@ -6573,7 +6573,7 @@ commitStakingImpact:
     itxn_field Amount
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1225-1229
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1226-1230
     // itxn.payment({
     //   sender,
     //   receiver: impactApp.address,
@@ -6583,7 +6583,7 @@ commitStakingImpact:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1221-1234
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1222-1235
     // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
     //   sender,
     //   appId: impactApp,
@@ -6599,7 +6599,7 @@ commitStakingImpact:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1233
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1234
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -6607,7 +6607,7 @@ commitStakingImpact:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1221-1234
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1222-1235
     // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
     //   sender,
     //   appId: impactApp,
@@ -6632,7 +6632,7 @@ commitStakingImpact:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1205-1210
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1206-1211
     // commitStakingImpact(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6645,7 +6645,7 @@ commitStakingImpact:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.registerRefType[routing]() -> void:
 registerRefType:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1237-1242
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1238-1243
     // registerRefType(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6691,17 +6691,17 @@ registerRefType:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     dup
     extract 2 0
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1243
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1244
     // const sender = getControlledSpendingAccount(wallet)
     dig 5
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1244
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1245
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1244
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1245
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -6710,11 +6710,11 @@ registerRefType:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1244
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1245
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1246-1259
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1247-1260
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6730,12 +6730,12 @@ registerRefType:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1252
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1253
     // receiver: Application(social).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1253
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1254
     // amount: this.mbr(Bytes(''), name, schema).refTypes
     bytec_2 // ""
     uncover 6
@@ -6747,7 +6747,7 @@ registerRefType:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1250-1254
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1251-1255
     // itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -6757,7 +6757,7 @@ registerRefType:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1246-1259
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1247-1260
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6773,7 +6773,7 @@ registerRefType:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1258
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1259
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -6781,7 +6781,7 @@ registerRefType:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1246-1259
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1247-1260
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6819,7 +6819,7 @@ registerRefType:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1237-1242
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1238-1243
     // registerRefType(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -7110,21 +7110,21 @@ checkTipMbrRequirements_after_if_else@6:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.refKey(type: uint64, ref: bytes) -> bytes:
 refKey:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:49
     // private refKey(type: uint64, ref: bytes): bytes<32> {
     proto 2 1
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:51
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:52
     // case RefTypePost:
     frame_dig -2
     intc_1 // 1
     ==
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:51-54
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:52-55
     // case RefTypePost:
     //   loggedAssert(ref.length === 32, errInvalidRefLength)
     //   refBytes = ref.toFixed({ length: 32 })
     //   break
     bz refKey_after_if_else@5
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:53
     // loggedAssert(ref.length === 32, errInvalidRefLength)
     frame_dig -1
     len
@@ -7137,28 +7137,28 @@ refKey:
     err // ERR:errIrfl
 
 refKey_after_assert@4:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:53
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:54
     // refBytes = ref.toFixed({ length: 32 })
     assert // Length must be 32
     frame_dig -1
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:75
     // return refBytes
     retsub
 
 refKey_after_if_else@5:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:55
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:56
     // case RefTypeAsset:
     frame_dig -2
     pushint 2
     ==
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:55-59
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:56-60
     // case RefTypeAsset:
     //   loggedAssert(ref.length === 8, errInvalidRefLength)
     //   loggedAssert(Asset(btoi(ref)).total > 0, errInvalidAsset)
     //   refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
     //   break
     bz refKey_after_if_else@12
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:56
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:57
     // loggedAssert(ref.length === 8, errInvalidRefLength)
     frame_dig -1
     len
@@ -7170,7 +7170,7 @@ refKey_after_if_else@5:
     err // ERR:errIrfl
 
 refKey_after_assert@9:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:57
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:58
     // loggedAssert(Asset(btoi(ref)).total > 0, errInvalidAsset)
     frame_dig -1
     btoi
@@ -7182,7 +7182,7 @@ refKey_after_assert@9:
     err // ERR:errIast
 
 refKey_after_assert@11:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:59
     // refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
     pushint 24
     bzero
@@ -7194,23 +7194,23 @@ refKey_after_assert@11:
     pushint 32
     ==
     assert // Length must be 32
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:75
     // return refBytes
     retsub
 
 refKey_after_if_else@12:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:60
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:61
     // case RefTypeAddress:
     frame_dig -2
     pushint 3
     ==
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:60-63
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:61-64
     // case RefTypeAddress:
     //   loggedAssert(ref.length === 32, errInvalidRefLength)
     //   refBytes = ref.toFixed({ length: 32 })
     //   break
     bz refKey_after_if_else@17
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:61
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:62
     // loggedAssert(ref.length === 32, errInvalidRefLength)
     frame_dig -1
     len
@@ -7223,28 +7223,28 @@ refKey_after_if_else@12:
     err // ERR:errIrfl
 
 refKey_after_assert@16:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:62
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:63
     // refBytes = ref.toFixed({ length: 32 })
     assert // Length must be 32
     frame_dig -1
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:75
     // return refBytes
     retsub
 
 refKey_after_if_else@17:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:64
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:65
     // case RefTypeApp:
     frame_dig -2
     pushint 4
     ==
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:64-68
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:65-69
     // case RefTypeApp:
     //   loggedAssert(ref.length === 8, errInvalidRefLength)
     //   loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, errInvalidApp)
     //   refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
     //   break
     bz refKey_after_if_else@24
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:65
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:66
     // loggedAssert(ref.length === 8, errInvalidRefLength)
     frame_dig -1
     len
@@ -7256,7 +7256,7 @@ refKey_after_if_else@17:
     err // ERR:errIrfl
 
 refKey_after_assert@21:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:66
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:67
     // loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, errInvalidApp)
     frame_dig -1
     btoi
@@ -7269,7 +7269,7 @@ refKey_after_assert@21:
     err // ERR:errIapp
 
 refKey_after_assert@23:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:67
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:68
     // refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
     pushint 24
     bzero
@@ -7281,38 +7281,38 @@ refKey_after_assert@23:
     pushint 32
     ==
     assert // Length must be 32
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:75
     // return refBytes
     retsub
 
 refKey_after_if_else@24:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:72
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:73
     // refBytes = op.sha256(itob(type).concat(ref))
     frame_dig -2
     itob
     frame_dig -1
     concat
     sha256
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:75
     // return refBytes
     retsub
 
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.getCreatorDetails(type: uint64, sender: bytes, ref: bytes) -> bytes:
 getCreatorDetails:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:77
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:78
     // private getCreatorDetails(type: uint64, sender: Account, ref: bytes<32>): { postExists: boolean, creator: Account, creatorWallet: uint64, gateID: uint64 } {
     proto 3 1
     intc_0 // 0
     bytec_2 // ""
     dup
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:78
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:79
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:78
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:79
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -7321,34 +7321,34 @@ getCreatorDetails:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:78
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:79
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:80
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:81
     // let creator = Global.zeroAddress
     global ZeroAddress
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:82
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:83
     // let gateID: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:84
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:85
     // let postMustExist = type === RefTypePost
     frame_dig -3
     intc_1 // 1
     ==
     dup
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:88
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:89
     // if (!postMustExist) {
     bz getCreatorDetails_if_body@1
 
 getCreatorDetails_after_if_else@3:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:97
     // if (postExists) {
     dup
     bz getCreatorDetails_else_body@6
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:97-101
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:98-102
     // ({ creator, gateID } = abiCall<typeof AkitaSocial.prototype.getPost>({
     //   sender,
     //   appId: social,
@@ -7403,7 +7403,7 @@ getCreatorDetails_after_if_else@3:
     frame_bury 4
 
 getCreatorDetails_after_if_else@15:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:113-117
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:114-118
     // const metaExists = abiCall<typeof AkitaSocial.prototype.getMetaExists>({
     //   sender,
     //   appId: social,
@@ -7438,10 +7438,10 @@ getCreatorDetails_after_if_else@15:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:119
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:120
     // if (!metaExists) {
     bnz getCreatorDetails_after_if_else@18
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:120
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:121
     // return { postExists, creator, creatorWallet, gateID };
     bytec 9 // 0x00
     intc_0 // 0
@@ -7449,10 +7449,10 @@ getCreatorDetails_after_if_else@15:
     setbit
     frame_dig 3
     concat
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:81
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:82
     // let creatorWallet: uint64 = 0
     intc_0 // 0
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:120
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:121
     // return { postExists, creator, creatorWallet, gateID };
     itob
     concat
@@ -7463,7 +7463,7 @@ getCreatorDetails_after_if_else@15:
     retsub
 
 getCreatorDetails_after_if_else@18:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:123-127
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:124-128
     // const meta = abiCall<typeof AkitaSocial.prototype.getMeta>({
     //   sender,
     //   appId: social,
@@ -7497,13 +7497,13 @@ getCreatorDetails_after_if_else@18:
     pushint 74
     ==
     assert // invalid number of bytes for smart_contracts/social/types.ts::MetaValue
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:129
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:130
     // creatorWallet = tipWallet(this.akitaDAO.value, creator, meta.wallet)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:129
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:130
     // creatorWallet = tipWallet(this.akitaDAO.value, creator, meta.wallet)
     app_global_get_ex
     assert // check GlobalState exists
@@ -7549,7 +7549,7 @@ getCreatorDetails_if_body@31:
     swap
 
 getCreatorDetails_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@36:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:132
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:133
     // if (postExists && ref === creator.bytes && meta.addressGateID !== 0) {
     dup
     bz getCreatorDetails_after_if_else@23
@@ -7567,7 +7567,7 @@ getCreatorDetails_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor
     frame_bury 4
 
 getCreatorDetails_after_if_else@23:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:136
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:137
     // return { postExists, creator, creatorWallet, gateID };
     bytec 9 // 0x00
     intc_0 // 0
@@ -7664,7 +7664,7 @@ getCreatorDetails_after_if_else@29:
     b getCreatorDetails_after_inlined_smart_contracts/utils/principal.ts::ownsAtRest@30
 
 getCreatorDetails_else_body@6:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:104
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:105
     // if (type === RefTypeAddress) {
     frame_dig -3
     pushint 3
@@ -7675,13 +7675,13 @@ getCreatorDetails_else_body@6:
     b getCreatorDetails_after_if_else@15
 
 getCreatorDetails_else_body@8:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:106
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:107
     // } else if (type === RefTypeAsset) {
     frame_dig -3
     pushint 2
     ==
     bz getCreatorDetails_else_body@10
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:107
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:108
     // creator = Asset(op.btoi(ref.slice(0, 8))).creator
     frame_dig -1
     substring 0 8
@@ -7693,13 +7693,13 @@ getCreatorDetails_else_body@8:
     b getCreatorDetails_after_if_else@15
 
 getCreatorDetails_else_body@10:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:108
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:109
     // } else if (type === RefTypeApp) {
     frame_dig -3
     pushint 4
     ==
     bz getCreatorDetails_after_if_else@15
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:109
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:110
     // creator = Application(op.btoi(ref.slice(0, 8))).creator
     frame_dig -1
     substring 0 8
@@ -7712,14 +7712,14 @@ getCreatorDetails_else_body@10:
 
 getCreatorDetails_if_body@1:
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:89-93
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:90-94
     // postExists = abiCall<typeof AkitaSocial.prototype.getPostExists>({
     //   sender,
     //   appId: social,
     //   args: [ref.toFixed({ length: 32 })]
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:93
     // args: [ref.toFixed({ length: 32 })]
     frame_dig -1
     len
@@ -7730,7 +7730,7 @@ getCreatorDetails_if_body@1:
     itxn_field ApplicationID
     frame_dig -2
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:89-93
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:90-94
     // postExists = abiCall<typeof AkitaSocial.prototype.getPostExists>({
     //   sender,
     //   appId: social,
@@ -7765,18 +7765,18 @@ getCreatorDetails_if_body@1:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.referralQuote(wallet: uint64) -> uint64:
 referralQuote:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:142
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
     // private referralQuote(wallet: Application): uint64 {
     proto 1 1
     bytec_2 // ""
     dupn 2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     swap
@@ -7803,13 +7803,13 @@ referralQuote:
     global ZeroAddress
 
 referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     app_global_get_ex
     assert // check GlobalState exists
@@ -7818,7 +7818,7 @@ referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
     bytec 4 // "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     intc_0 // 0
     extract_uint64
@@ -7834,7 +7834,7 @@ referralQuote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
     intc_0 // 0
 
 referralQuote_after_inlined_smart_contracts/utils/functions.ts::referralFeeTo@16:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     frame_bury 0
     retsub
@@ -7876,7 +7876,7 @@ referralQuote_after_if_else@12:
 
 referralQuote_after_if_else@15:
     frame_dig 1
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:144
     // return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
     b referralQuote_after_inlined_smart_contracts/utils/functions.ts::referralFeeTo@16
 
@@ -7910,22 +7910,22 @@ referralQuote_ternary_false@6:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.tipReferralQuote(wallet: uint64, creator: bytes) -> uint64:
 tipReferralQuote:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:148
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:149
     // private tipReferralQuote(wallet: Application, creator: Account): uint64 {
     proto 2 1
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:149
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:150
     // if (creator === Global.zeroAddress) {
     frame_dig -1
     global ZeroAddress
     ==
     bz tipReferralQuote_after_if_else@2
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:150
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:151
     // return 0
     intc_0 // 0
     retsub
 
 tipReferralQuote_after_if_else@2:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:152
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:153
     // return this.referralQuote(wallet)
     frame_dig -2
     callsub referralQuote
@@ -7934,17 +7934,17 @@ tipReferralQuote_after_if_else@2:
 
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.gateCtxArg(wallet: uint64) -> bytes:
 gateCtxArg:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:157
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:158
     // private gateCtxArg(wallet: Application): bytes {
     proto 1 1
     intc_0 // 0
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:158
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:159
     // return encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet)))
     dupn 2
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:158
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:159
     // return encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet)))
     app_global_get_ex
     assert // check GlobalState exists
@@ -8068,7 +8068,7 @@ gateCtxArg_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx
     concat
     swap
     concat
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:158
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:159
     // return encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet)))
     frame_bury 0
     retsub

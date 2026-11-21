@@ -1,6 +1,6 @@
 import { Application, Asset, Global, itxn, uint64, loggedAssert, Contract, op } from "@algorandfoundation/algorand-typescript";
 import { errAlreadyOptedIn, errNotOptedIn, errInvalidAssetAmount } from "./errors";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 
 export class SelfOptInPlugin extends Contract {
 

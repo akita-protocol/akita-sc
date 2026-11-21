@@ -21,7 +21,7 @@ import { abiCall, abimethod, decodeArc4, encodeArc4, methodSelector } from '@alg
 import type { Meta } from '../../../meta/contract.algo'
 import { MaxAppCallArgumentBytes, PluginRecordArgumentBytes, MaxRecordKeyBytes } from '../../../meta/constants'
 import { SchemaList } from '../../../meta/types'
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import {
   errRecordNamesTooLong,
   errInvalidNamespace,

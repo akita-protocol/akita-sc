@@ -12,7 +12,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { bzero } from '@algorandfoundation/algorand-typescript/op'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import type { CID } from '../../../utils/types/base'
 import type { FundsRequest } from '../../account/types'
 import { GuildGlobalStateKeyConsensus } from '../../guilds/core/constants'

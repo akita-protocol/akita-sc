@@ -290,6 +290,29 @@ dynamic_array_read_byte_length_element:
     retsub
 
 
+// @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
 // smart_contracts/meta/functions.ts::metaRecordKey(account: bytes, key: bytes) -> bytes:
 metaRecordKey:
     // smart_contracts/meta/functions.ts:10
@@ -363,17 +386,17 @@ policyRecordKey:
 
 // smart_contracts/utils/base-contracts/grant-policy.ts::grantInfo(wallet: uint64, plugin: uint64, caller: bytes, escrow: bytes) -> bytes:
 grantInfo:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:36
+    // smart_contracts/utils/base-contracts/grant-policy.ts:37
     // export function grantInfo(wallet: Application, plugin: uint64, caller: Account, escrow: string): PluginInfo {
     proto 4 1
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
     //   fee: 0,
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/base-contracts/grant-policy.ts:39
+    // smart_contracts/utils/base-contracts/grant-policy.ts:40
     // args: [[{ plugin, caller, escrow }]],
     frame_dig -3
     itob
@@ -395,7 +418,7 @@ grantInfo:
     concat
     frame_dig -4
     itxn_field ApplicationID
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -406,11 +429,11 @@ grantInfo:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/utils/base-contracts/grant-policy.ts:40
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -439,7 +462,7 @@ grantInfo:
     intc_0 // 0
 
 grantInfo_for_header@2:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -490,7 +513,7 @@ grantInfo_for_header@2:
 
 grantInfo_after_for@5:
     pop
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -515,31 +538,8 @@ grantInfo_after_for@5:
     -
     select
     substring3
-    // smart_contracts/utils/base-contracts/grant-policy.ts:42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:43
     // return infos[0]
-    retsub
-
-
-// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
-rekeyAddress:
-    // smart_contracts/utils/functions.ts:546
-    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
-    proto 2 1
-    // smart_contracts/utils/functions.ts:547
-    // if (!rekeyBack) {
-    frame_dig -2
-    bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:548
-    // return Global.zeroAddress
-    global ZeroAddress
-    retsub
-
-rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:551
-    // return wallet.address
-    frame_dig -1
-    app_params_get AppAddress
-    assert // application exists
     retsub
 
 
@@ -563,7 +563,7 @@ create:
     err // ERR:errMreg
 
 create_after_assert@3:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:74
@@ -671,7 +671,7 @@ configurePolicy:
     // this.requireAdmin(wallet)
     dig 3
     callsub requireAdmin
-    // smart_contracts/utils/base-contracts/grant-policy.ts:47
+    // smart_contracts/utils/base-contracts/grant-policy.ts:48
     // return grantInfo(wallet, plugin, caller, escrow).start
     callsub grantInfo
     pushint 36
@@ -711,21 +711,21 @@ configurePolicy_after_if_else@7:
     itob
     uncover 2
     concat
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     uncover 4
     dup
     cover 3
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -751,7 +751,7 @@ configurePolicy_after_if_else@7:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:139
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:139
@@ -996,19 +996,19 @@ clearPolicy:
     extract 6 2
     swap
     concat
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1016,7 +1016,7 @@ clearPolicy:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:163
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:163
@@ -1234,19 +1234,19 @@ set_after_assert@3:
     dup
     cover 5
     callsub requireScope
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1274,7 +1274,7 @@ set_after_assert@3:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:216
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:216
@@ -1371,7 +1371,7 @@ set_after_assert@3:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:221
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:221
@@ -1507,19 +1507,19 @@ remove:
     dig 3
     dig 3
     callsub requireScope
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 4
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1545,7 +1545,7 @@ remove:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:243
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:243
@@ -1653,19 +1653,19 @@ addRoot:
     dig 5
     uncover 3
     callsub requireRootScope
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 4
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1674,7 +1674,7 @@ addRoot:
     // const cost = abiCall<typeof Meta.prototype.rootCosts>({ appId: this.registry.value, args: [namespace] }).returnValue
     itxn_begin
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:260
@@ -1831,19 +1831,19 @@ updateRoot:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1851,7 +1851,7 @@ updateRoot:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:278
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:278
@@ -1931,19 +1931,19 @@ deleteRoot:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -1951,7 +1951,7 @@ deleteRoot:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:288
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:288
@@ -2044,19 +2044,19 @@ addData:
     uncover 4
     uncover 3
     callsub requireScope
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 4
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -2070,7 +2070,7 @@ addData:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:298
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:298
@@ -2243,19 +2243,19 @@ deleteData:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -2263,7 +2263,7 @@ deleteData:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:318
     // appId: this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:318
@@ -2385,20 +2385,20 @@ addType_bool_merge@5:
     err // ERR:errMtsc
 
 addType_after_assert@7:
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     uncover 3
     dup
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
@@ -2417,7 +2417,7 @@ addType_after_assert@7:
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:333
     // itxn.payment({ sender, receiver: this.registry.value.address, amount: 100_000_000, fee: 0 }),
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
     // smart_contracts/arc58/plugins/meta/contract.algo.ts:333
@@ -2516,20 +2516,20 @@ scope:
     retsub
 
 scope_after_if_else@2:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:131
+    // smart_contracts/utils/base-contracts/grant-policy.ts:132
     // this.registry.value,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:93
+    // smart_contracts/utils/base-contracts/grant-policy.ts:94
     // public registry = GlobalState<Application>({ key: 'registry' })
     bytec_1 // "registry"
-    // smart_contracts/utils/base-contracts/grant-policy.ts:131
+    // smart_contracts/utils/base-contracts/grant-policy.ts:132
     // this.registry.value,
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check GlobalState exists
-    // smart_contracts/utils/base-contracts/grant-policy.ts:66
+    // smart_contracts/utils/base-contracts/grant-policy.ts:67
     // const [controlled] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysControlledAddress))
     frame_dig -1
     pushbytes "controlled_address"
@@ -2537,7 +2537,7 @@ scope_after_if_else@2:
     pop
     dup
     frame_bury 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:133
+    // smart_contracts/utils/base-contracts/grant-policy.ts:134
     // policyRecordKey(grant.key.plugin, grant.key.caller, grant.key.escrow),
     uncover 4
     dup
@@ -2588,7 +2588,7 @@ scope_after_inlined_smart_contracts/meta/functions.ts::readMetaRecordInfo@17:
     pushbytes 0x000000000000000000000b0000
 
 scope_after_inlined_smart_contracts/meta/functions.ts::readMetaRecord@22:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:135
+    // smart_contracts/utils/base-contracts/grant-policy.ts:136
     // loggedAssert(record.exists && record.data.length >= GrantPolicyHeaderBytes, errPolicyMissing)
     dup
     intc_0 // 0
@@ -2608,7 +2608,7 @@ scope_after_inlined_smart_contracts/meta/functions.ts::readMetaRecord@22:
     intc_1 // 1
 
 scope_bool_merge@7:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:135
+    // smart_contracts/utils/base-contracts/grant-policy.ts:136
     // loggedAssert(record.exists && record.data.length >= GrantPolicyHeaderBytes, errPolicyMissing)
     bnz scope_after_assert@9
     pushbytes "ERR:errGpms"
@@ -2616,7 +2616,7 @@ scope_bool_merge@7:
     err // ERR:errGpms
 
 scope_after_assert@9:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:136
+    // smart_contracts/utils/base-contracts/grant-policy.ts:137
     // loggedAssert(op.extractUint64(record.data, 0) === grant.start, errPolicyStale)
     dup
     pushint 9
@@ -2638,7 +2638,7 @@ scope_after_assert@9:
     err // ERR:errGpst
 
 scope_after_assert@11:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:137
+    // smart_contracts/utils/base-contracts/grant-policy.ts:138
     // return record.data.slice(GrantPolicyHeaderBytes)
     dup
     len
@@ -2710,7 +2710,7 @@ scope_after_assert@21:
     concat
     swap
     concat
-    // smart_contracts/utils/base-contracts/grant-policy.ts:130-134
+    // smart_contracts/utils/base-contracts/grant-policy.ts:131-135
     // const record = readMetaRecord(
     //   this.registry.value,
     //   policyOwner(wallet),
@@ -2947,7 +2947,7 @@ requireAdmin:
     // const grant = this.grant(wallet)
     frame_dig -1
     callsub grant
-    // smart_contracts/utils/base-contracts/grant-policy.ts:59
+    // smart_contracts/utils/base-contracts/grant-policy.ts:60
     // if (key.escrow !== '') return false
     dup
     intc_0 // 0
@@ -2980,7 +2980,7 @@ requireAdmin_after_assert@2:
     retsub
 
 requireAdmin_after_if_else@5:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:60
+    // smart_contracts/utils/base-contracts/grant-policy.ts:61
     // if (key.caller === wallet.address) return true
     frame_dig 1
     extract 8 32
@@ -2997,7 +2997,7 @@ requireAdmin_after_if_else@5:
     b requireAdmin_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@12
 
 requireAdmin_after_if_else@7:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:61
+    // smart_contracts/utils/base-contracts/grant-policy.ts:62
     // return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
     frame_dig 0
     global ZeroAddress
@@ -3366,7 +3366,7 @@ requireRootScope_bool_false@5:
 
 // smart_contracts/utils/base-contracts/grant-policy.ts::GrantPolicyPlugin.grant(wallet: uint64) -> bytes:
 grant:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:99
+    // smart_contracts/utils/base-contracts/grant-policy.ts:100
     // protected grant(wallet: Application): GrantContext {
     proto 1 1
     // smart_contracts/utils/functions.ts:525-528
@@ -3386,7 +3386,7 @@ grant:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/base-contracts/grant-policy.ts:101
+    // smart_contracts/utils/base-contracts/grant-policy.ts:102
     // loggedAssert(index < Txn.groupIndex, errGrantContext)
     txn GroupIndex
     <
@@ -3396,7 +3396,7 @@ grant:
     err // ERR:errGctx
 
 grant_after_assert@2:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:102
+    // smart_contracts/utils/base-contracts/grant-policy.ts:103
     // const rekey = gtxn.ApplicationCallTxn(index)
     frame_dig 0
     dup
@@ -3404,33 +3404,33 @@ grant_after_assert@2:
     pushint 6 // appl
     ==
     assert // transaction type is appl
-    // smart_contracts/utils/base-contracts/grant-policy.ts:104
+    // smart_contracts/utils/base-contracts/grant-policy.ts:105
     // rekey.appId === wallet &&
     gtxns ApplicationID
     frame_dig -1
     ==
-    // smart_contracts/utils/base-contracts/grant-policy.ts:104-105
+    // smart_contracts/utils/base-contracts/grant-policy.ts:105-106
     // rekey.appId === wallet &&
     // rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
     bz grant_bool_false@6
-    // smart_contracts/utils/base-contracts/grant-policy.ts:105
+    // smart_contracts/utils/base-contracts/grant-policy.ts:106
     // rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
     frame_dig 0
     gtxnsa ApplicationArgs 0
     pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     ==
-    // smart_contracts/utils/base-contracts/grant-policy.ts:104-105
+    // smart_contracts/utils/base-contracts/grant-policy.ts:105-106
     // rekey.appId === wallet &&
     // rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
     bz grant_bool_false@6
-    // smart_contracts/utils/base-contracts/grant-policy.ts:106
+    // smart_contracts/utils/base-contracts/grant-policy.ts:107
     // op.btoi(rekey.appArgs(1)) === Global.currentApplicationId.id,
     frame_dig 0
     gtxnsa ApplicationArgs 1
     btoi
     global CurrentApplicationID
     ==
-    // smart_contracts/utils/base-contracts/grant-policy.ts:104-106
+    // smart_contracts/utils/base-contracts/grant-policy.ts:105-107
     // rekey.appId === wallet &&
     // rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
     // op.btoi(rekey.appArgs(1)) === Global.currentApplicationId.id,
@@ -3438,7 +3438,7 @@ grant_after_assert@2:
     intc_1 // 1
 
 grant_bool_merge@7:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:103-108
+    // smart_contracts/utils/base-contracts/grant-policy.ts:104-109
     // loggedAssert(
     //   rekey.appId === wallet &&
     //   rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
@@ -3451,12 +3451,12 @@ grant_bool_merge@7:
     err // ERR:errGctx
 
 grant_after_assert@9:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:109
+    // smart_contracts/utils/base-contracts/grant-policy.ts:110
     // const [value, exists] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysCurrentPlugin))
     frame_dig -1
     pushbytes "current_plugin"
     app_global_get_ex
-    // smart_contracts/utils/base-contracts/grant-policy.ts:110
+    // smart_contracts/utils/base-contracts/grant-policy.ts:111
     // loggedAssert(exists, errGrantContext)
     bnz grant_after_assert@11
     bytec 4 // "ERR:errGctx"
@@ -3464,7 +3464,7 @@ grant_after_assert@9:
     err // ERR:errGctx
 
 grant_after_assert@11:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:112
+    // smart_contracts/utils/base-contracts/grant-policy.ts:113
     // loggedAssert(key.plugin === Global.currentApplicationId.id, errGrantContext)
     dup
     intc_0 // 0
@@ -3479,23 +3479,23 @@ grant_after_assert@11:
     err // ERR:errGctx
 
 grant_after_assert@13:
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_3 // "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/grant-policy.ts:113
+    // smart_contracts/utils/base-contracts/grant-policy.ts:114
     // loggedAssert(getSpendingAccount(wallet).authAddress === Global.currentApplicationAddress, errGrantContext)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -3507,7 +3507,7 @@ grant_after_assert@13:
     err // ERR:errGctx
 
 grant_after_assert@15:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:115
+    // smart_contracts/utils/base-contracts/grant-policy.ts:116
     // const start = grantStart(wallet, key.plugin, key.caller, key.escrow)
     dupn 2
     extract 8 32
@@ -3520,7 +3520,7 @@ grant_after_assert@15:
     cover 2
     substring3
     extract 2 0
-    // smart_contracts/utils/base-contracts/grant-policy.ts:47
+    // smart_contracts/utils/base-contracts/grant-policy.ts:48
     // return grantInfo(wallet, plugin, caller, escrow).start
     frame_dig -1
     uncover 4
@@ -3530,7 +3530,7 @@ grant_after_assert@15:
     pushint 36
     extract_uint64
     dup
-    // smart_contracts/utils/base-contracts/grant-policy.ts:116
+    // smart_contracts/utils/base-contracts/grant-policy.ts:117
     // loggedAssert(start !== 0, errGrantContext)
     bnz grant_after_assert@17
     bytec 4 // "ERR:errGctx"
@@ -3538,7 +3538,7 @@ grant_after_assert@15:
     err // ERR:errGctx
 
 grant_after_assert@17:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:117
+    // smart_contracts/utils/base-contracts/grant-policy.ts:118
     // return { key, start }
     itob
     pushbytes 0x000a

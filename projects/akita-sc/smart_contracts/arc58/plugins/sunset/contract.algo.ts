@@ -1,6 +1,6 @@
 import { Account, Application, Asset, bytes, Contract, OnCompleteAction } from "@algorandfoundation/algorand-typescript"
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import { SunsetContract } from "../../../sunset/contract.algo"
 import { AssetCloseParams } from "../../../sunset/types"
 

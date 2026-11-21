@@ -4,7 +4,8 @@ import { GateMustCheckAbiMethod } from "../../../gates/constants";
 import { GateArgs } from "../../../gates/types";
 import { PollGlobalStateKeyGateID, votesMBR } from "../../../poll/constants";
 import { PollType } from "../../../poll/types";
-import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
+import { getAkitaAppList } from "../../../utils/functions";
 import { PollPluginGlobalStateKeyFactory } from "./constant";
 import { errCreatorNotPollFactory } from "./errors";
 

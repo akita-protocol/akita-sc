@@ -1,12 +1,13 @@
 {
   "version": 3,
   "sources": [
+    "../../../../../../../node_modules/@akita-protocol/plugin/functions.ts",
     "../../../../arc58/plugins/marketplace/contract.algo.ts",
     "../../../../utils/base-contracts/upgradeable.ts",
     "../../../../utils/functions.ts",
     "../../../../utils/principal.ts"
   ],
-  "mappings": "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",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACoBA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;AAAA;ACSE;AAAA;ADTF;;;;;;AAAA;;;AAAA;;;;AAAA;ADgBA;;;AAlBiC;;AAEvB;;AAFuB;AAAA;AAAA;AAoBlB;;AAAA;AAAuB;;AAAvB;AAAb;;;AAAA;;AAAA;AAAA;AACA;AAuGF;;;AACM;;AAAA;;;AACK;;AAAP;AAEK;;AAAA;;AAAA;AAAP;AI9CF;;;;AACM;;AAAA;;;AAAA;;AAAA;;;AACK;AAAP;AAAA;AAEwB;;AAAA;;AAAA;AAAA;;AACnB;;;AAhC4C;;AAAA;AAAhB;;;;;;;AAAN;AAAA;AAAd;AAgCE;;AAAA;AAAV;;;;AAAP;AAAA;;;;;AAqMF;;;AACsB;;AAAA;;;AAAqB;;AAAA;;;AAAmB;;AAAA;;;AAArD;;AAAA;AAAA;AAAA;AAAP;;AAAA;AD6oBF;;;;;AA/uByB;;AAAwC;AAAxC;AAAA;AAgvBQ;;AAAA;AAAA;ACxnBlB;;AAAA;AAAA;;;AAAb;;;AAAA;;AAAA;AAAA;AACmC;;AAAsC;;AAAtC;AAAA;AAAA;;AACtB;;;AAAkB;;AAAA;AAAoB;;AAApB;AAAlB;;;;AAAb;;;AAAA;;AAAA;AAAA;AAnPe;;AAAA;;AAAA;AAqPsB;;AAAxB;AAAb;;;AAAA;;AAAA;AAAA;AAKE;;AAAA;AACA;;AAAA;;AA5LF;;AAAA;;;;;AAvDU;;AAEE;AAJF;AADH;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;ADo2BP;;AAAA;ACtyBK;;AAAA;AAAA;;;AAAD;;;AAEA;;AAAA;AAAA;AAKJ;AAAA;;;AAEI;;;;;;;;;;;;;AAAA;AAAA;AAKY;AAAZ;;AACA;;AAAA;AAAJ;;;;;AAIqC;;AAAoC;;AAApC;AAAA;AAAA;;AAC7B;;;AAAkB;;AAAA;AAAoB;;AAApB;AAAlB;;;AAA4C;;AAAA;;AAAA;AAA5C;;;AAAyE;AAAA;;AAAA;AAAzE;;;AAEF;;AAAA;AAAA;AAIQ;AAAZ;AAG0C;;AAAoC;;;;;;;;;;;;;;;;;;;;AAApC;AACtC;;;AAAoB;AAAA;AAA2B;;AAA3B;AAApB;;;AAEF;;;;;;;;;;;;;AAAA;AAAA;AAjEA;AAAA;;AAAA;AAAJ;;;AACS;;AAuE+B;;AAAoC;;;;;;;;;;AAApC;AACvB;;;AAAkB;AAAA;AAAyB;;AAAzB;AAAlB;;;;;AAIJ;;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AACH;;;;AAHH;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAyIA;;;;;AAtIuB;;;;;;AAL4D;;;;;;;AAtEpD;;AAAA;;AAAA;AAAA;;AAClC;;;;;;AACK;;AAiEI;;;AA/DT;AAAA;;AAAA;AAAJ;;;AAzCe;;AAAA;;AAAA;AA0CwB;;AAA9B;;AA8DI;;;AAxGE;AAAA;;AAAA;AA4CR;;AAAA;;AA4DM;;;;;;;AHhKZ;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACfS;;;;;;;;;ADiBR;;AAAA;AANQ;AAOR;;AAAA;AChBS;ADiBT;AAAA;AAJD;AAAA;AASD;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAciB;;AAAA;;;AAAA;AAAA;;AAEF;;AAAA;;AAAA;AAAA;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AAEK;AA/BG;AA+BH;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;;AAAD;;;AACe;AAER;AAlCH;AAkCG;AAAA;;;;;;;;;;;AAFQ;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAMjB;AAMgB;;AAAA;;AAAA;;;;;;;;;AAFZ;;;AAAA;;;AAJJ;;;;;AAAA;;;;;;AAAA;;;AAAA;;;AAAA;AAcE;;AAAA;;;AAAuB;AApDnB;AAoDmB;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;;AAAD;;;AACP;AAER;AAvDH;AAuDG;AAAA;;;;;;;;;;;AAFQ;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAMjB;AAMgB;;AAAA;;AAAA;;;;;;;;;AAFZ;;;AAAA;;;AAJJ;;;;;AAAA;;;;;;AAAA;;;AAAA;;;AAAA;AAeuB;AAEhB;AA5ED;AA4EC;AAAA;;;;;;;;AAFgB;;;;;;;;;;;;AAGK;;;;AAHL;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAMlB;AAMS;;AAAA;;AAAA;;;;;;;;;AAFZ;;;AAAA;;;AAKA;AAEiB;AAAA;;AAAA;;;;;;;;;;;;;;;AAFjB;;;;AAAA;;;AATG;AA0BI;;AAAA;;AAAA;;;;;;;;;AA1BJ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AA2BA;;;AA3BA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAnET;AAAA;AAAA;AAAA;AAAA;AAAA;AAkGA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAWiB;AAAA;;;AAAA;AAAA;;AAEe;ACrIrB;ADqIqB;AAAA;AE0gBzB;;AAAA;;AAAA;AAjdgB;AAAwC;AAAxC;AAAA;AAidiB;;AAAA;AAAZ;;AAAA;AAArB;AAAP;AACqB;AAAwC;;;;;;;AAAxC;AAAA;AF3gBN;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AAQI;AApII;AAoIJ;AAAA;AAAA;;AAAA;AAIA;;AAAA;;;AAAuB;AAxInB;AAwImB;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;;AAAD;;;AACP;AAER;AA3IH;AA2IG;AAAA;;;;;;;;;;;AAFQ;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAMjB;AAMgB;;AAAA;;AAAA;;;;;;;;;AAFZ;;;AAAA;;;AAJJ;;;;;AAAA;;;;;;AAAA;;;AAAA;;;AAAA;AAcuB;AAGhB;AAAA;AADA;AA/JD;AA+JC;AAAA;;;;;;;;;;;AAFgB;;;;;;;;;;;;;;;AAGC;;;;;AAHD;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAMlB;AAhCH;;;;;;;;;;;;AAFY;;;;;;;;;;;AAHY;;;AAAA;;;AA0CxB;AAEY;;AAAA;;AAAA;;;;;;;;;AAFZ;;;AAAA;;;AALG;AAkBI;;AAAA;;AAAA;;;;;;;;;AAlBJ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAmBA;;;AAnBA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AApDT;AAAA;AAAA;AAAA;AAAA;AAAA;AA2EA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAQiB;;AAAA;;;AAAA;;AAEF;;AAAA;;AAAA;AAAkB;AApMvB;AAoMuB;AAAA;AAAA;;AAAA;AAAlB;AAAb;;;AAAA;;AAAA;AAAA;AAGc;;AAAsC;;;;;;;AAAtC;AAAA;AAAA;AACD;;AAAA;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AAC2B;;AAAsC;;;;;;;;;;;;;;;AAAtC;AAAA;AAAA;AAE3B;;;;AACE;AAAA;;;AACmC;ACtN5B;ADsN4B;AAAA;AExBhB;AAAwC;AAAxC;AAAA;AFwBA;;AAAA;AACF;;AAAsC;;AAAtC;AAAA;AAGK;;AAAA;;AAAA;AAAA;;AAAA;;;AAAR;;;AAAA;AAAA;AAMR;AAKJ;AAMgB;AAlOZ;AAkOY;AAAA;AAAA;AAAA;;AAAA;;;;;;;;;;;;;;AAFZ;;;AAAA;;;AAKA;AAhBA;;;;;;;;;;;;;;;;;;;;AAHY;;;AAAA;;;AAUhB;AAcW;;AAAA;;AAAA;;;;;;;;;AAdX;;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAlCN;AAAA;;;;;;;;;AAmDM;AAMgB;AAnPZ;AAmPY;AAAA;AAAA;AAAA;;AAAA;;;;;;;;;;;AAFZ;;;AAAA;;;AAJJ;AAYW;;AAAA;;AAAA;;;;;;;;;AAZX;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;;;;AAgBF;;AAAA;;;AACmC;ACvQ5B;ADuQ4B;AAAA;AEzEhB;AAAwC;AAAxC;AAAA;AFyEA;;AAAA;AACF;;AAAsC;;AAAtC;AAAA;AAGK;;AAAA;;AAAA;AAAA;;AAAA;;;AAAR;;;AAAA;AAAA;AAMR;AAKJ;AAMqB;AAnRjB;AAmRiB;AAAA;AAAA;AAAA;;AAAA;;;;;;;;;;;;;;;;AAFjB;;;;AAAA;;;AAMA;AAjBA;;;;;;;;;;;;;;;;;;;;AAHY;;;AAAA;;;AAUhB;AAeW;;AAAA;;AAAA;;;;;;;;;AAfX;;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;;;;;;;;;;;;;AAkBA;AAMqB;AArSjB;AAqSiB;AAAA;AAAA;AAAA;;AAAA;;;;;;;;;;;;;;;AAFjB;;;;AAAA;;;AAJJ;AAaW;;AAAA;;AAAA;;;;;;;;;AAbX;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;;;;AAmBN;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAMiB;AAAA;;;AAAA;AAEF;;AAAA;AAAkB;AA1TvB;AA0TuB;AAAA;AAAA;;AAAA;AAAlB;AAAb;;;AAAA;;AAAA;AAAA;AAEA;AAIW;AAAA;;AAAA;;;;;;;;;AAJX;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAVF;AAAA;AAkBA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKiB;AAAA;;;AAAA;AAEF;;AAAA;AAAkB;AA3UvB;AA2UuB;AAAA;AAAA;;AAAA;AAAlB;AAAb;;;AAAA;;AAAA;AAAA;AAEA;AAES;AA/UD;AA+UC;AAAA;AAEE;;AAAA;;AAAA;;;;;;;;;AAJX;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AATF;AAAA;ACpUA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAP+B;AAHnC;AAGmC;AAAA;AAA2B;;;;;;;;AAApD;AAAA;AAOS;;AAAA;AAAf;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AAVS;AAWT;AAAA;AAFF;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -150,6 +151,214 @@
       "op": "err"
     },
     "213": {
+      "subroutine": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
+      "params": {
+        "wallet#0": "uint64"
+      },
+      "block": "getControlledSpendingAccount",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "216": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0 (copy)"
+      ]
+    },
+    "218": {
+      "op": "bytec 4 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "220": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "221": {
+      "op": "pop",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "222": {
+      "op": "dup",
+      "defined_out": [
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "223": {
+      "op": "acct_params_get AcctAuthAddr",
+      "defined_out": [
+        "check%0#0",
+        "spendingAddressBytes#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "225": {
+      "error": "account funded",
+      "op": "assert // account funded",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "value%0#0"
+      ]
+    },
+    "226": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "tmp%1#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "value%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "228": {
+      "op": "==",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%2#0"
+      ]
+    },
+    "229": {
+      "op": "bnz getControlledSpendingAccount_after_assert@2",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "232": {
+      "op": "bytec 9 // \"ERR:errNath\"",
+      "defined_out": [
+        "\"ERR:errNath\"",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "\"ERR:errNath\""
+      ]
+    },
+    "234": {
+      "op": "log",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "235": {
+      "error": "ERR:errNath",
+      "op": "err // ERR:errNath"
+    },
+    "236": {
+      "block": "getControlledSpendingAccount_after_assert@2",
+      "stack_in": [
+        "spendingAddressBytes#0"
+      ],
+      "retsub": true,
+      "op": "retsub",
+      "defined_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "237": {
+      "subroutine": "@akita-protocol/plugin/functions.ts::rekeyAddress",
+      "params": {
+        "rekeyBack#0": "uint64",
+        "wallet#0": "uint64"
+      },
+      "block": "rekeyAddress",
+      "stack_in": [],
+      "op": "proto 2 1"
+    },
+    "240": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "rekeyBack#0 (copy)"
+      ],
+      "stack_out": [
+        "rekeyBack#0 (copy)"
+      ]
+    },
+    "242": {
+      "op": "bnz rekeyAddress_after_if_else@2",
+      "stack_out": []
+    },
+    "245": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "247": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "248": {
+      "block": "rekeyAddress_after_if_else@2",
+      "stack_in": [],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0 (copy)"
+      ]
+    },
+    "250": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "252": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "value%0#0"
+      ]
+    },
+    "253": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "254": {
       "subroutine": "smart_contracts/utils/principal.ts::isGenuineWallet",
       "params": {
         "wallet#0": "uint64",
@@ -159,13 +368,13 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "216": {
+    "257": {
       "op": "intc_0 // 0",
       "stack_out": [
         "creator#0"
       ]
     },
-    "217": {
+    "258": {
       "op": "frame_dig -2",
       "defined_out": [
         "wallet#0 (copy)"
@@ -175,13 +384,13 @@
         "wallet#0 (copy)"
       ]
     },
-    "219": {
+    "260": {
       "op": "bz isGenuineWallet_if_body@2",
       "stack_out": [
         "creator#0"
       ]
     },
-    "222": {
+    "263": {
       "op": "frame_dig -1",
       "defined_out": [
         "walletFactory#0 (copy)"
@@ -191,13 +400,13 @@
         "walletFactory#0 (copy)"
       ]
     },
-    "224": {
+    "265": {
       "op": "bnz isGenuineWallet_after_if_else@3",
       "stack_out": [
         "creator#0"
       ]
     },
-    "227": {
+    "268": {
       "block": "isGenuineWallet_if_body@2",
       "stack_in": [
         "creator#0"
@@ -211,14 +420,14 @@
         "0"
       ]
     },
-    "228": {
+    "269": {
       "op": "swap"
     },
-    "229": {
+    "270": {
       "retsub": true,
       "op": "retsub"
     },
-    "230": {
+    "271": {
       "block": "isGenuineWallet_after_if_else@3",
       "stack_in": [
         "creator#0"
@@ -232,7 +441,7 @@
         "wallet#0 (copy)"
       ]
     },
-    "232": {
+    "273": {
       "op": "app_params_get AppCreator",
       "defined_out": [
         "creator#0",
@@ -244,7 +453,7 @@
         "exists#0"
       ]
     },
-    "234": {
+    "275": {
       "op": "swap",
       "stack_out": [
         "creator#0",
@@ -252,7 +461,7 @@
         "creator#0"
       ]
     },
-    "235": {
+    "276": {
       "op": "frame_bury 0",
       "defined_out": [
         "creator#0",
@@ -263,13 +472,13 @@
         "exists#0"
       ]
     },
-    "237": {
+    "278": {
       "op": "bz isGenuineWallet_bool_false@6",
       "stack_out": [
         "creator#0"
       ]
     },
-    "240": {
+    "281": {
       "op": "frame_dig -1",
       "defined_out": [
         "creator#0",
@@ -280,7 +489,7 @@
         "walletFactory#0 (copy)"
       ]
     },
-    "242": {
+    "283": {
       "op": "itob",
       "defined_out": [
         "creator#0",
@@ -291,7 +500,7 @@
         "tmp%0#1"
       ]
     },
-    "243": {
+    "284": {
       "op": "pushbytes \"appID\"",
       "defined_out": [
         "\"appID\"",
@@ -304,7 +513,7 @@
         "\"appID\""
       ]
     },
-    "250": {
+    "291": {
       "op": "swap",
       "stack_out": [
         "creator#0",
@@ -312,7 +521,7 @@
         "tmp%0#1"
       ]
     },
-    "251": {
+    "292": {
       "op": "concat",
       "defined_out": [
         "creator#0",
@@ -323,7 +532,7 @@
         "tmp%1#1"
       ]
     },
-    "252": {
+    "293": {
       "op": "sha512_256",
       "defined_out": [
         "creator#0",
@@ -334,7 +543,7 @@
         "tmp%2#1"
       ]
     },
-    "253": {
+    "294": {
       "op": "frame_dig 0",
       "stack_out": [
         "creator#0",
@@ -342,7 +551,7 @@
         "creator#0"
       ]
     },
-    "255": {
+    "296": {
       "op": "==",
       "defined_out": [
         "creator#0",
@@ -353,13 +562,13 @@
         "tmp%3#0"
       ]
     },
-    "256": {
+    "297": {
       "op": "bz isGenuineWallet_bool_false@6",
       "stack_out": [
         "creator#0"
       ]
     },
-    "259": {
+    "300": {
       "op": "intc_2 // 1",
       "defined_out": [
         "and_result%0#0",
@@ -370,7 +579,7 @@
         "and_result%0#0"
       ]
     },
-    "260": {
+    "301": {
       "block": "isGenuineWallet_bool_merge@7",
       "stack_in": [
         "creator#0",
@@ -381,11 +590,11 @@
         "and_result%0#0"
       ]
     },
-    "261": {
+    "302": {
       "retsub": true,
       "op": "retsub"
     },
-    "262": {
+    "303": {
       "block": "isGenuineWallet_bool_false@6",
       "stack_in": [
         "creator#0"
@@ -399,10 +608,10 @@
         "and_result%0#0"
       ]
     },
-    "263": {
+    "304": {
       "op": "b isGenuineWallet_bool_merge@7"
     },
-    "266": {
+    "307": {
       "subroutine": "smart_contracts/utils/principal.ts::gateCtx",
       "params": {
         "p#0": "bytes"
@@ -411,7 +620,7 @@
       "stack_in": [],
       "op": "proto 1 2"
     },
-    "269": {
+    "310": {
       "op": "frame_dig -1",
       "defined_out": [
         "p#0 (copy)"
@@ -420,7 +629,7 @@
         "p#0 (copy)"
       ]
     },
-    "271": {
+    "312": {
       "op": "extract 8 32",
       "defined_out": [
         "aggregate%extract%0#0"
@@ -429,14 +638,14 @@
         "aggregate%extract%0#0"
       ]
     },
-    "274": {
+    "315": {
       "op": "frame_dig -1",
       "stack_out": [
         "aggregate%extract%0#0",
         "p#0 (copy)"
       ]
     },
-    "276": {
+    "317": {
       "op": "extract 0 8",
       "defined_out": [
         "aggregate%extract%0#0",
@@ -447,7 +656,7 @@
         "aggregate%extract%1#0"
       ]
     },
-    "279": {
+    "320": {
       "op": "frame_dig -1",
       "stack_out": [
         "aggregate%extract%0#0",
@@ -455,7 +664,7 @@
         "p#0 (copy)"
       ]
     },
-    "281": {
+    "322": {
       "op": "extract 72 32",
       "defined_out": [
         "aggregate%extract%0#0",
@@ -468,7 +677,7 @@
         "aggregate%extract%2#0"
       ]
     },
-    "284": {
+    "325": {
       "op": "cover 2",
       "stack_out": [
         "aggregate%extract%2#0",
@@ -476,7 +685,7 @@
         "aggregate%extract%1#0"
       ]
     },
-    "286": {
+    "327": {
       "op": "concat",
       "defined_out": [
         "aggregate%extract%2#0",
@@ -487,14 +696,14 @@
         "aggregate%head%1#0"
       ]
     },
-    "287": {
+    "328": {
       "op": "swap",
       "stack_out": [
         "aggregate%head%1#0",
         "aggregate%extract%2#0"
       ]
     },
-    "288": {
+    "329": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%2#0"
@@ -503,219 +712,11 @@
         "aggregate%head%2#0"
       ]
     },
-    "289": {
+    "330": {
       "op": "frame_dig -1",
       "stack_out": [
         "aggregate%head%2#0",
         "p#0 (copy)"
-      ]
-    },
-    "291": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "292": {
-      "subroutine": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
-      "params": {
-        "wallet#0": "uint64"
-      },
-      "block": "getControlledSpendingAccount",
-      "stack_in": [],
-      "op": "proto 1 1"
-    },
-    "295": {
-      "op": "frame_dig -1",
-      "defined_out": [
-        "wallet#0 (copy)"
-      ],
-      "stack_out": [
-        "wallet#0 (copy)"
-      ]
-    },
-    "297": {
-      "op": "bytec 4 // \"spending_address\"",
-      "defined_out": [
-        "\"spending_address\"",
-        "wallet#0 (copy)"
-      ],
-      "stack_out": [
-        "wallet#0 (copy)",
-        "\"spending_address\""
-      ]
-    },
-    "299": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "awst_tmp%1#0",
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "awst_tmp%1#0"
-      ]
-    },
-    "300": {
-      "op": "pop",
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "301": {
-      "op": "dup",
-      "defined_out": [
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "302": {
-      "op": "acct_params_get AcctAuthAddr",
-      "defined_out": [
-        "check%0#0",
-        "spendingAddressBytes#0",
-        "value%0#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "value%0#0",
-        "check%0#0"
-      ]
-    },
-    "304": {
-      "error": "account funded",
-      "op": "assert // account funded",
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "value%0#0"
-      ]
-    },
-    "305": {
-      "op": "global CurrentApplicationAddress",
-      "defined_out": [
-        "spendingAddressBytes#0",
-        "tmp%1#0",
-        "value%0#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "value%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "307": {
-      "op": "==",
-      "defined_out": [
-        "spendingAddressBytes#0",
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "tmp%2#0"
-      ]
-    },
-    "308": {
-      "op": "bnz getControlledSpendingAccount_after_assert@2",
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "311": {
-      "op": "bytec 9 // \"ERR:errNath\"",
-      "defined_out": [
-        "\"ERR:errNath\"",
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "\"ERR:errNath\""
-      ]
-    },
-    "313": {
-      "op": "log",
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "314": {
-      "error": "ERR:errNath",
-      "op": "err // ERR:errNath"
-    },
-    "315": {
-      "block": "getControlledSpendingAccount_after_assert@2",
-      "stack_in": [
-        "spendingAddressBytes#0"
-      ],
-      "retsub": true,
-      "op": "retsub",
-      "defined_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "316": {
-      "subroutine": "smart_contracts/utils/functions.ts::rekeyAddress",
-      "params": {
-        "rekeyBack#0": "uint64",
-        "wallet#0": "uint64"
-      },
-      "block": "rekeyAddress",
-      "stack_in": [],
-      "op": "proto 2 1"
-    },
-    "319": {
-      "op": "frame_dig -2",
-      "defined_out": [
-        "rekeyBack#0 (copy)"
-      ],
-      "stack_out": [
-        "rekeyBack#0 (copy)"
-      ]
-    },
-    "321": {
-      "op": "bnz rekeyAddress_after_if_else@2",
-      "stack_out": []
-    },
-    "324": {
-      "op": "global ZeroAddress",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "326": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "327": {
-      "block": "rekeyAddress_after_if_else@2",
-      "stack_in": [],
-      "op": "frame_dig -1",
-      "defined_out": [
-        "wallet#0 (copy)"
-      ],
-      "stack_out": [
-        "wallet#0 (copy)"
-      ]
-    },
-    "329": {
-      "op": "app_params_get AppAddress",
-      "defined_out": [
-        "check%0#0",
-        "value%0#0"
-      ],
-      "stack_out": [
-        "value%0#0",
-        "check%0#0"
-      ]
-    },
-    "331": {
-      "error": "application exists",
-      "op": "assert // application exists",
-      "stack_out": [
-        "value%0#0"
       ]
     },
     "332": {
@@ -6237,7 +6238,7 @@
       ]
     },
     "921": {
-      "callsub": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
+      "callsub": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
       "op": "callsub getControlledSpendingAccount",
       "defined_out": [
         "asset#0",
@@ -11571,7 +11572,7 @@
       ]
     },
     "1273": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%11%%param_RekeyTo_idx_0#0",
@@ -13360,7 +13361,7 @@
       ]
     },
     "1451": {
-      "callsub": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
+      "callsub": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
       "op": "callsub getControlledSpendingAccount",
       "defined_out": [
         "paymentAsset#0",
@@ -17409,7 +17410,7 @@
       ]
     },
     "1743": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%7%%param_RekeyTo_idx_0#0",
@@ -19668,7 +19669,7 @@
       ]
     },
     "1945": {
-      "callsub": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
+      "callsub": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
       "op": "callsub getControlledSpendingAccount",
       "defined_out": [
         "sender#0"
@@ -21430,7 +21431,7 @@
       ]
     },
     "2124": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%1%%param_RekeyTo_idx_0#0",
@@ -21927,7 +21928,7 @@
       ]
     },
     "2194": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%3%%param_RekeyTo_idx_0#0",
@@ -23225,7 +23226,7 @@
       ]
     },
     "2326": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%5%%param_RekeyTo_idx_0#0",
@@ -23766,7 +23767,7 @@
       ]
     },
     "2403": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%7%%param_RekeyTo_idx_0#0",
@@ -24296,7 +24297,7 @@
       ]
     },
     "2478": {
-      "callsub": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
+      "callsub": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
       "op": "callsub getControlledSpendingAccount",
       "defined_out": [
         "appId#0",
@@ -24573,7 +24574,7 @@
       ]
     },
     "2504": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%1%%param_RekeyTo_idx_0#0"
@@ -24999,7 +25000,7 @@
       ]
     },
     "2566": {
-      "callsub": "smart_contracts/utils/functions.ts::getControlledSpendingAccount",
+      "callsub": "@akita-protocol/plugin/functions.ts::getControlledSpendingAccount",
       "op": "callsub getControlledSpendingAccount",
       "defined_out": [
         "appId#0",
@@ -25311,7 +25312,7 @@
       ]
     },
     "2597": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "abi_call_inner_txn_params%1%%param_RekeyTo_idx_0#0",

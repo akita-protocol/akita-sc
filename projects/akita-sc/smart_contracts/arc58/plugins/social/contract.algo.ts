@@ -3,7 +3,8 @@ import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundat
 import { classes } from 'polytype'
 import { GateArgs } from '../../../gates/types'
 import { AmendmentMBR, EditBackRefMBR, ImpactMetaMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, ReplyParentRefMBR, SubscriptionStateModifierMBR } from '../../../social/constants'
-import { GateMustCheckForAbiMethod, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getControlledSpendingAccount, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo, rekeyAddress, tipWallet } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { GateMustCheckForAbiMethod, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo, tipWallet } from '../../../utils/functions'
 import { gateCtx, windowHint } from '../../../utils/principal'
 import { CID } from '../../../utils/types/base'
 

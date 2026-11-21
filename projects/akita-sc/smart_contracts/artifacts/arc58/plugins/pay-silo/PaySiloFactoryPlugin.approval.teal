@@ -70,19 +70,19 @@ mint:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:494
-    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
     global CurrentApplicationAddress
@@ -100,17 +100,17 @@ mint_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:547
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     swap
     bnz mint_after_if_else@7
     uncover 2
     pop
-    // smart_contracts/utils/functions.ts:548
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
 
-mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8:
+mint_after_inlined_@akita-protocol/plugin/functions.ts::rekeyAddress@8:
     // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:24
     // const paySilo = compileArc4(PaySiloPlugin)
     intc_0 // 0
@@ -161,11 +161,11 @@ mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8:
     return
 
 mint_after_if_else@7:
-    // smart_contracts/utils/functions.ts:551
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     uncover 2
     app_params_get AppAddress
     assert // application exists
     // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:29
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    b mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8
+    b mint_after_inlined_@akita-protocol/plugin/functions.ts::rekeyAddress@8

@@ -1,6 +1,7 @@
 import { Account, Application, Bytes, Global, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import {
   ARC58_CONTROLLED_ADDRESS_KEY,
+  ARC58_ERR_INVALID_WALLET,
   ARC58_ERR_PLUGIN_NOT_AUTH_ADDR,
   ARC58_REFERRER_KEY,
   ARC58_SPENDING_ADDRESS_KEY,
@@ -65,15 +66,19 @@ export function isAkitaWallet(wallet: Application, walletFactory: Application): 
  * For identity, gates, referrals or stored ownership use `pluginPrincipal` (inside a plugin window)
  * or `resolvePrincipal` (in a target contract) from `./principal`.
  *
+ * Fails with `errIwlt` when the app has no 32-byte `controlled_address`, so an app that is not a
+ * wallet is refused here instead of producing an account from whatever bytes it holds.
+ *
  * @param wallet - The ARC-58 wallet Application
  * @returns The wallet's claimed controlled address
  */
 export function getOriginAccount(wallet: Application): Account {
-  const [controlledAccountBytes] = op.AppGlobal.getExBytes(
+  const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     wallet,
     Bytes(ARC58_CONTROLLED_ADDRESS_KEY)
   )
-  return Account(Bytes(controlledAccountBytes))
+  loggedAssert(exists && controlledAccountBytes.length === 32, ARC58_ERR_INVALID_WALLET)
+  return Account(controlledAccountBytes)
 }
 
 /**

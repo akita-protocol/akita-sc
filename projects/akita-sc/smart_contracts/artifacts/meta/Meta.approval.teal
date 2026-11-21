@@ -4204,7 +4204,7 @@ requirePolicyWindow_after_assert@15:
     frame_bury 5
     ==
     bz requirePolicyWindow_bool_false@18
-    // smart_contracts/utils/base-contracts/grant-policy.ts:59
+    // smart_contracts/utils/base-contracts/grant-policy.ts:60
     // if (key.escrow !== '') return false
     frame_dig 2
     dup
@@ -4243,7 +4243,7 @@ requirePolicyWindow_bool_false@18:
     b requirePolicyWindow_bool_merge@19
 
 requirePolicyWindow_after_if_else@24:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:60
+    // smart_contracts/utils/base-contracts/grant-policy.ts:61
     // if (key.caller === wallet.address) return true
     frame_dig 2
     extract 8 32
@@ -4260,20 +4260,20 @@ requirePolicyWindow_after_if_else@24:
     b requirePolicyWindow_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@34
 
 requirePolicyWindow_after_if_else@26:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:61
+    // smart_contracts/utils/base-contracts/grant-policy.ts:62
     // return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
     frame_dig 0
     global ZeroAddress
     ==
     bz requirePolicyWindow_bool_false@32
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
     //   fee: 0,
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/base-contracts/grant-policy.ts:39
+    // smart_contracts/utils/base-contracts/grant-policy.ts:40
     // args: [[{ plugin, caller, escrow }]],
     frame_dig 5
     itob
@@ -4296,7 +4296,7 @@ requirePolicyWindow_after_if_else@26:
     concat
     frame_dig -2
     itxn_field ApplicationID
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4307,11 +4307,11 @@ requirePolicyWindow_after_if_else@26:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/utils/base-contracts/grant-policy.ts:40
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4340,7 +4340,7 @@ requirePolicyWindow_after_if_else@26:
     intc_0 // 0
 
 requirePolicyWindow_for_header@28:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4391,7 +4391,7 @@ requirePolicyWindow_for_header@28:
 
 requirePolicyWindow_after_for@30:
     pop
-    // smart_contracts/utils/base-contracts/grant-policy.ts:37-41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4416,7 +4416,7 @@ requirePolicyWindow_after_for@30:
     -
     select
     substring3
-    // smart_contracts/utils/base-contracts/grant-policy.ts:61
+    // smart_contracts/utils/base-contracts/grant-policy.ts:62
     // return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
     pushint 218
     getbit

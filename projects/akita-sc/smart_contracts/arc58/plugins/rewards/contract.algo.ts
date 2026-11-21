@@ -2,7 +2,8 @@ import { Account, Application, Asset, GlobalState, itxn, loggedAssert, uint64 } 
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { AllocationReclaimDetails, ClaimDetails, UserAllocation } from '../../../rewards/types'
-import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { getAkitaAppList } from '../../../utils/functions'
 import { errInvalidRewardsApp } from './errors'
 
 // CONTRACT IMPORTS

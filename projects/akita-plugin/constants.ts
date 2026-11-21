@@ -10,3 +10,6 @@ export const ARC58_REKEY_INDEX_KEY = 'rekey_index'
 
 /** ARC-65 error logged when a plugin does not control the wallet's spending account. */
 export const ARC58_ERR_PLUGIN_NOT_AUTH_ADDR = 'errNath'
+
+/** ARC-65 error logged when an app has no 32-byte `controlled_address`, so it is not an ARC-58 wallet. */
+export const ARC58_ERR_INVALID_WALLET = 'errIwlt'

@@ -20,7 +20,8 @@ import type { AbstractedAccount } from '../../arc58/account/contract.algo'
 import { PluginInfo, PluginKey } from '../../arc58/account/types'
 import { policyRecordKey, readMetaRecord } from '../../meta/functions'
 import { errGrantContext, errPolicyMissing, errPolicyStale } from '../errors'
-import { getRekeyIndex, getSpendingAccount } from '../functions'
+import { getSpendingAccount } from '@akita-protocol/plugin/functions'
+import { getRekeyIndex } from '../functions'
 
 /** Bytes in front of every policy body: the install epoch (`PluginInfo.start`) of the grant it configures. */
 export const GrantPolicyHeaderBytes: uint64 = 8

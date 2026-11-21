@@ -14,7 +14,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { extract, extractUint16, extractUint64, itob, Txn } from '@algorandfoundation/algorand-typescript/op'
-import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import {
   errInvalidBeneficiary,
   errInvalidFunding,

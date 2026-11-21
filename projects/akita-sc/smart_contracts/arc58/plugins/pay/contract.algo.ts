@@ -1,5 +1,5 @@
 import { Application, Contract, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { PayParams } from "./types";
 
 export class PayPlugin extends Contract {

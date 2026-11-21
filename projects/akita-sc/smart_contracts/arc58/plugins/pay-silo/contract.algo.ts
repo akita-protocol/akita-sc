@@ -1,6 +1,6 @@
 import { Account, Application, Contract, Global, GlobalState, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abimethod } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { PaySiloPluginGlobalStateKeyRecipient } from "./constants";
 import { PaySiloParams } from "./types";
 

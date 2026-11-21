@@ -3,7 +3,7 @@ import {
   itxn, loggedAssert, uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import { pluginPrincipal } from '../../../utils/principal'
 import { AbstractedAccountFactory } from '../../account/factory.algo'
 

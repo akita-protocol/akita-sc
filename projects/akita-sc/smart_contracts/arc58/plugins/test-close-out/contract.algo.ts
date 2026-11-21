@@ -1,5 +1,5 @@
 import { Account, Application, Asset, Contract, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 
 /**
  * Test plugin for close-out scenarios.

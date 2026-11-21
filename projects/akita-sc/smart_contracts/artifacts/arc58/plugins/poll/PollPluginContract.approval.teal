@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 8 2
     bytecblock "poll_factory" "akita_dao" 0x151f7c75 "ERR:errNplf"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:17
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:18
     // export class PollPluginContract extends AkitaBaseContract {
     txn OnCompletion
     !
@@ -24,7 +24,7 @@ main_opUp_route@7:
     return
 
 main_create_NoOp@9:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:17
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:18
     // export class PollPluginContract extends AkitaBaseContract {
     pushbytes 0x88c940f8 // method "create(string,uint64,uint64)void"
     txna ApplicationArgs 0
@@ -32,30 +32,30 @@ main_create_NoOp@9:
     err
 
 
-// smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
+// @akita-protocol/plugin/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
 getControlledSpendingAccount:
-    // smart_contracts/utils/functions.ts:492
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:37
     // export function getControlledSpendingAccount(wallet: Application): Account {
     proto 1 1
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:481
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:494
-    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
     global CurrentApplicationAddress
@@ -66,27 +66,27 @@ getControlledSpendingAccount:
     err // ERR:errNath
 
 getControlledSpendingAccount_after_assert@2:
-    // smart_contracts/utils/functions.ts:495
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:40
     // return sender
     retsub
 
 
-// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+// @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:546
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:547
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:548
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:551
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -96,7 +96,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/poll/contract.algo.ts::PollPluginContract.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:25
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:26
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -126,25 +126,25 @@ create:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:27
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:28
     // this.version.value = version
     uncover 3
     app_global_put
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:21
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:22
     // factory = GlobalState<Application>({ key: PollPluginGlobalStateKeyFactory })
     bytec_0 // "poll_factory"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:28
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:29
     // this.factory.value = Application(factory)
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:29
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:30
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:25
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:26
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -152,7 +152,7 @@ create:
 
 // smart_contracts/arc58/plugins/poll/contract.algo.ts::PollPluginContract.new[routing]() -> void:
 new:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:34-43
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:35-44
     // new(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -222,7 +222,7 @@ new:
     intc_0 // 0
 
 new_for_header@1:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:34-43
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:35-44
     // new(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -267,7 +267,7 @@ new_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:34-43
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:35-44
     // new(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -288,29 +288,29 @@ new_after_for@4:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:44
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:45
     // const sender = getControlledSpendingAccount(wallet)
     uncover 7
     dup
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:48-50
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:49-51
     // const amount = abiCall<typeof PollFactory.prototype.newPollCost>({
     //   appId: this.factory.value.id,
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:49
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:50
     // appId: this.factory.value.id,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:21
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:22
     // factory = GlobalState<Application>({ key: PollPluginGlobalStateKeyFactory })
     bytec_0 // "poll_factory"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:49
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:50
     // appId: this.factory.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     dup
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:48-50
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:49-51
     // const amount = abiCall<typeof PollFactory.prototype.newPollCost>({
     //   appId: this.factory.value.id,
     // }).returnValue
@@ -335,12 +335,12 @@ new_after_for@4:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:55
     // receiver: Application(this.factory.value.id).address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:58-71
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:59-72
     // return abiCall<typeof PollFactory.prototype.new>({
     //   sender,
     //   appId: this.factory.value.id,
@@ -360,7 +360,7 @@ new_after_for@4:
     itxn_field Amount
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:52-56
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:53-57
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(this.factory.value.id).address,
@@ -370,7 +370,7 @@ new_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:58-71
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:59-72
     // return abiCall<typeof PollFactory.prototype.new>({
     //   sender,
     //   appId: this.factory.value.id,
@@ -386,7 +386,7 @@ new_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:70
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:71
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 9
     uncover 3
@@ -394,7 +394,7 @@ new_after_for@4:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:58-71
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:59-72
     // return abiCall<typeof PollFactory.prototype.new>({
     //   sender,
     //   appId: this.factory.value.id,
@@ -440,7 +440,7 @@ new_after_for@4:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:34-43
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:35-44
     // new(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -461,7 +461,7 @@ new_after_for@4:
 
 // smart_contracts/arc58/plugins/poll/contract.algo.ts::PollPluginContract.deleteBoxes[routing]() -> void:
 deleteBoxes:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:75
     // deleteBoxes(wallet: Application, rekeyBack: boolean, pollAppID: uint64, addresses: Account[]): void {
     txna ApplicationArgs 1
     dup
@@ -503,20 +503,20 @@ deleteBoxes:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<account>
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:75
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:76
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:77
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:78
     // loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
     app_params_get AppCreator
     assert // application exists
     intc_0 // 0
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:21
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:22
     // factory = GlobalState<Application>({ key: PollPluginGlobalStateKeyFactory })
     bytec_0 // "poll_factory"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:77
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:78
     // loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -529,7 +529,7 @@ deleteBoxes:
     err // ERR:errNplf
 
 deleteBoxes_after_assert@3:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:79-84
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:80-85
     // abiCall<typeof Poll.prototype.deleteBoxes>({
     //   sender,
     //   appId: pollAppID,
@@ -537,7 +537,7 @@ deleteBoxes_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:83
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:84
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     swap
     uncover 4
@@ -545,7 +545,7 @@ deleteBoxes_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:79-84
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:80-85
     // abiCall<typeof Poll.prototype.deleteBoxes>({
     //   sender,
     //   appId: pollAppID,
@@ -560,7 +560,7 @@ deleteBoxes_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:74
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:75
     // deleteBoxes(wallet: Application, rekeyBack: boolean, pollAppID: uint64, addresses: Account[]): void {
     intc_1 // 1
     return
@@ -568,7 +568,7 @@ deleteBoxes_after_assert@3:
 
 // smart_contracts/arc58/plugins/poll/contract.algo.ts::PollPluginContract.vote[routing]() -> void:
 vote:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:88
     // vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     txna ApplicationArgs 1
     dup
@@ -624,7 +624,7 @@ vote:
     intc_0 // 0
 
 vote_for_header@1:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:88
     // vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     dup
     dig 5
@@ -658,26 +658,26 @@ vote_for_header@1:
 
 vote_after_for@4:
     popn 2
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:88
     // vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     intc_3 // 2
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:90
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:91
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:93
     // loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
     dig 2
     app_params_get AppCreator
     assert // application exists
     intc_0 // 0
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:21
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:22
     // factory = GlobalState<Application>({ key: PollPluginGlobalStateKeyFactory })
     bytec_0 // "poll_factory"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:93
     // loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
     app_global_get_ex
     assert // check GlobalState exists
@@ -690,22 +690,22 @@ vote_after_for@4:
     err // ERR:errNplf
 
 vote_after_assert@7:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:97
     // receiver: Application(pollAppID).address,
     dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:100
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:101
     // if (args.length > 0) {
     uncover 2
     bz vote_else_body@12
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:101
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:102
     // const gate = getAkitaAppList(this.akitaDAO.value).gate
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:101
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:102
     // const gate = getAkitaAppList(this.akitaDAO.value).gate
     app_global_get_ex
     assert // check GlobalState exists
@@ -714,11 +714,11 @@ vote_after_assert@7:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:101
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:102
     // const gate = getAkitaAppList(this.akitaDAO.value).gate
     pushint 40
     extract_uint64
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:102
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:103
     // const gateID = op.AppGlobal.getExUint64(pollAppID, Bytes(PollGlobalStateKeyGateID))[0]
     uncover 3
     dup
@@ -726,7 +726,7 @@ vote_after_assert@7:
     pushbytes "gate_id"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:104-123
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:105-124
     // abiCall<typeof Poll.prototype.gatedVote>({
     //   sender,
     //   appId: pollAppID,
@@ -748,7 +748,7 @@ vote_after_assert@7:
     // }
     // )
     itxn_begin
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:97
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:98
     // amount: votesMBR
     pushint 15300
     itxn_field Amount
@@ -757,7 +757,7 @@ vote_after_assert@7:
     uncover 3
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:94-98
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:95-99
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(pollAppID).address,
@@ -767,7 +767,7 @@ vote_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:109-118
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:110-119
     // itxn.applicationCall({
     //   sender,
     //   appId: gate,
@@ -779,11 +779,11 @@ vote_after_assert@7:
     //   ]
     // }),
     itxn_next
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:115
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:116
     // gateID,
     swap
     itob
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:113
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:114
     // methodSelector(GateMustCheckAbiMethod),
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     itxn_field ApplicationArgs
@@ -796,7 +796,7 @@ vote_after_assert@7:
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:109-118
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:110-119
     // itxn.applicationCall({
     //   sender,
     //   appId: gate,
@@ -811,7 +811,7 @@ vote_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:104-123
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:105-124
     // abiCall<typeof Poll.prototype.gatedVote>({
     //   sender,
     //   appId: pollAppID,
@@ -833,7 +833,7 @@ vote_after_assert@7:
     // }
     // )
     itxn_next
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:121
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:122
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -841,7 +841,7 @@ vote_after_assert@7:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:104-123
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:105-124
     // abiCall<typeof Poll.prototype.gatedVote>({
     //   sender,
     //   appId: pollAppID,
@@ -872,7 +872,7 @@ vote_after_assert@7:
     itxn_submit
 
 vote_after_if_else@15:
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:88
     // vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     intc_1 // 1
     return
@@ -880,7 +880,7 @@ vote_after_if_else@15:
 vote_else_body@12:
     uncover 3
     pop
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:125-130
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:126-131
     // abiCall<typeof Poll.prototype.vote>({
     //   sender,
     //   appId: pollAppID,
@@ -888,14 +888,14 @@ vote_else_body@12:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:97
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:98
     // amount: votesMBR
     pushint 15300
     itxn_field Amount
     itxn_field Receiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:94-98
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:95-99
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: Application(pollAppID).address,
@@ -905,7 +905,7 @@ vote_else_body@12:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:125-130
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:126-131
     // abiCall<typeof Poll.prototype.vote>({
     //   sender,
     //   appId: pollAppID,
@@ -913,7 +913,7 @@ vote_else_body@12:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:129
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:130
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 2
     uncover 3
@@ -921,7 +921,7 @@ vote_else_body@12:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/poll/contract.algo.ts:125-130
+    // smart_contracts/arc58/plugins/poll/contract.algo.ts:126-131
     // abiCall<typeof Poll.prototype.vote>({
     //   sender,
     //   appId: pollAppID,

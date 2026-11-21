@@ -3,7 +3,8 @@ import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorand
 import { classes } from 'polytype'
 import { GateArgs } from "../../../gates/types"
 import { ServiceID, SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
-import { GateMustCheckForAbiMethod, getAkitaAppList, getControlledSpendingAccount, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions"
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { GateMustCheckForAbiMethod, getAkitaAppList, pluginPrincipalOf } from "../../../utils/functions"
 import { gateCtx, windowHint } from "../../../utils/principal"
 import { CID } from "../../../utils/types/base"
 
