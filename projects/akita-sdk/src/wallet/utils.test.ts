@@ -347,7 +347,10 @@ describe('escrowDeleteWarnings', () => {
     const warnings = escrowDeleteWarnings(1234n, address)
     expect(warnings.map(({ code }) => code)).toEqual(['address-under-nobodys-control'])
     expect(warnings[0].message).toContain(address)
-    expect(warnings[0].message).toContain('lost for good')
+    // only ALGO can be lost there: an asset transfer to an address that is opted in to nothing fails
+    expect(warnings[0].message).toContain('ALGO sent to it afterwards is lost for good')
+    expect(warnings[0].message).toContain('An asset can no longer be sent to it')
+    expect(warnings[0].message).not.toContain('Anything')
     expect(warnings[0].message).toContain('cannot be undone')
   })
 })

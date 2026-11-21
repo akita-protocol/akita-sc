@@ -1,6 +1,6 @@
-// src/wallet/utils.ts
-import { decodeAddress } from "algosdk";
-import { encodeLease } from "@algorandfoundation/algokit-utils";
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); var _class;// src/wallet/utils.ts
+var _algosdk = require('algosdk');
+var _algokitutils = require('@algorandfoundation/algokit-utils');
 function escrowDeleteWarnings(id, address) {
   if (id === 0n) {
     return [{
@@ -10,7 +10,7 @@ function escrowDeleteWarnings(id, address) {
   }
   return [{
     code: "address-under-nobodys-control",
-    message: `After this delete nobody controls the escrow's address ${address}. Anything sent to it afterwards is lost for good. This cannot be undone.`
+    message: `After this delete nobody controls the escrow's address ${address}. ALGO sent to it afterwards is lost for good. An asset can no longer be sent to it, because the address cannot opt in to one again. This cannot be undone.`
   }];
 }
 function assertEscrowCanBeDeleted(plan, unlock) {
@@ -89,7 +89,7 @@ function AllowanceInfoTranslate(info) {
 }
 function executionBoxKey(lease) {
   const prefix = new Uint8Array(Buffer.from("x"));
-  const encodedLease = encodeLease(lease);
+  const encodedLease = _algokitutils.encodeLease.call(void 0, lease);
   const result = new Uint8Array(prefix.length + encodedLease.length);
   result.set(prefix, 0);
   result.set(encodedLease, prefix.length);
@@ -99,14 +99,14 @@ function domainBoxKey(address) {
   return new Uint8Array(
     Buffer.concat([
       Buffer.from("d"),
-      typeof address === "string" ? decodeAddress(address).publicKey : address.publicKey
+      typeof address === "string" ? _algosdk.decodeAddress.call(void 0, address).publicKey : address.publicKey
     ])
   );
 }
-var ValueMap = class {
-  map = /* @__PURE__ */ new Map();
-  keyGenerator;
-  constructor(keyGenerator, iterable) {
+var ValueMap = (_class = class {
+  __init() {this.map = /* @__PURE__ */ new Map()}
+  
+  constructor(keyGenerator, iterable) {;_class.prototype.__init.call(this);
     this.keyGenerator = keyGenerator;
     if (iterable) {
       for (const [key, value] of iterable) {
@@ -158,18 +158,18 @@ var ValueMap = class {
   [Symbol.iterator]() {
     return this.map[Symbol.iterator]();
   }
-};
+}, _class);
 var getTxns = async ({}) => [];
 
-export {
-  escrowDeleteWarnings,
-  assertEscrowCanBeDeleted,
-  applyDefaultAppCallMaxFees,
-  AllowancesToTuple,
-  AllowanceInfoTranslate,
-  executionBoxKey,
-  domainBoxKey,
-  ValueMap,
-  getTxns
-};
-//# sourceMappingURL=chunk-SI4SPLUK.mjs.map
+
+
+
+
+
+
+
+
+
+
+exports.escrowDeleteWarnings = escrowDeleteWarnings; exports.assertEscrowCanBeDeleted = assertEscrowCanBeDeleted; exports.applyDefaultAppCallMaxFees = applyDefaultAppCallMaxFees; exports.AllowancesToTuple = AllowancesToTuple; exports.AllowanceInfoTranslate = AllowanceInfoTranslate; exports.executionBoxKey = executionBoxKey; exports.domainBoxKey = domainBoxKey; exports.ValueMap = ValueMap; exports.getTxns = getTxns;
+//# sourceMappingURL=chunk-MZHAP7IA.js.map

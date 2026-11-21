@@ -37,7 +37,7 @@ var _chunkJ6RA43KHjs = require('./chunk-J6RA43KH.js');
 
 
 
-var _chunkH4AWSP6Bjs = require('./chunk-H4AWSP6B.js');
+var _chunkMZHAP7IAjs = require('./chunk-MZHAP7IA.js');
 
 
 var _chunkYKKIQIROjs = require('./chunk-YKKIQIRO.js');
@@ -3976,7 +3976,7 @@ var WalletGroupComposer = (_class4 = class {
             ...sendParams,
             args: {
               escrow,
-              allowances: _chunkH4AWSP6Bjs.AllowancesToTuple.call(void 0, dedupedAllowances)
+              allowances: _chunkMZHAP7IAjs.AllowancesToTuple.call(void 0, dedupedAllowances)
             },
             // its own MBR payment from an external controlled address
             extraFee: _algokitutils.microAlgo.call(void 0, controlledMbrFee(hasExternalControlledAddress))
@@ -4123,7 +4123,7 @@ var WalletGroupComposer = (_class4 = class {
     this.resolvers.push(async () => {
       this.group.arc58AddAllowances({
         ...this.getSendParams({ sender, signer }),
-        args: { escrow, allowances: _chunkH4AWSP6Bjs.AllowancesToTuple.call(void 0, allowances) },
+        args: { escrow, allowances: _chunkMZHAP7IAjs.AllowancesToTuple.call(void 0, allowances) },
         extraFee: await this.wallet.controlledMbrExtraFee()
       });
     });
@@ -4158,7 +4158,7 @@ var WalletGroupComposer = (_class4 = class {
     const MAX_SIM_FEE = _algokitutils.microAlgo.call(void 0, BigInt(suggestedParams.minFee) * 272n);
     const composer = await this.group.composer();
     const internalTxns = composer.txns;
-    _chunkH4AWSP6Bjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, MAX_SIM_FEE);
+    _chunkMZHAP7IAjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, MAX_SIM_FEE);
     const result = await composer.send({
       ...params,
       populateAppCallResources: _nullishCoalesce((params == null ? void 0 : params.populateAppCallResources), () => ( true)),
@@ -6043,7 +6043,7 @@ var OptInPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, assets } = args;
@@ -6457,7 +6457,7 @@ var SelfOptInPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, assets } = args;
@@ -6484,7 +6484,7 @@ var SelfOptInPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -7043,7 +7043,7 @@ var WelcomePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
     return () => ({
       appId: this.appId,
       selectors: [this.client.appClient.getABIMethod(method).getSelector()],
-      getTxns: _chunkH4AWSP6Bjs.getTxns
+      getTxns: _chunkMZHAP7IAjs.getTxns
     });
   }
   async feeLimit() {
@@ -8340,7 +8340,7 @@ var SocialClaimSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   // fee-pooled; give every app call without a ceiling the same one wallet.usePlugin would.
   async capPluginFees(composer) {
     const { minFee } = await this.algorand.getSuggestedParams();
-    _chunkH4AWSP6Bjs.applyDefaultAppCallMaxFees.call(void 0, 
+    _chunkMZHAP7IAjs.applyDefaultAppCallMaxFees.call(void 0, 
       composer.txns,
       _algokitutils.microAlgo.call(void 0, BigInt(minFee) * 16n)
     );
@@ -9291,7 +9291,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   addRoot(args) {
     const selectors = [this.client.appClient.getABIMethod("addRoot").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9309,7 +9309,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   updateRoot(args) {
     const selectors = [this.client.appClient.getABIMethod("updateRoot").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9327,7 +9327,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   deleteRoot(args) {
     const selectors = [this.client.appClient.getABIMethod("deleteRoot").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9345,7 +9345,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   addData(args) {
     const selectors = [this.client.appClient.getABIMethod("addData").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9363,7 +9363,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   deleteData(args) {
     const selectors = [this.client.appClient.getABIMethod("deleteData").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9381,7 +9381,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   addType(args) {
     const selectors = [this.client.appClient.getABIMethod("addType").getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9406,7 +9406,7 @@ var MetaPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   pluginCall(method, args) {
     const selectors = [this.client.appClient.getABIMethod(method).getSelector()];
-    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+    if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     _chunkQWWJBGHAjs.validateMetadataRecordKey.call(void 0, _chunkQWWJBGHAjs.metadataDataKey.call(void 0, args.namespace, args.key));
     if ("data" in args) _chunkQWWJBGHAjs.validateMetadataValueSize.call(void 0, args.data.length, _chunkQWWJBGHAjs.metadataPluginValueLimit.call(void 0, args.namespace, args.key));
     const sendParams = this.getRequiredSendParams(args);
@@ -9775,7 +9775,7 @@ var PayPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, payments } = args;
@@ -10277,7 +10277,7 @@ var AsaManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, assets } = args;
@@ -10321,7 +10321,7 @@ var AsaManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, assets } = args;
@@ -11335,7 +11335,7 @@ var UpdateAkitaDAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -11364,7 +11364,7 @@ var UpdateAkitaDAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: methodNames.map((methodName) => this.client.appClient.getABIMethod(methodName).getSelector()),
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, version, data, clearProgram } = args;
@@ -11435,7 +11435,7 @@ var UpdateAkitaDAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, newAkitaDaoAppId } = args;
@@ -11463,7 +11463,7 @@ var UpdateAkitaDAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, newEscrow } = args;
@@ -11491,7 +11491,7 @@ var UpdateAkitaDAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: methodNames.map((methodName) => this.client.appClient.getABIMethod(methodName).getSelector()),
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, factoryAppId, version, data } = args;
@@ -12652,7 +12652,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, assets } = args;
@@ -12684,7 +12684,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, escrow, source, allocatable, optinAllowed, splits } = args;
@@ -12711,7 +12711,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, escrow, source, allocatable, optinAllowed, splitRef } = args;
@@ -12738,7 +12738,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, escrow, receiveEscrow, assets, splits, splitRef, useSplitRef } = args;
@@ -12762,7 +12762,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -12789,7 +12789,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, ids } = args;
@@ -12816,7 +12816,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, ids } = args;
@@ -12843,7 +12843,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, escrow, ids } = args;
@@ -12867,7 +12867,7 @@ var RevenueManagerPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, escrow, splits } = args;
@@ -14072,7 +14072,7 @@ var AuctionPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
     const appId = this.client.appId;
     const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
     if (args === void 0) {
-      return (_spendingAddress) => ({ appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+      return (_spendingAddress) => ({ appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -14950,7 +14950,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -14979,7 +14979,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -15006,7 +15006,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -15033,7 +15033,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -15060,7 +15060,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -15087,7 +15087,7 @@ var DAOPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: maybeRekeyBack, ...rest } = args;
@@ -15556,7 +15556,7 @@ var DualStakePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -15583,7 +15583,7 @@ var DualStakePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -16107,7 +16107,7 @@ var GatePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -17838,7 +17838,7 @@ var GuildPluginSDK = class _GuildPluginSDK extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack = true, ...methodArgs } = args;
@@ -18901,7 +18901,7 @@ var HaystackRouterPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19747,7 +19747,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19774,7 +19774,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19803,7 +19803,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19830,7 +19830,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19857,7 +19857,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -19884,7 +19884,7 @@ var HyperSwapPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -20655,7 +20655,7 @@ var MarketplacePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -20682,7 +20682,7 @@ var MarketplacePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -20708,7 +20708,7 @@ var MarketplacePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.purchaseSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -20745,7 +20745,7 @@ var MarketplacePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -20772,7 +20772,7 @@ var MarketplacePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22385,7 +22385,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const {
@@ -22426,7 +22426,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22453,7 +22453,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22486,7 +22486,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22545,7 +22545,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22572,7 +22572,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22599,7 +22599,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22626,7 +22626,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22653,7 +22653,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22680,7 +22680,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22707,7 +22707,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22734,7 +22734,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22761,7 +22761,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22788,7 +22788,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22815,7 +22815,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22842,7 +22842,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22869,7 +22869,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22896,7 +22896,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -22923,7 +22923,7 @@ var NFDPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (_spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -23334,7 +23334,7 @@ var PaySiloPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, payments } = args;
@@ -23706,7 +23706,7 @@ var PaySiloFactoryPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -24335,7 +24335,7 @@ var PollPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -24362,7 +24362,7 @@ var PollPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -24389,7 +24389,7 @@ var PollPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -25639,7 +25639,7 @@ var RafflePluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
     const appId = this.client.appId;
     if (args === void 0) {
       const selectors2 = restrictTo.map((m) => this.client.appClient.getABIMethod(m).getSelector());
-      return (_spendingAddress) => ({ appId, selectors: selectors2, getTxns: _chunkH4AWSP6Bjs.getTxns });
+      return (_spendingAddress) => ({ appId, selectors: selectors2, getTxns: _chunkMZHAP7IAjs.getTxns });
     }
     const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
     const paramsKey = _nullishCoalesce(PARAMS_KEY[methodName], () => ( methodName));
@@ -27159,7 +27159,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [selector(CREATE_DISBURSEMENT), selector(LEGACY_CREATE_DISBURSEMENT)],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, reclaimTo, ...rest } = args;
@@ -27191,7 +27191,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27221,7 +27221,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27250,7 +27250,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27279,7 +27279,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27309,7 +27309,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27339,7 +27339,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27381,7 +27381,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   walletCall(methodName, args) {
     const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
     if (args === void 0) {
-      return () => ({ appId: this.client.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+      return () => ({ appId: this.client.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     }
     const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
     return () => ({
@@ -27403,7 +27403,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27432,7 +27432,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -27467,7 +27467,7 @@ var RewardsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   inboxCall(methodName, args) {
     const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
     if (args === void 0) {
-      return () => ({ appId: this.client.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+      return () => ({ appId: this.client.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     }
     const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
     return () => ({
@@ -29582,7 +29582,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29609,7 +29609,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29636,7 +29636,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29663,7 +29663,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29690,7 +29690,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29717,7 +29717,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29744,7 +29744,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29771,7 +29771,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29798,7 +29798,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29825,7 +29825,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29852,7 +29852,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29879,7 +29879,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29906,7 +29906,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29933,7 +29933,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29960,7 +29960,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -29987,7 +29987,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30014,7 +30014,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30041,7 +30041,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30068,7 +30068,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30095,7 +30095,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30122,7 +30122,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30149,7 +30149,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30176,7 +30176,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30203,7 +30203,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30230,7 +30230,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30257,7 +30257,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30284,7 +30284,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30311,7 +30311,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30338,7 +30338,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -30366,7 +30366,7 @@ var SocialPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -31371,7 +31371,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -31398,7 +31398,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -31425,7 +31425,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, address, asset } = args;
@@ -31452,7 +31452,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, stakeKeys } = args;
@@ -31483,7 +31483,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appStakeKeys } = args;
@@ -31515,7 +31515,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, asset, value } = args;
@@ -31564,7 +31564,7 @@ var StakingPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
   simpleHook(methodName, args, build) {
     const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
     if (args === void 0) {
-      return (spendingAddress) => ({ appId: this.client.appId, selectors, getTxns: _chunkH4AWSP6Bjs.getTxns });
+      return (spendingAddress) => ({ appId: this.client.appId, selectors, getTxns: _chunkMZHAP7IAjs.getTxns });
     }
     return (spendingAddress) => ({
       appId: this.client.appId,
@@ -32311,7 +32311,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -32338,7 +32338,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -32365,7 +32365,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -32392,7 +32392,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -32419,7 +32419,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -32446,7 +32446,7 @@ var StakingPoolPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34079,7 +34079,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34106,7 +34106,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34132,7 +34132,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34158,7 +34158,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34209,7 +34209,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34236,7 +34236,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34264,7 +34264,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34291,7 +34291,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34318,7 +34318,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
@@ -34385,7 +34385,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34412,7 +34412,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34439,7 +34439,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34466,7 +34466,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34493,7 +34493,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, asset = 0n, index = 0n, args: gateArgs = [], ...rest } = args;
@@ -34520,7 +34520,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, args: gateArgs = [], ...rest } = args;
@@ -34547,7 +34547,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, ...rest } = args;
@@ -34575,7 +34575,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack = true, ...rest } = args;
@@ -34599,7 +34599,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack = true, ...rest } = args;
@@ -34623,7 +34623,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return () => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, rekeyBack = true, ...rest } = args;
@@ -34647,7 +34647,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -34674,7 +34674,7 @@ var SubscriptionsPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer } = args;
@@ -35181,7 +35181,7 @@ var SunsetPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, closeRemainderTo } = args;
@@ -35208,7 +35208,7 @@ var SunsetPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, boxes } = args;
@@ -35235,7 +35235,7 @@ var SunsetPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, closes } = args;
@@ -35265,7 +35265,7 @@ var SunsetPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
       return (spendingAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns: _chunkH4AWSP6Bjs.getTxns
+        getTxns: _chunkMZHAP7IAjs.getTxns
       });
     }
     const { sender, signer, appId, assets } = args;
@@ -35293,10 +35293,10 @@ var SunsetPluginSDK = class extends _chunk7VSUJWG7js.BaseSDK {
 var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
   __init219() {this.pluginMapKeyGenerator = ({ plugin, caller = _algosdk.ALGORAND_ZERO_ADDRESS_STRING, escrow = "" }) => `${plugin}${caller}${escrow}`}
   __init220() {this.allowanceMapKeyGenerator = ({ asset, escrow }) => `${asset}${escrow}`}
-  __init221() {this.plugins = new (0, _chunkH4AWSP6Bjs.ValueMap)(this.pluginMapKeyGenerator)}
+  __init221() {this.plugins = new (0, _chunkMZHAP7IAjs.ValueMap)(this.pluginMapKeyGenerator)}
   __init222() {this.namedPlugins = /* @__PURE__ */ new Map()}
   __init223() {this.escrows = /* @__PURE__ */ new Map()}
-  __init224() {this.allowances = new (0, _chunkH4AWSP6Bjs.ValueMap)(this.allowanceMapKeyGenerator)}
+  __init224() {this.allowances = new (0, _chunkMZHAP7IAjs.ValueMap)(this.allowanceMapKeyGenerator)}
   __init225() {this.executions = /* @__PURE__ */ new Map()}
   
   constructor(params) {
@@ -35445,13 +35445,13 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
       let boxReferences = [];
       if (isFirstSegment) {
         if (lease !== "") {
-          boxReferences.push(_chunkH4AWSP6Bjs.executionBoxKey.call(void 0, lease));
+          boxReferences.push(_chunkMZHAP7IAjs.executionBoxKey.call(void 0, lease));
         }
         if (useExecutionKey) {
           if (!_chunkWXNDITZIjs.hasSenderSigner.call(void 0, sendParams)) {
             throw new Error("Sender and signer must be provided");
           }
-          boxReferences.push(_chunkH4AWSP6Bjs.domainBoxKey.call(void 0, sendParams.sender));
+          boxReferences.push(_chunkMZHAP7IAjs.domainBoxKey.call(void 0, sendParams.sender));
         }
       }
       if (name && segments.length === 1) {
@@ -35733,7 +35733,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
     if (consolidateFees || shouldInflate) {
       const composer = await group.composer();
       const internalTxns = composer.txns;
-      _chunkH4AWSP6Bjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE));
+      _chunkMZHAP7IAjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE));
       const prepared = await prepareGroup(composer);
       const totalFees = prepared.transactions.reduce(
         (acc, t) => acc + BigInt(_nullishCoalesce(t.fee, () => ( 0n))),
@@ -35884,7 +35884,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
         ...sendParams,
         args: {
           escrow,
-          allowances: _chunkH4AWSP6Bjs.AllowancesToTuple.call(void 0, allowances)
+          allowances: _chunkMZHAP7IAjs.AllowancesToTuple.call(void 0, allowances)
         },
         // its own MBR payment from an external controlled address
         extraFee: _algokitutils.microAlgo.call(void 0, controlledMbrFee(hasExternalControlledAddress))
@@ -36077,7 +36077,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
       allowances: Array.from(allowances.keys()).filter((key) => key.escrow === escrow).map((key) => key.asset),
       assets,
       blockers,
-      warnings: _chunkH4AWSP6Bjs.escrowDeleteWarnings.call(void 0, id, address)
+      warnings: _chunkMZHAP7IAjs.escrowDeleteWarnings.call(void 0, id, address)
     };
   }
   /**
@@ -36101,9 +36101,10 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
    * it is deleted. What this removes for such an escrow is what the chain listed when it was called.
    *
    * What becomes of the escrow's address depends on the kind of escrow, and cannot be undone. The
-   * address of an escrow the factory made is under nobody's control afterwards, so funds sent there
-   * are lost. An escrow that is an ordinary account rekeyed to the wallet is closed, which ends its
-   * rekey: the address then belongs to whoever holds its private key. `getEscrowTeardown` returns
+   * address of an escrow the factory made is under nobody's control afterwards, so ALGO sent there
+   * is lost. An asset cannot be sent there, because the address can never opt in again. An escrow
+   * that is an ordinary account rekeyed to the wallet is closed, which ends its rekey: the address
+   * then belongs to whoever holds its private key. `getEscrowTeardown` returns
    * this as `warnings`. An app must show them prominently before it asks the person to confirm, and
    * this method does not show or ask anything itself.
    *
@@ -36114,7 +36115,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
     const hasExternalControlledAddress = await this.hasExternalControlledAddress();
     const mbrFee = _algokitutils.microAlgo.call(void 0, controlledMbrFee(hasExternalControlledAddress));
     const plan = await this.getEscrowTeardown(escrow);
-    _chunkH4AWSP6Bjs.assertEscrowCanBeDeleted.call(void 0, plan, unlock);
+    _chunkMZHAP7IAjs.assertEscrowCanBeDeleted.call(void 0, plan, unlock);
     const calls = [];
     if (plan.locked) {
       calls.push((group) => group.arc58ToggleEscrowLock({ ...sendParams, args: { escrow } }));
@@ -36166,7 +36167,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
       ...sendParams,
       args: {
         escrow,
-        allowances: _chunkH4AWSP6Bjs.AllowancesToTuple.call(void 0, allowances)
+        allowances: _chunkMZHAP7IAjs.AllowancesToTuple.call(void 0, allowances)
       },
       extraFee: await this.controlledMbrExtraFee()
     });
@@ -36225,7 +36226,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
       const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
       const composer = await group.composer();
       const internalTxns = composer.txns;
-      _chunkH4AWSP6Bjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE));
+      _chunkMZHAP7IAjs.applyDefaultAppCallMaxFees.call(void 0, internalTxns, _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE));
       if (adminRekeyMaxFee !== void 0 && internalTxns[rekeyIndex]) internalTxns[rekeyIndex].maxFee = _algokitutils.microAlgo.call(void 0, adminRekeyMaxFee);
       const simulateSender = (_nullishCoalesce(args.callerType, () => ( CallerType.Other))) === CallerType.Other ? sendParams.sender : admin;
       const prepared = await prepareGroup(composer, {
@@ -36349,7 +36350,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
     return (await this.client.send.arc58GetAdmin()).return;
   }
   async getPlugins() {
-    this.plugins = new (0, _chunkH4AWSP6Bjs.ValueMap)(
+    this.plugins = new (0, _chunkMZHAP7IAjs.ValueMap)(
       this.pluginMapKeyGenerator,
       Array.from(
         await this.client.state.box.plugins.getMap(),
@@ -36404,14 +36405,14 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
     return EscrowInfoFromTuple((await this.client.send.arc58GetEscrows({ args: { escrows: [escrow] } })).return[0]);
   }
   async getAllowances() {
-    this.allowances = new (0, _chunkH4AWSP6Bjs.ValueMap)(
+    this.allowances = new (0, _chunkMZHAP7IAjs.ValueMap)(
       this.allowanceMapKeyGenerator,
       Array.from(
         await this.client.state.box.allowances.getMap(),
         ([key, info]) => {
           return [
             key,
-            _chunkH4AWSP6Bjs.AllowanceInfoTranslate.call(void 0, info)
+            _chunkMZHAP7IAjs.AllowanceInfoTranslate.call(void 0, info)
           ];
         }
       )
@@ -36420,7 +36421,7 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
   }
   async getAllowance(key) {
     const orderedKey = { escrow: key.escrow, asset: key.asset };
-    return _chunkH4AWSP6Bjs.AllowanceInfoTranslate.call(void 0, await this.client.state.box.allowances.value(orderedKey));
+    return _chunkMZHAP7IAjs.AllowanceInfoTranslate.call(void 0, await this.client.state.box.allowances.value(orderedKey));
   }
   async getExecutions() {
     this.executions = await this.client.state.box.executions.getMap();
@@ -36544,4 +36545,4 @@ var WalletSDK = (_class63 = class extends _chunk7VSUJWG7js.BaseSDK {
 
 
 exports.CallerType = CallerType; exports.AddPluginDefaults = AddPluginDefaults; exports.isFlatAllowance = isFlatAllowance; exports.isWindowAllowance = isWindowAllowance; exports.isDripAllowance = isDripAllowance; exports.isValidPluginSDK = isValidPluginSDK; exports.getPluginAppId = getPluginAppId; exports.NewEscrowFeeAmount = NewEscrowFeeAmount; exports.ControlledMbrMoveFee = ControlledMbrMoveFee; exports.controlledMbrFee = controlledMbrFee; exports.addPluginExtraFee = addPluginExtraFee; exports.newEscrowExtraFee = newEscrowExtraFee; exports.escrowCountMbr = escrowCountMbr; exports.defaultEscrowGrantMbr = defaultEscrowGrantMbr; exports.DeleteEscrowFeeAmount = DeleteEscrowFeeAmount; exports.RegisterEscrowFeeAmount = RegisterEscrowFeeAmount; exports.RemoveAllowancesPerCall = RemoveAllowancesPerCall; exports.ReclaimsPerCall = ReclaimsPerCall; exports.MaxGroupSize = MaxGroupSize; exports.deleteEscrowExtraFee = deleteEscrowExtraFee; exports.prepareGroup = prepareGroup; exports.sendPrepared = sendPrepared; exports.WalletGroupComposer = WalletGroupComposer; exports.WALLET_ERROR_MESSAGES = WALLET_ERROR_MESSAGES; exports.parseWalletErrorCode = parseWalletErrorCode; exports.translateWalletError = translateWalletError; exports.WalletFactorySDK = WalletFactorySDK; exports.newWallet = newWallet; exports.OptInPluginSDK = OptInPluginSDK; exports.SelfOptInPluginSDK = SelfOptInPluginSDK; exports.WelcomePluginSDK = WelcomePluginSDK; exports.SOCIAL_CLAIM_ATTESTATION_DOMAIN = SOCIAL_CLAIM_ATTESTATION_DOMAIN; exports.SOCIAL_CLAIM_MIN_TTL = SOCIAL_CLAIM_MIN_TTL; exports.SOCIAL_CLAIM_MAX_TTL = SOCIAL_CLAIM_MAX_TTL; exports.SOCIAL_CLAIM_SUBJECT_MBR = SOCIAL_CLAIM_SUBJECT_MBR; exports.SOCIAL_CLAIM_GIFT_MBR = SOCIAL_CLAIM_GIFT_MBR; exports.socialClaimSubject = socialClaimSubject; exports.socialClaimAttestationMessage = socialClaimAttestationMessage; exports.socialClaimGiftBoxName = socialClaimGiftBoxName; exports.SocialClaimSDK = SocialClaimSDK; exports.MetaPluginFactory = MetaPluginFactory; exports.MetaPluginClient = MetaPluginClient; exports.METADATA_MAX_SCOPE_BYTES = METADATA_MAX_SCOPE_BYTES; exports.metadataScopeArgs = metadataScopeArgs; exports.decodeMetadataScope = decodeMetadataScope; exports.MetaPluginSDK = MetaPluginSDK; exports.metaPluginPolicyKey = metaPluginPolicyKey; exports.newMetaPlugin = newMetaPlugin; exports.PayPluginSDK = PayPluginSDK; exports.AsaManagerPluginSDK = AsaManagerPluginSDK; exports.UPGRADE_BINDING_NOTE_PROPOSAL = UPGRADE_BINDING_NOTE_PROPOSAL; exports.UpdateAkitaDAOPluginSDK = UpdateAkitaDAOPluginSDK; exports.RevenueManagerPluginSDK = RevenueManagerPluginSDK; exports.AuctionPluginSDK = AuctionPluginSDK; exports.DAOPluginSDK = DAOPluginSDK; exports.DualStakePluginSDK = DualStakePluginSDK; exports.GatePluginSDK = GatePluginSDK; exports.GuildPluginSDK = GuildPluginSDK; exports.defaultGuildProposalSettings = defaultGuildProposalSettings; exports.defaultGuildBaseConfig = defaultGuildBaseConfig; exports.initializeGuild = initializeGuild; exports.runDraftProposal = runDraftProposal; exports.proposeToGuild = proposeToGuild; exports.voteOnGuildProposal = voteOnGuildProposal; exports.finishGuildProposal = finishGuildProposal; exports.estimateRoundAfter = estimateRoundAfter; exports.GUILD_EXECUTION_WINDOWS = GUILD_EXECUTION_WINDOWS; exports.buildGuildExecution = buildGuildExecution; exports.guildExecutionRecord = guildExecutionRecord; exports.guildExecutionKey = guildExecutionKey; exports.sendGuildExecution = sendGuildExecution; exports.installFundedPlugin = installFundedPlugin; exports.guildPluginSelectors = guildPluginSelectors; exports.createGuild = createGuild; exports.createGuildInOneCall = createGuildInOneCall; exports.findGuildPlugin = findGuildPlugin; exports.HaystackRouterPluginSDK = HaystackRouterPluginSDK; exports.HyperSwapPluginSDK = HyperSwapPluginSDK; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE = MARKETPLACE_PLUGIN_LEGACY_PURCHASE; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS = MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS; exports.MarketplacePluginSDK = MarketplacePluginSDK; exports.NFDPluginSDK = NFDPluginSDK; exports.PaySiloPluginSDK = PaySiloPluginSDK; exports.PaySiloFactoryPluginSDK = PaySiloFactoryPluginSDK; exports.PollPluginSDK = PollPluginSDK; exports.RAFFLE_PLUGIN_NEW_RAFFLE = RAFFLE_PLUGIN_NEW_RAFFLE; exports.RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES; exports.RafflePluginSDK = RafflePluginSDK; exports.RewardsPluginSDK = RewardsPluginSDK; exports.SocialPluginSDK = SocialPluginSDK; exports.StakingPluginSDK = StakingPluginSDK; exports.StakingPoolPluginSDK = StakingPoolPluginSDK; exports.SubscriptionsPluginSDK = SubscriptionsPluginSDK; exports.SunsetPluginSDK = SunsetPluginSDK; exports.WalletSDK = WalletSDK;
-//# sourceMappingURL=chunk-RYGZ44KD.js.map
+//# sourceMappingURL=chunk-U3K2KAQB.js.map

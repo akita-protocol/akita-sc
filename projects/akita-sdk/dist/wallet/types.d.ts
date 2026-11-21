@@ -33,7 +33,9 @@ export type EscrowPluginRef = {
  *   The delete closes it, and closing an account ends its rekey. From then on the address belongs to
  *   whoever holds its private key, and no longer to the wallet.
  * - `address-under-nobodys-control`: the escrow is the account of an app the escrow factory made. The
- *   delete removes that app, and nobody controls the address afterwards. Anything sent to it is lost.
+ *   delete removes that app, and nobody controls the address afterwards. ALGO sent to it is lost. An
+ *   asset cannot be sent to it: the address is opted in to none, and only the address itself could
+ *   opt in.
  */
 export type EscrowDeleteWarningCode = 'address-returns-to-its-key' | 'address-under-nobodys-control';
 /**

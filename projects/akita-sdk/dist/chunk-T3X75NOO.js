@@ -8,7 +8,7 @@ var _chunk6PXDU6U7js = require('./chunk-6PXDU6U7.js');
 var _chunkAP6ZTMSTjs = require('./chunk-AP6ZTMST.js');
 
 
-var _chunkH4AWSP6Bjs = require('./chunk-H4AWSP6B.js');
+var _chunkMZHAP7IAjs = require('./chunk-MZHAP7IA.js');
 
 
 
@@ -4225,7 +4225,7 @@ var assertDirectHint = (wallet, legacy) => {
 };
 var SubscriptionsSDK = (_class3 = class extends _chunk7VSUJWG7js.BaseSDK {
   __init8() {this.serviceMapKeyGenerator = ({ address, id }) => `${address}${id}`}
-  __init9() {this.services = new (0, _chunkH4AWSP6Bjs.ValueMap)(this.serviceMapKeyGenerator)}
+  __init9() {this.services = new (0, _chunkMZHAP7IAjs.ValueMap)(this.serviceMapKeyGenerator)}
   constructor(params) {
     super({ factory: SubscriptionsFactory, ...params }, _chunkLNVZHCCXjs.ENV_VAR_NAMES.SUBSCRIPTIONS_APP_ID);_class3.prototype.__init8.call(this);_class3.prototype.__init9.call(this);;
   }
@@ -4384,7 +4384,7 @@ var SubscriptionsSDK = (_class3 = class extends _chunk7VSUJWG7js.BaseSDK {
         highlightColor: _chunk6PXDU6U7js.bytesToHexColor.call(void 0, value.highlightColor)
       }
     ]);
-    this.services = new (0, _chunkH4AWSP6Bjs.ValueMap)(
+    this.services = new (0, _chunkMZHAP7IAjs.ValueMap)(
       this.serviceMapKeyGenerator,
       new Map(transformedEntries)
     );
@@ -4930,4 +4930,4 @@ var SubscriptionsSDK = (_class3 = class extends _chunk7VSUJWG7js.BaseSDK {
 
 
 exports.ServiceStatus = ServiceStatus; exports.HighlightMessage = HighlightMessage; exports.MAX_DESCRIPTION_LENGTH = MAX_DESCRIPTION_LENGTH; exports.MAX_DESCRIPTION_CHUNK_SIZE = MAX_DESCRIPTION_CHUNK_SIZE; exports.MAX_LOAD_DESCRIPTION_CHUNK_SIZE = MAX_LOAD_DESCRIPTION_CHUNK_SIZE; exports.SUBSCRIPTION_PRINCIPAL_MBR = SUBSCRIPTION_PRINCIPAL_MBR; exports.FEATURED_SERVICE_MBR = FEATURED_SERVICE_MBR; exports.SUBSCRIPTIONS_ERROR_MESSAGES = SUBSCRIPTIONS_ERROR_MESSAGES; exports.translateSubscriptionsError = translateSubscriptionsError; exports.directGateCtx = directGateCtx; exports.SubscriptionsSDK = SubscriptionsSDK;
-//# sourceMappingURL=chunk-I654UFGJ.js.map
+//# sourceMappingURL=chunk-T3X75NOO.js.map

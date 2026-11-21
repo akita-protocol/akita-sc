@@ -541,7 +541,7 @@ describe('ARC58 escrow deletion', () => {
       await expectContractError(wallet.removeAllowances({ escrow, assets: [0n] }), errEscrowLocked);
     });
 
-    test('the address of a deleted escrow is no longer under the wallet, so nothing there can be reclaimed', async () => {
+    test('the address of a deleted escrow is under nobody: nothing there can be reclaimed, ALGO sent there stays, and an asset cannot be sent there', async () => {
       const escrow = 'gone';
       const { address } = await newEscrow(escrow);
       await deleteEscrow(escrow);
@@ -551,9 +551,17 @@ describe('ARC58 escrow deletion', () => {
         wallet.client.send.arc58Reclaim({ sender, args: { escrow, reclaims: [[0n, 100_000n, false]] }, ...fees }),
         errEscrowDoesNotExist,
       );
-      // funds sent to a deleted escrow's address are lost: its app is gone and nothing controls the address
+      // ALGO sent to a deleted escrow's address is lost: its app is gone and nothing controls the address
       expect((await account(address)).balance.microAlgos).toBe(300_000n);
       expect(algosdk.isValidAddress(address)).toBe(true);
+
+      // an asset cannot be lost there. The address is opted in to nothing and only the address itself
+      // could opt in, so the network refuses the transfer and the sender keeps the asset
+      const { assetId } = await localnet.algorand.send.assetCreate({ sender, total: 10n, decimals: 0, assetName: 'Kept' });
+      await expect(localnet.algorand.send.assetTransfer({ sender, receiver: address, assetId, amount: 1n }))
+        .rejects.toThrow(/missing from/);
+      expect((await localnet.algorand.asset.getAccountInformation(sender, assetId)).balance).toBe(10n);
+      expect((await account(address)).totalAssetsOptedIn).toBe(0);
     });
   });
 

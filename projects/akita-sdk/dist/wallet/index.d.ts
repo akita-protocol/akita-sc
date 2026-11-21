@@ -183,9 +183,10 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
      * it is deleted. What this removes for such an escrow is what the chain listed when it was called.
      *
      * What becomes of the escrow's address depends on the kind of escrow, and cannot be undone. The
-     * address of an escrow the factory made is under nobody's control afterwards, so funds sent there
-     * are lost. An escrow that is an ordinary account rekeyed to the wallet is closed, which ends its
-     * rekey: the address then belongs to whoever holds its private key. `getEscrowTeardown` returns
+     * address of an escrow the factory made is under nobody's control afterwards, so ALGO sent there
+     * is lost. An asset cannot be sent there, because the address can never opt in again. An escrow
+     * that is an ordinary account rekeyed to the wallet is closed, which ends its rekey: the address
+     * then belongs to whoever holds its private key. `getEscrowTeardown` returns
      * this as `warnings`. An app must show them prominently before it asks the person to confirm, and
      * this method does not show or ask anything itself.
      *

@@ -26,7 +26,9 @@ export function escrowDeleteWarnings(id: bigint, address: string): EscrowDeleteW
   return [{
     code: 'address-under-nobodys-control',
     message: `After this delete nobody controls the escrow's address ${address}. `
-      + 'Anything sent to it afterwards is lost for good. This cannot be undone.',
+      + 'ALGO sent to it afterwards is lost for good. '
+      + 'An asset can no longer be sent to it, because the address cannot opt in to one again. '
+      + 'This cannot be undone.',
   }];
 }
 
