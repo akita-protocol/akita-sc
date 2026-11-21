@@ -4052,22 +4052,30 @@ isPolicyKey:
     // private isPolicyKey(key: bytes): boolean {
     proto 1 1
     // smart_contracts/meta/contract.algo.ts:661
-    // return key.length > 0 && op.getByte(key, 0) === PolicyRecordKeyPrefix
+    // return key.length > 0 && key.length <= MaxRecordKeyBytes && op.getByte(key, 0) === PolicyRecordKeyPrefix
     frame_dig -1
     len
-    bz isPolicyKey_bool_false@3
+    dup
+    bz isPolicyKey_bool_false@4
+    frame_dig 0
+    pushint 31
+    <=
+    bz isPolicyKey_bool_false@4
     frame_dig -1
     intc_0 // 0
     getbyte
-    bnz isPolicyKey_bool_false@3
+    bnz isPolicyKey_bool_false@4
     intc_1 // 1
+
+isPolicyKey_bool_merge@5:
+    // smart_contracts/meta/contract.algo.ts:661
+    // return key.length > 0 && key.length <= MaxRecordKeyBytes && op.getByte(key, 0) === PolicyRecordKeyPrefix
+    swap
     retsub
 
-isPolicyKey_bool_false@3:
+isPolicyKey_bool_false@4:
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:661
-    // return key.length > 0 && op.getByte(key, 0) === PolicyRecordKeyPrefix
-    retsub
+    b isPolicyKey_bool_merge@5
 
 
 // smart_contracts/meta/contract.algo.ts::Meta.requirePolicyWindow(wallet: uint64, key: bytes) -> void:

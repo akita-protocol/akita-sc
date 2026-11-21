@@ -71,15 +71,16 @@ describe('Meta audit raw ARC-58 boundaries (LocalNet)', () => {
       signer,
       registry: registry.appId,
     })
+    await registry.client.send.setPolicyWriter({ args: { writer: plugin.appId } })
     await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
-    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [plugin.configureScope({
-      caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'keys', namespace, keys: [key] }, expectedRevision: 0n,
-    })] })
     await wallet.addPlugin({
       client: plugin,
       callerType: CallerType.Global,
       methods: [{ name: plugin.set(), cooldown: 0n }],
     })
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [plugin.configureScope({
+      caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'keys', namespace, keys: [key] }, expectedRevision: 0n,
+    })] })
     await wallet.usePlugin({
       callerType: CallerType.Global,
       calls: [plugin.set({ namespace, key, data: new Uint8Array([7]), expectedRevision: 0n })],

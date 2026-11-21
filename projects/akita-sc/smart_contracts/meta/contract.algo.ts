@@ -658,7 +658,7 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
   // GRANT POLICY METHODS -------------------------------------------------------------------------
 
   private isPolicyKey(key: bytes): boolean {
-    return key.length > 0 && op.getByte(key, 0) === PolicyRecordKeyPrefix
+    return key.length > 0 && key.length <= MaxRecordKeyBytes && op.getByte(key, 0) === PolicyRecordKeyPrefix
   }
 
   /**
