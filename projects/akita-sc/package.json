@@ -95,6 +95,7 @@
     "update:subscriptions": "ts-node --transpile-only scripts/update-subscriptions.ts",
     "update:staking": "ts-node --transpile-only scripts/update-staking.ts",
     "staking:set-heartbeat-manager": "ts-node --transpile-only scripts/set-heartbeat-manager.ts",
+    "deploy:inference-silo": "ts-node --transpile-only scripts/deploy-inference-silo.ts",
     "update:auction": "ts-node --transpile-only scripts/update-auction.ts",
     "update:auction-factory": "ts-node --transpile-only scripts/update-auction-factory.ts",
     "init:marketplace-box": "ts-node --transpile-only scripts/init-marketplace-box.ts",
