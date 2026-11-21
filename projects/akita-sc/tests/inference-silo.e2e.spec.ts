@@ -21,6 +21,7 @@ import {
   readSiloRecipient,
   runInferenceSilo,
 } from '../scripts/lib/inference-silo'
+import { readRolloutStatus } from '../scripts/lib/rollout-steps'
 
 describe('deploy-inference-silo through the DAO wallet', () => {
   let boot: DaoTestContext
@@ -69,8 +70,20 @@ describe('deploy-inference-silo through the DAO wallet', () => {
     const plan = await planInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId })
     expect(plan).toMatchObject({ addGrant: true, removeGrant: true, grant: 'absent' })
 
+    const balance = async (address: string) => (await ctx.algorand.account.getInformation(address)).balance.microAlgos
+    const walletInfo = await ctx.dao.getWallet()
+    const controlled = (await walletInfo.client.state.global.controlledAddress())!
+    const [creatorBefore, controlledBefore, walletMinBefore] = await Promise.all([balance(ctx.sender), balance(controlled),
+      ctx.algorand.account.getInformation(controlled).then((i) => i.minBalance.microAlgos)])
     const result = await runInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId, log })
     expect(result.proposalIds).toHaveLength(3)
+    const [creatorAfter, controlledAfter, walletMinAfter] = await Promise.all([balance(ctx.sender), balance(controlled),
+      ctx.algorand.account.getInformation(controlled).then((i) => i.minBalance.microAlgos)])
+    // Each silo raises the DAO wallet's minimum balance for good (one global byte slice), and spends none of it.
+    expect(walletMinAfter - walletMinBefore).toBe(150_000n)
+    expect(controlledAfter).toBe(controlledBefore)
+    // With the DAO and its wallet already funded, the creator pays only fees (measured 26,000 µALGO on LocalNet).
+    expect(creatorBefore - creatorAfter).toBeLessThan(100_000n)
 
     const silo = await ctx.algorand.client.algod.getApplicationByID(result.siloAppId).do()
     const walletControlled = await (await ctx.dao.getWallet()).client.state.global.controlledAddress()
@@ -81,6 +94,10 @@ describe('deploy-inference-silo through the DAO wallet', () => {
     expect(await grant()).toBeUndefined()
     expect(await daoSettings()).toBeUndefined()
     expect(await bootstrapKeyCount()).toBe(keysBefore)
+
+    // rollout:status finds the silo through the wallet's created apps.
+    const row = (await readRolloutStatus(ctx)).rows.find((r) => r.id === 'inference-silo')
+    expect(row?.detail).toContain(`created by the DAO wallet, pays ${recipient}`)
   })
 
   test('--keep-grant keeps only the narrow grant; it can not mint without a proposal; a later run reuses it', async () => {

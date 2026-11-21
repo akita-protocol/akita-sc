@@ -10,8 +10,9 @@
  * GET /agents/inference-billing/:network.
  *
  * Usage (from projects/akita-sc):
- *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> --dry-run
- *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> -m "$M" [--keep-grant]
+ *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> --dry-run --sender "$CREATOR"
+ *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> [--keep-grant]
+ * The key comes from DEPLOYER_MNEMONIC (runbook step A0). Runbook step H9.
  */
 import dotenv from 'dotenv'
 import { parseBaseArgs, runScript, setupContext } from './script-base'

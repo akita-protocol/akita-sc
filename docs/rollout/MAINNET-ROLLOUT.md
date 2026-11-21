@@ -134,7 +134,7 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and an auction from 10 to 50 (owner, 2026-11-17). Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
 - **AuctionFactory now charges the auction creation fee** (owner, 2026-11-17; C33). The factory live today never has, so auctions cost storage only until E4 upgrades it. One contract program changes for this, AuctionFactory's. See B3a and E4.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest before it in one entry only: AuctionFactory's approval program, 4,781 to 4,861 bytes. Its interface is unchanged: the same 18 methods with the same signatures. 33 programs differ from the release commit, and AuctionFactory is the new one.
-- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
+- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), the two pay-silo recipients (G2 and H6), and whether H9 mints the inference silo in this release, with its recipient.
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Update 2026-11-18: the revenue split becomes 80/5/15, and its receivers opt in
@@ -1037,6 +1037,25 @@ npm run install:pay-silo-grant -- -n mainnet --plugin <Labs PaySiloPlugin app id
 npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config social-claim.json --dry-run --sender "$CREATOR"
 npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config social-claim.json --manifest receipts/social-claim.json --register
 (cd ../akita-sdk && npm run build)
+```
+
+#### H9. Inference pay silo, minted by the DAO wallet
+
+- **What:** The DAO wallet mints a PaySiloPlugin through the release PaySiloFactoryPlugin, with Akita's inference revenue account as its fixed recipient. Members install this silo on an `inference` escrow so Akita's billing key can collect pay-as-you-go inference charges in arrears (akita-backend `docs/inference-billing.md`). The silo can only pay that one recipient.
+- **Why here:** Minting through the factory from the DAO wallet gives the silo DAO provenance: its creator is the DAO wallet's controlled address, and its program is the one the factory pins. The G2 factory pins the fixed PaySilo; the factory live on MainNet before G2 does not, and the script refuses it.
+- **Requires:** B2 (AddPlugin on the upgraded DAO) and G2 (the release `paySiloFactoryPlugin`). Run it before I1. **Script:** new 2026-11-21: `deploy:inference-silo` (`scripts/deploy-inference-silo.ts`, `scripts/lib/inference-silo.ts`). Test: `tests/inference-silo.e2e.spec.ts`.
+- **Tracked by rollout:status as** `inference-silo`. The check finds an app created by the DAO wallet's controlled address that runs the tree PaySiloPlugin, and shows its id and recipient.
+- **To decide before the run (owner):** whether the silo is minted in this release or later by a vote, and the recipient address. The recipient is permanent: the silo has no method that changes it, so a new address means a new silo. If the step is left for a vote, name `inference-silo` in `--allow-pending` at I1.
+- The script adds a PaySiloFactoryPlugin grant on the DAO wallet with only `mint`, a global caller and an execution key, and the upgrade proposal settings. It then proposes the mint as an ExecutePlugin, sends it, clears the bootstrap key it used, and removes the grant. It refuses a zero recipient, a DAO that is already initialized, a sender that is not the DAO creator, a factory whose program is not the release manifest's, and an existing factory grant that is broader than the narrow one. After the mint it checks the silo's creator, program and recipient, and that the grant and its settings box are gone.
+- The dry run refuses on either network until G2 has run there, because until then the registered factory is not the release manifest's.
+- Do not pass `--keep-grant` before `dao:rescale-power`. It leaves the grant's settings box on the DAO with power in whole tokens, which `proposal-power.ts` names and I1 refuses. Run without it, or after the rescale.
+- If the mint group fails after the ExecutePlugin proposal, the bootstrap execution key stays tracked and the grant stays installed. Clear them with `scripts/revoke-dao-bootstrap-grants.ts` (I1), or run the script again: it reuses the narrow grant.
+- **Cost:** about 26,000 µALGO in fees for the creator, measured on LocalNet with the DAO and its wallet already funded, plus any top-ups the script sends to the DAO, the wallet or its controlled address. Each silo raises the DAO wallet's minimum balance by 150,000 µALGO for good (one global byte slice of the created app).
+- After the mint: opt the recipient in to USDC, the billing asset, since the silo sends an asset only to an address that holds it. Then add the silo to the backend's `AKITA_INFERENCE_BILLING` for the network; the script prints the entry (silo id, approval sha256, recipient).
+
+```bash
+npm run deploy:inference-silo -- -n mainnet --recipient <Akita inference revenue address> --dry-run --sender "$CREATOR"
+npm run deploy:inference-silo -- -n mainnet --recipient <Akita inference revenue address>
 ```
 
 ### Stage I: Launch the DAO

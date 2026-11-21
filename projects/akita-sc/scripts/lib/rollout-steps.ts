@@ -11,6 +11,7 @@ import { createPluginClient, DAO_STATE_FULLY_INITIALIZED } from './dao-wallet-pl
 import { isPhase2aUpdatePlugin, readFactoryChild, readLiveApp } from './principal-rollout-run'
 import { loadCompiled, PHASE2_RIDE_ALONG_TARGETS, PHASE2_TARGETS } from './principal-rollout'
 import { readHeartbeatManager } from './heartbeat-manager'
+import { readSiloRecipient } from './inference-silo'
 import { planRewardsOptIns } from './rewards-opt-ins'
 import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawal'
 import { RewardsSDK } from 'akita-sdk/rewards'
@@ -227,6 +228,20 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
         return { done: narrow, detail: `PaySiloPlugin ${key.plugin} is installed on rec_krby${narrow ? ' with one method' : ', but not as the pay-only grant'}` }
       }
       return { done: false, detail: 'no tree PaySiloPlugin is installed on rec_krby' }
+    } })
+
+  add({ id: 'inference-silo', stage: 'H', title: 'Inference pay silo minted by the DAO wallet', requires: ['dao', 'plugin:paySiloFactoryPlugin'],
+    run: 'npm run deploy:inference-silo -- --recipient <Akita inference revenue address>', check: async () => {
+      const silo = loadCompiled('arc58/plugins/pay-silo/PaySiloPlugin.arc56.json').approval
+      const controlled = await wallet.client.state.global.controlledAddress()
+      if (!controlled) return { done: false, detail: 'the DAO wallet has no controlled address' }
+      const account = await ctx.algorand.client.algod.accountInformation(controlled).do().catch(() => undefined)
+      for (const app of account?.createdApps ?? []) {
+        if (!same(app.params?.approvalProgram, silo)) continue
+        const recipient = await readSiloRecipient(ctx, app.id)
+        return { done: true, detail: `PaySiloPlugin ${app.id}, created by the DAO wallet, pays ${recipient ?? '(unset)'}` }
+      }
+      return { done: false, detail: `no app created by the DAO wallet (${controlled}) runs the tree PaySiloPlugin` }
     } })
 
   add({ id: 'power', stage: 'I', title: 'Proposal thresholds are in base units', requires: ['dao', 'validator'],
