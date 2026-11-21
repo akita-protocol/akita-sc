@@ -37,7 +37,7 @@ import {
   errTypeScope,
 } from '../../../meta/errors'
 
-import { grantStart, GrantPolicyPlugin, isAdminApproved } from '../../../utils/base-contracts/grant-policy'
+import { grantStart, GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
 import { policyRecordKey } from '../../../meta/functions'
 import { errScopeAdmin, errScopeEncoding, errScopeGrantMissing } from './errors'
 
@@ -76,7 +76,7 @@ export class MetaPlugin extends GrantPolicyPlugin {
 
   private scope(wallet: Application): Scope {
     const grant = this.grant(wallet)
-    if (grant.key.caller === wallet.address) return { namespace: '', keys: [] }
+    if (this.isAdminGrant(wallet, grant)) return { namespace: '', keys: [] }
     return decodeArc4<Scope>(this.policy(wallet, grant))
   }
 
@@ -109,7 +109,7 @@ export class MetaPlugin extends GrantPolicyPlugin {
 
   private requireAdmin(wallet: Application): void {
     const grant = this.grant(wallet)
-    loggedAssert(isAdminApproved(wallet, grant.key), errScopeAdmin)
+    loggedAssert(this.isAdminWindow(wallet, grant), errScopeAdmin)
   }
 
   /**
@@ -162,6 +162,21 @@ export class MetaPlugin extends GrantPolicyPlugin {
       sender: getSpendingAccount(wallet),
       appId: this.registry.value,
       args: [wallet, policyRecordKey(plugin, caller, escrow), expectedRevision],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+      fee: 0,
+    })
+  }
+
+  /**
+   * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+   * route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+   */
+  public setPolicyWriter(wallet: Application, rekeyBack: boolean, writer: Application): void {
+    this.requireAdmin(wallet)
+    abiCall<typeof Meta.prototype.setPolicyWriter>({
+      sender: getSpendingAccount(wallet),
+      appId: this.registry.value,
+      args: [writer],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
       fee: 0,
     })

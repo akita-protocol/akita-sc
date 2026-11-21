@@ -1,0 +1,1779 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../../../../node_modules/@akita-protocol/plugin/functions.ts",
+    "../../../mocks/policy-forger/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACYA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAEE;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;ADI+B;;AAEvB;AAFuB;AAAA;AAAA;ACF7B;AACuD;AAAA;AAA+C;;AAAA;;AAAA;;;;;;;;;;;AADtG;;;;;;;;;;;;;;;AACwE;;;AAAI;;;AAAI;;;AADhF;;;AAC0F;;;AAE1F;;;;;AAAA;;;;;;;;;;;;AACgC;;;;;;;;;;;;;AAHwC;;;;;;;;AAExE;;;AACyE;;;AAEzE;;;AAAA;;;;;;;;AAAA;;;AAAmG;;;AACnG;AATF;AAAA;AAaA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ADT+B;AAEvB;AAFuB;AAAA;AAAA;ACW7B;AAA6E;;AAAA;;;AAAZ;;;;;;;;AAAjE;;;AAAkG;;;AAAlG;AAFF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 8 6 1"
+    },
+    "7": {
+      "op": "bytecblock 0x0000 \"spending_address\""
+    },
+    "29": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "31": {
+      "op": "bz main___algots__.defaultCreate@9",
+      "stack_out": []
+    },
+    "34": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "36": {
+      "op": "!",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "37": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "38": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "40": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "41": {
+      "op": "pushbytess 0x322fd6b8 0x1b8ca919 // method \"forge(uint64,uint64,uint64,address,byte[])void\", method \"noop(uint64)void\"",
+      "defined_out": [
+        "Method(forge(uint64,uint64,uint64,address,byte[])void)",
+        "Method(noop(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(forge(uint64,uint64,uint64,address,byte[])void)",
+        "Method(noop(uint64)void)"
+      ]
+    },
+    "53": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(forge(uint64,uint64,uint64,address,byte[])void)",
+        "Method(noop(uint64)void)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "Method(forge(uint64,uint64,uint64,address,byte[])void)",
+        "Method(noop(uint64)void)",
+        "tmp%6#0"
+      ]
+    },
+    "56": {
+      "op": "match forge noop",
+      "stack_out": []
+    },
+    "62": {
+      "op": "err"
+    },
+    "63": {
+      "block": "main___algots__.defaultCreate@9",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "65": {
+      "op": "!",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "66": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "68": {
+      "op": "!",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "69": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "70": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "71": {
+      "subroutine": "smart_contracts/mocks/policy-forger/contract.algo.ts::MockPolicyForger.forge[routing]",
+      "params": {},
+      "block": "forge",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "74": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "75": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "76": {
+      "op": "intc_1 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "77": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "78": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "79": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "80": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%0#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0"
+      ]
+    },
+    "81": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "84": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "85": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "86": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "87": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "88": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "89": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "90": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0"
+      ]
+    },
+    "91": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0"
+      ]
+    },
+    "94": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "95": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "96": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "97": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "98": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0"
+      ]
+    },
+    "99": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0"
+      ]
+    },
+    "102": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ]
+    },
+    "103": {
+      "op": "len",
+      "defined_out": [
+        "len%3#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "len%3#0"
+      ]
+    },
+    "104": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%3#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "len%3#0",
+        "32"
+      ]
+    },
+    "106": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "eq%3#0"
+      ]
+    },
+    "107": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0"
+      ]
+    },
+    "108": {
+      "op": "txna ApplicationArgs 5",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0"
+      ]
+    },
+    "111": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)"
+      ]
+    },
+    "112": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)",
+        "0"
+      ]
+    },
+    "113": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "114": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "116": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "add%0#0"
+      ]
+    },
+    "117": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "add%0#0",
+        "tmp%8#0 (copy)"
+      ]
+    },
+    "119": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%4#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "add%0#0",
+        "len%4#0"
+      ]
+    },
+    "120": {
+      "op": "==",
+      "defined_out": [
+        "eq%4#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "eq%4#0"
+      ]
+    },
+    "121": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0"
+      ]
+    },
+    "122": {
+      "op": "dig 5",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "wallet#0 (copy)",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "124": {
+      "op": "bytec_1 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "wallet#0 (copy)",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "125": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "126": {
+      "op": "pop",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "127": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0"
+      ]
+    },
+    "128": {
+      "op": "itxn_begin"
+    },
+    "129": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "0"
+      ]
+    },
+    "130": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "131": {
+      "op": "dig 7",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "133": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "check%0#0",
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "value%0#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "135": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "value%0#0"
+      ]
+    },
+    "136": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "138": {
+      "op": "dig 7",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "140": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "spendingAddressBytes#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "142": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "144": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "146": {
+      "op": "pushbytes 0x5adf338f // method \"arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void\"",
+      "defined_out": [
+        "Method(arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void)",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "Method(arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void)"
+      ]
+    },
+    "152": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%2#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "154": {
+      "op": "uncover 5",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "156": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "158": {
+      "op": "dup",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%0#0 (copy)",
+        "tmp%0#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "159": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "161": {
+      "op": "bytec_0 // 0x0000",
+      "defined_out": [
+        "0x0000",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%0#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0x0000"
+      ]
+    },
+    "162": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "164": {
+      "op": "bytec_0 // 0x0000",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0x0000"
+      ]
+    },
+    "165": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "167": {
+      "op": "bytec_0 // 0x0000",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0x0000"
+      ]
+    },
+    "168": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "170": {
+      "op": "intc_2 // appl",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "appl",
+        "tmp%0#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0",
+        "writer#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "appl"
+      ]
+    },
+    "171": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "173": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0"
+      ]
+    },
+    "174": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "writer#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "176": {
+      "op": "itxn_next"
+    },
+    "177": {
+      "op": "uncover 4",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "writer#0"
+      ]
+    },
+    "179": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "181": {
+      "op": "pushbytes 0x20663409 // method \"configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64\"",
+      "defined_out": [
+        "Method(configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64)",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%0#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "Method(configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64)"
+      ]
+    },
+    "187": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "189": {
+      "op": "uncover 5",
+      "stack_out": [
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "191": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "193": {
+      "op": "pushbytes 0x80",
+      "defined_out": [
+        "0x80",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0x80"
+      ]
+    },
+    "196": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "198": {
+      "op": "uncover 3",
+      "stack_out": [
+        "wallet#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%4#0"
+      ]
+    },
+    "200": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "tmp%6#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "202": {
+      "op": "uncover 2",
+      "stack_out": [
+        "wallet#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%6#0"
+      ]
+    },
+    "204": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "206": {
+      "op": "bytec_0 // 0x0000",
+      "stack_out": [
+        "wallet#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0",
+        "0x0000"
+      ]
+    },
+    "207": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "tmp%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "209": {
+      "op": "swap",
+      "stack_out": [
+        "wallet#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%8#0"
+      ]
+    },
+    "210": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "212": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "214": {
+      "op": "intc_2 // appl",
+      "stack_out": [
+        "wallet#0",
+        "appl"
+      ]
+    },
+    "215": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "217": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "wallet#0",
+        "0"
+      ]
+    },
+    "218": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "220": {
+      "op": "itxn_next"
+    },
+    "221": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": []
+    },
+    "223": {
+      "op": "pushbytes 0x6cc3f606 // method \"arc58_verifyAuthAddress()void\"",
+      "defined_out": [
+        "Method(arc58_verifyAuthAddress()void)"
+      ],
+      "stack_out": [
+        "Method(arc58_verifyAuthAddress()void)"
+      ]
+    },
+    "229": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "231": {
+      "op": "intc_2 // appl",
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "232": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "234": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "235": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "237": {
+      "op": "itxn_submit"
+    },
+    "238": {
+      "op": "intc_3 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "239": {
+      "op": "return",
+      "stack_out": []
+    },
+    "240": {
+      "subroutine": "smart_contracts/mocks/policy-forger/contract.algo.ts::MockPolicyForger.noop[routing]",
+      "params": {},
+      "block": "noop",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "243": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "244": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "245": {
+      "op": "intc_1 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "246": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "247": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "248": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "249": {
+      "op": "dup",
+      "defined_out": [
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "250": {
+      "op": "bytec_1 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "251": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "252": {
+      "op": "pop",
+      "stack_out": [
+        "wallet#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "253": {
+      "op": "swap",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ]
+    },
+    "254": {
+      "op": "itxn_begin"
+    },
+    "255": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "spendingAddressBytes#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "257": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "value%0#0"
+      ]
+    },
+    "258": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "260": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "261": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "263": {
+      "op": "dup",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ]
+    },
+    "264": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "266": {
+      "op": "itxn_field Sender",
+      "stack_out": []
+    },
+    "268": {
+      "op": "intc_3 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "269": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "271": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "272": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "274": {
+      "op": "itxn_submit"
+    },
+    "275": {
+      "op": "intc_3 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "276": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

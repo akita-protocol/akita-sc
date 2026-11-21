@@ -17,7 +17,7 @@ import {
   AbstractAccountGlobalStateKeysCurrentPlugin,
 } from '../../arc58/account/constants'
 import type { AbstractedAccount } from '../../arc58/account/contract.algo'
-import { PluginInfo, PluginKey } from '../../arc58/account/types'
+import { CallerTypeAdmin, PluginInfo, PluginKey } from '../../arc58/account/types'
 import { policyRecordKey, readMetaRecord } from '../../meta/functions'
 import { errGrantContext, errPolicyMissing, errPolicyStale } from '../errors'
 import { getSpendingAccount } from '@akita-protocol/plugin/functions'
@@ -26,8 +26,11 @@ import { getRekeyIndex } from '../functions'
 /** Bytes in front of every policy body: the install epoch (`PluginInfo.start`) of the grant it configures. */
 export const GrantPolicyHeaderBytes: uint64 = 8
 
-/** The grant a plugin call is running under, and the epoch the wallet installed it at. */
-export type GrantContext = { key: PluginKey; start: uint64 }
+/**
+ * The grant a plugin call is running under, the epoch the wallet installed it at, and the caller type
+ * the window was opened with (`CallerTypeAdmin` only when the wallet itself checked for an admin).
+ */
+export type GrantContext = { key: PluginKey; start: uint64; type: uint64 }
 
 /**
  * `plugin`'s grant for `(caller, escrow)` on `wallet`; a zeroed `PluginInfo` (start 0) if there is no
@@ -49,12 +52,14 @@ export function grantStart(wallet: Application, plugin: uint64, caller: Account,
 }
 
 /**
- * True when every group that can run under grant `key` on `wallet` was approved by the wallet's admin
- * (or a co-admin), on no escrow. That is either:
+ * True when grant `key` on `wallet` is one whose window only the wallet's admin (or a co-admin) can
+ * approve, on no escrow. That is either:
  * - the admin grant: caller is the wallet itself, so only an admin can open its window; or
  * - a global grant that needs an execution key: the wallet opens its window for anyone else only in
  *   a group whose id the admin registered beforehand (`arc58_addExecutionKey`). This is how a DAO
  *   wallet, whose admin is the DAO app, acts through a proposal's ExecutePlugin action.
+ * This looks at the grant only. For the admin grant, the caller of the window must also check that it
+ * was opened as `CallerTypeAdmin` (GrantPolicyPlugin.isAdminWindow), which needs the group's rekey call.
  */
 export function isAdminApproved(wallet: Application, key: PluginKey): boolean {
   if (key.escrow !== '') return false
@@ -115,12 +120,26 @@ export abstract class GrantPolicyPlugin extends Contract {
     // The wallet validates every plugin call's first argument against its own ID.
     const start = grantStart(wallet, key.plugin, key.caller, key.escrow)
     loggedAssert(start !== 0, errGrantContext)
-    return { key, start }
+    return { key, start, type: op.btoi(rekey.appArgs(2)) }
   }
 
-  /** True when the running grant is an admin execution: caller is the wallet itself, on no escrow. */
+  /**
+   * True when the running grant is an admin execution: caller is the wallet itself, on no escrow, and
+   * the window was opened as `CallerTypeAdmin`. The type matters: a plugin holding any no-escrow window
+   * can call `arc58_rekeyToPlugin` as the wallet's address with type Other, which resolves to the same
+   * caller without the wallet's admin check.
+   */
   protected isAdminGrant(wallet: Application, grant: GrantContext): boolean {
-    return grant.key.caller === wallet.address && grant.key.escrow === ''
+    return grant.key.caller === wallet.address && grant.key.escrow === '' && grant.type === CallerTypeAdmin
+  }
+
+  /**
+   * True when every group that can run under the running grant was approved by the wallet's admin:
+   * an admin execution (isAdminGrant), or a global grant that needs an execution key (isAdminApproved).
+   */
+  protected isAdminWindow(wallet: Application, grant: GrantContext): boolean {
+    if (grant.key.caller === wallet.address) return this.isAdminGrant(wallet, grant)
+    return isAdminApproved(wallet, grant.key)
   }
 
   /**

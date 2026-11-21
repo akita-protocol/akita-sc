@@ -669,7 +669,9 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
    * while the wallet has an admin-approved window open on the writer, on no escrow: either the
    * writer's admin grant (caller = the wallet's own address), which only an admin or co-admin can
    * open, or a global grant of the writer that needs an execution key, which runs only in groups the
-   * admin registered (a DAO proposal's ExecutePlugin). This holds whatever the writer's own code does.
+   * admin registered (a DAO proposal's ExecutePlugin). Meta runs one level below the rekey call and
+   * cannot see its caller type, so the writer must also check that an admin grant's window was opened
+   * as CallerTypeAdmin (GrantPolicyPlugin.isAdminWindow).
    */
   private requirePolicyWindow(wallet: Application, key: bytes): void {
     loggedAssert(this.isPolicyKey(key), errNotPolicyKey)
@@ -685,7 +687,8 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
 
   /**
    * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
-   * it is unset; after that only the DAO wallet can change it.
+   * it is unset; after that only the DAO wallet can change it (through MetaPlugin.setPolicyWriter, by
+   * proposal). It cannot be cleared.
    */
   setPolicyWriter(writer: Application): void {
     const dao = this.getAkitaDAOWallet()
@@ -694,6 +697,8 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
       (dao.id !== 0 && Txn.sender === dao.address),
       errNotAkitaDao,
     )
+    // Clearing the writer would hand the next registration back to the creator.
+    loggedAssert(writer.id !== 0, errPolicyWriter)
     this.policyWriter.value = writer
   }
 

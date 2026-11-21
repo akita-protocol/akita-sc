@@ -63,6 +63,11 @@ export type MetaPluginArgs = {
             escrow: string;
             expectedRevision: bigint | number;
         };
+        'setPolicyWriter(uint64,bool,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            writer: bigint | number;
+        };
         'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -127,6 +132,7 @@ export type MetaPluginArgs = {
         'validatePolicy(byte[])void': [body: Uint8Array];
         'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, plugin: bigint | number, caller: string, escrow: string, body: Uint8Array, expectedRevision: bigint | number];
         'clearPolicy(uint64,bool,uint64,address,string,uint64)void': [wallet: bigint | number, rekeyBack: boolean, plugin: bigint | number, caller: string, escrow: string, expectedRevision: bigint | number];
+        'setPolicyWriter(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, writer: bigint | number];
         'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, namespace: string, key: string, data0: Uint8Array, data1: Uint8Array, data2: Uint8Array, data3: Uint8Array, expectedRevision: bigint | number];
         'remove(uint64,bool,string,string,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, namespace: string, key: string, expectedRevision: bigint | number];
         'addRoot(uint64,bool,string,byte[32],uint64)void': [wallet: bigint | number, rekeyBack: boolean, namespace: string, root: Uint8Array, type: bigint | number];
@@ -145,6 +151,7 @@ export type MetaPluginReturns = {
     'validatePolicy(byte[])void': void;
     'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64': bigint;
     'clearPolicy(uint64,bool,uint64,address,string,uint64)void': void;
+    'setPolicyWriter(uint64,bool,uint64)void': void;
     'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64': bigint;
     'remove(uint64,bool,string,string,uint64)uint64': bigint;
     'addRoot(uint64,bool,string,byte[32],uint64)void': void;
@@ -177,6 +184,10 @@ export type MetaPluginTypes = {
         argsObj: MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
         argsTuple: MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
         returns: MetaPluginReturns['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
+    }> & Record<'setPolicyWriter(uint64,bool,uint64)void' | 'setPolicyWriter', {
+        argsObj: MetaPluginArgs['obj']['setPolicyWriter(uint64,bool,uint64)void'];
+        argsTuple: MetaPluginArgs['tuple']['setPolicyWriter(uint64,bool,uint64)void'];
+        returns: MetaPluginReturns['setPolicyWriter(uint64,bool,uint64)void'];
     }> & Record<'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64' | 'set', {
         argsObj: MetaPluginArgs['obj']['set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64'];
         argsTuple: MetaPluginArgs['tuple']['set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64'];
@@ -354,6 +365,17 @@ export declare abstract class MetaPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static clearPolicy(params: CallParams<MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setPolicyWriter(uint64,bool,uint64)void ABI method
+     *
+    * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+    route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setPolicyWriter(params: CallParams<MetaPluginArgs['obj']['setPolicyWriter(uint64,bool,uint64)void'] | MetaPluginArgs['tuple']['setPolicyWriter(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64 ABI method
      *
@@ -819,6 +841,19 @@ export declare class MetaPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the MetaPlugin smart contract using the `setPolicyWriter(uint64,bool,uint64)void` ABI method.
+         *
+        * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+        route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setPolicyWriter: (params: CallParams<MetaPluginArgs["obj"]["setPolicyWriter(uint64,bool,uint64)void"] | MetaPluginArgs["tuple"]["setPolicyWriter(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the MetaPlugin smart contract using the `set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
@@ -951,6 +986,23 @@ export declare class MetaPluginClient {
          * @returns The call transaction
          */
         clearPolicy: (params: CallParams<MetaPluginArgs["obj"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MetaPlugin smart contract using the `setPolicyWriter(uint64,bool,uint64)void` ABI method.
+         *
+        * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+        route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setPolicyWriter: (params: CallParams<MetaPluginArgs["obj"]["setPolicyWriter(uint64,bool,uint64)void"] | MetaPluginArgs["tuple"]["setPolicyWriter(uint64,bool,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1135,6 +1187,28 @@ export declare class MetaPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | MetaPluginReturns["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MetaPlugin smart contract using the `setPolicyWriter(uint64,bool,uint64)void` ABI method.
+         *
+        * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+        route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setPolicyWriter: (params: CallParams<MetaPluginArgs["obj"]["setPolicyWriter(uint64,bool,uint64)void"] | MetaPluginArgs["tuple"]["setPolicyWriter(uint64,bool,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MetaPluginReturns["setPolicyWriter(uint64,bool,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1365,6 +1439,18 @@ export type MetaPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     clearPolicy(params?: CallParams<MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | undefined]>;
+    /**
+     * Calls the setPolicyWriter(uint64,bool,uint64)void ABI method.
+     *
+    * Point Meta at a new policy writer. Meta accepts it only from the DAO wallet, so this is the DAO's
+    route after launch: an ExecutePlugin proposal through its execution-key grant of this plugin.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setPolicyWriter(params?: CallParams<MetaPluginArgs['obj']['setPolicyWriter(uint64,bool,uint64)void'] | MetaPluginArgs['tuple']['setPolicyWriter(uint64,bool,uint64)void']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['setPolicyWriter(uint64,bool,uint64)void'] | undefined]>;
     /**
      * Calls the set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64 ABI method.
      *

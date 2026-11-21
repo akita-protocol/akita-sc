@@ -5,7 +5,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 32 28500 400 31700 1024 4094 100000000 16384
-    bytecblock 0x151f7c75 "" "m" "type_fees" "akita_dao" "r" "policy_writer" "akita_escrow" "wallet" "ERR:errNdao" "types_id" "$" "ERR:errIpmr" "ERR:errIpma" "ERR:errKtl" "ERR:errMrev" "version" "ERR:errMnam" "ERR:errNnam" "ERR:errMkey" "ERR:errDtl" "l." "ERR:errRkp" "ERR:errNdta" "ERR:errMrnf" "ERR:errMvsz" "ERR:errMpky" 0x068101 "ERR:errMpwn"
+    bytecblock 0x151f7c75 "" "m" "type_fees" "akita_dao" "r" "policy_writer" "akita_escrow" "wallet" "ERR:errNdao" "types_id" "$" "ERR:errIpmr" "ERR:errIpma" "ERR:errKtl" "ERR:errMrev" "version" "ERR:errMnam" "ERR:errNnam" "ERR:errMkey" "ERR:errDtl" "l." "ERR:errRkp" "ERR:errNdta" "ERR:errMrnf" "ERR:errMvsz" "ERR:errMpky" "ERR:errMpwr" 0x068101 "ERR:errMpwn"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/meta/contract.algo.ts:134
@@ -2585,7 +2585,7 @@ removeRecord:
 
 // smart_contracts/meta/contract.algo.ts::Meta.setPolicyWriter[routing]() -> void:
 setPolicyWriter:
-    // smart_contracts/meta/contract.algo.ts:690
+    // smart_contracts/meta/contract.algo.ts:693
     // setPolicyWriter(writer: Application): void {
     txna ApplicationArgs 1
     dup
@@ -2608,13 +2608,13 @@ setPolicyWriter:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/meta/contract.algo.ts:693
+    // smart_contracts/meta/contract.algo.ts:696
     // (this.policyWriter.value.id === 0 && Txn.sender === Global.creatorAddress) ||
     intc_0 // 0
     // smart_contracts/meta/contract.algo.ts:144
     // policyWriter = GlobalState<Application>({ key: MetaGlobalStateKeyPolicyWriter })
     bytec 6 // "policy_writer"
-    // smart_contracts/meta/contract.algo.ts:693
+    // smart_contracts/meta/contract.algo.ts:696
     // (this.policyWriter.value.id === 0 && Txn.sender === Global.creatorAddress) ||
     app_global_get_ex
     assert // check GlobalState exists
@@ -2625,7 +2625,7 @@ setPolicyWriter:
     bnz setPolicyWriter_bool_true@5
 
 setPolicyWriter_or_contd@3:
-    // smart_contracts/meta/contract.algo.ts:694
+    // smart_contracts/meta/contract.algo.ts:697
     // (dao.id !== 0 && Txn.sender === dao.address),
     dig 1
     bz setPolicyWriter_bool_false@6
@@ -2640,7 +2640,7 @@ setPolicyWriter_bool_true@5:
     intc_1 // 1
 
 setPolicyWriter_bool_merge@7:
-    // smart_contracts/meta/contract.algo.ts:692-696
+    // smart_contracts/meta/contract.algo.ts:695-699
     // loggedAssert(
     //   (this.policyWriter.value.id === 0 && Txn.sender === Global.creatorAddress) ||
     //   (dao.id !== 0 && Txn.sender === dao.address),
@@ -2652,14 +2652,23 @@ setPolicyWriter_bool_merge@7:
     err // ERR:errNdao
 
 setPolicyWriter_after_assert@9:
+    // smart_contracts/meta/contract.algo.ts:701
+    // loggedAssert(writer.id !== 0, errPolicyWriter)
+    dup
+    bnz setPolicyWriter_after_assert@11
+    bytec 27 // "ERR:errMpwr"
+    log
+    err // ERR:errMpwr
+
+setPolicyWriter_after_assert@11:
     // smart_contracts/meta/contract.algo.ts:144
     // policyWriter = GlobalState<Application>({ key: MetaGlobalStateKeyPolicyWriter })
     bytec 6 // "policy_writer"
-    // smart_contracts/meta/contract.algo.ts:697
+    // smart_contracts/meta/contract.algo.ts:702
     // this.policyWriter.value = writer
     swap
     app_global_put
-    // smart_contracts/meta/contract.algo.ts:690
+    // smart_contracts/meta/contract.algo.ts:693
     // setPolicyWriter(writer: Application): void {
     intc_1 // 1
     return
@@ -2671,7 +2680,7 @@ setPolicyWriter_bool_false@6:
 
 // smart_contracts/meta/contract.algo.ts::Meta.setPolicy[routing]() -> void:
 setPolicy:
-    // smart_contracts/meta/contract.algo.ts:704
+    // smart_contracts/meta/contract.algo.ts:709
     // setPolicy(payment: gtxn.PaymentTxn, wallet: Application, key: bytes, data: bytes, expectedRevision: uint64): uint64 {
     txn GroupIndex
     intc_1 // 1
@@ -2717,12 +2726,12 @@ setPolicy:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/meta/contract.algo.ts:705
+    // smart_contracts/meta/contract.algo.ts:710
     // this.requirePolicyWindow(wallet, key)
     uncover 3
     dig 3
     callsub requirePolicyWindow
-    // smart_contracts/meta/contract.algo.ts:706
+    // smart_contracts/meta/contract.algo.ts:711
     // return this.storeRecord(payment, key, Bytes(''), Bytes(''), Bytes(''), data, expectedRevision)
     uncover 3
     uncover 3
@@ -2731,7 +2740,7 @@ setPolicy:
     uncover 6
     uncover 6
     callsub storeRecord
-    // smart_contracts/meta/contract.algo.ts:704
+    // smart_contracts/meta/contract.algo.ts:709
     // setPolicy(payment: gtxn.PaymentTxn, wallet: Application, key: bytes, data: bytes, expectedRevision: uint64): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -2744,7 +2753,7 @@ setPolicy:
 
 // smart_contracts/meta/contract.algo.ts::Meta.removePolicy[routing]() -> void:
 removePolicy:
-    // smart_contracts/meta/contract.algo.ts:710
+    // smart_contracts/meta/contract.algo.ts:715
     // removePolicy(wallet: Application, key: bytes, expectedRevision: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -2771,15 +2780,15 @@ removePolicy:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/meta/contract.algo.ts:711
+    // smart_contracts/meta/contract.algo.ts:716
     // this.requirePolicyWindow(wallet, key)
     uncover 2
     dig 2
     callsub requirePolicyWindow
-    // smart_contracts/meta/contract.algo.ts:712
+    // smart_contracts/meta/contract.algo.ts:717
     // this.dropRecord(key, expectedRevision)
     callsub dropRecord
-    // smart_contracts/meta/contract.algo.ts:710
+    // smart_contracts/meta/contract.algo.ts:715
     // removePolicy(wallet: Application, key: bytes, expectedRevision: uint64): uint64 {
     pushbytes 0x151f7c750000000000000000
     log
@@ -3268,9 +3277,9 @@ smart_contracts/meta/contract.algo.ts::Meta.verify_while_top@14:
     itxn_field TypeEnum
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    bytec 27 // 0x068101
+    bytec 28 // 0x068101
     itxn_field ApprovalProgram
-    bytec 27 // 0x068101
+    bytec 28 // 0x068101
     itxn_field ClearStateProgram
     intc_0 // 0
     itxn_field Fee
@@ -4105,13 +4114,13 @@ isPolicyKey_bool_false@4:
 
 // smart_contracts/meta/contract.algo.ts::Meta.requirePolicyWindow(wallet: uint64, key: bytes) -> void:
 requirePolicyWindow:
-    // smart_contracts/meta/contract.algo.ts:674
+    // smart_contracts/meta/contract.algo.ts:676
     // private requirePolicyWindow(wallet: Application, key: bytes): void {
     proto 2 0
     intc_0 // 0
     dupn 4
     bytec_1 // ""
-    // smart_contracts/meta/contract.algo.ts:675
+    // smart_contracts/meta/contract.algo.ts:677
     // loggedAssert(this.isPolicyKey(key), errNotPolicyKey)
     frame_dig -1
     callsub isPolicyKey
@@ -4121,20 +4130,20 @@ requirePolicyWindow:
     err // ERR:errMnpk
 
 requirePolicyWindow_after_assert@2:
-    // smart_contracts/meta/contract.algo.ts:676
+    // smart_contracts/meta/contract.algo.ts:678
     // const writer = this.policyWriter.value
     intc_0 // 0
     // smart_contracts/meta/contract.algo.ts:144
     // policyWriter = GlobalState<Application>({ key: MetaGlobalStateKeyPolicyWriter })
     bytec 6 // "policy_writer"
-    // smart_contracts/meta/contract.algo.ts:676
+    // smart_contracts/meta/contract.algo.ts:678
     // const writer = this.policyWriter.value
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check GlobalState exists
-    // smart_contracts/meta/contract.algo.ts:677
+    // smart_contracts/meta/contract.algo.ts:679
     // loggedAssert(writer.id !== 0 && Global.callerApplicationId === writer.id, errPolicyWriter)
     bz requirePolicyWindow_bool_false@5
     global CallerApplicationID
@@ -4144,36 +4153,36 @@ requirePolicyWindow_after_assert@2:
     intc_1 // 1
 
 requirePolicyWindow_bool_merge@6:
-    // smart_contracts/meta/contract.algo.ts:677
+    // smart_contracts/meta/contract.algo.ts:679
     // loggedAssert(writer.id !== 0 && Global.callerApplicationId === writer.id, errPolicyWriter)
     bnz requirePolicyWindow_after_assert@8
-    pushbytes "ERR:errMpwr"
+    bytec 27 // "ERR:errMpwr"
     log
     err // ERR:errMpwr
 
 requirePolicyWindow_after_assert@8:
-    // smart_contracts/meta/contract.algo.ts:678
+    // smart_contracts/meta/contract.algo.ts:680
     // const [controlled] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysControlledAddress))
     frame_dig -2
     pushbytes "controlled_address"
     app_global_get_ex
     pop
     frame_bury 1
-    // smart_contracts/meta/contract.algo.ts:679
+    // smart_contracts/meta/contract.algo.ts:681
     // const [spending] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysSpendingAddress))
     frame_dig -2
     pushbytes "spending_address"
     app_global_get_ex
     pop
     frame_bury 4
-    // smart_contracts/meta/contract.algo.ts:680
+    // smart_contracts/meta/contract.algo.ts:682
     // const [current, exists] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysCurrentPlugin))
     frame_dig -2
     pushbytes "current_plugin"
     app_global_get_ex
     swap
     frame_bury 2
-    // smart_contracts/meta/contract.algo.ts:681
+    // smart_contracts/meta/contract.algo.ts:683
     // loggedAssert(exists && Txn.sender.bytes === controlled && Txn.sender.bytes === spending, errPolicyWindow)
     bz requirePolicyWindow_bool_false@12
     txn Sender
@@ -4187,15 +4196,15 @@ requirePolicyWindow_after_assert@8:
     intc_1 // 1
 
 requirePolicyWindow_bool_merge@13:
-    // smart_contracts/meta/contract.algo.ts:681
+    // smart_contracts/meta/contract.algo.ts:683
     // loggedAssert(exists && Txn.sender.bytes === controlled && Txn.sender.bytes === spending, errPolicyWindow)
     bnz requirePolicyWindow_after_assert@15
-    bytec 28 // "ERR:errMpwn"
+    bytec 29 // "ERR:errMpwn"
     log
     err // ERR:errMpwn
 
 requirePolicyWindow_after_assert@15:
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     frame_dig 2
     intc_0 // 0
@@ -4204,7 +4213,7 @@ requirePolicyWindow_after_assert@15:
     frame_bury 5
     ==
     bz requirePolicyWindow_bool_false@18
-    // smart_contracts/utils/base-contracts/grant-policy.ts:60
+    // smart_contracts/utils/base-contracts/grant-policy.ts:65
     // if (key.escrow !== '') return false
     frame_dig 2
     dup
@@ -4222,16 +4231,16 @@ requirePolicyWindow_after_assert@15:
     intc_0 // 0
 
 requirePolicyWindow_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@34:
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     bz requirePolicyWindow_bool_false@18
     intc_1 // 1
 
 requirePolicyWindow_bool_merge@19:
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     bnz requirePolicyWindow_after_assert@21
-    bytec 28 // "ERR:errMpwn"
+    bytec 29 // "ERR:errMpwn"
     log
     err // ERR:errMpwn
 
@@ -4243,7 +4252,7 @@ requirePolicyWindow_bool_false@18:
     b requirePolicyWindow_bool_merge@19
 
 requirePolicyWindow_after_if_else@24:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:61
+    // smart_contracts/utils/base-contracts/grant-policy.ts:66
     // if (key.caller === wallet.address) return true
     frame_dig 2
     extract 8 32
@@ -4255,25 +4264,25 @@ requirePolicyWindow_after_if_else@24:
     ==
     bz requirePolicyWindow_after_if_else@26
     intc_1 // 1
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     b requirePolicyWindow_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@34
 
 requirePolicyWindow_after_if_else@26:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:62
+    // smart_contracts/utils/base-contracts/grant-policy.ts:67
     // return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
     frame_dig 0
     global ZeroAddress
     ==
     bz requirePolicyWindow_bool_false@32
-    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41-45
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
     //   fee: 0,
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/base-contracts/grant-policy.ts:40
+    // smart_contracts/utils/base-contracts/grant-policy.ts:43
     // args: [[{ plugin, caller, escrow }]],
     frame_dig 5
     itob
@@ -4296,7 +4305,7 @@ requirePolicyWindow_after_if_else@26:
     concat
     frame_dig -2
     itxn_field ApplicationID
-    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41-45
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4307,11 +4316,11 @@ requirePolicyWindow_after_if_else@26:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/utils/base-contracts/grant-policy.ts:41
+    // smart_contracts/utils/base-contracts/grant-policy.ts:44
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41-45
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4340,7 +4349,7 @@ requirePolicyWindow_after_if_else@26:
     intc_0 // 0
 
 requirePolicyWindow_for_header@28:
-    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41-45
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4391,7 +4400,7 @@ requirePolicyWindow_for_header@28:
 
 requirePolicyWindow_after_for@30:
     pop
-    // smart_contracts/utils/base-contracts/grant-policy.ts:38-42
+    // smart_contracts/utils/base-contracts/grant-policy.ts:41-45
     // const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[{ plugin, caller, escrow }]],
@@ -4416,19 +4425,19 @@ requirePolicyWindow_after_for@30:
     -
     select
     substring3
-    // smart_contracts/utils/base-contracts/grant-policy.ts:62
+    // smart_contracts/utils/base-contracts/grant-policy.ts:67
     // return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
     pushint 218
     getbit
     bz requirePolicyWindow_bool_false@32
     intc_1 // 1
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     b requirePolicyWindow_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@34
 
 requirePolicyWindow_bool_false@32:
     intc_0 // 0
-    // smart_contracts/meta/contract.algo.ts:683
+    // smart_contracts/meta/contract.algo.ts:685
     // loggedAssert(grant.plugin === writer.id && isAdminApproved(wallet, grant), errPolicyWindow)
     b requirePolicyWindow_after_inlined_smart_contracts/utils/base-contracts/grant-policy.ts::isAdminApproved@34
 

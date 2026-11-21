@@ -11,6 +11,7 @@ import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/walle
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao'
 import { proposeAndExecute } from '../../../../scripts/utils'
 import { errNotAkitaDao } from '../../../errors'
+import { errPolicyWriter } from '../../../meta/errors'
 import { errExecutionKeyNotFound, errGroupNotFound } from '../../account/errors'
 import {
   DEFAULT_CREATION,
@@ -37,6 +38,7 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
   let daoWallet: WalletSDK
   let writer: MetaPluginSDK
   let metaAppId: bigint
+  let metaClient: Awaited<ReturnType<MetaFactory['send']['create']['create']>>['appClient']
   let leaseCounter = 0
 
   /** Build `calls` as one group through the DAO wallet's execution-key grant (simulate only). */
@@ -80,6 +82,7 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     const metaFactory = algorand.client.getTypedAppFactory(MetaFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
     const { appClient: meta } = await metaFactory.send.create.create({ args: { version: 'test', akitaDao: universe.dao.appId } })
     metaAppId = meta.appId
+    metaClient = meta
     await meta.appClient.fundAppAccount({ amount: algokit.microAlgos(1_000_000) })
     writer = await newMetaPlugin({ algorand, sender: deployer.addr.toString(), signer: deployer.signer, registry: metaAppId })
 
@@ -88,6 +91,7 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     const stranger = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
     await expect(meta.send.setPolicyWriter({ sender: stranger.addr, signer: stranger.signer, args: { writer: writer.appId } }))
       .rejects.toThrow(new RegExp(errNotAkitaDao))
+    await expect(meta.send.setPolicyWriter({ args: { writer: 0n } })).rejects.toThrow(new RegExp(errPolicyWriter))
     await meta.send.setPolicyWriter({ args: { writer: writer.appId } })
     await expect(meta.send.setPolicyWriter({ args: { writer: 1n } })).rejects.toThrow(new RegExp(errNotAkitaDao))
 
@@ -146,5 +150,16 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     await sendPrepared(registered.windows[0], fixture.algorand.client.algod)
     const after = await writer.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
     expect(after.revision).toBeGreaterThan(revision)
+  })
+
+  test('after launch the DAO rotates the writer by proposal, through the current one', async () => {
+    const next = await newMetaPlugin({ algorand: fixture.algorand, sender: deployer.addr.toString(), signer: deployer.signer, registry: metaAppId })
+    const build = await daoBuild([writer.setPolicyWriter({ sender: deployer.addr, signer: deployer.signer, writer: next.appId })], newLease())
+    await daoRegister(writer.appId, build)
+    await sendPrepared(build.windows[0], fixture.algorand.client.algod)
+    expect(await metaClient.state.global.policyWriter()).toBe(next.appId)
+    // Policies belong to the wallet, so the one written under the old writer is still there.
+    expect((await next.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow, plugin: writer.appId })).scope)
+      .toMatchObject({ type: 'namespace', namespace })
   })
 })

@@ -389,8 +389,8 @@
     "arc58/plugins/meta/MetaPlugin": {
       "name": "MetaPlugin",
       "approval": {
-        "bytes": 3889,
-        "sha256": "fc30754ff901c385ea8f3a17d45230a9ffd2b9e6c9f7e2f03a204f94f3580529"
+        "bytes": 4075,
+        "sha256": "f4659039aaef892ceddc1ff10890780f35f7eed4f1a3d50353b3985e5c497e41"
       },
       "clear": {
         "bytes": 4,
@@ -994,8 +994,8 @@
     "meta/Meta": {
       "name": "Meta",
       "approval": {
-        "bytes": 5201,
-        "sha256": "bbeadc40e060cc6409823cf06c1c326c2aa9b846a077e511ea43cc7028991b56"
+        "bytes": 5209,
+        "sha256": "f3c85df547ba308a417df269723cfa158652a28e238975788cd01e6169336bf6"
       },
       "clear": {
         "bytes": 4,
@@ -1373,6 +1373,19 @@
       "approval": {
         "bytes": 503,
         "sha256": "c1b161bfa250640af49821e57386ec18dd2d982330d6325ada9fc43f9616c6d7"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
+    "mocks/policy-forger/MockPolicyForger": {
+      "name": "MockPolicyForger",
+      "testOnly": true,
+      "approval": {
+        "bytes": 277,
+        "sha256": "451a515b180166b64caef9442399970a6f30105ec1dd1511b101eb3b9b9c75fb"
       },
       "clear": {
         "bytes": 4,

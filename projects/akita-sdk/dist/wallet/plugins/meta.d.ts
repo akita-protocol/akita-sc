@@ -103,6 +103,11 @@ export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
         expectedRevision: bigint;
         rekeyBack?: boolean;
     }): PluginSDKReturn;
+    /** Point Meta at a new policy writer, through this MetaPlugin's grant on the DAO wallet (Meta accepts only the DAO wallet). */
+    setPolicyWriter(args: MaybeSigner & {
+        writer: bigint;
+        rekeyBack?: boolean;
+    }): PluginSDKReturn;
     set(): PluginSDKReturn;
     set(args: MetadataSet): PluginSDKReturn;
     remove(): PluginSDKReturn;

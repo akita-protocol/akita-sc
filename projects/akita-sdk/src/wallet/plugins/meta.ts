@@ -100,6 +100,19 @@ export class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     return this.clearPolicy({ ...args, plugin: args.plugin ?? this.appId });
   }
 
+  /** Point Meta at a new policy writer, through this MetaPlugin's grant on the DAO wallet (Meta accepts only the DAO wallet). */
+  setPolicyWriter(args: MaybeSigner & { writer: bigint; rekeyBack?: boolean }): PluginSDKReturn {
+    const sendParams = this.getRequiredSendParams(args);
+    return () => ({
+      appId: this.appId,
+      selectors: [this.client.appClient.getABIMethod("setPolicyWriter").getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.setPolicyWriter({
+        ...sendParams,
+        args: { wallet, rekeyBack: args.rekeyBack ?? true, writer: args.writer },
+      })) }],
+    });
+  }
+
   set(): PluginSDKReturn;
   set(args: MetadataSet): PluginSDKReturn;
   set(args?: MetadataSet): PluginSDKReturn {
