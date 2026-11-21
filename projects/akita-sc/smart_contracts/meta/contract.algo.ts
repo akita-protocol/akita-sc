@@ -228,6 +228,8 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
   create(version: string, akitaDAO: Application): void {
     this.version.value = version
     this.akitaDAO.value = akitaDAO
+    // No policy writer until the creator registers one (setPolicyWriter).
+    this.policyWriter.value = Application(0)
     op.AppParamsSet.appForeignBoxReads(true)
   }
 

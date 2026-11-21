@@ -11,6 +11,7 @@ import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/walle
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao'
 import { proposeAndExecute } from '../../../../scripts/utils'
 import { errNotAkitaDao } from '../../../errors'
+import { errExecutionKeyNotFound, errGroupNotFound } from '../../account/errors'
 import {
   DEFAULT_CREATION,
   DEFAULT_UPGRADE_APP_APPROVAL,
@@ -38,29 +39,34 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
   let metaAppId: bigint
   let leaseCounter = 0
 
-  /** Authorize `calls` by proposal, then send them through the DAO wallet's execution-key grant. */
-  const daoExecute = async (plugin: bigint, calls: PluginSDKReturn[]) => {
-    leaseCounter += 1
-    const build = await daoWallet.build.usePlugin({
-      sender: deployer.addr,
-      signer: deployer.signer,
-      lease: `meta_dao_${Date.now() % 100_000}_${leaseCounter}`,
-      callerType: CallerType.Global,
-      windowSize: 2000n,
-      calls,
-    })
-    await proposeAndExecute(fixture.algorand, universe.dao, [{
-      type: ProposalActionEnum.ExecutePlugin,
-      plugin,
-      caller: deployer.addr.toString(),
-      escrow: '',
-      executionKey: build.lease,
-      groups: build.ids,
-      firstValid: build.firstValid,
-      lastValid: build.lastValid,
-    }])
-    await sendPrepared(build.windows[0], fixture.algorand.client.algod)
-  }
+  /** Build `calls` as one group through the DAO wallet's execution-key grant (simulate only). */
+  const daoBuild = (calls: PluginSDKReturn[], lease: string) => daoWallet.build.usePlugin({
+    sender: deployer.addr,
+    signer: deployer.signer,
+    lease,
+    callerType: CallerType.Global,
+    windowSize: 2000n,
+    calls,
+  })
+
+  /** Register a built group by an ExecutePlugin proposal. */
+  const daoRegister = (plugin: bigint, build: Awaited<ReturnType<typeof daoBuild>>) => proposeAndExecute(fixture.algorand, universe.dao, [{
+    type: ProposalActionEnum.ExecutePlugin,
+    plugin,
+    caller: deployer.addr.toString(),
+    escrow: '',
+    executionKey: build.lease,
+    groups: build.ids,
+    firstValid: build.firstValid,
+    lastValid: build.lastValid,
+  }])
+
+  const newLease = () => { leaseCounter += 1; return `meta_dao_${Date.now() % 100_000}_${leaseCounter}` }
+
+  const configure = (namespace: string, expectedRevision: bigint) => writer.configureScope({
+    sender: deployer.addr, signer: deployer.signer, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow,
+    scope: { type: 'namespace', namespace }, expectedRevision,
+  })
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -77,7 +83,11 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     await meta.appClient.fundAppAccount({ amount: algokit.microAlgos(1_000_000) })
     writer = await newMetaPlugin({ algorand, sender: deployer.addr.toString(), signer: deployer.signer, registry: metaAppId })
 
-    // Rollout H1: the creator registers the writer once, although the DAO already has a wallet.
+    // Rollout H1: while it is unset only the creator may register the writer, although the DAO has a
+    // wallet. Once it is set the creator cannot change it.
+    const stranger = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+    await expect(meta.send.setPolicyWriter({ sender: stranger.addr, signer: stranger.signer, args: { writer: writer.appId } }))
+      .rejects.toThrow(new RegExp(errNotAkitaDao))
     await meta.send.setPolicyWriter({ args: { writer: writer.appId } })
     await expect(meta.send.setPolicyWriter({ args: { writer: 1n } })).rejects.toThrow(new RegExp(errNotAkitaDao))
 
@@ -106,14 +116,9 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     const before = await writer.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
     expect(before.scope).toBeUndefined()
 
-    await daoExecute(writer.appId, [writer.configureScope({
-      sender: deployer.addr,
-      signer: deployer.signer,
-      caller: ALGORAND_ZERO_ADDRESS_STRING,
-      escrow,
-      scope: { type: 'namespace', namespace },
-      expectedRevision: 0n,
-    })])
+    const build = await daoBuild([configure(namespace, 0n)], newLease())
+    await daoRegister(writer.appId, build)
+    await sendPrepared(build.windows[0], fixture.algorand.client.algod)
 
     const info = await daoWallet.getPluginByKey({ plugin: writer.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
     const after = await writer.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
@@ -122,16 +127,24 @@ describe('MetaPlugin grant policies on the DAO wallet (LocalNet)', () => {
     expect(after.scope).toMatchObject({ type: 'namespace', namespace })
   })
 
-  test('the same grant without a registered group cannot write', async () => {
-    // Without an execution key the wallet refuses the window before MetaPlugin or Meta run.
+  test('the writer grant runs only in a group a proposal registered', async () => {
+    const { revision } = await writer.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
+
+    // No execution key at all.
     await expect(daoWallet.usePlugin({
-      sender: deployer.addr,
-      signer: deployer.signer,
-      callerType: CallerType.Global,
-      calls: [writer.configureScope({
-        sender: deployer.addr, signer: deployer.signer, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow,
-        scope: { type: 'namespace', namespace: 'other' }, expectedRevision: 0n,
-      })],
-    })).rejects.toThrow()
+      sender: deployer.addr, signer: deployer.signer, callerType: CallerType.Global, calls: [configure('other', revision)],
+    })).rejects.toThrow(errExecutionKeyNotFound)
+
+    // A registered key, but a different group under it.
+    const lease = newLease()
+    const registered = await daoBuild([configure(namespace, revision)], lease)
+    const other = await daoBuild([configure('other', revision)], lease)
+    await daoRegister(writer.appId, registered)
+    await expect(sendPrepared(other.windows[0], fixture.algorand.client.algod)).rejects.toThrow(errGroupNotFound)
+
+    // The registered group still runs, once.
+    await sendPrepared(registered.windows[0], fixture.algorand.client.algod)
+    const after = await writer.getScope({ wallet: daoWallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow })
+    expect(after.revision).toBeGreaterThan(revision)
   })
 })

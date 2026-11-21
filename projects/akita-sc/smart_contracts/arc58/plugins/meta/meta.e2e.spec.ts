@@ -288,6 +288,33 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
       .toEqual({ type: 'namespace', namespace: 'akita.account' })
   })
 
+  test('a delegated writer grant writes only on no escrow, and only while it needs an execution key', async () => {
+    const signer = fixture.context.testAccount.signer
+    const configure = (escrow: string, namespace: string, expectedRevision = 0n) => wallet.usePlugin({
+      sender: owner, signer, callerType: CallerType.Global, escrow,
+      calls: [unrestricted.configureScope({
+        plugin: namespacePlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'namespace', namespace }, expectedRevision,
+      })],
+    })
+    await wallet.addPlugin({ client: namespacePlugin, callerType: CallerType.Global })
+
+    // On an escrow, even an execution-key grant is not admin-approved: Meta needs the controlled address.
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global, escrow: 'pol', useExecutionKey: true })
+    await expect(configure('pol', 'akita.account')).rejects.toThrow(errScopeAdmin)
+
+    // On no escrow, a global grant that needs an execution key may write. The admin sends this group, so
+    // the wallet skips the key; anyone else needs a registered group id (meta-dao.e2e.spec.ts).
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global, useExecutionKey: true })
+    await configure('', 'akita.account')
+    const written = await namespacePlugin.getScope({ wallet: wallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING })
+    expect(written.scope).toEqual({ type: 'namespace', namespace: 'akita.account' })
+
+    // The admin replaces it with the same grant without an execution key: no more writes.
+    await wallet.removePlugin({ plugin: unrestricted.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '' })
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global })
+    await expect(configure('', 'another.app', written.revision)).rejects.toThrow(errScopeAdmin)
+  })
+
   test('unrestricted install can use different namespaces, then delete and restore wallet control', async () => {
     await install({ client: unrestricted, callerType: CallerType.Global })
     for (const namespace of ['akita.account', 'another.app']) {
