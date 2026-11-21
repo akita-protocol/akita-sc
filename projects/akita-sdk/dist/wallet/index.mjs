@@ -56,6 +56,7 @@ import {
   controlledMbrFee,
   createGuild,
   createGuildInOneCall,
+  decodeGrantPolicy,
   decodeMetadataScope,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,
@@ -86,7 +87,7 @@ import {
   socialClaimSubject,
   translateWalletError,
   voteOnGuildProposal
-} from "../chunk-2WWU4MLO.mjs";
+} from "../chunk-AZ3JPA7C.mjs";
 import "../chunk-DFU3OQJ5.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-47AKUWST.mjs";
@@ -158,6 +159,7 @@ export {
   controlledMbrFee,
   createGuild,
   createGuildInOneCall,
+  decodeGrantPolicy,
   decodeMetadataScope,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,

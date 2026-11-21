@@ -206,6 +206,9 @@ export type MetaPluginTypes = {
     state: {
         global: {
             keys: {
+                /**
+                 * The Meta registry that stores this plugin's policies.
+                 */
                 registry: bigint;
             };
             maps: {};
@@ -309,7 +312,9 @@ export declare abstract class MetaPluginParamsFactory {
     /**
      * Constructs a no op call for the configureScope(uint64,bool,address,string,string,string[],uint64)uint64 ABI method
      *
-     * Only an administrator execution can create or replace a delegated grant's policy.
+    * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+    be installed; the policy lapses if the grant is removed and installed again.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -748,7 +753,9 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
          *
-         * Only an administrator execution can create or replace a delegated grant's policy.
+        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+        be installed; the policy lapses if the grant is removed and installed again.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -854,7 +861,9 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
          *
-         * Only an administrator execution can create or replace a delegated grant's policy.
+        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+        be installed; the policy lapses if the grant is removed and installed again.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -1000,7 +1009,9 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
          *
-         * Only an administrator execution can create or replace a delegated grant's policy.
+        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+        be installed; the policy lapses if the grant is removed and installed again.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -1213,7 +1224,9 @@ export type MetaPluginComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the configureScope(uint64,bool,address,string,string,string[],uint64)uint64 ABI method.
      *
-     * Only an administrator execution can create or replace a delegated grant's policy.
+    * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+    be installed; the policy lapses if the grant is removed and installed again.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call

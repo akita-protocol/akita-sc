@@ -19,6 +19,11 @@ type MetadataSet = MetadataWrite & {
 };
 export { MetaPluginFactory, MetaPluginClient } from "../../generated/MetaPluginClient";
 export * from "./meta-scope";
+/** Split a GrantPolicyPlugin record into the grant's install epoch and the plugin's policy body. */
+export declare function decodeGrantPolicy(data: Uint8Array): {
+    start: bigint;
+    body: Uint8Array;
+};
 export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     constructor(params: NewContractSDKParams);
     getScope(args: {
@@ -28,10 +33,12 @@ export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     }): Promise<{
         registry: bigint;
         revision: bigint;
+        start: bigint;
         scope: undefined;
     } | {
         registry: bigint;
         revision: bigint;
+        start: bigint;
         scope: MetaPluginScope;
     }>;
     configureScope(args: MaybeSigner & {
