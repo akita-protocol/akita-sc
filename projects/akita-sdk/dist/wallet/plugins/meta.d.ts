@@ -26,10 +26,15 @@ export declare function decodeGrantPolicy(data: Uint8Array): {
 };
 export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     constructor(params: NewContractSDKParams);
+    /**
+     * The scope this MetaPlugin (or `plugin`, another MetaPlugin) applies to one grant. Grant policies
+     * are owned by the wallet's controlled address and keyed by `grantPolicyKey`.
+     */
     getScope(args: {
         wallet: bigint;
         caller: string;
         escrow?: string;
+        plugin?: bigint;
     }): Promise<{
         registry: bigint;
         revision: bigint;
@@ -41,14 +46,58 @@ export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
         start: bigint;
         scope: MetaPluginScope;
     }>;
+    /** The raw grant policy of any plugin's grant `(plugin, caller, escrow)` on `wallet`. */
+    getPolicy(args: {
+        wallet: bigint;
+        plugin: bigint;
+        caller: string;
+        escrow?: string;
+    }): Promise<{
+        registry: bigint;
+        exists: false;
+        revision: bigint;
+        start: bigint;
+        body: Uint8Array<ArrayBuffer>;
+    } | {
+        registry: bigint;
+        exists: true;
+        revision: bigint;
+        start: bigint;
+        body: Uint8Array<ArrayBufferLike>;
+    }>;
+    /**
+     * Write the policy of `plugin`'s grant `(caller, escrow)`. Run it through this MetaPlugin's admin
+     * grant (`CallerType.Admin`), on the MetaPlugin registered as Meta's policy writer. Put it in the
+     * same group as the grant's install to leave no unconfigured gap.
+     */
+    configurePolicy(args: MaybeSigner & {
+        plugin: bigint;
+        caller: string;
+        escrow?: string;
+        body: Uint8Array;
+        expectedRevision: bigint;
+        rekeyBack?: boolean;
+    }): PluginSDKReturn;
+    /** Remove the policy of `plugin`'s grant `(caller, escrow)`, through this MetaPlugin's admin grant. */
+    clearPolicy(args: MaybeSigner & {
+        plugin: bigint;
+        caller: string;
+        escrow?: string;
+        expectedRevision: bigint;
+        rekeyBack?: boolean;
+    }): PluginSDKReturn;
+    /** `configurePolicy` for a MetaPlugin grant: `plugin` (default: this one) gets `scope`. */
     configureScope(args: MaybeSigner & {
+        plugin?: bigint;
         caller: string;
         escrow?: string;
         scope: MetaPluginScope;
         expectedRevision: bigint;
         rekeyBack?: boolean;
     }): PluginSDKReturn;
+    /** `clearPolicy` for a MetaPlugin grant (default: this one). */
     clearScope(args: MaybeSigner & {
+        plugin?: bigint;
         caller: string;
         escrow?: string;
         expectedRevision: bigint;
@@ -91,8 +140,13 @@ export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     }): Promise<import("../..").GroupReturn>;
     private pluginCall;
 }
-/** This adapter compresses its composite policy identity into a 31-byte record key. */
-export declare function metaPluginPolicyKey(wallet: bigint, caller: string, escrow?: string): Uint8Array;
+/**
+ * Meta record key of the grant policy for `(plugin, caller, escrow)`: the reserved 0x00 byte, then
+ * the first 30 bytes of sha256 over the ARC-4 `(uint64,address,string)` grant identity.
+ */
+export declare function grantPolicyKey(plugin: bigint, caller: string, escrow?: string): Uint8Array;
+/** The account that owns a wallet's grant policies: its controlled address. */
+export declare function walletControlledAddress(algorand: NewContractSDKParams["algorand"], wallet: bigint): Promise<string>;
 /** Deploy one reusable adapter. Configure delegated grants through an admin wallet execution. */
 export declare function newMetaPlugin(params: {
     algorand: NewContractSDKParams["algorand"];

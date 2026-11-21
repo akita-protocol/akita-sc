@@ -5,6 +5,15 @@ import { Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 
 export const MetaGlobalStateKeyTypesID = 'types_id'
 export const MetaGlobalStateKeyTypeFees = 'type_fees'
+/** the MetaPlugin allowed to write grant policies (see setPolicy) */
+export const MetaGlobalStateKeyPolicyWriter = 'policy_writer'
+
+/**
+ * First byte of every grant-policy record key. Only `setPolicy` / `removePolicy` write such keys;
+ * `setRecord` / `removeRecord` refuse them. MetaPlugin's own record keys start with a namespace
+ * length of at least 1, so it cannot produce one through `set` either.
+ */
+export const PolicyRecordKeyPrefix: uint64 = 0
 
 /** the fee for registering a tree type; the type's own storage is paid out of it */
 export const MetaTypeFee: uint64 = 100_000_000

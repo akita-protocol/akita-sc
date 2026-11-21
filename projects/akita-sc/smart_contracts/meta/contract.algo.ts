@@ -16,9 +16,16 @@ import {
   op,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { abimethod, Uint16, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abimethod, decodeArc4, Uint16, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { itob, sha256, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { errEscrowDoesNotExist } from '../arc58/account/errors'
+import {
+  AbstractAccountGlobalStateKeysControlledAddress,
+  AbstractAccountGlobalStateKeysCurrentPlugin,
+  AbstractAccountGlobalStateKeysSpendingAddress,
+} from '../arc58/account/constants'
+import { PluginKey } from '../arc58/account/types'
+import { errNotAkitaDao } from '../errors'
 import { errInvalidPaymentAmount, errInvalidPaymentReceiver, errPayerOnly } from '../utils/errors'
 import { canReceiveAlgo, payerOf, recordPayer, releaseDeposit, sponsorCost } from '../utils/functions'
 import { AkitaBaseFeeGeneratorContractWithoutAkitaOptIn } from '../utils/base-contracts/base'
@@ -77,6 +84,8 @@ import {
   MaxRecordPartBytes,
   MaxInlineRecordBytes,
   MaxRecordChunkBytes,
+  MetaGlobalStateKeyPolicyWriter,
+  PolicyRecordKeyPrefix,
 } from './constants'
 import {
   errDataTooLong,
@@ -99,6 +108,10 @@ import {
   errRecordPartTooLarge,
   errRecordRequiresSlice,
   errInvalidSchemaPart,
+  errPolicyKey,
+  errNotPolicyKey,
+  errPolicyWriter,
+  errPolicyWindow,
 } from './errors'
 import {
   RootValue,
@@ -123,6 +136,11 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
    * less the storage its type occupies, so this is never more than what the app can spare.
    */
   typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
+  /**
+   * The one MetaPlugin allowed to write grant policies, set by the DAO wallet. Policies are owned by
+   * each wallet's controlled address, so rotating the writer keeps them readable and editable.
+   */
+  policyWriter = GlobalState<Application>({ key: MetaGlobalStateKeyPolicyWriter })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -578,6 +596,15 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
     data0: bytes, data1: bytes, data2: bytes, data3: bytes,
     expectedRevision: uint64,
   ): uint64 {
+    loggedAssert(!this.isPolicyKey(key), errPolicyKey)
+    return this.storeRecord(payment, key, data0, data1, data2, data3, expectedRevision)
+  }
+
+  private storeRecord(
+    payment: gtxn.PaymentTxn, key: bytes,
+    data0: bytes, data1: bytes, data2: bytes, data3: bytes,
+    expectedRevision: uint64,
+  ): uint64 {
     const id = this.recordKey(Txn.sender, key)
     loggedAssert(data0.length <= MaxRecordPartBytes && data1.length <= MaxRecordPartBytes &&
       data2.length <= MaxRecordPartBytes && data3.length <= MaxFinalRecordPartBytes, errRecordPartTooLarge)
@@ -614,12 +641,70 @@ export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
   }
 
   removeRecord(key: bytes, expectedRevision: uint64): uint64 {
+    loggedAssert(!this.isPolicyKey(key), errPolicyKey)
+    this.dropRecord(key, expectedRevision)
+    return 0
+  }
+
+  private dropRecord(key: bytes, expectedRevision: uint64): void {
     const id = this.recordKey(Txn.sender, key)
     loggedAssert(this.records(id).exists, errRecordNotFound)
     loggedAssert(expectedRevision === this.currentRecordRevision(id), errRecordRevisionMismatch)
     const refund = this.recordStorageCost(key, this.records(id).length - RecordHeaderBytes)
     this.records(id).delete()
     this.releaseRecord(this.records(id).key, refund)
+  }
+
+  // GRANT POLICY METHODS -------------------------------------------------------------------------
+
+  private isPolicyKey(key: bytes): boolean {
+    return key.length > 0 && op.getByte(key, 0) === PolicyRecordKeyPrefix
+  }
+
+  /**
+   * A policy write must come from the registered writer, sent as the wallet's controlled address,
+   * while the wallet has an admin window open on the writer: its current grant is the writer's admin
+   * grant (caller = the wallet's own address, no escrow). The wallet opens such a window only for an
+   * admin or co-admin, so this holds whatever the writer's own code does.
+   */
+  private requirePolicyWindow(wallet: Application, key: bytes): void {
+    loggedAssert(this.isPolicyKey(key), errNotPolicyKey)
+    const writer = this.policyWriter.value
+    loggedAssert(writer.id !== 0 && Global.callerApplicationId === writer.id, errPolicyWriter)
+    const [controlled] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysControlledAddress))
+    const [spending] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysSpendingAddress))
+    const [current, exists] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysCurrentPlugin))
+    loggedAssert(exists && Txn.sender.bytes === controlled && Txn.sender.bytes === spending, errPolicyWindow)
+    const grant = decodeArc4<PluginKey>(current)
+    loggedAssert(grant.plugin === writer.id && grant.caller === wallet.address && grant.escrow === '', errPolicyWindow)
+  }
+
+  /**
+   * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+   * wallet (initial deployment), the creator may.
+   */
+  setPolicyWriter(writer: Application): void {
+    const dao = this.getAkitaDAOWallet()
+    loggedAssert(
+      dao.id === 0 ? Txn.sender === Global.creatorAddress : Txn.sender === dao.address,
+      errNotAkitaDao,
+    )
+    this.policyWriter.value = writer
+  }
+
+  /**
+   * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+   * writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+   */
+  setPolicy(payment: gtxn.PaymentTxn, wallet: Application, key: bytes, data: bytes, expectedRevision: uint64): uint64 {
+    this.requirePolicyWindow(wallet, key)
+    return this.storeRecord(payment, key, Bytes(''), Bytes(''), Bytes(''), data, expectedRevision)
+  }
+
+  /** Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer. */
+  removePolicy(wallet: Application, key: bytes, expectedRevision: uint64): uint64 {
+    this.requirePolicyWindow(wallet, key)
+    this.dropRecord(key, expectedRevision)
     return 0
   }
 }

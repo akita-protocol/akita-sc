@@ -64,6 +64,7 @@ import {
   findGuildPlugin,
   finishGuildProposal,
   getPluginAppId,
+  grantPolicyKey,
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
@@ -73,7 +74,6 @@ import {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  metaPluginPolicyKey,
   metadataScopeArgs,
   newEscrowExtraFee,
   newMetaPlugin,
@@ -86,11 +86,12 @@ import {
   socialClaimGiftBoxName,
   socialClaimSubject,
   translateWalletError,
-  voteOnGuildProposal
-} from "../chunk-AZ3JPA7C.mjs";
+  voteOnGuildProposal,
+  walletControlledAddress
+} from "../chunk-FLIJUADF.mjs";
 import "../chunk-DFU3OQJ5.mjs";
 import "../chunk-TWVKGIBP.mjs";
-import "../chunk-47AKUWST.mjs";
+import "../chunk-NRTEG6P4.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-K7IKWEOR.mjs";
 import "../chunk-C5XM3R7G.mjs";
@@ -167,6 +168,7 @@ export {
   findGuildPlugin,
   finishGuildProposal,
   getPluginAppId,
+  grantPolicyKey,
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
@@ -176,7 +178,6 @@ export {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  metaPluginPolicyKey,
   metadataScopeArgs,
   newEscrowExtraFee,
   newMetaPlugin,
@@ -189,6 +190,7 @@ export {
   socialClaimGiftBoxName,
   socialClaimSubject,
   translateWalletError,
-  voteOnGuildProposal
+  voteOnGuildProposal,
+  walletControlledAddress
 };
 //# sourceMappingURL=index.mjs.map

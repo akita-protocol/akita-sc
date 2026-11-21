@@ -43,18 +43,22 @@ export type MetaPluginArgs = {
         'create(uint64)void': {
             registry: bigint | number;
         };
-        'configureScope(uint64,bool,address,string,string,string[],uint64)uint64': {
+        'validatePolicy(byte[])void': {
+            body: Uint8Array;
+        };
+        'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
+            plugin: bigint | number;
             caller: string;
             escrow: string;
-            namespace: string;
-            keys: string[];
+            body: Uint8Array;
             expectedRevision: bigint | number;
         };
-        'clearScope(uint64,bool,address,string,uint64)void': {
+        'clearPolicy(uint64,bool,uint64,address,string,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
+            plugin: bigint | number;
             caller: string;
             escrow: string;
             expectedRevision: bigint | number;
@@ -120,8 +124,9 @@ export type MetaPluginArgs = {
      */
     tuple: {
         'create(uint64)void': [registry: bigint | number];
-        'configureScope(uint64,bool,address,string,string,string[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, caller: string, escrow: string, namespace: string, keys: string[], expectedRevision: bigint | number];
-        'clearScope(uint64,bool,address,string,uint64)void': [wallet: bigint | number, rekeyBack: boolean, caller: string, escrow: string, expectedRevision: bigint | number];
+        'validatePolicy(byte[])void': [body: Uint8Array];
+        'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, plugin: bigint | number, caller: string, escrow: string, body: Uint8Array, expectedRevision: bigint | number];
+        'clearPolicy(uint64,bool,uint64,address,string,uint64)void': [wallet: bigint | number, rekeyBack: boolean, plugin: bigint | number, caller: string, escrow: string, expectedRevision: bigint | number];
         'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, namespace: string, key: string, data0: Uint8Array, data1: Uint8Array, data2: Uint8Array, data3: Uint8Array, expectedRevision: bigint | number];
         'remove(uint64,bool,string,string,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, namespace: string, key: string, expectedRevision: bigint | number];
         'addRoot(uint64,bool,string,byte[32],uint64)void': [wallet: bigint | number, rekeyBack: boolean, namespace: string, root: Uint8Array, type: bigint | number];
@@ -137,8 +142,9 @@ export type MetaPluginArgs = {
  */
 export type MetaPluginReturns = {
     'create(uint64)void': void;
-    'configureScope(uint64,bool,address,string,string,string[],uint64)uint64': bigint;
-    'clearScope(uint64,bool,address,string,uint64)void': void;
+    'validatePolicy(byte[])void': void;
+    'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64': bigint;
+    'clearPolicy(uint64,bool,uint64,address,string,uint64)void': void;
     'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64': bigint;
     'remove(uint64,bool,string,string,uint64)uint64': bigint;
     'addRoot(uint64,bool,string,byte[32],uint64)void': void;
@@ -159,14 +165,18 @@ export type MetaPluginTypes = {
         argsObj: MetaPluginArgs['obj']['create(uint64)void'];
         argsTuple: MetaPluginArgs['tuple']['create(uint64)void'];
         returns: MetaPluginReturns['create(uint64)void'];
-    }> & Record<'configureScope(uint64,bool,address,string,string,string[],uint64)uint64' | 'configureScope', {
-        argsObj: MetaPluginArgs['obj']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'];
-        argsTuple: MetaPluginArgs['tuple']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'];
-        returns: MetaPluginReturns['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'];
-    }> & Record<'clearScope(uint64,bool,address,string,uint64)void' | 'clearScope', {
-        argsObj: MetaPluginArgs['obj']['clearScope(uint64,bool,address,string,uint64)void'];
-        argsTuple: MetaPluginArgs['tuple']['clearScope(uint64,bool,address,string,uint64)void'];
-        returns: MetaPluginReturns['clearScope(uint64,bool,address,string,uint64)void'];
+    }> & Record<'validatePolicy(byte[])void' | 'validatePolicy', {
+        argsObj: MetaPluginArgs['obj']['validatePolicy(byte[])void'];
+        argsTuple: MetaPluginArgs['tuple']['validatePolicy(byte[])void'];
+        returns: MetaPluginReturns['validatePolicy(byte[])void'];
+    }> & Record<'configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64' | 'configurePolicy', {
+        argsObj: MetaPluginArgs['obj']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'];
+        argsTuple: MetaPluginArgs['tuple']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'];
+        returns: MetaPluginReturns['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'];
+    }> & Record<'clearPolicy(uint64,bool,uint64,address,string,uint64)void' | 'clearPolicy', {
+        argsObj: MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
+        argsTuple: MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
+        returns: MetaPluginReturns['clearPolicy(uint64,bool,uint64,address,string,uint64)void'];
     }> & Record<'set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64' | 'set', {
         argsObj: MetaPluginArgs['obj']['set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64'];
         argsTuple: MetaPluginArgs['tuple']['set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64'];
@@ -207,7 +217,7 @@ export type MetaPluginTypes = {
         global: {
             keys: {
                 /**
-                 * The Meta registry that stores this plugin's policies.
+                 * The Meta registry that stores grant policies.
                  */
                 registry: bigint;
             };
@@ -310,25 +320,40 @@ export declare abstract class MetaPluginParamsFactory {
         };
     };
     /**
-     * Constructs a no op call for the configureScope(uint64,bool,address,string,string,string[],uint64)uint64 ABI method
+     * Constructs a no op call for the validatePolicy(byte[])void ABI method
      *
-    * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-    be installed; the policy lapses if the grant is removed and installed again.
+     * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static validatePolicy(params: CallParams<MetaPluginArgs['obj']['validatePolicy(byte[])void'] | MetaPluginArgs['tuple']['validatePolicy(byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64 ABI method
+     *
+    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+    execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+    The grant must be installed: its current `start` is written in front of `body`, so the policy
+    lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+    `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static configureScope(params: CallParams<MetaPluginArgs['obj']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'] | MetaPluginArgs['tuple']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static configurePolicy(params: CallParams<MetaPluginArgs['obj']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'] | MetaPluginArgs['tuple']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the clearScope(uint64,bool,address,string,uint64)void ABI method
+     * Constructs a no op call for the clearPolicy(uint64,bool,uint64,address,string,uint64)void ABI method
      *
-     * Removing a policy disables the delegated grant until an administrator configures it again.
+    * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+    until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+    grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+  
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static clearScope(params: CallParams<MetaPluginArgs['obj']['clearScope(uint64,bool,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearScope(uint64,bool,address,string,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static clearPolicy(params: CallParams<MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64 ABI method
      *
@@ -751,27 +776,46 @@ export declare class MetaPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
-        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-        be installed; the policy lapses if the grant is removed and installed again.
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        validatePolicy: (params: CallParams<MetaPluginArgs["obj"]["validatePolicy(byte[])void"] | MetaPluginArgs["tuple"]["validatePolicy(byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
+         *
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        The grant must be installed: its current `start` is written in front of `body`, so the policy
+        lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+        `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        configureScope: (params: CallParams<MetaPluginArgs["obj"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"] | MetaPluginArgs["tuple"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"]> & {
+        configurePolicy: (params: CallParams<MetaPluginArgs["obj"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"] | MetaPluginArgs["tuple"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `clearScope(uint64,bool,address,string,uint64)void` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `clearPolicy(uint64,bool,uint64,address,string,uint64)void` ABI method.
          *
-         * Removing a policy disables the delegated grant until an administrator configures it again.
+        * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+        until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+        grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        clearScope: (params: CallParams<MetaPluginArgs["obj"]["clearScope(uint64,bool,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearScope(uint64,bool,address,string,uint64)void"]> & {
+        clearPolicy: (params: CallParams<MetaPluginArgs["obj"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -859,16 +903,16 @@ export declare class MetaPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
-        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-        be installed; the policy lapses if the grant is removed and installed again.
-    
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        configureScope: (params: CallParams<MetaPluginArgs["obj"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"] | MetaPluginArgs["tuple"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"]> & {
+        validatePolicy: (params: CallParams<MetaPluginArgs["obj"]["validatePolicy(byte[])void"] | MetaPluginArgs["tuple"]["validatePolicy(byte[])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -876,14 +920,37 @@ export declare class MetaPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `clearScope(uint64,bool,address,string,uint64)void` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
          *
-         * Removing a policy disables the delegated grant until an administrator configures it again.
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        The grant must be installed: its current `start` is written in front of `body`, so the policy
+        lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+        `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        clearScope: (params: CallParams<MetaPluginArgs["obj"]["clearScope(uint64,bool,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearScope(uint64,bool,address,string,uint64)void"]> & {
+        configurePolicy: (params: CallParams<MetaPluginArgs["obj"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"] | MetaPluginArgs["tuple"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MetaPlugin smart contract using the `clearPolicy(uint64,bool,uint64,address,string,uint64)void` ABI method.
+         *
+        * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+        until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+        grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        clearPolicy: (params: CallParams<MetaPluginArgs["obj"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1007,19 +1074,19 @@ export declare class MetaPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `configureScope(uint64,bool,address,string,string,string[],uint64)uint64` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
-        * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-        be installed; the policy lapses if the grant is removed and installed again.
-    
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        configureScope: (params: CallParams<MetaPluginArgs["obj"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"] | MetaPluginArgs["tuple"]["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"]> & SendParams & {
+        validatePolicy: (params: CallParams<MetaPluginArgs["obj"]["validatePolicy(byte[])void"] | MetaPluginArgs["tuple"]["validatePolicy(byte[])void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MetaPluginReturns["configureScope(uint64,bool,address,string,string,string[],uint64)uint64"]);
+            return: (undefined | MetaPluginReturns["validatePolicy(byte[])void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1029,17 +1096,45 @@ export declare class MetaPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the MetaPlugin smart contract using the `clearScope(uint64,bool,address,string,uint64)void` ABI method.
+         * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
          *
-         * Removing a policy disables the delegated grant until an administrator configures it again.
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        The grant must be installed: its current `start` is written in front of `body`, so the policy
+        lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+        `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
+    
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        clearScope: (params: CallParams<MetaPluginArgs["obj"]["clearScope(uint64,bool,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearScope(uint64,bool,address,string,uint64)void"]> & SendParams & {
+        configurePolicy: (params: CallParams<MetaPluginArgs["obj"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"] | MetaPluginArgs["tuple"]["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MetaPluginReturns["clearScope(uint64,bool,address,string,uint64)void"]);
+            return: (undefined | MetaPluginReturns["configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MetaPlugin smart contract using the `clearPolicy(uint64,bool,uint64,address,string,uint64)void` ABI method.
+         *
+        * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+        until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+        grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        clearPolicy: (params: CallParams<MetaPluginArgs["obj"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"] | MetaPluginArgs["tuple"]["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MetaPluginReturns["clearPolicy(uint64,bool,uint64,address,string,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1201,6 +1296,17 @@ export declare class MetaPluginClient {
      */
     clone(params: CloneAppClientParams): MetaPluginClient;
     /**
+     * Makes a readonly (simulated) call to the MetaPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    validatePolicy(params: CallParams<MetaPluginArgs['obj']['validatePolicy(byte[])void'] | MetaPluginArgs['tuple']['validatePolicy(byte[])void']>): Promise<void>;
+    /**
      * Methods to access state for the current MetaPlugin app
      */
     state: {
@@ -1222,27 +1328,43 @@ export declare class MetaPluginClient {
 }
 export type MetaPluginComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the configureScope(uint64,bool,address,string,string,string[],uint64)uint64 ABI method.
+     * Calls the validatePolicy(byte[])void ABI method.
      *
-    * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-    be installed; the policy lapses if the grant is removed and installed again.
+     * Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    validatePolicy(params?: CallParams<MetaPluginArgs['obj']['validatePolicy(byte[])void'] | MetaPluginArgs['tuple']['validatePolicy(byte[])void']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['validatePolicy(byte[])void'] | undefined]>;
+    /**
+     * Calls the configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64 ABI method.
+     *
+    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+    execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+    The grant must be installed: its current `start` is written in front of `body`, so the policy
+    lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+    `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    configureScope(params?: CallParams<MetaPluginArgs['obj']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'] | MetaPluginArgs['tuple']['configureScope(uint64,bool,address,string,string,string[],uint64)uint64']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['configureScope(uint64,bool,address,string,string,string[],uint64)uint64'] | undefined]>;
+    configurePolicy(params?: CallParams<MetaPluginArgs['obj']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'] | MetaPluginArgs['tuple']['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64'] | undefined]>;
     /**
-     * Calls the clearScope(uint64,bool,address,string,uint64)void ABI method.
+     * Calls the clearPolicy(uint64,bool,uint64,address,string,uint64)void ABI method.
      *
-     * Removing a policy disables the delegated grant until an administrator configures it again.
+    * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+    until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+    grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+  
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    clearScope(params?: CallParams<MetaPluginArgs['obj']['clearScope(uint64,bool,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearScope(uint64,bool,address,string,uint64)void']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['clearScope(uint64,bool,address,string,uint64)void'] | undefined]>;
+    clearPolicy(params?: CallParams<MetaPluginArgs['obj']['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | MetaPluginArgs['tuple']['clearPolicy(uint64,bool,uint64,address,string,uint64)void']>): MetaPluginComposer<[...TReturns, MetaPluginReturns['clearPolicy(uint64,bool,uint64,address,string,uint64)void'] | undefined]>;
     /**
      * Calls the set(uint64,bool,string,string,byte[],byte[],byte[],byte[],uint64)uint64 ABI method.
      *

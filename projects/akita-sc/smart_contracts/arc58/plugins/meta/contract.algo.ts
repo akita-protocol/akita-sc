@@ -12,6 +12,8 @@ import {
   op,
   OpUpFeeSource,
   arc4,
+  Contract,
+  Global,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
@@ -35,7 +37,15 @@ import {
   errTypeScope,
 } from '../../../meta/errors'
 
-import { GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
+import { grantStart, GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
+import { policyRecordKey } from '../../../meta/functions'
+import { errScopeAdmin, errScopeEncoding, errScopeGrantMissing } from './errors'
+
+/** The readonly method every GrantPolicyPlugin exposes for its policy writer. */
+abstract class GrantPolicyValidator extends Contract {
+  @abimethod({ readonly: true })
+  validatePolicy(_body: bytes): void {}
+}
 
 type Scope = { namespace: string; keys: string[] }
 const MaxScopeNameBytes: uint64 = 31
@@ -45,12 +55,15 @@ const MaxScopeNameBytes: uint64 = 31
 export class MetaPlugin extends GrantPolicyPlugin {
 
   public approvalProgram(): boolean {
-    // Fund ABI array validation before dispatch for the largest supported policy.
-    if (Txn.applicationId.id !== 0 && Txn.numAppArgs === 8 &&
-        Txn.applicationArgs(0) === methodSelector<typeof MetaPlugin.prototype.configureScope>()) {
-      const keys = Txn.applicationArgs(6)
-      if (keys.length >= 2 && keys.length <= 124 && op.extractUint16(keys, 0) > 8)
-        ensureBudget(1800, OpUpFeeSource.GroupCredit)
+    // Fund decoding and validating the largest supported scope before dispatch.
+    if (Txn.applicationId.id !== 0) {
+      const selector = Txn.numAppArgs > 0 ? Txn.applicationArgs(0) : Bytes('')
+      const body = selector === methodSelector<typeof MetaPlugin.prototype.validatePolicy>() && Txn.numAppArgs === 2
+        ? Txn.applicationArgs(1)
+        : selector === methodSelector<typeof MetaPlugin.prototype.configurePolicy>() && Txn.numAppArgs === 8
+          ? Txn.applicationArgs(6)
+          : Bytes('')
+      if (body.length > 48) ensureBudget(1800, OpUpFeeSource.GroupCredit)
     }
     return super.approvalProgram()
   }
@@ -84,21 +97,74 @@ export class MetaPlugin extends GrantPolicyPlugin {
     ensureBudget(1400, OpUpFeeSource.GroupCredit)
   }
 
-  /**
-   * Only an administrator execution can create or replace a delegated grant's policy. The grant must
-   * be installed; the policy lapses if the grant is removed and installed again.
-   */
-  public configureScope(
-    wallet: Application, rekeyBack: boolean, caller: Account, escrow: string,
-    namespace: string, keys: string[], expectedRevision: uint64,
-  ): uint64 {
-    this.validateScope(namespace, keys)
-    return this.writePolicy(wallet, rekeyBack, caller, escrow, encodeArc4<Scope>({ namespace, keys: clone(keys) }), expectedRevision)
+  /** Policy body format for MetaPlugin grants: an ARC-4 `(string,string[])` scope, canonically encoded. */
+  @abimethod({ readonly: true })
+  public validatePolicy(body: bytes): void {
+    const scope = decodeArc4<Scope>(body)
+    loggedAssert(encodeArc4(scope) === body, errScopeEncoding)
+    this.validateScope(scope.namespace, scope.keys)
   }
 
-  /** Removing a policy disables the delegated grant until an administrator configures it again. */
-  public clearScope(wallet: Application, rekeyBack: boolean, caller: Account, escrow: string, expectedRevision: uint64): void {
-    this.removePolicy(wallet, rekeyBack, caller, escrow, expectedRevision)
+  // POLICY WRITER METHODS (only on the MetaPlugin registered as Meta's policy writer) -------------
+
+  private requireAdmin(wallet: Application): void {
+    const grant = this.grant(wallet)
+    loggedAssert(this.isAdminGrant(wallet, grant), errScopeAdmin)
+  }
+
+  /**
+   * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
+   * execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+   * The grant must be installed: its current `start` is written in front of `body`, so the policy
+   * lapses if the grant is removed and installed again. `plugin` checks `body` first through its
+   * `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
+   */
+  public configurePolicy(
+    wallet: Application, rekeyBack: boolean, plugin: uint64, caller: Account, escrow: string,
+    body: bytes, expectedRevision: uint64,
+  ): uint64 {
+    this.requireAdmin(wallet)
+    const start = grantStart(wallet, plugin, caller, escrow)
+    loggedAssert(start !== 0, errScopeGrantMissing)
+    if (plugin === Global.currentApplicationId.id) {
+      this.validatePolicy(body)
+    } else {
+      abiCall<typeof GrantPolicyValidator.prototype.validatePolicy>({ appId: plugin, args: [body], fee: 0 })
+    }
+
+    const key = policyRecordKey(plugin, caller, escrow)
+    const data = op.itob(start).concat(body)
+    const sender = getSpendingAccount(wallet)
+    const cost = abiCall<typeof Meta.prototype.recordCost>({
+      appId: this.registry.value,
+      args: [sender, key, data.length],
+      fee: 0,
+    }).returnValue
+    return abiCall<typeof Meta.prototype.setPolicy>({
+      sender,
+      appId: this.registry.value,
+      args: [itxn.payment({ sender, receiver: this.registry.value.address, amount: cost, fee: 0 }), wallet, key, data, expectedRevision],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+      fee: 0,
+    }).returnValue
+  }
+
+  /**
+   * Remove the policy of `plugin`'s grant `(caller, escrow)` on `wallet`, which disables that grant
+   * until an admin configures it again. Admin only. The grant need not exist any more, so a removed
+   * grant's policy can always be cleaned up; Meta refunds its storage to whoever paid for it.
+   */
+  public clearPolicy(
+    wallet: Application, rekeyBack: boolean, plugin: uint64, caller: Account, escrow: string, expectedRevision: uint64,
+  ): void {
+    this.requireAdmin(wallet)
+    abiCall<typeof Meta.prototype.removePolicy>({
+      sender: getSpendingAccount(wallet),
+      appId: this.registry.value,
+      args: [wallet, policyRecordKey(plugin, caller, escrow), expectedRevision],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+      fee: 0,
+    })
   }
 
   private requireScope(wallet: Application, namespace: string, key: string): void {

@@ -1,5 +1,5 @@
 import { Account, Application, Bytes, bytes, Global, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import type { Meta } from './contract.algo'
 import { MaxInlineRecordBytes, MaxRecordPartBytes, MaxRecordChunkBytes, MaxRecordKeyBytes, RecordPrefix, RecordHeaderBytes } from './constants'
 import { errInvalidKey, errRecordNotFound, errRecordRange, errRecordRequiresSlice, errRecordRevisionMismatch } from './errors'
@@ -10,6 +10,16 @@ import { Leaf, Proof } from '../utils/types/merkles'
 export function metaRecordKey(account: Account, key: bytes): bytes {
   loggedAssert(key.length > 0 && key.length <= MaxRecordKeyBytes, errInvalidKey)
   return account.bytes.concat(key)
+}
+
+/**
+ * Record key of the grant policy for one install of `plugin`: the reserved 0x00 byte, then the
+ * hashed `(plugin, caller, escrow)` grant identity. The record is owned by the wallet's controlled
+ * address and only Meta's setPolicy / removePolicy write it.
+ */
+export function policyRecordKey(plugin: uint64, caller: Account, escrow: string): bytes {
+  const id = op.sha256(encodeArc4<[uint64, Account, string]>([plugin, caller, escrow]))
+  return Bytes.fromHex('00').concat(id.slice(0, MaxRecordKeyBytes - 1))
 }
 
 /** Direct foreign-box read. The calling contract must target AVM 13 and supply box resources. */

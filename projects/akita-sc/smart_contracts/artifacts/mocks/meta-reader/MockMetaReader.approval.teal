@@ -74,26 +74,26 @@ metaRecordKey_bool_false@3:
 
 // smart_contracts/meta/functions.ts::readMetaRecordInfo(registry: uint64, account: bytes, key: bytes) -> bytes:
 readMetaRecordInfo:
-    // smart_contracts/meta/functions.ts:16
+    // smart_contracts/meta/functions.ts:26
     // export function readMetaRecordInfo(registry: Application, account: Account, key: bytes): MetaRecordInfo {
     proto 3 1
-    // smart_contracts/meta/functions.ts:17
+    // smart_contracts/meta/functions.ts:27
     // const id = metaRecordKey(account, key)
     frame_dig -2
     frame_dig -1
     callsub metaRecordKey
-    // smart_contracts/meta/functions.ts:18
+    // smart_contracts/meta/functions.ts:28
     // const name = Bytes(RecordPrefix).concat(id)
     bytec_1 // "m"
     swap
     concat
     dup
-    // smart_contracts/meta/functions.ts:19
+    // smart_contracts/meta/functions.ts:29
     // const [length, exists] = op.AppBox.length(registry, name)
     frame_dig -3
     swap
     app_box_len
-    // smart_contracts/meta/functions.ts:20
+    // smart_contracts/meta/functions.ts:30
     // if (!exists) return { exists: false, revision: 0, size: 0 }
     bnz readMetaRecordInfo_after_if_else@2
     pushbytes 0x0000000000000000000000000000000000
@@ -101,7 +101,7 @@ readMetaRecordInfo:
     retsub
 
 readMetaRecordInfo_after_if_else@2:
-    // smart_contracts/meta/functions.ts:21
+    // smart_contracts/meta/functions.ts:31
     // return { exists: true, revision: decodeArc4<uint64>(op.AppBox.extract(registry, name, 0, 8)), size: length - RecordHeaderBytes }
     frame_dig -3
     uncover 2
@@ -125,12 +125,12 @@ readMetaRecordInfo_after_if_else@2:
 
 // smart_contracts/meta/functions.ts::setMetaRecordParts(registry: uint64, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64) -> uint64:
 setMetaRecordParts:
-    // smart_contracts/meta/functions.ts:58-60
+    // smart_contracts/meta/functions.ts:68-70
     // export function setMetaRecordParts(
     //   registry: Application, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64,
     // ): uint64 {
     proto 7 1
-    // smart_contracts/meta/functions.ts:61
+    // smart_contracts/meta/functions.ts:71
     // const size: uint64 = data0.length + data1.length + data2.length + data3.length
     frame_dig -5
     len
@@ -148,12 +148,12 @@ setMetaRecordParts:
     swap
     dig 1
     +
-    // smart_contracts/meta/functions.ts:62-64
+    // smart_contracts/meta/functions.ts:72-74
     // const cost = abiCall<typeof Meta.prototype.recordCost>({
     //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
     // }).returnValue
     itxn_begin
-    // smart_contracts/meta/functions.ts:63
+    // smart_contracts/meta/functions.ts:73
     // appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
     global CurrentApplicationAddress
     frame_dig -6
@@ -166,7 +166,7 @@ setMetaRecordParts:
     itob
     frame_dig -7
     itxn_field ApplicationID
-    // smart_contracts/meta/functions.ts:62-64
+    // smart_contracts/meta/functions.ts:72-74
     // const cost = abiCall<typeof Meta.prototype.recordCost>({
     //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
     // }).returnValue
@@ -179,11 +179,11 @@ setMetaRecordParts:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/meta/functions.ts:63
+    // smart_contracts/meta/functions.ts:73
     // appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/meta/functions.ts:62-64
+    // smart_contracts/meta/functions.ts:72-74
     // const cost = abiCall<typeof Meta.prototype.recordCost>({
     //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
     // }).returnValue
@@ -202,14 +202,14 @@ setMetaRecordParts:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/meta/functions.ts:65-69
+    // smart_contracts/meta/functions.ts:75-79
     // return abiCall<typeof Meta.prototype.setRecord>({
     //   appId: registry,
     //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
     //   fee: 0,
     // }).returnValue
     itxn_begin
-    // smart_contracts/meta/functions.ts:67
+    // smart_contracts/meta/functions.ts:77
     // args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
     frame_dig -7
     app_params_get AppAddress
@@ -220,14 +220,14 @@ setMetaRecordParts:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/meta/functions.ts:65-69
+    // smart_contracts/meta/functions.ts:75-79
     // return abiCall<typeof Meta.prototype.setRecord>({
     //   appId: registry,
     //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
     //   fee: 0,
     // }).returnValue
     itxn_next
-    // smart_contracts/meta/functions.ts:67
+    // smart_contracts/meta/functions.ts:77
     // args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
     uncover 4
     itob
@@ -253,7 +253,7 @@ setMetaRecordParts:
     itob
     frame_dig -7
     itxn_field ApplicationID
-    // smart_contracts/meta/functions.ts:65-69
+    // smart_contracts/meta/functions.ts:75-79
     // return abiCall<typeof Meta.prototype.setRecord>({
     //   appId: registry,
     //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
@@ -274,11 +274,11 @@ setMetaRecordParts:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    // smart_contracts/meta/functions.ts:68
+    // smart_contracts/meta/functions.ts:78
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/meta/functions.ts:65-69
+    // smart_contracts/meta/functions.ts:75-79
     // return abiCall<typeof Meta.prototype.setRecord>({
     //   appId: registry,
     //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
@@ -335,11 +335,11 @@ read:
     extract 2 0
     dup
     cover 3
-    // smart_contracts/meta/functions.ts:38
+    // smart_contracts/meta/functions.ts:48
     // const info = readMetaRecordInfo(registry, account, key)
     callsub readMetaRecordInfo
     dup
-    // smart_contracts/meta/functions.ts:39
+    // smart_contracts/meta/functions.ts:49
     // if (!info.exists) return { exists: false, revision: 0, data: Bytes('') }
     intc_0 // 0
     getbit
@@ -358,7 +358,7 @@ read_after_inlined_smart_contracts/meta/functions.ts::readMetaRecord@6:
     return
 
 read_after_if_else@3:
-    // smart_contracts/meta/functions.ts:40
+    // smart_contracts/meta/functions.ts:50
     // loggedAssert(info.size <= MaxInlineRecordBytes, errRecordRequiresSlice)
     pushint 9
     extract_uint64
@@ -370,7 +370,7 @@ read_after_if_else@3:
     err // ERR:errMrsl
 
 read_after_assert@5:
-    // smart_contracts/meta/functions.ts:41
+    // smart_contracts/meta/functions.ts:51
     // const [value] = op.AppBox.get(registry, Bytes(RecordPrefix).concat(metaRecordKey(account, key)))
     callsub metaRecordKey
     bytec_1 // "m"
@@ -378,7 +378,7 @@ read_after_assert@5:
     concat
     app_box_get
     pop
-    // smart_contracts/meta/functions.ts:43
+    // smart_contracts/meta/functions.ts:53
     // return { exists: true, revision: record.revision, data: record.data }
     dup
     extract 0 8
@@ -509,12 +509,12 @@ slice:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/meta/functions.ts:29
+    // smart_contracts/meta/functions.ts:39
     // const info = readMetaRecordInfo(registry, account, key)
     callsub readMetaRecordInfo
     dup
     cover 7
-    // smart_contracts/meta/functions.ts:30
+    // smart_contracts/meta/functions.ts:40
     // loggedAssert(info.exists, errRecordNotFound)
     intc_0 // 0
     getbit
@@ -524,7 +524,7 @@ slice:
     err // ERR:errMrnf
 
 slice_after_assert@3:
-    // smart_contracts/meta/functions.ts:31
+    // smart_contracts/meta/functions.ts:41
     // loggedAssert(info.revision === expectedRevision, errRecordRevisionMismatch)
     dig 6
     intc_3 // 1
@@ -536,7 +536,7 @@ slice_after_assert@3:
     err // ERR:errMrev
 
 slice_after_assert@5:
-    // smart_contracts/meta/functions.ts:32
+    // smart_contracts/meta/functions.ts:42
     // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
     dig 1
     pushint 1024
@@ -559,7 +559,7 @@ slice_after_assert@5:
     intc_3 // 1
 
 slice_bool_merge@10:
-    // smart_contracts/meta/functions.ts:32
+    // smart_contracts/meta/functions.ts:42
     // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
     bnz slice_after_assert@12
     pushbytes "ERR:errMrng"
@@ -567,7 +567,7 @@ slice_bool_merge@10:
     err // ERR:errMrng
 
 slice_after_assert@12:
-    // smart_contracts/meta/functions.ts:33
+    // smart_contracts/meta/functions.ts:43
     // return op.AppBox.extract(registry, Bytes(RecordPrefix).concat(metaRecordKey(account, key)), RecordHeaderBytes + offset, length)
     uncover 3
     uncover 3
@@ -629,7 +629,7 @@ readViaCall:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/meta/functions.ts:48
+    // smart_contracts/meta/functions.ts:58
     // return abiCall<typeof Meta.prototype.readRecord>({ appId: registry, args: [account, key], fee: 0 }).returnValue
     itxn_begin
     uncover 2
@@ -723,7 +723,7 @@ setOwned:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/meta/functions.ts:53
+    // smart_contracts/meta/functions.ts:63
     // const first: uint64 = data.length < MaxRecordPartBytes ? data.length : MaxRecordPartBytes
     len
     dup
@@ -733,7 +733,7 @@ setOwned:
     dup
 
 setOwned_ternary_merge@4:
-    // smart_contracts/meta/functions.ts:54
+    // smart_contracts/meta/functions.ts:64
     // return setMetaRecordParts(registry, key, data.slice(0, first), data.slice(first), Bytes(''), Bytes(''), expectedRevision)
     intc_0 // 0
     uncover 2
@@ -779,7 +779,7 @@ setOwned_ternary_merge@4:
     return
 
 setOwned_ternary_false@3:
-    // smart_contracts/meta/functions.ts:53
+    // smart_contracts/meta/functions.ts:63
     // const first: uint64 = data.length < MaxRecordPartBytes ? data.length : MaxRecordPartBytes
     pushint 4094
     b setOwned_ternary_merge@4
@@ -899,7 +899,7 @@ removeOwned:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/meta/functions.ts:74
+    // smart_contracts/meta/functions.ts:84
     // return abiCall<typeof Meta.prototype.removeRecord>({ appId: registry, args: [key, expectedRevision], fee: 0 }).returnValue
     itxn_begin
     uncover 2
@@ -988,7 +988,7 @@ verify:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/meta/functions.ts:79
+    // smart_contracts/meta/functions.ts:89
     // return abiCall<typeof Meta.prototype.verify>({ appId: registry, args: [address, name, leaf, proof, type], fee: 0 }).returnValue
     itxn_begin
     uncover 5
@@ -1093,7 +1093,7 @@ verifiedRead:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/meta/functions.ts:84
+    // smart_contracts/meta/functions.ts:94
     // return abiCall<typeof Meta.prototype.verifiedRead>({ appId: registry, args: [address, name, leaf, proof, type, key], fee: 0 }).returnValue
     itxn_begin
     uncover 6

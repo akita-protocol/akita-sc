@@ -290,6 +290,21 @@ export type MetaArgs = {
             key: Uint8Array;
             expectedRevision: bigint | number;
         };
+        'setPolicyWriter(uint64)void': {
+            writer: bigint | number;
+        };
+        'setPolicy(pay,uint64,byte[],byte[],uint64)uint64': {
+            payment: AppMethodCallTransactionArgument;
+            wallet: bigint | number;
+            key: Uint8Array;
+            data: Uint8Array;
+            expectedRevision: bigint | number;
+        };
+        'removePolicy(uint64,byte[],uint64)uint64': {
+            wallet: bigint | number;
+            key: Uint8Array;
+            expectedRevision: bigint | number;
+        };
         'updateAkitaDAOEscrow((string,uint64))void': {
             config: EscrowConfig;
         };
@@ -325,6 +340,9 @@ export type MetaArgs = {
         'recordCost(address,byte[],uint64)uint64': [account: string, key: Uint8Array, size: bigint | number];
         'setRecord(pay,byte[],byte[],byte[],byte[],byte[],uint64)uint64': [payment: AppMethodCallTransactionArgument, key: Uint8Array, data0: Uint8Array, data1: Uint8Array, data2: Uint8Array, data3: Uint8Array, expectedRevision: bigint | number];
         'removeRecord(byte[],uint64)uint64': [key: Uint8Array, expectedRevision: bigint | number];
+        'setPolicyWriter(uint64)void': [writer: bigint | number];
+        'setPolicy(pay,uint64,byte[],byte[],uint64)uint64': [payment: AppMethodCallTransactionArgument, wallet: bigint | number, key: Uint8Array, data: Uint8Array, expectedRevision: bigint | number];
+        'removePolicy(uint64,byte[],uint64)uint64': [wallet: bigint | number, key: Uint8Array, expectedRevision: bigint | number];
         'updateAkitaDAOEscrow((string,uint64))void': [config: EscrowConfig];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
@@ -355,6 +373,9 @@ export type MetaReturns = {
     'recordCost(address,byte[],uint64)uint64': bigint;
     'setRecord(pay,byte[],byte[],byte[],byte[],byte[],uint64)uint64': bigint;
     'removeRecord(byte[],uint64)uint64': bigint;
+    'setPolicyWriter(uint64)void': void;
+    'setPolicy(pay,uint64,byte[],byte[],uint64)uint64': bigint;
+    'removePolicy(uint64,byte[],uint64)uint64': bigint;
     'updateAkitaDAOEscrow((string,uint64))void': void;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
@@ -462,6 +483,18 @@ export type MetaTypes = {
         argsObj: MetaArgs['obj']['removeRecord(byte[],uint64)uint64'];
         argsTuple: MetaArgs['tuple']['removeRecord(byte[],uint64)uint64'];
         returns: MetaReturns['removeRecord(byte[],uint64)uint64'];
+    }> & Record<'setPolicyWriter(uint64)void' | 'setPolicyWriter', {
+        argsObj: MetaArgs['obj']['setPolicyWriter(uint64)void'];
+        argsTuple: MetaArgs['tuple']['setPolicyWriter(uint64)void'];
+        returns: MetaReturns['setPolicyWriter(uint64)void'];
+    }> & Record<'setPolicy(pay,uint64,byte[],byte[],uint64)uint64' | 'setPolicy', {
+        argsObj: MetaArgs['obj']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'];
+        argsTuple: MetaArgs['tuple']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'];
+        returns: MetaReturns['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'];
+    }> & Record<'removePolicy(uint64,byte[],uint64)uint64' | 'removePolicy', {
+        argsObj: MetaArgs['obj']['removePolicy(uint64,byte[],uint64)uint64'];
+        argsTuple: MetaArgs['tuple']['removePolicy(uint64,byte[],uint64)uint64'];
+        returns: MetaReturns['removePolicy(uint64,byte[],uint64)uint64'];
     }> & Record<'updateAkitaDAOEscrow((string,uint64))void' | 'updateAkitaDAOEscrow', {
         argsObj: MetaArgs['obj']['updateAkitaDAOEscrow((string,uint64))void'];
         argsTuple: MetaArgs['tuple']['updateAkitaDAOEscrow((string,uint64))void'];
@@ -488,6 +521,12 @@ export type MetaTypes = {
         
                  */
                 typeFees: bigint;
+                /**
+                * The one MetaPlugin allowed to write grant policies, set by the DAO wallet. Policies are owned by
+                each wallet's controlled address, so rotating the writer keeps them readable and editable.
+        
+                 */
+                policyWriter: bigint;
                 /**
                  * the named DAO escrow this contract routes fees to (name + app)
                  */
@@ -854,6 +893,37 @@ export declare abstract class MetaParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static removeRecord(params: CallParams<MetaArgs['obj']['removeRecord(byte[],uint64)uint64'] | MetaArgs['tuple']['removeRecord(byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setPolicyWriter(uint64)void ABI method
+     *
+    * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+    wallet (initial deployment), the creator may.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setPolicyWriter(params: CallParams<MetaArgs['obj']['setPolicyWriter(uint64)void'] | MetaArgs['tuple']['setPolicyWriter(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setPolicy(pay,uint64,byte[],byte[],uint64)uint64 ABI method
+     *
+    * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+    writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setPolicy(params: CallParams<MetaArgs['obj']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'] | MetaArgs['tuple']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the removePolicy(uint64,byte[],uint64)uint64 ABI method
+     *
+     * Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static removePolicy(params: CallParams<MetaArgs['obj']['removePolicy(uint64,byte[],uint64)uint64'] | MetaArgs['tuple']['removePolicy(uint64,byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateAkitaDAOEscrow((string,uint64))void ABI method
      *
@@ -1666,6 +1736,43 @@ export declare class MetaClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
+         *
+        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+        wallet (initial deployment), the creator may.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setPolicyWriter: (params: CallParams<MetaArgs["obj"]["setPolicyWriter(uint64)void"] | MetaArgs["tuple"]["setPolicyWriter(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Meta smart contract using the `setPolicy(pay,uint64,byte[],byte[],uint64)uint64` ABI method.
+         *
+        * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+        writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setPolicy: (params: CallParams<MetaArgs["obj"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"] | MetaArgs["tuple"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Meta smart contract using the `removePolicy(uint64,byte[],uint64)uint64` ABI method.
+         *
+         * Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        removePolicy: (params: CallParams<MetaArgs["obj"]["removePolicy(uint64,byte[],uint64)uint64"] | MetaArgs["tuple"]["removePolicy(uint64,byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Meta smart contract using the `updateAkitaDAOEscrow((string,uint64))void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -2027,6 +2134,55 @@ export declare class MetaClient {
          * @returns The call transaction
          */
         removeRecord: (params: CallParams<MetaArgs["obj"]["removeRecord(byte[],uint64)uint64"] | MetaArgs["tuple"]["removeRecord(byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
+         *
+        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+        wallet (initial deployment), the creator may.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setPolicyWriter: (params: CallParams<MetaArgs["obj"]["setPolicyWriter(uint64)void"] | MetaArgs["tuple"]["setPolicyWriter(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Meta smart contract using the `setPolicy(pay,uint64,byte[],byte[],uint64)uint64` ABI method.
+         *
+        * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+        writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setPolicy: (params: CallParams<MetaArgs["obj"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"] | MetaArgs["tuple"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Meta smart contract using the `removePolicy(uint64,byte[],uint64)uint64` ABI method.
+         *
+         * Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        removePolicy: (params: CallParams<MetaArgs["obj"]["removePolicy(uint64,byte[],uint64)uint64"] | MetaArgs["tuple"]["removePolicy(uint64,byte[],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2517,6 +2673,70 @@ export declare class MetaClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
+         *
+        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+        wallet (initial deployment), the creator may.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setPolicyWriter: (params: CallParams<MetaArgs["obj"]["setPolicyWriter(uint64)void"] | MetaArgs["tuple"]["setPolicyWriter(uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MetaReturns["setPolicyWriter(uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Meta smart contract using the `setPolicy(pay,uint64,byte[],byte[],uint64)uint64` ABI method.
+         *
+        * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+        writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setPolicy: (params: CallParams<MetaArgs["obj"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"] | MetaArgs["tuple"]["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MetaReturns["setPolicy(pay,uint64,byte[],byte[],uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Meta smart contract using the `removePolicy(uint64,byte[],uint64)uint64` ABI method.
+         *
+         * Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        removePolicy: (params: CallParams<MetaArgs["obj"]["removePolicy(uint64,byte[],uint64)uint64"] | MetaArgs["tuple"]["removePolicy(uint64,byte[],uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MetaReturns["removePolicy(uint64,byte[],uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Meta smart contract using the `updateAkitaDAOEscrow((string,uint64))void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -2656,6 +2876,10 @@ export declare class MetaClient {
              * Get the current value of the typeFees key in global state
              */
             typeFees: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the policyWriter key in global state
+             */
+            policyWriter: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the akitaDAOEscrow key in global state
              */
@@ -2927,6 +3151,40 @@ export type MetaComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     removeRecord(params?: CallParams<MetaArgs['obj']['removeRecord(byte[],uint64)uint64'] | MetaArgs['tuple']['removeRecord(byte[],uint64)uint64']>): MetaComposer<[...TReturns, MetaReturns['removeRecord(byte[],uint64)uint64'] | undefined]>;
+    /**
+     * Calls the setPolicyWriter(uint64)void ABI method.
+     *
+    * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
+    wallet (initial deployment), the creator may.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setPolicyWriter(params?: CallParams<MetaArgs['obj']['setPolicyWriter(uint64)void'] | MetaArgs['tuple']['setPolicyWriter(uint64)void']>): MetaComposer<[...TReturns, MetaReturns['setPolicyWriter(uint64)void'] | undefined]>;
+    /**
+     * Calls the setPolicy(pay,uint64,byte[],byte[],uint64)uint64 ABI method.
+     *
+    * Create or replace a grant policy owned by `wallet`'s controlled address. Only the registered
+    writer may call it, inside an admin window on `wallet` (see requirePolicyWindow).
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setPolicy(params?: CallParams<MetaArgs['obj']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'] | MetaArgs['tuple']['setPolicy(pay,uint64,byte[],byte[],uint64)uint64']>): MetaComposer<[...TReturns, MetaReturns['setPolicy(pay,uint64,byte[],byte[],uint64)uint64'] | undefined]>;
+    /**
+     * Calls the removePolicy(uint64,byte[],uint64)uint64 ABI method.
+     *
+     * Remove a grant policy owned by `wallet`'s controlled address; its storage goes back to its payer.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    removePolicy(params?: CallParams<MetaArgs['obj']['removePolicy(uint64,byte[],uint64)uint64'] | MetaArgs['tuple']['removePolicy(uint64,byte[],uint64)uint64']>): MetaComposer<[...TReturns, MetaReturns['removePolicy(uint64,byte[],uint64)uint64'] | undefined]>;
     /**
      * Calls the updateAkitaDAOEscrow((string,uint64))void ABI method.
      *
