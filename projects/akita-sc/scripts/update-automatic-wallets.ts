@@ -2,19 +2,28 @@
 
 /** Update every factory-created wallet that permits automatic factory updates. */
 
-import { microAlgo } from '@algorandfoundation/algokit-utils'
 import algosdk from 'algosdk'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
-import { AbstractedAccountClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
+import { AbstractedAccountClient, APP_SPEC as WALLET_SPEC } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
 import { AbstractedAccountFactoryClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient'
-
-const DEFAULT_MAX_FEE = 100_000n
+import {
+  DEFAULT_WALLET_UPDATE_MAX_FEE,
+  approvalProgram,
+  clearProgramSize,
+  describeTreeGrowth,
+  describeWalletGrowth,
+  fundWalletGrowth,
+  planWalletGrowth,
+  stagedWalletProgram,
+  walletUpdateParams,
+} from './lib/wallet-page-growth'
 
 type WalletStatus = {
   wallet: bigint
   version?: string
   allowed: boolean
   automatic: boolean
+  extraPages: number
 }
 
 function argValue(name: string): string | undefined {
@@ -66,6 +75,12 @@ Automatic wallet update options:
   --discover-limit <count>   Stop indexer discovery after count wallets
   --max-fee <microAlgos>     Maximum fee per wallet update. Default: 100000
   --skip-current             Skip wallets already reporting the factory child version
+  --targets-only             Fund the wallet factory for this run's wallets only
+
+When the staged wallet program needs more program pages than a wallet has, the update raises the
+wallet factory's minimum balance by 100000 microAlgos per page. The script reads what the factory
+lacks, prints it, and pays it from the sender before the first update. By default it covers every
+wallet the factory created, so a wallet whose admin updates it later does not fail either.
 
 Examples:
   npm run update:automatic-wallets -- -n mainnet --dry-run
@@ -79,8 +94,9 @@ Examples:
     : undefined
   const maxFee = argValue('--max-fee')
     ? parseInteger(argValue('--max-fee')!, '--max-fee')
-    : DEFAULT_MAX_FEE
+    : DEFAULT_WALLET_UPDATE_MAX_FEE
   const skipCurrent = hasFlag('--skip-current')
+  const targetsOnly = hasFlag('--targets-only')
 
   const walletFactory = ctx.algorand.client.getTypedAppClientById(AbstractedAccountFactoryClient, {
     appId: ctx.appIds.walletFactory,
@@ -109,9 +125,10 @@ Examples:
         defaultSender: ctx.sender,
         defaultSigner: ctx.signer,
       })
-      const [settings, version] = await Promise.all([
+      const [settings, version, app] = await Promise.all([
         client.state.global.factoryUpdateSettings(),
         client.state.global.version(),
+        ctx.algorand.client.algod.getApplicationByID(wallet).do(),
       ])
 
       statuses.push({
@@ -119,6 +136,7 @@ Examples:
         version,
         allowed: settings?.allowed ?? false,
         automatic: settings?.automatic ?? false,
+        extraPages: Number(app.params?.extraProgramPages ?? 0),
       })
     } catch (error) {
       unreadable.push({ wallet, error })
@@ -140,13 +158,41 @@ Examples:
   console.log(`Unreadable wallets: ${unreadable.length}`)
   console.log(`Wallets selected for update: ${targets.length}\n`)
 
+  // A wallet that gains a program page raises the factory's minimum balance. The factory takes no
+  // payment in updateWallet, so it is funded here, before the first update.
+  const factoryAccount = await ctx.algorand.account.getInformation(factoryAddress)
+  const staged = await stagedWalletProgram(ctx.algorand, ctx.appIds.walletFactory)
+  const tree = approvalProgram(WALLET_SPEC)
+  const growth = (wallets: WalletStatus[], approvalSize = staged.length) => planWalletGrowth({
+    approvalSize,
+    clearSize: clearProgramSize(WALLET_SPEC),
+    wallets,
+    factoryBalance: BigInt(factoryAccount.balance.microAlgos),
+    factoryMinBalance: BigInt(factoryAccount.minBalance.microAlgos),
+  })
+  const targetGrowth = growth(targets)
+  const funding = targetsOnly ? targetGrowth : growth(statuses)
+  for (const line of describeWalletGrowth(funding)) console.log(line)
+  for (const line of describeTreeGrowth(staged, tree, growth(targetsOnly ? targets : statuses, tree.length))) console.log(line)
+  if (!targetsOnly && funding.pages > targetGrowth.pages) {
+    console.log(`  of which this run's wallets: ${targetGrowth.pages} page(s), ${targetGrowth.required} µALGO`)
+    console.log(`  and wallets left to their admins: ${funding.pages - targetGrowth.pages} page(s), ${funding.required - targetGrowth.required} µALGO`)
+  }
+  console.log('')
+
   if (options.dryRun) {
     for (const wallet of targets) {
       console.log(`  ${wallet.wallet}: ${wallet.version ?? '<missing version>'} -> ${targetVersion}`)
     }
+    if (funding.shortfall > 0n) {
+      console.log(`\nA real run first pays ${funding.shortfall} µALGO to the wallet factory ${factoryAddress}`)
+    }
     console.log('\nDRY RUN - No wallet updates were submitted')
     return
   }
+
+  const funded = await fundWalletGrowth(ctx, ctx.appIds.walletFactory, funding)
+  if (funded > 0n) console.log(`Paid ${funded} µALGO to the wallet factory ${factoryAddress} for the new program pages\n`)
 
   const failures: { wallet: bigint; error: unknown }[] = []
   let updated = 0
@@ -157,10 +203,7 @@ Examples:
       await walletFactory.send.updateWallet({
         sender: ctx.sender,
         signer: ctx.signer,
-        args: { wallet: target.wallet },
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true,
-        maxFee: microAlgo(maxFee),
+        ...walletUpdateParams(target.wallet, maxFee),
       })
       updated++
     } catch (error) {

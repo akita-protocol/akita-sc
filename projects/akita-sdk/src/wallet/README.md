@@ -87,6 +87,19 @@ Methods: `newEscrow`, `toggleEscrowLock`, `group().optInEscrow(...)`, `reclaimFu
 
 There is no `wallet.optInEscrow` or `wallet.balance`. Opt-in is `wallet.group().optInEscrow(...)`.
 
+### Deleting an escrow
+
+`deleteEscrow({ escrow })` removes every plugin and allowance that names the escrow, closes its assets out to the wallet and deletes it, in one group. `getEscrowTeardown(escrow)` returns the plan it works from: what will be removed, `blockers` that no call can undo, and `warnings`.
+
+**An app must show the plan's `warnings` prominently before the person confirms.** They say what becomes of the escrow's address, which cannot be undone and differs with the kind of escrow:
+
+| `code` | The escrow is | After the delete |
+|---|---|---|
+| `address-under-nobodys-control` | the account of an app the escrow factory made | Nobody controls the address. ALGO sent to it is lost. An asset cannot be sent to it, because it can never opt in again. |
+| `address-returns-to-its-key` | an ordinary account rekeyed to the wallet (`newEscrow` with an address) | The account is closed, which ends its rekey. The address belongs to whoever holds its private key, and no longer to the wallet. |
+
+Each warning has a `message` ready to show and a `code` to key your own wording on. Put them in the confirmation itself, not behind a link or a tooltip. `deleteEscrow` shows and asks nothing by itself. The same goes for a delete put into a DAO or Guild proposal (`dao.deleteEscrowActions`, the guild SDK's `deleteEscrowActions`): show the warnings to the person who creates the proposal.
+
 ## Plugins shipped
 
 PayPluginSDK, OptInPluginSDK, SelfOptInPluginSDK, AsaManagerPluginSDK, SubscriptionsPluginSDK, SocialPluginSDK, RewardsPluginSDK, StakingPluginSDK, StakingPoolPluginSDK, AuctionPluginSDK, DAOPluginSDK, MarketplacePluginSDK, HyperSwapPluginSDK, GatePluginSDK, PollPluginSDK, RafflePluginSDK, NFDPluginSDK, PaySiloPluginSDK.
@@ -104,7 +117,7 @@ A Hyperspace session installs a plugin grant for the P-256 LogicSig caller from 
 | Co-admin passkeys | `assignDomain` (a key whose domain equals the wallet domain is a co-admin; reassigning refunds the old key's MBR), `removeDomainKey` (revokes and refunds; on-chain `assignDomain(key, '')`), `getDomainKey`. An admin change through an admin plugin (recovery) clears the wallet domain, disabling every co-admin key until the new admin calls `setDomain`. |
 | Profile | `setNickname`, `setAvatar`, `setBanner`, `setBio` |
 | Plugins | `addPlugin`, `usePlugin`, `removePlugin` (the admin, the revocation app, or the grant's own caller: pass that caller as `sender`), `removeNamedPlugin`, `canCall`, `getPlugins`, `getPluginByKey`, `getNamedPlugins`, `getPluginByName` |
-| Escrows | `newEscrow`, `getEscrows`, `getEscrow`, `toggleEscrowLock`, `reclaimFunds` |
+| Escrows | `newEscrow`, `getEscrows`, `getEscrow`, `toggleEscrowLock`, `reclaimFunds`, `getEscrowTeardown`, `deleteEscrow` |
 | Allowances | `addAllowances`, `removeAllowances`, `getAllowances`, `getAllowance` |
 | Execution keys | `addExecutionKey`, `removeExecutionKey`, `getExecutions`, `getExecution` |
 | Reads | `getGlobalState`, `getAdmin`, `getMbr` |

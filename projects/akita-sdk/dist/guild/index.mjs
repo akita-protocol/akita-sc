@@ -32,6 +32,8 @@ import {
   addVotedPluginAction,
   changeAdminAction,
   consensusAction,
+  deleteEscrowAction,
+  deleteEscrowActions,
   emptyAction,
   encodeConsensusActionData,
   executePluginAction,
@@ -46,8 +48,10 @@ import {
   newEscrowAction,
   newWalletAction,
   reclaimAction,
+  removeAllowancesAction,
   removeExecutionAction,
   removeFixedSignerMemberAction,
+  removeNamedPluginAction,
   removePluginAction,
   setConsensusActionSettingsAction,
   setFeeAssetAction,
@@ -61,13 +65,14 @@ import {
   subscriptionVoteEvidence,
   subscriptionVotingOpensAt,
   toggleEscrowLockAction
-} from "../chunk-JSCBR4TT.mjs";
+} from "../chunk-PCDTVUXL.mjs";
 import {
   GuildClient,
   GuildFactory,
   GuildFactoryClient,
   GuildFactoryFactory
-} from "../chunk-K7IKWEOR.mjs";
+} from "../chunk-LGBCH6R3.mjs";
+import "../chunk-KMNTDT7N.mjs";
 import "../chunk-QHL4DXI3.mjs";
 import "../chunk-XUT7CZHC.mjs";
 import "../chunk-JZMSW77U.mjs";
@@ -110,6 +115,8 @@ export {
   addVotedPluginAction,
   changeAdminAction,
   consensusAction,
+  deleteEscrowAction,
+  deleteEscrowActions,
   emptyAction,
   encodeConsensusActionData,
   executePluginAction,
@@ -124,8 +131,10 @@ export {
   newEscrowAction,
   newWalletAction,
   reclaimAction,
+  removeAllowancesAction,
   removeExecutionAction,
   removeFixedSignerMemberAction,
+  removeNamedPluginAction,
   removePluginAction,
   setConsensusActionSettingsAction,
   setFeeAssetAction,

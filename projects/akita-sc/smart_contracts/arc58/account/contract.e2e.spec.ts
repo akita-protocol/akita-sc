@@ -677,10 +677,12 @@ describe('ARC58 Plugin Permissions', () => {
                 asset: 0,
               }]
             }),
+            // The same method again with another amount: a node refuses a group that repeats a
+            // transaction byte for byte before it evaluates anything, so the two calls must differ.
             payPluginSdk.pay({
               payments: [{
                 receiver: sender,
-                amount: paymentAmount,
+                amount: paymentAmount + 1n,
                 asset: 0,
               }]
             })

@@ -473,6 +473,12 @@ export type AbstractedAccountArgs = {
              */
             reclaims: [bigint | number, bigint | number, boolean][];
         };
+        'arc58_deleteEscrow(string)void': {
+            /**
+             * The escrow to delete
+             */
+            escrow: string;
+        };
         'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': {
             /**
              * The plugin app ID
@@ -642,6 +648,7 @@ export type AbstractedAccountArgs = {
         'arc58_newEscrow(string,address)uint64': [escrow: string, address: string];
         'arc58_toggleEscrowLock(string)(uint64,address,bool)': [escrow: string];
         'arc58_reclaim(string,(uint64,uint64,bool)[])void': [escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
+        'arc58_deleteEscrow(string)void': [escrow: string];
         'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': [plugin: bigint | number, caller: string, escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
         'arc58_optInEscrow(string,uint64[])void': [escrow: string, assets: bigint[] | number[]];
         'arc58_pluginOptInEscrow(uint64,address,string,uint64[],pay)void': [plugin: bigint | number, caller: string, escrow: string, assets: bigint[] | number[], mbrPayment: AppMethodCallTransactionArgument];
@@ -689,6 +696,7 @@ export type AbstractedAccountReturns = {
     'arc58_newEscrow(string,address)uint64': bigint;
     'arc58_toggleEscrowLock(string)(uint64,address,bool)': EscrowInfo;
     'arc58_reclaim(string,(uint64,uint64,bool)[])void': void;
+    'arc58_deleteEscrow(string)void': void;
     'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': void;
     'arc58_optInEscrow(string,uint64[])void': void;
     'arc58_pluginOptInEscrow(uint64,address,string,uint64[],pay)void': void;
@@ -819,6 +827,10 @@ export type AbstractedAccountTypes = {
         argsObj: AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         returns: AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
+    }> & Record<'arc58_deleteEscrow(string)void' | 'arc58_deleteEscrow', {
+        argsObj: AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'];
+        argsTuple: AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void'];
+        returns: AbstractedAccountReturns['arc58_deleteEscrow(string)void'];
     }> & Record<'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void' | 'arc58_pluginReclaim', {
         argsObj: AbstractedAccountArgs['obj']['arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void'];
@@ -1002,6 +1014,22 @@ export type AbstractedAccountTypes = {
                  * the escrows that this wallet has created for specific callers with allowances
                  */
                 escrows: Map<string, EscrowInfo>;
+                /**
+                * How many plugins and allowances still name an escrow, kept from the moment the escrow is made.
+                An escrow made before this count existed has no box here, and nothing is counted for it.
+        
+                The count is kept under the escrow's name, never its app id: the id of an app made in a
+                transaction is not known when that transaction is built, so a box named after it could not be
+                referenced by the call that makes the escrow.
+        
+                 */
+                escrowRefs: Map<string, bigint>;
+                /**
+                * The name of the escrow a plugin uses by default. Such a plugin is stored under the empty escrow
+                name with only the escrow's app id, so this is what leads from the plugin back to the escrow's count.
+        
+                 */
+                defaultEscrows: Map<PluginKey, string>;
                 /**
                  * The Allowances for plugins installed on the smart contract with useAllowance set to true
                  */
@@ -1390,6 +1418,23 @@ export declare abstract class AbstractedAccountParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static arc58Reclaim(params: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the arc58_deleteEscrow(string)void ABI method
+     *
+    * Delete an escrow by closing its account out to the controlled address.
+  
+    The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+    arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+    group may do all of that. An escrow made before plugins and allowances were counted has no
+    count to check: remove its plugins and allowances first, because one left behind stays stored,
+    and an allowance applies again to a new escrow of the same name. The address of a deleted
+    escrow is under nobody's control: never pay it again.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static arc58DeleteEscrow(params: CallParams<AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'] | AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void ABI method
      *
@@ -2366,6 +2411,25 @@ export declare class AbstractedAccountClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void` ABI method.
          *
         * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -2937,6 +3001,29 @@ export declare class AbstractedAccountClient {
          * @returns The call transaction
          */
         arc58Reclaim: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_reclaim(string,(uint64,uint64,bool)[])void"] | AbstractedAccountArgs["tuple"]["arc58_reclaim(string,(uint64,uint64,bool)[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3709,6 +3796,34 @@ export declare class AbstractedAccountClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
+         *
+        * Delete an escrow by closing its account out to the controlled address.
+    
+        The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+        arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+        group may do all of that. An escrow made before plugins and allowances were counted has no
+        count to check: remove its plugins and allowances first, because one left behind stays stored,
+        and an allowance applies again to a new escrow of the same name. The address of a deleted
+        escrow is under nobody's control: never pay it again.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        arc58DeleteEscrow: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_deleteEscrow(string)void"] | AbstractedAccountArgs["tuple"]["arc58_deleteEscrow(string)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AbstractedAccountReturns["arc58_deleteEscrow(string)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void` ABI method.
          *
         * Transfer funds from an escrow back to the controlled address via a plugin / allowed caller.
@@ -4278,6 +4393,32 @@ export declare class AbstractedAccountClient {
                 value: (key: string) => Promise<EscrowInfo | undefined>;
             };
             /**
+             * Get values from the escrowRefs map in box state
+             */
+            escrowRefs: {
+                /**
+                 * Get all current values of the escrowRefs map in box state
+                 */
+                getMap: () => Promise<Map<string, bigint>>;
+                /**
+                 * Get a current value of the escrowRefs map by key from box state
+                 */
+                value: (key: string) => Promise<bigint | undefined>;
+            };
+            /**
+             * Get values from the defaultEscrows map in box state
+             */
+            defaultEscrows: {
+                /**
+                 * Get all current values of the defaultEscrows map in box state
+                 */
+                getMap: () => Promise<Map<PluginKey, string>>;
+                /**
+                 * Get a current value of the defaultEscrows map by key from box state
+                 */
+                value: (key: PluginKey) => Promise<string | undefined>;
+            };
+            /**
              * Get values from the allowances map in box state
              */
             allowances: {
@@ -4564,6 +4705,24 @@ export type AbstractedAccountComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     arc58Reclaim(params?: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | undefined]>;
+    /**
+     * Calls the arc58_deleteEscrow(string)void ABI method.
+     *
+    * Delete an escrow by closing its account out to the controlled address.
+  
+    The escrow must be unlocked, hold no asset and be opted in to no app: close assets out with
+    arc58_reclaim first. No plugin and no allowance may still name it. Calls earlier in the same
+    group may do all of that. An escrow made before plugins and allowances were counted has no
+    count to check: remove its plugins and allowances first, because one left behind stays stored,
+    and an allowance applies again to a new escrow of the same name. The address of a deleted
+    escrow is under nobody's control: never pay it again.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    arc58DeleteEscrow(params?: CallParams<AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'] | AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_deleteEscrow(string)void'] | undefined]>;
     /**
      * Calls the arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void ABI method.
      *

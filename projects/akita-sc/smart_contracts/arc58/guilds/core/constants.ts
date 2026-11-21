@@ -149,6 +149,7 @@ export const GuildActionRemoveAllowances: GuildActionType = new Uint8(60)
 export const GuildActionNewEscrow: GuildActionType = new Uint8(70)
 export const GuildActionToggleEscrowLock: GuildActionType = new Uint8(71)
 export const GuildActionReclaim: GuildActionType = new Uint8(72)
+export const GuildActionDeleteEscrow: GuildActionType = new Uint8(73)
 export const GuildActionSetProposalSettings: GuildActionType = new Uint8(80)
 export const GuildActionSetProposalActionLimit: GuildActionType = new Uint8(81)
 /** Create a fresh ARC-58 wallet through the DAO wallet factory; the Guild never adopts an existing wallet. */

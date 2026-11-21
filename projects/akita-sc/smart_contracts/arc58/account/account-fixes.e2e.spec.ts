@@ -414,7 +414,11 @@ describe('Account fixes (ACC-02/03/05/06/08/10a)', () => {
     })
 
     test('a factory-created wallet can still be updated', async () => {
-      await walletFactory.client.send.updateWallet({ sender, signer, args: { wallet: wallet.appId }, extraFee: microAlgo(1_000n) })
+      // the inner update carries the wallet program; above 8,192 bytes it costs more than one minimum fee,
+      // so the client sizes the fee, under a ceiling
+      await walletFactory.client.send.updateWallet({
+        sender, signer, args: { wallet: wallet.appId }, coverAppCallInnerTransactionFees: true, maxFee: microAlgo(10_000n),
+      })
       await wallet.setNickname({ nickname: 'after update' })
       expect(await wallet.client.state.global.nickname()).toBe('after update')
     })

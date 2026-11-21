@@ -4,6 +4,7 @@ import {
   ProposalAddNamedPlugin,
   ProposalAddPlugin,
   ProposalChangeAdmin,
+  ProposalDeleteEscrow,
   ProposalExecutePlugin,
   ProposalNewEscrow,
   ProposalReclaim,
@@ -99,6 +100,14 @@ export type ProposalAction<TClient extends SDKClient> = (
     type: ProposalActionEnum.Reclaim
     escrow: string
     reclaims: { asset: bigint; amount: bigint; closeOut: boolean }[]
+  }
+  | {
+    /**
+     * Delete an escrow of the DAO wallet by closing its account. Earlier actions of the same
+     * proposal remove its plugins and allowances and close out its assets.
+     */
+    type: ProposalActionEnum.DeleteEscrow
+    escrow: string
   }
   | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields
@@ -198,6 +207,7 @@ export type DecodedProposalAction = (
   | ({ type: ProposalActionEnum.NewEscrow } & (ProposalNewEscrow | LegacyProposalNewEscrow))
   | ({ type: ProposalActionEnum.ToggleEscrowLock } & ProposalToggleEscrowLock)
   | ({ type: ProposalActionEnum.Reclaim } & ProposalReclaim)
+  | ({ type: ProposalActionEnum.DeleteEscrow } & ProposalDeleteEscrow)
   | ({ type: ProposalActionEnum.UpdateFields } & ProposalUpdateField)
   | { type: ProposalActionEnum.UpdateWallet }
   | ({ type: ProposalActionEnum.ChangeAdmin } & ProposalChangeAdmin)

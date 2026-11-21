@@ -49,6 +49,27 @@ export declare class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     finalizeProposal({ sender, signer, proposalId }: ContractArgs['finalizeProposal(uint64)void'] & MaybeSigner): Promise<TxnReturn<void>>;
     executeProposal({ proposalId, sender, signer }: ContractArgs['executeProposal(uint64)void'] & MaybeSigner): Promise<TxnReturn<void>>;
     /**
+     * Build the actions that delete an escrow of the DAO wallet, in the order the wallet needs them,
+     * from what the chain lists for the escrow: unlock it if asked, remove every grant and alias that
+     * names it, remove its allowances, close its assets out to the wallet, then delete it.
+     *
+     * Put them in one proposal so the whole removal runs in one transaction group. When they are more
+     * than the DAO's action limit allows, split them over proposals in this order and execute those in
+     * order: the wallet refuses the delete while a plugin or an allowance still names the escrow.
+     *
+     * It throws when something stands in the way that no action can undo: the escrow is opted in to
+     * an app, or holds an asset the wallet's account cannot receive. An alias whose grant is already
+     * gone does not stand in the way and is left alone.
+     *
+     * What becomes of the escrow's address afterwards cannot be undone, and differs with the kind of
+     * escrow. Before an app lets a person create this proposal, it shows the `warnings` of
+     * `(await dao.getWallet()).getEscrowTeardown(escrow)` prominently.
+     */
+    deleteEscrowActions({ escrow, unlock }: {
+        escrow: string;
+        unlock?: boolean;
+    }): Promise<ProposalAction<SDKClient>[]>;
+    /**
      * Delete one of your proposals (draft, rejected, executed, cancelled, or a leftover bootstrap proposal).
      * Voted proposals require every vote receipt to be cleared first (`deleteProposalVotes`).
      */

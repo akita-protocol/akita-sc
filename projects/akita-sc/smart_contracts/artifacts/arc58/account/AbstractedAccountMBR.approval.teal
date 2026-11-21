@@ -15,7 +15,7 @@ main:
     err
 
 main_mbr_route@3:
-    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // smart_contracts/arc58/account/mbr.algo.ts:52
     // @abimethod({ readonly: true })
     txn OnCompletion
     !
@@ -37,7 +37,7 @@ main___algots__.defaultCreate@5:
 
 // smart_contracts/arc58/account/mbr.algo.ts::AbstractedAccountMBR.mbr[routing]() -> void:
 mbr:
-    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // smart_contracts/arc58/account/mbr.algo.ts:52
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -82,8 +82,8 @@ mbr:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/account/mbr.algo.ts:25
-    // return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
+    // smart_contracts/arc58/account/mbr.algo.ts:26
+    // return MinEscrowsMBR + MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length) * 2
     dig 3
     len
     // smart_contracts/arc58/account/mbr.algo.ts:13
@@ -91,18 +91,20 @@ mbr:
     intc_3 // 400
     dig 1
     *
-    // smart_contracts/arc58/account/mbr.algo.ts:25
-    // return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
-    pushint 19300
+    // smart_contracts/arc58/account/mbr.algo.ts:26
+    // return MinEscrowsMBR + MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length) * 2
     dig 1
+    pushint 800
+    *
+    pushint 25400
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:59-62
+    // smart_contracts/arc58/account/mbr.algo.ts:62-65
     // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
     //   appId,
     //   args: [[escrow]]
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/account/mbr.algo.ts:61
+    // smart_contracts/arc58/account/mbr.algo.ts:64
     // args: [[escrow]]
     dig 2
     itob
@@ -114,7 +116,7 @@ mbr:
     concat
     uncover 7
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/mbr.algo.ts:59-62
+    // smart_contracts/arc58/account/mbr.algo.ts:62-65
     // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
     //   appId,
     //   args: [[escrow]]
@@ -174,12 +176,12 @@ mbr:
     pushint 20500
     dig 1
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:29
+    // smart_contracts/arc58/account/mbr.algo.ts:30
     // return MinAllowanceMBR + this._calcBCPB(Bytes(escrow).length)
     pushint 27700
     uncover 6
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:37
+    // smart_contracts/arc58/account/mbr.algo.ts:38
     // return MinDomainKeysMBR + this._calcBCPB(Bytes(domain).length)
     pushint 15700
     uncover 3
@@ -189,34 +191,34 @@ mbr:
     uncover 6
     pushint 12800
     *
-    // smart_contracts/arc58/account/mbr.algo.ts:33
+    // smart_contracts/arc58/account/mbr.algo.ts:34
     // return MinExecutionsMBR + this._calcBCPB(groups * 32)
     pushint 23700
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:71
+    // smart_contracts/arc58/account/mbr.algo.ts:74
     // escrowExists: escrowInfo[0].address !== Global.zeroAddress,
     uncover 5
     extract 6 41
     extract 8 32
     global ZeroAddress
     !=
-    // smart_contracts/arc58/account/mbr.algo.ts:74
+    // smart_contracts/arc58/account/mbr.algo.ts:77
     // Global.minBalance +
     global MinBalance
-    // smart_contracts/arc58/account/mbr.algo.ts:73-75
+    // smart_contracts/arc58/account/mbr.algo.ts:76-78
     // NewCostForARC58 +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
     pushint 162100
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:73-76
+    // smart_contracts/arc58/account/mbr.algo.ts:76-79
     // NewCostForARC58 +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
     // escrows
     dig 7
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:64-78
+    // smart_contracts/arc58/account/mbr.algo.ts:67-81
     // return {
     //   plugins: this.pluginsMbr(escrow, methodCount),
     //   namedPlugins: this.namedPluginsMbr(plugin),
@@ -257,7 +259,7 @@ mbr:
     swap
     itob
     concat
-    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // smart_contracts/arc58/account/mbr.algo.ts:52
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
     swap
