@@ -11,14 +11,13 @@ import {
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { Contract, decodeArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, Contract, decodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import {
-  AbstractAccountBoxPrefixPlugins,
   AbstractAccountGlobalStateKeysControlledAddress,
   AbstractAccountGlobalStateKeysCurrentPlugin,
 } from '../../arc58/account/constants'
 import type { AbstractedAccount } from '../../arc58/account/contract.algo'
-import { PluginInfo, PluginKey } from '../../arc58/account/types'
+import { PluginKey } from '../../arc58/account/types'
 import { policyRecordKey, readMetaRecord } from '../../meta/functions'
 import { errGrantContext, errPolicyMissing, errPolicyStale } from '../errors'
 import { getRekeyIndex, getSpendingAccount } from '../functions'
@@ -31,13 +30,16 @@ export type GrantContext = { key: PluginKey; start: uint64 }
 
 /**
  * `PluginInfo.start` of `plugin`'s grant for `(caller, escrow)` on `wallet`, or 0 if there is no such
- * grant. Read straight from the wallet's plugin box, so the call needs that box reference.
+ * grant. Wallets do not allow foreign box reads, so this asks the wallet through its readonly
+ * `arc58_getPlugins`.
  */
 export function grantStart(wallet: Application, plugin: uint64, caller: Account, escrow: string): uint64 {
-  const name = Bytes(AbstractAccountBoxPrefixPlugins).concat(encodeArc4<PluginKey>({ plugin, caller, escrow }))
-  const [info, exists] = op.AppBox.get(wallet, name)
-  if (!exists) return 0
-  return decodeArc4<PluginInfo>(info).start
+  const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
+    appId: wallet,
+    args: [[{ plugin, caller, escrow }]],
+    fee: 0,
+  }).returnValue
+  return infos[0].start
 }
 
 /** The account that owns a wallet's grant policies in Meta: its controlled address. */
