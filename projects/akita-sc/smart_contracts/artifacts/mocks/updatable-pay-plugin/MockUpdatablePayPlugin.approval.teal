@@ -98,10 +98,10 @@ pay:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/pay/types.ts::PayParams>
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -110,7 +110,7 @@ pay:
     pop
     dup
     cover 2
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:39
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -214,17 +214,17 @@ pay_else_body@9:
     b pay_after_if_else@11
 
 pay_ternary_false@5:
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     dig 7
     bnz pay_after_if_else@15
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
     b pay_ternary_merge@6
 
 pay_after_if_else@15:
-    // /home/user/akita-sc/node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     dig 8
     app_params_get AppAddress
