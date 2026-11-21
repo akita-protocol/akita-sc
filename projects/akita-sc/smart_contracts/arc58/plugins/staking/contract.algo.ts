@@ -3,7 +3,8 @@ import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4
 import { classes } from 'polytype'
 import { SettingsMBR, totalsMBR } from "../../../staking/constants"
 import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, StakingType, StakeCheck } from "../../../staking/types"
-import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { getAkitaAppList } from "../../../utils/functions"
 
 // CONTRACT IMPORTS
 import { BaseStaking } from "../../../staking/base"

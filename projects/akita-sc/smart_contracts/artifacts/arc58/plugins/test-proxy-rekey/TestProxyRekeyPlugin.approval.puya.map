@@ -1,10 +1,10 @@
 {
   "version": 3,
   "sources": [
-    "../../../../arc58/plugins/test-proxy-rekey/contract.algo.ts",
-    "../../../../utils/functions.ts"
+    "../../../../../../../node_modules/@akita-protocol/plugin/functions.ts",
+    "../../../../arc58/plugins/test-proxy-rekey/contract.algo.ts"
   ],
-  "mappings": ";;;;;;AAkBA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAME;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAME;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACsc+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AD5b7B;AAGc;;AAED;;AAAA;;AAAA;;;AADD;;;;;;;AAJZ;;;AAAA;;;AAAA;AASA;AAKK;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAD;;;;AAAA;AAAA;;;;AALJ;;;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAnBF;AAAA",
+  "mappings": ";;;;;;ACkBA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAME;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAME;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ADN+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;ACgB7B;AAGc;;AAED;;AAAA;;AAAA;;;AADD;;;;;;;AAJZ;;;AAAA;;;AAAA;AASA;AAKK;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAD;;;;AAAA;AAAA;;;;AALJ;;;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAnBF;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {

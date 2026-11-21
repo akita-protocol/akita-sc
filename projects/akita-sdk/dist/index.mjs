@@ -65,13 +65,13 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-3F6WDBS2.mjs";
+} from "./chunk-LZHWUPAG.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-52VUSITZ.mjs";
+} from "./chunk-3KAPE6U5.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes

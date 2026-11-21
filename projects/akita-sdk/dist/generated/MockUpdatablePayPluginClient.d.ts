@@ -441,7 +441,7 @@ export declare class MockUpdatablePayPluginFactory {
                     maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
                     validityWindow?: number | bigint | undefined;
                     firstValidRound?: bigint | undefined;
-                    lastValidRound?: bigint | undefined;
+                    lastValidRound? /** The args for the ABI method call, either as an ordered array or an object */: bigint | undefined;
                     appId: bigint;
                     onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
                     args?: Uint8Array[] | undefined;
@@ -612,15 +612,7 @@ export declare class MockUpdatablePayPluginClient {
                     args?: Uint8Array[] | undefined;
                     signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
                     onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC | undefined;
-                    rejectVersion? /**
-                     * Returns a new `AppClient` client, resolving the app by creator address and name
-                     * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
-                     *
-                     * Automatically populates appName, defaultSender and source maps from the factory
-                     * if not specified in the params.
-                     * @param params The parameters to create the app client
-                     * @returns The `AppClient`
-                     */: number | undefined;
+                    rejectVersion?: number | undefined;
                     lease?: (Uint8Array | string) | undefined;
                     rekeyTo?: (string | Address) | undefined;
                     staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
@@ -658,9 +650,7 @@ export declare class MockUpdatablePayPluginClient {
                     onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
                     args?: Uint8Array[] | undefined;
                     accountReferences?: (string | Address)[] | undefined;
-                    appReferences? /**
-                     * Gets available deployUpdate methods
-                     */: bigint[] | undefined;
+                    appReferences?: bigint[] | undefined;
                     assetReferences?: bigint[] | undefined;
                     boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
                     accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;

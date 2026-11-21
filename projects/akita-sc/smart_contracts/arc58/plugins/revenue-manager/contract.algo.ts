@@ -3,7 +3,8 @@ import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typ
 import { AssetHolding } from "@algorandfoundation/algorand-typescript/op";
 import { ONE_DAY } from "../../../social/constants";
 import { DIVISOR } from "../../../utils/constants";
-import { calcPercent, getAkitaAppList, getEscrow, getOriginAccount, getRekeyIndex, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions";
+import { getOriginAccount, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "@akita-protocol/plugin/functions";
+import { calcPercent, getAkitaAppList, getEscrow, getRekeyIndex } from "../../../utils/functions";
 import { GlobalStateKeyAkitaDAO } from "../../../constants";
 import { AbstractAccountGlobalStateKeysFactoryApp } from "../../account/constants";
 import { errEscrowDoesNotExist, errForbidden } from "../../account/errors";

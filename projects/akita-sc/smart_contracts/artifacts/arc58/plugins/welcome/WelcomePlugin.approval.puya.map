@@ -1,11 +1,11 @@
 {
   "version": 3,
   "sources": [
+    "../../../../../../../node_modules/@akita-protocol/plugin/functions.ts",
     "../../../../arc58/plugins/welcome/contract.algo.ts",
-    "../../../../utils/functions.ts",
     "../../../../utils/principal.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -114,6 +114,75 @@
       "op": "err"
     },
     "111": {
+      "subroutine": "@akita-protocol/plugin/functions.ts::rekeyAddress",
+      "params": {
+        "rekeyBack#0": "uint64",
+        "wallet#0": "uint64"
+      },
+      "block": "rekeyAddress",
+      "stack_in": [],
+      "op": "proto 2 1"
+    },
+    "114": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "rekeyBack#0 (copy)"
+      ],
+      "stack_out": [
+        "rekeyBack#0 (copy)"
+      ]
+    },
+    "116": {
+      "op": "bnz rekeyAddress_after_if_else@2",
+      "stack_out": []
+    },
+    "119": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "121": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "122": {
+      "block": "rekeyAddress_after_if_else@2",
+      "stack_in": [],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0 (copy)"
+      ]
+    },
+    "124": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "126": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "value%0#0"
+      ]
+    },
+    "127": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "128": {
       "subroutine": "smart_contracts/utils/principal.ts::isGenuineWallet",
       "params": {
         "wallet#0": "uint64",
@@ -123,13 +192,13 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "114": {
+    "131": {
       "op": "intc_0 // 0",
       "stack_out": [
         "creator#0"
       ]
     },
-    "115": {
+    "132": {
       "op": "frame_dig -2",
       "defined_out": [
         "wallet#0 (copy)"
@@ -139,13 +208,13 @@
         "wallet#0 (copy)"
       ]
     },
-    "117": {
+    "134": {
       "op": "bz isGenuineWallet_if_body@2",
       "stack_out": [
         "creator#0"
       ]
     },
-    "120": {
+    "137": {
       "op": "frame_dig -1",
       "defined_out": [
         "walletFactory#0 (copy)"
@@ -155,13 +224,13 @@
         "walletFactory#0 (copy)"
       ]
     },
-    "122": {
+    "139": {
       "op": "bnz isGenuineWallet_after_if_else@3",
       "stack_out": [
         "creator#0"
       ]
     },
-    "125": {
+    "142": {
       "block": "isGenuineWallet_if_body@2",
       "stack_in": [
         "creator#0"
@@ -175,14 +244,14 @@
         "0"
       ]
     },
-    "126": {
+    "143": {
       "op": "swap"
     },
-    "127": {
+    "144": {
       "retsub": true,
       "op": "retsub"
     },
-    "128": {
+    "145": {
       "block": "isGenuineWallet_after_if_else@3",
       "stack_in": [
         "creator#0"
@@ -196,7 +265,7 @@
         "wallet#0 (copy)"
       ]
     },
-    "130": {
+    "147": {
       "op": "app_params_get AppCreator",
       "defined_out": [
         "creator#0",
@@ -208,7 +277,7 @@
         "exists#0"
       ]
     },
-    "132": {
+    "149": {
       "op": "swap",
       "stack_out": [
         "creator#0",
@@ -216,7 +285,7 @@
         "creator#0"
       ]
     },
-    "133": {
+    "150": {
       "op": "frame_bury 0",
       "defined_out": [
         "creator#0",
@@ -227,13 +296,13 @@
         "exists#0"
       ]
     },
-    "135": {
+    "152": {
       "op": "bz isGenuineWallet_bool_false@6",
       "stack_out": [
         "creator#0"
       ]
     },
-    "138": {
+    "155": {
       "op": "frame_dig -1",
       "defined_out": [
         "creator#0",
@@ -244,7 +313,7 @@
         "walletFactory#0 (copy)"
       ]
     },
-    "140": {
+    "157": {
       "op": "itob",
       "defined_out": [
         "creator#0",
@@ -255,7 +324,7 @@
         "tmp%0#1"
       ]
     },
-    "141": {
+    "158": {
       "op": "pushbytes \"appID\"",
       "defined_out": [
         "\"appID\"",
@@ -268,7 +337,7 @@
         "\"appID\""
       ]
     },
-    "148": {
+    "165": {
       "op": "swap",
       "stack_out": [
         "creator#0",
@@ -276,7 +345,7 @@
         "tmp%0#1"
       ]
     },
-    "149": {
+    "166": {
       "op": "concat",
       "defined_out": [
         "creator#0",
@@ -287,7 +356,7 @@
         "tmp%1#1"
       ]
     },
-    "150": {
+    "167": {
       "op": "sha512_256",
       "defined_out": [
         "creator#0",
@@ -298,7 +367,7 @@
         "tmp%2#1"
       ]
     },
-    "151": {
+    "168": {
       "op": "frame_dig 0",
       "stack_out": [
         "creator#0",
@@ -306,7 +375,7 @@
         "creator#0"
       ]
     },
-    "153": {
+    "170": {
       "op": "==",
       "defined_out": [
         "creator#0",
@@ -317,13 +386,13 @@
         "tmp%3#0"
       ]
     },
-    "154": {
+    "171": {
       "op": "bz isGenuineWallet_bool_false@6",
       "stack_out": [
         "creator#0"
       ]
     },
-    "157": {
+    "174": {
       "op": "intc_1 // 1",
       "defined_out": [
         "and_result%0#0",
@@ -334,7 +403,7 @@
         "and_result%0#0"
       ]
     },
-    "158": {
+    "175": {
       "block": "isGenuineWallet_bool_merge@7",
       "stack_in": [
         "creator#0",
@@ -345,11 +414,11 @@
         "and_result%0#0"
       ]
     },
-    "159": {
+    "176": {
       "retsub": true,
       "op": "retsub"
     },
-    "160": {
+    "177": {
       "block": "isGenuineWallet_bool_false@6",
       "stack_in": [
         "creator#0"
@@ -363,77 +432,8 @@
         "and_result%0#0"
       ]
     },
-    "161": {
+    "178": {
       "op": "b isGenuineWallet_bool_merge@7"
-    },
-    "164": {
-      "subroutine": "smart_contracts/utils/functions.ts::rekeyAddress",
-      "params": {
-        "rekeyBack#0": "uint64",
-        "wallet#0": "uint64"
-      },
-      "block": "rekeyAddress",
-      "stack_in": [],
-      "op": "proto 2 1"
-    },
-    "167": {
-      "op": "frame_dig -2",
-      "defined_out": [
-        "rekeyBack#0 (copy)"
-      ],
-      "stack_out": [
-        "rekeyBack#0 (copy)"
-      ]
-    },
-    "169": {
-      "op": "bnz rekeyAddress_after_if_else@2",
-      "stack_out": []
-    },
-    "172": {
-      "op": "global ZeroAddress",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "174": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "175": {
-      "block": "rekeyAddress_after_if_else@2",
-      "stack_in": [],
-      "op": "frame_dig -1",
-      "defined_out": [
-        "wallet#0 (copy)"
-      ],
-      "stack_out": [
-        "wallet#0 (copy)"
-      ]
-    },
-    "177": {
-      "op": "app_params_get AppAddress",
-      "defined_out": [
-        "check%0#0",
-        "value%0#0"
-      ],
-      "stack_out": [
-        "value%0#0",
-        "check%0#0"
-      ]
-    },
-    "179": {
-      "error": "application exists",
-      "op": "assert // application exists",
-      "stack_out": [
-        "value%0#0"
-      ]
-    },
-    "180": {
-      "retsub": true,
-      "op": "retsub"
     },
     "181": {
       "subroutine": "smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.create[routing]",
@@ -5768,7 +5768,7 @@
       ]
     },
     "872": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "aggregate%val_as_bytes%3#0",
@@ -6511,7 +6511,7 @@
       ]
     },
     "966": {
-      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "callsub": "@akita-protocol/plugin/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "assets#0",

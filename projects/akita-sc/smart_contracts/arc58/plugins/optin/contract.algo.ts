@@ -1,6 +1,6 @@
 import { Application, Asset, Global, gtxn, itxn, loggedAssert, uint64, Contract } from "@algorandfoundation/algorand-typescript";
 import { errAlreadyOptedIn, errInvalidPayment } from "./errors";
-import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 
 export class OptInPlugin extends Contract {
 

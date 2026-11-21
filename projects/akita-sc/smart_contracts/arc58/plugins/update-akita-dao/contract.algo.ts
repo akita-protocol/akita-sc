@@ -1,6 +1,7 @@
 import { Account, Application, Box, Bytes, bytes, clone, Global, GlobalState, gtxn, itxnCompose, loggedAssert, OnCompleteAction, op, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod, Contract, decodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
-import { getAkitaAppList, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions"
+import { getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "@akita-protocol/plugin/functions"
+import { getAkitaAppList } from "../../../utils/functions"
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyChildContractVersion, GlobalStateKeyClearProgram, GlobalStateKeyVersion } from "../../../constants"
 import { BoxKeyBoxedContract, FactoryContract } from "../../../utils/base-contracts/factory"
 import { AkitaDAOGlobalStateKeysWallet, ProposalActionTypeUpgradeApp } from "../../dao/constants"
