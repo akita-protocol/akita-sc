@@ -1,8 +1,13 @@
 /**
  * 2.0.0 release audit regression: a plugin that holds a no-escrow window can act as the wallet's
- * controlled address and open the policy writer's admin grant with caller type Other. That resolves to
- * the wallet's own address without the wallet's admin check, so MetaPlugin must refuse any admin-grant
- * window that was not opened as CallerTypeAdmin.
+ * controlled address and call `arc58_rekeyToPlugin` with caller type Other. That used to resolve to the
+ * wallet's own address, the caller of every admin grant, without the wallet's admin check, so the
+ * plugin could open the policy writer's admin grant (or any other plugin's).
+ *
+ * Two checks now refuse it. The wallet asks for the admin whenever the caller resolves to its own
+ * address, which is what this test reaches. Behind it, MetaPlugin refuses an admin-grant window that
+ * was not opened as CallerTypeAdmin (errScopeAdmin); that check covers a wallet without the guard and
+ * cannot be reached through this one.
  */
 import { ABIType, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
@@ -13,7 +18,7 @@ import { MetaFactory, MetaSDK } from '../../akita-sdk/src/meta'
 import { MetaPluginSDK, newMetaPlugin, grantPolicyKey, walletControlledAddress } from '../../akita-sdk/src/wallet/plugins/meta'
 import { AbstractedAccountMbrFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient'
 import { MockPolicyForgerClient, MockPolicyForgerFactory } from '../smart_contracts/artifacts/mocks/policy-forger/MockPolicyForgerClient'
-import { errScopeAdmin } from '../smart_contracts/arc58/plugins/meta/errors'
+import { errAdminOnly } from '../smart_contracts/arc58/account/errors'
 import { deployAbstractedAccountFactory } from './fixtures/abstracted-account'
 import { deployAkitaDAO } from './fixtures/dao'
 import { deployEscrowFactory } from './fixtures/escrow'
@@ -92,8 +97,8 @@ describe('a no-escrow plugin cannot forge a policy writer admin window (LocalNet
     await send('noop')
   })
 
-  test('the writer refuses an admin-grant window opened with caller type Other', async () => {
-    await expect(send('forge')).rejects.toThrow(errScopeAdmin)
+  test('the wallet refuses caller type Other from its own address, so the admin grant never opens', async () => {
+    await expect(send('forge')).rejects.toThrow(errAdminOnly)
     expect(await policyExists()).toBe(false)
   })
 })

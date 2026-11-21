@@ -463,7 +463,10 @@ export class AbstractedAccount extends Contract {
   private resolveCallerType(type: uint64, address: Account): Account {
     assert(type <= CallerTypeAdmin)
     if (type === CallerTypeGlobal) return Global.zeroAddress
-    if (type === CallerTypeAdmin) {
+    // An admin grant is keyed by this wallet's own address, so that address is reachable only through
+    // the admin check. Without this, a plugin holding the controlled address during its own window
+    // could name the wallet's address with type Other and open any plugin's admin grant.
+    if (type === CallerTypeAdmin || address === Global.currentApplicationAddress) {
       this._requireAdmin()
       return Global.currentApplicationAddress
     }
