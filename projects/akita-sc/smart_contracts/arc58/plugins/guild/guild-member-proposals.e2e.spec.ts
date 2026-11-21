@@ -16,7 +16,7 @@ import {
 } from 'akita-sdk/wallet'
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
 import { deployGuildPlugin } from '../../../../tests/fixtures/plugins/guild'
-import { deployPayPlugin } from '../../../../tests/fixtures/plugins/pay'
+import { deployTestPayPlugin as deployPayPlugin } from '../../../../tests/fixtures/plugins/pay'
 import { TimeWarp } from '../../../../tests/utils/time'
 import { AbstractedAccountFactory as AbstractedAccountProgramFactory } from '../../../artifacts/arc58/account/AbstractedAccountClient'
 import {

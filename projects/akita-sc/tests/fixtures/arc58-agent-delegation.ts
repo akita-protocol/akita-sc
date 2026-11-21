@@ -20,7 +20,7 @@ import { EscrowFactoryClient } from '../../smart_contracts/artifacts/escrow/Escr
 import { deployAbstractedAccountFactory } from './abstracted-account'
 import { deployAkitaDAO } from './dao'
 import { deployEscrowFactory } from './escrow'
-import { deployPayPlugin } from './plugins/pay'
+import { deployTestPayPlugin as deployPayPlugin } from './plugins/pay'
 import { deploySelfOptInPlugin } from './plugins/self-optin'
 
 const ROLE_INITIAL_FUNDS = algo(25)

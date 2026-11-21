@@ -139,7 +139,7 @@ describe('SDK keys for the 2026-10 release', () => {
     expect(recordNetworkAppDeployment).not.toHaveBeenCalled()
     await recordSdkKey(ctx, 'GuildPlugin', prepareImmutable(ctx, 'GuildPlugin', { factory: '7', guild: '0' }), 11n)
     expect(recordNetworkAppDeployment).toHaveBeenCalledWith('mainnet', 'guildPlugin', 11n)
-    await recordSdkKey(ctx, 'PayPlugin', prepareImmutable(ctx, 'PayPlugin'), 12n)
+    await recordSdkKey(ctx, 'PayPlugin', prepareImmutable(ctx, 'PayPlugin', { registry: '5' }), 12n)
     expect(recordPluginDeployment).toHaveBeenCalledWith('mainnet', 'payPlugin', 12n, 'release')
   })
 

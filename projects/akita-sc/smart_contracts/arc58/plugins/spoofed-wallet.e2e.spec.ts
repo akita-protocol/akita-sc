@@ -127,6 +127,7 @@ const cases: Case[] = [
   {
     name: 'PayPlugin',
     spec: PaySpec,
+    create: { method: 'create', args: ({ anyApp }) => [anyApp] },
     calls: [{ method: 'pay', args: ({ attacker }) => [[[attacker, 0n, 100_000n]]] }],
   },
   {

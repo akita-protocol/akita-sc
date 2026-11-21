@@ -9,7 +9,7 @@ import { deployAkitaDAO } from '../../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow'
 import { expectContractError } from '../../../tests/utils/errors'
 import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient'
-import { PayPluginFactory } from '../../artifacts/arc58/plugins/pay/PayPluginClient'
+import { MockUnlimitedPayPluginFactory } from '../../artifacts/mocks/unlimited-pay-plugin/MockUnlimitedPayPluginClient'
 import { MockUpdatablePayPluginClient, MockUpdatablePayPluginFactory } from '../../artifacts/mocks/updatable-pay-plugin/MockUpdatablePayPluginClient'
 import { errInvalidPluginVersion } from './errors'
 
@@ -57,9 +57,10 @@ describe('ARC58 plugin application version check', () => {
       args: { akitaDao: dao.appId, escrowFactory: escrowFactory.appId },
     })
 
-    // Replace the mock with the real PayPlugin: its ABI/payment behavior stays
-    // compatible, but its program bytes change and the ledger version increases.
-    replacement = await new PayPluginFactory({ algorand, ...defaults }).appFactory.compile()
+    // Replace the mock with the same payment program minus its update method: its ABI/payment
+    // behavior stays compatible, but its program bytes change and the ledger version increases.
+    // (PayPlugin itself now needs a registry set at create, which a bare-created mock lacks.)
+    replacement = await new MockUnlimitedPayPluginFactory({ algorand, ...defaults }).appFactory.compile()
   })
 
   afterAll(() => {
@@ -92,7 +93,7 @@ describe('ARC58 plugin application version check', () => {
 
   async function updateParams() {
     // Generated update params compile the mock itself; replace those programs
-    // afterward so this transaction really installs the production PayPlugin.
+    // afterward so this transaction really installs the replacement program.
     return { ...await plugin.params.update.update({ args: [] }), ...replacement }
   }
 

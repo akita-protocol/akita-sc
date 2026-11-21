@@ -42,7 +42,10 @@
     "artifact": "arc58/plugins/pay/PayPlugin.arc56.json",
     "registryKey": "payPlugin",
     "plugin": true,
-    "daoField": null
+    "daoField": null,
+    "notes": [
+      "Constructor: registry = the Meta app id whose policy writer is the MetaPlugin (fixed for the life of the app). PayPlugin reads each grant's pay policy (receivers and assets) from it; a grant without a policy pays as before, except a global grant with no execution key, which is refused."
+    ]
   },
   "PaySiloFactoryPlugin": {
     "artifact": "arc58/plugins/pay-silo/PaySiloFactoryPlugin.arc56.json",
