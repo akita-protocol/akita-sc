@@ -17,7 +17,7 @@ import {
   AbstractAccountGlobalStateKeysCurrentPlugin,
 } from '../../arc58/account/constants'
 import type { AbstractedAccount } from '../../arc58/account/contract.algo'
-import { PluginKey } from '../../arc58/account/types'
+import { PluginInfo, PluginKey } from '../../arc58/account/types'
 import { policyRecordKey, readMetaRecord } from '../../meta/functions'
 import { errGrantContext, errPolicyMissing, errPolicyStale } from '../errors'
 import { getRekeyIndex, getSpendingAccount } from '../functions'
@@ -29,17 +29,36 @@ export const GrantPolicyHeaderBytes: uint64 = 8
 export type GrantContext = { key: PluginKey; start: uint64 }
 
 /**
- * `PluginInfo.start` of `plugin`'s grant for `(caller, escrow)` on `wallet`, or 0 if there is no such
- * grant. Wallets do not allow foreign box reads, so this asks the wallet through its readonly
+ * `plugin`'s grant for `(caller, escrow)` on `wallet`; a zeroed `PluginInfo` (start 0) if there is no
+ * such grant. Wallets do not allow foreign box reads, so this asks the wallet through its readonly
  * `arc58_getPlugins`.
  */
-export function grantStart(wallet: Application, plugin: uint64, caller: Account, escrow: string): uint64 {
+export function grantInfo(wallet: Application, plugin: uint64, caller: Account, escrow: string): PluginInfo {
   const infos = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     appId: wallet,
     args: [[{ plugin, caller, escrow }]],
     fee: 0,
   }).returnValue
-  return infos[0].start
+  return infos[0]
+}
+
+/** `PluginInfo.start` of `plugin`'s grant for `(caller, escrow)` on `wallet`, or 0 if there is no such grant. */
+export function grantStart(wallet: Application, plugin: uint64, caller: Account, escrow: string): uint64 {
+  return grantInfo(wallet, plugin, caller, escrow).start
+}
+
+/**
+ * True when every group that can run under grant `key` on `wallet` was approved by the wallet's admin
+ * (or a co-admin), on no escrow. That is either:
+ * - the admin grant: caller is the wallet itself, so only an admin can open its window; or
+ * - a global grant that needs an execution key: the wallet opens its window for anyone else only in
+ *   a group whose id the admin registered beforehand (`arc58_addExecutionKey`). This is how a DAO
+ *   wallet, whose admin is the DAO app, acts through a proposal's ExecutePlugin action.
+ */
+export function isAdminApproved(wallet: Application, key: PluginKey): boolean {
+  if (key.escrow !== '') return false
+  if (key.caller === wallet.address) return true
+  return key.caller === Global.zeroAddress && grantInfo(wallet, key.plugin, key.caller, key.escrow).useExecutionKey
 }
 
 /** The account that owns a wallet's grant policies in Meta: its controlled address. */

@@ -35,7 +35,7 @@ import {
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "../chunk-6LPEM4QI.mjs";
+} from "../chunk-Z3B6VCSY.mjs";
 import {
   MerkleTree,
   MerkleTreeType,

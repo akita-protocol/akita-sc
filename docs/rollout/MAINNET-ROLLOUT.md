@@ -985,13 +985,17 @@ Independent of each other; each after its prerequisites.
   2. One DAO proposal: the Update plugin's `updateAkitaDaoEscrowForApp(meta, { name: rev_meta, app: <escrow app id> })`. Script since 2026-11-16: `update:app-dao-escrow` (gap G14 closed). It reads the app's escrow back and clears the bootstrap key it used.
   3. Register `rev_meta` with the RevenueManager like the other unsplit escrows (G3a).
 - Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
-- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-escrow`.
+- **Grant policies:** right after deploy:meta-plugin, `set:policy-writer` registers MetaPlugin as Meta's only policy writer. The creator can set it once while it is unset; after that only the DAO wallet can change it. Until it is set no wallet can store a grant policy, so a plugin that reads one (PayPlugin on rec_krby, H6) refuses every delegated call. The DAO writes a policy through a global MetaPlugin grant with an execution key: AddPlugin (`useExecutionKey`), then one ExecutePlugin proposal for the configurePolicy group.
+- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `meta-escrow`.
 
 ```bash
 npm run deploy:meta -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
 npm run deploy:meta -- -n mainnet -v "$V" --manifest receipts/meta.json --register
 (cd ../akita-sdk && npm run build)
 npm run deploy:meta-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/meta-plugin.json --register
+(cd ../akita-sdk && npm run build)
+npm run set:policy-writer -- -n mainnet --dry-run --sender "$CREATOR"
+npm run set:policy-writer -- -n mainnet --confirm
 npm run create:dao-escrow -- -n mainnet --escrow rev_meta --execute
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-run
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm

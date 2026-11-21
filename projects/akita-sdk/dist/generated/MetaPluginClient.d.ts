@@ -331,8 +331,8 @@ export declare abstract class MetaPluginParamsFactory {
     /**
      * Constructs a no op call for the configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64 ABI method
      *
-    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-    execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+    admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
     The grant must be installed: its current `start` is written in front of `body`, so the policy
     lapses if the grant is removed and installed again. `plugin` checks `body` first through its
     `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
@@ -791,8 +791,8 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
          *
-        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+        admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
         The grant must be installed: its current `start` is written in front of `body`, so the policy
         lapses if the grant is removed and installed again. `plugin` checks `body` first through its
         `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
@@ -922,8 +922,8 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
          *
-        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+        admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
         The grant must be installed: its current `start` is written in front of `body`, so the policy
         lapses if the grant is removed and installed again. `plugin` checks `body` first through its
         `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
@@ -1098,8 +1098,8 @@ export declare class MetaPluginClient {
         /**
          * Makes a call to the MetaPlugin smart contract using the `configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64` ABI method.
          *
-        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-        execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+        * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+        admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
         The grant must be installed: its current `start` is written in front of `body`, so the policy
         lapses if the grant is removed and installed again. `plugin` checks `body` first through its
         `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.
@@ -1340,8 +1340,8 @@ export type MetaPluginComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64 ABI method.
      *
-    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-    execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+    * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+    admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
     The grant must be installed: its current `start` is written in front of `body`, so the policy
     lapses if the grant is removed and installed again. `plugin` checks `body` first through its
     `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.

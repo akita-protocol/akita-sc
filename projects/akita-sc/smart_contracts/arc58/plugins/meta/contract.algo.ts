@@ -37,7 +37,7 @@ import {
   errTypeScope,
 } from '../../../meta/errors'
 
-import { grantStart, GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
+import { grantStart, GrantPolicyPlugin, isAdminApproved } from '../../../utils/base-contracts/grant-policy'
 import { policyRecordKey } from '../../../meta/functions'
 import { errScopeAdmin, errScopeEncoding, errScopeGrantMissing } from './errors'
 
@@ -109,12 +109,12 @@ export class MetaPlugin extends GrantPolicyPlugin {
 
   private requireAdmin(wallet: Application): void {
     const grant = this.grant(wallet)
-    loggedAssert(this.isAdminGrant(wallet, grant), errScopeAdmin)
+    loggedAssert(isAdminApproved(wallet, grant.key), errScopeAdmin)
   }
 
   /**
-   * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an admin
-   * execution of this plugin can do it, and Meta accepts it only from its registered policy writer.
+   * Create or replace the policy of `plugin`'s grant `(caller, escrow)` on `wallet`. Only an
+   * admin-approved execution of this plugin can do it (see isAdminApproved), and Meta accepts it only from its registered policy writer.
    * The grant must be installed: its current `start` is written in front of `body`, so the policy
    * lapses if the grant is removed and installed again. `plugin` checks `body` first through its
    * `validatePolicy`. Install a grant and call this in the same group to leave no unconfigured gap.

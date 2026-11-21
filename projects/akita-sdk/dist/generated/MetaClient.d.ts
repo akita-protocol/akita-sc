@@ -896,8 +896,8 @@ export declare abstract class MetaParamsFactory {
     /**
      * Constructs a no op call for the setPolicyWriter(uint64)void ABI method
      *
-    * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
-    wallet (initial deployment), the creator may.
+    * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
+    it is unset; after that only the DAO wallet can change it.
   
      *
      * @param params Parameters for the call
@@ -1738,8 +1738,8 @@ export declare class MetaClient {
         /**
          * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
          *
-        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
-        wallet (initial deployment), the creator may.
+        * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
+        it is unset; after that only the DAO wallet can change it.
     
          *
          * @param params The params for the smart contract call
@@ -2143,8 +2143,8 @@ export declare class MetaClient {
         /**
          * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
          *
-        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
-        wallet (initial deployment), the creator may.
+        * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
+        it is unset; after that only the DAO wallet can change it.
     
          *
          * @param params The params for the smart contract call
@@ -2675,8 +2675,8 @@ export declare class MetaClient {
         /**
          * Makes a call to the Meta smart contract using the `setPolicyWriter(uint64)void` ABI method.
          *
-        * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
-        wallet (initial deployment), the creator may.
+        * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
+        it is unset; after that only the DAO wallet can change it.
     
          *
          * @param params The params for the smart contract call
@@ -3154,8 +3154,8 @@ export type MetaComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the setPolicyWriter(uint64)void ABI method.
      *
-    * Set the MetaPlugin allowed to write grant policies. The DAO wallet sets it; before the DAO has a
-    wallet (initial deployment), the creator may.
+    * Set the MetaPlugin allowed to write grant policies. The creator sets it once, at deployment, while
+    it is unset; after that only the DAO wallet can change it.
   
      *
      * @param args The arguments for the contract call
