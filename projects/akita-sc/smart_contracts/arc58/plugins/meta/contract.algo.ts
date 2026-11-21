@@ -3,14 +3,10 @@ import {
   BigUint,
   Application,
   contract,
-  Global,
-  gtxn,
   Bytes,
   bytes,
   clone,
-  Contract,
   ensureBudget,
-  GlobalState,
   itxn,
   loggedAssert,
   op,
@@ -21,9 +17,9 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import type { Meta } from '../../../meta/contract.algo'
-import { RecordHeaderBytes, MaxAppCallArgumentBytes, PluginRecordArgumentBytes, MaxRecordKeyBytes } from '../../../meta/constants'
+import { MaxAppCallArgumentBytes, PluginRecordArgumentBytes, MaxRecordKeyBytes } from '../../../meta/constants'
 import { SchemaList } from '../../../meta/types'
-import { getSpendingAccount, getRekeyIndex, rekeyAddress } from '../../../utils/functions'
+import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import {
   errRecordNamesTooLong,
   errInvalidNamespace,
@@ -39,19 +35,14 @@ import {
   errTypeScope,
 } from '../../../meta/errors'
 
-import { AbstractAccountGlobalStateKeysCurrentPlugin } from '../../account/constants'
-import { PluginKey } from '../../account/types'
-import type { AbstractedAccount } from '../../account/contract.algo'
-import { readMetaRecord, setMetaRecord, removeMetaRecord } from '../../../meta/functions'
-import { errScopeMissing, errScopeAdmin, errWalletContext } from './errors'
+import { GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
 
 type Scope = { namespace: string; keys: string[] }
 const MaxScopeNameBytes: uint64 = 31
 
-/** Reusable adapter. Each wallet's delegated grant has a plugin-owned policy in Meta. */
+/** Reusable adapter. Each wallet's delegated grant has a plugin-owned policy in Meta (see GrantPolicyPlugin). */
 @contract({ avmVersion: 13 })
-export class MetaPlugin extends Contract {
-  public registry = GlobalState<Application>({ key: 'registry' })
+export class MetaPlugin extends GrantPolicyPlugin {
 
   public approvalProgram(): boolean {
     // Fund ABI array validation before dispatch for the largest supported policy.
@@ -70,41 +61,10 @@ export class MetaPlugin extends Contract {
     this.registry.value = registry
   }
 
-  private grant(wallet: Application): PluginKey {
-    const index = getRekeyIndex(wallet)
-    loggedAssert(index < Txn.groupIndex, errWalletContext)
-    const rekey = gtxn.ApplicationCallTxn(index)
-    loggedAssert(
-      rekey.appId === wallet &&
-      rekey.appArgs(0) === methodSelector<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>() &&
-      op.btoi(rekey.appArgs(1)) === Global.currentApplicationId.id,
-      errWalletContext,
-    )
-    const [value, exists] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysCurrentPlugin))
-    loggedAssert(exists, errWalletContext)
-    const grant = decodeArc4<PluginKey>(value)
-    loggedAssert(grant.plugin === Global.currentApplicationId.id, errWalletContext)
-    loggedAssert(getSpendingAccount(wallet).authAddress === Global.currentApplicationAddress, errWalletContext)
-    // The wallet validates every plugin call's first argument against its own ID.
-    return grant
-  }
-
-  private policyKey(wallet: Application, caller: Account, escrow: string): bytes {
-    // A policy has a composite identity longer than a record key; only this adapter hashes it.
-    return op.sha256(encodeArc4<[uint64, Account, string]>([wallet.id, caller, escrow])).slice(0, MaxRecordKeyBytes)
-  }
-
   private scope(wallet: Application): Scope {
     const grant = this.grant(wallet)
-    if (grant.caller === wallet.address) return { namespace: '', keys: [] }
-    const policy = readMetaRecord(this.registry.value, Global.currentApplicationAddress, this.policyKey(wallet, grant.caller, grant.escrow))
-    loggedAssert(policy.exists, errScopeMissing)
-    return decodeArc4<Scope>(policy.data)
-  }
-
-  private requireAdmin(wallet: Application): void {
-    const grant = this.grant(wallet)
-    loggedAssert(grant.caller === wallet.address && grant.escrow === '', errScopeAdmin)
+    if (grant.key.caller === wallet.address) return { namespace: '', keys: [] }
+    return decodeArc4<Scope>(this.policy(wallet, grant))
   }
 
   private validateScope(namespace: string, keys: string[]): void {
@@ -124,36 +84,21 @@ export class MetaPlugin extends Contract {
     ensureBudget(1400, OpUpFeeSource.GroupCredit)
   }
 
-  /** Only an administrator execution can create or replace a delegated grant's policy. */
+  /**
+   * Only an administrator execution can create or replace a delegated grant's policy. The grant must
+   * be installed; the policy lapses if the grant is removed and installed again.
+   */
   public configureScope(
     wallet: Application, rekeyBack: boolean, caller: Account, escrow: string,
     namespace: string, keys: string[], expectedRevision: uint64,
   ): uint64 {
-    this.requireAdmin(wallet)
     this.validateScope(namespace, keys)
-    const key = this.policyKey(wallet, caller, escrow)
-    const data = encodeArc4<Scope>({ namespace, keys: clone(keys) })
-    const old = readMetaRecord(this.registry.value, Global.currentApplicationAddress, key)
-    const cost = abiCall<typeof Meta.prototype.recordCost>({ appId: this.registry.value, args: [Global.currentApplicationAddress, key, data.length] }).returnValue
-    const sender = getSpendingAccount(wallet)
-    if (cost > 0) itxn.payment({ sender, receiver: Global.currentApplicationAddress, amount: cost, fee: 0 }).submit()
-    const revision = setMetaRecord(this.registry.value, key, data, expectedRevision)
-    const refund: uint64 = old.exists && old.data.length > data.length ? 400 * (old.data.length - data.length) : 0
-    itxn.payment({ sender: Global.currentApplicationAddress, receiver: sender, amount: refund, fee: 0 }).submit()
-    itxn.payment({ sender, receiver: sender, amount: 0, fee: 0, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
-    return revision
+    return this.writePolicy(wallet, rekeyBack, caller, escrow, encodeArc4<Scope>({ namespace, keys: clone(keys) }), expectedRevision)
   }
 
   /** Removing a policy disables the delegated grant until an administrator configures it again. */
   public clearScope(wallet: Application, rekeyBack: boolean, caller: Account, escrow: string, expectedRevision: uint64): void {
-    this.requireAdmin(wallet)
-    const key = this.policyKey(wallet, caller, escrow)
-    const old = readMetaRecord(this.registry.value, Global.currentApplicationAddress, key)
-    removeMetaRecord(this.registry.value, key, expectedRevision)
-    const sender = getSpendingAccount(wallet)
-    const refund: uint64 = 2500 + 400 * (33 + key.length + RecordHeaderBytes + old.data.length)
-    itxn.payment({ receiver: sender, amount: refund, fee: 0 }).submit()
-    itxn.payment({ sender, receiver: sender, amount: 0, fee: 0, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
+    this.removePolicy(wallet, rekeyBack, caller, escrow, expectedRevision)
   }
 
   private requireScope(wallet: Application, namespace: string, key: string): void {

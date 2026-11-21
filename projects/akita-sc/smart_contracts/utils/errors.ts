@@ -85,3 +85,15 @@ export const errHintTopLevel = 'errHtop'
 export const errHintNotBound = 'errHnbd'
 /** Third-party write: the hinted wallet does not own the account at rest. */
 export const errHintNotOwner = 'errHnow'
+
+// GRANT POLICIES (base-contracts/grant-policy.ts) ---------------------------------------------
+/** The call is not running inside a plugin window this plugin's grant opened. */
+export const errGrantContext = 'errGctx'
+/** Only an admin execution (caller = the wallet, no escrow) may change a grant's policy. */
+export const errPolicyAdmin = 'errGpad'
+/** The delegated grant has no policy, so it may not act. */
+export const errPolicyMissing = 'errGpms'
+/** The policy was written for an earlier install of this grant. */
+export const errPolicyStale = 'errGpst'
+/** A policy can only be configured for a grant that is installed. */
+export const errGrantMissing = 'errGnog'

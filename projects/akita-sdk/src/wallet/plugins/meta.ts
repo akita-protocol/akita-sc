@@ -25,6 +25,12 @@ type MetadataSet = MetadataWrite & { data: Uint8Array };
 export { MetaPluginFactory, MetaPluginClient } from "../../generated/MetaPluginClient";
 export * from "./meta-scope";
 
+/** Split a GrantPolicyPlugin record into the grant's install epoch and the plugin's policy body. */
+export function decodeGrantPolicy(data: Uint8Array): { start: bigint; body: Uint8Array } {
+  if (data.length < 8) throw new Error("Grant policy record is shorter than its 8-byte header.");
+  return { start: new DataView(data.buffer, data.byteOffset, 8).getBigUint64(0), body: data.slice(8) };
+}
+
 export class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
   constructor(params: NewContractSDKParams) {
     super({ factory: MetaPluginFactory, ...params });
@@ -36,9 +42,11 @@ export class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
     const key = metaPluginPolicyKey(args.wallet, args.caller, args.escrow ?? "");
     const meta = new MetaSDK({ algorand: this.algorand, readerAccount: this.getReaderSendParams({}).sender?.toString(), factoryParams: { appId: registry } });
     const record = await meta.readRecord(this.client.appAddress.toString(), key);
-    if (!record.exists) return { registry, revision: 0n, scope: undefined };
-    const [namespace, keys] = ABIType.from("(string,string[])").decode(record.data) as [string, string[]];
-    return { registry, revision: record.revision, scope: decodeMetadataScope(namespace, ABIType.from("string[]").encode(keys)) };
+    if (!record.exists) return { registry, revision: 0n, start: 0n, scope: undefined };
+    // A grant policy starts with the install epoch of the grant it was written for (GrantPolicyPlugin).
+    const { start, body } = decodeGrantPolicy(record.data);
+    const [namespace, keys] = ABIType.from("(string,string[])").decode(body) as [string, string[]];
+    return { registry, revision: record.revision, start, scope: decodeMetadataScope(namespace, ABIType.from("string[]").encode(keys)) };
   }
 
   configureScope(args: MaybeSigner & { caller: string; escrow?: string; scope: MetaPluginScope; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {

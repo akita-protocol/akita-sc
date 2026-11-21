@@ -1,4 +1,4 @@
-import { errScopeMissing, errScopeAdmin } from './errors'
+import { errScopeMissing, errScopeAdmin, errScopeStale, errScopeGrantMissing } from './errors'
 import { metadataDataKey, metadataDataParts, metadataPluginValueLimit } from '../../../../../akita-sdk/src/meta'
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { ABIMethod, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
@@ -186,6 +186,47 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
     // Deleting a policy does not delete that caller's data or another wallet's policy.
     expect((await metadata.readRecord(walletAddress, metadataDataKey('alice', 'value'))).data).toEqual(new Uint8Array([8]))
     expect((await fixture.algorand.account.getInformation(plugin.client.appAddress)).balance.microAlgos).toBe(100_000n)
+  })
+
+  test('a policy lapses when its grant is removed and installed again, and needs an installed grant', async () => {
+    const plugin = unrestricted
+    const alice = fixture.algorand.account.random()
+    await fixture.algorand.account.ensureFunded(alice.addr, owner, microAlgo(10_000_000))
+    const caller = alice.addr.toString()
+    const run = (key: string) => wallet.usePlugin({
+      sender: caller, signer: alice.signer, callerType: CallerType.Other,
+      calls: [plugin.set({ sender: caller, signer: alice.signer, namespace: 'alice', key, data: new Uint8Array([1]), expectedRevision: 0n })],
+    })
+    const configure = (expectedRevision: bigint) => wallet.usePlugin({
+      callerType: CallerType.Admin,
+      calls: [plugin.configureScope({ caller, scope: { type: 'namespace', namespace: 'alice' }, expectedRevision })],
+    })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+
+    // No grant for alice yet: there is nothing to configure.
+    await expect(configure(0n)).rejects.toThrow(errScopeGrantMissing)
+
+    // Rounds make each install's start epoch distinct on LocalNet.
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Other, caller, useRounds: true })
+    await configure(0n)
+    await run('first')
+    const written = await plugin.getScope({ wallet: wallet.appId, caller })
+    expect(written.start).toBeGreaterThan(0n)
+
+    await wallet.removePlugin({ plugin: plugin.appId, caller, escrow: '' })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Other, caller, useRounds: true })
+    // The old policy survives in Meta but belongs to the removed install.
+    await expect(run('second')).rejects.toThrow(errScopeStale)
+
+    await configure(written.revision)
+    const rewritten = await plugin.getScope({ wallet: wallet.appId, caller })
+    expect(rewritten.start).toBeGreaterThan(written.start)
+    await run('second')
+
+    // A removed grant's policy can still be cleared, which refunds its storage.
+    await wallet.removePlugin({ plugin: plugin.appId, caller, escrow: '' })
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [plugin.clearScope({ caller, expectedRevision: rewritten.revision })] })
+    expect((await plugin.getScope({ wallet: wallet.appId, caller })).scope).toBeUndefined()
   })
 
   test('unrestricted install can use different namespaces, then delete and restore wallet control', async () => {
