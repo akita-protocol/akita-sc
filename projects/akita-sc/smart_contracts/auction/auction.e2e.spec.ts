@@ -724,7 +724,8 @@ describe('Auction SDK', () => {
 
       // AR-13: the factory refunded exactly what it released (pooled balance untouched)
       expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
-    })
+    // Warps BEACON_MAX_WAIT_ROUNDS (1,000) rounds, one payment a round: see the same warp in staking-pool.e2e.spec.ts.
+    }, 300_000)
 
     test('AR-02: a single-bidder fee auction settles without a raffle and can be deleted', async () => {
       const owner = await newSeller()
