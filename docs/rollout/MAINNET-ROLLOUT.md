@@ -998,7 +998,8 @@ Independent of each other; each after its prerequisites.
   3. Register `rev_meta` with the RevenueManager like the other unsplit escrows (G3a).
 - Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
 - **Grant policies:** right after deploy:meta-plugin, `set:policy-writer` registers MetaPlugin as Meta's only policy writer. The creator can set it once while it is unset; after that only the DAO wallet can change it. Until it is set no wallet can store a grant policy, so a plugin that reads one (PayPlugin on rec_krby, H6) refuses every delegated call. The DAO writes a policy through a global MetaPlugin grant with an execution key: AddPlugin (`useExecutionKey`), then one ExecutePlugin proposal for the configurePolicy group.
-- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `meta-escrow`.
+- **The DAO's policy writer grant:** `install:policy-writer-grant` gives the DAO wallet MetaPlugin as a global grant on no escrow that needs an execution key, at the DAO's app upgrade thresholds. It stays installed. Every policy the DAO writes, now or after launch, is then one ExecutePlugin proposal that registers one group; without the grant a policy change after launch needs an AddPlugin vote first. The script refuses while Meta's policy writer is not the recorded MetaPlugin, and refuses to reuse a grant that needs no execution key.
+- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `dao-policy-writer`, `meta-escrow`.
 
 ```bash
 npm run deploy:meta -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -1008,6 +1009,8 @@ npm run deploy:meta-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta ap
 (cd ../akita-sdk && npm run build)
 npm run set:policy-writer -- -n mainnet --dry-run --sender "$CREATOR"
 npm run set:policy-writer -- -n mainnet --confirm
+npm run install:policy-writer-grant -- -n mainnet --dry-run
+npm run install:policy-writer-grant -- -n mainnet --confirm
 npm run create:dao-escrow -- -n mainnet --escrow rev_meta --execute
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-run
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm

@@ -16,6 +16,7 @@ import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawa
 import { RewardsSDK } from 'akita-sdk/rewards'
 import { planPowerRescale, powerProblems } from './proposal-power'
 import { planServiceFunding } from './service-account-funding'
+import { policyWriterGrantProblem } from './grant-policy-steps'
 
 type Status = { done: boolean; detail: string }
 type Step = { id: string; stage: string; title: string; requires: readonly string[]; run: string; check: () => Promise<Status> }
@@ -219,6 +220,14 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       const entry = (app?.params?.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === 'policy_writer')
       const current = entry ? BigInt(entry.value.uint) : 0n
       return { done: current === writer, detail: current === writer ? `Meta ${meta} takes policies from MetaPlugin ${writer}` : current ? `Meta ${meta} takes policies from app ${current}, not MetaPlugin ${writer}` : `Meta ${meta} has no policy writer yet` }
+    } })
+  add({ id: 'dao-policy-writer', stage: 'H', title: 'DAO wallet writes grant policies only by proposal', requires: ['dao', 'meta-policy-writer'],
+    run: 'npm run install:policy-writer-grant -- --confirm', check: async () => {
+      const writer = ctx.appIds.metaPlugin
+      if (!writer) return { done: false, detail: 'SDK metaPlugin is not recorded yet' }
+      const info = [...grants].find(([k]) => k.plugin === writer && k.caller === ALGORAND_ZERO_ADDRESS_STRING && k.escrow === '')?.[1]
+      const problem = policyWriterGrantProblem(info)
+      return { done: !problem, detail: problem ? `the DAO wallet's global grant of MetaPlugin ${writer} ${problem}` : `the DAO wallet holds MetaPlugin ${writer} as a global grant that needs an execution key` }
     } })
   add({ id: 'meta-escrow', stage: 'H', title: 'Meta sends its type fees to a DAO escrow', requires: ['meta'],
     run: 'npm run create:dao-escrow -- --escrow rev_meta --execute, then npm run update:app-dao-escrow -- --app meta --escrow rev_meta --confirm', check: async () => {
