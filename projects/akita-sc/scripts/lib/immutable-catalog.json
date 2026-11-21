@@ -47,18 +47,6 @@
       "Constructor: registry = the Meta app id whose policy writer is the MetaPlugin (fixed for the life of the app). PayPlugin reads each grant's pay policy (receivers and assets) from it; a grant without a policy pays as before, except a global grant with no execution key, which is refused."
     ]
   },
-  "PaySiloFactoryPlugin": {
-    "artifact": "arc58/plugins/pay-silo/PaySiloFactoryPlugin.arc56.json",
-    "registryKey": "paySiloFactoryPlugin",
-    "plugin": true,
-    "daoField": null
-  },
-  "PaySiloPlugin": {
-    "artifact": "arc58/plugins/pay-silo/PaySiloPlugin.arc56.json",
-    "registryKey": "paySiloPlugin",
-    "plugin": true,
-    "daoField": null
-  },
   "PollPluginContract": {
     "artifact": "arc58/plugins/poll/PollPluginContract.arc56.json",
     "registryKey": "pollPlugin",

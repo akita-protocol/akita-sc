@@ -23,8 +23,6 @@ import { APP_SPEC as GuildSpec } from '../../artifacts/arc58/plugins/guild/Guild
 import { APP_SPEC as HaystackRouterSpec } from '../../artifacts/arc58/plugins/haystack-router/HaystackRouterPluginClient'
 import { APP_SPEC as MarketplaceSpec } from '../../artifacts/arc58/plugins/marketplace/MarketplacePluginClient'
 import { APP_SPEC as OptInSpec } from '../../artifacts/arc58/plugins/optin/OptInPluginClient'
-import { APP_SPEC as PaySiloFactorySpec } from '../../artifacts/arc58/plugins/pay-silo/PaySiloFactoryPluginClient'
-import { APP_SPEC as PaySiloSpec } from '../../artifacts/arc58/plugins/pay-silo/PaySiloPluginClient'
 import { APP_SPEC as PaySpec } from '../../artifacts/arc58/plugins/pay/PayPluginClient'
 import { APP_SPEC as RewardsSpec } from '../../artifacts/arc58/plugins/rewards/RewardsPluginClient'
 import { APP_SPEC as SelfOptInSpec } from '../../artifacts/arc58/plugins/self-optin/SelfOptInPluginClient'
@@ -112,17 +110,6 @@ const cases: Case[] = [
     name: 'OptInPlugin',
     spec: OptInSpec,
     calls: [{ method: 'optIn', args: ({ payment }) => [[], payment()] }],
-  },
-  {
-    name: 'PaySiloPlugin',
-    spec: PaySiloSpec,
-    create: { method: 'create', args: ({ attacker }) => [attacker] },
-    calls: [{ method: 'pay', args: () => [[[0n, 100_000n]]] }],
-  },
-  {
-    name: 'PaySiloFactoryPlugin',
-    spec: PaySiloFactorySpec,
-    calls: [{ method: 'mint', args: ({ attacker }) => [attacker] }],
   },
   {
     name: 'PayPlugin',

@@ -94,7 +94,7 @@ describe('migration deployment and update scripts', () => {
     fs.writeFileSync(file, JSON.stringify(receipt))
     await expect(deployImmutable(ctx, 'PayPlugin', { registry: ctx.dao.appId.toString() }, file)).rejects.toThrow('unresolved')
     expect(() => prepareImmutable(ctx, 'EscrowFactory')).toThrow('Unknown immutable')
-    expect(() => prepareImmutable(ctx, 'PaySiloPlugin', { recipient: 'bad-address' })).toThrow()
+    expect(() => prepareImmutable(ctx, 'PayPlugin', { registry: 'not-an-app-id' })).toThrow()
   })
 
   test('updates an existing pool through DAO governance and preserves state', async () => {

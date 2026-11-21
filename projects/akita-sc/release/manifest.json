@@ -448,30 +448,6 @@
       },
       "extraPages": 0
     },
-    "arc58/plugins/pay-silo/PaySiloFactoryPlugin": {
-      "name": "PaySiloFactoryPlugin",
-      "approval": {
-        "bytes": 535,
-        "sha256": "1a82bccb6d8f8cb07b1c0a235ce803dab7c2132d545f17c6aab9bb7bc3cb5e38"
-      },
-      "clear": {
-        "bytes": 4,
-        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
-      },
-      "extraPages": 0
-    },
-    "arc58/plugins/pay-silo/PaySiloPlugin": {
-      "name": "PaySiloPlugin",
-      "approval": {
-        "bytes": 330,
-        "sha256": "e3f6557a37456f12a13fdecec67c3e9391d6482b7c9e06e900dadad47106702d"
-      },
-      "clear": {
-        "bytes": 4,
-        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
-      },
-      "extraPages": 0
-    },
     "arc58/plugins/pay/PayPlugin": {
       "name": "PayPlugin",
       "approval": {

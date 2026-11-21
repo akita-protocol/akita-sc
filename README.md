@@ -173,7 +173,7 @@ Wallet plugins extend abstracted account functionality:
 | Plugin | Description |
 |--------|-------------|
 | `optInPlugin` | ASA opt-in operations |
-| `payPlugin` | Payment operations |
+| `payPlugin` | Payment operations; a grant's policy (written through the Meta plugin) can limit it to listed receivers and assets |
 | `asaManagerPlugin` | ASA creation and minting |
 | `auctionPlugin` | Auction interactions |
 | `daoPlugin` | DAO interactions |
@@ -183,8 +183,6 @@ Wallet plugins extend abstracted account functionality:
 | `hyperSwapPlugin` | P2P multi-party swaps |
 | `marketplacePlugin` | Marketplace operations |
 | `nfdPlugin` | NFD operations |
-| `paySiloPlugin` | Pay silo interactions |
-| `paySiloFactoryPlugin` | Pay silo deployment |
 | `pollPlugin` | Poll voting |
 | `rafflePlugin` | Raffle participation |
 | `revenueManagerPlugin` | Revenue distribution |
@@ -285,8 +283,6 @@ new ID automatically and update this table; older entries are never replaced.
 | `hyperSwapPlugin` | [`763128858`](https://lora.algokit.io/testnet/application/763128858) | [`3569561068`](https://lora.algokit.io/mainnet/application/3569561068) |
 | `marketplacePlugin` | [`763128885`](https://lora.algokit.io/testnet/application/763128885) | [`3569561455`](https://lora.algokit.io/mainnet/application/3569561455) |
 | `nfdPlugin` | [`763128895`](https://lora.algokit.io/testnet/application/763128895) | [`3572944055`](https://lora.algokit.io/mainnet/application/3572944055) |
-| `paySiloPlugin` | [`763128904`](https://lora.algokit.io/testnet/application/763128904) | [`3569561570`](https://lora.algokit.io/mainnet/application/3569561570) |
-| `paySiloFactoryPlugin` | [`763128905`](https://lora.algokit.io/testnet/application/763128905) | [`3569561636`](https://lora.algokit.io/mainnet/application/3569561636) |
 | `pollPlugin` | [`763128906`](https://lora.algokit.io/testnet/application/763128906) | [`3569561749`](https://lora.algokit.io/mainnet/application/3569561749) |
 | `rafflePlugin` | [`763128922`](https://lora.algokit.io/testnet/application/763128922) | [`3569561863`](https://lora.algokit.io/mainnet/application/3569561863) |
 | `revenueManagerPlugin` | [`767111831`](https://lora.algokit.io/testnet/application/767111831) | [`3642325118`](https://lora.algokit.io/mainnet/application/3642325118) |
@@ -309,6 +305,19 @@ const update = getPluginUpdate('mainnet', installedPluginAppId)
 // plugin.name identifies old and current deployments consistently.
 // update?.latest.appId is the app ID offered for replacement.
 ```
+
+### Deprecated plugins
+
+PaySiloPlugin and PaySiloFactoryPlugin are deprecated (2026-11-21) and their code is
+removed. A pay silo fixed its receiver in its own program; a PayPlugin grant with a
+policy does the same job: the wallet writes the allowed receivers and assets through
+the Meta plugin, and PayPlugin refuses any other payment. The deployed apps stay on
+chain, unused, and are no longer in the SDK network maps:
+
+| Plugin | Testnet | Mainnet |
+|--------|---------|---------|
+| `paySiloPlugin` (deprecated) | [`763128904`](https://lora.algokit.io/testnet/application/763128904), earlier `751972334` | [`3569561570`](https://lora.algokit.io/mainnet/application/3569561570), earlier `3368399670` |
+| `paySiloFactoryPlugin` (deprecated) | [`763128905`](https://lora.algokit.io/testnet/application/763128905), earlier `751968441` | [`3569561636`](https://lora.algokit.io/mainnet/application/3569561636), earlier `3368399704` |
 
 Each plugin deployment list is ordered oldest to newest. The one-based
 `revision` returned by `resolvePluginDeployment` describes that ordering even

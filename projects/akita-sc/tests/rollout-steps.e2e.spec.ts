@@ -1,8 +1,8 @@
 /**
  * The rollout steps that had no script until 2026-11-16, on LocalNet against the tree DAO:
  * the proposal threshold rescale and its copy in the grant swaps (I1), the launch readiness check (I1),
- * pointing a fee generator at a DAO escrow (H1, G14), registering a receive escrow with the
- * RevenueManager (G3a) and the pay-only pay silo grant (H6).
+ * pointing a fee generator at a DAO escrow (H1, G14) and registering a receive escrow with the
+ * RevenueManager (G3a).
  */
 import { getNetworkAppIds } from 'akita-sdk'
 import { ProposalActionEnum } from 'akita-sdk/dao'
@@ -11,12 +11,11 @@ import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { bootstrapDaoTestContext, type DaoTestContext } from '../smart_contracts/arc58/dao/tests/utils'
-import { deployPaySiloPlugin } from './fixtures/plugins/pay-silo'
 import { deployStakingPlugin } from './fixtures/plugins/staking'
 import { type ScriptContext } from '../scripts/script-base'
 import { proposeAndExecute } from '../scripts/utils'
 import { createMigrationPlan, runMigration } from '../scripts/lib/dao-wallet-plugin-migration'
-import { installPaySiloGrant, pointAppAtDaoEscrow, readAppDaoEscrow, registerRevenueEscrow } from '../scripts/lib/dao-escrow-steps'
+import { pointAppAtDaoEscrow, readAppDaoEscrow, registerRevenueEscrow } from '../scripts/lib/dao-escrow-steps'
 import { planLaunch } from '../scripts/lib/dao-launch'
 import { isLegacyPower, isUnclearPower, toBaseUnitPower } from '../scripts/lib/power-units'
 import { planPowerRescale, powerProblems, runPowerRescale } from '../scripts/lib/proposal-power'
@@ -209,26 +208,5 @@ describe('rollout steps: thresholds, launch check and DAO escrows', () => {
       await expect(registerRevenueEscrow(ctx, { escrow, source: stranger(), log })).rejects.toThrow('the source cannot be changed here')
     })
 
-    test('a pay silo is installed on one escrow with pay only, and pays nobody but its recipient', async () => {
-      const escrow = 'rec_step_labs'
-      const escrowId = await newEscrow(escrow)
-      const recipient = stranger()
-      const silo = await deployPaySiloPlugin({ fixture: boot.fixture, sender: boot.sender, signer: boot.signer, args: { recipient } })
-      await expect(installPaySiloGrant(ctx, { plugin: silo.appId, escrow, recipient: stranger(), log })).rejects.toThrow(`pays ${recipient}, not`)
-      await expect(installPaySiloGrant(ctx, { plugin: boot.walletFactory!.appId, escrow, recipient, log })).rejects.toThrow('does not run the tree')
-      expect(await installPaySiloGrant(ctx, { plugin: silo.appId, escrow, recipient, plan: true, log })).toEqual({ plugin: silo.appId, escrow, recipient, installed: true })
-
-      const result = await installPaySiloGrant(ctx, { plugin: silo.appId, escrow, recipient, log })
-      expect(result.proposalId).toBeGreaterThan(0n)
-      expect(await installPaySiloGrant(ctx, { plugin: silo.appId, escrow, recipient, log })).toMatchObject({ installed: false })
-
-      // Anyone can trigger the payment; it reaches the recipient fixed at creation.
-      await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver: algosdk.getApplicationAddress(escrowId), amount: microAlgo(1_000_000n) })
-      const keeper = await boot.fixture.context.generateAccount({ initialFunds: (2).algo() })
-      const wallet = await ctx.dao.getWallet()
-      await wallet.usePlugin({ sender: keeper.addr.toString(), signer: keeper.signer, callerType: CallerType.Global, escrow,
-        calls: [silo.pay({ sender: keeper.addr.toString(), signer: keeper.signer, payments: [{ asset: 0n, amount: 250_000n }] })] })
-      expect((await ctx.algorand.account.getInformation(recipient)).balance.microAlgos).toBe(250_000n)
-    })
   })
 })

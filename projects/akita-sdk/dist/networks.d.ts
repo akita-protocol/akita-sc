@@ -48,8 +48,6 @@ export interface NetworkAppIds {
     gatePlugin: bigint;
     marketplacePlugin: bigint;
     nfdPlugin: bigint;
-    paySiloPlugin: bigint;
-    paySiloFactoryPlugin: bigint;
     pollPlugin: bigint;
     rafflePlugin: bigint;
     rewardsPlugin: bigint;
@@ -101,7 +99,7 @@ export interface NetworkAppIds {
     /** GovernanceParticipationGate (context-aware sub-gate over AkitaDAO.getGovernanceParticipation) */
     governanceParticipationGate?: bigint;
 }
-export declare const PLUGIN_APP_ID_KEYS: readonly ["revenueManagerPlugin", "updatePlugin", "optinPlugin", "selfOptinPlugin", "asaManagerPlugin", "payPlugin", "haystackRouterPlugin", "hyperSwapPlugin", "subscriptionsPlugin", "auctionPlugin", "daoPlugin", "dualStakePlugin", "gatePlugin", "marketplacePlugin", "nfdPlugin", "paySiloPlugin", "paySiloFactoryPlugin", "pollPlugin", "rafflePlugin", "rewardsPlugin", "socialPlugin", "stakingPlugin", "stakingPoolPlugin"];
+export declare const PLUGIN_APP_ID_KEYS: readonly ["revenueManagerPlugin", "updatePlugin", "optinPlugin", "selfOptinPlugin", "asaManagerPlugin", "payPlugin", "haystackRouterPlugin", "hyperSwapPlugin", "subscriptionsPlugin", "auctionPlugin", "daoPlugin", "dualStakePlugin", "gatePlugin", "marketplacePlugin", "nfdPlugin", "pollPlugin", "rafflePlugin", "rewardsPlugin", "socialPlugin", "stakingPlugin", "stakingPoolPlugin"];
 export type PluginAppIdKey = (typeof PLUGIN_APP_ID_KEYS)[number];
 export interface PluginDefinition {
     key: PluginAppIdKey;

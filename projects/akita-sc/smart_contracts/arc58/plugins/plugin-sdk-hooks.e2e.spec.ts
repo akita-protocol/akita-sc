@@ -79,8 +79,6 @@ describe('ARC58 plugin SDK hooks', () => {
       { name: 'nfdPlugin', sdk: akitaUniverse.nfdPlugin },
       { name: 'optInPlugin', sdk: akitaUniverse.optInPlugin },
       { name: 'payPlugin', sdk: akitaUniverse.payPlugin },
-      { name: 'paySiloFactoryPlugin', sdk: akitaUniverse.paySiloFactoryPlugin },
-      { name: 'paySiloPlugin', sdk: akitaUniverse.paySiloPlugin },
       { name: 'pollPlugin', sdk: akitaUniverse.pollPlugin },
       { name: 'rafflePlugin', sdk: akitaUniverse.rafflePlugin },
       { name: 'revenueManagerPlugin', sdk: akitaUniverse.revenueManagerPlugin },

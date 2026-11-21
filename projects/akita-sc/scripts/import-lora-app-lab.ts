@@ -81,8 +81,6 @@ const CONTRACT_SPEC_BY_SUMMARY_KEY: Record<string, string> = {
   gatePlugin: 'GatePlugin',
   marketplacePlugin: 'MarketplacePlugin',
   nfdPlugin: 'NFDPlugin',
-  paySiloPlugin: 'PaySiloPlugin',
-  paySiloFactoryPlugin: 'PaySiloFactoryPlugin',
   pollPlugin: 'PollPluginContract',
   rafflePlugin: 'RafflePlugin',
   rewardsPlugin: 'RewardsPlugin',
