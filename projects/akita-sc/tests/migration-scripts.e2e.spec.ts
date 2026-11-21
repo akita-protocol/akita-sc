@@ -92,7 +92,7 @@ describe('migration deployment and update scripts', () => {
     const receipt = JSON.parse(fs.readFileSync(file, 'utf8'))
     delete receipt.appId
     fs.writeFileSync(file, JSON.stringify(receipt))
-    await expect(deployImmutable(ctx, 'PayPlugin', {}, file)).rejects.toThrow('unresolved')
+    await expect(deployImmutable(ctx, 'PayPlugin', { registry: ctx.dao.appId.toString() }, file)).rejects.toThrow('unresolved')
     expect(() => prepareImmutable(ctx, 'EscrowFactory')).toThrow('Unknown immutable')
     expect(() => prepareImmutable(ctx, 'PaySiloPlugin', { recipient: 'bad-address' })).toThrow()
   })

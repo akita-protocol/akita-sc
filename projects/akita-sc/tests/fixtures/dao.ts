@@ -1600,6 +1600,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     fixture: fixture,
     sender: params.sender!,
     signer: params.signer!,
+    registry: metaMerklesResult.appId,
   })
   logger.plugin('deploy', 'PayPlugin', payPluginSDK.appId)
 

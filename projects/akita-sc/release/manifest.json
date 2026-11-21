@@ -475,12 +475,12 @@
     "arc58/plugins/pay/PayPlugin": {
       "name": "PayPlugin",
       "approval": {
-        "bytes": 298,
-        "sha256": "a61325a25ff97c547c56079ad87d5a30e570246996a26528a3695bfd19610cfe"
+        "bytes": 1854,
+        "sha256": "39f9348081f5befc76666bc8e21e0fac6ccb83f33c8569671ec9852a081bae7d"
       },
       "clear": {
         "bytes": 4,
-        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
       },
       "extraPages": 0
     },
@@ -1679,12 +1679,25 @@
       },
       "extraPages": 0
     },
+    "mocks/unlimited-pay-plugin/MockUnlimitedPayPlugin": {
+      "name": "MockUnlimitedPayPlugin",
+      "testOnly": true,
+      "approval": {
+        "bytes": 264,
+        "sha256": "6a79f14c7b3cf7e5ebfb8a91c49bb4d270ef73be693218e85ae287422a1fcf05"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
     "mocks/updatable-pay-plugin/MockUpdatablePayPlugin": {
       "name": "MockUpdatablePayPlugin",
       "testOnly": true,
       "approval": {
-        "bytes": 325,
-        "sha256": "9d92f245534b3622022229b85b0667438c3ed4778c31369919a3dc77c9049f51"
+        "bytes": 291,
+        "sha256": "67269a5c675b4151b093a774705311a6deebf9cac4328746cc91568cd132ccdb"
       },
       "clear": {
         "bytes": 4,

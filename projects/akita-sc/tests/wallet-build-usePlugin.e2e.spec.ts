@@ -6,7 +6,7 @@ import { describe, beforeAll, afterAll, beforeEach, test, expect } from 'vitest'
 import algosdk from 'algosdk';
 import { AbstractedAccountMbrFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient';
 import { deployAbstractedAccountFactory } from './fixtures/abstracted-account';
-import { deployPayPlugin } from './fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from './fixtures/plugins/pay';
 import { deployOptInPlugin } from './fixtures/plugins/optin';
 import { deployEscrowFactory } from './fixtures/escrow';
 import { deployAkitaDAO } from './fixtures/dao';

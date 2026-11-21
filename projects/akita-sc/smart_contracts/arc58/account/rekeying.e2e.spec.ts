@@ -7,7 +7,7 @@ import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
 import { deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { TimeWarp } from '../../../tests/utils/time';
 import { expectContractError } from '../../../tests/utils/errors';
 import { errAdminOnly, errMissingRekeyBack } from './errors';

@@ -3,7 +3,7 @@ import { BaseSDK } from "../../base";
 import { PayPluginArgs, PayPluginClient, PayPluginFactory } from "../../generated/PayPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
-import { Address } from "algosdk";
+import { ABIType, Address } from "algosdk";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { getTxns } from "../utils";
 
@@ -74,4 +74,29 @@ export class PayPluginSDK extends BaseSDK<PayPluginClient> {
       }
     });
   }
+}
+
+const payPolicyType = ABIType.from("(address[],uint64[])");
+
+/** The policy of a delegated PayPlugin grant: the only receivers it may pay, and the only assets (0 is ALGO). */
+export type PayPolicy = { recipients: string[]; assets: bigint[] };
+
+/**
+ * Encode a PayPlugin policy body for `MetaPluginSDK.configurePolicy`. Sorts both lists and drops
+ * repeats, which the plugin's `validatePolicy` requires; each list must hold 1 to 8 entries.
+ */
+export function encodePayPolicy(policy: { recipients: (string | Address)[]; assets: (bigint | number)[] }): Uint8Array {
+  const recipients = [...new Set(policy.recipients.map((r) => r.toString()))]
+    .map((r) => Address.fromString(r))
+    .sort((a, b) => Buffer.compare(Buffer.from(a.publicKey), Buffer.from(b.publicKey)))
+    .map((a) => a.toString());
+  const assets = [...new Set(policy.assets.map((a) => BigInt(a)))].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  if (recipients.length < 1 || recipients.length > 8) throw new Error("A pay policy lists 1 to 8 recipients");
+  if (assets.length < 1 || assets.length > 8) throw new Error("A pay policy lists 1 to 8 assets");
+  return payPolicyType.encode([recipients, assets]);
+}
+
+export function decodePayPolicy(body: Uint8Array): PayPolicy {
+  const [recipients, assets] = payPolicyType.decode(body) as [string[], bigint[]];
+  return { recipients: recipients.map((r) => r.toString()), assets: assets.map((a) => BigInt(a)) };
 }

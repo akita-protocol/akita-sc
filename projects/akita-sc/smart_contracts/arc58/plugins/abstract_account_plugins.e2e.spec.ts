@@ -8,7 +8,7 @@ import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstract
 import { deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { errPluginDoesNotExist } from '../account/errors';
 import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient';
 

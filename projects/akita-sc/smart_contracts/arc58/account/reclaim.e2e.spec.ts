@@ -8,7 +8,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { assertUnregistered } from '../../../tests/fixtures/unregistered-wallet';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import {
   errEscrowDoesNotExist,
   errForbidden,

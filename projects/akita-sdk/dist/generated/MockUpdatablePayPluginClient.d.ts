@@ -441,7 +441,7 @@ export declare class MockUpdatablePayPluginFactory {
                     maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
                     validityWindow?: number | bigint | undefined;
                     firstValidRound?: bigint | undefined;
-                    lastValidRound? /** The args for the ABI method call, either as an ordered array or an object */: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
                     appId: bigint;
                     onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
                     args?: Uint8Array[] | undefined;

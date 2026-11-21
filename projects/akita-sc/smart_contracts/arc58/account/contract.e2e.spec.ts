@@ -11,7 +11,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { deployAsaManagerPlugin } from '../../../tests/fixtures/plugins/asa-manager';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { TimeWarp } from '../../../tests/utils/time';
 import { errAdminOnly, errAllowanceExceeded, errCannotCallOtherAppsDuringRekey, errExecutionKeyNotFound, errExecutionNotReady, errGroupNotFound, errMalformedOffsets, errMethodOnCooldown, errPluginDoesNotExist, errPluginExpired, errPluginOnCooldown } from './errors';
 
