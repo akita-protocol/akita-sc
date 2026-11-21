@@ -1248,6 +1248,7 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - `scripts/install-pay-silo-grant.ts` and the `deploy:pay-silo-*` commands: no step runs them any more. They leave with the pay silo code.
 - Tests: `tests/rollout-grant-policies.e2e.spec.ts` runs the policy writer grant, a policy written by proposal and H6 on LocalNet, ending in payments that only the listed receiver gets; `tests/meta-policy-forger.e2e.spec.ts`; `smart_contracts/arc58/plugins/pay/pay-policy.e2e.spec.ts` and `pay-policy-dao.e2e.spec.ts`.
 - Two tests that warp 1,000 rounds, in `smart_contracts/staking-pool/staking-pool.e2e.spec.ts` and `smart_contracts/auction/auction.e2e.spec.ts`, get a timeout of 300 seconds. Each sends about 1,000 payments one after another and passed the default 120 seconds on a busy CI runner.
+- `scripts/deploy-localnet-v2.ts` (LocalNet only): after it deploys MetaPlugin it names it as Meta's grant policy writer, and a rerun does the same on a universe that lacks one. Until now a LocalNet built by `deploy:universe` and `deploy:localnet-v2` had no policy writer, so no wallet there could store a grant policy and the apps could not try a PayPlugin policy. On MainNet this is H1's `set:policy-writer`.
 
 ## Open script gaps
 
