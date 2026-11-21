@@ -11,7 +11,7 @@
  *
  * Usage (from projects/akita-sc):
  *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> --dry-run --sender "$CREATOR"
- *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> [--keep-grant]
+ *   npm run deploy:inference-silo -- -n mainnet --recipient <addr> [--keep-grant] [--another]
  * The key comes from DEPLOYER_MNEMONIC (runbook step A0). Runbook step H9.
  */
 import dotenv from 'dotenv'
@@ -32,10 +32,12 @@ runScript(async () => {
 Additional options:
   --recipient <address>      Account the silo pays: Akita's inference revenue account (required)
   --factory-plugin <id>      PaySiloFactoryPlugin app id (default: the SDK's paySiloFactoryPlugin for the network)
-  --keep-grant               Keep the narrow factory grant on the DAO wallet afterwards`)
+  --keep-grant               Keep the narrow factory grant on the DAO wallet afterwards
+  --another                  Mint even if the DAO wallet already created a release PaySilo for this recipient`)
   const recipient = value('--recipient')
   if (!recipient) throw new Error('--recipient <address> is required')
   const keepGrant = args.includes('--keep-grant')
+  const another = args.includes('--another')
 
   const ctx = await setupContext(options, { minBalance: 3_000_000n })
   const factoryPluginId = BigInt(value('--factory-plugin') ?? ctx.appIds.paySiloFactoryPlugin ?? 0n)
@@ -45,7 +47,7 @@ Additional options:
     const daoCreator = (await ctx.algorand.app.getById(ctx.dao.appId)).creator.toString()
     const sender = options.sender ?? daoCreator
     ctx.dao.setSendParams({ sender, signer: ctx.signer })
-    const plan = await planInferenceSilo(ctx, { recipient, factoryPluginId, keepGrant, effectiveSender: sender })
+    const plan = await planInferenceSilo(ctx, { recipient, factoryPluginId, keepGrant, another, effectiveSender: sender })
     console.log(`Inference silo plan on ${options.network}`)
     for (const line of describeInferenceSiloPlan(plan)) console.log(`  ${line}`)
     if (plan.addGrant) {
@@ -57,7 +59,7 @@ Additional options:
   }
 
   console.log(`Minting the inference silo from the DAO wallet on ${options.network}`)
-  const result = await runInferenceSilo(ctx, { recipient, factoryPluginId, keepGrant })
+  const result = await runInferenceSilo(ctx, { recipient, factoryPluginId, keepGrant, another })
 
   console.log(`
 ${'='.repeat(80)}

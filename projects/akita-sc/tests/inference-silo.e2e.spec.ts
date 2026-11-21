@@ -70,20 +70,27 @@ describe('deploy-inference-silo through the DAO wallet', () => {
     const plan = await planInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId })
     expect(plan).toMatchObject({ addGrant: true, removeGrant: true, grant: 'absent' })
 
-    const balance = async (address: string) => (await ctx.algorand.account.getInformation(address)).balance.microAlgos
     const walletInfo = await ctx.dao.getWallet()
     const controlled = (await walletInfo.client.state.global.controlledAddress())!
-    const [creatorBefore, controlledBefore, walletMinBefore] = await Promise.all([balance(ctx.sender), balance(controlled),
-      ctx.algorand.account.getInformation(controlled).then((i) => i.minBalance.microAlgos)])
+    const daoAddress = ctx.dao.client.appAddress.toString()
+    const read = async () => {
+      const [creator, wallet, dao] = await Promise.all([ctx.sender, controlled, daoAddress].map((a) => ctx.algorand.account.getInformation(a)))
+      return { creator: creator.balance.microAlgos, controlled: wallet.balance.microAlgos, walletMin: wallet.minBalance.microAlgos,
+        dao: dao.balance.microAlgos, daoMin: dao.minBalance.microAlgos }
+    }
+    const before = await read()
     const result = await runInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId, log })
     expect(result.proposalIds).toHaveLength(3)
-    const [creatorAfter, controlledAfter, walletMinAfter] = await Promise.all([balance(ctx.sender), balance(controlled),
-      ctx.algorand.account.getInformation(controlled).then((i) => i.minBalance.microAlgos)])
+    const after = await read()
     // Each silo raises the DAO wallet's minimum balance for good (one global byte slice), and spends none of it.
-    expect(walletMinAfter - walletMinBefore).toBe(150_000n)
-    expect(controlledAfter).toBe(controlledBefore)
+    expect(after.walletMin - before.walletMin).toBe(150_000n)
+    expect(after.controlled).toBe(before.controlled)
     // With the DAO and its wallet already funded, the creator pays only fees (measured 26,000 µALGO on LocalNet).
-    expect(creatorBefore - creatorAfter).toBeLessThan(100_000n)
+    expect(before.creator - after.creator).toBeLessThan(100_000n)
+    // Before initialize() the creator pays no proposal fee: the DAO account holds the three proposal records
+    // (measured 292,300 µALGO of minimum balance on LocalNet; the grant's settings box is removed again).
+    expect(after.dao).toBe(before.dao)
+    expect(after.daoMin - before.daoMin).toBe(292_300n)
 
     const silo = await ctx.algorand.client.algod.getApplicationByID(result.siloAppId).do()
     const walletControlled = await (await ctx.dao.getWallet()).client.state.global.controlledAddress()
@@ -98,6 +105,12 @@ describe('deploy-inference-silo through the DAO wallet', () => {
     // rollout:status finds the silo through the wallet's created apps.
     const row = (await readRolloutStatus(ctx)).rows.find((r) => r.id === 'inference-silo')
     expect(row?.detail).toContain(`created by the DAO wallet, pays ${recipient}`)
+
+    // A second run for the same recipient refuses unless --another is given.
+    await expect(planInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId }))
+      .rejects.toThrow(`already created PaySilo ${result.siloAppId} paying ${recipient}`)
+    expect((await planInferenceSilo(ctx, { recipient, factoryPluginId: factory.appId, another: true })).existingSilos)
+      .toEqual([result.siloAppId])
   })
 
   test('--keep-grant keeps only the narrow grant; it can not mint without a proposal; a later run reuses it', async () => {

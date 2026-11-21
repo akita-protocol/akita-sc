@@ -235,8 +235,13 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       const silo = loadCompiled('arc58/plugins/pay-silo/PaySiloPlugin.arc56.json').approval
       const controlled = await wallet.client.state.global.controlledAddress()
       if (!controlled) return { done: false, detail: 'the DAO wallet has no controlled address' }
-      const account = await ctx.algorand.client.algod.accountInformation(controlled).do().catch(() => undefined)
-      for (const app of account?.createdApps ?? []) {
+      let account
+      try {
+        account = await ctx.algorand.client.algod.accountInformation(controlled).do()
+      } catch (error) {
+        return { done: false, detail: `could not read the DAO wallet's account ${controlled}: ${(error as Error).message}` }
+      }
+      for (const app of account.createdApps ?? []) {
         if (!same(app.params?.approvalProgram, silo)) continue
         const recipient = await readSiloRecipient(ctx, app.id)
         return { done: true, detail: `PaySiloPlugin ${app.id}, created by the DAO wallet, pays ${recipient ?? '(unset)'}` }

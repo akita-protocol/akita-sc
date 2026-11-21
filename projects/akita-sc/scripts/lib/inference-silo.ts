@@ -45,6 +45,8 @@ export type InferenceSiloOptions = {
   factoryPluginId: bigint
   /** Keep the narrow factory grant installed after the mint (for later silos). */
   keepGrant?: boolean
+  /** Mint even though the DAO wallet already created a release PaySilo that pays this recipient. */
+  another?: boolean
   /** Sender of the proposals; must be the DAO creator. Defaults to `ctx.sender`. */
   effectiveSender?: string
   /** Release manifest to check programs against. Defaults to `release/manifest.json`. */
@@ -61,6 +63,8 @@ export type InferenceSiloPlan = {
   spendingAddress: string
   siloApprovalSha256: string
   grant: GrantState
+  /** Release PaySilos the DAO wallet already created that pay this recipient. */
+  existingSilos: bigint[]
   addGrant: boolean
   removeGrant: boolean
   settings: { fee: bigint; power: bigint; duration: bigint; participation: bigint; approval: bigint }
@@ -73,6 +77,17 @@ export type InferenceSiloResult = InferenceSiloPlan & {
 
 const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString('hex')
 const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
+
+/** Apps created by `creator` that run the program with approval sha256 `approvalSha256` and pay `recipient`. */
+export async function findCreatedSilos(ctx: Pick<ScriptContext, 'algorand'>, creator: string, approvalSha256: string, recipient: string): Promise<bigint[]> {
+  const account = await ctx.algorand.client.algod.accountInformation(creator).do()
+  const found: bigint[] = []
+  for (const app of account.createdApps ?? []) {
+    if (!app.params?.approvalProgram || sha256(app.params.approvalProgram) !== approvalSha256) continue
+    if (await readSiloRecipient(ctx, app.id) === recipient) found.push(app.id)
+  }
+  return found
+}
 
 /** The approval sha256 the release manifest records for `key`; throws when there is none. */
 export function manifestApprovalSha256(key: string, manifestPath = RELEASE_MANIFEST_PATH): string {
@@ -157,6 +172,11 @@ export async function planInferenceSilo(ctx: ScriptContext, options: InferenceSi
   // With no escrow, the plugin spends from (and so creates the silo from) the controlled address.
   const spendingAddress = (await wallet.client.state.global.controlledAddress()) ?? wallet.client.appAddress.toString()
   const selector = factoryPlugin(ctx, factoryPluginId, effectiveSender).mint()().selectors[0]
+  const existingSilos = await findCreatedSilos(ctx, spendingAddress.toString(), siloApprovalSha256, recipient)
+  if (existingSilos.length && !options.another) {
+    throw new Error(`The DAO wallet already created PaySilo ${existingSilos.join(', ')} paying ${recipient}; ` +
+      'pass --another to mint another on purpose')
+  }
   const info = await readGrant(ctx, factoryPluginId)
   let grant: GrantState = 'absent'
   if (info) {
@@ -172,7 +192,7 @@ export async function planInferenceSilo(ctx: ScriptContext, options: InferenceSi
   return {
     factoryPluginId, recipient, daoCreator, daoState: BigInt(daoState ?? 0n),
     walletAppId: wallet.client.appId, spendingAddress: spendingAddress.toString(), siloApprovalSha256,
-    grant, settings,
+    grant, existingSilos, settings,
     addGrant: grant === 'absent',
     removeGrant: !keepGrant,
   }
@@ -185,6 +205,7 @@ export function describeInferenceSiloPlan(plan: InferenceSiloPlan): string[] {
     `DAO wallet ${plan.walletAppId} mints from ${plan.spendingAddress}`,
     `Silo recipient: ${plan.recipient}`,
     `Expected silo approval sha256: ${plan.siloApprovalSha256}`,
+    `Silos the DAO wallet already created for this recipient: ${plan.existingSilos.length ? `${plan.existingSilos.join(', ')} (minting another)` : 'none'}`,
     `Existing narrow grant: ${plan.grant === 'narrow' ? 'yes (reused)' : 'no'}`,
     `Proposals: ${[plan.addGrant && 'AddPlugin', 'ExecutePlugin', plan.removeGrant && 'RemovePlugin'].filter(Boolean).join(' -> ')}`,
     `Grant policy: global caller, execution key, methods [mint], settings fee=${plan.settings.fee} ` +
