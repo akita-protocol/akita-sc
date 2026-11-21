@@ -187,6 +187,7 @@
     "deploy:meta-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract MetaPlugin",
     "set:policy-writer": "ts-node --transpile-only scripts/set-policy-writer.ts",
     "install:policy-writer-grant": "ts-node --transpile-only scripts/install-policy-writer-grant.ts",
+    "install:pay-policy-grant": "ts-node --transpile-only scripts/install-pay-policy-grant.ts",
     "deploy:sunset-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract SunsetPlugin",
     "deploy:rewards": "ts-node --transpile-only scripts/deploy-immutable.ts --contract Rewards",
     "deploy:meta": "ts-node --transpile-only scripts/deploy-meta.ts",

@@ -6,7 +6,7 @@
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { getPluginUpdate, REGISTRY_WRITES_STOPPED, SOCIAL_HINTED_TARGETS, type PluginAppIdKey } from 'akita-sdk'
 import type { ScriptContext } from '../script-base'
-import type { RevenueManagerPluginSDK } from 'akita-sdk/wallet'
+import { decodePayPolicy, type RevenueManagerPluginSDK } from 'akita-sdk/wallet'
 import { createPluginClient, DAO_STATE_FULLY_INITIALIZED } from './dao-wallet-plugin-migration'
 import { isPhase2aUpdatePlugin, readFactoryChild, readLiveApp } from './principal-rollout-run'
 import { loadCompiled, PHASE2_RIDE_ALONG_TARGETS, PHASE2_TARGETS } from './principal-rollout'
@@ -16,7 +16,7 @@ import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawa
 import { RewardsSDK } from 'akita-sdk/rewards'
 import { planPowerRescale, powerProblems } from './proposal-power'
 import { planServiceFunding } from './service-account-funding'
-import { policyWriterGrantProblem } from './grant-policy-steps'
+import { payOnlyGrantProblem, payPluginProblem, policyWriterGrantProblem, readDaoGrantPolicy } from './grant-policy-steps'
 
 type Status = { done: boolean; detail: string }
 type Step = { id: string; stage: string; title: string; requires: readonly string[]; run: string; check: () => Promise<Status> }
@@ -128,6 +128,8 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
   add({ id: 'wallet-mbr', stage: 'F', title: 'SDK wallet storage helper runs the tree program', requires: [],
     run: 'npm run deploy:wallet-mbr -- --register, then rebuild the SDK', check: () => runsTree('walletMbr', ctx.appIds.walletMbr, 'arc58/account/AbstractedAccountMBR.arc56.json') })
 
+  // Not here: payPlugin, which is created with Meta as its registry and so follows Meta in stage H, and the
+  // pay silo plugins, which release 2.0.0 deprecates (a PayPlugin grant with a policy does their job; H6).
   const plugins: readonly [PluginAppIdKey, string, readonly string[]][] = [
     ['socialPlugin', 'arc58/plugins/social/AkitaSocialPlugin.arc56.json', ['p2:AkitaSocial', 'p2:AkitaSocialGraph', 'gate']],
     ['subscriptionsPlugin', 'arc58/plugins/subscriptions/SubscriptionsPlugin.arc56.json', ['p2:Subscriptions', 'gate']],
@@ -144,9 +146,6 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
     ['nfdPlugin', 'arc58/plugins/nfd/NFDPlugin.arc56.json', []],
     ['haystackRouterPlugin', 'arc58/plugins/haystack-router/HaystackRouterPlugin.arc56.json', []],
     ['optinPlugin', 'arc58/plugins/optin/OptInPlugin.arc56.json', []],
-    ['payPlugin', 'arc58/plugins/pay/PayPlugin.arc56.json', []],
-    ['paySiloPlugin', 'arc58/plugins/pay-silo/PaySiloPlugin.arc56.json', []],
-    ['paySiloFactoryPlugin', 'arc58/plugins/pay-silo/PaySiloFactoryPlugin.arc56.json', []],
     ['selfOptinPlugin', 'arc58/plugins/self-optin/SelfOptInPlugin.arc56.json', []],
     ['asaManagerPlugin', 'arc58/plugins/asa-manager/AsaManagerPlugin.arc56.json', []],
     ['dualStakePlugin', 'arc58/plugins/dual-stake/DualStakePlugin.arc56.json', []],
@@ -240,15 +239,28 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       return { done: escrow > 0n, detail: escrow > 0n ? `Meta ${meta} sends fees to escrow app ${escrow}` : `Meta ${meta} has no DAO escrow yet; its fees wait in the app` }
     } })
 
-  add({ id: 'labs-pay-silo', stage: 'H', title: 'Labs pay silo installed on rec_krby with pay only', requires: ['dao'],
-    run: 'npm run deploy:pay-silo-plugin -- --config \'{"recipient":"<Labs address>"}\' --manifest receipts/pay-silo-labs.json, then npm run install:pay-silo-grant -- --plugin <id> --escrow rec_krby --recipient <Labs address> --confirm', check: async () => {
-      const silo = loadCompiled('arc58/plugins/pay-silo/PaySiloPlugin.arc56.json').approval
-      for (const [key, info] of grants) {
-        if (key.escrow !== 'rec_krby' || key.caller !== ALGORAND_ZERO_ADDRESS_STRING || !same(await program(key.plugin), silo)) continue
-        const narrow = info.methods.length === 1 && !info.admin && !info.canReclaim && !info.useExecutionKey
-        return { done: narrow, detail: `PaySiloPlugin ${key.plugin} is installed on rec_krby${narrow ? ' with one method' : ', but not as the pay-only grant'}` }
-      }
-      return { done: false, detail: 'no tree PaySiloPlugin is installed on rec_krby' }
+  // PayPlugin reads each grant's policy from the Meta it was created with, and nothing at deploy checks that id.
+  add({ id: 'plugin:payPlugin', stage: 'H', title: 'payPlugin rotated (created with Meta as its registry, registered, DAO grants swapped)', requires: ['meta'],
+    run: 'npm run deploy:pay-plugin -- --config \'{"registry":"<meta id>"}\' --manifest receipts/pay-plugin.json --register, rebuild the SDK, then npm run update:dao-wallet-plugins -- --confirm-update', check: async () => {
+      const plugin = ctx.appIds.payPlugin
+      const problem = await payPluginProblem(ctx, plugin)
+      const stale = staleDaoGrants('payPlugin')
+      return { done: !problem && stale === 0, detail: `${problem ? `payPlugin ${plugin || '(unset)'} ${problem}` : `latest payPlugin ${plugin} runs the tree program and reads policies from Meta ${ctx.appIds.meta}`}; ${stale} stale DAO wallet grant(s)` }
+    } })
+  add({ id: 'labs-pay-policy', stage: 'H', title: 'rec_krby pays out through PayPlugin with pay only, to the one receiver its policy lists', requires: ['dao', 'dao-policy-writer', 'plugin:payPlugin'],
+    run: 'npm run install:pay-policy-grant -- --escrow rec_krby --recipient <Labs address> --confirm', check: async () => {
+      const plugin = ctx.appIds.payPlugin
+      const problem = await payPluginProblem(ctx, plugin)
+      if (problem) return { done: false, detail: `payPlugin ${plugin || '(unset)'} ${problem}` }
+      const key = { plugin, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: 'rec_krby' }
+      const info = [...grants].find(([k]) => k.plugin === key.plugin && k.caller === key.caller && k.escrow === key.escrow)?.[1]
+      const grantProblem = payOnlyGrantProblem(info)
+      if (grantProblem) return { done: false, detail: `the global grant of PayPlugin ${plugin} on rec_krby ${grantProblem}` }
+      const policy = await readDaoGrantPolicy(ctx, key).catch(() => undefined)
+      // PayPlugin refuses a global grant with no execution key until it has a policy for this install of it.
+      if (!policy?.current) return { done: false, detail: `the pay-only grant of PayPlugin ${plugin} on rec_krby has ${policy?.exists ? 'a policy written for an earlier install of it' : 'no policy'}, so it pays nothing` }
+      const { recipients, assets } = decodePayPolicy(policy.body)
+      return { done: recipients.length === 1, detail: `rec_krby pays ${recipients.length === 1 ? 'only ' : ''}${recipients.join(', ')} in assets ${assets.join(', ')} (0 is ALGO); compare the address with the Labs address` }
     } })
 
   add({ id: 'power', stage: 'I', title: 'Proposal thresholds are in base units', requires: ['dao', 'validator'],
