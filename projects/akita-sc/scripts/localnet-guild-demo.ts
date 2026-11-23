@@ -10,6 +10,7 @@
  *
  *   npm run localnet:guild-demo -- create --member <address> [--member <address>] [--threshold 2] [--voting-seconds 120]
  *   npm run localnet:guild-demo -- propose <kind> [--draft] [--as bob|carol]   kinds: see PROPOSALS below
+ *                                   [--agent <address>] [--chat <group id>]     who and which chat they are about
  *   npm run localnet:guild-demo -- submit <proposalId> [--as bob|carol]         opens a draft's vote
  *   npm run localnet:guild-demo -- vote <proposalId> <yes|no|abstain> [--as bob|carol]
  *   npm run localnet:guild-demo -- finish <proposalId> [--execute]
@@ -36,6 +37,8 @@ import {
   GuildActionType,
   newEscrowAction,
   removePluginAction,
+  revokeChatStewardAction,
+  setChatStewardAction,
   setProposalActionLimitAction,
   setProposalSettingsAction,
   toggleEscrowLockAction,
@@ -62,6 +65,8 @@ const STATUS: Record<number, string> = { 0: 'draft', 10: 'invalid', 20: 'voting'
 type Voter = 'bob' | 'carol'
 type State = {
   genesisHash: string
+  /** the GuildPlugin the two wallets carry */
+  plugin: string
   wallets: Record<Voter, { app: string; address: string }>
   guild?: { app: string; consensus: string; wallet: string; members: string[]; threshold: string; votingSeconds: string }
   agent?: string
@@ -145,8 +150,8 @@ async function main() {
   await syncClock()
 
   let state: State | undefined = fs.existsSync(STATE_FILE) ? (JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')) as State) : undefined
-  // a reset LocalNet is another chain: what the file names no longer exists
-  if (state && state.genesisHash !== network) state = undefined
+  // a reset LocalNet is another chain, and a redeployed GuildPlugin is not the one the wallets carry
+  if (state && (state.genesisHash !== network || state.plugin !== env.GUILD_PLUGIN_APP_ID)) state = undefined
   const save = (next: State) => {
     state = next
     fs.writeFileSync(STATE_FILE, `${JSON.stringify(next, null, 2)}\n`)
@@ -216,7 +221,7 @@ async function main() {
         wallets[name] = { app: wallet.appId.toString(), address }
         console.log(`   ${name}: wallet ${wallet.appId}, member address ${address}`)
       }
-      save({ genesisHash: network, wallets })
+      save({ genesisHash: network, plugin: env.GUILD_PLUGIN_APP_ID, wallets })
 
       // an app votes from its user's own address, which pays the fees and the vote's storage itself
       for (const address of others) await algorand.send.payment({ sender, receiver: address, amount: microAlgo(20_000_000n) })
@@ -265,6 +270,7 @@ async function main() {
       await walletOf('bob').usePlugin({ ...sendAs, callerType: CallerType.Global, consolidateFees: true, calls: [plugin.initialize({ ...sendAs, guild: guildApp })] })
       save({
         genesisHash: network,
+        plugin: env.GUILD_PLUGIN_APP_ID,
         wallets,
         guild: { app: guildApp.toString(), consensus: consensus.toString(), wallet: treasury.toString(), members, threshold: threshold.toString(), votingSeconds: votingSeconds.toString() },
       })
@@ -279,8 +285,9 @@ async function main() {
     case 'propose': {
       const kind = rest[0]
       const duration = BigInt(guild().votingSeconds)
-      const agent = state!.agent ?? algorand.account.random().addr.toString()
-      if (!state!.agent) save({ ...state!, agent })
+      // --agent names the agent the proposals are about; without it a made-up address stands in
+      const agent = one('agent') ?? state!.agent ?? algorand.account.random().addr.toString()
+      if (state!.agent !== agent) save({ ...state!, agent })
       const pay = id('PAY_PLUGIN_APP_ID')
       const PROPOSALS: Record<string, () => GuildProposalAction[]> = {
         // an escrow, and an agent that may use the pay plugin on it
@@ -292,6 +299,9 @@ async function main() {
         'rules': () => [setProposalSettingsAction(GuildActionType.AddPlugin, settings(duration, { approval: 60_000n })), setProposalActionLimitAction(10n)],
         'member': () => [fixedSignerConsensusAction.addMembers(FixedSignerWeightMode.Equal, [[algorand.account.random().addr.toString(), 1n]])],
         'threshold': () => [fixedSignerConsensusAction.setThreshold(BigInt(guild().threshold))],
+        // name the agent as the steward of a chat: --chat <group id>
+        'steward': () => [setChatStewardAction(one('chat') ?? 'group:demo', agent)],
+        'revoke-steward': () => [revokeChatStewardAction(one('chat') ?? 'group:demo')],
       }
       if (!kind || !PROPOSALS[kind]) throw new Error(`propose <kind>: one of ${Object.keys(PROPOSALS).join(', ')}`)
       const actions = PROPOSALS[kind]()
@@ -373,7 +383,13 @@ async function main() {
     case 'clock': {
       const follow = one('follow')
       const every = follow === undefined ? 0 : follow === 'true' ? 5 : Number(follow)
-      console.log(`Chain time is ${await chainLag()}s behind the wall clock`)
+      const lag = await chainLag()
+      console.log(
+        lag >= 0
+          ? `Chain time is ${lag}s behind the wall clock`
+          : // tests that warp time leave the chain ahead, and it cannot go back: votes then end late for an app
+            `Chain time is ${-lag}s AHEAD of the wall clock. Reset LocalNet before timing a vote against an app.`,
+      )
       // --follow keeps it there, for as long as an app is counting down a vote
       while (every > 0) {
         await new Promise((resolve) => setTimeout(resolve, every * 1000))
