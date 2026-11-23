@@ -49,6 +49,7 @@
     "build:socialclaim": "node scripts/build-contracts.mjs arc58/social-claim",
     "deploy:universe": "ts-node --transpile-only scripts/deploy-universe.ts",
     "deploy:localnet-v2": "ts-node --transpile-only scripts/deploy-localnet-v2.ts",
+    "localnet:guild-demo": "ts-node --transpile-only scripts/localnet-guild-demo.ts",
     "deploy:mock-haystack": "ts-node --transpile-only scripts/deploy-mock-haystack.ts",
     "mock-haystack": "ts-node --transpile-only scripts/mock-haystack-server.ts",
     "lora:import": "ts-node --transpile-only scripts/import-lora-app-lab.ts",
