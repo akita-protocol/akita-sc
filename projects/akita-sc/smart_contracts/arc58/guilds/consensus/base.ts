@@ -18,18 +18,15 @@ import {
 import { abimethod, Contract, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { MAX_UINT64, ONE_HUNDRED_PERCENT } from '../../../utils/constants'
 import {
-  GuildChatStewardMBR,
   GuildConsensusBallotMBR,
   GuildVoteMBR,
   GuildConsensusBoxPrefixBallots,
-  GuildConsensusBoxPrefixChatStewards,
   GuildConsensusBoxPrefixVotes,
   GuildConsensusGlobalStateKeyActivated,
   GuildConsensusGlobalStateKeyActiveBallots,
   GuildConsensusGlobalStateKeyGuild,
   GuildGlobalStateKeyAddAllowancesProposalSettings,
   GuildGlobalStateKeyAddPluginProposalSettings,
-  GuildGlobalStateKeyChatLock,
   GuildGlobalStateKeyConsensus,
   GuildGlobalStateKeyNewEscrowProposalSettings,
   GuildGlobalStateKeyRemoveAllowancesProposalSettings,
@@ -45,7 +42,6 @@ import {
   MAX_GUILD_VOTING_DURATION,
 } from '../core/constants'
 import {
-  errGuildChatSteward,
   errGuildFactoryOnly,
   errGuildInvalidConsensusAction,
   errGuildInvalidPayment,
@@ -64,7 +60,6 @@ import type {
   GuildConsensusBallot,
   GuildConsensusRequirements,
   GuildConsensusResult,
-  GuildProposalSetChatSteward,
   GuildProposalSettings,
   GuildVote,
   GuildVoteKey,
@@ -88,8 +83,6 @@ export class GuildConsensusBase extends Contract {
   ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
   /** individual vote receipts keyed by proposal ID and voter */
   votes = BoxMap<GuildVoteKey, GuildVote>({ keyPrefix: GuildConsensusBoxPrefixVotes })
-  /** the agent that acts for the Guild in a chat, keyed by the SHA-256 of the chat group's ID */
-  chatStewards = BoxMap<bytes<32>, Account>({ keyPrefix: GuildConsensusBoxPrefixChatStewards })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
@@ -150,12 +143,6 @@ export class GuildConsensusBase extends Contract {
 
   protected consensusActionPayload(data: bytes): bytes {
     return data.slice(1)
-  }
-
-  private chatStewardAction(data: bytes): GuildProposalSetChatSteward {
-    // (byte[32],address) is exactly 64 bytes; anything else is not this action
-    loggedAssert(data.length === 64, errGuildChatSteward)
-    return decodeArc4<GuildProposalSetChatSteward>(data)
   }
 
   private productAtLeast(a: uint64, b: uint64, c: uint64, d: uint64): boolean {
@@ -360,54 +347,6 @@ export class GuildConsensusBase extends Contract {
     return !this.meetsRequirements(ballot, approvals + remaining, rejections, turnout + remaining)
   }
 
-  /**
-   * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-   * change of steward or a revocation needs nothing.
-   */
-  @abimethod({ readonly: true })
-  chatStewardMbr(data: bytes): uint64 {
-    const { chat, steward } = this.chatStewardAction(data)
-    return steward !== Global.zeroAddress && !this.chatStewards(chat).exists ? GuildChatStewardMBR : 0
-  }
-
-  /**
-   * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-   * this, and it does so only while executing an approved proposal. A revocation hands the box's
-   * storage back to the Guild.
-   */
-  applyChatSteward(mbrPayment: gtxn.PaymentTxn, data: bytes): void {
-    this.requireGuild()
-    const { chat, steward } = this.chatStewardAction(data)
-    const revoking = steward === Global.zeroAddress
-    const existed = this.chatStewards(chat).exists
-    loggedAssert(
-      match(mbrPayment, {
-        sender: this.guild.value.address,
-        receiver: Global.currentApplicationAddress,
-        amount: !revoking && !existed ? GuildChatStewardMBR : 0,
-      }),
-      errGuildInvalidPayment,
-    )
-    if (!revoking) {
-      this.chatStewards(chat).value = steward
-    } else if (existed) {
-      this.chatStewards(chat).delete()
-      itxn.payment({ receiver: this.guild.value.address, amount: GuildChatStewardMBR, fee: 0 }).submit()
-    }
-  }
-
-  /**
-   * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-   * and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-   * that group that the Guild program checked off chain is still the one running.
-   */
-  assertChatStewardAuthority(chat: bytes<32>, steward: bytes<32>): void {
-    loggedAssert(this.guild.hasValue, errGuildChatSteward)
-    const [sealed, exists] = op.AppGlobal.getExUint64(this.guild.value, Bytes(GuildGlobalStateKeyChatLock))
-    loggedAssert(exists && sealed === 1, errGuildChatSteward)
-    loggedAssert(this.chatStewards(chat).exists && this.chatStewards(chat).value.bytes === steward, errGuildChatSteward)
-  }
-
   /** Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild. */
   cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
     this.requireGuild()
@@ -438,12 +377,6 @@ export class GuildConsensusBase extends Contract {
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
-
-  /** The governed steward of a chat, or the zero address when it has none. */
-  @abimethod({ readonly: true })
-  getChatSteward(chat: bytes<32>): Account {
-    return this.chatStewards(chat).exists ? this.chatStewards(chat).value : Global.zeroAddress
-  }
 
   @abimethod({ readonly: true })
   getBallot(proposalID: uint64): GuildConsensusBallot {

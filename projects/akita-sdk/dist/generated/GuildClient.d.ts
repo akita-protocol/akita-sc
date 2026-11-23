@@ -629,13 +629,6 @@ export type GuildTypes = {
                  * asset new proposals pay their fees in; 0 = ALGO. Proposal storage is always paid in ALGO.
                  */
                 feeAsset: bigint;
-                /**
-                * 1 once the Guild has set its first chat steward, and never 0 again. A sealed Guild refuses every
-                program update, so whoever checks this program's hash before acting on a steward's word knows the
-                same program is still running when the steward's transaction lands.
-        
-                 */
-                chatLock: bigint;
             };
             maps: {};
         };
@@ -3952,10 +3945,6 @@ export declare class GuildClient {
              * Get the current value of the feeAsset key in global state
              */
             feeAsset: () => Promise<bigint | undefined>;
-            /**
-             * Get the current value of the chatLock key in global state
-             */
-            chatLock: () => Promise<bigint | undefined>;
         };
         /**
          * Methods to access box state for the current Guild app

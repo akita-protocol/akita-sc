@@ -36,8 +36,6 @@ export declare enum GuildActionType {
     SetConsensusActionSettings = 84,
     /** Charge new proposals' fees in an asset (0 = ALGO); proposal storage stays in ALGO. */
     SetFeeAsset = 85,
-    /** Name the agent that acts for the Guild in one chat, or revoke it; the first one seals the Guild's program. */
-    SetChatSteward = 86,
     UpdateWallet = 90,
     ChangeAdmin = 91,
     FullyInitialize = 100,
@@ -104,8 +102,6 @@ export type GuildProposalSettingsInput = {
 export declare const FIXED_SIGNER_MEMBER_MBR = 25300n;
 export declare const GUILD_VOTE_MBR = 22500n;
 export declare const GUILD_CONSENSUS_ACTION_SETTINGS_MBR = 25300n;
-/** Storage of one chat's steward in the consensus app; charged with the first steward a chat gets. */
-export declare const GUILD_CHAT_STEWARD_MBR = 28500n;
 export declare const SUBSCRIPTION_OFFERING_MBR = 12500n;
 export declare const SUBSCRIPTION_OFFERING_HISTORY_MBR = 15700n;
 /** Storage for one offering weight slot; quoted per new offering and refunded when a freed slot is reused. */
@@ -185,18 +181,6 @@ export declare const setProposalSettingsAction: (actionType: GuildActionType, se
 export declare const setProposalActionLimitAction: (limit: bigint) => GuildProposalAction;
 /** Build action 85: charge new proposals' fees in `asset` (0 = ALGO). Drafts keep the asset they were created with. */
 export declare const setFeeAssetAction: (asset: bigint) => GuildProposalAction;
-/** A chat is named on chain by the SHA-256 of its group ID. */
-export declare const guildChatKey: (groupId: string) => Uint8Array;
-/**
- * Build action 86: name `steward` as the agent that acts for the Guild in the chat `groupId`.
- *
- * Only a fully initialized Guild accepts it, and only by vote. The first steward a Guild names
- * seals the Guild's program for good: no upgrade can be proposed or run afterwards, so finish any
- * upgrade first.
- */
-export declare const setChatStewardAction: (groupId: string, steward: string) => GuildProposalAction;
-/** Build action 86 as a revocation: the chat has no steward afterwards. The Guild stays sealed. */
-export declare const revokeChatStewardAction: (groupId: string) => GuildProposalAction;
 /** Build action 82: create a fresh Guild wallet through the DAO wallet factory. */
 export declare const newWalletAction: (nickname: string, salt?: Uint8Array) => GuildProposalAction;
 /** Build action 22: replace the execution-proposal settings of an installed execution-key plugin. */

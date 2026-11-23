@@ -3,7 +3,7 @@ import { Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import type { FixedSignerWeightMode, GuildActionType, GuildProposalStatus, GuildState, GuildVoteType } from './types'
 
 // schema
-// The Guild uses 12 byte-slice keys and 8 uint keys today; the remainder is headroom for governed upgrades.
+// The Guild uses 12 byte-slice keys and 7 uint keys today; the remainder is headroom for governed upgrades.
 export const GuildNumGlobalBytes = 24
 export const GuildNumGlobalUints = 12
 export const GuildConsensusNumGlobalBytes = 8
@@ -29,7 +29,6 @@ export const GuildGlobalStateKeyNewEscrowProposalSettings = 'new_escrow_ps'
 export const GuildGlobalStateKeyToggleEscrowLockProposalSettings = 'toggle_escrow_ps'
 export const GuildGlobalStateKeyUpdateGuildProposalSettings = 'update_guild_ps'
 export const GuildGlobalStateKeyFeeAsset = 'fee_asset'
-export const GuildGlobalStateKeyChatLock = 'chat_lock'
 
 // consensus global state
 export const FixedSignerConsensusGlobalStateKeyThreshold = 'signer_threshold'
@@ -64,8 +63,6 @@ export const GuildConsensusBoxPrefixBallots = 'b'
 export const GuildConsensusBoxPrefixVotes = 'v'
 export const GuildConsensusBoxPrefixMemberHistory = 'h'
 export const GuildConsensusBoxPrefixMemberSnapshots = 's'
-/** `c || SHA-256(chat group ID)` holds the agent that acts for the Guild in that chat. */
-export const GuildConsensusBoxPrefixChatStewards = 'c'
 export const GuildConsensusBoxKeyMemberWeights = 'w'
 export const SubscriptionConsensusBoxPrefixOfferings = 'o'
 export const SubscriptionConsensusBoxPrefixOfferingHistory = 'h'
@@ -89,8 +86,6 @@ export const MinGuildProposalActionMbr: uint64 = 7
 export const GuildVoteMBR: uint64 = 22_500
 // 2 packed bools + 9 uint64 values = 73 value bytes; prefix + ID = 9 key bytes.
 export const GuildConsensusBallotMBR: uint64 = 35_300
-// prefix + 32-byte chat key = 33 key bytes; the steward's address = 32 value bytes.
-export const GuildChatStewardMBR: uint64 = 28_500
 export const GuildExecutionMBR: uint64 = 22_100
 // prefix + uint64 code = 9 key bytes; 6 uint64 settings = 48 value bytes.
 export const GuildConsensusActionSettingsMBR: uint64 = 25_300
@@ -163,11 +158,6 @@ export const GuildActionNewWallet: GuildActionType = new Uint8(82)
 export const GuildActionConsensus: GuildActionType = new Uint8(83)
 export const GuildActionSetConsensusActionSettings: GuildActionType = new Uint8(84)
 export const GuildActionSetFeeAsset: GuildActionType = new Uint8(85)
-/**
- * Name the agent that acts for the Guild in one chat, or revoke it with the zero address.
- * The first one a Guild sets seals its program: see `chatLock`.
- */
-export const GuildActionSetChatSteward: GuildActionType = new Uint8(86)
 export const GuildActionUpdateWallet: GuildActionType = new Uint8(90)
 export const GuildActionChangeAdmin: GuildActionType = new Uint8(91)
 export const GuildActionFullyInitialize: GuildActionType = new Uint8(100)

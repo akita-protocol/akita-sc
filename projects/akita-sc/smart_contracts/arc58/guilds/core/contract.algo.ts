@@ -42,7 +42,6 @@ import {
   GuildActionRemoveNamedPlugin,
   GuildActionRemovePlugin,
   GuildActionSetConsensusActionSettings,
-  GuildActionSetChatSteward,
   GuildActionSetFeeAsset,
   GuildActionSetProposalActionLimit,
   GuildActionSetPluginSettings,
@@ -62,7 +61,6 @@ import {
   GuildGlobalStateKeyAddAllowancesProposalSettings,
   GuildGlobalStateKeyAddPluginProposalSettings,
   GuildGlobalStateKeyCreator,
-  GuildGlobalStateKeyChatLock,
   GuildGlobalStateKeyFeeAsset,
   GuildGlobalStateKeyNewEscrowProposalSettings,
   GuildGlobalStateKeyPluginSetLocked,
@@ -98,7 +96,6 @@ import {
   GuildStatePartiallyInitialized,
 } from './constants'
 import {
-  errGuildChatSealed,
   errGuildCreatorOnly,
   errGuildDraftOnly,
   errGuildFactoryOnly,
@@ -221,12 +218,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   updateGuildProposalSettings = GlobalState<GuildProposalSettings>({ key: GuildGlobalStateKeyUpdateGuildProposalSettings })
   /** asset new proposals pay their fees in; 0 = ALGO. Proposal storage is always paid in ALGO. */
   feeAsset = GlobalState<uint64>({ initialValue: 0, key: GuildGlobalStateKeyFeeAsset })
-  /**
-   * 1 once the Guild has set its first chat steward, and never 0 again. A sealed Guild refuses every
-   * program update, so whoever checks this program's hash before acting on a steward's word knows the
-   * same program is still running when the steward's transaction lands.
-   */
-  chatLock = GlobalState<uint64>({ initialValue: 0, key: GuildGlobalStateKeyChatLock })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -527,14 +518,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     }).returnValue
   }
 
-  /** The consensus app keeps chat stewards; it also rejects malformed action data. */
-  private chatStewardMbr(data: bytes): uint64 {
-    return abiCall<typeof GuildConsensusBase.prototype.chatStewardMbr>({
-      appId: this.consensus.value,
-      args: [data],
-    }).returnValue
-  }
-
   /** Actions that reconfigure the Guild or its consensus and therefore never need a wallet. */
   private isUpdateGuildAction(type: GuildActionType): boolean {
     const value = type.asUint64()
@@ -542,8 +525,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       (value >= GuildActionSetProposalSettings.asUint64() && value <= GuildActionSetConsensusActionSettings.asUint64()) ||
       type === GuildActionFullyInitialize ||
       type === GuildActionLockPluginSet ||
-      type === GuildActionSetFeeAsset ||
-      type === GuildActionSetChatSteward
+      type === GuildActionSetFeeAsset
     )
   }
 
@@ -695,9 +677,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       )
     }
 
-    // A sealed Guild never updates its program again, so an upgrade could only pass a vote and then never run.
-    loggedAssert(action.type !== GuildActionUpgradeApp || this.chatLock.value === 0, errGuildChatSealed)
-
     if (
       action.type === GuildActionAddPlugin ||
       action.type === GuildActionAddNamedPlugin ||
@@ -734,10 +713,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
     } else if (action.type === GuildActionConsensus) {
       // The policy validates its own action against current state and rejects unknown codes.
       this.consensusActionMbr(action.data)
-    } else if (action.type === GuildActionSetChatSteward) {
-      // A steward is the members' choice by vote, never the creator's alone during setup.
-      loggedAssert(this.state.value === GuildStateFullyInitialized, errGuildInvalidAction)
-      this.chatStewardMbr(action.data)
     } else if (action.type === GuildActionChangeAdmin) {
       const admin = decodeArc4<GuildProposalChangeAdmin>(action.data).admin
       loggedAssert(admin !== Global.zeroAddress && admin !== Global.currentApplicationAddress, errGuildInvalidAdmin)
@@ -1710,16 +1685,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         case GuildActionSetFeeAsset:
           this.applyFeeAsset(decodeArc4<GuildProposalSetFeeAsset>(data).asset)
           break
-        case GuildActionSetChatSteward: {
-          const amount = this.chatStewardMbr(data)
-          // Sealed before the steward exists, so no steward is ever governed by an updatable program.
-          this.chatLock.value = 1
-          abiCall<typeof GuildConsensusBase.prototype.applyChatSteward>({
-            appId: this.consensus.value,
-            args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), data],
-          })
-          break
-        }
         default:
           loggedErr(errGuildInvalidAction)
       }
@@ -1744,7 +1709,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   /** Active upgrades consume a voted transaction-group commitment, including exact program bytes and version. */
   @abimethod({ allowActions: ['UpdateApplication'] })
   update(newVersion: string): void {
-    loggedAssert(this.chatLock.value === 0, errGuildChatSealed)
     if (this.state.value === GuildStateDraft) {
       loggedAssert(Global.callerApplicationAddress === Global.creatorAddress, errGuildFactoryOnly)
     } else {
@@ -1871,8 +1835,6 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         }
       } else if (action.type === GuildActionConsensus) {
         mbr += this.consensusActionMbr(action.data)
-      } else if (action.type === GuildActionSetChatSteward) {
-        mbr += this.chatStewardMbr(action.data)
       } else if (action.type === GuildActionSetConsensusActionSettings) {
         const code = decodeArc4<GuildProposalConsensusActionSettings>(action.data).code
         if (!this.consensusActions(code).exists) {

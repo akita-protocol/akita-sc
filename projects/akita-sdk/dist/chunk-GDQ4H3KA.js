@@ -26,7 +26,7 @@ var _chunkAP6ZTMSTjs = require('./chunk-AP6ZTMST.js');
 
 
 
-var _chunkFPJL5G2Cjs = require('./chunk-FPJL5G2C.js');
+var _chunkJ6RA43KHjs = require('./chunk-J6RA43KH.js');
 
 
 
@@ -18231,7 +18231,7 @@ var GuildPluginSDK = class _GuildPluginSDK extends _chunkQOKFNKJCjs.BaseSDK {
   }
   /** A Guild client for simulated cost reads sent as `reader` (any funded account; nothing is signed) */
   guildReader(guild, reader) {
-    return new (0, _chunkFPJL5G2Cjs.GuildClient)({ algorand: this.algorand, appId: BigInt(guild), defaultSender: reader });
+    return new (0, _chunkJ6RA43KHjs.GuildClient)({ algorand: this.algorand, appId: BigInt(guild), defaultSender: reader });
   }
   readFee() {
     return { extraFee: _algokitutils.microAlgo.call(void 0, COST_READ_EXTRA_FEE) };
@@ -18240,7 +18240,7 @@ var GuildPluginSDK = class _GuildPluginSDK extends _chunkQOKFNKJCjs.BaseSDK {
   async guildCreationCost(consensusName, reader = this.readerAccount) {
     const factory = await this.client.state.global.factory();
     if (factory === void 0) throw new Error("This GuildPlugin has no Guild factory");
-    const client = new (0, _chunkFPJL5G2Cjs.GuildFactoryClient)({ algorand: this.algorand, appId: factory, defaultSender: reader });
+    const client = new (0, _chunkJ6RA43KHjs.GuildFactoryClient)({ algorand: this.algorand, appId: factory, defaultSender: reader });
     return await _asyncNullishCoalesce((await client.send.cost({ args: { consensusName }, ...this.readFee() })).return, async () => ( 0n));
   }
   /** What storing a draft consensus configuration costs now, in microAlgo. */
@@ -18470,7 +18470,7 @@ async function draftProposalStorageShortfall({
   sender
 }) {
   const { algorand } = guildPlugin;
-  const client = new (0, _chunkFPJL5G2Cjs.GuildClient)({ algorand, appId: guild, defaultSender: sender });
+  const client = new (0, _chunkJ6RA43KHjs.GuildClient)({ algorand, appId: guild, defaultSender: sender });
   const { return: cost } = await client.send.proposalCost({
     args: { actions },
     // it asks the consensus app for its ballot MBR
@@ -36130,4 +36130,4 @@ var WalletSDK = (_class59 = class extends _chunkQOKFNKJCjs.BaseSDK {
 
 
 exports.CallerType = CallerType; exports.AddPluginDefaults = AddPluginDefaults; exports.isFlatAllowance = isFlatAllowance; exports.isWindowAllowance = isWindowAllowance; exports.isDripAllowance = isDripAllowance; exports.isValidPluginSDK = isValidPluginSDK; exports.getPluginAppId = getPluginAppId; exports.NewEscrowFeeAmount = NewEscrowFeeAmount; exports.ControlledMbrMoveFee = ControlledMbrMoveFee; exports.controlledMbrFee = controlledMbrFee; exports.addPluginExtraFee = addPluginExtraFee; exports.newEscrowExtraFee = newEscrowExtraFee; exports.escrowCountMbr = escrowCountMbr; exports.defaultEscrowGrantMbr = defaultEscrowGrantMbr; exports.DeleteEscrowFeeAmount = DeleteEscrowFeeAmount; exports.RegisterEscrowFeeAmount = RegisterEscrowFeeAmount; exports.RemoveAllowancesPerCall = RemoveAllowancesPerCall; exports.ReclaimsPerCall = ReclaimsPerCall; exports.MaxGroupSize = MaxGroupSize; exports.deleteEscrowExtraFee = deleteEscrowExtraFee; exports.prepareGroup = prepareGroup; exports.sendPrepared = sendPrepared; exports.WalletGroupComposer = WalletGroupComposer; exports.WALLET_ERROR_MESSAGES = WALLET_ERROR_MESSAGES; exports.parseWalletErrorCode = parseWalletErrorCode; exports.translateWalletError = translateWalletError; exports.WalletFactorySDK = WalletFactorySDK; exports.newWallet = newWallet; exports.OptInPluginSDK = OptInPluginSDK; exports.SelfOptInPluginSDK = SelfOptInPluginSDK; exports.WelcomePluginSDK = WelcomePluginSDK; exports.SOCIAL_CLAIM_ATTESTATION_DOMAIN = SOCIAL_CLAIM_ATTESTATION_DOMAIN; exports.SOCIAL_CLAIM_MIN_TTL = SOCIAL_CLAIM_MIN_TTL; exports.SOCIAL_CLAIM_MAX_TTL = SOCIAL_CLAIM_MAX_TTL; exports.SOCIAL_CLAIM_SUBJECT_MBR = SOCIAL_CLAIM_SUBJECT_MBR; exports.SOCIAL_CLAIM_GIFT_MBR = SOCIAL_CLAIM_GIFT_MBR; exports.socialClaimSubject = socialClaimSubject; exports.socialClaimAttestationMessage = socialClaimAttestationMessage; exports.socialClaimGiftBoxName = socialClaimGiftBoxName; exports.SocialClaimSDK = SocialClaimSDK; exports.MetaPluginFactory = MetaPluginFactory; exports.MetaPluginClient = MetaPluginClient; exports.METADATA_MAX_SCOPE_BYTES = METADATA_MAX_SCOPE_BYTES; exports.metadataScopeArgs = metadataScopeArgs; exports.decodeMetadataScope = decodeMetadataScope; exports.decodeGrantPolicy = decodeGrantPolicy; exports.MetaPluginSDK = MetaPluginSDK; exports.grantPolicyKey = grantPolicyKey; exports.walletControlledAddress = walletControlledAddress; exports.newMetaPlugin = newMetaPlugin; exports.PayPluginSDK = PayPluginSDK; exports.encodePayPolicy = encodePayPolicy; exports.decodePayPolicy = decodePayPolicy; exports.AsaManagerPluginSDK = AsaManagerPluginSDK; exports.UPGRADE_BINDING_NOTE_PROPOSAL = UPGRADE_BINDING_NOTE_PROPOSAL; exports.UpdateAkitaDAOPluginSDK = UpdateAkitaDAOPluginSDK; exports.RevenueManagerPluginSDK = RevenueManagerPluginSDK; exports.AuctionPluginSDK = AuctionPluginSDK; exports.DAOPluginSDK = DAOPluginSDK; exports.DualStakePluginSDK = DualStakePluginSDK; exports.GatePluginSDK = GatePluginSDK; exports.GuildPluginSDK = GuildPluginSDK; exports.defaultGuildProposalSettings = defaultGuildProposalSettings; exports.defaultGuildBaseConfig = defaultGuildBaseConfig; exports.initializeGuild = initializeGuild; exports.runDraftProposal = runDraftProposal; exports.proposeToGuild = proposeToGuild; exports.voteOnGuildProposal = voteOnGuildProposal; exports.finishGuildProposal = finishGuildProposal; exports.estimateRoundAfter = estimateRoundAfter; exports.GUILD_EXECUTION_WINDOWS = GUILD_EXECUTION_WINDOWS; exports.buildGuildExecution = buildGuildExecution; exports.guildExecutionRecord = guildExecutionRecord; exports.guildExecutionKey = guildExecutionKey; exports.sendGuildExecution = sendGuildExecution; exports.installFundedPlugin = installFundedPlugin; exports.guildPluginSelectors = guildPluginSelectors; exports.createGuild = createGuild; exports.createGuildInOneCall = createGuildInOneCall; exports.findGuildPlugin = findGuildPlugin; exports.HaystackRouterPluginSDK = HaystackRouterPluginSDK; exports.HyperSwapPluginSDK = HyperSwapPluginSDK; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE = MARKETPLACE_PLUGIN_LEGACY_PURCHASE; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS = MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS; exports.MarketplacePluginSDK = MarketplacePluginSDK; exports.NFDPluginSDK = NFDPluginSDK; exports.PollPluginSDK = PollPluginSDK; exports.RAFFLE_PLUGIN_NEW_RAFFLE = RAFFLE_PLUGIN_NEW_RAFFLE; exports.RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES; exports.RafflePluginSDK = RafflePluginSDK; exports.RewardsPluginSDK = RewardsPluginSDK; exports.SocialPluginSDK = SocialPluginSDK; exports.StakingPluginSDK = StakingPluginSDK; exports.StakingPoolPluginSDK = StakingPoolPluginSDK; exports.SubscriptionsPluginSDK = SubscriptionsPluginSDK; exports.SunsetPluginSDK = SunsetPluginSDK; exports.WalletSDK = WalletSDK;
-//# sourceMappingURL=chunk-5CB65M3C.js.map
+//# sourceMappingURL=chunk-GDQ4H3KA.js.map

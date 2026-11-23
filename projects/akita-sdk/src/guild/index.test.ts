@@ -11,8 +11,6 @@ import {
   FixedSignerGuildConsensusSDK,
   fixedSignerConsensusAction,
   fixedSignerVoteEvidence,
-  GUILD_CHAT_STEWARD_MBR,
-  guildChatKey,
   GuildActionType,
   GuildConsensusName,
   LockedTokenConsensusAction,
@@ -20,8 +18,6 @@ import {
   lockedTokenConsensusConfig,
   newWalletAction,
   reclaimAction,
-  revokeChatStewardAction,
-  setChatStewardAction,
   setConsensusActionSettingsAction,
   setPluginSettingsAction,
   SubscriptionConsensusAction,
@@ -147,21 +143,6 @@ describe("Guild treasury and settings action builders", () => {
       ABIType.from("(uint64,(uint64,uint64,uint64,uint64,uint64,uint64))").encode([4n, [0n, 1n, 60n, 0n, 50_000n, 1n]]),
     ]);
     expect(() => reclaimAction("ops", [])).toThrow("At least one reclaim is required");
-  });
-
-  test("encode a chat steward as the chat's SHA-256 and the steward's address", () => {
-    // SHA-256 of "group:akita-builders", the key a reader of the consensus app's box derives too
-    const key = guildChatKey("group:akita-builders");
-    expect(Buffer.from(key).toString("hex")).toBe("f3ba44b39277bef22d0be228f873db6872c41258fdd48f246dc791c28f9eb585");
-    expect(setChatStewardAction("group:akita-builders", member)).toEqual([
-      GuildActionType.SetChatSteward,
-      new Uint8Array([...key, ...new Uint8Array(32).fill(1)]),
-    ]);
-    expect(GuildActionType.SetChatSteward).toBe(86);
-    // a revocation names the zero address
-    expect(revokeChatStewardAction("group:akita-builders")).toEqual([86, new Uint8Array([...key, ...new Uint8Array(32)])]);
-    // prefix + 32-byte key, 32-byte address: 2,500 + 400 * 65
-    expect(GUILD_CHAT_STEWARD_MBR).toBe(2_500n + 400n * 65n);
   });
 });
 

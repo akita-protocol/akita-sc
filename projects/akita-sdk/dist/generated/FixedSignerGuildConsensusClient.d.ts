@@ -210,20 +210,6 @@ export type FixedSignerGuildConsensusArgs = {
         'bindGuild(uint64)void': {
             guild: bigint | number;
         };
-        'chatStewardMbr(byte[])uint64': {
-            data: Uint8Array;
-        };
-        'applyChatSteward(pay,byte[])void': {
-            mbrPayment: AppMethodCallTransactionArgument;
-            data: Uint8Array;
-        };
-        'assertChatStewardAuthority(byte[32],byte[32])void': {
-            chat: Uint8Array;
-            steward: Uint8Array;
-        };
-        'getChatSteward(byte[32])address': {
-            chat: Uint8Array;
-        };
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': {
             proposalId: bigint | number;
         };
@@ -256,10 +242,6 @@ export type FixedSignerGuildConsensusArgs = {
         'consensusActionMbr(byte[])uint64': [data: Uint8Array];
         'applyConsensusAction(pay,uint64,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, proposalId: bigint | number, data: Uint8Array];
         'bindGuild(uint64)void': [guild: bigint | number];
-        'chatStewardMbr(byte[])uint64': [data: Uint8Array];
-        'applyChatSteward(pay,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, data: Uint8Array];
-        'assertChatStewardAuthority(byte[32],byte[32])void': [chat: Uint8Array, steward: Uint8Array];
-        'getChatSteward(byte[32])address': [chat: Uint8Array];
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': [proposalId: bigint | number];
         'voteMbr()uint64': [];
         'hasVoted(uint64,address)bool': [proposalId: bigint | number, voter: string];
@@ -288,10 +270,6 @@ export type FixedSignerGuildConsensusReturns = {
     'consensusActionMbr(byte[])uint64': bigint;
     'applyConsensusAction(pay,uint64,byte[])void': void;
     'bindGuild(uint64)void': void;
-    'chatStewardMbr(byte[])uint64': bigint;
-    'applyChatSteward(pay,byte[])void': void;
-    'assertChatStewardAuthority(byte[32],byte[32])void': void;
-    'getChatSteward(byte[32])address': string;
     'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': GuildConsensusBallot;
     'voteMbr()uint64': bigint;
     'hasVoted(uint64,address)bool': boolean;
@@ -376,22 +354,6 @@ export type FixedSignerGuildConsensusTypes = {
         argsObj: FixedSignerGuildConsensusArgs['obj']['bindGuild(uint64)void'];
         argsTuple: FixedSignerGuildConsensusArgs['tuple']['bindGuild(uint64)void'];
         returns: FixedSignerGuildConsensusReturns['bindGuild(uint64)void'];
-    }> & Record<'chatStewardMbr(byte[])uint64' | 'chatStewardMbr', {
-        argsObj: FixedSignerGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'];
-        argsTuple: FixedSignerGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64'];
-        returns: FixedSignerGuildConsensusReturns['chatStewardMbr(byte[])uint64'];
-    }> & Record<'applyChatSteward(pay,byte[])void' | 'applyChatSteward', {
-        argsObj: FixedSignerGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'];
-        argsTuple: FixedSignerGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void'];
-        returns: FixedSignerGuildConsensusReturns['applyChatSteward(pay,byte[])void'];
-    }> & Record<'assertChatStewardAuthority(byte[32],byte[32])void' | 'assertChatStewardAuthority', {
-        argsObj: FixedSignerGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'];
-        argsTuple: FixedSignerGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void'];
-        returns: FixedSignerGuildConsensusReturns['assertChatStewardAuthority(byte[32],byte[32])void'];
-    }> & Record<'getChatSteward(byte[32])address' | 'getChatSteward', {
-        argsObj: FixedSignerGuildConsensusArgs['obj']['getChatSteward(byte[32])address'];
-        argsTuple: FixedSignerGuildConsensusArgs['tuple']['getChatSteward(byte[32])address'];
-        returns: FixedSignerGuildConsensusReturns['getChatSteward(byte[32])address'];
     }> & Record<'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))' | 'getBallot', {
         argsObj: FixedSignerGuildConsensusArgs['obj']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
         argsTuple: FixedSignerGuildConsensusArgs['tuple']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
@@ -483,10 +445,6 @@ export type FixedSignerGuildConsensusTypes = {
                  * individual vote receipts keyed by proposal ID and voter
                  */
                 votes: Map<GuildVoteKey, GuildVote>;
-                /**
-                 * the agent that acts for the Guild in a chat, keyed by the SHA-256 of the chat group's ID
-                 */
-                chatStewards: Map<Uint8Array | string, string>;
             };
         };
     };
@@ -737,50 +695,6 @@ export declare abstract class FixedSignerGuildConsensusParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static bindGuild(params: CallParams<FixedSignerGuildConsensusArgs['obj']['bindGuild(uint64)void'] | FixedSignerGuildConsensusArgs['tuple']['bindGuild(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the chatStewardMbr(byte[])uint64 ABI method
-     *
-    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-    change of steward or a revocation needs nothing.
-  
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static chatStewardMbr(params: CallParams<FixedSignerGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | FixedSignerGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the applyChatSteward(pay,byte[])void ABI method
-     *
-    * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-    this, and it does so only while executing an approved proposal. A revocation hands the box's
-    storage back to the Guild.
-  
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static applyChatSteward(params: CallParams<FixedSignerGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'] | FixedSignerGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the assertChatStewardAuthority(byte[32],byte[32])void ABI method
-     *
-    * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-    and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-    that group that the Guild program checked off chain is still the one running.
-  
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static assertChatStewardAuthority(params: CallParams<FixedSignerGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'] | FixedSignerGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the getChatSteward(byte[32])address ABI method
-     *
-     * The governed steward of a chat, or the zero address when it has none.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static getChatSteward(params: CallParams<FixedSignerGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | FixedSignerGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method
      *
@@ -1375,62 +1289,6 @@ export declare class FixedSignerGuildConsensusClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-        change of steward or a revocation needs nothing.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        chatStewardMbr: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | FixedSignerGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
-         *
-        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-        this, and it does so only while executing an approved proposal. A revocation hands the box's
-        storage back to the Guild.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        applyChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | FixedSignerGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
-         *
-        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-        that group that the Guild program checked off chain is still the one running.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        assertChatStewardAuthority: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | FixedSignerGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The governed steward of a chat, or the zero address when it has none.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        getChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | FixedSignerGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1746,78 +1604,6 @@ export declare class FixedSignerGuildConsensusClient {
          * @returns The call transaction
          */
         bindGuild: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["bindGuild(uint64)void"] | FixedSignerGuildConsensusArgs["tuple"]["bindGuild(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-        change of steward or a revocation needs nothing.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        chatStewardMbr: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | FixedSignerGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
-         *
-        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-        this, and it does so only while executing an approved proposal. A revocation hands the box's
-        storage back to the Guild.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        applyChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | FixedSignerGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
-         *
-        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-        that group that the Guild program checked off chain is still the one running.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        assertChatStewardAuthority: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | FixedSignerGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The governed steward of a chat, or the zero address when it has none.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        getChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | FixedSignerGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2248,98 +2034,6 @@ export declare class FixedSignerGuildConsensusClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-        change of steward or a revocation needs nothing.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        chatStewardMbr: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | FixedSignerGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | FixedSignerGuildConsensusReturns["chatStewardMbr(byte[])uint64"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
-         *
-        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-        this, and it does so only while executing an approved proposal. A revocation hands the box's
-        storage back to the Guild.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        applyChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | FixedSignerGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | FixedSignerGuildConsensusReturns["applyChatSteward(pay,byte[])void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
-         *
-        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-        that group that the Guild program checked off chain is still the one running.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        assertChatStewardAuthority: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | FixedSignerGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | FixedSignerGuildConsensusReturns["assertChatStewardAuthority(byte[32],byte[32])void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the FixedSignerGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The governed steward of a chat, or the zero address when it has none.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        getChatSteward: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | FixedSignerGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | FixedSignerGuildConsensusReturns["getChatSteward(byte[32])address"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2502,30 +2196,6 @@ export declare class FixedSignerGuildConsensusClient {
      */
     consensusActionMbr(params: CallParams<FixedSignerGuildConsensusArgs['obj']['consensusActionMbr(byte[])uint64'] | FixedSignerGuildConsensusArgs['tuple']['consensusActionMbr(byte[])uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the FixedSignerGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
-     *
-     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-     *
-    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-    change of steward or a revocation needs nothing.
-  
-     *
-     * @param params The params for the smart contract call
-     * @returns The call result
-     */
-    chatStewardMbr(params: CallParams<FixedSignerGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | FixedSignerGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']>): Promise<bigint>;
-    /**
-     * Makes a readonly (simulated) call to the FixedSignerGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
-     *
-     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-     *
-     * The governed steward of a chat, or the zero address when it has none.
-     *
-     * @param params The params for the smart contract call
-     * @returns The call result
-     */
-    getChatSteward(params: CallParams<FixedSignerGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | FixedSignerGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']>): Promise<string>;
-    /**
      * Makes a readonly (simulated) call to the FixedSignerGuildConsensus smart contract using the `getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2683,19 +2353,6 @@ export declare class FixedSignerGuildConsensusClient {
                  * Get a current value of the votes map by key from box state
                  */
                 value: (key: GuildVoteKey) => Promise<GuildVote | undefined>;
-            };
-            /**
-             * Get values from the chatStewards map in box state
-             */
-            chatStewards: {
-                /**
-                 * Get all current values of the chatStewards map in box state
-                 */
-                getMap: () => Promise<Map<Uint8Array, string>>;
-                /**
-                 * Get a current value of the chatStewards map by key from box state
-                 */
-                value: (key: Uint8Array | string) => Promise<string | undefined>;
             };
         };
     };
@@ -2867,54 +2524,6 @@ export type FixedSignerGuildConsensusComposer<TReturns extends [...any[]] = []> 
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     bindGuild(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['bindGuild(uint64)void'] | FixedSignerGuildConsensusArgs['tuple']['bindGuild(uint64)void']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['bindGuild(uint64)void'] | undefined]>;
-    /**
-     * Calls the chatStewardMbr(byte[])uint64 ABI method.
-     *
-    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
-    change of steward or a revocation needs nothing.
-  
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    chatStewardMbr(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | FixedSignerGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['chatStewardMbr(byte[])uint64'] | undefined]>;
-    /**
-     * Calls the applyChatSteward(pay,byte[])void ABI method.
-     *
-    * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
-    this, and it does so only while executing an approved proposal. A revocation hands the box's
-    storage back to the Guild.
-  
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    applyChatSteward(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'] | FixedSignerGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['applyChatSteward(pay,byte[])void'] | undefined]>;
-    /**
-     * Calls the assertChatStewardAuthority(byte[32],byte[32])void ABI method.
-     *
-    * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
-    and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
-    that group that the Guild program checked off chain is still the one running.
-  
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    assertChatStewardAuthority(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'] | FixedSignerGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['assertChatStewardAuthority(byte[32],byte[32])void'] | undefined]>;
-    /**
-     * Calls the getChatSteward(byte[32])address ABI method.
-     *
-     * The governed steward of a chat, or the zero address when it has none.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    getChatSteward(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | FixedSignerGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['getChatSteward(byte[32])address'] | undefined]>;
     /**
      * Calls the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method.
      *

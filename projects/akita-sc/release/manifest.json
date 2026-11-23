@@ -130,8 +130,8 @@
     "arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus": {
       "name": "FixedSignerGuildConsensus",
       "approval": {
-        "bytes": 5830,
-        "sha256": "c0bf85367e0a9d2815ce45e07d0343cb50bd587cd33fac35291d68e87fb469ae"
+        "bytes": 5424,
+        "sha256": "6b25ecbb869183f464c95a39a394b0b25fc7454e414491bf1f5d420ee9e8f1de"
       },
       "clear": {
         "bytes": 4,
@@ -142,8 +142,8 @@
     "arc58/guilds/consensus/locked-token/LockedTokenGuildConsensus": {
       "name": "LockedTokenGuildConsensus",
       "approval": {
-        "bytes": 3688,
-        "sha256": "25f230462e866e3f339e3e429e791a0057486d40bb250a9e68c89bf073987447"
+        "bytes": 3282,
+        "sha256": "de9e08b638313a559ef58a82eff8dc6428e7a991f4644c619c2c0676da49111a"
       },
       "clear": {
         "bytes": 4,
@@ -154,8 +154,8 @@
     "arc58/guilds/consensus/subscriptions/SubscriptionGuildConsensus": {
       "name": "SubscriptionGuildConsensus",
       "approval": {
-        "bytes": 5093,
-        "sha256": "fb4ea223b2cb919f29527182c5d302b41667e3dd7bd1c8b7492f679d9fa90396"
+        "bytes": 4687,
+        "sha256": "083a805f9942d4a3b6b0ff40271c99a449dbbf0fce54d9c33834bd9975d0361a"
       },
       "clear": {
         "bytes": 4,
@@ -166,8 +166,8 @@
     "arc58/guilds/core/Guild": {
       "name": "Guild",
       "approval": {
-        "bytes": 12834,
-        "sha256": "3cb6834993ef356472b87b4d76ca1693e0f9df15a86c1499b2a4185a1f9397d3"
+        "bytes": 12586,
+        "sha256": "aa664b4a610250855a1286ae00bb042b6d363130b786ace01709d8277f3643c1"
       },
       "clear": {
         "bytes": 4,
