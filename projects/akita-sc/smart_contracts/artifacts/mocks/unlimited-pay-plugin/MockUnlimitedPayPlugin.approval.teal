@@ -1,0 +1,211 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 48
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:10
+    // export class MockUnlimitedPayPlugin extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0xf9738492 // method "pay(uint64,bool,(address,uint64,uint64)[])void"
+    txna ApplicationArgs 0
+    match main_pay_route@3
+    err
+
+main_pay_route@3:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b pay
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:10
+    // export class MockUnlimitedPayPlugin extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts::MockUnlimitedPayPlugin.pay[routing]() -> void:
+pay:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    intc_2 // 48
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/pay/types.ts::PayParams>
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    pushbytes "spending_address"
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    cover 2
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz pay_after_assert@19
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+pay_after_assert@19:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // for (let i: uint64 = 0; i < payments.length; i++) {
+    intc_1 // 0
+
+pay_while_top@2:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // for (let i: uint64 = 0; i < payments.length; i++) {
+    dup
+    dig 2
+    <
+    bz pay_after_while@12
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:14
+    // const { receiver, asset, amount } = payments[i]
+    dig 3
+    extract 2 0
+    dig 1
+    dup
+    cover 2
+    intc_2 // 48
+    *
+    intc_2 // 48
+    extract3 // on error: index access is out of bounds
+    dup
+    extract 0 32
+    cover 4
+    dup
+    pushint 32
+    extract_uint64
+    cover 3
+    pushint 40
+    extract_uint64
+    cover 3
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:15
+    // const rekeyTo = i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 4
+    intc_0 // 1
+    -
+    <
+    bz pay_ternary_false@5
+    global ZeroAddress
+
+pay_ternary_merge@6:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:16
+    // if (asset === 0) {
+    dig 2
+    bnz pay_else_body@9
+    uncover 2
+    pop
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:17
+    // itxn.payment({ sender, receiver, amount, rekeyTo }).submit()
+    itxn_begin
+    itxn_field RekeyTo
+    swap
+    itxn_field Amount
+    uncover 2
+    itxn_field Receiver
+    dig 2
+    itxn_field Sender
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+pay_after_if_else@11:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // for (let i: uint64 = 0; i < payments.length; i++) {
+    intc_0 // 1
+    +
+    b pay_while_top@2
+
+pay_else_body@9:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:19
+    // itxn.assetTransfer({ sender, assetReceiver: receiver, assetAmount: amount, xferAsset: asset, rekeyTo }).submit()
+    itxn_begin
+    itxn_field RekeyTo
+    swap
+    itxn_field XferAsset
+    swap
+    itxn_field AssetAmount
+    uncover 2
+    itxn_field AssetReceiver
+    dig 2
+    itxn_field Sender
+    pushint 4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    b pay_after_if_else@11
+
+pay_ternary_false@5:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // if (!rekeyBack) {
+    dig 7
+    bnz pay_after_if_else@15
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // return Global.zeroAddress
+    global ZeroAddress
+    b pay_ternary_merge@6
+
+pay_after_if_else@15:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // return wallet.address
+    dig 8
+    app_params_get AppAddress
+    assert // application exists
+    b pay_ternary_merge@6
+
+pay_after_while@12:
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
+    intc_0 // 1
+    return

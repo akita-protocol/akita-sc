@@ -9,7 +9,7 @@ import { deployOptInPlugin } from '../../../../../tests/fixtures/plugins/optin';
 import { logger } from '../../../../../tests/utils/logger';
 import { CallerType } from 'akita-sdk/wallet';
 import { sendPrepared } from 'akita-sdk';
-import { deployPayPlugin } from '../../../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../../../tests/fixtures/plugins/pay';
 import {
   bootstrapDaoTestContext,
   buildAddPluginAction,

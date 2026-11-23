@@ -8,7 +8,7 @@ import { ABIReturn } from '@algorandfoundation/algokit-utils/types/app';
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56';
 import { AppClient as _AppClient, AppClientMethodCallParams, AppClientParams, AppClientBareCallParams, CallOnComplete, AppClientCompilationParams, ResolveAppClientByCreatorAndName, ResolveAppClientByNetwork, CloneAppClientParams } from '@algorandfoundation/algokit-utils/types/app-client';
 import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolveAppClientByCreatorAndNameParams, AppFactoryDeployParams, AppFactoryParams, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory';
-import { TransactionComposer, AppCallMethodCall, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer';
+import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer';
 import { SendParams, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction';
 import { Address, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk';
 export declare const APP_SPEC: Arc56Contract;
@@ -40,24 +40,34 @@ export type PayPluginArgs = {
      * The object representation of the arguments for each method
      */
     obj: {
+        'create(uint64)void': {
+            registry: bigint | number;
+        };
         'pay(uint64,bool,(address,uint64,uint64)[])void': {
             wallet: bigint | number;
             rekeyBack: boolean;
             payments: [string, bigint | number, bigint | number][];
+        };
+        'validatePolicy(byte[])void': {
+            body: Uint8Array;
         };
     };
     /**
      * The tuple representation of the arguments for each method
      */
     tuple: {
+        'create(uint64)void': [registry: bigint | number];
         'pay(uint64,bool,(address,uint64,uint64)[])void': [wallet: bigint | number, rekeyBack: boolean, payments: [string, bigint | number, bigint | number][]];
+        'validatePolicy(byte[])void': [body: Uint8Array];
     };
 };
 /**
  * The return type for each method
  */
 export type PayPluginReturns = {
+    'create(uint64)void': void;
     'pay(uint64,bool,(address,uint64,uint64)[])void': void;
+    'validatePolicy(byte[])void': void;
 };
 /**
  * Defines the types of available calls and state of the PayPlugin smart contract.
@@ -66,11 +76,33 @@ export type PayPluginTypes = {
     /**
      * Maps method signatures / names to their argument and return types.
      */
-    methods: Record<'pay(uint64,bool,(address,uint64,uint64)[])void' | 'pay', {
+    methods: Record<'create(uint64)void' | 'create', {
+        argsObj: PayPluginArgs['obj']['create(uint64)void'];
+        argsTuple: PayPluginArgs['tuple']['create(uint64)void'];
+        returns: PayPluginReturns['create(uint64)void'];
+    }> & Record<'pay(uint64,bool,(address,uint64,uint64)[])void' | 'pay', {
         argsObj: PayPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'];
         argsTuple: PayPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void'];
         returns: PayPluginReturns['pay(uint64,bool,(address,uint64,uint64)[])void'];
+    }> & Record<'validatePolicy(byte[])void' | 'validatePolicy', {
+        argsObj: PayPluginArgs['obj']['validatePolicy(byte[])void'];
+        argsTuple: PayPluginArgs['tuple']['validatePolicy(byte[])void'];
+        returns: PayPluginReturns['validatePolicy(byte[])void'];
     }>;
+    /**
+     * Defines the shape of the state of the application.
+     */
+    state: {
+        global: {
+            keys: {
+                /**
+                 * The Meta registry that stores grant policies.
+                 */
+                registry: bigint;
+            };
+            maps: {};
+        };
+    };
 };
 /**
  * Defines the possible abi call signatures.
@@ -92,10 +124,18 @@ export type MethodArgs<TSignature extends PayPluginSignatures> = PayPluginTypes[
  */
 export type MethodReturn<TSignature extends PayPluginSignatures> = PayPluginTypes['methods'][TSignature]['returns'];
 /**
+ * Defines the shape of the keyed global state of the application.
+ */
+export type GlobalKeysState = PayPluginTypes['state']['global']['keys'];
+/**
  * Defines supported create method params for this smart contract
  */
-export type PayPluginCreateCallParams = Expand<AppClientBareCallParams & {
-    method?: never;
+export type PayPluginCreateCallParams = Expand<CallParams<PayPluginArgs['obj']['create(uint64)void'] | PayPluginArgs['tuple']['create(uint64)void']> & {
+    method: 'create';
+} & {
+    onComplete?: OnApplicationComplete.NoOpOC;
+} & CreateSchema> | Expand<CallParams<PayPluginArgs['obj']['create(uint64)void'] | PayPluginArgs['tuple']['create(uint64)void']> & {
+    method: 'create(uint64)void';
 } & {
     onComplete?: OnApplicationComplete.NoOpOC;
 } & CreateSchema>;
@@ -113,12 +153,63 @@ export type PayPluginDeployParams = Expand<Omit<AppFactoryDeployParams, 'createP
  */
 export declare abstract class PayPluginParamsFactory {
     /**
+     * Gets available create ABI call param factories
+     */
+    static get create(): {
+        _resolveByMethod<TParams extends PayPluginCreateCallParams & {
+            method: string;
+        }>(params: TParams): {
+            maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
+            rekeyTo?: (string | Address) | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete | undefined;
+            accountReferences?: (string | Address)[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            sender?: (Address | string) | undefined;
+            method: string;
+            args?: (import("algosdk").ABIValue | import("@algorandfoundation/algokit-utils/types/app-arc56").ABIStruct | AppMethodCallTransactionArgument | undefined)[] | undefined;
+        } & AppClientCompilationParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        };
+        /**
+         * Constructs create ABI call params for the PayPlugin smart contract using the create(uint64)void ABI method
+         *
+         * @param params Parameters for the call
+         * @returns An `AppClientMethodCallParams` object for the call
+         */
+        create(params: CallParams<PayPluginArgs["obj"]["create(uint64)void"] | PayPluginArgs["tuple"]["create(uint64)void"]> & AppClientCompilationParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }): AppClientMethodCallParams & AppClientCompilationParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        };
+    };
+    /**
      * Constructs a no op call for the pay(uint64,bool,(address,uint64,uint64)[])void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static pay(params: CallParams<PayPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'] | PayPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the validatePolicy(byte[])void ABI method
+     *
+     * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static validatePolicy(params: CallParams<PayPluginArgs['obj']['validatePolicy(byte[])void'] | PayPluginArgs['tuple']['validatePolicy(byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the PayPlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -264,18 +355,14 @@ export declare class PayPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the PayPlugin smart contract using a bare call.
+             * Creates a new instance of the PayPlugin smart contract using the create(uint64)void ABI method.
              *
-             * @param params The params for the bare (raw) call
-             * @returns The params for a create call
+             * @param params The params for the smart contract call
+             * @returns The create params
              */
-            bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<PayPluginArgs["obj"]["create(uint64)void"] | PayPluginArgs["tuple"]["create(uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
-            }>) => Promise<{
-                approvalProgram: Uint8Array;
-                clearStateProgram: Uint8Array;
-                compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
-                compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
+            }) => Promise<{
                 deployTimeParams: import("@algorandfoundation/algokit-utils/types/app").TealTemplateParams | undefined;
                 schema: {
                     globalInts: number;
@@ -283,31 +370,88 @@ export declare class PayPluginFactory {
                     localInts: number;
                     localByteSlices: number;
                 };
-                maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount;
-                note?: Uint8Array | string;
-                args?: Uint8Array[];
-                signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount;
-                rejectVersion?: number;
-                lease?: Uint8Array | string;
-                rekeyTo?: string | Address;
-                staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount;
-                extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount;
-                validityWindow?: number | bigint;
-                firstValidRound?: bigint;
-                lastValidRound?: bigint;
-                accountReferences?: (string | Address)[];
-                appReferences?: bigint[];
-                assetReferences?: bigint[];
+                approvalProgram: Uint8Array<ArrayBufferLike>;
+                clearStateProgram: Uint8Array<ArrayBufferLike>;
+                maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                note?: (Uint8Array | string) | undefined;
+                signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
+                onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC | undefined;
+                rejectVersion?: number | undefined;
+                lease?: (Uint8Array | string) | undefined;
+                rekeyTo?: (string | Address) | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                accountReferences?: (string | Address)[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
                 boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[];
-                accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[];
-                sender?: Address | string;
-                updatable?: boolean;
-                deletable?: boolean;
-                onComplete?: Exclude<OnApplicationComplete, OnApplicationComplete.ClearStateOC>;
-                extraProgramPages?: number;
+                accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
+                sender?: (Address | string) | undefined;
+                method: string;
+                args?: (import("algosdk").ABIValue | import("@algorandfoundation/algokit-utils/types/app-arc56").ABIStruct | AppMethodCallTransactionArgument | undefined)[];
+                updatable?: boolean | undefined;
+                deletable?: boolean | undefined;
+                extraProgramPages?: number | undefined;
             } & {
                 sender: Address;
                 signer: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                method: import("@algorandfoundation/algokit-utils/types/app-arc56").Arc56Method;
+                args: (Transaction | import("algosdk").ABIValue | import("algosdk").TransactionWithSigner | Promise<Transaction> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    args?: Uint8Array[] | undefined;
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
+                    onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC | undefined;
+                    rejectVersion?: number | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    rekeyTo?: (string | Address) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
+                    rekeyTo?: (string | Address) | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/types/app-manager").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/types/composer").AppMethodCallParams> | undefined)[] | undefined;
                 onComplete: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC;
             }>;
         };
@@ -321,14 +465,18 @@ export declare class PayPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the PayPlugin smart contract using a bare call.
+             * Creates a new instance of the PayPlugin smart contract using the create(uint64)void ABI method.
              *
-             * @param params The params for the bare (raw) call
-             * @returns The transaction for a create call
+             * @param params The params for the smart contract call
+             * @returns The create transaction
              */
-            bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<PayPluginArgs["obj"]["create(uint64)void"] | PayPluginArgs["tuple"]["create(uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
-            }>) => Promise<Transaction>;
+            }) => Promise<{
+                transactions: Transaction[];
+                methodCalls: Map<number, import("algosdk").ABIMethod>;
+                signers: Map<number, TransactionSigner>;
+            }>;
         };
     };
     /**
@@ -340,18 +488,19 @@ export declare class PayPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the PayPlugin smart contract using a bare call.
+             * Creates a new instance of the PayPlugin smart contract using an ABI method call using the create(uint64)void ABI method.
              *
-             * @param params The params for the bare (raw) call
+             * @param params The params for the smart contract call
              * @returns The create result
              */
-            bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {
+            create: (params: CallParams<PayPluginArgs["obj"]["create(uint64)void"] | PayPluginArgs["tuple"]["create(uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
                 onComplete?: OnApplicationComplete.NoOpOC;
-            }>) => Promise<{
+            }) => Promise<{
                 result: {
+                    return: (undefined | PayPluginReturns["create(uint64)void"]);
                     compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
                     compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
-                    return: undefined;
+                    appId: bigint;
                     groupId: string;
                     txIds: string[];
                     returns?: import("@algorandfoundation/algokit-utils/types/app").ABIReturn[] | undefined;
@@ -359,7 +508,6 @@ export declare class PayPluginFactory {
                     transactions: Transaction[];
                     confirmation: modelsv2.PendingTransactionResponse;
                     transaction: Transaction;
-                    appId: bigint;
                     appAddress: Address;
                 };
                 appClient: PayPluginClient;
@@ -431,6 +579,19 @@ export declare class PayPluginClient {
         pay: (params: CallParams<PayPluginArgs["obj"]["pay(uint64,bool,(address,uint64,uint64)[])void"] | PayPluginArgs["tuple"]["pay(uint64,bool,(address,uint64,uint64)[])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the PayPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        validatePolicy: (params: CallParams<PayPluginArgs["obj"]["validatePolicy(byte[])void"] | PayPluginArgs["tuple"]["validatePolicy(byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
     };
     /**
      * Create transactions for the current app
@@ -450,6 +611,23 @@ export declare class PayPluginClient {
          * @returns The call transaction
          */
         pay: (params: CallParams<PayPluginArgs["obj"]["pay(uint64,bool,(address,uint64,uint64)[])void"] | PayPluginArgs["tuple"]["pay(uint64,bool,(address,uint64,uint64)[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the PayPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        validatePolicy: (params: CallParams<PayPluginArgs["obj"]["validatePolicy(byte[])void"] | PayPluginArgs["tuple"]["validatePolicy(byte[])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -486,6 +664,28 @@ export declare class PayPluginClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the PayPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        validatePolicy: (params: CallParams<PayPluginArgs["obj"]["validatePolicy(byte[])void"] | PayPluginArgs["tuple"]["validatePolicy(byte[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | PayPluginReturns["validatePolicy(byte[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -495,9 +695,34 @@ export declare class PayPluginClient {
      */
     clone(params: CloneAppClientParams): PayPluginClient;
     /**
+     * Makes a readonly (simulated) call to the PayPlugin smart contract using the `validatePolicy(byte[])void` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    validatePolicy(params: CallParams<PayPluginArgs['obj']['validatePolicy(byte[])void'] | PayPluginArgs['tuple']['validatePolicy(byte[])void']>): Promise<void>;
+    /**
      * Methods to access state for the current PayPlugin app
      */
-    state: {};
+    state: {
+        /**
+         * Methods to access global state for the current PayPlugin app
+         */
+        global: {
+            /**
+             * Get all current keyed values from global state
+             */
+            getAll: () => Promise<Partial<Expand<GlobalKeysState>>>;
+            /**
+             * Get the current value of the registry key in global state
+             */
+            registry: () => Promise<bigint | undefined>;
+        };
+    };
     newGroup(): PayPluginComposer;
 }
 export type PayPluginComposer<TReturns extends [...any[]] = []> = {
@@ -509,6 +734,16 @@ export type PayPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     pay(params?: CallParams<PayPluginArgs['obj']['pay(uint64,bool,(address,uint64,uint64)[])void'] | PayPluginArgs['tuple']['pay(uint64,bool,(address,uint64,uint64)[])void']>): PayPluginComposer<[...TReturns, PayPluginReturns['pay(uint64,bool,(address,uint64,uint64)[])void'] | undefined]>;
+    /**
+     * Calls the validatePolicy(byte[])void ABI method.
+     *
+     * Policy body format: an ARC-4 `(address[],uint64[])` PayPolicy, canonically encoded.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    validatePolicy(params?: CallParams<PayPluginArgs['obj']['validatePolicy(byte[])void'] | PayPluginArgs['tuple']['validatePolicy(byte[])void']>): PayPluginComposer<[...TReturns, PayPluginReturns['validatePolicy(byte[])void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the PayPlugin smart contract.
      *

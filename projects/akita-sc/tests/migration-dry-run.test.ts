@@ -13,7 +13,7 @@ describe('migration dry runs', () => {
     const ctx = await setupContext({ network: 'localnet', version: 'test', dryRun: true, mnemonic: 'deliberately invalid test input' })
     await expect(ctx.signer([], [])).rejects.toThrow('cannot sign')
     const file = path.join(os.tmpdir(), `akita-dryrun-${Date.now()}.json`)
-    await deployImmutable(ctx, 'PayPlugin', {}, file, true)
+    await deployImmutable(ctx, 'PayPlugin', { registry: '1' }, file, true)
     expect(fs.existsSync(file)).toBe(false)
   })
 

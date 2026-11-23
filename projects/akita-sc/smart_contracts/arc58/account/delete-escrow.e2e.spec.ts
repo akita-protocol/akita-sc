@@ -23,7 +23,7 @@ import { sha256Hex } from '../../../tests/compat/lib/teal-facts';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
 import { AkitaUniverse, buildAkitaUniverse, deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { expectContractError } from '../../../tests/utils/errors';
 import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient';
 import { errEscrowDoesNotExist, errEscrowInUse, errEscrowLocked, errForbidden } from './errors';

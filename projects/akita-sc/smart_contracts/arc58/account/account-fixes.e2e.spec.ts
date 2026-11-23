@@ -11,7 +11,7 @@ import { CallerType, isDripAllowance, NewEscrowFeeAmount, newWallet, PayPluginSD
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { AkitaUniverse, buildAkitaUniverse } from '../../../tests/fixtures/dao'
-import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay'
+import { deployTestPayPlugin as deployPayPlugin } from '../../../tests/fixtures/plugins/pay'
 import { expectContractError } from '../../../tests/utils/errors'
 import { TimeWarp } from '../../../tests/utils/time'
 import { MockAdminPluginClient, MockAdminPluginFactory } from '../../artifacts/mocks/admin-plugin/MockAdminPluginClient'

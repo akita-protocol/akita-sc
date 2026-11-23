@@ -62,7 +62,8 @@ describe('Pay plugin contract', () => {
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n) });
     await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
-    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global });
+    // The wallet's own grant: a global PayPlugin grant would need a policy (pay-policy.e2e.spec.ts).
+    await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -80,7 +81,7 @@ describe('Pay plugin contract', () => {
       const receiverInfoBefore = await algorand.account.getInformation(receiver.toString());
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           payPluginSdk.pay({
             payments: [{
@@ -150,7 +151,7 @@ describe('Pay plugin contract', () => {
       const paymentAmount = 100_000_000n; // 100 tokens (with 6 decimals)
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           payPluginSdk.pay({
             payments: [{
@@ -184,7 +185,7 @@ describe('Pay plugin contract', () => {
       const receiver2InfoBefore = await algorand.account.getInformation(receiver2.toString());
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           payPluginSdk.pay({
             payments: [
@@ -257,7 +258,7 @@ describe('Pay plugin contract', () => {
       const receiverAssetBefore = receiverInfoBefore.assets?.find(a => a.assetId === assetId);
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           payPluginSdk.pay({
             payments: [
