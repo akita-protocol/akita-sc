@@ -4,7 +4,8 @@
  *
  *   - Guilds: GuildConsensusFactory (+ fixed-signers, locked-token, subscription), GuildFactory (+ kernel) and the
  *     shared GuildPlugin (guild = 0) that wallets install once to create and take part in Guilds
- *   - Wallet plugins: WelcomePlugin, SocialClaim (with a generated LocalNet attestor key) and MetaPlugin
+ *   - Wallet plugins: WelcomePlugin, SocialClaim (with a generated LocalNet attestor key) and MetaPlugin, which is
+ *     then named as Meta's grant policy writer (a rerun does this on a universe that lacks it)
  *   - the MOCK Haystack Router (deploy-mock-haystack.ts): Tinyman v2 pools and the mock router app
  *
  * The deployer is the KMD dispenser, the same account `deploy:universe` deploys from on LocalNet, so admin calls
@@ -26,6 +27,7 @@ import { GuildPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/g
 import { WelcomePluginFactory } from '../smart_contracts/artifacts/arc58/plugins/welcome/WelcomePluginClient'
 import { SocialClaimFactory } from '../smart_contracts/artifacts/arc58/social-claim/SocialClaimClient'
 import { MetaPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/meta/MetaPluginClient'
+import { MetaClient } from '../smart_contracts/artifacts/meta/MetaClient'
 
 const VERSION = 'localnet'
 const ENV_FILE = path.resolve(__dirname, '../.env.localnet')
@@ -125,13 +127,28 @@ async function main() {
     })
     record('META_PLUGIN_APP_ID', appClient.appId)
   }
+  // Meta stores a grant policy only for its policy writer, and its creator (the deployer here) names
+  // the writer once. Without one no wallet can store a policy, so nothing that reads one (PayPlugin's
+  // receivers and assets) can be tried on LocalNet. On MainNet this is rollout step H1.
+  let policyWriterSet = false
+  if (id('META_APP_ID') !== 0n) {
+    const meta = algorand.client.getTypedAppClientById(MetaClient, { appId: id('META_APP_ID'), ...factoryParams })
+    const writer = (await meta.state.global.policyWriter()) ?? 0n
+    if (writer === 0n) {
+      await meta.send.setPolicyWriter({ args: { writer: id('META_PLUGIN_APP_ID') } })
+      policyWriterSet = true
+      console.log(`   Meta ${id('META_APP_ID')} now takes grant policies from MetaPlugin ${id('META_PLUGIN_APP_ID')}`)
+    } else if (writer !== id('META_PLUGIN_APP_ID')) {
+      console.warn(`   ⚠️  Meta ${id('META_APP_ID')} takes grant policies from app ${writer}, not from MetaPlugin ${id('META_PLUGIN_APP_ID')}`)
+    }
+  }
 
   const mockAdded = await deployMockHaystack(algorand, sender, env).catch((error) => {
     console.warn('\n⚠️  MOCK Haystack Router skipped (Haystack swaps stay off on LocalNet):', error instanceof Error ? error.message : error)
     return [] as [string, string][]
   })
 
-  if (added.length === 0 && mockAdded.length === 0) {
+  if (added.length === 0 && mockAdded.length === 0 && !policyWriterSet) {
     console.log('\n✅ Nothing to deploy: every v2 app ID is already in .env.localnet')
     return
   }

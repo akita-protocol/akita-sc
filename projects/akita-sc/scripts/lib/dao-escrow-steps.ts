@@ -32,7 +32,7 @@ const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString('hex')
 type Log = (line: string) => void
 
 /** Checks every one of these steps shares; returns the DAO wallet and its address. */
-async function bootstrapWallet(ctx: ScriptContext, sender: string) {
+export async function bootstrapWallet(ctx: ScriptContext, sender: string) {
   const [state, daoApp] = await Promise.all([
     ctx.dao.client.state.global.state(), ctx.algorand.client.algod.getApplicationByID(ctx.dao.appId).do(),
   ])
@@ -51,7 +51,7 @@ async function escrowApp(wallet: Awaited<ReturnType<typeof bootstrapWallet>>['wa
   return info.id
 }
 
-async function fundWallet(ctx: ScriptContext, walletAddress: string, required: bigint, log: Log) {
+export async function fundWallet(ctx: ScriptContext, walletAddress: string, required: bigint, log: Log) {
   const funding = await getAppFundingNeeded(ctx.algorand, walletAddress, required + 1_000_000n, 0n)
   if (funding === 0n) return
   await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver: walletAddress, amount: microAlgo(funding) })
@@ -59,14 +59,14 @@ async function fundWallet(ctx: ScriptContext, walletAddress: string, required: b
 }
 
 /** `usePlugin` simulates as the wallet admin, which therefore needs a spendable balance. */
-async function fundWalletAdmin(ctx: ScriptContext, wallet: Awaited<ReturnType<typeof bootstrapWallet>>['wallet']) {
+export async function fundWalletAdmin(ctx: ScriptContext, wallet: Awaited<ReturnType<typeof bootstrapWallet>>['wallet']) {
   const admin = await wallet.client.state.global.admin()
   if (!admin) throw new Error('DAO wallet admin is missing')
   const funding = await getAppFundingNeeded(ctx.algorand, admin, 1_000_000n, 0n)
   if (funding > 0n) await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver: admin, amount: microAlgo(funding) })
 }
 
-async function clearUsedKey(ctx: ScriptContext, lease: Uint8Array, log: Log) {
+export async function clearUsedKey(ctx: ScriptContext, lease: Uint8Array, log: Log) {
   if ((await ctx.dao.getBootstrapKeys()).some((tracked) => hex(tracked) === hex(lease))) {
     await ctx.dao.clearBootstrapKeys({ leases: [lease] })
     log('  Cleared the used bootstrap key')

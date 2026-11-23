@@ -98,7 +98,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-EFXVMXBV.mjs";
+} from "../chunk-JWBBDEYU.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-WRKZKQ4J.mjs";

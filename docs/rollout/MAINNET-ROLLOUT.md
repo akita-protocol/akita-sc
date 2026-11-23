@@ -134,7 +134,7 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and an auction from 10 to 50 (owner, 2026-11-17). Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
 - **AuctionFactory now charges the auction creation fee** (owner, 2026-11-17; C33). The factory live today never has, so auctions cost storage only until E4 upgrades it. One contract program changes for this, AuctionFactory's. See B3a and E4.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest before it in one entry only: AuctionFactory's approval program, 4,781 to 4,861 bytes. Its interface is unchanged: the same 18 methods with the same signatures. 33 programs differ from the release commit, and AuctionFactory is the new one.
-- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6).
+- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6). Since 2026-11-21 no pay silo is deployed: only the Akita Labs LLC address (H6) is asked for.
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Update 2026-11-18: the revenue split becomes 80/5/15, and its receivers opt in
@@ -166,7 +166,7 @@ All 85 deployable programs were read once more at the deploy commit, each one ag
 
 The owner decided on 2026-11-19 that SocialClaim is not part of release 2.0.0.
 
-- **H7 is skipped.** Nothing is deployed for it, and the SDK's `socialClaim` id stays 0 on both networks. No other step depends on it. WelcomePlugin (H3) and PayPlugin (G2) are deployed as before.
+- **H7 is skipped.** Nothing is deployed for it, and the SDK's `socialClaim` id stays 0 on both networks. No other step depends on it. WelcomePlugin (H3) and PayPlugin (G2; H1 since 2026-11-21) are deployed as before.
 - **I1 names it.** `dao:initialize` refuses while a tracked step is not done, so its commands now carry `--allow-pending plugin:dualStakePlugin,social-claim`.
 - **The program stays in the tree.** SocialClaim is still built, tested and pinned in `release/manifest.json` (155 programs), and its SDK module is unchanged. No contract program changes with this update.
 - **A later deploy covers new gifts only.** `bind` records a wallet in the group that creates it, with SocialClaim as that wallet's admin. A wallet that WelcomePlugin created with another admin cannot be brought under SocialClaim afterwards.
@@ -186,7 +186,7 @@ Six deployable programs change, the wallet takes a fifth program page, and the s
 - **Storage.** A new escrow costs 6,100 µALGO plus 400 per byte of its name more than before, for the count. A grant that uses an escrow by default costs 20,500 µALGO plus 400 per byte of the escrow's name more, for the name it stores, and gets it back when the grant is removed. The address of a deleted escrow that the factory made is under nobody's control: ALGO sent there afterwards is lost. An asset cannot be sent there, because the address can never opt in again.
 - **A new helper app (F0).** The SDK asks the immutable AbstractedAccountMBR what a wallet's boxes cost. The deployed helper (MainNet 3642282698, TestNet 767110471) runs the 304-byte program and does not know the count. F0 deploys the tree's and points `walletMbr` at it. Its method and return type are unchanged, so an SDK reads either helper. Neither quotes the extra cost of a grant that uses an escrow by default: the SDK's `defaultEscrowGrantMbr` gives it, and the three rollout scripts that install such grants add it.
 - **The fifth page.** Every live wallet has four pages: 73 on MainNet, the DAO wallet among them, and 1 on TestNet (read 2026-11-20). The factory grows a wallet's pages when it updates it. The factory sends the update and it created the wallet, so its minimum balance rises by 100,000 µALGO per wallet and it pays nothing out; the wallet's own account and its boxes are untouched. This is measured on a wallet that runs the MainNet program (`tests/compat`). `updateWallet` takes no payment and the factory has 1,121 µALGO free on MainNet, 800 on TestNet. F1 and F2 therefore read what the factory lacks and pay it from the sender before they update anything: 7.3 ALGO for MainNet's 73 wallets, 0.1 ALGO on TestNet.
-- **What a wallet above four pages costs its callers.** The node charges a program's bytes above 8,192 to the group's box read budget, once for each such app the group touches. For this wallet that is 555 bytes. A group that calls a wallet, or only lists one as an app reference, therefore needs at least one box reference. It may be empty, and it adds 2,048 bytes of budget, which a box the group already names counts toward. A group that names no box is refused with `read budget exceeded (555 > 0)` before it runs. The SDK finds the reference by simulation and puts it on the same transaction at no extra fee. A hand-built call to a wallet must add it. The transaction that creates or updates a wallet also costs more, because it carries the program: 56 µALGO more for this one, so an update costs 2,056 µALGO in fees and a caller that passes a fixed 2,000 fails. The SDK's wallet creation and steps F1 and F2 let the client size the fee. Both rules are measured on LocalNet, which runs the consensus version MainNet and TestNet run (read 2026-11-20), and `admin.e2e.spec.ts` holds the test. They apply to a wallet from the moment it is updated: F1 for the DAO wallet, F2 for the others.
+- **What a wallet above four pages costs its callers.** The node charges a program's bytes above 8,192 to the group's box read budget, once for each such app the group touches. For this wallet that is 562 bytes: 8,750 of approval program and 4 of clear program (555 before the wallet guard of 2026-11-21). A group that calls a wallet, or only lists one as an app reference, therefore needs at least one box reference. It may be empty, and it adds 2,048 bytes of budget, which a box the group already names counts toward. A group that names no box is refused with `read budget exceeded (562 > 0)` before it runs. The SDK finds the reference by simulation and puts it on the same transaction at no extra fee. A hand-built call to a wallet must add it. The mobile and desktop apps had one, the hosted agent controller proof (`arc58_getAdmin()address`), and the backend accepted that proof only without a box reference; all three change with this release (akita-rn 267, akita-desktop 88, akita-backend 30), and the backend goes out before the apps. The transaction that creates or updates a wallet also costs more, because it carries the program: 56 µALGO more when measured at 8,743 bytes, so an update cost 2,056 µALGO in fees and a caller that passes a fixed 2,000 fails. The SDK's wallet creation and steps F1 and F2 let the client size the fee. Both rules are measured on LocalNet, which runs the consensus version MainNet and TestNet run (read 2026-11-20), and `admin.e2e.spec.ts` holds the test. They apply to a wallet from the moment it is updated: F1 for the DAO wallet, F2 for the others.
 - **New wallets.** From E7 on a wallet is created with five pages and costs 0.1 ALGO more. The factory's `cost` quotes it. Reading the staged wallet from the factory's box now takes five box entries where it took four.
 - **An escrow that is an outside account.** An escrow can be an ordinary account rekeyed to the wallet and registered with `arc58_newEscrow(name, address)`. Its record has no app id and the factory has no part in it. A delete closes the account out to the controlled address and removes the record and the count, with nothing sent to the factory. Closing the account ends its rekey, so the address is its own key's again, where a factory escrow's address is under nobody's control. The network closes no account that holds an asset, is opted in to an app, or created an asset or an app that still exists. The SDK reads that from the chain, names the reason and sends nothing. The DAO wallet on MainNet has two such escrows (read 2026-11-20). `akta_creator` created three assets that exist, AKTA among them, and `collections` created 6,005 and is opted in to 25 apps, so neither can be deleted. Do not register one account under two names: the first delete closes it, and the wallet can then not delete the second record.
 - **Apps warn before a delete.** What becomes of an escrow's address cannot be undone and differs with the kind of escrow. The SDK's `getEscrowTeardown` returns it as `warnings`, one for a factory escrow (`address-under-nobodys-control`) and one for an outside account (`address-returns-to-its-key`). An app that offers the delete, or puts it into a DAO or Guild proposal, shows them in the confirmation itself before the person confirms. The owner asked for this on 2026-11-20. No app offers the delete yet.
@@ -205,6 +205,19 @@ No step of the sequence changes. Nine plugin programs get other bytes at the sam
 - **Package names.** The packages are `@akita-protocol/plugin` and `@akita-protocol/sdk`, as on `main`. They were `@akta/plugin` and `@akta/sdk`. Run `npm ci` once after pulling, so the workspace links carry the new names. Version 1.2.0 of the plugin package is not published. The commit from `main` also brings the workflow that publishes a package when a tag named `sdk-v<version>` or `plugin-v<version>` is pushed (step I2).
 - **Build output.** A TEAL comment names a source outside `projects/akita-sc` by a path relative to that project (`../../node_modules/@akita-protocol/plugin/functions.ts`), so a build writes the same files in any checkout.
 - **Manifest.** `release/manifest.json` is regenerated. The nine hashes above move.
+
+## Update 2026-11-21: a grant can carry a policy, PayPlugin reads one, and the pay silos are deprecated
+
+Three steps of the sequence change: G2, H1 and H6. The owner asked for it on 2026-11-21.
+
+- **Grant policies.** A wallet can store a policy for one grant of a plugin. It is a Meta record that only MetaPlugin, Meta's registered policy writer, writes, and only in a window the wallet's admin approved. A plugin reads the policy of the grant it runs under. H1 registers the writer and gives the DAO wallet its policy writer grant.
+- **PayPlugin reads a policy.** A grant with a policy pays only the receivers and the assets the policy lists. A grant without one pays as before, with one exception: a global grant that needs no execution key pays nothing until it has a policy. An execution by the wallet's own admin is never limited. PayPlugin is created with Meta's app id, which cannot change afterwards, so its deploy moves from G2 to H1.
+- **Pay silos are deprecated.** A pay silo fixed its receiver in a program. A PayPlugin grant with a policy does the same job with no app of its own. Neither pay silo plugin is deployed or rotated in this rollout, and H6 pays the Labs share through PayPlugin. The live apps stay on chain, unused.
+- **Read from MainNet and TestNet on 2026-11-21, read-only.** The DAO wallet holds no grant of either pay silo plugin. Its one PayPlugin grant is global, on no escrow, with an execution key, so it moves to the new PayPlugin without a policy. `rec_krby` is locked, holds its minimum of 0.1 ALGO and no asset, and carries one grant, the open OptInPlugin grant.
+- **The wallet asks for its admin when a caller resolves to its own address.** `arc58_rekeyToPlugin` with caller type Other, sent from the wallet's own address, named the admin grant without the admin check. Only a plugin that held the wallet's account in its own window could send that call. The wallet now applies the admin check, and MetaPlugin and PayPlugin each read the caller type from the window's rekey call as well.
+- **Programs.** Against the build of 2026-11-20: AbstractedAccount is 8,750 bytes (8,743 before), Meta 5,209 (4,436), MetaPlugin 4,075 (3,749) and PayPlugin 1,854 (298). The wallet keeps its five pages.
+- **Manifest.** `release/manifest.json` lists 157 programs. MockPolicyForger and MockUnlimitedPayPlugin are new test programs.
+- **Not run on a public network.** The new commands were run on LocalNet only. Their dry runs need Meta on chain, which H1 creates (G17).
 
 ## Live state (read 2026-10-10)
 
@@ -753,7 +766,7 @@ npm run fund:service-accounts -- -n mainnet --confirm
 - K2 lockstep: ship the SDK release and every wallet-creating frontend/backend in the same hour.
 - From this moment anyone can push the AVM 13 wallet into any automatic wallet, the DAO wallet included. Run F right after.
 - Never change aal.wallet: every principal check pins wallet genuineness to it.
-- The child is 8,743 B since 2026-11-20: five upload chunks as before, in the one group. The factory's child box grows by 557 B, 222,800 µALGO, which the runner pays. A wallet created from here on has five program pages and costs 0.1 ALGO more; the factory's `cost` quotes it.
+- The child is 8,750 B (8,743 B on 2026-11-20, 7 B more with the wallet guard of 2026-11-21): five upload chunks as before, in the one group. The factory's child box grows by 564 B, 225,600 µALGO, which the runner pays. A wallet created from here on has five program pages and costs 0.1 ALGO more; the factory's `cost` quotes it.
 - Until F1 and F2 have funded the factory, a push into a four-page wallet fails: the factory cannot hold the fifth page.
 
 ```bash
@@ -828,17 +841,17 @@ npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n mainnet -v "
 
 #### G2. Every other live plugin
 
-- **What:** Rotate StakingPlugin (after D1), RewardsPlugin (after D2; pins legacyRewards), GatePlugin (after C4), AkitaDAOPlugin (after B2), NFDPlugin (MISC-1 price caps), HaystackRouterPlugin (MISC-2), and the seven whose only source change is the C1 and C2 fix: OptInPlugin, PayPlugin, PaySiloPlugin, PaySiloFactoryPlugin, SelfOptInPlugin, AsaManagerPlugin and DualStakePlugin.
+- **What:** Rotate StakingPlugin (after D1), RewardsPlugin (after D2; pins legacyRewards), GatePlugin (after C4), AkitaDAOPlugin (after B2), NFDPlugin (MISC-1 price caps), HaystackRouterPlugin (MISC-2), and the four whose only source change is the C1 and C2 fix: OptInPlugin, SelfOptInPlugin, AsaManagerPlugin and DualStakePlugin. PayPlugin is rotated in H1, because it is created with Meta's app id. PaySiloPlugin and PaySiloFactoryPlugin are not rotated: release 2.0.0 deprecates them (H6).
 - **Why here:** Each fixes a live issue or calls a method only the new service has. The rule (Kyle, 2026-11-11, closing audit R9) is to rotate every plugin whose code changed at all; the apps prompt each wallet to move to the new version.
 - **Requires:** D1, D2, C4, B2. **Script:** ready. Five plugins deploy through the receipt-keeping catalog (`deploy:immutable` aliases). The other eight have their own older scripts, which keep no receipt and record the new id themselves (G11): if one is interrupted after it created the app, record the id it printed by hand instead of running it again.
 - **Tracked by rollout:status as** `plugin:stakingPlugin` (one step per plugin, `plugin:<key>`).
 - RewardsPlugin: create it with `legacyRewards` = v1 (3569556095). It adds `claimLegacyRewards` and `reclaimLegacyRewards` (DEC-1). When its DAO and backend grants on the `stickers` escrow move to the new plugin, add `reclaimRewards`, `claimLegacyRewards` and `reclaimLegacyRewards` to their method lists; method-restricted grants do not pick up new methods on their own.
 - RewardsPlugin grants on the `stickers`, `rec_mod` and `rec_gov` escrows must list the new 8-arg `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64,address)uint64` (0x2946dd1d), which passes `reclaimTo` (2026-10-11). The 7-arg selector (0x3aae182b) records no reclaim target. `RewardsPluginSDK.createDisbursement()` with no args, and the plugin migration of the old 0x08c25eff grant, list both.
-- OptIn, Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager and DualStake were compiler-only changes when this runbook was first written. The audit fix for C1 and C2 (2026-11-09) changed their behavior: each now refuses a wallet whose spending account it does not control. The live versions keep C2 (what is exposed is the plugin account's spare ALGO and a reclaim nuisance) until each wallet has moved.
+- OptIn, Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager and DualStake were compiler-only changes when this runbook was first written. The audit fix for C1 and C2 (2026-11-09) changed their behavior: each now refuses a wallet whose spending account it does not control. The live versions keep C2 (what is exposed is the plugin account's spare ALGO and a reclaim nuisance) until each wallet has moved. The two live pay silo plugins get no new version, so they keep it.
 - OptInPlugin is also `pal.optin`, which 67 wallets granted (count read 2026-10-10). Deploy and record the new version so the apps prompt for it, and repoint `pal.optin` only after those wallets have moved; read the count again first.
 - A rotation is a new app id. `--register` appends it to the plugin's history in `networks.ts` (`MAINNET_PLUGIN_DEPLOYMENTS`), which is what the apps read to offer the update. The old app stays on chain and keeps working for wallets that have not moved.
 
-All 23 live plugins and the step that rotates each. Every one differs from this build (MainNet programs read 2026-11-11, compared with the compiled approval program of each artifact):
+All 23 live plugins and the step that rotates each (the two pay silo plugins are deprecated and stay as they are). Every one differs from this build (MainNet programs read 2026-11-11, compared with the compiled approval program of each artifact):
 
 | Plugin (SDK key) | Live app | Rotated in |
 |---|---|---|
@@ -858,9 +871,9 @@ All 23 live plugins and the step that rotates each. Every one differs from this 
 | `nfdPlugin` | 3572944055 | G2 |
 | `haystackRouterPlugin` | 3579545659 | G2 |
 | `optinPlugin` | 3569560490 | G2 |
-| `payPlugin` | 3569560828 | G2 |
-| `paySiloPlugin` | 3569561570 | G2 |
-| `paySiloFactoryPlugin` | 3569561636 | G2 |
+| `payPlugin` | 3569560828 | H1 (after Meta) |
+| `paySiloPlugin` | 3569561570 | not rotated: deprecated (H6) |
+| `paySiloFactoryPlugin` | 3569561636 | not rotated: deprecated (H6) |
 | `selfOptinPlugin` | 3644027143 | G2 |
 | `asaManagerPlugin` | 3605315701 | G2 |
 | `dualStakePlugin` | 3569561317 | G2 |
@@ -868,7 +881,8 @@ All 23 live plugins and the step that rotates each. Every one differs from this 
 
 One command per plugin, then one grant swap for all of them:
 
-- `deploy:pay-silo-plugin` creates the registered instance with the recipient the live one has (read 2026-11-16: the DAO creator's address on both networks). The Labs instance is a separate deploy in H6.
+- PayPlugin is not deployed here. It is created with Meta's app id as its registry, so H1 deploys it after Meta and swaps the DAO wallet's PayPlugin grant there.
+- No pay silo is deployed. The DAO wallet holds no grant of either pay silo plugin on MainNet or TestNet (read 2026-11-21), so nothing is swapped or removed for them.
 - `deploy:rewards-plugin` pins `legacyRewards` to the network's Rewards v1 as the SDK registry names it (`rewardsV1`: 3569556095 on MainNet, 763128244 on TestNet) and prints it first, in a dry run too. `--legacy-rewards <id>` overrides it.
 - `deploy:nfd-plugin` takes no version and has no dry run. It picks the network's NFD registry by itself (760937186 on MainNet, 84366825 on TestNet).
 - `deploy:haystack-router-plugin` holds router and treasury ids for MainNet only and stops on TestNet (see A4). On MainNet it creates the plugin for router 3757715482, the v4 router the new plugin was written for; the live plugin names router 3172554435.
@@ -877,9 +891,6 @@ One command per plugin, then one grant swap for all of them:
 
 ```bash
 npm run deploy:gate-plugin -- -n mainnet -v "$V" --manifest receipts/gate-plugin.json --register
-npm run deploy:pay-plugin -- -n mainnet -v "$V" --manifest receipts/pay-plugin.json --register
-npm run deploy:pay-silo-plugin -- -n mainnet -v "$V" --config '{"recipient":"<recipient of the live PaySiloPlugin>"}' --manifest receipts/pay-silo-plugin.json --register
-npm run deploy:pay-silo-factory-plugin -- -n mainnet -v "$V" --manifest receipts/pay-silo-factory-plugin.json --register
 npm run deploy:staking-plugin -- -n mainnet -v "$V"
 npm run deploy:rewards-plugin -- -n mainnet -v "$V"
 npm run deploy:optin-plugin -- -n mainnet
@@ -987,9 +998,9 @@ npm run rollout:status -- --network mainnet
 
 Independent of each other; each after its prerequisites.
 
-#### H1. Meta (+ MetaPlugin)
+#### H1. Meta (+ MetaPlugin, PayPlugin)
 
-- **What:** Deploy Meta and MetaPlugin with receipts. Leave aal.metaMerkles alone until the roots are migrated (DEC-3).
+- **What:** Deploy Meta and MetaPlugin with receipts, then the PayPlugin that reads its policies from that Meta. Leave aal.metaMerkles alone until the roots are migrated (DEC-3).
 - **Why here:** MetaMerkles has no update route; repointing early drops every stored root.
 - **Requires:** B2. **Script:** ready: deploy:meta writes a resumable receipt and `--register` records the `meta` SDK key (G6 closed); deploy:meta-plugin records `metaPlugin`. Neither touches aal.metaMerkles. update:meta requires --meta-app-id and refuses MetaMerkles (ROLLOUT-6).
 - **Revenue escrow (audit C7):** Meta keeps each type fee, less the storage it pays for, as owed to the DAO. `collectTypeFees()` sends what is owed to the DAO escrow Meta is pointed at; anyone can call it, and it fails with errEscrowDoesNotExist until the escrow is set. After the deploy:
@@ -998,7 +1009,10 @@ Independent of each other; each after its prerequisites.
   3. Register `rev_meta` with the RevenueManager like the other unsplit escrows (G3a).
 - Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
 - **Grant policies:** right after deploy:meta-plugin, `set:policy-writer` registers MetaPlugin as Meta's only policy writer. The creator can set it once while it is unset; after that only the DAO wallet can change it. Until it is set no wallet can store a grant policy, so a plugin that reads one (PayPlugin on rec_krby, H6) refuses every delegated call. The DAO writes a policy through a global MetaPlugin grant with an execution key: AddPlugin (`useExecutionKey`), then one ExecutePlugin proposal for the configurePolicy group.
-- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `meta-escrow`.
+- **The DAO's policy writer grant:** `install:policy-writer-grant` gives the DAO wallet MetaPlugin as a global grant on no escrow that needs an execution key, at the DAO's app upgrade thresholds. It stays installed. Every policy the DAO writes, now or after launch, is then one ExecutePlugin proposal that registers one group; without the grant a policy change after launch needs an AddPlugin vote first. The script refuses while Meta's policy writer is not the recorded MetaPlugin, and refuses to reuse a grant that needs no execution key.
+- **PayPlugin:** it is created with Meta's app id as its `registry` and reads every grant's policy from that app. The id cannot change afterwards and `deploy:pay-plugin` cannot check it, so read the id from `receipts/meta.json`. `rollout:status` and H6 refuse a PayPlugin whose registry is not the recorded Meta. `update:dao-wallet-plugins` then moves the DAO wallet's own PayPlugin grant, which needs an execution key and so needs no policy. It is the grant swap of G2, run again: it replaces only the grants that still point at an old version.
+- **The backend's inference billing settings:** akita-backend's pay-as-you-go inference billing collects through this PayPlugin and a policy on each member's grant (akita-backend pull request 31). Its `AKITA_INFERENCE_BILLING` entry for a network takes `payPluginAppId`, `metaAppId` and `metaPluginAppId` from this step's receipts, and `payPluginApprovalSha256` from `arc58/plugins/pay/PayPlugin` in `release/manifest.json`. At startup the backend checks the program hash, PayPlugin's `registry` and Meta's `policy_writer` against them, so set the entry only after `set:policy-writer` and `deploy:pay-plugin` here. An entry that still has the pay silo keys is refused.
+- **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `dao-policy-writer`, `plugin:payPlugin`, `meta-escrow`.
 
 ```bash
 npm run deploy:meta -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -1008,6 +1022,12 @@ npm run deploy:meta-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta ap
 (cd ../akita-sdk && npm run build)
 npm run set:policy-writer -- -n mainnet --dry-run --sender "$CREATOR"
 npm run set:policy-writer -- -n mainnet --confirm
+npm run install:policy-writer-grant -- -n mainnet --dry-run
+npm run install:policy-writer-grant -- -n mainnet --confirm
+npm run deploy:pay-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/pay-plugin.json --register
+(cd ../akita-sdk && npm run build)
+npm run update:dao-wallet-plugins -- -n mainnet --dry-run --sender "$CREATOR"
+npm run update:dao-wallet-plugins -- -n mainnet --confirm-update
 npm run create:dao-escrow -- -n mainnet --escrow rev_meta --execute
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-run
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm
@@ -1062,21 +1082,22 @@ npm run deploy:wallet-balance-reader -- -n mainnet -v "$V" --manifest receipts/w
 (cd ../akita-sdk && npm run build)
 ```
 
-#### H6. Labs revenue pay silo (`rec_krby`)
+#### H6. Labs revenue payout (`rec_krby`)
 
-- **What:** Deploy a PaySiloPlugin pinned to the Akita Labs LLC address, then install it on the DAO wallet scoped to the `rec_krby` escrow with only the `pay` method.
-- **Why here:** `rec_krby` is a DAO-wallet escrow that receives the Labs share of every payout: 80% after B3b, 40% before it. The pay silo's recipient is fixed at creation, so the grant can be callable by anyone (or by a backend keeper): every payment can only reach Labs.
-- **Requires:** B2 (AddPlugin on the upgraded DAO). **Script:** deploy ready (`deploy:pay-silo-plugin`); the grant since 2026-11-16: `install:pay-silo-grant` (`scripts/install-pay-silo-grant.ts`). It refuses unless the app runs the tree PaySiloPlugin and pays the address restated with `--recipient`, installs the grant with `pay` only, and reads it back.
-- **Tracked by rollout:status as** `labs-pay-silo`.
-- Two recipients are asked for in this rollout, and they are different things. G2's `<recipient of the live PaySiloPlugin>` is the address the registered pay silo already pays today (the DAO creator's address on both networks), carried over so the replacement behaves the same. This step's `<Akita Labs LLC address>` is where the Labs bucket in `rec_krby` is paid out. Both were open on 2026-11-17.
-- This instance is deployed without `--register`: the registered `paySiloPlugin` is the one from G2. If Akita Labs LLC should receive at the address the G2 instance pays, skip the deploy and pass that instance's id to `--plugin`.
+- **What:** Install the PayPlugin of H1 on the DAO wallet as a global grant on the `rec_krby` escrow with only the `pay` method, then write the grant's policy: one receiver, the Akita Labs LLC address, and the assets it may be paid in.
+- **Why here:** `rec_krby` is a DAO-wallet escrow that receives the Labs share of every payout: 80% after B3b, 40% before it. The policy lists the only receiver, so the grant can be callable by anyone (or by a backend keeper): every payment can only reach Labs. PayPlugin reads the policy from Meta on every call.
+- **Requires:** H1 (Meta, its policy writer, the DAO wallet's policy writer grant, and the PayPlugin created with that Meta). **Script:** ready since 2026-11-21: `install:pay-policy-grant` (`scripts/install-pay-policy-grant.ts`). It refuses unless the recorded PayPlugin runs the tree program and reads its policies from the recorded Meta. It installs the grant with `pay` only, writes the policy through the policy writer grant, and reads both back. Two proposals. Test: `tests/rollout-grant-policies.e2e.spec.ts`, which ends in real payments.
+- **Tracked by rollout:status as** `labs-pay-policy`. The row prints the receiver the stored policy lists: compare it with the Akita Labs LLC address.
+- **Between the two proposals the grant pays nothing.** PayPlugin refuses a global grant that needs no execution key until it has a policy. A run that stops after the first proposal leaves a grant that cannot pay, and a rerun writes the policy.
+- **Assets.** A policy lists the only assets the grant may send, at most 8. Left to itself the script lists ALGO, the network's AKTA and USDC, and whatever the escrow holds on that day. `--assets 0,<id>,...` states them instead. An asset that is not listed stays in the escrow until a proposal changes the policy. A pay silo sent any asset.
+- **Another receiver or another asset later** is the same command with the new values: one ExecutePlugin proposal through the policy writer grant. After `initialize()` it is a vote at the thresholds of an app upgrade.
+- **Pay silos are deprecated in release 2.0.0** (owner, 2026-11-21). PaySiloPlugin and PaySiloFactoryPlugin are not deployed or rotated. The live ones (3569561570 and 3569561636 on MainNet) stay on chain, unused.
 - `rec_krby` is a locked escrow. A lock stops the wallet's own opt-in and allowance calls. It does not stop a grant, a payment, or an opt-in made through the escrow's OptInPlugin grant (G3b).
-- The pay silo sends an asset only to an address that holds it. The Akita Labs LLC address must be opted in to USDC and AKTA before a payment in either.
+- PayPlugin sends an asset only to an address that holds it. The Akita Labs LLC address must be opted in to USDC and AKTA before a payment in either. The script says so when it is not.
 
 ```bash
-npm run deploy:pay-silo-plugin -- -n mainnet -v "$V" --config '{"recipient":"<Akita Labs LLC address>"}' --manifest receipts/pay-silo-labs.json
-npm run install:pay-silo-grant -- -n mainnet --plugin <Labs PaySiloPlugin app id> --escrow rec_krby --recipient <Akita Labs LLC address> --dry-run
-npm run install:pay-silo-grant -- -n mainnet --plugin <Labs PaySiloPlugin app id> --escrow rec_krby --recipient <Akita Labs LLC address> --confirm
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --dry-run
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --confirm
 ```
 
 #### H7. SocialClaim (not in this release)
@@ -1219,6 +1240,17 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - `scripts/lib/rollout-steps.ts`: `rollout:status` tracks F0 as `wallet-mbr`.
 - `scripts/lib/dao-wallet-parity.ts`, `scripts/lib/dao-wallet-plugin-migration.ts`, `scripts/deploy-revenue-manager-plugin.ts`: a grant that uses an escrow by default is funded with the storage of the name it now stores (the SDK's `defaultEscrowGrantMbr`).
 - Tests: `tests/wallet-page-growth.test.ts`; `tests/compat/compat.e2e.spec.ts` updates a wallet on the MainNet program with the call F2 sends, and deletes an escrow made before the update; `smart_contracts/arc58/account/delete-escrow.e2e.spec.ts`; the DAO's and the Guild's proposal tests.
+
+## Script changes made 2026-11-21
+
+- `scripts/set-policy-writer.ts` (new, `set:policy-writer`): H1. It registers the recorded MetaPlugin as Meta's policy writer.
+- `scripts/install-policy-writer-grant.ts`, `scripts/install-pay-policy-grant.ts`, `scripts/lib/grant-policy-steps.ts` (new, `install:policy-writer-grant` and `install:pay-policy-grant`): H1's policy writer grant on the DAO wallet, and H6. Each plans without `--confirm`, reads back what it wrote, and does only what is missing on a rerun.
+- `scripts/lib/rollout-steps.ts`: new steps `meta-policy-writer`, `dao-policy-writer` and `labs-pay-policy`. `plugin:payPlugin` moves to stage H and is done only when the recorded PayPlugin reads its policies from the recorded Meta. `labs-pay-silo`, `plugin:paySiloPlugin` and `plugin:paySiloFactoryPlugin` are gone.
+- `scripts/install-pay-silo-grant.ts` and the `deploy:pay-silo-*` commands: no step runs them any more. They leave with the pay silo code.
+- Tests: `tests/rollout-grant-policies.e2e.spec.ts` runs the policy writer grant, a policy written by proposal and H6 on LocalNet, ending in payments that only the listed receiver gets; `tests/meta-policy-forger.e2e.spec.ts`; `smart_contracts/arc58/plugins/pay/pay-policy.e2e.spec.ts` and `pay-policy-dao.e2e.spec.ts`.
+- Two tests that warp 1,000 rounds, in `smart_contracts/staking-pool/staking-pool.e2e.spec.ts` and `smart_contracts/auction/auction.e2e.spec.ts`, get a timeout of 300 seconds. Each sends about 1,000 payments one after another and passed the default 120 seconds on a busy CI runner.
+- `scripts/deploy-localnet-v2.ts` (LocalNet only): after it deploys MetaPlugin it names it as Meta's grant policy writer, and a rerun does the same on a universe that lacks one. Until now a LocalNet built by `deploy:universe` and `deploy:localnet-v2` had no policy writer, so no wallet there could store a grant policy and the apps could not try a PayPlugin policy. On MainNet this is H1's `set:policy-writer`.
+- `smart_contracts/arc58/plugins/pay/backend-inference-billing-setup.e2e.spec.ts` (new, LocalNet only, skipped unless `AKITA_BACKEND_INFERENCE_BILLING_SETUP` names a file to write): on a fresh wallet it installs what a member's app installs for inference billing, a PayPlugin grant on the `inference` escrow for a billing key, an ALGO allowance and the grant's policy, and writes the file that akita-backend's `TestInferenceBillingSettlesOnLocalNet` reads. That test then collects charges through the grant and checks that the chain refuses a receiver the policy does not list.
 
 ## Open script gaps
 
