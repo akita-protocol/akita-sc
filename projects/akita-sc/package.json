@@ -185,6 +185,7 @@
     "deploy:poll-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PollPluginContract",
     "deploy:guild-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract GuildPlugin",
     "deploy:meta-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract MetaPlugin",
+    "set:policy-writer": "ts-node --transpile-only scripts/set-policy-writer.ts",
     "deploy:sunset-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract SunsetPlugin",
     "deploy:rewards": "ts-node --transpile-only scripts/deploy-immutable.ts --contract Rewards",
     "deploy:meta": "ts-node --transpile-only scripts/deploy-meta.ts",

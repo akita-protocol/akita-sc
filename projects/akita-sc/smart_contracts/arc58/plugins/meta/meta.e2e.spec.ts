@@ -1,7 +1,7 @@
-import { errScopeMissing, errScopeAdmin } from './errors'
+import { errScopeMissing, errScopeAdmin, errScopeStale, errScopeGrantMissing } from './errors'
 import { metadataDataKey, metadataDataParts, metadataPluginValueLimit } from '../../../../../akita-sdk/src/meta'
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
-import { ABIMethod, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import { ABIMethod, ABIType, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet'
@@ -12,7 +12,7 @@ import {
   MetaSDK,
   encodeAccountImageReference,
 } from '../../../../../akita-sdk/src/meta'
-import { MetaPluginFactory, MetaPluginSDK, newMetaPlugin, metadataScopeArgs, MetaPluginScope } from '../../../../../akita-sdk/src/wallet/plugins/meta'
+import { MetaPluginFactory, MetaPluginSDK, newMetaPlugin, metadataScopeArgs, MetaPluginScope, grantPolicyKey, walletControlledAddress } from '../../../../../akita-sdk/src/wallet/plugins/meta'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
@@ -31,6 +31,8 @@ import {
   errRootScope,
   errReservedKeyPrefix,
   errTypeScope,
+  errPolicyKey,
+  errPolicyWriter,
 } from '../../../meta/errors'
 
 describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
@@ -54,15 +56,20 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
     client === namespacePlugin ? { type: 'namespace', namespace: 'akita.account' } :
     client === keysPlugin ? { type: 'keys', namespace: 'akita.account', keys: ['image'] } : { type: 'unrestricted' }
   )
+  // Every policy is written by the MetaPlugin registered as Meta's policy writer (`unrestricted`),
+  // through its admin grant on the wallet.
+  const ensureAdmin = async (client: MetaPluginSDK) => {
+    if (administrators.has(client.appId)) return
+    await wallet.addPlugin({ client, callerType: CallerType.Admin })
+    administrators.add(client.appId)
+  }
   const install = async (args: Parameters<WalletSDK['addPlugin']>[0] & { client: MetaPluginSDK }) => {
-    if (!administrators.has(args.client.appId)) {
-      await wallet.addPlugin({ client: args.client, callerType: CallerType.Admin })
-      administrators.add(args.client.appId)
-    }
+    await ensureAdmin(args.client)
+    await ensureAdmin(unrestricted)
     await wallet.addPlugin(args)
     const caller = args.callerType === CallerType.Global ? ALGORAND_ZERO_ADDRESS_STRING : args.caller!
-    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [args.client.configureScope({
-      caller, escrow: args.escrow ?? '', scope: scopeFor(args.client), expectedRevision: 0n,
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [unrestricted.configureScope({
+      plugin: args.client.appId, caller, escrow: args.escrow ?? '', scope: scopeFor(args.client), expectedRevision: 0n,
     })] })
   }
   const policy = (client: MetaPluginSDK) => client.getScope({ wallet: wallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING })
@@ -111,6 +118,8 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
     keysPlugin = await newMetaPlugin({
       ...params,
     })
+    // Before the DAO has a wallet, Meta's creator registers the policy writer.
+    await metadata.client.send.setPolicyWriter({ args: { writer: unrestricted.appId } })
   })
 
   afterAll(() => {
@@ -186,6 +195,124 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
     // Deleting a policy does not delete that caller's data or another wallet's policy.
     expect((await metadata.readRecord(walletAddress, metadataDataKey('alice', 'value'))).data).toEqual(new Uint8Array([8]))
     expect((await fixture.algorand.account.getInformation(plugin.client.appAddress)).balance.microAlgos).toBe(100_000n)
+  })
+
+  test('a policy lapses when its grant is removed and installed again, and needs an installed grant', async () => {
+    const plugin = unrestricted
+    const alice = fixture.algorand.account.random()
+    await fixture.algorand.account.ensureFunded(alice.addr, owner, microAlgo(10_000_000))
+    const caller = alice.addr.toString()
+    const run = (key: string) => wallet.usePlugin({
+      sender: caller, signer: alice.signer, callerType: CallerType.Other,
+      calls: [plugin.set({ sender: caller, signer: alice.signer, namespace: 'alice', key, data: new Uint8Array([1]), expectedRevision: 0n })],
+    })
+    const configure = (expectedRevision: bigint) => wallet.usePlugin({
+      callerType: CallerType.Admin,
+      calls: [plugin.configureScope({ caller, scope: { type: 'namespace', namespace: 'alice' }, expectedRevision })],
+    })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+
+    // No grant for alice yet: there is nothing to configure.
+    await expect(configure(0n)).rejects.toThrow(errScopeGrantMissing)
+
+    // Rounds make each install's start epoch distinct on LocalNet.
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Other, caller, useRounds: true })
+    await configure(0n)
+    await run('first')
+    const written = await plugin.getScope({ wallet: wallet.appId, caller })
+    expect(written.start).toBeGreaterThan(0n)
+
+    await wallet.removePlugin({ plugin: plugin.appId, caller, escrow: '' })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Other, caller, useRounds: true })
+    // The old policy survives in Meta but belongs to the removed install.
+    await expect(run('second')).rejects.toThrow(errScopeStale)
+
+    await configure(written.revision)
+    const rewritten = await plugin.getScope({ wallet: wallet.appId, caller })
+    expect(rewritten.start).toBeGreaterThan(written.start)
+    await run('second')
+
+    // A removed grant's policy can still be cleared, which refunds its storage.
+    await wallet.removePlugin({ plugin: plugin.appId, caller, escrow: '' })
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [plugin.clearScope({ caller, expectedRevision: rewritten.revision })] })
+    expect((await plugin.getScope({ wallet: wallet.appId, caller })).scope).toBeUndefined()
+  })
+
+  test('only the registered writer, in an admin window, can touch the policy prefix', async () => {
+    const signer = fixture.context.testAccount.signer
+    const key = grantPolicyKey(namespacePlugin.appId, ALGORAND_ZERO_ADDRESS_STRING)
+    // A plain record write or removal can never reach the reserved prefix.
+    await expect(fixture.algorand.send.appCallMethodCall({
+      sender: owner, signer, appId: metadata.appId,
+      method: ABIMethod.fromSignature('setRecord(pay,byte[],byte[],byte[],byte[],byte[],uint64)uint64'),
+      args: [
+        fixture.algorand.createTransaction.payment({ sender: owner, receiver: metadata.client.appAddress, amount: microAlgo(100_000) }),
+        key, new Uint8Array(), new Uint8Array(), new Uint8Array(), new Uint8Array([1]), 0n,
+      ],
+    })).rejects.toThrow(errPolicyKey)
+    await expect(fixture.algorand.send.appCallMethodCall({
+      sender: owner, signer, appId: metadata.appId,
+      method: ABIMethod.fromSignature('removeRecord(byte[],uint64)uint64'), args: [key, 0n],
+    })).rejects.toThrow(errPolicyKey)
+    // Calling setPolicy directly is not the writer calling it.
+    await expect(fixture.algorand.send.appCallMethodCall({
+      sender: owner, signer, appId: metadata.appId,
+      method: ABIMethod.fromSignature('setPolicy(pay,uint64,byte[],byte[],uint64)uint64'),
+      args: [
+        fixture.algorand.createTransaction.payment({ sender: owner, receiver: metadata.client.appAddress, amount: microAlgo(100_000) }),
+        wallet.appId, key, new Uint8Array([1]), 0n,
+      ],
+    })).rejects.toThrow(errPolicyWriter)
+
+    // Another MetaPlugin's admin grant is still not the writer.
+    await wallet.addPlugin({ client: namespacePlugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: namespacePlugin, callerType: CallerType.Global })
+    await expect(wallet.usePlugin({ callerType: CallerType.Admin, calls: [namespacePlugin.configureScope({
+      caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'namespace', namespace: 'akita.account' }, expectedRevision: 0n,
+    })] })).rejects.toThrow(errPolicyWriter)
+
+    // A delegated grant of the writer is refused by the writer itself.
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global })
+    await expect(wallet.usePlugin({ callerType: CallerType.Global, calls: [unrestricted.configureScope({
+      plugin: namespacePlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'unrestricted' }, expectedRevision: 0n,
+    })] })).rejects.toThrow(errScopeAdmin)
+
+    // The writer's admin grant can, and the record belongs to the wallet's controlled address.
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Admin })
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [unrestricted.configureScope({
+      plugin: namespacePlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'namespace', namespace: 'akita.account' }, expectedRevision: 0n,
+    })] })
+    const owned = await metadata.readRecord(await walletControlledAddress(fixture.algorand, wallet.appId), key)
+    expect(owned.exists).toBe(true)
+    expect((await namespacePlugin.getScope({ wallet: wallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING })).scope)
+      .toEqual({ type: 'namespace', namespace: 'akita.account' })
+  })
+
+  test('a delegated writer grant writes only on no escrow, and only while it needs an execution key', async () => {
+    const signer = fixture.context.testAccount.signer
+    const configure = (escrow: string, namespace: string, expectedRevision = 0n) => wallet.usePlugin({
+      sender: owner, signer, callerType: CallerType.Global, escrow,
+      calls: [unrestricted.configureScope({
+        plugin: namespacePlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, scope: { type: 'namespace', namespace }, expectedRevision,
+      })],
+    })
+    await wallet.addPlugin({ client: namespacePlugin, callerType: CallerType.Global })
+
+    // On an escrow, even an execution-key grant is not admin-approved: Meta needs the controlled address.
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global, escrow: 'pol', useExecutionKey: true })
+    await expect(configure('pol', 'akita.account')).rejects.toThrow(errScopeAdmin)
+
+    // On no escrow, a global grant that needs an execution key may write. The admin sends this group, so
+    // the wallet skips the key; anyone else needs a registered group id (meta-dao.e2e.spec.ts).
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global, useExecutionKey: true })
+    await configure('', 'akita.account')
+    const written = await namespacePlugin.getScope({ wallet: wallet.appId, caller: ALGORAND_ZERO_ADDRESS_STRING })
+    expect(written.scope).toEqual({ type: 'namespace', namespace: 'akita.account' })
+
+    // The admin replaces it with the same grant without an execution key: no more writes.
+    await wallet.removePlugin({ plugin: unrestricted.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '' })
+    await wallet.addPlugin({ client: unrestricted, callerType: CallerType.Global })
+    await expect(configure('', 'another.app', written.revision)).rejects.toThrow(errScopeAdmin)
   })
 
   test('unrestricted install can use different namespaces, then delete and restore wallet control', async () => {
@@ -364,13 +491,10 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
       { namespace: 'valid', keys: ['image', 'image'], error: errDuplicateScopeKey },
       { namespace: 'valid', keys: ['a'.repeat(64), 'b'.repeat(64)], error: errScopeTooLarge },
     ]) {
-      const method = keysPlugin.client.appClient.getABIMethod('configureScope')
-      await expect(wallet.usePlugin({ callerType: CallerType.Admin, calls: [() => ({
-        appId: keysPlugin.appId, selectors: [method.getSelector()],
-        getTxns: async ({ wallet: walletId }) => [{ type: 'methodCall', ...(await keysPlugin.client.params.configureScope({
-          sender: owner, signer: fixture.context.testAccount.signer,
-          args: { wallet: walletId, rekeyBack: true, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '', ...scope, expectedRevision: (await policy(keysPlugin)).revision },
-        })) }],
+      // Raw bodies skip the SDK's checks; the writer asks keysPlugin's validatePolicy to refuse them.
+      const body = ABIType.from('(string,string[])').encode([scope.namespace, scope.keys])
+      await expect(wallet.usePlugin({ callerType: CallerType.Admin, calls: [unrestricted.configurePolicy({
+        plugin: keysPlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, body, expectedRevision: (await policy(keysPlugin)).revision,
       })] })).rejects.toThrow(error)
     }
     expect(() => metadataScopeArgs({ type: 'keys', namespace: 'valid', keys: [] })).toThrow()

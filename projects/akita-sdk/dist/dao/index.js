@@ -25,11 +25,11 @@
 
 
 
-var _chunkVM42YHCKjs = require('../chunk-VM42YHCK.js');
-require('../chunk-4ODLJJLP.js');
+var _chunkS543MCFTjs = require('../chunk-S543MCFT.js');
+require('../chunk-QXY32PCJ.js');
 require('../chunk-6PXDU6U7.js');
 require('../chunk-F244CUWJ.js');
-require('../chunk-QWWJBGHA.js');
+require('../chunk-KJTSG2VZ.js');
 require('../chunk-DGKAG3SO.js');
 require('../chunk-CGAHDVIJ.js');
 require('../chunk-AP6ZTMST.js');
@@ -69,5 +69,5 @@ require('../chunk-PZ5AY32C.js');
 
 
 
-exports.AkitaDaoSDK = _chunkVM42YHCKjs.AkitaDaoSDK; exports.DAOBootstrapKeyBoxPrefix = _chunkVM42YHCKjs.DAOBootstrapKeyBoxPrefix; exports.DAOLegacyProposalVotesMBR = _chunkVM42YHCKjs.DAOLegacyProposalVotesMBR; exports.DAOLegacyVoteReceiptBoxPrefix = _chunkVM42YHCKjs.DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = _chunkVM42YHCKjs.DAOParticipationBoxPrefix; exports.DAOParticipationMBR = _chunkVM42YHCKjs.DAOParticipationMBR; exports.DAOProposalTallyMBR = _chunkVM42YHCKjs.DAOProposalTallyMBR; exports.DAOProposalVotesMBR = _chunkVM42YHCKjs.DAOProposalVotesMBR; exports.DAOVoteReceiptBoxPrefix = _chunkVM42YHCKjs.DAOVoteReceiptBoxPrefix; exports.DAO_ERROR_MESSAGES = _chunkVM42YHCKjs.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunkVM42YHCKjs.EMPTY_CID; exports.LEGACY_DAO_ACTION_STRUCTS = _chunkVM42YHCKjs.LEGACY_DAO_ACTION_STRUCTS; exports.MaxBootstrapKeyRounds = _chunkVM42YHCKjs.MaxBootstrapKeyRounds; exports.ProposalActionEnum = _chunkVM42YHCKjs.ProposalActionEnum; exports.ProposalStatusEnum = _chunkVM42YHCKjs.ProposalStatusEnum; exports.SplitDistributionType = _chunkVM42YHCKjs.SplitDistributionType; exports.SplitsToTuples = _chunkVM42YHCKjs.SplitsToTuples; exports.decodeGovernanceParticipation = _chunkVM42YHCKjs.decodeGovernanceParticipation; exports.decodeLegacyProposalNewEscrow = _chunkVM42YHCKjs.decodeLegacyProposalNewEscrow; exports.decodeVoteReceipt = _chunkVM42YHCKjs.decodeVoteReceipt; exports.parseDaoErrorCode = _chunkVM42YHCKjs.parseDaoErrorCode; exports.participationBoxName = _chunkVM42YHCKjs.participationBoxName; exports.translateDaoError = _chunkVM42YHCKjs.translateDaoError; exports.usesLegacyEscrowActionShape = _chunkVM42YHCKjs.usesLegacyEscrowActionShape; exports.voteCost = _chunkVM42YHCKjs.voteCost; exports.voteReceiptBoxName = _chunkVM42YHCKjs.voteReceiptBoxName;
+exports.AkitaDaoSDK = _chunkS543MCFTjs.AkitaDaoSDK; exports.DAOBootstrapKeyBoxPrefix = _chunkS543MCFTjs.DAOBootstrapKeyBoxPrefix; exports.DAOLegacyProposalVotesMBR = _chunkS543MCFTjs.DAOLegacyProposalVotesMBR; exports.DAOLegacyVoteReceiptBoxPrefix = _chunkS543MCFTjs.DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = _chunkS543MCFTjs.DAOParticipationBoxPrefix; exports.DAOParticipationMBR = _chunkS543MCFTjs.DAOParticipationMBR; exports.DAOProposalTallyMBR = _chunkS543MCFTjs.DAOProposalTallyMBR; exports.DAOProposalVotesMBR = _chunkS543MCFTjs.DAOProposalVotesMBR; exports.DAOVoteReceiptBoxPrefix = _chunkS543MCFTjs.DAOVoteReceiptBoxPrefix; exports.DAO_ERROR_MESSAGES = _chunkS543MCFTjs.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunkS543MCFTjs.EMPTY_CID; exports.LEGACY_DAO_ACTION_STRUCTS = _chunkS543MCFTjs.LEGACY_DAO_ACTION_STRUCTS; exports.MaxBootstrapKeyRounds = _chunkS543MCFTjs.MaxBootstrapKeyRounds; exports.ProposalActionEnum = _chunkS543MCFTjs.ProposalActionEnum; exports.ProposalStatusEnum = _chunkS543MCFTjs.ProposalStatusEnum; exports.SplitDistributionType = _chunkS543MCFTjs.SplitDistributionType; exports.SplitsToTuples = _chunkS543MCFTjs.SplitsToTuples; exports.decodeGovernanceParticipation = _chunkS543MCFTjs.decodeGovernanceParticipation; exports.decodeLegacyProposalNewEscrow = _chunkS543MCFTjs.decodeLegacyProposalNewEscrow; exports.decodeVoteReceipt = _chunkS543MCFTjs.decodeVoteReceipt; exports.parseDaoErrorCode = _chunkS543MCFTjs.parseDaoErrorCode; exports.participationBoxName = _chunkS543MCFTjs.participationBoxName; exports.translateDaoError = _chunkS543MCFTjs.translateDaoError; exports.usesLegacyEscrowActionShape = _chunkS543MCFTjs.usesLegacyEscrowActionShape; exports.voteCost = _chunkS543MCFTjs.voteCost; exports.voteReceiptBoxName = _chunkS543MCFTjs.voteReceiptBoxName;
 //# sourceMappingURL=index.js.map

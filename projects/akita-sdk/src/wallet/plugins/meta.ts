@@ -9,7 +9,7 @@ import {
   validateMetadataRecordKey,
 } from "../../meta/records";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
-import { ABIType } from "algosdk";
+import { ABIType, encodeAddress } from "algosdk";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { MetaSDK } from "../../meta";
 import { decodeMetadataScope, metadataScopeArgs, MetaPluginScope } from "./meta-scope";
@@ -25,41 +25,90 @@ type MetadataSet = MetadataWrite & { data: Uint8Array };
 export { MetaPluginFactory, MetaPluginClient } from "../../generated/MetaPluginClient";
 export * from "./meta-scope";
 
+/** Split a GrantPolicyPlugin record into the grant's install epoch and the plugin's policy body. */
+export function decodeGrantPolicy(data: Uint8Array): { start: bigint; body: Uint8Array } {
+  if (data.length < 8) throw new Error("Grant policy record is shorter than its 8-byte header.");
+  return { start: new DataView(data.buffer, data.byteOffset, 8).getBigUint64(0), body: data.slice(8) };
+}
+
 export class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
   constructor(params: NewContractSDKParams) {
     super({ factory: MetaPluginFactory, ...params });
   }
 
-  async getScope(args: { wallet: bigint; caller: string; escrow?: string }) {
-    const registry = await this.client.state.global.registry();
-    if (registry === undefined) throw new Error("Meta plugin is not initialized.");
-    const key = metaPluginPolicyKey(args.wallet, args.caller, args.escrow ?? "");
-    const meta = new MetaSDK({ algorand: this.algorand, readerAccount: this.getReaderSendParams({}).sender?.toString(), factoryParams: { appId: registry } });
-    const record = await meta.readRecord(this.client.appAddress.toString(), key);
-    if (!record.exists) return { registry, revision: 0n, scope: undefined };
-    const [namespace, keys] = ABIType.from("(string,string[])").decode(record.data) as [string, string[]];
-    return { registry, revision: record.revision, scope: decodeMetadataScope(namespace, ABIType.from("string[]").encode(keys)) };
+  /**
+   * The scope this MetaPlugin (or `plugin`, another MetaPlugin) applies to one grant. Grant policies
+   * are owned by the wallet's controlled address and keyed by `grantPolicyKey`.
+   */
+  async getScope(args: { wallet: bigint; caller: string; escrow?: string; plugin?: bigint }) {
+    const policy = await this.getPolicy({ ...args, plugin: args.plugin ?? this.appId });
+    if (!policy.exists) return { registry: policy.registry, revision: 0n, start: 0n, scope: undefined };
+    const [namespace, keys] = scopeType.decode(policy.body) as [string, string[]];
+    return { registry: policy.registry, revision: policy.revision, start: policy.start, scope: decodeMetadataScope(namespace, ABIType.from("string[]").encode(keys)) };
   }
 
-  configureScope(args: MaybeSigner & { caller: string; escrow?: string; scope: MetaPluginScope; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
-    const scope = metadataScopeArgs(args.scope);
+  /** The raw grant policy of any plugin's grant `(plugin, caller, escrow)` on `wallet`. */
+  async getPolicy(args: { wallet: bigint; plugin: bigint; caller: string; escrow?: string }) {
+    const registry = await this.client.state.global.registry();
+    if (registry === undefined) throw new Error("Meta plugin is not initialized.");
+    const owner = await walletControlledAddress(this.algorand, args.wallet);
+    const meta = new MetaSDK({ algorand: this.algorand, readerAccount: this.getReaderSendParams({}).sender?.toString(), factoryParams: { appId: registry } });
+    const record = await meta.readRecord(owner, grantPolicyKey(args.plugin, args.caller, args.escrow ?? ""));
+    if (!record.exists) return { registry, exists: false as const, revision: 0n, start: 0n, body: new Uint8Array() };
+    const { start, body } = decodeGrantPolicy(record.data);
+    return { registry, exists: true as const, revision: record.revision, start, body };
+  }
+
+  /**
+   * Write the policy of `plugin`'s grant `(caller, escrow)`. Run it through this MetaPlugin's admin
+   * grant (`CallerType.Admin`), on the MetaPlugin registered as Meta's policy writer. Put it in the
+   * same group as the grant's install to leave no unconfigured gap.
+   */
+  configurePolicy(args: MaybeSigner & { plugin: bigint; caller: string; escrow?: string; body: Uint8Array; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
-      selectors: [this.client.appClient.getABIMethod("configureScope").getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.configureScope({
-        ...sendParams, args: { wallet, rekeyBack: args.rekeyBack ?? true, caller: args.caller, escrow: args.escrow ?? "", ...scope, expectedRevision: args.expectedRevision },
+      selectors: [this.client.appClient.getABIMethod("configurePolicy").getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.configurePolicy({
+        ...sendParams,
+        args: { wallet, rekeyBack: args.rekeyBack ?? true, plugin: args.plugin, caller: args.caller, escrow: args.escrow ?? "", body: args.body, expectedRevision: args.expectedRevision },
       })) }],
     });
   }
 
-  clearScope(args: MaybeSigner & { caller: string; escrow?: string; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
+  /** Remove the policy of `plugin`'s grant `(caller, escrow)`, through this MetaPlugin's admin grant. */
+  clearPolicy(args: MaybeSigner & { plugin: bigint; caller: string; escrow?: string; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
-      selectors: [this.client.appClient.getABIMethod("clearScope").getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.clearScope({
-        ...sendParams, args: { wallet, rekeyBack: args.rekeyBack ?? true, caller: args.caller, escrow: args.escrow ?? "", expectedRevision: args.expectedRevision },
+      selectors: [this.client.appClient.getABIMethod("clearPolicy").getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.clearPolicy({
+        ...sendParams,
+        args: { wallet, rekeyBack: args.rekeyBack ?? true, plugin: args.plugin, caller: args.caller, escrow: args.escrow ?? "", expectedRevision: args.expectedRevision },
+      })) }],
+    });
+  }
+
+  /** `configurePolicy` for a MetaPlugin grant: `plugin` (default: this one) gets `scope`. */
+  configureScope(args: MaybeSigner & { plugin?: bigint; caller: string; escrow?: string; scope: MetaPluginScope; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
+    const { namespace, keys } = metadataScopeArgs(args.scope);
+    return this.configurePolicy({ ...args, plugin: args.plugin ?? this.appId, body: scopeType.encode([namespace, keys]) });
+  }
+
+  /** `clearPolicy` for a MetaPlugin grant (default: this one). */
+  clearScope(args: MaybeSigner & { plugin?: bigint; caller: string; escrow?: string; expectedRevision: bigint; rekeyBack?: boolean }): PluginSDKReturn {
+    return this.clearPolicy({ ...args, plugin: args.plugin ?? this.appId });
+  }
+
+  /** Point Meta at a new policy writer, through this MetaPlugin's grant on the DAO wallet (Meta accepts only the DAO wallet). */
+  setPolicyWriter(args: MaybeSigner & { writer: bigint; rekeyBack?: boolean }): PluginSDKReturn {
+    const sendParams = this.getRequiredSendParams(args);
+    return () => ({
+      appId: this.appId,
+      selectors: [this.client.appClient.getABIMethod("setPolicyWriter").getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{ type: "methodCall", ...(await this.client.params.setPolicyWriter({
+        ...sendParams,
+        args: { wallet, rekeyBack: args.rekeyBack ?? true, writer: args.writer },
       })) }],
     });
   }
@@ -238,9 +287,25 @@ export class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
   }
 }
 
-/** This adapter compresses its composite policy identity into a 31-byte record key. */
-export function metaPluginPolicyKey(wallet: bigint, caller: string, escrow = ""): Uint8Array {
-  return sha256(ABIType.from("(uint64,address,string)").encode([wallet, caller, escrow])).slice(0, 31);
+const scopeType = ABIType.from("(string,string[])");
+
+/**
+ * Meta record key of the grant policy for `(plugin, caller, escrow)`: the reserved 0x00 byte, then
+ * the first 30 bytes of sha256 over the ARC-4 `(uint64,address,string)` grant identity.
+ */
+export function grantPolicyKey(plugin: bigint, caller: string, escrow = ""): Uint8Array {
+  const id = sha256(ABIType.from("(uint64,address,string)").encode([plugin, caller, escrow]));
+  const key = new Uint8Array(31);
+  key.set(id.slice(0, 30), 1);
+  return key;
+}
+
+/** The account that owns a wallet's grant policies: its controlled address. */
+export async function walletControlledAddress(algorand: NewContractSDKParams["algorand"], wallet: bigint): Promise<string> {
+  const state = await algorand.app.getGlobalState(wallet);
+  const value = state["controlled_address"];
+  if (!value || !("valueRaw" in value)) throw new Error(`Wallet ${wallet} has no controlled address.`);
+  return encodeAddress(value.valueRaw);
 }
 
 /** Deploy one reusable adapter. Configure delegated grants through an admin wallet execution. */

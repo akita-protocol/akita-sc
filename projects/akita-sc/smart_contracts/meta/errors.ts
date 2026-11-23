@@ -62,3 +62,11 @@ export const errNamespaceScope = 'errMnss'
 export const errKeyScope = 'errMksc'
 export const errRootScope = 'errMrsc'
 export const errTypeScope = 'errMtsc'
+/** setRecord / removeRecord on a key in the reserved grant-policy prefix. */
+export const errPolicyKey = 'errMpky'
+/** setPolicy / removePolicy on a key outside the grant-policy prefix. */
+export const errNotPolicyKey = 'errMnpk'
+/** The calling app is not the registered policy writer. */
+export const errPolicyWriter = 'errMpwr'
+/** The write is not inside an admin window that the policy writer holds on the wallet. */
+export const errPolicyWindow = 'errMpwn'

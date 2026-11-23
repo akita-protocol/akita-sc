@@ -1,0 +1,239 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 6 1
+    bytecblock 0x0000 "spending_address"
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:13
+    // export class MockPolicyForger extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x322fd6b8 0x1b8ca919 // method "forge(uint64,uint64,uint64,address,byte[])void", method "noop(uint64)void"
+    txna ApplicationArgs 0
+    match forge noop
+    err
+
+main___algots__.defaultCreate@9:
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:13
+    // export class MockPolicyForger extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/policy-forger/contract.algo.ts::MockPolicyForger.forge[routing]() -> void:
+forge:
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:15
+    // forge(wallet: Application, writer: Application, plugin: uint64, caller: Account, body: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    dig 5
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    bytec_1 // "spending_address"
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    app_global_get_ex
+    pop
+    swap
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:17-19
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    // })
+    itxn_begin
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:18
+    // sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    intc_0 // 0
+    itob
+    dig 7
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    dig 7
+    itxn_field ApplicationID
+    uncover 2
+    itxn_field Sender
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:17-19
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    // })
+    pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:18
+    // sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:17-19
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:18
+    // sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:20-22
+    // itxnCompose.next<typeof MetaPlugin.prototype.configurePolicy>({
+    //   appId: writer, args: [wallet, true, plugin, caller, '', body, 0], fee: 0,
+    // })
+    itxn_next
+    uncover 4
+    itxn_field ApplicationID
+    pushbytes 0x20663409 // method "configurePolicy(uint64,bool,uint64,address,string,byte[],uint64)uint64"
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:21
+    // appId: writer, args: [wallet, true, plugin, caller, '', body, 0], fee: 0,
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:18
+    // sender: controlled, appId: wallet, args: [writer.id, CallerTypeOther, '', [], []], fee: 0, rekeyTo: wallet.address,
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:20-22
+    // itxnCompose.next<typeof MetaPlugin.prototype.configurePolicy>({
+    //   appId: writer, args: [wallet, true, plugin, caller, '', body, 0], fee: 0,
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:21
+    // appId: writer, args: [wallet, true, plugin, caller, '', body, 0], fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:23
+    // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({ appId: wallet, fee: 0 })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x6cc3f606 // method "arc58_verifyAuthAddress()void"
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:24
+    // itxnCompose.submit()
+    itxn_submit
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:15
+    // forge(wallet: Application, writer: Application, plugin: uint64, caller: Account, body: bytes): void {
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/policy-forger/contract.algo.ts::MockPolicyForger.noop[routing]() -> void:
+noop:
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:28
+    // noop(wallet: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    dup
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    bytec_1 // "spending_address"
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
+    // )
+    app_global_get_ex
+    pop
+    swap
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:30
+    // itxn.payment({ sender: controlled, receiver: controlled, amount: 0, rekeyTo: wallet.address, fee: 0 }).submit()
+    itxn_begin
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    intc_3 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/policy-forger/contract.algo.ts:28
+    // noop(wallet: Application): void {
+    intc_3 // 1
+    return

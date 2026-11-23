@@ -61,6 +61,7 @@ import {
   controlledMbrFee,
   createGuild,
   createGuildInOneCall,
+  decodeGrantPolicy,
   decodeMetadataScope,
   defaultEscrowGrantMbr,
   defaultGuildBaseConfig,
@@ -71,6 +72,7 @@ import {
   findGuildPlugin,
   finishGuildProposal,
   getPluginAppId,
+  grantPolicyKey,
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
@@ -80,7 +82,6 @@ import {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  metaPluginPolicyKey,
   metadataScopeArgs,
   newEscrowExtraFee,
   newMetaPlugin,
@@ -93,11 +94,12 @@ import {
   socialClaimGiftBoxName,
   socialClaimSubject,
   translateWalletError,
-  voteOnGuildProposal
-} from "../chunk-3KAPE6U5.mjs";
+  voteOnGuildProposal,
+  walletControlledAddress
+} from "../chunk-KSTTSLYN.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
-import "../chunk-47AKUWST.mjs";
+import "../chunk-WRKZKQ4J.mjs";
 import "../chunk-7ZQXVHCF.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-LGBCH6R3.mjs";
@@ -173,6 +175,7 @@ export {
   controlledMbrFee,
   createGuild,
   createGuildInOneCall,
+  decodeGrantPolicy,
   decodeMetadataScope,
   defaultEscrowGrantMbr,
   defaultGuildBaseConfig,
@@ -183,6 +186,7 @@ export {
   findGuildPlugin,
   finishGuildProposal,
   getPluginAppId,
+  grantPolicyKey,
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
@@ -192,7 +196,6 @@ export {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  metaPluginPolicyKey,
   metadataScopeArgs,
   newEscrowExtraFee,
   newMetaPlugin,
@@ -205,6 +208,7 @@ export {
   socialClaimGiftBoxName,
   socialClaimSubject,
   translateWalletError,
-  voteOnGuildProposal
+  voteOnGuildProposal,
+  walletControlledAddress
 };
 //# sourceMappingURL=index.mjs.map

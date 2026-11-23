@@ -210,6 +210,16 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       return appId ? runsTree(key, appId, artifact) : { done: false, detail: `SDK ${key} is not recorded yet` }
     } })
   }
+  add({ id: 'meta-policy-writer', stage: 'H', title: 'Meta accepts grant policies only from MetaPlugin', requires: ['meta', 'meta-plugin'],
+    run: 'npm run set:policy-writer -- --confirm', check: async () => {
+      const meta = ctx.appIds.meta
+      const writer = ctx.appIds.metaPlugin
+      if (!meta || !writer) return { done: false, detail: 'SDK meta or metaPlugin is not recorded yet' }
+      const app = await ctx.algorand.client.algod.getApplicationByID(meta).do().catch(() => undefined)
+      const entry = (app?.params?.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === 'policy_writer')
+      const current = entry ? BigInt(entry.value.uint) : 0n
+      return { done: current === writer, detail: current === writer ? `Meta ${meta} takes policies from MetaPlugin ${writer}` : current ? `Meta ${meta} takes policies from app ${current}, not MetaPlugin ${writer}` : `Meta ${meta} has no policy writer yet` }
+    } })
   add({ id: 'meta-escrow', stage: 'H', title: 'Meta sends its type fees to a DAO escrow', requires: ['meta'],
     run: 'npm run create:dao-escrow -- --escrow rev_meta --execute, then npm run update:app-dao-escrow -- --app meta --escrow rev_meta --confirm', check: async () => {
       const meta = ctx.appIds.meta
