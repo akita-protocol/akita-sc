@@ -18,12 +18,14 @@
  *   npm run localnet:guild-demo -- cancel <proposalId> [--as bob|carol]         withdraws a passed proposal
  *   npm run localnet:guild-demo -- status [proposalId]
  *   npm run localnet:guild-demo -- clock [--follow [seconds]]            keep chain time on the wall clock
+ *   npm run --silent localnet:guild-demo -- backend-env                  the backend's settings for trusting this Guild
  *
  * The LocalNet dispenser pays for and signs everything, so no key is created or stored. The ids of what it
  * creates are kept in .localnet-guild-demo.json beside .env.localnet.
  */
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import algosdk from 'algosdk'
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { setCurrentNetwork } from 'akita-sdk'
@@ -399,8 +401,24 @@ async function main() {
       break
     }
 
+    case 'backend-env': {
+      // The backend links a chat only to a Guild whose two factories and exact program pairs it was told to trust
+      const current = guild()
+      const programPair = async (app: string) => {
+        const { params } = await algorand.client.algod.getApplicationByID(BigInt(app)).do()
+        if (!params) throw new Error(`App ${app} is not on this LocalNet`)
+        const sha256 = (program: Uint8Array) => createHash('sha256').update(program).digest('hex')
+        return `${sha256(params.approvalProgram)}:${sha256(params.clearStateProgram)}`
+      }
+      console.log(`AKITA_GUILD_FACTORY_APP_ID=${id('GUILD_FACTORY_APP_ID')}`)
+      console.log(`AKITA_GUILD_CONSENSUS_FACTORY_APP_ID=${id('GUILD_CONSENSUS_FACTORY_APP_ID')}`)
+      console.log(`AKITA_GUILD_PROGRAM_SHA256_ALLOWLIST=${await programPair(current.app)}`)
+      console.log(`AKITA_GUILD_CONSENSUS_PROGRAM_SHA256_ALLOWLIST=${await programPair(current.consensus)}`)
+      break
+    }
+
     default:
-      throw new Error('Commands: create, propose, submit, vote, finish, run, cancel, status, clock')
+      throw new Error('Commands: create, propose, submit, vote, finish, run, cancel, status, clock, backend-env')
   }
 }
 
