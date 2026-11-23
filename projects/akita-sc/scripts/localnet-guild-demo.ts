@@ -10,7 +10,7 @@
  *
  *   npm run localnet:guild-demo -- create --member <address> [--member <address>] [--threshold 2] [--voting-seconds 120]
  *   npm run localnet:guild-demo -- propose <kind> [--draft] [--as bob|carol]   kinds: see PROPOSALS below
- *                                   [--agent <address>] [--chat <group id>]     who and which chat they are about
+ *                                   [--agent <address>]                          the agent the proposal is about
  *   npm run localnet:guild-demo -- submit <proposalId> [--as bob|carol]         opens a draft's vote
  *   npm run localnet:guild-demo -- vote <proposalId> <yes|no|abstain> [--as bob|carol]
  *   npm run localnet:guild-demo -- finish <proposalId> [--execute]
@@ -39,8 +39,6 @@ import {
   GuildActionType,
   newEscrowAction,
   removePluginAction,
-  revokeChatStewardAction,
-  setChatStewardAction,
   setProposalActionLimitAction,
   setProposalSettingsAction,
   toggleEscrowLockAction,
@@ -301,9 +299,6 @@ async function main() {
         'rules': () => [setProposalSettingsAction(GuildActionType.AddPlugin, settings(duration, { approval: 60_000n })), setProposalActionLimitAction(10n)],
         'member': () => [fixedSignerConsensusAction.addMembers(FixedSignerWeightMode.Equal, [[algorand.account.random().addr.toString(), 1n]])],
         'threshold': () => [fixedSignerConsensusAction.setThreshold(BigInt(guild().threshold))],
-        // name the agent as the steward of a chat: --chat <group id>
-        'steward': () => [setChatStewardAction(one('chat') ?? 'group:demo', agent)],
-        'revoke-steward': () => [revokeChatStewardAction(one('chat') ?? 'group:demo')],
       }
       if (!kind || !PROPOSALS[kind]) throw new Error(`propose <kind>: one of ${Object.keys(PROPOSALS).join(', ')}`)
       const actions = PROPOSALS[kind]()
