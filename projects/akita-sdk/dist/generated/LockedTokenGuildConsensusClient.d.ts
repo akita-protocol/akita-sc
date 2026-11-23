@@ -156,9 +156,23 @@ export type LockedTokenGuildConsensusArgs = {
         'bindGuild(uint64)void': {
             guild: bigint | number;
         };
+        'chatStewardMbr(byte[])uint64': {
+            data: Uint8Array;
+        };
+        'applyChatSteward(pay,byte[])void': {
+            mbrPayment: AppMethodCallTransactionArgument;
+            data: Uint8Array;
+        };
+        'assertChatStewardAuthority(byte[32],byte[32])void': {
+            chat: Uint8Array;
+            steward: Uint8Array;
+        };
         'cleanupBallot(uint64,address[])uint64': {
             proposalId: bigint | number;
             voters: string[];
+        };
+        'getChatSteward(byte[32])address': {
+            chat: Uint8Array;
         };
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': {
             proposalId: bigint | number;
@@ -187,7 +201,11 @@ export type LockedTokenGuildConsensusArgs = {
         'consensusActionMbr(byte[])uint64': [data: Uint8Array];
         'applyConsensusAction(pay,uint64,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, proposalId: bigint | number, data: Uint8Array];
         'bindGuild(uint64)void': [guild: bigint | number];
+        'chatStewardMbr(byte[])uint64': [data: Uint8Array];
+        'applyChatSteward(pay,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, data: Uint8Array];
+        'assertChatStewardAuthority(byte[32],byte[32])void': [chat: Uint8Array, steward: Uint8Array];
         'cleanupBallot(uint64,address[])uint64': [proposalId: bigint | number, voters: string[]];
+        'getChatSteward(byte[32])address': [chat: Uint8Array];
         'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': [proposalId: bigint | number];
         'voteMbr()uint64': [];
         'hasVoted(uint64,address)bool': [proposalId: bigint | number, voter: string];
@@ -211,7 +229,11 @@ export type LockedTokenGuildConsensusReturns = {
     'consensusActionMbr(byte[])uint64': bigint;
     'applyConsensusAction(pay,uint64,byte[])void': void;
     'bindGuild(uint64)void': void;
+    'chatStewardMbr(byte[])uint64': bigint;
+    'applyChatSteward(pay,byte[])void': void;
+    'assertChatStewardAuthority(byte[32],byte[32])void': void;
     'cleanupBallot(uint64,address[])uint64': bigint;
+    'getChatSteward(byte[32])address': string;
     'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))': GuildConsensusBallot;
     'voteMbr()uint64': bigint;
     'hasVoted(uint64,address)bool': boolean;
@@ -273,10 +295,26 @@ export type LockedTokenGuildConsensusTypes = {
         argsObj: LockedTokenGuildConsensusArgs['obj']['bindGuild(uint64)void'];
         argsTuple: LockedTokenGuildConsensusArgs['tuple']['bindGuild(uint64)void'];
         returns: LockedTokenGuildConsensusReturns['bindGuild(uint64)void'];
+    }> & Record<'chatStewardMbr(byte[])uint64' | 'chatStewardMbr', {
+        argsObj: LockedTokenGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'];
+        argsTuple: LockedTokenGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64'];
+        returns: LockedTokenGuildConsensusReturns['chatStewardMbr(byte[])uint64'];
+    }> & Record<'applyChatSteward(pay,byte[])void' | 'applyChatSteward', {
+        argsObj: LockedTokenGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'];
+        argsTuple: LockedTokenGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void'];
+        returns: LockedTokenGuildConsensusReturns['applyChatSteward(pay,byte[])void'];
+    }> & Record<'assertChatStewardAuthority(byte[32],byte[32])void' | 'assertChatStewardAuthority', {
+        argsObj: LockedTokenGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'];
+        argsTuple: LockedTokenGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void'];
+        returns: LockedTokenGuildConsensusReturns['assertChatStewardAuthority(byte[32],byte[32])void'];
     }> & Record<'cleanupBallot(uint64,address[])uint64' | 'cleanupBallot', {
         argsObj: LockedTokenGuildConsensusArgs['obj']['cleanupBallot(uint64,address[])uint64'];
         argsTuple: LockedTokenGuildConsensusArgs['tuple']['cleanupBallot(uint64,address[])uint64'];
         returns: LockedTokenGuildConsensusReturns['cleanupBallot(uint64,address[])uint64'];
+    }> & Record<'getChatSteward(byte[32])address' | 'getChatSteward', {
+        argsObj: LockedTokenGuildConsensusArgs['obj']['getChatSteward(byte[32])address'];
+        argsTuple: LockedTokenGuildConsensusArgs['tuple']['getChatSteward(byte[32])address'];
+        returns: LockedTokenGuildConsensusReturns['getChatSteward(byte[32])address'];
     }> & Record<'getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))' | 'getBallot', {
         argsObj: LockedTokenGuildConsensusArgs['obj']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
         argsTuple: LockedTokenGuildConsensusArgs['tuple']['getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))'];
@@ -346,6 +384,10 @@ export type LockedTokenGuildConsensusTypes = {
                  * individual vote receipts keyed by proposal ID and voter
                  */
                 votes: Map<GuildVoteKey, GuildVote>;
+                /**
+                 * the agent that acts for the Guild in a chat, keyed by the SHA-256 of the chat group's ID
+                 */
+                chatStewards: Map<Uint8Array | string, string>;
             };
         };
     };
@@ -538,6 +580,41 @@ export declare abstract class LockedTokenGuildConsensusParamsFactory {
      */
     static bindGuild(params: CallParams<LockedTokenGuildConsensusArgs['obj']['bindGuild(uint64)void'] | LockedTokenGuildConsensusArgs['tuple']['bindGuild(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the chatStewardMbr(byte[])uint64 ABI method
+     *
+    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+    change of steward or a revocation needs nothing.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static chatStewardMbr(params: CallParams<LockedTokenGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the applyChatSteward(pay,byte[])void ABI method
+     *
+    * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
+    this, and it does so only while executing an approved proposal. A revocation hands the box's
+    storage back to the Guild.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static applyChatSteward(params: CallParams<LockedTokenGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'] | LockedTokenGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the assertChatStewardAuthority(byte[32],byte[32])void ABI method
+     *
+    * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
+    and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
+    that group that the Guild program checked off chain is still the one running.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static assertChatStewardAuthority(params: CallParams<LockedTokenGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'] | LockedTokenGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the cleanupBallot(uint64,address[])uint64 ABI method
      *
      * Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild.
@@ -546,6 +623,15 @@ export declare abstract class LockedTokenGuildConsensusParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static cleanupBallot(params: CallParams<LockedTokenGuildConsensusArgs['obj']['cleanupBallot(uint64,address[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['cleanupBallot(uint64,address[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getChatSteward(byte[32])address ABI method
+     *
+     * The governed steward of a chat, or the zero address when it has none.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getChatSteward(params: CallParams<LockedTokenGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | LockedTokenGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method
      *
@@ -1068,6 +1154,49 @@ export declare class LockedTokenGuildConsensusClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+        change of steward or a revocation needs nothing.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        chatStewardMbr: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | LockedTokenGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
+         *
+        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
+        this, and it does so only while executing an approved proposal. A revocation hands the box's
+        storage back to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        applyChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | LockedTokenGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
+         *
+        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
+        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
+        that group that the Guild program checked off chain is still the one running.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        assertChatStewardAuthority: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | LockedTokenGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the LockedTokenGuildConsensus smart contract using the `cleanupBallot(uint64,address[])uint64` ABI method.
          *
          * Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild.
@@ -1076,6 +1205,19 @@ export declare class LockedTokenGuildConsensusClient {
          * @returns The call params
          */
         cleanupBallot: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["cleanupBallot(uint64,address[])uint64"] | LockedTokenGuildConsensusArgs["tuple"]["cleanupBallot(uint64,address[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * The governed steward of a chat, or the zero address when it has none.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | LockedTokenGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1309,6 +1451,61 @@ export declare class LockedTokenGuildConsensusClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+        change of steward or a revocation needs nothing.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        chatStewardMbr: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | LockedTokenGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
+         *
+        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
+        this, and it does so only while executing an approved proposal. A revocation hands the box's
+        storage back to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        applyChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | LockedTokenGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
+         *
+        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
+        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
+        that group that the Guild program checked off chain is still the one running.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        assertChatStewardAuthority: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | LockedTokenGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the LockedTokenGuildConsensus smart contract using the `cleanupBallot(uint64,address[])uint64` ABI method.
          *
          * Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild.
@@ -1317,6 +1514,23 @@ export declare class LockedTokenGuildConsensusClient {
          * @returns The call transaction
          */
         cleanupBallot: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["cleanupBallot(uint64,address[])uint64"] | LockedTokenGuildConsensusArgs["tuple"]["cleanupBallot(uint64,address[])uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * The governed steward of a chat, or the zero address when it has none.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | LockedTokenGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1629,6 +1843,76 @@ export declare class LockedTokenGuildConsensusClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+        change of steward or a revocation needs nothing.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        chatStewardMbr: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["chatStewardMbr(byte[])uint64"] | LockedTokenGuildConsensusArgs["tuple"]["chatStewardMbr(byte[])uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | LockedTokenGuildConsensusReturns["chatStewardMbr(byte[])uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `applyChatSteward(pay,byte[])void` ABI method.
+         *
+        * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
+        this, and it does so only while executing an approved proposal. A revocation hands the box's
+        storage back to the Guild.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        applyChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["applyChatSteward(pay,byte[])void"] | LockedTokenGuildConsensusArgs["tuple"]["applyChatSteward(pay,byte[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | LockedTokenGuildConsensusReturns["applyChatSteward(pay,byte[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `assertChatStewardAuthority(byte[32],byte[32])void` ABI method.
+         *
+        * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
+        and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
+        that group that the Guild program checked off chain is still the one running.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        assertChatStewardAuthority: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["assertChatStewardAuthority(byte[32],byte[32])void"] | LockedTokenGuildConsensusArgs["tuple"]["assertChatStewardAuthority(byte[32],byte[32])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | LockedTokenGuildConsensusReturns["assertChatStewardAuthority(byte[32],byte[32])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the LockedTokenGuildConsensus smart contract using the `cleanupBallot(uint64,address[])uint64` ABI method.
          *
          * Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild.
@@ -1640,6 +1924,28 @@ export declare class LockedTokenGuildConsensusClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | LockedTokenGuildConsensusReturns["cleanupBallot(uint64,address[])uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the LockedTokenGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * The governed steward of a chat, or the zero address when it has none.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getChatSteward: (params: CallParams<LockedTokenGuildConsensusArgs["obj"]["getChatSteward(byte[32])address"] | LockedTokenGuildConsensusArgs["tuple"]["getChatSteward(byte[32])address"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | LockedTokenGuildConsensusReturns["getChatSteward(byte[32])address"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1795,6 +2101,30 @@ export declare class LockedTokenGuildConsensusClient {
      */
     consensusActionMbr(params: CallParams<LockedTokenGuildConsensusArgs['obj']['consensusActionMbr(byte[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['consensusActionMbr(byte[])uint64']>): Promise<bigint>;
     /**
+     * Makes a readonly (simulated) call to the LockedTokenGuildConsensus smart contract using the `chatStewardMbr(byte[])uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+    change of steward or a revocation needs nothing.
+  
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    chatStewardMbr(params: CallParams<LockedTokenGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']>): Promise<bigint>;
+    /**
+     * Makes a readonly (simulated) call to the LockedTokenGuildConsensus smart contract using the `getChatSteward(byte[32])address` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * The governed steward of a chat, or the zero address when it has none.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getChatSteward(params: CallParams<LockedTokenGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | LockedTokenGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']>): Promise<string>;
+    /**
      * Makes a readonly (simulated) call to the LockedTokenGuildConsensus smart contract using the `getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1907,6 +2237,19 @@ export declare class LockedTokenGuildConsensusClient {
                  */
                 value: (key: GuildVoteKey) => Promise<GuildVote | undefined>;
             };
+            /**
+             * Get values from the chatStewards map in box state
+             */
+            chatStewards: {
+                /**
+                 * Get all current values of the chatStewards map in box state
+                 */
+                getMap: () => Promise<Map<Uint8Array, string>>;
+                /**
+                 * Get a current value of the chatStewards map by key from box state
+                 */
+                value: (key: Uint8Array | string) => Promise<string | undefined>;
+            };
         };
     };
     newGroup(): LockedTokenGuildConsensusComposer;
@@ -2013,6 +2356,44 @@ export type LockedTokenGuildConsensusComposer<TReturns extends [...any[]] = []> 
      */
     bindGuild(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['bindGuild(uint64)void'] | LockedTokenGuildConsensusArgs['tuple']['bindGuild(uint64)void']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['bindGuild(uint64)void'] | undefined]>;
     /**
+     * Calls the chatStewardMbr(byte[])uint64 ABI method.
+     *
+    * Storage a chat steward action needs: the first steward of a chat pays for its box, while a
+    change of steward or a revocation needs nothing.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    chatStewardMbr(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['chatStewardMbr(byte[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['chatStewardMbr(byte[])uint64']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['chatStewardMbr(byte[])uint64'] | undefined]>;
+    /**
+     * Calls the applyChatSteward(pay,byte[])void ABI method.
+     *
+    * Set the steward of one chat, or revoke it with the zero address. Only the paired Guild can call
+    this, and it does so only while executing an approved proposal. A revocation hands the box's
+    storage back to the Guild.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    applyChatSteward(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['applyChatSteward(pay,byte[])void'] | LockedTokenGuildConsensusArgs['tuple']['applyChatSteward(pay,byte[])void']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['applyChatSteward(pay,byte[])void'] | undefined]>;
+    /**
+     * Calls the assertChatStewardAuthority(byte[32],byte[32])void ABI method.
+     *
+    * Guard for a steward's own transactions: fails unless `steward` is the governed steward of `chat`
+    and the Guild's program is sealed. Placed in the same group as the steward's call, it proves in
+    that group that the Guild program checked off chain is still the one running.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    assertChatStewardAuthority(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['assertChatStewardAuthority(byte[32],byte[32])void'] | LockedTokenGuildConsensusArgs['tuple']['assertChatStewardAuthority(byte[32],byte[32])void']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['assertChatStewardAuthority(byte[32],byte[32])void'] | undefined]>;
+    /**
      * Calls the cleanupBallot(uint64,address[])uint64 ABI method.
      *
      * Delete terminal vote receipts in batches, then delete the empty ballot and refund its MBR to the Guild.
@@ -2022,6 +2403,16 @@ export type LockedTokenGuildConsensusComposer<TReturns extends [...any[]] = []> 
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     cleanupBallot(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['cleanupBallot(uint64,address[])uint64'] | LockedTokenGuildConsensusArgs['tuple']['cleanupBallot(uint64,address[])uint64']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['cleanupBallot(uint64,address[])uint64'] | undefined]>;
+    /**
+     * Calls the getChatSteward(byte[32])address ABI method.
+     *
+     * The governed steward of a chat, or the zero address when it has none.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getChatSteward(params?: CallParams<LockedTokenGuildConsensusArgs['obj']['getChatSteward(byte[32])address'] | LockedTokenGuildConsensusArgs['tuple']['getChatSteward(byte[32])address']>): LockedTokenGuildConsensusComposer<[...TReturns, LockedTokenGuildConsensusReturns['getChatSteward(byte[32])address'] | undefined]>;
     /**
      * Calls the getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64)) ABI method.
      *

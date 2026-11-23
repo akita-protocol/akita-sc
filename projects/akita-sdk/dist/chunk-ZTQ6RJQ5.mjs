@@ -26,7 +26,7 @@ import {
 import {
   GuildClient,
   GuildFactoryClient
-} from "./chunk-LGBCH6R3.mjs";
+} from "./chunk-UZIMQ3SV.mjs";
 import {
   AllowanceInfoTranslate,
   AllowancesToTuple,
@@ -36130,4 +36130,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-LWM6ABGA.mjs.map
+//# sourceMappingURL=chunk-ZTQ6RJQ5.mjs.map

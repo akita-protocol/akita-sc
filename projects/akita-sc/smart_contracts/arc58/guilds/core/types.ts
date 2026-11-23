@@ -283,3 +283,5 @@ export type GuildProposalSetPluginSettings = { plugin: uint64; escrow: string; s
 export type GuildProposalConsensusActionSettings = { code: uint64; settings: GuildProposalSettings }
 export type GuildProposalChangeAdmin = { admin: Account }
 export type GuildProposalSetFeeAsset = { asset: uint64 }
+/** `chat` is the SHA-256 of the chat group's ID; the zero address as `steward` revokes. */
+export type GuildProposalSetChatSteward = { chat: bytes<32>; steward: Account }

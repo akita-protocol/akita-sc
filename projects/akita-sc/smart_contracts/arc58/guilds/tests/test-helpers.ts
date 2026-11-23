@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { uploadGuildProgram } from '../../../../scripts/lib/guild-programs'
 import { GuildConsensusFactoryClient, GuildConsensusFactoryFactory } from '../../../artifacts/arc58/guilds/consensus/GuildConsensusFactoryClient'
 import { AlgorandClient, Config, microAlgo } from '@algorandfoundation/algokit-utils'
@@ -56,6 +57,7 @@ export const ACTION_SET_LIMIT = 81
 export const ACTION_NEW_WALLET = 82
 export const ACTION_CONSENSUS = 83
 export const ACTION_SET_CONSENSUS_ACTION_SETTINGS = 84
+export const ACTION_SET_CHAT_STEWARD = 86
 export const ACTION_UPDATE_WALLET = 90
 export const ACTION_CHANGE_ADMIN = 91
 export const ACTION_FULLY_INITIALIZE = 100
@@ -84,6 +86,7 @@ export const PROPOSAL_MBR = 76_900n
 /** What a payer who is not the record's owner adds to a storage deposit (`PayerRecordMBR`). */
 export const PAYER_RECORD_MBR = 28_500n
 export const BALLOT_MBR = 35_300n
+export const CHAT_STEWARD_MBR = 28_500n
 export const FIXED_SIGNER_SNAPSHOT_MBR = 9_700n
 export const FIXED_SIGNER_MEMBER_MBR = 25_300n
 export const FIXED_SIGNER_HISTORY_MBR = 25_300n
@@ -228,6 +231,11 @@ export const setFixedSignerMemberWeightAction = (member: string, weight: bigint)
 // GUILD ACTIONS -----------------------------------------------------------------------------------
 
 export const setLimitAction = (limit: bigint): GuildAction => action(ACTION_SET_LIMIT, encodeAbi('(uint64)', [limit]))
+/** A chat is named on chain by the SHA-256 of its group ID. */
+export const chatKey = (groupId: string) => new Uint8Array(createHash('sha256').update(groupId, 'utf8').digest())
+/** The zero address as `steward` revokes the chat's steward. */
+export const setChatStewardAction = (groupId: string, steward: string): GuildAction =>
+  action(ACTION_SET_CHAT_STEWARD, encodeAbi('(byte[32],address)', [chatKey(groupId), steward]))
 export const newWalletAction = (nickname = 'guild', salt: Uint8Array = new Uint8Array(32)): GuildAction =>
   action(ACTION_NEW_WALLET, encodeAbi('(string,byte[32])', [nickname, salt]))
 export const setPluginSettingsAction = (plugin: bigint, escrow: string, settings: ProposalSettingsInput): GuildAction =>

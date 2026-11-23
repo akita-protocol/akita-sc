@@ -46,6 +46,11 @@ export const errGuildNoGovernancePower = 'errGpwr'
 export const errGuildVotingOpen = 'errGopn'
 export const errGuildUnsafeSnapshot = 'errGsnp'
 
+// --- Chat stewards ----------------------------------------------------------
+
+export const errGuildChatSealed = 'errGcsl'
+export const errGuildChatSteward = 'errGcst'
+
 // --- Fixed signer consensus -------------------------------------------------
 
 export const errGuildInvalidMember = 'errGmem'

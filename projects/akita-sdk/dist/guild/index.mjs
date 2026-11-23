@@ -5,6 +5,7 @@ import {
   FixedSignerGuildConsensusFactory,
   FixedSignerGuildConsensusSDK,
   FixedSignerWeightMode,
+  GUILD_CHAT_STEWARD_MBR,
   GUILD_CONSENSUS_ACTION_SETTINGS_MBR,
   GUILD_VOTE_MBR,
   GuildActionType,
@@ -42,6 +43,7 @@ import {
   fixedSignerConsensusConfig,
   fixedSignerVoteEvidence,
   guildBallotOutcome,
+  guildChatKey,
   isSubscriptionSeasoned,
   lockedTokenConsensusAction,
   lockedTokenConsensusConfig,
@@ -53,6 +55,8 @@ import {
   removeFixedSignerMemberAction,
   removeNamedPluginAction,
   removePluginAction,
+  revokeChatStewardAction,
+  setChatStewardAction,
   setConsensusActionSettingsAction,
   setFeeAssetAction,
   setFixedSignerMemberWeightAction,
@@ -65,13 +69,13 @@ import {
   subscriptionVoteEvidence,
   subscriptionVotingOpensAt,
   toggleEscrowLockAction
-} from "../chunk-5DR4YIZ6.mjs";
+} from "../chunk-6IL4HQ4O.mjs";
 import {
   GuildClient,
   GuildFactory,
   GuildFactoryClient,
   GuildFactoryFactory
-} from "../chunk-LGBCH6R3.mjs";
+} from "../chunk-UZIMQ3SV.mjs";
 import "../chunk-KMNTDT7N.mjs";
 import "../chunk-HXYGNM2K.mjs";
 import "../chunk-ZQI7KUVO.mjs";
@@ -84,6 +88,7 @@ export {
   FixedSignerGuildConsensusFactory,
   FixedSignerGuildConsensusSDK,
   FixedSignerWeightMode,
+  GUILD_CHAT_STEWARD_MBR,
   GUILD_CONSENSUS_ACTION_SETTINGS_MBR,
   GUILD_VOTE_MBR,
   GuildActionType,
@@ -125,6 +130,7 @@ export {
   fixedSignerConsensusConfig,
   fixedSignerVoteEvidence,
   guildBallotOutcome,
+  guildChatKey,
   isSubscriptionSeasoned,
   lockedTokenConsensusAction,
   lockedTokenConsensusConfig,
@@ -136,6 +142,8 @@ export {
   removeFixedSignerMemberAction,
   removeNamedPluginAction,
   removePluginAction,
+  revokeChatStewardAction,
+  setChatStewardAction,
   setConsensusActionSettingsAction,
   setFeeAssetAction,
   setFixedSignerMemberWeightAction,
