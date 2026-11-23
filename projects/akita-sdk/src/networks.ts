@@ -57,8 +57,6 @@ export interface NetworkAppIds {
   gatePlugin: bigint;
   marketplacePlugin: bigint;
   nfdPlugin: bigint;
-  paySiloPlugin: bigint;
-  paySiloFactoryPlugin: bigint;
   pollPlugin: bigint;
   rafflePlugin: bigint;
   rewardsPlugin: bigint;
@@ -121,7 +119,7 @@ export interface NetworkAppIds {
   governanceParticipationGate?: bigint;
 }
 
-export const PLUGIN_APP_ID_KEYS = ['revenueManagerPlugin', 'updatePlugin', 'optinPlugin', 'selfOptinPlugin', 'asaManagerPlugin', 'payPlugin', 'haystackRouterPlugin', 'hyperSwapPlugin', 'subscriptionsPlugin', 'auctionPlugin', 'daoPlugin', 'dualStakePlugin', 'gatePlugin', 'marketplacePlugin', 'nfdPlugin', 'paySiloPlugin', 'paySiloFactoryPlugin', 'pollPlugin', 'rafflePlugin', 'rewardsPlugin', 'socialPlugin', 'stakingPlugin', 'stakingPoolPlugin'] as const satisfies readonly (keyof NetworkAppIds)[];
+export const PLUGIN_APP_ID_KEYS = ['revenueManagerPlugin', 'updatePlugin', 'optinPlugin', 'selfOptinPlugin', 'asaManagerPlugin', 'payPlugin', 'haystackRouterPlugin', 'hyperSwapPlugin', 'subscriptionsPlugin', 'auctionPlugin', 'daoPlugin', 'dualStakePlugin', 'gatePlugin', 'marketplacePlugin', 'nfdPlugin', 'pollPlugin', 'rafflePlugin', 'rewardsPlugin', 'socialPlugin', 'stakingPlugin', 'stakingPoolPlugin'] as const satisfies readonly (keyof NetworkAppIds)[];
 
 export type PluginAppIdKey = (typeof PLUGIN_APP_ID_KEYS)[number];
 
@@ -164,8 +162,6 @@ export const PLUGIN_DEFINITIONS: Record<PluginAppIdKey, PluginDefinition> = {
   gatePlugin: { key: 'gatePlugin', name: 'Gate', description: 'Gate verification' },
   marketplacePlugin: { key: 'marketplacePlugin', name: 'Marketplace', description: 'Marketplace operations' },
   nfdPlugin: { key: 'nfdPlugin', name: 'NFD', description: 'NFD operations' },
-  paySiloPlugin: { key: 'paySiloPlugin', name: 'Pay Silo', description: 'Pay silo interactions' },
-  paySiloFactoryPlugin: { key: 'paySiloFactoryPlugin', name: 'Pay Silo Factory', description: 'Pay silo deployment' },
   pollPlugin: { key: 'pollPlugin', name: 'Poll', description: 'Poll voting' },
   rafflePlugin: { key: 'rafflePlugin', name: 'Raffle', description: 'Raffle participation' },
   rewardsPlugin: { key: 'rewardsPlugin', name: 'Rewards', description: 'Reward claiming' },
@@ -233,14 +229,6 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
   nfdPlugin: [
     { appId: 751972324n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128895n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
-  ],
-  paySiloPlugin: [
-    { appId: 751972334n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
-    { appId: 763128904n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
-  ],
-  paySiloFactoryPlugin: [
-    { appId: 751968441n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
-    { appId: 763128905n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
   ],
   pollPlugin: [
     { appId: 751972340n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
@@ -325,14 +313,6 @@ export const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 3569561455n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
   ],
   nfdPlugin: [{ appId: 3368399559n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3570637728n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944055n }],
-  paySiloPlugin: [
-    { appId: 3368399670n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
-    { appId: 3569561570n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
-  ],
-  paySiloFactoryPlugin: [
-    { appId: 3368399704n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
-    { appId: 3569561636n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
-  ],
   pollPlugin: [
     { appId: 3368399770n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561749n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
@@ -418,8 +398,6 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   gatePlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'gatePlugin'),
   marketplacePlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'marketplacePlugin'),
   nfdPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'nfdPlugin'),
-  paySiloPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'paySiloPlugin'),
-  paySiloFactoryPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'paySiloFactoryPlugin'),
   pollPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'pollPlugin'),
   rafflePlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'rafflePlugin'),
   rewardsPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'rewardsPlugin'),
@@ -522,8 +500,6 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   gatePlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'gatePlugin'),
   marketplacePlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'marketplacePlugin'),
   nfdPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'nfdPlugin'),
-  paySiloPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'paySiloPlugin'),
-  paySiloFactoryPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'paySiloFactoryPlugin'),
   pollPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'pollPlugin'),
   rafflePlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'rafflePlugin'),
   rewardsPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'rewardsPlugin'),
@@ -714,8 +690,6 @@ export function createEmptyAppIds(): NetworkAppIds {
     gatePlugin: 0n,
     marketplacePlugin: 0n,
     nfdPlugin: 0n,
-    paySiloPlugin: 0n,
-    paySiloFactoryPlugin: 0n,
     pollPlugin: 0n,
     rafflePlugin: 0n,
     rewardsPlugin: 0n,
@@ -859,8 +833,6 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   GATE_PLUGIN_APP_ID: 'gatePlugin',
   MARKETPLACE_PLUGIN_APP_ID: 'marketplacePlugin',
   NFD_PLUGIN_APP_ID: 'nfdPlugin',
-  PAY_SILO_PLUGIN_APP_ID: 'paySiloPlugin',
-  PAY_SILO_FACTORY_PLUGIN_APP_ID: 'paySiloFactoryPlugin',
   POLL_PLUGIN_APP_ID: 'pollPlugin',
   RAFFLE_PLUGIN_APP_ID: 'rafflePlugin',
   REWARDS_PLUGIN_APP_ID: 'rewardsPlugin',

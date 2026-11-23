@@ -1,15 +1,15 @@
 /**
- * Three rollout steps that are each one creator-approved DAO proposal about a DAO wallet escrow:
+ * Two rollout steps that are each one creator-approved DAO proposal about a DAO wallet escrow:
  *
  *   - `pointAppAtDaoEscrow` (H1 step 2, gap G14): a fee-generating app is told which DAO escrow its
  *     fees go to, through the Update plugin's `updateAkitaDaoEscrowForApp`.
  *   - `registerRevenueEscrow` (G3a): an escrow is registered with the RevenueManager as a receive escrow
  *     that follows the DAO's `revenue_splits`, and gets the same global grant as the other revenue
  *     escrows, so the split keeper can cycle it.
- *   - `installPaySiloGrant` (H6): a PaySiloPlugin, whose recipient is fixed at creation, is installed on
- *     one escrow with only its `pay` method.
  *
- * All three need the DAO creator's key, the upgraded DAO (rollout B2) and a DAO that is not initialized;
+ * (H6, the Labs payout, is a PayPlugin grant with a policy: see grant-policy-steps.ts.)
+ *
+ * Both need the DAO creator's key, the upgraded DAO (rollout B2) and a DAO that is not initialized;
  * after `initialize()` each is a vote, which no script here drives. Each reads back what it wrote, and
  * a rerun does only what is still missing.
  */
@@ -17,17 +17,15 @@ import { microAlgo } from '@algorandfoundation/algokit-utils'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import type { SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, type PaySiloPluginSDK, type RevenueManagerPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, type RevenueManagerPluginSDK } from 'akita-sdk/wallet'
 import type { ScriptContext } from '../script-base'
 import { getAppFundingNeeded, proposeAndExecute } from '../utils'
 import { createPluginClient, DAO_STATE_FULLY_INITIALIZED, DEFAULT_SOURCE_LINK } from './dao-wallet-plugin-migration'
 import { comparesPowerInBaseUnits } from './power-units'
-import { loadCompiled } from './principal-rollout'
 
 const WINDOW_ROUNDS = 2000n
 const ESCROW_CONFIG = algosdk.ABIType.from('(string,uint64)')
 const REVENUE_SPLITS_KEY = 'revenue_splits'
-const PAY_SILO_ARTIFACT = 'arc58/plugins/pay-silo/PaySiloPlugin.arc56.json'
 const hex = (bytes: Uint8Array) => Buffer.from(bytes).toString('hex')
 type Log = (line: string) => void
 
@@ -198,49 +196,4 @@ export async function registerRevenueEscrow(ctx: ScriptContext, options: { escro
   }
   log(`  Verified: "${escrow}" is a receive escrow (source ${source}) that follows the DAO's revenue_splits, with the four-method grant`)
   return { escrow, revenueManager, registered: needsRegister, granted: needsGrant, proposalId }
-}
-
-// ---------------------------------------------------------------------------------------------
-// H6: install a pay silo on one escrow, pay only
-// ---------------------------------------------------------------------------------------------
-
-export type PaySiloGrantResult = { plugin: bigint; escrow: string; recipient: string; installed: boolean; proposalId?: bigint }
-
-export async function installPaySiloGrant(ctx: ScriptContext, options: { plugin: bigint; escrow: string; recipient: string; plan?: boolean; sender?: string; sourceLink?: string; log?: Log }): Promise<PaySiloGrantResult> {
-  const log = options.log ?? console.log
-  const { plugin, escrow, recipient } = options
-  if (!algosdk.isValidAddress(recipient)) throw new Error(`--recipient ${recipient} is not an Algorand address`)
-  const sender = options.sender ?? ctx.sender
-  const { wallet, walletAddress } = await bootstrapWallet(ctx, sender)
-  await escrowApp(wallet, escrow)
-
-  const app = await ctx.algorand.client.algod.getApplicationByID(plugin).do().catch(() => { throw new Error(`PaySiloPlugin ${plugin} does not exist`) })
-  if (!Buffer.from(app.params!.approvalProgram).equals(Buffer.from(loadCompiled(PAY_SILO_ARTIFACT).approval))) {
-    throw new Error(`App ${plugin} does not run the tree ${PAY_SILO_ARTIFACT}`)
-  }
-  const stored = (app.params!.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === 'recipient')?.value.bytes
-  const pinned = stored && stored.length === 32 ? algosdk.encodeAddress(stored) : undefined
-  // The recipient is fixed at creation and is the whole safety of an open grant, so it is restated here.
-  if (pinned !== recipient) throw new Error(`PaySiloPlugin ${plugin} pays ${pinned ?? '(unset)'}, not ${recipient}`)
-
-  const client = createPluginClient('paySiloPlugin', ctx, plugin, sender) as unknown as PaySiloPluginSDK
-  const paySelector = hex(client.pay()().selectors[0])
-  const find = async () => [...await wallet.client.state.box.plugins.getMap()].find(([key]) => key.plugin === plugin && key.caller === ALGORAND_ZERO_ADDRESS_STRING && key.escrow === escrow)?.[1]
-  const narrow = (info: NonNullable<Awaited<ReturnType<typeof find>>>) => !info.admin && !info.canReclaim && !info.useExecutionKey &&
-    info.methods.length === 1 && hex(info.methods[0][0]) === paySelector
-  const existing = await find()
-  if (existing && !narrow(existing)) throw new Error(`The DAO wallet already holds a PaySiloPlugin ${plugin} grant on "${escrow}" that is not the pay-only grant`)
-  log(`  PaySiloPlugin ${plugin} pays ${recipient}; pay-only grant on "${escrow}": ${existing ? 'present' : 'absent'}`)
-  if (existing || options.plan) return { plugin, escrow, recipient, installed: !existing }
-
-  const mbr = await wallet.getMbr({ escrow, methodCount: 1n, plugin: '', groups: 0n })
-  await fundWallet(ctx, walletAddress, mbr.plugins, log)
-  const proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [{
-    type: ProposalActionEnum.AddPlugin, client, callerType: CallerType.Global, escrow,
-    sourceLink: options.sourceLink ?? DEFAULT_SOURCE_LINK, useExecutionKey: false, methods: [{ name: client.pay(), cooldown: 0n }],
-  } as ProposalAction<SDKClient>])
-  const after = await find()
-  if (!after || !narrow(after)) throw new Error(`The pay-only grant of PaySiloPlugin ${plugin} on "${escrow}" is missing after proposal ${proposalId}`)
-  log(`  AddPlugin proposal ${proposalId} executed; verified the pay-only grant on "${escrow}"`)
-  return { plugin, escrow, recipient, installed: true, proposalId }
 }

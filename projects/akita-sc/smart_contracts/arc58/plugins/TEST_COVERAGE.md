@@ -29,7 +29,6 @@ The table below is a conservative source scan: a method is marked as a gap when 
 | `nfd` | `deleteFields`, `updateFields`, `offerForSale`, `cancelSale`, `postOffer`, `purchase`, `updateHash`, `contractLock`, `segmentLock`, `vaultOptInLock`, `vaultOptIn`, `vaultSend`, `renew`, `setPrimaryAddress` |
 | `optin` | None found |
 | `pay` | None found |
-| `pay-silo` | None found |
 | `poll` | None found |
 | `raffle` | `newRaffle`, `newPrizeBoxRaffle`, `enter`, `raffle`, `findWinner`, `claimRafflePrize`, `deleteRaffleApplication` |
 | `revenue-manager` | None |

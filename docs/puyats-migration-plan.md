@@ -64,7 +64,9 @@ The currently deployed program determines actual upgradability and authorization
 
 `update:auction-factory` updates only its parent. Parent+template operations in `runUpdate` are one atomic execution group. Multiple `windows` represent alternative validity periods for that same operation, not sequential batches. Check the 16-transaction limit and schema/page compatibility before increasing program sizes.
 
-Immutable plugins now have commands for DAO, Gate, HyperSwap, Pay, PaySilo, PaySiloFactory, Poll, AssetInbox, Guild, Meta, and optional Sunset, in addition to the previously covered plugin families. All plugin deployments still require appropriate wallet grants; deployment alone does not install a plugin. `update:dao-wallet-plugins` preserves caller, escrow, method restrictions and permission settings for supported historical plugin families. Named aliases and new families without canonical catalog keys require explicit configuration. Update, opt-in and revenue-manager plugins also need their DAO PAL entries reconciled.
+PaySilo and PaySiloFactory are deprecated and removed (2026-11-21): a PayPlugin grant with a policy replaces them.
+
+Immutable plugins now have commands for DAO, Gate, HyperSwap, Pay, Poll, AssetInbox, Guild, Meta, and optional Sunset, in addition to the previously covered plugin families. All plugin deployments still require appropriate wallet grants; deployment alone does not install a plugin. `update:dao-wallet-plugins` preserves caller, escrow, method restrictions and permission settings for supported historical plugin families. Named aliases and new families without canonical catalog keys require explicit configuration. Update, opt-in and revenue-manager plugins also need their DAO PAL entries reconciled.
 
 ## New command reference
 
@@ -84,7 +86,7 @@ The scripts retain the project's existing signing configuration. Never put secre
 
 `deploy:immutable --contract NAME` is the common allowlisted runner. Dedicated aliases:
 
-- `deploy:dao-plugin`, `deploy:gate-plugin`, `deploy:hyper-swap-plugin`, `deploy:pay-plugin`, `deploy:pay-silo-plugin`, `deploy:pay-silo-factory-plugin`, `deploy:poll-plugin`.
+- `deploy:dao-plugin`, `deploy:gate-plugin`, `deploy:hyper-swap-plugin`, `deploy:pay-plugin`, `deploy:poll-plugin`.
 - `deploy:asset-inbox-plugin`, `deploy:guild-plugin`, `deploy:meta-plugin`, `deploy:sunset-plugin`.
 - `deploy:rewards`, `deploy:meta`, `deploy:plugin-dex`, `deploy:wallet-balance-reader`.
 
@@ -93,7 +95,7 @@ Use `--config constructor.json` for additional constructor arguments, with exact
 | Contract | Additional config |
 | --- | --- |
 | GatePlugin | `{ "gateAppID": "NEW_GATE_ID" }` |
-| PaySiloPlugin | `{ "recipient": "ALGORAND_ADDRESS" }` |
+| PayPlugin | `{ "registry": "META_ID" }` (the Meta whose policy writer is the MetaPlugin) |
 | PollPluginContract | `{ "factory": "POLL_FACTORY_ID" }` |
 | AssetInboxPlugin | `{ "router": "ARC59_ROUTER_ID" }` |
 | GuildPlugin | `{ "factory": "GUILD_FACTORY_ID", "guild": "0" }` for creation-only, or a real Guild created by that factory |

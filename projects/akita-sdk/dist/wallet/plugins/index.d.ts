@@ -16,8 +16,6 @@ export * from './haystack-router';
 export * from './hyper-swap';
 export * from './marketplace';
 export * from './nfd';
-export * from './pay-silo';
-export * from './pay-silo-factory';
 export * from './poll';
 export * from './raffle';
 export * from './rewards';

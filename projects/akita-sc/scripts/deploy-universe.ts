@@ -421,8 +421,6 @@ function generateEnvFile(
     `GATE_PLUGIN_APP_ID=${universe.gatePlugin.appId}`,
     `MARKETPLACE_PLUGIN_APP_ID=${universe.marketplacePlugin.appId}`,
     `NFD_PLUGIN_APP_ID=${universe.nfdPlugin.appId}`,
-    `PAY_SILO_PLUGIN_APP_ID=${universe.paySiloPlugin.appId}`,
-    `PAY_SILO_FACTORY_PLUGIN_APP_ID=${universe.paySiloFactoryPlugin.appId}`,
     `POLL_PLUGIN_APP_ID=${universe.pollPlugin.appId}`,
     `RAFFLE_PLUGIN_APP_ID=${universe.rafflePlugin.appId}`,
     `REWARDS_PLUGIN_APP_ID=${universe.rewardsPlugin.appId}`,
@@ -545,8 +543,6 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   gatePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'gatePlugin'),
   marketplacePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'marketplacePlugin'),
   nfdPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'nfdPlugin'),
-  paySiloPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'paySiloPlugin'),
-  paySiloFactoryPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'paySiloFactoryPlugin'),
   pollPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'pollPlugin'),
   rafflePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'rafflePlugin'),
   rewardsPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'rewardsPlugin'),
@@ -615,8 +611,6 @@ async function appendUniversePluginDeployments(
     gatePlugin: universe.gatePlugin.appId,
     marketplacePlugin: universe.marketplacePlugin.appId,
     nfdPlugin: universe.nfdPlugin.appId,
-    paySiloPlugin: universe.paySiloPlugin.appId,
-    paySiloFactoryPlugin: universe.paySiloFactoryPlugin.appId,
     pollPlugin: universe.pollPlugin.appId,
     rafflePlugin: universe.rafflePlugin.appId,
     rewardsPlugin: universe.rewardsPlugin.appId,
@@ -898,14 +892,6 @@ async function formatSummary(
       nfdPlugin: {
         appId: universe.nfdPlugin.appId.toString(),
         address: universe.nfdPlugin.client.appAddress.toString(),
-      },
-      paySiloPlugin: {
-        appId: universe.paySiloPlugin.appId.toString(),
-        address: universe.paySiloPlugin.client.appAddress.toString(),
-      },
-      paySiloFactoryPlugin: {
-        appId: universe.paySiloFactoryPlugin.appId.toString(),
-        address: universe.paySiloFactoryPlugin.client.appAddress.toString(),
       },
       pollPlugin: {
         appId: universe.pollPlugin.appId.toString(),

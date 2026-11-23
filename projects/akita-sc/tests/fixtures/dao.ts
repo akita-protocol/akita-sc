@@ -29,8 +29,6 @@ import {
   OptInPluginSDK,
   SelfOptInPluginSDK,
   PayPluginSDK,
-  PaySiloFactoryPluginSDK,
-  PaySiloPluginSDK,
   PollPluginSDK,
   RafflePluginSDK,
   RevenueManagerPluginSDK,
@@ -164,8 +162,6 @@ import { deployNFDPlugin } from './plugins/nfd'
 import { deployOptInPlugin } from './plugins/optin'
 import { deploySelfOptInPlugin } from './plugins/self-optin'
 import { deployPayPlugin } from './plugins/pay'
-import { deployPaySiloPlugin } from './plugins/pay-silo'
-import { deployPaySiloFactoryPlugin } from './plugins/pay-silo-factory'
 import { deployPollPlugin } from './plugins/poll'
 import { deployRafflePlugin } from './plugins/raffle'
 import { deployRevenueManagerPlugin } from './plugins/revenue-manager'
@@ -866,8 +862,6 @@ export type AkitaUniverse = {
   gatePlugin: GatePluginSDK
   marketplacePlugin: MarketplacePluginSDK
   nfdPlugin: NFDPluginSDK
-  paySiloPlugin: PaySiloPluginSDK
-  paySiloFactoryPlugin: PaySiloFactoryPluginSDK
   pollPlugin: PollPluginSDK
   rafflePlugin: RafflePluginSDK
   rewardsPlugin: RewardsPluginSDK
@@ -1714,24 +1708,6 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   })
   logger.plugin('deploy', 'NFDPlugin', nfdPluginSDK.appId)
 
-  // PaySiloPlugin needs a recipient - using sender as default
-  const paySiloPluginSDK = await deployPaySiloPlugin({
-    fixture,
-    sender: params.sender!,
-    signer: params.signer!,
-    args: {
-      recipient: params.sender.toString(),
-    },
-  })
-  logger.plugin('deploy', 'PaySiloPlugin', paySiloPluginSDK.appId)
-
-  const paySiloFactoryPluginSDK = await deployPaySiloFactoryPlugin({
-    fixture,
-    sender: params.sender!,
-    signer: params.signer!,
-  })
-  logger.plugin('deploy', 'PaySiloFactoryPlugin', paySiloFactoryPluginSDK.appId)
-
   const pollPluginSDK = await deployPollPlugin({
     fixture,
     sender: params.sender!,
@@ -2363,8 +2339,6 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     gatePlugin: gatePluginSDK,
     marketplacePlugin: marketplacePluginSDK,
     nfdPlugin: nfdPluginSDK,
-    paySiloPlugin: paySiloPluginSDK,
-    paySiloFactoryPlugin: paySiloFactoryPluginSDK,
     pollPlugin: pollPluginSDK,
     rafflePlugin: rafflePluginSDK,
     rewardsPlugin: rewardsPluginSDK,

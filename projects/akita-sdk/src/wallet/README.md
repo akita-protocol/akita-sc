@@ -102,7 +102,7 @@ Each warning has a `message` ready to show and a `code` to key your own wording 
 
 ## Plugins shipped
 
-PayPluginSDK, OptInPluginSDK, SelfOptInPluginSDK, AsaManagerPluginSDK, SubscriptionsPluginSDK, SocialPluginSDK, RewardsPluginSDK, StakingPluginSDK, StakingPoolPluginSDK, AuctionPluginSDK, DAOPluginSDK, MarketplacePluginSDK, HyperSwapPluginSDK, GatePluginSDK, PollPluginSDK, RafflePluginSDK, NFDPluginSDK, PaySiloPluginSDK.
+PayPluginSDK, OptInPluginSDK, SelfOptInPluginSDK, AsaManagerPluginSDK, SubscriptionsPluginSDK, SocialPluginSDK, RewardsPluginSDK, StakingPluginSDK, StakingPoolPluginSDK, AuctionPluginSDK, DAOPluginSDK, MarketplacePluginSDK, HyperSwapPluginSDK, GatePluginSDK, PollPluginSDK, RafflePluginSDK, NFDPluginSDK.
 
 ## Connect / passkeys
 
