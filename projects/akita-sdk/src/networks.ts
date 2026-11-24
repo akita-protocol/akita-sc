@@ -109,6 +109,8 @@ export interface NetworkAppIds {
   welcomePlugin?: bigint;
   /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
   socialClaim?: bigint;
+  /** Collectible Variations registry (immutable singleton; its writer lists live in Meta) */
+  collectibleVariations?: bigint;
   /** AbstractedAccountBalanceReader */
   walletBalanceReader?: bigint;
   /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */
@@ -447,6 +449,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   guildPlugin: 0n,
   welcomePlugin: 0n,
   socialClaim: 0n,
+  collectibleVariations: 0n,
   walletBalanceReader: 0n,
   rewardsV1: 763128244n,
   governanceParticipationGate: 0n,
@@ -549,6 +552,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   guildPlugin: 0n,
   welcomePlugin: 0n,
   socialClaim: 0n,
+  collectibleVariations: 0n,
   walletBalanceReader: 0n,
   rewardsV1: 3569556095n,
   governanceParticipationGate: 0n,
@@ -882,6 +886,7 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   GUILD_PLUGIN_APP_ID: 'guildPlugin',
   WELCOME_PLUGIN_APP_ID: 'welcomePlugin',
   SOCIAL_CLAIM_APP_ID: 'socialClaim',
+  COLLECTIBLE_VARIATIONS_APP_ID: 'collectibleVariations',
   WALLET_BALANCE_READER_APP_ID: 'walletBalanceReader',
   REWARDS_V1_APP_ID: 'rewardsV1',
 };

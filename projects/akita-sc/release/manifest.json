@@ -679,6 +679,18 @@
       },
       "extraPages": 0
     },
+    "collectible-variations/CollectibleVariations": {
+      "name": "CollectibleVariations",
+      "approval": {
+        "bytes": 8045,
+        "sha256": "de09fc99ab5504f69c9d3911440e28fa121c17ff4e259d21801c400712530a5d"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 3
+    },
     "escrow/Escrow": {
       "name": "Escrow",
       "approval": {
@@ -1056,6 +1068,32 @@
         "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
       },
       "extraPages": 5
+    },
+    "mocks/collectible-variations/MockAdmitDelegate": {
+      "name": "MockAdmitDelegate",
+      "testOnly": true,
+      "approval": {
+        "bytes": 130,
+        "sha256": "536aec943d979c1105a35971cf7b4ecd8dd298d715383b293ed3296e58d7e9e1"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 0
+    },
+    "mocks/collectible-variations/MockSmartAsa": {
+      "name": "MockSmartAsa",
+      "testOnly": true,
+      "approval": {
+        "bytes": 335,
+        "sha256": "ee587fde8ab55bdcb406ae7d8d9950bcdfbffd66f1dec1d23ebe7be60c5a953f"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 0
     },
     "mocks/dao/MockAkitaDAO": {
       "name": "MockAkitaDAO",

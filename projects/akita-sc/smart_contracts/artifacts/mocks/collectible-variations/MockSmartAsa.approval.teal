@@ -1,0 +1,336 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 32 1 0 8
+    bytecblock "c" "a" 0x151f7c75
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:9-10
+    // @contract({ avmVersion: 13 })
+    // export class MockSmartAsa extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x5447a252 0xd26704a8 0xaa457d24 0xce2f05f3 // method "mint(uint64,uint64,address)uint64", method "setCreator(address)void", method "transfer(address,address,uint64)void", method "get_asset_config(asset)(uint64,uint32,bool,string,string,string,byte[],address,address,address,address)"
+    txna ApplicationArgs 0
+    match mint setCreator transfer getAssetConfig
+    err
+
+main___algots__.defaultCreate@11:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:9-10
+    // @contract({ avmVersion: 13 })
+    // export class MockSmartAsa extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockSmartAsa.mint[routing]() -> void:
+mint:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:14
+    // mint(total: uint64, decimals: uint64, creator: Account): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:11
+    // creator = GlobalState<Account>({ key: 'c' })
+    bytec_0 // "c"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:15
+    // this.creator.value = creator
+    swap
+    app_global_put
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:16-27
+    // const created = itxn
+    //   .assetConfig({
+    //     total,
+    //     decimals: decimals,
+    //     unitName: 'SASA',
+    //     assetName: 'Smart ASA',
+    //     manager: Global.currentApplicationAddress,
+    //     reserve: Global.currentApplicationAddress,
+    //     clawback: Global.currentApplicationAddress,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:22
+    // manager: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:23-24
+    // reserve: Global.currentApplicationAddress,
+    // clawback: Global.currentApplicationAddress,
+    dupn 2
+    itxn_field ConfigAssetClawback
+    itxn_field ConfigAssetReserve
+    itxn_field ConfigAssetManager
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:21
+    // assetName: 'Smart ASA',
+    pushbytes "Smart ASA"
+    itxn_field ConfigAssetName
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:20
+    // unitName: 'SASA',
+    pushbytes "SASA"
+    itxn_field ConfigAssetUnitName
+    itxn_field ConfigAssetDecimals
+    itxn_field ConfigAssetTotal
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:16-26
+    // const created = itxn
+    //   .assetConfig({
+    //     total,
+    //     decimals: decimals,
+    //     unitName: 'SASA',
+    //     assetName: 'Smart ASA',
+    //     manager: Global.currentApplicationAddress,
+    //     reserve: Global.currentApplicationAddress,
+    //     clawback: Global.currentApplicationAddress,
+    //     fee: 0,
+    //   })
+    pushint 3
+    itxn_field TypeEnum
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:25
+    // fee: 0,
+    intc_2 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:16-27
+    // const created = itxn
+    //   .assetConfig({
+    //     total,
+    //     decimals: decimals,
+    //     unitName: 'SASA',
+    //     assetName: 'Smart ASA',
+    //     manager: Global.currentApplicationAddress,
+    //     reserve: Global.currentApplicationAddress,
+    //     clawback: Global.currentApplicationAddress,
+    //     fee: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    itxn CreatedAssetID
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:12
+    // asset = GlobalState<uint64>({ key: 'a' })
+    bytec_1 // "a"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:28
+    // this.asset.value = created.createdAsset.id
+    dig 1
+    app_global_put
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:14
+    // mint(total: uint64, decimals: uint64, creator: Account): uint64 {
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockSmartAsa.setCreator[routing]() -> void:
+setCreator:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:32
+    // setCreator(creator: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:11
+    // creator = GlobalState<Account>({ key: 'c' })
+    bytec_0 // "c"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:33
+    // this.creator.value = creator
+    swap
+    app_global_put
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:32
+    // setCreator(creator: Account): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockSmartAsa.transfer[routing]() -> void:
+transfer:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:36
+    // transfer(from: Account, to: Account, amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:37-39
+    // itxn
+    //   .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:38
+    // .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    intc_2 // 0
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:12
+    // asset = GlobalState<uint64>({ key: 'a' })
+    bytec_1 // "a"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:38
+    // .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field XferAsset
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field AssetSender
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:37-38
+    // itxn
+    //   .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    pushint 4
+    itxn_field TypeEnum
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:38
+    // .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    intc_2 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:37-39
+    // itxn
+    //   .assetTransfer({ xferAsset: Asset(this.asset.value), assetSender: from, assetReceiver: to, assetAmount: amount, fee: 0 })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:36
+    // transfer(from: Account, to: Account, amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockSmartAsa.getAssetConfig[routing]() -> void:
+getAssetConfig:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:42
+    // @abimethod({ name: 'get_asset_config', readonly: true, resourceEncoding: 'index' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Assets
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:45
+    // asset.total,
+    dup
+    asset_params_get AssetTotal
+    assert // asset exists
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:46
+    // new Uint32(asset.decimals),
+    dig 1
+    asset_params_get AssetDecimals
+    assert // asset exists
+    itob
+    dup
+    bitlen
+    intc_0 // 32
+    <=
+    assert // overflow
+    extract 4 4
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:51
+    // asset.metadataHash,
+    uncover 2
+    asset_params_get AssetMetadataHash
+    assert // asset exists
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:52
+    // this.creator.value,
+    intc_2 // 0
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:11
+    // creator = GlobalState<Account>({ key: 'c' })
+    bytec_0 // "c"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:52
+    // this.creator.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:53
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:54
+    // Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:55
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:44-56
+    // return [
+    //   asset.total,
+    //   new Uint32(asset.decimals),
+    //   false,
+    //   'SASA',
+    //   'Smart ASA',
+    //   '',
+    //   asset.metadataHash,
+    //   this.creator.value,
+    //   Global.currentApplicationAddress,
+    //   Global.zeroAddress,
+    //   Global.currentApplicationAddress,
+    // ]
+    uncover 6
+    itob
+    uncover 6
+    concat
+    dig 5
+    len
+    itob
+    extract 6 2
+    uncover 6
+    concat
+    swap
+    pushbytes 0x000095009b00a600a8
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    pushbytes 0x0004534153410009536d617274204153410000
+    concat
+    swap
+    concat
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:42
+    // @abimethod({ name: 'get_asset_config', readonly: true, resourceEncoding: 'index' })
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

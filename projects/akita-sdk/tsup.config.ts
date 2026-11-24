@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     'index': 'src/index.ts',
     'auction/index': 'src/auction/index.ts',
+    'collectible-variations/index': 'src/collectible-variations/index.ts',
     'connect/index': 'src/connect/index.ts',
     'dao/index': 'src/dao/index.ts',
     'escrow/index': 'src/escrow/index.ts',

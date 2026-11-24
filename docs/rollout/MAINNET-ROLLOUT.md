@@ -231,6 +231,17 @@ No step of the sequence changes. The owner asked for it on 2026-11-24.
 - **SDK.** `AkitaDaoSDK` builds the UpdateFields action for `inference_fees`. A value left out keeps what the DAO stores, or 0 while the field is absent.
 - **Not run on a public network.** The DAO's proposal test sets the field on LocalNet.
 
+## Update 2026-11-24 (second): Collectible Variations joins stage H
+
+One step is added: H1a, after the Meta deploy. No existing step changes and none is renumbered. The owner asked for it on 2026-11-24.
+
+- **A new immutable contract.** `CollectibleVariations` (smart_contracts/collectible-variations) is the registry of the Collectible Variations ARC draft: per-asset variations (images, render bundles, data, links) written by admitted writers, a main image pinned by the creator or the holder, creator policies per asset (`p`) or per ASA manager (`P`), holder grants (`g`), and purge after an asset is destroyed. It is a singleton that accepts no update or delete. Every box is paid by the account that owns it and refunded to it.
+- **It depends on Meta only.** A `meta` writer set is a Merkle root that the registry itself owns in Meta, under the "collectible writer list" tree type, and checks with Meta.verify. Meta's app id and that type id are fixed at create. The registry needs no DAO proposal and no app-list slot.
+- **Programs.** CollectibleVariations is 8,045 bytes with three extra pages. The LocalNet mocks MockSmartAsa and MockAdmitDelegate are added for its tests. No other program's bytes change.
+- **Manifest.** `release/manifest.json` gains three entries (158 programs). The 155 existing entries are unchanged.
+- **SDK.** `akita-sdk/collectible-variations` adds `CollectibleVariationsSDK` (measures each call's deposit by simulating it once, then sends the payment and the call), the box codecs, and the writer-list tree helpers. `networks.ts` gains the optional key `collectibleVariations`.
+- **Not run on a public network.** The deploy script and its receipt resume were run on LocalNet only.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -1045,6 +1056,22 @@ npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-r
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm
 npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --dry-run
 npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --confirm
+(cd ../akita-sdk && npm run build)
+```
+
+#### H1a. Collectible Variations registry
+
+- **What:** Deploy the Collectible Variations registry bound to the Meta of H1, with a receipt, and record its id.
+- **Why here:** It is created with Meta's app id and the id of Meta's "collectible writer list" tree type, and neither can change afterwards.
+- **Requires:** H1 (Meta deployed and recorded as `meta`). Nothing else: no DAO proposal, no app-list slot, no plugin grant. **Script:** ready: `deploy:collectible-variations` writes a resumable receipt and `--register` records the `collectibleVariations` SDK key.
+- **Signer:** the deployer (`DEPLOYER_MNEMONIC`). The registry has no admin; whoever creates it holds no power over it.
+- **The writer-list type:** the script reuses Meta's type named `Collectible writer list` with schema `(address)` when one exists. Otherwise it calls Meta's `addType`, which costs the fixed 100 ALGO type fee (Meta owes it to the DAO, less the type's storage; see H1). Meta numbers types from 0 and its verify treats type 0 as any type, so on a Meta with no types yet the script refuses unless `--reserve-type-zero` is passed. That flag first adds a placeholder type 0 named `Unspecified`, another 100 ALGO. The dry run says which of these the run will do.
+- **Funding:** the script funds the registry's own 0.1 ALGO minimum balance. Every box after that is paid by its owner.
+- **Tracked by rollout:status as** `collectible-variations`. It is not a launch prerequisite: if it is not deployed before I1, name it in `--allow-pending`.
+
+```bash
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --manifest receipts/collectible-variations.json --reserve-type-zero --register
 (cd ../akita-sdk && npm run build)
 ```
 
