@@ -1,67 +1,63 @@
 import {
-  Account, Application, Asset, BoxMap, Bytes, bytes, clone, emit, ensureBudget, Global, GlobalState, gtxn, itxn,
-  loggedAssert, op, OpUpFeeSource, Txn, uint64,
+  Account, Application, Asset, BoxMap, Bytes, bytes, clone, emit, Global, GlobalState, gtxn, itxn,
+  loggedAssert, op, Txn, uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { itob } from '@algorandfoundation/algorand-typescript/op'
 import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/upgradeable'
+import { getAkitaAssets, getInferenceFees } from '../utils/functions'
 import {
-  INFERENCE_ASSET_MBR, INFERENCE_ATTESTATION_MBR, INFERENCE_BPS, INFERENCE_CHANNEL_MBR, INFERENCE_MAX_CLOSE_WINDOW,
-  INFERENCE_MAX_FEE_BPS, INFERENCE_MAX_UNBOND_DELAY, INFERENCE_METADATA_BASE_MBR, INFERENCE_METADATA_MAX_BYTES,
-  INFERENCE_MIN_CLOSE_WINDOW, INFERENCE_PROVIDER_MBR, INFERENCE_RECEIPT_DOMAIN, INFERENCE_VERIFY_BUDGET,
+  INFERENCE_ASSET_MBR, INFERENCE_ATTESTATION_MBR, INFERENCE_FEE_DIVISOR, INFERENCE_MAX_FEE_PERCENTAGE,
+  INFERENCE_MAX_SETTLE_WINDOW, INFERENCE_MAX_UNBOND_DELAY, INFERENCE_METADATA_BASE_MBR, INFERENCE_METADATA_MAX_BYTES,
+  INFERENCE_MIN_SETTLE_WINDOW, INFERENCE_MIN_UNBOND_DELAY, INFERENCE_PROVIDER_MBR, INFERENCE_TICKET_MBR,
   ProviderActive, ProviderExited, ProviderPaused, ProviderPending, ProviderUnbonding,
 } from './constants'
 import {
-  errInferenceAssetNotAllowed, errInferenceBadDeposit, errInferenceBadMetadata, errInferenceBadSignature,
-  errInferenceBadStatus, errInferenceBadStoragePayment, errInferenceBadWindow, errInferenceBondTooLow,
-  errInferenceClosing, errInferenceFeeTooHigh, errInferenceNoChannel, errInferenceNoProvider,
-  errInferenceNoSessionKey, errInferenceNotAdmin, errInferenceNotClaimer, errInferenceNotClosable,
-  errInferenceNotOptedIn, errInferenceNotOwner, errInferenceNotPayer, errInferenceOverDeposit,
-  errInferenceProviderInactive, errInferenceSlashTooHigh, errInferenceStaleReceipt, errInferenceUnbonding,
-  errInferenceZeroAddress, errInferenceZeroDeposit,
+  errInferenceAssetNotAllowed, errInferenceBadMetadata, errInferenceBadStatus, errInferenceBadStoragePayment,
+  errInferenceBadTransfer, errInferenceBadWindow, errInferenceBondTooLow,
+  errInferenceNoProvider, errInferenceNotAdmin, errInferenceNotOptedIn, errInferenceNotOwner,
+  errInferenceProviderInactive, errInferenceSlashTooHigh, errInferenceUnbonding, errInferenceZeroAddress, errInferenceExpired, errInferenceNoTicket, errInferenceNotClaimer, errInferenceNotExpired, errInferenceOverLock,
+  errInferenceZeroLock,
 } from './errors'
 import {
-  Attestation, Channel, InferenceChannelClosed, InferenceChannelFunded, InferenceChannelOpened, InferenceClaimed,
-  InferenceCloseRequested, InferenceProviderRegistered, InferenceProviderStatus, InferenceSettings, PaymentAsset,
-  Provider,
+  Attestation, InferenceProviderRegistered, InferenceProviderStatus, InferenceSettings, InferenceSlashed,
+  InferenceTicketOpened, InferenceTicketSettled, PaymentAsset, Provider, Ticket,
 } from './types'
 
 /**
- * Akita's inference network: a registry of inference providers and the prepaid payment channels
- * members use to pay them.
+ * Akita's inference network: a registry of inference providers, and the ledger of what wallets pay them.
  *
- * Providers register with a bond (AKTA) and, while registration is closed, wait as Pending until the
- * admin activates them. A provider's box names its owner, the claim account that collects payments and
- * the payout address. The metadata box holds a URI for its models and prices, and the attestation box
- * is where a provider running in a TEE will publish its measurement and encryption key.
+ * Providers register with an AKTA bond of at least the DAO's `providerBond` and, while registration is
+ * closed, wait as Pending until the admin activates them. A provider's box names its owner, the claim
+ * account that settles its tickets, and the payout address. The metadata box holds a URI for its models and
+ * prices, and the attestation box is where a provider running in a TEE publishes its measurement and
+ * encryption key, for private inference later.
  *
- * A payer (any account, including an ARC-58 escrow through InferencePlugin) opens a channel to one
- * provider with a deposit and an ed25519 session key. With each request the payer's app signs a
- * receipt: the session key's signature over
- *   concat(INFERENCE_RECEIPT_DOMAIN, itob(this app id), itob(channel id), itob(total owed)).
- * The total only grows, so the provider keeps only the latest receipt and claims it whenever it likes.
- * A claim pays the provider the increase less the channel's protocol fee, which accrues here until
- * anyone sweeps it to the treasury.
+ * Members pay per request, straight from their wallets, the way ZeroSignal's escrow works. For each
+ * request the caller (the member's app, or the key that runs their routines and triggers) opens a
+ * ticket through InferencePlugin that locks the request's max price from the member's spending account.
+ * The provider serves at once, without waiting for the ticket to confirm, then settles it at the actual
+ * cost: the provider gets the cost less the DAO's `chargePercentage`, and the rest comes back to the
+ * member. A ticket left unsettled past the settle window is refunded in full. A provider whose ticket
+ * never lands cuts the member off, losing at most that request.
  *
- * To leave, the payer asks to close. The provider then has the close window to claim its last
- * receipt, after which anyone can finalize and the rest goes back to the payer. The provider can also
- * settle and close at once. Nothing here moves a channel's deposit except a receipt the payer signed or
- * the refund to the payer; the admin can pause providers and slash bonds, but never touch deposits.
+ * The provider never opens tickets and can never take more than a ticket locked. A provider that
+ * settles for usage it did not serve is paused, its bond slashed to whoever the admin names (such as
+ * the members it overcharged), and it is banned.
  */
 export class InferenceNetwork extends UpgradeableAkitaBaseContract {
 
-  /** Sets the network's settings, payment assets and provider status. Meant to be the DAO wallet. */
+  /** Sets the network's settings, payment assets and provider status, and slashes. Meant to be the DAO wallet. */
   admin = GlobalState<Account>({ key: 'admin' })
-  /** Receives swept fees and slashed bonds. */
+  /** Receives swept fees. */
   treasury = GlobalState<Account>({ key: 'treasury' })
   settings = GlobalState<InferenceSettings>({ key: 'settings' })
   providerCount = GlobalState<uint64>({ key: 'providers' })
-  channelCount = GlobalState<uint64>({ key: 'channels' })
+  ticketCount = GlobalState<uint64>({ key: 'tickets' })
 
   providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
   metadata = BoxMap<uint64, string>({ keyPrefix: 'm' })
   attestations = BoxMap<uint64, Attestation>({ keyPrefix: 'a' })
-  channels = BoxMap<uint64, Channel>({ keyPrefix: 'c' })
+  tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
   assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
 
   // LIFE CYCLE -----------------------------------------------------------------------------------
@@ -74,15 +70,12 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     this.admin.value = admin
     this.treasury.value = treasury
     this.settings.value = {
-      feeBps: 0,
-      bondAsset: 0,
-      minBond: 0,
-      unbondDelay: INFERENCE_MAX_CLOSE_WINDOW,
-      closeWindow: 86_400,
+      unbondDelay: INFERENCE_MIN_UNBOND_DELAY * 2,
+      settleWindow: 3_600,
       openRegistration: false,
     }
     this.providerCount.value = 0
-    this.channelCount.value = 0
+    this.ticketCount.value = 0
   }
 
   // ADMIN ----------------------------------------------------------------------------------------
@@ -100,29 +93,26 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   /**
-   * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-   * between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-   * provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+   * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+   * delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+   * slashed once it is caught. Open tickets keep the expiry they opened with.
    */
   setSettings(settings: InferenceSettings): void {
     this.requireAdmin()
-    loggedAssert(settings.feeBps <= INFERENCE_MAX_FEE_BPS, errInferenceFeeTooHigh)
     loggedAssert(
-      settings.closeWindow >= INFERENCE_MIN_CLOSE_WINDOW && settings.closeWindow <= INFERENCE_MAX_CLOSE_WINDOW,
+      settings.settleWindow >= INFERENCE_MIN_SETTLE_WINDOW && settings.settleWindow <= INFERENCE_MAX_SETTLE_WINDOW,
       errInferenceBadWindow,
     )
     loggedAssert(
-      settings.unbondDelay >= INFERENCE_MAX_CLOSE_WINDOW && settings.unbondDelay <= INFERENCE_MAX_UNBOND_DELAY,
+      settings.unbondDelay >= INFERENCE_MIN_UNBOND_DELAY && settings.unbondDelay <= INFERENCE_MAX_UNBOND_DELAY,
       errInferenceBadWindow,
     )
-    this.requireHolds(settings.bondAsset)
     this.settings.value = clone(settings)
   }
 
   /**
-   * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-   * paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-   * asset either way.
+   * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+   * `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
    */
   setPaymentAsset(payment: gtxn.PaymentTxn, asset: uint64, allowed: boolean): void {
     this.requireAdmin()
@@ -136,7 +126,9 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     }
   }
 
-  /** Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits. */
+  /**
+   * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
+   */
   setProviderStatus(provider: uint64, status: uint64): void {
     this.requireAdmin()
     const current = this.mustGetProvider(provider).status
@@ -149,13 +141,14 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     emit<InferenceProviderStatus>({ provider, status })
   }
 
-  /** Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury. */
-  slash(provider: uint64, amount: uint64): void {
+  /** Takes up to the provider's whole bond and sends it to `receiver`. */
+  slash(provider: uint64, amount: uint64, receiver: Account): void {
     this.requireAdmin()
     const info = this.mustGetProvider(provider)
     loggedAssert(amount <= info.bond, errInferenceSlashTooHigh)
     this.providers(provider).value.bond = info.bond - amount
-    this.send(this.treasury.value, info.bondAsset, amount)
+    this.send(receiver, info.bondAsset, amount)
+    emit<InferenceSlashed>({ provider, asset: info.bondAsset, amount, receiver })
   }
 
   // ANYONE ---------------------------------------------------------------------------------------
@@ -178,7 +171,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
 
   /**
    * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-   * (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+   * (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
    * closed the provider starts Pending until the admin activates it.
    */
   registerProvider(
@@ -189,10 +182,11 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     metadata: string,
   ): uint64 {
     const settings = clone(this.settings.value)
+    const bondAsset = getAkitaAssets(this.akitaDAO.value).akta
     loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     this.requireStoragePayment(payment, INFERENCE_PROVIDER_MBR + this.metadataCost(metadata))
-    const amount = this.receive(bond, settings.bondAsset)
-    loggedAssert(amount >= settings.minBond, errInferenceBondTooLow)
+    const amount = this.receive(bond, bondAsset)
+    loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
 
     const id: uint64 = this.providerCount.value + 1
     this.providerCount.value = id
@@ -202,7 +196,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
       claimer,
       payout,
       bond: amount,
-      bondAsset: settings.bondAsset,
+      bondAsset,
       status,
       unbondAt: 0,
     }
@@ -247,8 +241,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   /**
-   * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-   * closed, and the bond can be withdrawn after the unbonding delay.
+   * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
    */
   beginUnbond(provider: uint64): void {
     this.requireOwner(provider)
@@ -270,103 +263,68 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     emit<InferenceProviderStatus>({ provider, status: ProviderExited })
   }
 
-  // CHANNELS -------------------------------------------------------------------------------------
+  // TICKETS --------------------------------------------------------------------------------------
 
   /**
-   * Opens a channel from the sender to an active provider. `payment` pays the channel box
-   * (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-   * `sessionKey` is the ed25519 key that will sign this channel's receipts.
+   * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+   * moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+   * the caller's id for the request, which the provider sees in the same request. The ticket must be
+   * settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+   *
+   * Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+   * payer off, losing at most that request.
    */
-  open(
-    payment: gtxn.PaymentTxn,
-    deposit: gtxn.Transaction,
-    provider: uint64,
-    asset: uint64,
-    sessionKey: bytes<32>,
-  ): uint64 {
+  open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>): uint64 {
     loggedAssert(this.mustGetProvider(provider).status === ProviderActive, errInferenceProviderInactive)
     loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
-    loggedAssert(sessionKey !== op.bzero(32).toFixed({ length: 32 }), errInferenceNoSessionKey)
-    this.requireStoragePayment(payment, INFERENCE_CHANNEL_MBR)
-    const amount = this.receive(deposit, asset)
-    loggedAssert(amount > 0, errInferenceZeroDeposit)
+    this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
+    const amount = this.receive(lock, asset)
+    loggedAssert(amount > 0, errInferenceZeroLock)
 
-    const id: uint64 = this.channelCount.value + 1
-    this.channelCount.value = id
-    this.channels(id).value = {
-      payer: Txn.sender,
-      sessionKey,
-      provider,
-      asset,
-      deposit: amount,
-      claimed: 0,
-      feeBps: this.settings.value.feeBps,
-      closeAt: 0,
-    }
-    emit<InferenceChannelOpened>({ channel: id, payer: Txn.sender, provider, asset, deposit: amount })
+    let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
+    if (percentage > INFERENCE_MAX_FEE_PERCENTAGE) percentage = INFERENCE_MAX_FEE_PERCENTAGE
+    const id: uint64 = this.ticketCount.value + 1
+    this.ticketCount.value = id
+    const expiresAt: uint64 = Global.latestTimestamp + this.settings.value.settleWindow
+    this.tickets(id).value = { payer: Txn.sender, provider, asset, amount, feePercentage: percentage, expiresAt }
+    emit<InferenceTicketOpened>({ ticket: id, payer: Txn.sender, provider, asset, amount, request, expiresAt })
     return id
   }
 
-  /** Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer. */
-  topUp(channel: uint64, deposit: gtxn.Transaction): void {
-    const info = this.mustGetChannel(channel)
-    loggedAssert(info.closeAt === 0, errInferenceClosing)
-    loggedAssert(this.mustGetProvider(info.provider).status === ProviderActive, errInferenceProviderInactive)
-    const amount = this.receive(deposit, info.asset)
-    loggedAssert(amount > 0, errInferenceZeroDeposit)
-    this.channels(channel).value.deposit = info.deposit + amount
-    emit<InferenceChannelFunded>({ channel, deposit: info.deposit + amount })
-  }
-
   /**
-   * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-   * Only the provider's claim account may claim, and not after a requested close's window has ended.
+   * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+   * locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+   * and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
    */
-  claim(channel: uint64, total: uint64, signature: bytes<64>): uint64 {
-    const info = this.mustGetChannel(channel)
-    loggedAssert(info.closeAt === 0 || Global.latestTimestamp < info.closeAt, errInferenceClosing)
-    return this.settle(channel, info, total, signature)
-  }
+  settle(ticket: uint64, cost: uint64): uint64 {
+    const info = this.mustGetTicket(ticket)
+    const provider = this.mustGetProvider(info.provider)
+    loggedAssert(Txn.sender === provider.claimer, errInferenceNotClaimer)
+    loggedAssert(Global.latestTimestamp < info.expiresAt, errInferenceExpired)
+    loggedAssert(cost <= info.amount, errInferenceOverLock)
 
-  /** The payer asks to close. The provider has the close window to claim its last receipt. */
-  requestClose(channel: uint64): void {
-    const info = this.mustGetChannel(channel)
-    loggedAssert(Txn.sender === info.payer, errInferenceNotPayer)
-    loggedAssert(info.closeAt === 0, errInferenceClosing)
-    const closeAt: uint64 = Global.latestTimestamp + this.settings.value.closeWindow
-    this.channels(channel).value.closeAt = closeAt
-    emit<InferenceCloseRequested>({ channel, closeAt })
-  }
-
-  /** After a requested close's window, anyone may return the remainder and the storage deposit to the payer. */
-  finalizeClose(channel: uint64): void {
-    const info = this.mustGetChannel(channel)
-    loggedAssert(info.closeAt !== 0 && Global.latestTimestamp >= info.closeAt, errInferenceNotClosable)
-    this.close(channel, info)
-  }
-
-  /**
-   * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-   * channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-   * signature to close without a new claim.
-   */
-  settleAndClose(channel: uint64, total: uint64, signature: bytes<64>): void {
-    const info = this.mustGetChannel(channel)
-    loggedAssert(Txn.sender === this.mustGetProvider(info.provider).claimer, errInferenceNotClaimer)
-    if (total !== info.claimed) {
-      loggedAssert(info.closeAt === 0 || Global.latestTimestamp < info.closeAt, errInferenceClosing)
-      this.settle(channel, info, total, signature)
+    const fee = op.divw(...op.mulw(cost, info.feePercentage), INFERENCE_FEE_DIVISOR)
+    const paid: uint64 = cost - fee
+    if (fee > 0) {
+      this.assets(info.asset).value.fees = this.assets(info.asset).value.fees + fee
     }
-    this.close(channel, this.channels(channel).value)
+    this.tickets(ticket).delete()
+    this.send(provider.payout, info.asset, paid)
+    this.refund(info, info.amount - cost)
+    emit<InferenceTicketSettled>({ ticket, cost, paid, fee })
+    return paid
+  }
+
+  /** After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer. */
+  refundExpired(ticket: uint64): void {
+    const info = this.mustGetTicket(ticket)
+    loggedAssert(Global.latestTimestamp >= info.expiresAt, errInferenceNotExpired)
+    this.tickets(ticket).delete()
+    this.refund(info, info.amount)
+    emit<InferenceTicketSettled>({ ticket, cost: 0, paid: 0, fee: 0 })
   }
 
   // READ ONLY ------------------------------------------------------------------------------------
-
-  /** The message a session key signs for `channel` owing `total`. */
-  @abimethod({ readonly: true })
-  receiptMessage(channel: uint64, total: uint64): bytes {
-    return this.receipt(channel, total)
-  }
 
   @abimethod({ readonly: true })
   getProvider(provider: uint64): Provider {
@@ -374,8 +332,8 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   @abimethod({ readonly: true })
-  getChannel(channel: uint64): Channel {
-    return this.mustGetChannel(channel)
+  getTicket(ticket: uint64): Ticket {
+    return this.mustGetTicket(ticket)
   }
 
   /** What `registerProvider` charges for storage with this metadata URI. */
@@ -385,41 +343,6 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   // PRIVATE --------------------------------------------------------------------------------------
-
-  private receipt(channel: uint64, total: uint64): bytes {
-    return Bytes(INFERENCE_RECEIPT_DOMAIN)
-      .concat(itob(Global.currentApplicationId.id))
-      .concat(itob(channel))
-      .concat(itob(total))
-  }
-
-  private settle(channel: uint64, info: Channel, total: uint64, signature: bytes<64>): uint64 {
-    const provider = this.mustGetProvider(info.provider)
-    loggedAssert(Txn.sender === provider.claimer, errInferenceNotClaimer)
-    loggedAssert(total > info.claimed, errInferenceStaleReceipt)
-    loggedAssert(total <= info.deposit, errInferenceOverDeposit)
-    ensureBudget(INFERENCE_VERIFY_BUDGET, OpUpFeeSource.GroupCredit)
-    loggedAssert(op.ed25519verifyBare(this.receipt(channel, total), signature, info.sessionKey), errInferenceBadSignature)
-
-    const amount: uint64 = total - info.claimed
-    const fee = op.divw(...op.mulw(amount, info.feeBps), INFERENCE_BPS)
-    const paid: uint64 = amount - fee
-    this.channels(channel).value.claimed = total
-    if (fee > 0) {
-      this.assets(info.asset).value.fees = this.assets(info.asset).value.fees + fee
-    }
-    this.send(provider.payout, info.asset, paid)
-    emit<InferenceClaimed>({ channel, provider: info.provider, total, paid, fee })
-    return paid
-  }
-
-  private close(channel: uint64, info: Channel): void {
-    const refund: uint64 = info.deposit - info.claimed
-    this.channels(channel).delete()
-    this.send(info.payer, info.asset, refund)
-    itxn.payment({ receiver: info.payer, amount: INFERENCE_CHANNEL_MBR }).submit()
-    emit<InferenceChannelClosed>({ channel, claimed: info.claimed, refunded: refund })
-  }
 
   /**
    * The amount `txn` moves to this app in `asset`: a plain payment (asset 0) or asset transfer from the
@@ -433,7 +356,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
         pay.receiver === Global.currentApplicationAddress &&
         pay.closeRemainderTo === Global.zeroAddress &&
         pay.rekeyTo === Global.zeroAddress,
-        errInferenceBadDeposit,
+        errInferenceBadTransfer,
       )
       return pay.amount
     }
@@ -445,7 +368,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
       xfer.assetSender === Global.zeroAddress &&
       xfer.assetCloseTo === Global.zeroAddress &&
       xfer.rekeyTo === Global.zeroAddress,
-      errInferenceBadDeposit,
+      errInferenceBadTransfer,
     )
     return xfer.assetAmount
   }
@@ -490,13 +413,18 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     )
   }
 
+  private refund(info: Ticket, amount: uint64): void {
+    this.send(info.payer, info.asset, amount)
+    itxn.payment({ receiver: info.payer, amount: INFERENCE_TICKET_MBR }).submit()
+  }
+
+  private mustGetTicket(ticket: uint64): Ticket {
+    loggedAssert(this.tickets(ticket).exists, errInferenceNoTicket)
+    return clone(this.tickets(ticket).value)
+  }
+
   private mustGetProvider(provider: uint64): Provider {
     loggedAssert(this.providers(provider).exists, errInferenceNoProvider)
     return clone(this.providers(provider).value)
-  }
-
-  private mustGetChannel(channel: uint64): Channel {
-    loggedAssert(this.channels(channel).exists, errInferenceNoChannel)
-    return clone(this.channels(channel).value)
   }
 }

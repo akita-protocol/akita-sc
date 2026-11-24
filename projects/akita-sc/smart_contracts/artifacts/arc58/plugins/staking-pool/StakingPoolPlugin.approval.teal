@@ -1507,7 +1507,7 @@ enter_after_assert@11:
     // const sender = getControlledSpendingAccount(wallet)
     dup
     callsub getControlledSpendingAccount
-    // smart_contracts/utils/functions.ts:456
+    // smart_contracts/utils/functions.ts:463
     // return op.AppGlobal.getExUint64(appId, Bytes(PoolGlobalStateKeyGateID))[0]
     dig 2
     dup
@@ -1812,12 +1812,12 @@ enter_if_body@72:
     bytec 4 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:380
+    // smart_contracts/utils/functions.ts:387
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     pushint 88
     extract_uint64
     bury 10
-    // smart_contracts/utils/functions.ts:388-391
+    // smart_contracts/utils/functions.ts:395-398
     // const data = abiCall<typeof EscrowFactory.prototype.get>({
     //   appId: escrowFactory,
     //   args: [address]
@@ -1852,14 +1852,14 @@ enter_if_body@72:
     assert // invalid number of bytes for bytes
     extract 6 0
     dup
-    // smart_contracts/utils/functions.ts:393
+    // smart_contracts/utils/functions.ts:400
     // if (Bytes(data).length !== 8) {
     len
     intc_2 // 8
     !=
     bz enter_after_if_else@74
     pop
-    // smart_contracts/utils/functions.ts:394
+    // smart_contracts/utils/functions.ts:401
     // return 0
     intc_0 // 0
 
@@ -1912,42 +1912,42 @@ enter_bool_false@80:
     b enter_bool_merge@81
 
 enter_after_if_else@74:
-    // smart_contracts/utils/functions.ts:397
+    // smart_contracts/utils/functions.ts:404
     // const wallet = btoi(data)
     btoi
     dup
-    // smart_contracts/utils/functions.ts:364
+    // smart_contracts/utils/functions.ts:371
     // if (wallet === 0 || walletFactory === 0) {
     bz enter_if_body@90
     dig 9
     bnz enter_after_if_else@91
 
 enter_if_body@90:
-    // smart_contracts/utils/functions.ts:365
+    // smart_contracts/utils/functions.ts:372
     // return false
     intc_0 // 0
 
 enter_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@96:
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:405
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     intc_0 // 0
     cover 2
     select
-    // smart_contracts/utils/functions.ts:380
+    // smart_contracts/utils/functions.ts:387
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     b enter_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@75
 
 enter_after_if_else@91:
-    // smart_contracts/utils/functions.ts:367
+    // smart_contracts/utils/functions.ts:374
     // const [creator, exists] = op.AppParams.appCreator(wallet)
     dup
     app_params_get AppCreator
     swap
     bury 13
-    // smart_contracts/utils/functions.ts:368
+    // smart_contracts/utils/functions.ts:375
     // return exists && creator === appAddress(walletFactory)
     bz enter_bool_false@94
-    // smart_contracts/utils/functions.ts:359
+    // smart_contracts/utils/functions.ts:366
     // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
     dig 9
     itob
@@ -1955,19 +1955,19 @@ enter_after_if_else@91:
     swap
     concat
     sha512_256
-    // smart_contracts/utils/functions.ts:368
+    // smart_contracts/utils/functions.ts:375
     // return exists && creator === appAddress(walletFactory)
     dig 12
     ==
     bz enter_bool_false@94
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:405
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b enter_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@96
 
 enter_bool_false@94:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:405
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b enter_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@96
 
@@ -2039,7 +2039,7 @@ enter_after_if_else@13:
     bytec 4 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:965
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64

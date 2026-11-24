@@ -49,21 +49,8 @@ export type InferencePluginArgs = {
             network: bigint | number;
             provider: bigint | number;
             asset: bigint | number;
-            amount: bigint | number;
-            sessionKey: Uint8Array;
-        };
-        'topUp(uint64,bool,uint64,uint64,uint64)void': {
-            wallet: bigint | number;
-            rekeyBack: boolean;
-            network: bigint | number;
-            channel: bigint | number;
-            amount: bigint | number;
-        };
-        'requestClose(uint64,bool,uint64,uint64)void': {
-            wallet: bigint | number;
-            rekeyBack: boolean;
-            network: bigint | number;
-            channel: bigint | number;
+            maxPrice: bigint | number;
+            request: Uint8Array;
         };
         'validatePolicy(byte[])void': {
             body: Uint8Array;
@@ -74,9 +61,7 @@ export type InferencePluginArgs = {
      */
     tuple: {
         'create(uint64)void': [registry: bigint | number];
-        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, asset: bigint | number, amount: bigint | number, sessionKey: Uint8Array];
-        'topUp(uint64,bool,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, channel: bigint | number, amount: bigint | number];
-        'requestClose(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, channel: bigint | number];
+        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, asset: bigint | number, maxPrice: bigint | number, request: Uint8Array];
         'validatePolicy(byte[])void': [body: Uint8Array];
     };
 };
@@ -86,8 +71,6 @@ export type InferencePluginArgs = {
 export type InferencePluginReturns = {
     'create(uint64)void': void;
     'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': bigint;
-    'topUp(uint64,bool,uint64,uint64,uint64)void': void;
-    'requestClose(uint64,bool,uint64,uint64)void': void;
     'validatePolicy(byte[])void': void;
 };
 /**
@@ -105,14 +88,6 @@ export type InferencePluginTypes = {
         argsObj: InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
         argsTuple: InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
         returns: InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
-    }> & Record<'topUp(uint64,bool,uint64,uint64,uint64)void' | 'topUp', {
-        argsObj: InferencePluginArgs['obj']['topUp(uint64,bool,uint64,uint64,uint64)void'];
-        argsTuple: InferencePluginArgs['tuple']['topUp(uint64,bool,uint64,uint64,uint64)void'];
-        returns: InferencePluginReturns['topUp(uint64,bool,uint64,uint64,uint64)void'];
-    }> & Record<'requestClose(uint64,bool,uint64,uint64)void' | 'requestClose', {
-        argsObj: InferencePluginArgs['obj']['requestClose(uint64,bool,uint64,uint64)void'];
-        argsTuple: InferencePluginArgs['tuple']['requestClose(uint64,bool,uint64,uint64)void'];
-        returns: InferencePluginReturns['requestClose(uint64,bool,uint64,uint64)void'];
     }> & Record<'validatePolicy(byte[])void' | 'validatePolicy', {
         argsObj: InferencePluginArgs['obj']['validatePolicy(byte[])void'];
         argsTuple: InferencePluginArgs['tuple']['validatePolicy(byte[])void'];
@@ -230,8 +205,8 @@ export declare abstract class InferencePluginParamsFactory {
     /**
      * Constructs a no op call for the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64 ABI method
      *
-    * Opens a channel from the spending account to `provider`, paying the channel's storage deposit
-    and `amount` of `asset`, with `sessionKey` signing its receipts. Returns the channel id.
+    * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
+    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
   
      *
      * @param params Parameters for the call
@@ -239,28 +214,10 @@ export declare abstract class InferencePluginParamsFactory {
      */
     static open(params: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the topUp(uint64,bool,uint64,uint64,uint64)void ABI method
-     *
-     * Adds `amount` to a channel this spending account opened.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static topUp(params: CallParams<InferencePluginArgs['obj']['topUp(uint64,bool,uint64,uint64,uint64)void'] | InferencePluginArgs['tuple']['topUp(uint64,bool,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the requestClose(uint64,bool,uint64,uint64)void ABI method
-     *
-     * Asks to close a channel this spending account opened; the rest comes back once the close window ends.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static requestClose(params: CallParams<InferencePluginArgs['obj']['requestClose(uint64,bool,uint64,uint64)void'] | InferencePluginArgs['tuple']['requestClose(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
      * Constructs a no op call for the validatePolicy(byte[])void ABI method
      *
     * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-    encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+    encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
   
      *
      * @param params Parameters for the call
@@ -635,8 +592,8 @@ export declare class InferencePluginClient {
         /**
          * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the spending account to `provider`, paying the channel's storage deposit
-        and `amount` of `asset`, with `sessionKey` signing its receipts. Returns the channel id.
+        * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -646,34 +603,12 @@ export declare class InferencePluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `topUp(uint64,bool,uint64,uint64,uint64)void` ABI method.
-         *
-         * Adds `amount` to a channel this spending account opened.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        topUp: (params: CallParams<InferencePluginArgs["obj"]["topUp(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["topUp(uint64,bool,uint64,uint64,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the InferencePlugin smart contract using the `requestClose(uint64,bool,uint64,uint64)void` ABI method.
-         *
-         * Asks to close a channel this spending account opened; the rest comes back once the close window ends.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        requestClose: (params: CallParams<InferencePluginArgs["obj"]["requestClose(uint64,bool,uint64,uint64)void"] | InferencePluginArgs["tuple"]["requestClose(uint64,bool,uint64,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
          * Makes a call to the InferencePlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
         * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-        encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+        encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
     
          *
          * @param params The params for the smart contract call
@@ -697,8 +632,8 @@ export declare class InferencePluginClient {
         /**
          * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the spending account to `provider`, paying the channel's storage deposit
-        and `amount` of `asset`, with `sessionKey` signing its receipts. Returns the channel id.
+        * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -712,42 +647,12 @@ export declare class InferencePluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `topUp(uint64,bool,uint64,uint64,uint64)void` ABI method.
-         *
-         * Adds `amount` to a channel this spending account opened.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        topUp: (params: CallParams<InferencePluginArgs["obj"]["topUp(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["topUp(uint64,bool,uint64,uint64,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the InferencePlugin smart contract using the `requestClose(uint64,bool,uint64,uint64)void` ABI method.
-         *
-         * Asks to close a channel this spending account opened; the rest comes back once the close window ends.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        requestClose: (params: CallParams<InferencePluginArgs["obj"]["requestClose(uint64,bool,uint64,uint64)void"] | InferencePluginArgs["tuple"]["requestClose(uint64,bool,uint64,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
          * Makes a call to the InferencePlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
         * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-        encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+        encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
     
          *
          * @param params The params for the smart contract call
@@ -775,8 +680,8 @@ export declare class InferencePluginClient {
         /**
          * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the spending account to `provider`, paying the channel's storage deposit
-        and `amount` of `asset`, with `sessionKey` signing its receipts. Returns the channel id.
+        * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -795,52 +700,12 @@ export declare class InferencePluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `topUp(uint64,bool,uint64,uint64,uint64)void` ABI method.
-         *
-         * Adds `amount` to a channel this spending account opened.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        topUp: (params: CallParams<InferencePluginArgs["obj"]["topUp(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["topUp(uint64,bool,uint64,uint64,uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferencePluginReturns["topUp(uint64,bool,uint64,uint64,uint64)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the InferencePlugin smart contract using the `requestClose(uint64,bool,uint64,uint64)void` ABI method.
-         *
-         * Asks to close a channel this spending account opened; the rest comes back once the close window ends.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        requestClose: (params: CallParams<InferencePluginArgs["obj"]["requestClose(uint64,bool,uint64,uint64)void"] | InferencePluginArgs["tuple"]["requestClose(uint64,bool,uint64,uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferencePluginReturns["requestClose(uint64,bool,uint64,uint64)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
          * Makes a call to the InferencePlugin smart contract using the `validatePolicy(byte[])void` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
         * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-        encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+        encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
     
          *
          * @param params The params for the smart contract call
@@ -872,7 +737,7 @@ export declare class InferencePluginClient {
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
     * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-    encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+    encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
   
      *
      * @param params The params for the smart contract call
@@ -903,8 +768,8 @@ export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64 ABI method.
      *
-    * Opens a channel from the spending account to `provider`, paying the channel's storage deposit
-    and `amount` of `asset`, with `sessionKey` signing its receipts. Returns the channel id.
+    * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
+    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
   
      *
      * @param args The arguments for the contract call
@@ -913,30 +778,10 @@ export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
      */
     open(params?: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | undefined]>;
     /**
-     * Calls the topUp(uint64,bool,uint64,uint64,uint64)void ABI method.
-     *
-     * Adds `amount` to a channel this spending account opened.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    topUp(params?: CallParams<InferencePluginArgs['obj']['topUp(uint64,bool,uint64,uint64,uint64)void'] | InferencePluginArgs['tuple']['topUp(uint64,bool,uint64,uint64,uint64)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['topUp(uint64,bool,uint64,uint64,uint64)void'] | undefined]>;
-    /**
-     * Calls the requestClose(uint64,bool,uint64,uint64)void ABI method.
-     *
-     * Asks to close a channel this spending account opened; the rest comes back once the close window ends.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    requestClose(params?: CallParams<InferencePluginArgs['obj']['requestClose(uint64,bool,uint64,uint64)void'] | InferencePluginArgs['tuple']['requestClose(uint64,bool,uint64,uint64)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['requestClose(uint64,bool,uint64,uint64)void'] | undefined]>;
-    /**
      * Calls the validatePolicy(byte[])void ABI method.
      *
     * Policy body format: an ARC-4 `(uint64,uint64[],uint64[],uint64)` InferencePolicy, canonically
-    encoded, with 1 to 8 providers and assets each, both ascending, and a cap above zero.
+    encoded, with 1 to 8 providers and assets each, both ascending, and a per-ticket cap above zero.
   
      *
      * @param args The arguments for the contract call

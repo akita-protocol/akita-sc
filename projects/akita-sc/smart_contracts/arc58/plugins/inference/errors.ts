@@ -4,7 +4,5 @@ export const errInferencePolicyEncoding = 'errIpen'
 export const errInferencePolicyFields = 'errIpfl'
 /** The grant's policy does not allow this network, provider or asset. */
 export const errInferencePolicyDenied = 'errIpdn'
-/** The deposit would take the channel above the policy's cap. */
+/** The ticket's max price is above the policy's cap. */
 export const errInferencePolicyCap = 'errIpcp'
-/** The channel was not opened by this wallet's spending account. */
-export const errInferenceNotOwnChannel = 'errIpnc'

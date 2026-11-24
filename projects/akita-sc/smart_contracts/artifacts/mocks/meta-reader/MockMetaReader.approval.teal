@@ -1189,15 +1189,15 @@ royalty:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
-    // smart_contracts/utils/functions.ts:639
+    // smart_contracts/utils/functions.ts:646
     // let creatorRoyalty: uint64 = 0
     intc_0 // 0
     cover 5
-    // smart_contracts/utils/functions.ts:641
+    // smart_contracts/utils/functions.ts:648
     // if (!(proof.length > 0)) {
     bnz royalty_after_if_else@3
     popn 4
-    // smart_contracts/utils/functions.ts:642
+    // smart_contracts/utils/functions.ts:649
     // return CreatorRoyaltyDefault
     pushint 5000
 
@@ -1213,7 +1213,7 @@ royalty_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     return
 
 royalty_after_if_else@3:
-    // smart_contracts/utils/functions.ts:647-657
+    // smart_contracts/utils/functions.ts:654-664
     // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -1226,18 +1226,18 @@ royalty_after_if_else@3:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:650
+    // smart_contracts/utils/functions.ts:657
     // asset.creator,
     dup
     asset_params_get AssetCreator
     assert // asset exists
-    // smart_contracts/utils/functions.ts:652
+    // smart_contracts/utils/functions.ts:659
     // sha256(sha256(itob(asset.id))),
     swap
     itob
     sha256
     sha256
-    // smart_contracts/utils/functions.ts:654
+    // smart_contracts/utils/functions.ts:661
     // 1,
     intc_3 // 1
     itob
@@ -1247,12 +1247,12 @@ royalty_after_if_else@3:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:648
+    // smart_contracts/utils/functions.ts:655
     // appId: getAkitaAppList(akitaDAO).metaMerkles,
     pushint 72
     extract_uint64
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:647-657
+    // smart_contracts/utils/functions.ts:654-664
     // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -1275,11 +1275,11 @@ royalty_after_if_else@3:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:655
+    // smart_contracts/utils/functions.ts:662
     // 'royalty',
     pushbytes 0x0007726f79616c7479
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:647-657
+    // smart_contracts/utils/functions.ts:654-664
     // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -1316,24 +1316,24 @@ royalty_after_if_else@3:
     extract 6 0
     dup
     bury 3
-    // smart_contracts/utils/functions.ts:659
+    // smart_contracts/utils/functions.ts:666
     // if (Bytes(creatorRoyaltyString).length > 0) {
     len
     bz royalty_after_if_else@5
-    // smart_contracts/utils/functions.ts:660
+    // smart_contracts/utils/functions.ts:667
     // creatorRoyalty = btoi(Bytes(creatorRoyaltyString))
     dig 1
     btoi
     bury 1
 
 royalty_after_if_else@5:
-    // smart_contracts/utils/functions.ts:663
+    // smart_contracts/utils/functions.ts:670
     // if (creatorRoyalty > CreatorRoyaltyMaximumSingle) {
     dup
     intc 4 // 50000
     >
     bz royalty_after_if_else@7
-    // smart_contracts/utils/functions.ts:664
+    // smart_contracts/utils/functions.ts:671
     // return CreatorRoyaltyMaximumSingle
     intc 4 // 50000
     // smart_contracts/mocks/meta-reader/contract.algo.ts:59

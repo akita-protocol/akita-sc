@@ -1,42 +1,26 @@
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import type { Account, Address, TransactionSigner } from 'algosdk'
+import type { Address, TransactionSigner } from 'algosdk'
 import algosdk from 'algosdk'
-import { createPrivateKey, generateKeyPairSync, KeyObject, sign } from 'node:crypto'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { TimeWarp } from '../../tests/utils/time'
 import { InferenceNetworkClient, InferenceNetworkFactory } from '../artifacts/inference/InferenceNetworkClient'
+import { MockInferenceDaoClient, MockInferenceDaoFactory } from '../artifacts/inference/tests/MockInferenceDAOClient'
 
-const DOMAIN = 'akita/inference/v1'
-const CLOSE_WINDOW = 3_600n
+const SETTLE_WINDOW = 3_600n
 const UNBOND_DELAY = 30n * 86_400n
-const FEE_BPS = 1_000n
-const MIN_BOND = 100n
+const FEE = 1_000n // 10%
+const BOND = 100n
 
 /** Box MBR = 2_500 + 400 * (key + value); the same numbers as constants.ts, checked against algod below. */
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
-const CHANNEL_MBR = 2_500n + 400n * (9n + 32n + 32n + 8n * 6n)
+const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 5n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 const ATTESTATION_MBR = 2_500n + 400n * (9n + 8n + 32n + 32n)
 const metadataMbr = (uri: string) => 2_500n + 400n * (9n + BigInt(Buffer.byteLength(uri)))
+const request = (n: number) => new Uint8Array(32).fill(n)
 
 type Signer = { addr: Address; signer: TransactionSigner }
-
-function sessionKey(): { publicKey: Uint8Array; privateKey: KeyObject } {
-  const { publicKey, privateKey } = generateKeyPairSync('ed25519')
-  const jwk = publicKey.export({ format: 'jwk' })
-  return { publicKey: new Uint8Array(Buffer.from(jwk.x!, 'base64url')), privateKey }
-}
-
-function receipt(appId: bigint, channel: bigint, total: bigint): Uint8Array {
-  return new Uint8Array(Buffer.concat([
-    Buffer.from(DOMAIN), algosdk.encodeUint64(appId), algosdk.encodeUint64(channel), algosdk.encodeUint64(total),
-  ]))
-}
-
-function signReceipt(key: KeyObject, appId: bigint, channel: bigint, total: bigint): Uint8Array {
-  return new Uint8Array(sign(null, receipt(appId, channel, total), key))
-}
 
 describe('InferenceNetwork', () => {
   const fixture = algorandFixture()
@@ -47,6 +31,7 @@ describe('InferenceNetwork', () => {
   let payout: Signer
   let payer: Signer
   let stranger: Signer
+  let dao: MockInferenceDaoClient
   let client: InferenceNetworkClient
   let appAddress: Address
   let akta: bigint
@@ -63,24 +48,30 @@ describe('InferenceNetwork', () => {
   const as = (who: Signer) => ({ sender: who.addr, signer: who.signer })
   const storage = (who: Signer, amount: bigint) =>
     fixture.algorand.createTransaction.payment({ ...as(who), receiver: appAddress, amount: microAlgo(amount) })
-  const deposit = (who: Signer, asset: bigint, amount: bigint) => asset === 0n
+  const transfer = (who: Signer, asset: bigint, amount: bigint) => asset === 0n
     ? fixture.algorand.createTransaction.payment({ ...as(who), receiver: appAddress, amount: microAlgo(amount) })
     : fixture.algorand.createTransaction.assetTransfer({ ...as(who), receiver: appAddress, assetId: asset, amount })
-  // ensureBudget pays its op-ups from the group's fee credit; the claim's payout is one more inner.
-  const claimFee = { extraFee: microAlgo(6_000) }
+  // settle and refund send up to three inner transactions: the payout, the rest and the storage deposit
+  const settleFee = { extraFee: microAlgo(3_000) }
+  // An ASA settle touches three holdings (this app's, the payout's and the payer's); name them explicitly.
+  const boxKey = (prefix: string, id: bigint) => new Uint8Array([...Buffer.from(prefix), ...algosdk.encodeUint64(id)])
+  const settleRefs = (ticket: bigint, asset: bigint) => ({
+    accountReferences: [payout.addr, payer.addr],
+    assetReferences: [asset],
+    boxReferences: [boxKey('t', ticket), boxKey('p', provider), boxKey('x', asset)],
+  })
   const newAccount = async (algo = 50): Promise<Signer> => {
     const account = await fixture.context.generateAccount({ initialFunds: microAlgo(algo * 1_000_000) })
     return { addr: account.addr, signer: account.signer }
   }
-  const optInTo = async (who: Signer, asset: bigint) =>
-    fixture.algorand.send.assetOptIn({ ...as(who), assetId: asset })
+  const optInTo = async (who: Signer, asset: bigint) => fixture.algorand.send.assetOptIn({ ...as(who), assetId: asset })
   const fund = async (who: Signer, asset: bigint, amount: bigint) =>
     fixture.algorand.send.assetTransfer({ ...as(admin), receiver: who.addr, assetId: asset, amount })
 
-  async function openChannel(who: Signer, asset: bigint, amount: bigint, key: Uint8Array, to = provider) {
+  async function open(who: Signer, asset: bigint, amount: bigint, id = 1, to = provider) {
     const result = await client.send.open({
       ...as(who),
-      args: { payment: storage(who, CHANNEL_MBR), deposit: deposit(who, asset, amount), provider: to, asset, sessionKey: key },
+      args: { payment: storage(who, TICKET_MBR), lock: transfer(who, asset, amount), provider: to, asset, request: request(id) },
     })
     return result.return!
   }
@@ -101,9 +92,13 @@ describe('InferenceNetwork', () => {
     akta = (await create('AKTA')).assetId
     usdc = (await create('USDC')).assetId
 
+    dao = (await fixture.algorand.client.getTypedAppFactory(MockInferenceDaoFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
+      .send.create.create({ args: { akta } })).appClient
+    await dao.send.setInferenceFees({ args: { chargePercentage: FEE, providerBond: BOND } })
+
     const factory = fixture.algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
     const { appClient } = await factory.send.create.create({
-      args: { version: 'test', akitaDao: 0n, admin: admin.addr.toString(), treasury: treasury.addr.toString() },
+      args: { version: 'test', akitaDao: dao.appId, admin: admin.addr.toString(), treasury: treasury.addr.toString() },
     })
     client = appClient
     appAddress = client.appAddress
@@ -119,15 +114,13 @@ describe('InferenceNetwork', () => {
     await fund(owner, akta, 10_000n)
     await fund(payer, usdc, 10_000_000n)
     await fund(payer, akta, 10_000n)
-    await fund(stranger, usdc, 10_000_000n)
   })
 
   describe('settings', () => {
-    test('only the admin may change them, and the fee stays under its ceiling', async () => {
-      const settings = { feeBps: FEE_BPS, bondAsset: akta, minBond: MIN_BOND, unbondDelay: UNBOND_DELAY, closeWindow: CLOSE_WINDOW, openRegistration: false }
+    test('only the admin may change them, within range', async () => {
+      const settings = { unbondDelay: UNBOND_DELAY, settleWindow: SETTLE_WINDOW, openRegistration: false }
       await expect(client.send.setSettings({ ...as(stranger), args: { settings } })).rejects.toThrow(/errInad/)
-      await expect(client.send.setSettings({ args: { settings: { ...settings, feeBps: 2_001n } } })).rejects.toThrow(/errInfh/)
-      await expect(client.send.setSettings({ args: { settings: { ...settings, closeWindow: 60n } } })).rejects.toThrow(/errInbw/)
+      await expect(client.send.setSettings({ args: { settings: { ...settings, settleWindow: 60n } } })).rejects.toThrow(/errInbw/)
       await expect(client.send.setSettings({ args: { settings: { ...settings, unbondDelay: 86_400n } } })).rejects.toThrow(/errInbw/)
       await client.send.setSettings({ args: { settings } })
       expect(await client.state.global.settings()).toMatchObject(settings)
@@ -146,17 +139,21 @@ describe('InferenceNetwork', () => {
   describe('providers', () => {
     const uri = 'https://inference.akita.community/.well-known/provider.json'
 
-    test('register with a bond; while registration is closed the provider waits for the admin', async () => {
+    test('register with at least the DAO bond in AKTA; while registration is closed the provider waits', async () => {
       expect((await client.send.providerCost({ args: { metadata: uri } })).return).toBe(PROVIDER_MBR + metadataMbr(uri))
       await expect(client.send.registerProvider({
         ...as(owner),
-        args: { payment: storage(owner, PROVIDER_MBR + metadataMbr(uri)), bond: deposit(owner, akta, MIN_BOND - 1n), claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri },
+        args: { payment: storage(owner, PROVIDER_MBR + metadataMbr(uri)), bond: transfer(owner, akta, BOND - 1n), claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri },
       })).rejects.toThrow(/errInbl/)
+      await expect(client.send.registerProvider({
+        ...as(payer),
+        args: { payment: storage(payer, PROVIDER_MBR + metadataMbr(uri)), bond: transfer(payer, usdc, 1_000n), claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri },
+      })).rejects.toThrow(/errInbd/)
 
       const before = await minBalance()
       const result = await client.send.registerProvider({
         ...as(owner),
-        args: { payment: storage(owner, PROVIDER_MBR + metadataMbr(uri)), bond: deposit(owner, akta, 1_000n), claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri },
+        args: { payment: storage(owner, PROVIDER_MBR + metadataMbr(uri)), bond: transfer(owner, akta, 1_000n), claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri },
       })
       provider = result.return!
       expect(await minBalance() - before).toBe(PROVIDER_MBR + metadataMbr(uri))
@@ -164,9 +161,8 @@ describe('InferenceNetwork', () => {
       expect(info).toMatchObject({ owner: owner.addr.toString(), claimer: claimer.addr.toString(), bond: 1_000n, bondAsset: akta, status: 0n })
     })
 
-    test('a pending provider takes no channels until the admin activates it', async () => {
-      const key = sessionKey()
-      await expect(openChannel(payer, usdc, 1_000n, key.publicKey)).rejects.toThrow(/errInpi/)
+    test('a pending provider takes no tickets until the admin activates it', async () => {
+      await expect(open(payer, usdc, 1_000n)).rejects.toThrow(/errInpi/)
       await expect(client.send.setProviderStatus({ ...as(owner), args: { provider, status: 1n } })).rejects.toThrow(/errInad/)
       await client.send.setProviderStatus({ args: { provider, status: 1n } })
       expect((await client.send.getProvider({ args: { provider } })).return!.status).toBe(1n)
@@ -184,132 +180,98 @@ describe('InferenceNetwork', () => {
       const ownerBefore = await balance(owner.addr, 0n)
       await client.send.setMetadata({ ...as(owner), args: { payment: storage(owner, metadataMbr(shorter)), provider, metadata: shorter }, extraFee: microAlgo(1_000) })
       expect(await minBalance() - before).toBe(ATTESTATION_MBR + metadataMbr(shorter) - metadataMbr(uri))
-      // got the old deposit back, paid the new one and two fees
       expect(await balance(owner.addr, 0n) - ownerBefore).toBe(metadataMbr(uri) - metadataMbr(shorter) - 3_000n)
     })
   })
 
-  describe('channels', () => {
-    const key = sessionKey()
-    let channel: bigint
+  describe('tickets', () => {
+    let ticket: bigint
 
-    test('a payer opens a channel with a deposit and a session key', async () => {
-      await expect(openChannel(payer, akta, 1_000n, key.publicKey)).rejects.toThrow(/errInxa/)
-      await expect(openChannel(payer, usdc, 1_000n, new Uint8Array(32))).rejects.toThrow(/errInsk/)
-      // the deposit must come from the caller
+    test('a payer opens a ticket that locks the max price', async () => {
+      await expect(open(payer, akta, 1_000n)).rejects.toThrow(/errInxa/)
+      await expect(open(payer, usdc, 0n)).rejects.toThrow(/errInzc/)
+      // the lock must come from the caller
       await expect(client.send.open({
-        ...as(payer),
-        args: { payment: storage(payer, CHANNEL_MBR), deposit: deposit(stranger, usdc, 1_000n), provider, asset: usdc, sessionKey: key.publicKey },
+        ...as(stranger),
+        args: { payment: storage(stranger, TICKET_MBR), lock: transfer(payer, usdc, 1_000n), provider, asset: usdc, request: request(1) },
       })).rejects.toThrow(/errInbd/)
 
       const before = await minBalance()
-      channel = await openChannel(payer, usdc, 1_000_000n, key.publicKey)
-      expect(await minBalance() - before).toBe(CHANNEL_MBR)
-      const info = (await client.send.getChannel({ args: { channel } })).return!
-      expect(info).toMatchObject({ payer: payer.addr.toString(), provider, asset: usdc, deposit: 1_000_000n, claimed: 0n, feeBps: FEE_BPS, closeAt: 0n })
+      ticket = await open(payer, usdc, 50_000n)
+      expect(await minBalance() - before).toBe(TICKET_MBR)
+      const info = (await client.send.getTicket({ args: { ticket } })).return!
+      expect(info).toMatchObject({ payer: payer.addr.toString(), provider, asset: usdc, amount: 50_000n, feePercentage: FEE })
     })
 
-    test('the receipt message matches what the app signs', async () => {
-      const message = (await client.send.receiptMessage({ args: { channel, total: 123n } })).return!
-      expect(Buffer.from(message)).toEqual(Buffer.from(receipt(client.appId, channel, 123n)))
-    })
-
-    test('the claim account claims a receipt; the fee stays in the app', async () => {
-      const signature = signReceipt(key.privateKey, client.appId, channel, 300_000n)
-      await expect(client.send.claim({ ...as(stranger), args: { channel, total: 300_000n, signature }, ...claimFee })).rejects.toThrow(/errIncl/)
-      const forged = signReceipt(sessionKey().privateKey, client.appId, channel, 300_000n)
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 300_000n, signature: forged }, ...claimFee })).rejects.toThrow(/errInbg/)
-      const tooMuch = signReceipt(key.privateKey, client.appId, channel, 1_000_001n)
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 1_000_001n, signature: tooMuch }, ...claimFee })).rejects.toThrow(/errInod/)
-
-      const result = await client.send.claim({ ...as(claimer), args: { channel, total: 300_000n, signature }, ...claimFee })
-      expect(result.return).toBe(270_000n)
-      expect(await balance(payout.addr, usdc)).toBe(270_000n)
-      expect((await client.state.box.assets.value(usdc))!.fees).toBe(30_000n)
-
-      // the same receipt, or an older one, pays nothing again
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 300_000n, signature }, ...claimFee })).rejects.toThrow(/errInsr/)
-      const older = signReceipt(key.privateKey, client.appId, channel, 200_000n)
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 200_000n, signature: older }, ...claimFee })).rejects.toThrow(/errInsr/)
-    })
-
-    test('a receipt for another channel does not pay on this one', async () => {
-      const other = await openChannel(payer, usdc, 1_000_000n, key.publicKey)
-      const signature = signReceipt(key.privateKey, client.appId, other, 400_000n)
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 400_000n, signature }, ...claimFee })).rejects.toThrow(/errInbg/)
-      await client.send.requestClose({ ...as(payer), args: { channel: other } })
-      await client.send.settleAndClose({ ...as(claimer), args: { channel: other, total: 0n, signature: new Uint8Array(64) }, extraFee: microAlgo(2_000) })
-    })
-
-    test('anyone can top up, and the claim only pays the increase', async () => {
-      await client.send.topUp({ ...as(stranger), args: { channel, deposit: deposit(stranger, usdc, 500_000n) } })
-      expect((await client.send.getChannel({ args: { channel } })).return!.deposit).toBe(1_500_000n)
-      const signature = signReceipt(key.privateKey, client.appId, channel, 1_100_000n)
-      const result = await client.send.claim({ ...as(claimer), args: { channel, total: 1_100_000n, signature }, ...claimFee })
-      expect(result.return).toBe(720_000n)
-      expect(await balance(payout.addr, usdc)).toBe(990_000n)
-    })
-
-    test('a requested close gives the provider the window, then returns the rest to the payer', async () => {
-      await expect(client.send.requestClose({ ...as(stranger), args: { channel } })).rejects.toThrow(/errInpy/)
-      await client.send.requestClose({ ...as(payer), args: { channel } })
-      await expect(client.send.topUp({ ...as(payer), args: { channel, deposit: deposit(payer, usdc, 1n) } })).rejects.toThrow(/errIncg/)
-      await expect(client.send.finalizeClose({ ...as(stranger), args: { channel } })).rejects.toThrow(/errInnz/)
-
-      // still inside the window: the last receipt is claimed
-      const signature = signReceipt(key.privateKey, client.appId, channel, 1_200_000n)
-      await client.send.claim({ ...as(claimer), args: { channel, total: 1_200_000n, signature }, ...claimFee })
-
-      await warp.timeWarp(CLOSE_WINDOW + 10n)
-      const late = signReceipt(key.privateKey, client.appId, channel, 1_300_000n)
-      await expect(client.send.claim({ ...as(claimer), args: { channel, total: 1_300_000n, signature: late }, ...claimFee })).rejects.toThrow(/errIncg/)
+    test('the claim account settles at the actual cost; the fee stays and the rest goes back', async () => {
+      await expect(client.send.settle({ ...as(stranger), args: { ticket, cost: 30_000n }, ...settleFee })).rejects.toThrow(/errIncl/)
+      await expect(client.send.settle({ ...as(claimer), args: { ticket, cost: 50_001n }, ...settleFee })).rejects.toThrow(/errInol/)
 
       const usdcBefore = await balance(payer.addr, usdc)
       const algoBefore = await balance(payer.addr, 0n)
       const mbrBefore = await minBalance()
-      await client.send.finalizeClose({ ...as(stranger), args: { channel }, extraFee: microAlgo(2_000) })
-      expect(await balance(payer.addr, usdc) - usdcBefore).toBe(300_000n)
-      expect(await balance(payer.addr, 0n) - algoBefore).toBe(CHANNEL_MBR)
-      expect(mbrBefore - await minBalance()).toBe(CHANNEL_MBR)
-      await expect(client.send.getChannel({ args: { channel } })).rejects.toThrow(/errInnc/)
+      const result = await client.send.settle({ ...as(claimer), args: { ticket, cost: 30_000n }, ...settleFee, ...settleRefs(ticket, usdc) }, { populateAppCallResources: false })
+      expect(result.return).toBe(27_000n)
+      expect(await balance(payout.addr, usdc)).toBe(27_000n)
+      expect(await balance(payer.addr, usdc) - usdcBefore).toBe(20_000n)
+      expect(await balance(payer.addr, 0n) - algoBefore).toBe(TICKET_MBR)
+      expect(mbrBefore - await minBalance()).toBe(TICKET_MBR)
+      expect((await client.state.box.assets.value(usdc))!.fees).toBe(3_000n)
+      await expect(client.send.settle({ ...as(claimer), args: { ticket, cost: 1n }, ...settleFee })).rejects.toThrow(/errInnt/)
     })
 
-    test('the provider can settle and close at once, in ALGO too', async () => {
-      const algoKey = sessionKey()
-      const algoChannel = await openChannel(payer, 0n, 2_000_000n, algoKey.publicKey)
-      const before = await balance(payer.addr, 0n)
-      const signature = signReceipt(algoKey.privateKey, client.appId, algoChannel, 500_000n)
-      await expect(client.send.settleAndClose({ ...as(stranger), args: { channel: algoChannel, total: 500_000n, signature }, ...claimFee }))
-        .rejects.toThrow(/errIncl/)
-      await client.send.settleAndClose({ ...as(claimer), args: { channel: algoChannel, total: 500_000n, signature }, extraFee: microAlgo(8_000) })
-      expect(await balance(payer.addr, 0n) - before).toBe(1_500_000n + CHANNEL_MBR)
-      expect((await client.state.box.assets.value(0n))!.fees).toBe(50_000n)
+    test('a ticket keeps the fee it opened with', async () => {
+      const t = await open(payer, 0n, 100_000n, 2)
+      await dao.send.setInferenceFees({ args: { chargePercentage: 5_000n, providerBond: BOND } })
+      const late = await open(payer, 0n, 100_000n, 3)
+      expect((await client.send.getTicket({ args: { ticket: late } })).return!.feePercentage).toBe(2_000n) // capped at 20%
+      await dao.send.setInferenceFees({ args: { chargePercentage: FEE, providerBond: BOND } })
+      const before = await balance(payout.addr, 0n)
+      await client.send.settle({ ...as(claimer), args: { ticket: t, cost: 100_000n }, ...settleFee })
+      expect(await balance(payout.addr, 0n) - before).toBe(90_000n)
+      await client.send.settle({ ...as(claimer), args: { ticket: late, cost: 100_000n }, ...settleFee })
+      expect(await balance(payout.addr, 0n) - before).toBe(90_000n + 80_000n)
+      expect((await client.state.box.assets.value(0n))!.fees).toBe(30_000n)
+    })
+
+    test('an unsettled ticket is refunded in full after the window, and can no longer be settled', async () => {
+      const t = await open(payer, usdc, 40_000n, 4)
+      await expect(client.send.refundExpired({ ...as(stranger), args: { ticket: t }, ...settleFee })).rejects.toThrow(/errInnx/)
+      await warp.timeWarp(SETTLE_WINDOW + 10n)
+      await expect(client.send.settle({ ...as(claimer), args: { ticket: t, cost: 1n }, ...settleFee })).rejects.toThrow(/errInex/)
+      const before = await balance(payer.addr, usdc)
+      await client.send.refundExpired({ ...as(stranger), args: { ticket: t }, ...settleFee })
+      expect(await balance(payer.addr, usdc) - before).toBe(40_000n)
     })
 
     test('fees sweep to the treasury', async () => {
       const before = await balance(treasury.addr, usdc)
       await client.send.sweepFees({ ...as(stranger), args: { asset: usdc }, extraFee: microAlgo(1_000) })
-      expect(await balance(treasury.addr, usdc) - before).toBe(30_000n + 80_000n + 10_000n)
+      expect(await balance(treasury.addr, usdc) - before).toBe(3_000n)
       expect((await client.state.box.assets.value(usdc))!.fees).toBe(0n)
     })
   })
 
   describe('bonds', () => {
-    test('the admin can pause a provider and slash its bond to the treasury', async () => {
+    test('the admin can pause a provider and slash its bond to anyone it names', async () => {
+      const open1 = await open(payer, usdc, 10_000n, 5)
       await client.send.setProviderStatus({ args: { provider, status: 2n } })
-      await expect(openChannel(payer, usdc, 1_000n, sessionKey().publicKey)).rejects.toThrow(/errInpi/)
-      await expect(client.send.slash({ args: { provider, amount: 1_001n } })).rejects.toThrow(/errInsh/)
-      const before = await balance(treasury.addr, akta)
-      await client.send.slash({ args: { provider, amount: 400n }, extraFee: microAlgo(1_000) })
-      expect(await balance(treasury.addr, akta) - before).toBe(400n)
+      await expect(open(payer, usdc, 1_000n, 6)).rejects.toThrow(/errInpi/)
+      // a paused provider can still settle what it served
+      await client.send.settle({ ...as(claimer), args: { ticket: open1, cost: 10_000n }, ...settleFee })
+      await expect(client.send.slash({ args: { provider, amount: 1_001n, receiver: payer.addr.toString() } })).rejects.toThrow(/errInsh/)
+      await expect(client.send.slash({ ...as(stranger), args: { provider, amount: 1n, receiver: stranger.addr.toString() } })).rejects.toThrow(/errInad/)
+      const before = await balance(payer.addr, akta)
+      await client.send.slash({ args: { provider, amount: 400n, receiver: payer.addr.toString() }, extraFee: microAlgo(1_000) })
+      expect(await balance(payer.addr, akta) - before).toBe(400n)
       await client.send.setProviderStatus({ args: { provider, status: 1n } })
     })
 
     test('a provider leaves after the unbonding delay with what is left of its bond', async () => {
-      await client.send.addBond({ ...as(owner), args: { provider, bond: deposit(owner, akta, 100n) } })
+      await client.send.addBond({ ...as(owner), args: { provider, bond: transfer(owner, akta, 100n) } })
       await expect(client.send.beginUnbond({ ...as(stranger), args: { provider } })).rejects.toThrow(/errInow/)
       await client.send.beginUnbond({ ...as(owner), args: { provider } })
-      await expect(openChannel(payer, usdc, 1_000n, sessionKey().publicKey)).rejects.toThrow(/errInpi/)
+      await expect(open(payer, usdc, 1_000n, 7)).rejects.toThrow(/errInpi/)
       await expect(client.send.withdrawBond({ ...as(owner), args: { provider }, extraFee: microAlgo(1_000) })).rejects.toThrow(/errInub/)
 
       await warp.timeWarp(UNBOND_DELAY + 10n)
@@ -324,12 +286,12 @@ describe('InferenceNetwork', () => {
       const settings = { ...(await client.state.global.settings())!, openRegistration: true }
       await client.send.setSettings({ args: { settings } })
       const uri = 'ipfs://second'
-      await fund(stranger, akta, MIN_BOND)
+      await fund(stranger, akta, BOND)
       const result = await client.send.registerProvider({
         ...as(stranger),
-        args: { payment: storage(stranger, PROVIDER_MBR + metadataMbr(uri)), bond: deposit(stranger, akta, MIN_BOND), claimer: stranger.addr.toString(), payout: stranger.addr.toString(), metadata: uri },
+        args: { payment: storage(stranger, PROVIDER_MBR + metadataMbr(uri)), bond: transfer(stranger, akta, BOND), claimer: stranger.addr.toString(), payout: stranger.addr.toString(), metadata: uri },
       })
-      expect((await client.send.getProvider({ args: { provider: result.return! } })).return).toMatchObject({ status: 1n, bond: MIN_BOND })
+      expect((await client.send.getProvider({ args: { provider: result.return! } })).return).toMatchObject({ status: 1n, bond: BOND })
     })
   })
 })

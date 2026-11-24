@@ -6,17 +6,11 @@
 export const errInferenceNotAdmin = 'errInad'
 /** Only the provider's owner may do this. */
 export const errInferenceNotOwner = 'errInow'
-/** Only the provider's claim account may do this. */
-export const errInferenceNotClaimer = 'errIncl'
-/** Only the channel's payer may do this. */
-export const errInferenceNotPayer = 'errInpy'
-/** The fee is above the network's ceiling. */
-export const errInferenceFeeTooHigh = 'errInfh'
-/** The close window or unbonding delay is outside the allowed range. */
+/** The unbonding delay is outside the allowed range. */
 export const errInferenceBadWindow = 'errInbw'
 /** The address must not be the zero address. */
 export const errInferenceZeroAddress = 'errInza'
-/** The asset is not accepted for channels. */
+/** The asset is not accepted for tickets. */
 export const errInferenceAssetNotAllowed = 'errInxa'
 /** This app is not opted in to the asset. */
 export const errInferenceNotOptedIn = 'errInoi'
@@ -26,30 +20,26 @@ export const errInferenceNoProvider = 'errInnp'
 export const errInferenceProviderInactive = 'errInpi'
 /** The provider's status cannot change this way. */
 export const errInferenceBadStatus = 'errInbs'
-/** The bond is below the network's minimum. */
+/** The bond is below the DAO's provider bond. */
 export const errInferenceBondTooLow = 'errInbl'
 /** The bond is still unbonding, or unbonding has not started. */
 export const errInferenceUnbonding = 'errInub'
 /** More than the provider's bond. */
 export const errInferenceSlashTooHigh = 'errInsh'
-/** No channel with this id. */
-export const errInferenceNoChannel = 'errInnc'
-/** The session key must not be empty. */
-export const errInferenceNoSessionKey = 'errInsk'
-/** A deposit must be more than zero. */
-export const errInferenceZeroDeposit = 'errInzd'
-/** The deposit transaction is not a plain transfer of the channel's asset to this app from the caller. */
-export const errInferenceBadDeposit = 'errInbd'
-/** The channel is closing, so it takes no more deposits or claims. */
-export const errInferenceClosing = 'errIncg'
-/** The channel's close window has not ended. */
-export const errInferenceNotClosable = 'errInnz'
-/** The receipt's total is not above what was already claimed. */
-export const errInferenceStaleReceipt = 'errInsr'
-/** The receipt's total is above the channel's deposit. */
-export const errInferenceOverDeposit = 'errInod'
-/** The receipt's signature does not match the channel's session key. */
-export const errInferenceBadSignature = 'errInbg'
+/** A ticket must lock more than zero. */
+export const errInferenceZeroLock = 'errInzc'
+/** Only the provider's claim account may do this. */
+export const errInferenceNotClaimer = 'errIncl'
+/** No ticket with this id. */
+export const errInferenceNoTicket = 'errInnt'
+/** The ticket's settle window has ended. */
+export const errInferenceExpired = 'errInex'
+/** The ticket's settle window has not ended. */
+export const errInferenceNotExpired = 'errInnx'
+/** The cost is above what the ticket locked. */
+export const errInferenceOverLock = 'errInol'
+/** The transfer is not a plain transfer of the asset to this app from the caller. */
+export const errInferenceBadTransfer = 'errInbd'
 /** The storage payment is not the exact amount to this app. */
 export const errInferenceBadStoragePayment = 'errInbp'
 /** The metadata URI is empty or longer than 512 bytes. */

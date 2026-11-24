@@ -1,0 +1,153 @@
+{
+    "name": "MockInferenceDAO",
+    "structs": {
+        "AkitaAssets": [
+            {
+                "name": "akta",
+                "type": "uint64"
+            },
+            {
+                "name": "bones",
+                "type": "uint64"
+            }
+        ],
+        "InferenceFees": [
+            {
+                "name": "chargePercentage",
+                "type": "uint64"
+            },
+            {
+                "name": "providerBond",
+                "type": "uint64"
+            }
+        ]
+    },
+    "methods": [
+        {
+            "name": "create",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "akta"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [
+                    "NoOp"
+                ],
+                "call": []
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "setInferenceFees",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "chargePercentage"
+                },
+                {
+                    "type": "uint64",
+                    "name": "providerBond"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "The Akita DAO state InferenceNetwork reads: AKTA's id and the inference fees.",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 2
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {
+                "akitaAssets": {
+                    "keyType": "AVMString",
+                    "valueType": "AkitaAssets",
+                    "key": "YWtpdGFfYXNzZXRz"
+                },
+                "inferenceFees": {
+                    "keyType": "AVMString",
+                    "valueType": "InferenceFees",
+                    "key": "aW5mZXJlbmNlX2ZlZXM="
+                }
+            },
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        49,
+                        81,
+                        90
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjcKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrSW5mZXJlbmNlREFPIGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYnogbWFpbl9jcmVhdGVfTm9PcEA1CiAgICBwdXNoYnl0ZXMgMHg0ZWQwOWI4ZiAvLyBtZXRob2QgInNldEluZmVyZW5jZUZlZXModWludDY0LHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggc2V0SW5mZXJlbmNlRmVlcwogICAgZXJyCgptYWluX2NyZWF0ZV9Ob09wQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjcKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrSW5mZXJlbmNlREFPIGV4dGVuZHMgQ29udHJhY3QgewogICAgcHVzaGJ5dGVzIDB4MjQwZDJmNjcgLy8gbWV0aG9kICJjcmVhdGUodWludDY0KXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBjcmVhdGUKICAgIGVycgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6Ok1vY2tJbmZlcmVuY2VEQU8uY3JlYXRlW3JvdXRpbmddKCkgLT4gdm9pZDoKY3JlYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoxMQogICAgLy8gQGFiaW1ldGhvZCh7IG9uQ3JlYXRlOiAncmVxdWlyZScgfSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTMKICAgIC8vIHRoaXMuYWtpdGFBc3NldHMudmFsdWUgPSB7IGFrdGEsIGJvbmVzOiAwIH0KICAgIGl0b2IKICAgIHB1c2hpbnQgMAogICAgaXRvYgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjgKICAgIC8vIGFraXRhQXNzZXRzID0gR2xvYmFsU3RhdGU8QWtpdGFBc3NldHM+KHsga2V5OiBBa2l0YURBT0dsb2JhbFN0YXRlS2V5c0FraXRhQXNzZXRzIH0pCiAgICBwdXNoYnl0ZXMgImFraXRhX2Fzc2V0cyIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTMKICAgIC8vIHRoaXMuYWtpdGFBc3NldHMudmFsdWUgPSB7IGFrdGEsIGJvbmVzOiAwIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjExCiAgICAvLyBAYWJpbWV0aG9kKHsgb25DcmVhdGU6ICdyZXF1aXJlJyB9KQogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6Ok1vY2tJbmZlcmVuY2VEQU8uc2V0SW5mZXJlbmNlRmVlc1tyb3V0aW5nXSgpIC0+IHZvaWQ6CnNldEluZmVyZW5jZUZlZXM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjE2CiAgICAvLyBzZXRJbmZlcmVuY2VGZWVzKGNoYXJnZVBlcmNlbnRhZ2U6IHVpbnQ2NCwgcHJvdmlkZXJCb25kOiB1aW50NjQpOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTcKICAgIC8vIHRoaXMuaW5mZXJlbmNlRmVlcy52YWx1ZSA9IHsgY2hhcmdlUGVyY2VudGFnZSwgcHJvdmlkZXJCb25kIH0KICAgIHN3YXAKICAgIGl0b2IKICAgIHN3YXAKICAgIGl0b2IKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo5CiAgICAvLyBpbmZlcmVuY2VGZWVzID0gR2xvYmFsU3RhdGU8SW5mZXJlbmNlRmVlcz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzSW5mZXJlbmNlRmVlcyB9KQogICAgcHVzaGJ5dGVzICJpbmZlcmVuY2VfZmVlcyIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTcKICAgIC8vIHRoaXMuaW5mZXJlbmNlRmVlcy52YWx1ZSA9IHsgY2hhcmdlUGVyY2VudGFnZSwgcHJvdmlkZXJCb25kIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjE2CiAgICAvLyBzZXRJbmZlcmVuY2VGZWVzKGNoYXJnZVBlcmNlbnRhZ2U6IHVpbnQ2NCwgcHJvdmlkZXJCb25kOiB1aW50NjQpOiB2b2lkIHsKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "byteCode": {
+        "approval": "CyACCAExGRREMRhBAA6ABE7Qm482GgCOAQAvAIAEJA0vZzYaAI4BAAEANhoBSRUiEkQXFoEAFlCADGFraXRhX2Fzc2V0c0xnI0M2GgFJFSISRBc2GgJJFSISRBdMFkwWUIAOaW5mZXJlbmNlX2ZlZXNMZyND",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

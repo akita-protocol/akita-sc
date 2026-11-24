@@ -78,26 +78,26 @@ changeAdmin:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/utils/functions.ts:533
+    // smart_contracts/utils/functions.ts:540
     // if (rekeyBack) {
     bz changeAdmin_after_if_else@6
-    // smart_contracts/utils/functions.ts:479-482
+    // smart_contracts/utils/functions.ts:486-489
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:481
+    // smart_contracts/utils/functions.ts:488
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // smart_contracts/utils/functions.ts:486-489
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:535-542
+    // smart_contracts/utils/functions.ts:542-549
     // itxn
     //   .payment({
     //     sender,
@@ -107,24 +107,24 @@ changeAdmin:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/utils/functions.ts:547
+    // smart_contracts/utils/functions.ts:554
     // if (!rekeyBack) {
     dig 1
     bnz changeAdmin_after_if_else@4
-    // smart_contracts/utils/functions.ts:548
+    // smart_contracts/utils/functions.ts:555
     // return Global.zeroAddress
     global ZeroAddress
 
 changeAdmin_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@5:
     itxn_field RekeyTo
-    // smart_contracts/utils/functions.ts:539
+    // smart_contracts/utils/functions.ts:546
     // amount: 0,
     intc_0 // 0
     itxn_field Amount
     dup
     itxn_field Receiver
     itxn_field Sender
-    // smart_contracts/utils/functions.ts:535-541
+    // smart_contracts/utils/functions.ts:542-548
     // itxn
     //   .payment({
     //     sender,
@@ -136,7 +136,7 @@ changeAdmin_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:535-542
+    // smart_contracts/utils/functions.ts:542-549
     // itxn
     //   .payment({
     //     sender,
@@ -154,11 +154,11 @@ changeAdmin_after_if_else@6:
     return
 
 changeAdmin_after_if_else@4:
-    // smart_contracts/utils/functions.ts:551
+    // smart_contracts/utils/functions.ts:558
     // return wallet.address
     dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:540
+    // smart_contracts/utils/functions.ts:547
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     b changeAdmin_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@5

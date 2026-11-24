@@ -72,39 +72,39 @@ main_update_route@2:
 
 // smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
 splitOptInCount:
-    // smart_contracts/utils/functions.ts:884
+    // smart_contracts/utils/functions.ts:891
     // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
     proto 3 1
-    // smart_contracts/utils/functions.ts:885
+    // smart_contracts/utils/functions.ts:892
     // let count: uint64 = 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:887
+    // smart_contracts/utils/functions.ts:894
     // if (!escrow.isOptedIn(asset)) {
     frame_dig -2
     frame_dig -1
     asset_holding_get AssetBalance
     bury 1
     bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:265
+    // smart_contracts/utils/functions.ts:272
     // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
     frame_dig -3
     pushbytes "revenue_splits"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:891
+    // smart_contracts/utils/functions.ts:898
     // count += splits.length
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:888
+    // smart_contracts/utils/functions.ts:895
     // count += 1
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:891
+    // smart_contracts/utils/functions.ts:898
     // count += splits.length
     +
     frame_bury 0
 
 splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:894
+    // smart_contracts/utils/functions.ts:901
     // return count
     frame_dig 0
     swap
@@ -350,7 +350,7 @@ deletePrizeBox:
     err // ERR:errNapb
 
 deletePrizeBox_after_assert@3:
-    // smart_contracts/utils/functions.ts:677
+    // smart_contracts/utils/functions.ts:684
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     uncover 2
     dup

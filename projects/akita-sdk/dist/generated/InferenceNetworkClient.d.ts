@@ -41,32 +41,15 @@ export type Attestation = {
  * Converts the ABI tuple representation of a Attestation to the struct representation
  */
 export declare function AttestationFromTuple(abiTuple: [bigint, Uint8Array, Uint8Array]): Attestation;
-export type Channel = {
-    payer: string;
-    sessionKey: Uint8Array;
-    provider: bigint;
-    asset: bigint;
-    deposit: bigint;
-    claimed: bigint;
-    feeBps: bigint;
-    closeAt: bigint;
-};
-/**
- * Converts the ABI tuple representation of a Channel to the struct representation
- */
-export declare function ChannelFromTuple(abiTuple: [string, Uint8Array, bigint, bigint, bigint, bigint, bigint, bigint]): Channel;
 export type InferenceSettings = {
-    feeBps: bigint;
-    bondAsset: bigint;
-    minBond: bigint;
     unbondDelay: bigint;
-    closeWindow: bigint;
+    settleWindow: bigint;
     openRegistration: boolean;
 };
 /**
  * Converts the ABI tuple representation of a InferenceSettings to the struct representation
  */
-export declare function InferenceSettingsFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, boolean]): InferenceSettings;
+export declare function InferenceSettingsFromTuple(abiTuple: [bigint, bigint, boolean]): InferenceSettings;
 export type PaymentAsset = {
     allowed: bigint;
     fees: bigint;
@@ -88,6 +71,18 @@ export type Provider = {
  * Converts the ABI tuple representation of a Provider to the struct representation
  */
 export declare function ProviderFromTuple(abiTuple: [string, string, string, bigint, bigint, bigint, bigint]): Provider;
+export type Ticket = {
+    payer: string;
+    provider: bigint;
+    asset: bigint;
+    amount: bigint;
+    feePercentage: bigint;
+    expiresAt: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a Ticket to the struct representation
+ */
+export declare function TicketFromTuple(abiTuple: [string, bigint, bigint, bigint, bigint, bigint]): Ticket;
 /**
  * The argument types for the InferenceNetwork contract
  */
@@ -108,7 +103,7 @@ export type InferenceNetworkArgs = {
         'setTreasury(address)void': {
             treasury: string;
         };
-        'setSettings((uint64,uint64,uint64,uint64,uint64,bool))void': {
+        'setSettings((uint64,uint64,bool))void': {
             settings: InferenceSettings;
         };
         'setPaymentAsset(pay,uint64,bool)void': {
@@ -120,9 +115,10 @@ export type InferenceNetworkArgs = {
             provider: bigint | number;
             status: bigint | number;
         };
-        'slash(uint64,uint64)void': {
+        'slash(uint64,uint64,address)void': {
             provider: bigint | number;
             amount: bigint | number;
+            receiver: string;
         };
         'optIn(pay,uint64)void': {
             payment: AppMethodCallTransactionArgument;
@@ -165,40 +161,23 @@ export type InferenceNetworkArgs = {
         };
         'open(pay,txn,uint64,uint64,byte[32])uint64': {
             payment?: AppMethodCallTransactionArgument;
-            deposit: AppMethodCallTransactionArgument;
+            lock: AppMethodCallTransactionArgument;
             provider: bigint | number;
             asset: bigint | number;
-            sessionKey: Uint8Array;
+            request: Uint8Array;
         };
-        'topUp(uint64,txn)void': {
-            channel: bigint | number;
-            deposit: AppMethodCallTransactionArgument;
+        'settle(uint64,uint64)uint64': {
+            ticket: bigint | number;
+            cost: bigint | number;
         };
-        'claim(uint64,uint64,byte[64])uint64': {
-            channel: bigint | number;
-            total: bigint | number;
-            signature: Uint8Array;
-        };
-        'requestClose(uint64)void': {
-            channel: bigint | number;
-        };
-        'finalizeClose(uint64)void': {
-            channel: bigint | number;
-        };
-        'settleAndClose(uint64,uint64,byte[64])void': {
-            channel: bigint | number;
-            total: bigint | number;
-            signature: Uint8Array;
-        };
-        'receiptMessage(uint64,uint64)byte[]': {
-            channel: bigint | number;
-            total: bigint | number;
+        'refundExpired(uint64)void': {
+            ticket: bigint | number;
         };
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': {
             provider: bigint | number;
         };
-        'getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)': {
-            channel: bigint | number;
+        'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)': {
+            ticket: bigint | number;
         };
         'providerCost(string)uint64': {
             metadata: string;
@@ -218,10 +197,10 @@ export type InferenceNetworkArgs = {
         'create(string,uint64,address,address)void': [version: string, akitaDao: bigint | number, admin: string, treasury: string];
         'setAdmin(address)void': [admin: string];
         'setTreasury(address)void': [treasury: string];
-        'setSettings((uint64,uint64,uint64,uint64,uint64,bool))void': [settings: InferenceSettings];
+        'setSettings((uint64,uint64,bool))void': [settings: InferenceSettings];
         'setPaymentAsset(pay,uint64,bool)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number, allowed: boolean];
         'setProviderStatus(uint64,uint64)void': [provider: bigint | number, status: bigint | number];
-        'slash(uint64,uint64)void': [provider: bigint | number, amount: bigint | number];
+        'slash(uint64,uint64,address)void': [provider: bigint | number, amount: bigint | number, receiver: string];
         'optIn(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
         'sweepFees(uint64)uint64': [asset: bigint | number];
         'registerProvider(pay,txn,address,address,string)uint64': [payment: AppMethodCallTransactionArgument | undefined, bond: AppMethodCallTransactionArgument, claimer: string, payout: string, metadata: string];
@@ -231,15 +210,11 @@ export type InferenceNetworkArgs = {
         'addBond(uint64,txn)void': [provider: bigint | number, bond: AppMethodCallTransactionArgument];
         'beginUnbond(uint64)void': [provider: bigint | number];
         'withdrawBond(uint64)void': [provider: bigint | number];
-        'open(pay,txn,uint64,uint64,byte[32])uint64': [payment: AppMethodCallTransactionArgument | undefined, deposit: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, sessionKey: Uint8Array];
-        'topUp(uint64,txn)void': [channel: bigint | number, deposit: AppMethodCallTransactionArgument];
-        'claim(uint64,uint64,byte[64])uint64': [channel: bigint | number, total: bigint | number, signature: Uint8Array];
-        'requestClose(uint64)void': [channel: bigint | number];
-        'finalizeClose(uint64)void': [channel: bigint | number];
-        'settleAndClose(uint64,uint64,byte[64])void': [channel: bigint | number, total: bigint | number, signature: Uint8Array];
-        'receiptMessage(uint64,uint64)byte[]': [channel: bigint | number, total: bigint | number];
+        'open(pay,txn,uint64,uint64,byte[32])uint64': [payment: AppMethodCallTransactionArgument | undefined, lock: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, request: Uint8Array];
+        'settle(uint64,uint64)uint64': [ticket: bigint | number, cost: bigint | number];
+        'refundExpired(uint64)void': [ticket: bigint | number];
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': [provider: bigint | number];
-        'getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)': [channel: bigint | number];
+        'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)': [ticket: bigint | number];
         'providerCost(string)uint64': [metadata: string];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
@@ -253,10 +228,10 @@ export type InferenceNetworkReturns = {
     'create(string,uint64,address,address)void': void;
     'setAdmin(address)void': void;
     'setTreasury(address)void': void;
-    'setSettings((uint64,uint64,uint64,uint64,uint64,bool))void': void;
+    'setSettings((uint64,uint64,bool))void': void;
     'setPaymentAsset(pay,uint64,bool)void': void;
     'setProviderStatus(uint64,uint64)void': void;
-    'slash(uint64,uint64)void': void;
+    'slash(uint64,uint64,address)void': void;
     'optIn(pay,uint64)void': void;
     'sweepFees(uint64)uint64': bigint;
     'registerProvider(pay,txn,address,address,string)uint64': bigint;
@@ -267,14 +242,10 @@ export type InferenceNetworkReturns = {
     'beginUnbond(uint64)void': void;
     'withdrawBond(uint64)void': void;
     'open(pay,txn,uint64,uint64,byte[32])uint64': bigint;
-    'topUp(uint64,txn)void': void;
-    'claim(uint64,uint64,byte[64])uint64': bigint;
-    'requestClose(uint64)void': void;
-    'finalizeClose(uint64)void': void;
-    'settleAndClose(uint64,uint64,byte[64])void': void;
-    'receiptMessage(uint64,uint64)byte[]': Uint8Array;
+    'settle(uint64,uint64)uint64': bigint;
+    'refundExpired(uint64)void': void;
     'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': Provider;
-    'getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)': Channel;
+    'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)': Ticket;
     'providerCost(string)uint64': bigint;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
@@ -299,10 +270,10 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['setTreasury(address)void'];
         argsTuple: InferenceNetworkArgs['tuple']['setTreasury(address)void'];
         returns: InferenceNetworkReturns['setTreasury(address)void'];
-    }> & Record<'setSettings((uint64,uint64,uint64,uint64,uint64,bool))void' | 'setSettings', {
-        argsObj: InferenceNetworkArgs['obj']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'];
-        argsTuple: InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'];
-        returns: InferenceNetworkReturns['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'];
+    }> & Record<'setSettings((uint64,uint64,bool))void' | 'setSettings', {
+        argsObj: InferenceNetworkArgs['obj']['setSettings((uint64,uint64,bool))void'];
+        argsTuple: InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,bool))void'];
+        returns: InferenceNetworkReturns['setSettings((uint64,uint64,bool))void'];
     }> & Record<'setPaymentAsset(pay,uint64,bool)void' | 'setPaymentAsset', {
         argsObj: InferenceNetworkArgs['obj']['setPaymentAsset(pay,uint64,bool)void'];
         argsTuple: InferenceNetworkArgs['tuple']['setPaymentAsset(pay,uint64,bool)void'];
@@ -311,10 +282,10 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['setProviderStatus(uint64,uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['setProviderStatus(uint64,uint64)void'];
         returns: InferenceNetworkReturns['setProviderStatus(uint64,uint64)void'];
-    }> & Record<'slash(uint64,uint64)void' | 'slash', {
-        argsObj: InferenceNetworkArgs['obj']['slash(uint64,uint64)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['slash(uint64,uint64)void'];
-        returns: InferenceNetworkReturns['slash(uint64,uint64)void'];
+    }> & Record<'slash(uint64,uint64,address)void' | 'slash', {
+        argsObj: InferenceNetworkArgs['obj']['slash(uint64,uint64,address)void'];
+        argsTuple: InferenceNetworkArgs['tuple']['slash(uint64,uint64,address)void'];
+        returns: InferenceNetworkReturns['slash(uint64,uint64,address)void'];
     }> & Record<'optIn(pay,uint64)void' | 'optIn', {
         argsObj: InferenceNetworkArgs['obj']['optIn(pay,uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['optIn(pay,uint64)void'];
@@ -355,38 +326,22 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'];
         argsTuple: InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64'];
         returns: InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32])uint64'];
-    }> & Record<'topUp(uint64,txn)void' | 'topUp', {
-        argsObj: InferenceNetworkArgs['obj']['topUp(uint64,txn)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['topUp(uint64,txn)void'];
-        returns: InferenceNetworkReturns['topUp(uint64,txn)void'];
-    }> & Record<'claim(uint64,uint64,byte[64])uint64' | 'claim', {
-        argsObj: InferenceNetworkArgs['obj']['claim(uint64,uint64,byte[64])uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['claim(uint64,uint64,byte[64])uint64'];
-        returns: InferenceNetworkReturns['claim(uint64,uint64,byte[64])uint64'];
-    }> & Record<'requestClose(uint64)void' | 'requestClose', {
-        argsObj: InferenceNetworkArgs['obj']['requestClose(uint64)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['requestClose(uint64)void'];
-        returns: InferenceNetworkReturns['requestClose(uint64)void'];
-    }> & Record<'finalizeClose(uint64)void' | 'finalizeClose', {
-        argsObj: InferenceNetworkArgs['obj']['finalizeClose(uint64)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['finalizeClose(uint64)void'];
-        returns: InferenceNetworkReturns['finalizeClose(uint64)void'];
-    }> & Record<'settleAndClose(uint64,uint64,byte[64])void' | 'settleAndClose', {
-        argsObj: InferenceNetworkArgs['obj']['settleAndClose(uint64,uint64,byte[64])void'];
-        argsTuple: InferenceNetworkArgs['tuple']['settleAndClose(uint64,uint64,byte[64])void'];
-        returns: InferenceNetworkReturns['settleAndClose(uint64,uint64,byte[64])void'];
-    }> & Record<'receiptMessage(uint64,uint64)byte[]' | 'receiptMessage', {
-        argsObj: InferenceNetworkArgs['obj']['receiptMessage(uint64,uint64)byte[]'];
-        argsTuple: InferenceNetworkArgs['tuple']['receiptMessage(uint64,uint64)byte[]'];
-        returns: InferenceNetworkReturns['receiptMessage(uint64,uint64)byte[]'];
+    }> & Record<'settle(uint64,uint64)uint64' | 'settle', {
+        argsObj: InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64'];
+        returns: InferenceNetworkReturns['settle(uint64,uint64)uint64'];
+    }> & Record<'refundExpired(uint64)void' | 'refundExpired', {
+        argsObj: InferenceNetworkArgs['obj']['refundExpired(uint64)void'];
+        argsTuple: InferenceNetworkArgs['tuple']['refundExpired(uint64)void'];
+        returns: InferenceNetworkReturns['refundExpired(uint64)void'];
     }> & Record<'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)' | 'getProvider', {
         argsObj: InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         argsTuple: InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         returns: InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
-    }> & Record<'getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)' | 'getChannel', {
-        argsObj: InferenceNetworkArgs['obj']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: InferenceNetworkArgs['tuple']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: InferenceNetworkReturns['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)' | 'getTicket', {
+        argsObj: InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'];
+        returns: InferenceNetworkReturns['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'];
     }> & Record<'providerCost(string)uint64' | 'providerCost', {
         argsObj: InferenceNetworkArgs['obj']['providerCost(string)uint64'];
         argsTuple: InferenceNetworkArgs['tuple']['providerCost(string)uint64'];
@@ -411,16 +366,16 @@ export type InferenceNetworkTypes = {
         global: {
             keys: {
                 /**
-                 * Sets the network's settings, payment assets and provider status. Meant to be the DAO wallet.
+                 * Sets the network's settings, payment assets and provider status, and slashes. Meant to be the DAO wallet.
                  */
                 admin: string;
                 /**
-                 * Receives swept fees and slashed bonds.
+                 * Receives swept fees.
                  */
                 treasury: string;
                 settings: InferenceSettings;
                 providerCount: bigint;
-                channelCount: bigint;
+                ticketCount: bigint;
                 /**
                  * the current version of the contract
                  */
@@ -438,7 +393,7 @@ export type InferenceNetworkTypes = {
                 providers: Map<bigint | number, Provider>;
                 metadata: Map<bigint | number, string>;
                 attestations: Map<bigint | number, Attestation>;
-                channels: Map<bigint | number, Channel>;
+                tickets: Map<bigint | number, Ticket>;
                 assets: Map<bigint | number, PaymentAsset>;
             };
         };
@@ -605,23 +560,22 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static setTreasury(params: CallParams<InferenceNetworkArgs['obj']['setTreasury(address)void'] | InferenceNetworkArgs['tuple']['setTreasury(address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the setSettings((uint64,uint64,uint64,uint64,uint64,bool))void ABI method
+     * Constructs a no op call for the setSettings((uint64,uint64,bool))void ABI method
      *
-    * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-    between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-    provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+    * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+    delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+    slashed once it is caught. Open tickets keep the expiry they opened with.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static setSettings(params: CallParams<InferenceNetworkArgs['obj']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'] | InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setSettings(params: CallParams<InferenceNetworkArgs['obj']['setSettings((uint64,uint64,bool))void'] | InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,bool))void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the setPaymentAsset(pay,uint64,bool)void ABI method
      *
-    * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-    paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-    asset either way.
+    * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+    `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
   
      *
      * @param params Parameters for the call
@@ -631,21 +585,21 @@ export declare abstract class InferenceNetworkParamsFactory {
     /**
      * Constructs a no op call for the setProviderStatus(uint64,uint64)void ABI method
      *
-     * Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits.
+     * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static setProviderStatus(params: CallParams<InferenceNetworkArgs['obj']['setProviderStatus(uint64,uint64)void'] | InferenceNetworkArgs['tuple']['setProviderStatus(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the slash(uint64,uint64)void ABI method
+     * Constructs a no op call for the slash(uint64,uint64,address)void ABI method
      *
-     * Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury.
+     * Takes up to the provider's whole bond and sends it to `receiver`.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static slash(params: CallParams<InferenceNetworkArgs['obj']['slash(uint64,uint64)void'] | InferenceNetworkArgs['tuple']['slash(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static slash(params: CallParams<InferenceNetworkArgs['obj']['slash(uint64,uint64,address)void'] | InferenceNetworkArgs['tuple']['slash(uint64,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the optIn(pay,uint64)void ABI method
      *
@@ -668,7 +622,7 @@ export declare abstract class InferenceNetworkParamsFactory {
      * Constructs a no op call for the registerProvider(pay,txn,address,address,string)uint64 ABI method
      *
     * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-    (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+    (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
     closed the provider starts Pending until the admin activates it.
   
      *
@@ -715,9 +669,7 @@ export declare abstract class InferenceNetworkParamsFactory {
     /**
      * Constructs a no op call for the beginUnbond(uint64)void ABI method
      *
-    * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-    closed, and the bond can be withdrawn after the unbonding delay.
-  
+     * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -735,9 +687,13 @@ export declare abstract class InferenceNetworkParamsFactory {
     /**
      * Constructs a no op call for the open(pay,txn,uint64,uint64,byte[32])uint64 ABI method
      *
-    * Opens a channel from the sender to an active provider. `payment` pays the channel box
-    (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-    `sessionKey` is the ed25519 key that will sign this channel's receipts.
+    * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+    moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+    the caller's id for the request, which the provider sees in the same request. The ticket must be
+    settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+  
+    Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+    payer off, losing at most that request.
   
      *
      * @param params Parameters for the call
@@ -745,64 +701,26 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static open(params: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the topUp(uint64,txn)void ABI method
+     * Constructs a no op call for the settle(uint64,uint64)uint64 ABI method
      *
-     * Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static topUp(params: CallParams<InferenceNetworkArgs['obj']['topUp(uint64,txn)void'] | InferenceNetworkArgs['tuple']['topUp(uint64,txn)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the claim(uint64,uint64,byte[64])uint64 ABI method
-     *
-    * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-    Only the provider's claim account may claim, and not after a requested close's window has ended.
+    * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+    locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+    and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static claim(params: CallParams<InferenceNetworkArgs['obj']['claim(uint64,uint64,byte[64])uint64'] | InferenceNetworkArgs['tuple']['claim(uint64,uint64,byte[64])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static settle(params: CallParams<InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the requestClose(uint64)void ABI method
+     * Constructs a no op call for the refundExpired(uint64)void ABI method
      *
-     * The payer asks to close. The provider has the close window to claim its last receipt.
+     * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static requestClose(params: CallParams<InferenceNetworkArgs['obj']['requestClose(uint64)void'] | InferenceNetworkArgs['tuple']['requestClose(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the finalizeClose(uint64)void ABI method
-     *
-     * After a requested close's window, anyone may return the remainder and the storage deposit to the payer.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static finalizeClose(params: CallParams<InferenceNetworkArgs['obj']['finalizeClose(uint64)void'] | InferenceNetworkArgs['tuple']['finalizeClose(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the settleAndClose(uint64,uint64,byte[64])void ABI method
-     *
-    * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-    channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-    signature to close without a new claim.
-  
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static settleAndClose(params: CallParams<InferenceNetworkArgs['obj']['settleAndClose(uint64,uint64,byte[64])void'] | InferenceNetworkArgs['tuple']['settleAndClose(uint64,uint64,byte[64])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the receiptMessage(uint64,uint64)byte[] ABI method
-     *
-     * The message a session key signs for `channel` owing `total`.
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static receiptMessage(params: CallParams<InferenceNetworkArgs['obj']['receiptMessage(uint64,uint64)byte[]'] | InferenceNetworkArgs['tuple']['receiptMessage(uint64,uint64)byte[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static refundExpired(params: CallParams<InferenceNetworkArgs['obj']['refundExpired(uint64)void'] | InferenceNetworkArgs['tuple']['refundExpired(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64) ABI method
      *
@@ -811,12 +729,12 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getChannel(params: CallParams<InferenceNetworkArgs['obj']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the providerCost(string)uint64 ABI method
      *
@@ -1414,25 +1332,24 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,uint64,uint64,uint64,bool))void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,bool))void` ABI method.
          *
-        * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-        between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-        provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+        * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+        delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+        slashed once it is caught. Open tickets keep the expiry they opened with.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"]> & {
+        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,bool))void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setPaymentAsset(pay,uint64,bool)void` ABI method.
          *
-        * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-        paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-        asset either way.
+        * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+        `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
     
          *
          * @param params The params for the smart contract call
@@ -1444,7 +1361,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setProviderStatus(uint64,uint64)void` ABI method.
          *
-         * Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits.
+         * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1453,14 +1370,14 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64,address)void` ABI method.
          *
-         * Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury.
+         * Takes up to the provider's whole bond and sends it to `receiver`.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64)void"]> & {
+        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64,address)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1489,7 +1406,7 @@ export declare class InferenceNetworkClient {
          * Makes a call to the InferenceNetwork smart contract using the `registerProvider(pay,txn,address,address,string)uint64` ABI method.
          *
         * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-        (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+        (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
         closed the provider starts Pending until the admin activates it.
     
          *
@@ -1546,9 +1463,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `beginUnbond(uint64)void` ABI method.
          *
-        * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-        closed, and the bond can be withdrawn after the unbonding delay.
-    
+         * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1570,9 +1485,13 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the sender to an active provider. `payment` pays the channel box
-        (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-        `sessionKey` is the ed25519 key that will sign this channel's receipts.
+        * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+        moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+        the caller's id for the request, which the provider sees in the same request. The ticket must be
+        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+        payer off, losing at most that request.
     
          *
          * @param params The params for the smart contract call
@@ -1582,76 +1501,28 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `topUp(uint64,txn)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
          *
-         * Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        topUp: (params: CallParams<InferenceNetworkArgs["obj"]["topUp(uint64,txn)void"] | InferenceNetworkArgs["tuple"]["topUp(uint64,txn)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `claim(uint64,uint64,byte[64])uint64` ABI method.
-         *
-        * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-        Only the provider's claim account may claim, and not after a requested close's window has ended.
+        * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+        locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+        and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        claim: (params: CallParams<InferenceNetworkArgs["obj"]["claim(uint64,uint64,byte[64])uint64"] | InferenceNetworkArgs["tuple"]["claim(uint64,uint64,byte[64])uint64"]> & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `requestClose(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
          *
-         * The payer asks to close. The provider has the close window to claim its last receipt.
+         * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        requestClose: (params: CallParams<InferenceNetworkArgs["obj"]["requestClose(uint64)void"] | InferenceNetworkArgs["tuple"]["requestClose(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `finalizeClose(uint64)void` ABI method.
-         *
-         * After a requested close's window, anyone may return the remainder and the storage deposit to the payer.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        finalizeClose: (params: CallParams<InferenceNetworkArgs["obj"]["finalizeClose(uint64)void"] | InferenceNetworkArgs["tuple"]["finalizeClose(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `settleAndClose(uint64,uint64,byte[64])void` ABI method.
-         *
-        * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-        channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-        signature to close without a new claim.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        settleAndClose: (params: CallParams<InferenceNetworkArgs["obj"]["settleAndClose(uint64,uint64,byte[64])void"] | InferenceNetworkArgs["tuple"]["settleAndClose(uint64,uint64,byte[64])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `receiptMessage(uint64,uint64)byte[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The message a session key signs for `channel` owing `total`.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        receiptMessage: (params: CallParams<InferenceNetworkArgs["obj"]["receiptMessage(uint64,uint64)byte[]"] | InferenceNetworkArgs["tuple"]["receiptMessage(uint64,uint64)byte[]"]> & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1666,14 +1537,14 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getChannel: (params: CallParams<InferenceNetworkArgs["obj"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1762,17 +1633,17 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,uint64,uint64,uint64,bool))void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,bool))void` ABI method.
          *
-        * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-        between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-        provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+        * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+        delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+        slashed once it is caught. Open tickets keep the expiry they opened with.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"]> & {
+        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,bool))void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1782,9 +1653,8 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setPaymentAsset(pay,uint64,bool)void` ABI method.
          *
-        * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-        paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-        asset either way.
+        * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+        `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
     
          *
          * @param params The params for the smart contract call
@@ -1800,7 +1670,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setProviderStatus(uint64,uint64)void` ABI method.
          *
-         * Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits.
+         * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -1813,14 +1683,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64,address)void` ABI method.
          *
-         * Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury.
+         * Takes up to the provider's whole bond and sends it to `receiver`.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64)void"]> & {
+        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64,address)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1861,7 +1731,7 @@ export declare class InferenceNetworkClient {
          * Makes a call to the InferenceNetwork smart contract using the `registerProvider(pay,txn,address,address,string)uint64` ABI method.
          *
         * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-        (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+        (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
         closed the provider starts Pending until the admin activates it.
     
          *
@@ -1938,9 +1808,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `beginUnbond(uint64)void` ABI method.
          *
-        * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-        closed, and the bond can be withdrawn after the unbonding delay.
-    
+         * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -1970,9 +1838,13 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the sender to an active provider. `payment` pays the channel box
-        (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-        `sessionKey` is the ed25519 key that will sign this channel's receipts.
+        * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+        moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+        the caller's id for the request, which the provider sees in the same request. The ticket must be
+        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+        payer off, losing at most that request.
     
          *
          * @param params The params for the smart contract call
@@ -1986,31 +1858,17 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `topUp(uint64,txn)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
          *
-         * Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        topUp: (params: CallParams<InferenceNetworkArgs["obj"]["topUp(uint64,txn)void"] | InferenceNetworkArgs["tuple"]["topUp(uint64,txn)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `claim(uint64,uint64,byte[64])uint64` ABI method.
-         *
-        * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-        Only the provider's claim account may claim, and not after a requested close's window has ended.
+        * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+        locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+        and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        claim: (params: CallParams<InferenceNetworkArgs["obj"]["claim(uint64,uint64,byte[64])uint64"] | InferenceNetworkArgs["tuple"]["claim(uint64,uint64,byte[64])uint64"]> & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2018,64 +1876,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `requestClose(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
          *
-         * The payer asks to close. The provider has the close window to claim its last receipt.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        requestClose: (params: CallParams<InferenceNetworkArgs["obj"]["requestClose(uint64)void"] | InferenceNetworkArgs["tuple"]["requestClose(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `finalizeClose(uint64)void` ABI method.
-         *
-         * After a requested close's window, anyone may return the remainder and the storage deposit to the payer.
+         * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        finalizeClose: (params: CallParams<InferenceNetworkArgs["obj"]["finalizeClose(uint64)void"] | InferenceNetworkArgs["tuple"]["finalizeClose(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `settleAndClose(uint64,uint64,byte[64])void` ABI method.
-         *
-        * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-        channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-        signature to close without a new claim.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        settleAndClose: (params: CallParams<InferenceNetworkArgs["obj"]["settleAndClose(uint64,uint64,byte[64])void"] | InferenceNetworkArgs["tuple"]["settleAndClose(uint64,uint64,byte[64])void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `receiptMessage(uint64,uint64)byte[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The message a session key signs for `channel` owing `total`.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        receiptMessage: (params: CallParams<InferenceNetworkArgs["obj"]["receiptMessage(uint64,uint64)byte[]"] | InferenceNetworkArgs["tuple"]["receiptMessage(uint64,uint64)byte[]"]> & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2098,14 +1906,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getChannel: (params: CallParams<InferenceNetworkArgs["obj"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2227,20 +2035,20 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,uint64,uint64,uint64,bool))void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `setSettings((uint64,uint64,bool))void` ABI method.
          *
-        * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-        between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-        provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+        * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+        delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+        slashed once it is caught. Open tickets keep the expiry they opened with.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"]> & SendParams & {
+        setSettings: (params: CallParams<InferenceNetworkArgs["obj"]["setSettings((uint64,uint64,bool))void"] | InferenceNetworkArgs["tuple"]["setSettings((uint64,uint64,bool))void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["setSettings((uint64,uint64,uint64,uint64,uint64,bool))void"]);
+            return: (undefined | InferenceNetworkReturns["setSettings((uint64,uint64,bool))void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2252,9 +2060,8 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setPaymentAsset(pay,uint64,bool)void` ABI method.
          *
-        * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-        paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-        asset either way.
+        * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+        `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
     
          *
          * @param params The params for the smart contract call
@@ -2275,7 +2082,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `setProviderStatus(uint64,uint64)void` ABI method.
          *
-         * Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits.
+         * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2293,17 +2100,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `slash(uint64,uint64,address)void` ABI method.
          *
-         * Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury.
+         * Takes up to the provider's whole bond and sends it to `receiver`.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64)void"]> & SendParams & {
+        slash: (params: CallParams<InferenceNetworkArgs["obj"]["slash(uint64,uint64,address)void"] | InferenceNetworkArgs["tuple"]["slash(uint64,uint64,address)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["slash(uint64,uint64)void"]);
+            return: (undefined | InferenceNetworkReturns["slash(uint64,uint64,address)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2356,7 +2163,7 @@ export declare class InferenceNetworkClient {
          * Makes a call to the InferenceNetwork smart contract using the `registerProvider(pay,txn,address,address,string)uint64` ABI method.
          *
         * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-        (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+        (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
         closed the provider starts Pending until the admin activates it.
     
          *
@@ -2458,9 +2265,7 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `beginUnbond(uint64)void` ABI method.
          *
-        * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-        closed, and the bond can be withdrawn after the unbonding delay.
-    
+         * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2500,9 +2305,13 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
          *
-        * Opens a channel from the sender to an active provider. `payment` pays the channel box
-        (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-        `sessionKey` is the ed25519 key that will sign this channel's receipts.
+        * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+        moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+        the caller's id for the request, which the provider sees in the same request. The ticket must be
+        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+        payer off, losing at most that request.
     
          *
          * @param params The params for the smart contract call
@@ -2521,39 +2330,20 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `topUp(uint64,txn)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
          *
-         * Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        topUp: (params: CallParams<InferenceNetworkArgs["obj"]["topUp(uint64,txn)void"] | InferenceNetworkArgs["tuple"]["topUp(uint64,txn)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["topUp(uint64,txn)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `claim(uint64,uint64,byte[64])uint64` ABI method.
-         *
-        * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-        Only the provider's claim account may claim, and not after a requested close's window has ended.
+        * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+        locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+        and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        claim: (params: CallParams<InferenceNetworkArgs["obj"]["claim(uint64,uint64,byte[64])uint64"] | InferenceNetworkArgs["tuple"]["claim(uint64,uint64,byte[64])uint64"]> & SendParams & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["claim(uint64,uint64,byte[64])uint64"]);
+            return: (undefined | InferenceNetworkReturns["settle(uint64,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2563,82 +2353,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `requestClose(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
          *
-         * The payer asks to close. The provider has the close window to claim its last receipt.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        requestClose: (params: CallParams<InferenceNetworkArgs["obj"]["requestClose(uint64)void"] | InferenceNetworkArgs["tuple"]["requestClose(uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["requestClose(uint64)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `finalizeClose(uint64)void` ABI method.
-         *
-         * After a requested close's window, anyone may return the remainder and the storage deposit to the payer.
+         * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        finalizeClose: (params: CallParams<InferenceNetworkArgs["obj"]["finalizeClose(uint64)void"] | InferenceNetworkArgs["tuple"]["finalizeClose(uint64)void"]> & SendParams & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["finalizeClose(uint64)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `settleAndClose(uint64,uint64,byte[64])void` ABI method.
-         *
-        * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-        channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-        signature to close without a new claim.
-    
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        settleAndClose: (params: CallParams<InferenceNetworkArgs["obj"]["settleAndClose(uint64,uint64,byte[64])void"] | InferenceNetworkArgs["tuple"]["settleAndClose(uint64,uint64,byte[64])void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["settleAndClose(uint64,uint64,byte[64])void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the InferenceNetwork smart contract using the `receiptMessage(uint64,uint64)byte[]` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * The message a session key signs for `channel` owing `total`.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        receiptMessage: (params: CallParams<InferenceNetworkArgs["obj"]["receiptMessage(uint64,uint64)byte[]"] | InferenceNetworkArgs["tuple"]["receiptMessage(uint64,uint64)byte[]"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["receiptMessage(uint64,uint64)byte[]"]);
+            return: (undefined | InferenceNetworkReturns["refundExpired(uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2668,17 +2393,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getChannel: (params: CallParams<InferenceNetworkArgs["obj"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)"]);
+            return: (undefined | InferenceNetworkReturns["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2754,17 +2479,6 @@ export declare class InferenceNetworkClient {
      */
     clone(params: CloneAppClientParams): InferenceNetworkClient;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `receiptMessage(uint64,uint64)byte[]` ABI method.
-     *
-     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-     *
-     * The message a session key signs for `channel` owing `total`.
-     *
-     * @param params The params for the smart contract call
-     * @returns The call result
-     */
-    receiptMessage(params: CallParams<InferenceNetworkArgs['obj']['receiptMessage(uint64,uint64)byte[]'] | InferenceNetworkArgs['tuple']['receiptMessage(uint64,uint64)byte[]']>): Promise<Uint8Array<ArrayBufferLike>>;
-    /**
      * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2774,14 +2488,14 @@ export declare class InferenceNetworkClient {
      */
     getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): Promise<Provider>;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getChannel(params: CallParams<InferenceNetworkArgs['obj']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Channel>;
+    getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)']>): Promise<Ticket>;
     /**
      * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `providerCost(string)uint64` ABI method.
      *
@@ -2822,9 +2536,9 @@ export declare class InferenceNetworkClient {
              */
             providerCount: () => Promise<bigint | undefined>;
             /**
-             * Get the current value of the channelCount key in global state
+             * Get the current value of the ticketCount key in global state
              */
-            channelCount: () => Promise<bigint | undefined>;
+            ticketCount: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the version key in global state
              */
@@ -2882,17 +2596,17 @@ export declare class InferenceNetworkClient {
                 value: (key: bigint | number) => Promise<Attestation | undefined>;
             };
             /**
-             * Get values from the channels map in box state
+             * Get values from the tickets map in box state
              */
-            channels: {
+            tickets: {
                 /**
-                 * Get all current values of the channels map in box state
+                 * Get all current values of the tickets map in box state
                  */
-                getMap: () => Promise<Map<bigint, Channel>>;
+                getMap: () => Promise<Map<bigint, Ticket>>;
                 /**
-                 * Get a current value of the channels map by key from box state
+                 * Get a current value of the tickets map by key from box state
                  */
-                value: (key: bigint | number) => Promise<Channel | undefined>;
+                value: (key: bigint | number) => Promise<Ticket | undefined>;
             };
             /**
              * Get values from the assets map in box state
@@ -2929,24 +2643,23 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     setTreasury(params?: CallParams<InferenceNetworkArgs['obj']['setTreasury(address)void'] | InferenceNetworkArgs['tuple']['setTreasury(address)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['setTreasury(address)void'] | undefined]>;
     /**
-     * Calls the setSettings((uint64,uint64,uint64,uint64,uint64,bool))void ABI method.
+     * Calls the setSettings((uint64,uint64,bool))void ABI method.
      *
-    * Replaces the settings. The fee can never pass INFERENCE_MAX_FEE_BPS, the close window stays
-    between one hour and 30 days, and the unbonding delay is never shorter than the close window, so a
-    provider's bond outlasts every claim it can still make. This app must hold the bond asset.
+    * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
+    delay between 14 days and a year, so a provider that overcharged and then leaves can still be
+    slashed once it is caught. Open tickets keep the expiry they opened with.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    setSettings(params?: CallParams<InferenceNetworkArgs['obj']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'] | InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['setSettings((uint64,uint64,uint64,uint64,uint64,bool))void'] | undefined]>;
+    setSettings(params?: CallParams<InferenceNetworkArgs['obj']['setSettings((uint64,uint64,bool))void'] | InferenceNetworkArgs['tuple']['setSettings((uint64,uint64,bool))void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['setSettings((uint64,uint64,bool))void'] | undefined]>;
     /**
      * Calls the setPaymentAsset(pay,uint64,bool)void ABI method.
      *
-    * Accepts or stops accepting `asset` for new channels. The first call for an asset creates its box,
-    paid by `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment. Open channels keep their
-    asset either way.
+    * Accepts or stops accepting `asset` for new tickets. The first call for an asset creates its box, paid by
+    `payment` (INFERENCE_ASSET_MBR); later calls take a zero payment.
   
      *
      * @param args The arguments for the contract call
@@ -2957,7 +2670,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the setProviderStatus(uint64,uint64)void ABI method.
      *
-     * Activates a Pending or Paused provider, or pauses an Active one. Paused providers take no new deposits.
+     * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -2965,15 +2678,15 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     setProviderStatus(params?: CallParams<InferenceNetworkArgs['obj']['setProviderStatus(uint64,uint64)void'] | InferenceNetworkArgs['tuple']['setProviderStatus(uint64,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['setProviderStatus(uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the slash(uint64,uint64)void ABI method.
+     * Calls the slash(uint64,uint64,address)void ABI method.
      *
-     * Takes up to the provider's whole bond, for misbehaviour proven to the admin, and sends it to the treasury.
+     * Takes up to the provider's whole bond and sends it to `receiver`.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    slash(params?: CallParams<InferenceNetworkArgs['obj']['slash(uint64,uint64)void'] | InferenceNetworkArgs['tuple']['slash(uint64,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['slash(uint64,uint64)void'] | undefined]>;
+    slash(params?: CallParams<InferenceNetworkArgs['obj']['slash(uint64,uint64,address)void'] | InferenceNetworkArgs['tuple']['slash(uint64,uint64,address)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['slash(uint64,uint64,address)void'] | undefined]>;
     /**
      * Calls the optIn(pay,uint64)void ABI method.
      *
@@ -2998,7 +2711,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * Calls the registerProvider(pay,txn,address,address,string)uint64 ABI method.
      *
     * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
-    (providerCost); `bond` transfers at least the minimum bond in the bond asset. While registration is
+    (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
     closed the provider starts Pending until the admin activates it.
   
      *
@@ -3050,9 +2763,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the beginUnbond(uint64)void ABI method.
      *
-    * Starts leaving the network: no new channels or deposits, existing channels can still be claimed and
-    closed, and the bond can be withdrawn after the unbonding delay.
-  
+     * Starts leaving the network: no new tickets (open ones can still be settled), and the bond can be withdrawn after the unbonding delay.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
@@ -3072,9 +2783,13 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the open(pay,txn,uint64,uint64,byte[32])uint64 ABI method.
      *
-    * Opens a channel from the sender to an active provider. `payment` pays the channel box
-    (INFERENCE_CHANNEL_MBR), `deposit` transfers the opening balance of `asset` from the sender, and
-    `sessionKey` is the ed25519 key that will sign this channel's receipts.
+    * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
+    moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
+    the caller's id for the request, which the provider sees in the same request. The ticket must be
+    settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+  
+    Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
+    payer off, losing at most that request.
   
      *
      * @param args The arguments for the contract call
@@ -3083,70 +2798,28 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     open(params?: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32])uint64'] | undefined]>;
     /**
-     * Calls the topUp(uint64,txn)void ABI method.
+     * Calls the settle(uint64,uint64)uint64 ABI method.
      *
-     * Adds to an open channel's deposit. Anyone may top up; the remainder still goes to the payer.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    topUp(params?: CallParams<InferenceNetworkArgs['obj']['topUp(uint64,txn)void'] | InferenceNetworkArgs['tuple']['topUp(uint64,txn)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['topUp(uint64,txn)void'] | undefined]>;
-    /**
-     * Calls the claim(uint64,uint64,byte[64])uint64 ABI method.
-     *
-    * Claims a receipt: pays the provider what `total` adds over the last claim, less the channel's fee.
-    Only the provider's claim account may claim, and not after a requested close's window has ended.
+    * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
+    locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
+    and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    claim(params?: CallParams<InferenceNetworkArgs['obj']['claim(uint64,uint64,byte[64])uint64'] | InferenceNetworkArgs['tuple']['claim(uint64,uint64,byte[64])uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['claim(uint64,uint64,byte[64])uint64'] | undefined]>;
+    settle(params?: CallParams<InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['settle(uint64,uint64)uint64'] | undefined]>;
     /**
-     * Calls the requestClose(uint64)void ABI method.
+     * Calls the refundExpired(uint64)void ABI method.
      *
-     * The payer asks to close. The provider has the close window to claim its last receipt.
+     * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    requestClose(params?: CallParams<InferenceNetworkArgs['obj']['requestClose(uint64)void'] | InferenceNetworkArgs['tuple']['requestClose(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['requestClose(uint64)void'] | undefined]>;
-    /**
-     * Calls the finalizeClose(uint64)void ABI method.
-     *
-     * After a requested close's window, anyone may return the remainder and the storage deposit to the payer.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    finalizeClose(params?: CallParams<InferenceNetworkArgs['obj']['finalizeClose(uint64)void'] | InferenceNetworkArgs['tuple']['finalizeClose(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['finalizeClose(uint64)void'] | undefined]>;
-    /**
-     * Calls the settleAndClose(uint64,uint64,byte[64])void ABI method.
-     *
-    * The provider's claim account claims `total` (when it is above what was claimed) and closes the
-    channel at once, returning the remainder to the payer. Pass the last claimed total and an empty
-    signature to close without a new claim.
-  
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    settleAndClose(params?: CallParams<InferenceNetworkArgs['obj']['settleAndClose(uint64,uint64,byte[64])void'] | InferenceNetworkArgs['tuple']['settleAndClose(uint64,uint64,byte[64])void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['settleAndClose(uint64,uint64,byte[64])void'] | undefined]>;
-    /**
-     * Calls the receiptMessage(uint64,uint64)byte[] ABI method.
-     *
-     * The message a session key signs for `channel` owing `total`.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    receiptMessage(params?: CallParams<InferenceNetworkArgs['obj']['receiptMessage(uint64,uint64)byte[]'] | InferenceNetworkArgs['tuple']['receiptMessage(uint64,uint64)byte[]']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['receiptMessage(uint64,uint64)byte[]'] | undefined]>;
+    refundExpired(params?: CallParams<InferenceNetworkArgs['obj']['refundExpired(uint64)void'] | InferenceNetworkArgs['tuple']['refundExpired(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['refundExpired(uint64)void'] | undefined]>;
     /**
      * Calls the getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64) ABI method.
      *
@@ -3156,13 +2829,13 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     getProvider(params?: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     * Calls the getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64) ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getChannel(params?: CallParams<InferenceNetworkArgs['obj']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getChannel(uint64)(address,byte[32],uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
+    getTicket(params?: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
      * Calls the providerCost(string)uint64 ABI method.
      *

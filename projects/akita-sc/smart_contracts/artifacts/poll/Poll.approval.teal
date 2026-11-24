@@ -1043,7 +1043,7 @@ gatedVote_after_assert@11:
     swap
     bury 7
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:442
+    // smart_contracts/utils/functions.ts:449
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     dig 4
     gtxns ApplicationID
@@ -1053,67 +1053,67 @@ gatedVote_after_assert@11:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:442
+    // smart_contracts/utils/functions.ts:449
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:442-443
+    // smart_contracts/utils/functions.ts:449-450
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:443
+    // smart_contracts/utils/functions.ts:450
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 3
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:442-443
+    // smart_contracts/utils/functions.ts:449-450
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:444
+    // smart_contracts/utils/functions.ts:451
     // gateTxn.numAppArgs === 4 &&
     dig 3
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:442-444
+    // smart_contracts/utils/functions.ts:449-451
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:445
+    // smart_contracts/utils/functions.ts:452
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     dig 3
     gtxnsa ApplicationArgs 0
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:442-445
+    // smart_contracts/utils/functions.ts:449-452
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:446
+    // smart_contracts/utils/functions.ts:453
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     dig 3
     gtxnsa ApplicationArgs 1
     dig 6
     ==
-    // smart_contracts/utils/functions.ts:442-446
+    // smart_contracts/utils/functions.ts:449-453
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:447
+    // smart_contracts/utils/functions.ts:454
     // gateTxn.appArgs(2) === itob(id)
     dig 3
     gtxnsa ApplicationArgs 2
     dig 5
     itob
     ==
-    // smart_contracts/utils/functions.ts:442-447
+    // smart_contracts/utils/functions.ts:449-454
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -1487,7 +1487,7 @@ createVote_if_body@2:
     app_global_get_ex
     assert // check GlobalState exists
     txn Sender
-    // smart_contracts/utils/functions.ts:298-301
+    // smart_contracts/utils/functions.ts:305-308
     // return abiCall<typeof AkitaSocialImpact.prototype.getUserImpact>({
     //   appId: getAkitaSocialAppList(akitaDAO).impact,
     //   args: [account]
@@ -1499,12 +1499,12 @@ createVote_if_body@2:
     pushbytes "sal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:299
+    // smart_contracts/utils/functions.ts:306
     // appId: getAkitaSocialAppList(akitaDAO).impact,
     pushint 16
     extract_uint64
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:298-301
+    // smart_contracts/utils/functions.ts:305-308
     // return abiCall<typeof AkitaSocialImpact.prototype.getUserImpact>({
     //   appId: getAkitaSocialAppList(akitaDAO).impact,
     //   args: [account]

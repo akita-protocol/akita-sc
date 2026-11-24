@@ -1,22 +1,32 @@
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { InferencePluginClient } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginSDKReturn } from "../../types";
-/** Prefix of every InferenceNetwork receipt. Matches INFERENCE_RECEIPT_DOMAIN in the contract. */
-export declare const INFERENCE_RECEIPT_DOMAIN = "akita/inference/v1";
 /**
- * The bytes a channel's session key signs to say the channel owes its provider `total` in all.
- * Sign them with plain ed25519 (no "MX" prefix): the contract checks them with ed25519verify_bare.
+ * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
+ * settle in an ASA touches three holdings (the network's, the payout's and the payer's), which can be
+ * more than automatic resource population will place in one call.
  */
-export declare function inferenceReceiptMessage(network: bigint | number, channel: bigint | number, total: bigint | number): Uint8Array;
+export declare function inferenceSettleReferences(args: {
+    ticket: bigint | number;
+    provider: bigint | number;
+    asset: bigint | number;
+    payer: ReadableAddress;
+    payout: ReadableAddress;
+}): {
+    accountReferences: ReadableAddress[];
+    assetReferences: bigint[];
+    boxReferences: Uint8Array<ArrayBuffer>[];
+};
 /**
- * Policy of a delegated InferencePlugin grant: the network it may use, the only providers and assets
- * (0 is ALGO) it may use, and the most one channel may ever hold.
+ * Policy of a delegated InferencePlugin grant: the network it may use, the only providers it may open
+ * tickets to, the only assets it may lock (0 is ALGO), and the most one ticket may lock.
  */
 export type InferencePolicy = {
     network: bigint;
     providers: bigint[];
     assets: bigint[];
-    maxDeposit: bigint;
+    maxPrice: bigint;
 };
 /**
  * Encode an InferencePlugin policy body for `MetaPluginSDK.configurePolicy`. Sorts the lists and drops
@@ -26,39 +36,25 @@ export declare function encodeInferencePolicy(policy: {
     network: bigint | number;
     providers: (bigint | number)[];
     assets: (bigint | number)[];
-    maxDeposit: bigint | number;
+    maxPrice: bigint | number;
 }): Uint8Array;
 export declare function decodeInferencePolicy(body: Uint8Array): InferencePolicy;
-type Common = MaybeSigner & {
+type OpenArgs = MaybeSigner & {
     rekeyBack?: boolean;
     network: bigint | number;
-};
-type OpenArgs = Common & {
     provider: bigint | number;
     asset: bigint | number;
-    amount: bigint | number;
-    /** The 32-byte ed25519 public key that will sign this channel's receipts. */
-    sessionKey: Uint8Array;
-};
-type TopUpArgs = Common & {
-    channel: bigint | number;
-    amount: bigint | number;
-};
-type RequestCloseArgs = Common & {
-    channel: bigint | number;
+    /** The most this request may cost; locked until the provider settles. */
+    maxPrice: bigint | number;
+    /** The caller's 32-byte id for the request, which it also sends to the provider. */
+    request: Uint8Array;
 };
 /** Builds InferencePlugin calls for `WalletSDK.usePlugin`. */
 export declare class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
     constructor(params: NewContractSDKParams);
     private selector;
-    /** Opens a channel from the wallet's spending account; the call returns the channel id. */
+    /** Opens a ticket from the wallet's spending account for one request; the call returns the ticket id. */
     open(): PluginSDKReturn;
     open(args: OpenArgs): PluginSDKReturn;
-    /** Adds to a channel the wallet's spending account opened. */
-    topUp(): PluginSDKReturn;
-    topUp(args: TopUpArgs): PluginSDKReturn;
-    /** Asks to close a channel the wallet's spending account opened. */
-    requestClose(): PluginSDKReturn;
-    requestClose(args: RequestCloseArgs): PluginSDKReturn;
 }
 export {};

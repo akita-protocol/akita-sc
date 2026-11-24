@@ -421,6 +421,13 @@ export class arc4SubscriptionFees extends arc4.Struct<{
   triggerPercentage: arc4.Uint64
 }> { }
 
+export type InferenceFees = {
+  /** the DAO's share of every inference charge as a whole number. eg. 3.5% is 350 */
+  chargePercentage: uint64
+  /** the AKTA a provider must bond to join the inference network */
+  providerBond: uint64
+}
+
 export type SwapFees = {
   impactTaxMin: uint64
   impactTaxMax: uint64

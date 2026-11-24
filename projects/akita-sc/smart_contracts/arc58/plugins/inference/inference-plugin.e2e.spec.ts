@@ -1,18 +1,17 @@
 /**
- * InferencePlugin on LocalNet: a wallet's `inference` escrow opens and funds a channel on
- * InferenceNetwork as the payer, a delegated key does so only inside its policy, and the refund on
- * close comes back to the escrow.
+ * InferencePlugin on LocalNet: a wallet's `inference` escrow opens per-request tickets on
+ * InferenceNetwork as the payer, a delegated key (such as the one that runs routines) does so only
+ * inside its policy, and what the provider does not settle comes back to the escrow.
  */
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import algosdk, { ABIType } from 'algosdk'
-import { generateKeyPairSync, sign } from 'node:crypto'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet'
 import { MetaFactory, MetaSDK, SchemaPart } from '../../../../../akita-sdk/src/meta'
 import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/wallet/plugins/meta'
 import {
-  decodeInferencePolicy, encodeInferencePolicy, inferenceReceiptMessage, InferencePluginSDK,
+  decodeInferencePolicy, encodeInferencePolicy, InferencePluginSDK,
 } from '../../../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
@@ -20,20 +19,17 @@ import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
 import { AbstractedAccountMbrFactory } from '../../../artifacts/arc58/account/AbstractedAccountMBRClient'
 import { InferencePluginFactory } from '../../../artifacts/arc58/plugins/inference/InferencePluginClient'
 import { InferenceNetworkClient, InferenceNetworkFactory } from '../../../artifacts/inference/InferenceNetworkClient'
+import { MockInferenceDaoFactory } from '../../../artifacts/inference/tests/MockInferenceDAOClient'
 import { errPolicyMissing } from '../../../utils/errors'
-import {
-  errInferenceNotOwnChannel, errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields,
-} from './errors'
+import { errAllowanceExceeded } from '../../account/errors'
+import { errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields } from './errors'
 
 const ESCROW = 'inference'
-const CHANNEL_MBR = 2_500n + 400n * (9n + 32n + 32n + 8n * 6n)
+const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 5n)
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 
-function sessionKey() {
-  const { publicKey, privateKey } = generateKeyPairSync('ed25519')
-  return { publicKey: new Uint8Array(Buffer.from(publicKey.export({ format: 'jwk' }).x!, 'base64url')), privateKey }
-}
+const request = (n: number) => new Uint8Array(32).fill(n)
 
 describe('InferencePlugin (LocalNet)', () => {
   const fixture = algorandFixture()
@@ -58,7 +54,7 @@ describe('InferencePlugin (LocalNet)', () => {
     callerType: CallerType.Admin,
     calls: [writer.configurePolicy({ plugin: plugin.appId, caller: agent.addr.toString(), escrow: ESCROW, body, expectedRevision })],
   })
-  const lastChannel = async () => (await network.state.global.channelCount())!
+  const lastTicket = async () => (await network.state.global.ticketCount())!
 
   beforeAll(async () => {
     Config.configure({ populateAppCallResources: true })
@@ -88,11 +84,15 @@ describe('InferencePlugin (LocalNet)', () => {
     plugin = new InferencePluginSDK({ algorand, factoryParams: { appId: pluginClient.appId, defaultSender: owner, defaultSigner: signer } })
 
     // The network, with Akita as provider 1 and a second provider the policy leaves out.
+    // Bonds in ALGO here (the mock DAO names no AKTA), and a 10% DAO fee.
+    const { appClient: inferenceDao } = await algorand.client.getTypedAppFactory(MockInferenceDaoFactory, { defaultSender: owner, defaultSigner: signer })
+      .send.create.create({ args: { akta: 0n } })
+    await inferenceDao.send.setInferenceFees({ args: { chargePercentage: 1_000n, providerBond: 0n } })
     const { appClient } = await algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: owner, defaultSigner: signer })
-      .send.create.create({ args: { version: 'test', akitaDao: 0n, admin: owner, treasury: owner } })
+      .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner, treasury: owner } })
     network = appClient
     await network.appClient.fundAppAccount({ amount: microAlgo(100_000) })
-    await network.send.setSettings({ args: { settings: { feeBps: 1_000n, bondAsset: 0n, minBond: 0n, unbondDelay: 30n * 86_400n, closeWindow: 3_600n, openRegistration: true } } })
+    await network.send.setSettings({ args: { settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: true } } })
     const pay = (amount: bigint) => algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(amount) })
     await network.send.setPaymentAsset({ args: { payment: pay(ASSET_MBR), asset: 0n, allowed: true } })
     claimer = algorand.account.random()
@@ -126,7 +126,7 @@ describe('InferencePlugin (LocalNet)', () => {
 
   test('a delegated grant without a policy opens nothing', async () => {
     await expect(asAgent(plugin.open({
-      sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider: akita, asset: 0n, amount: 100_000n, sessionKey: sessionKey().publicKey,
+      sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider: akita, asset: 0n, maxPrice: 100_000n, request: request(1),
     }))).rejects.toThrow(errPolicyMissing)
   })
 
@@ -138,48 +138,42 @@ describe('InferencePlugin (LocalNet)', () => {
     await expect(configure(raw.encode([0n, [1n], [0n], 1n]))).rejects.toThrow(errInferencePolicyFields)
   })
 
-  test('the escrow opens, tops up and closes a channel within its policy, and the refund comes back', async () => {
-    const body = encodeInferencePolicy({ network: network.appId, providers: [akita], assets: [0n], maxDeposit: 1_000_000n })
+  test('a delegated key opens tickets within its policy; the provider settles and the rest comes back', async () => {
+    const body = encodeInferencePolicy({ network: network.appId, providers: [akita], assets: [0n], maxPrice: 1_000_000n })
     await configure(body)
-    expect(decodeInferencePolicy(body)).toEqual({ network: network.appId, providers: [akita], assets: [0n], maxDeposit: 1_000_000n })
-    const key = sessionKey()
-    const open = (provider: bigint, amount: bigint) => asAgent(plugin.open({
-      sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider, asset: 0n, amount, sessionKey: key.publicKey,
+    expect(decodeInferencePolicy(body)).toEqual({ network: network.appId, providers: [akita], assets: [0n], maxPrice: 1_000_000n })
+    const open = (provider: bigint, maxPrice: bigint, id: number) => asAgent(plugin.open({
+      sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider, asset: 0n, maxPrice, request: request(id),
     }))
 
-    await expect(open(other, 100_000n)).rejects.toThrow(errInferencePolicyDenied)
-    await expect(open(akita, 1_000_001n)).rejects.toThrow(errInferencePolicyCap)
+    await expect(open(other, 100_000n, 1)).rejects.toThrow(errInferencePolicyDenied)
+    await expect(open(akita, 1_000_001n, 1)).rejects.toThrow(errInferencePolicyCap)
 
     const before = await balance(escrow)
-    await open(akita, 600_000n)
-    const channel = await lastChannel()
-    expect(await balance(escrow)).toBe(before - 600_000n - CHANNEL_MBR)
-    const info = (await network.send.getChannel({ args: { channel } })).return!
-    expect(info).toMatchObject({ payer: escrow, provider: akita, deposit: 600_000n })
+    await open(akita, 600_000n, 1)
+    const ticket = await lastTicket()
+    expect(await balance(escrow)).toBe(before - 600_000n - TICKET_MBR)
+    expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({ payer: escrow, provider: akita, asset: 0n, amount: 600_000n })
 
-    const topUp = (amount: bigint, id = channel) => asAgent(plugin.topUp({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, channel: id, amount }))
-    await expect(topUp(400_001n)).rejects.toThrow(errInferencePolicyCap)
-    await topUp(400_000n)
-    expect((await network.send.getChannel({ args: { channel } })).return!.deposit).toBe(1_000_000n)
+    // The provider settles at the actual cost; the rest and the storage deposit return to the escrow.
+    const payoutBefore = await balance(claimer.addr.toString())
+    await network.send.settle({ sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 250_000n }, extraFee: microAlgo(3_000) })
+    expect(await balance(escrow)).toBe(before - 250_000n)
+    expect(await balance(claimer.addr.toString()) - payoutBefore).toBe(225_000n - 4_000n)
+  })
 
-    // The provider claims a receipt the session key signed.
-    const signature = new Uint8Array(sign(null, inferenceReceiptMessage(network.appId, channel, 250_000n), key.privateKey))
-    await network.send.claim({ sender: claimer.addr, signer: claimer.signer, args: { channel, total: 250_000n, signature }, extraFee: microAlgo(6_000) })
-
-    // A channel some other account opened cannot be funded from this escrow.
-    const outsider = await network.send.open({
-      args: {
-        payment: fixture.algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(CHANNEL_MBR) }),
-        deposit: fixture.algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(1_000n) }),
-        provider: akita, asset: 0n, sessionKey: key.publicKey,
-      },
+  test('the allowance caps what the wallet moves into the escrow for tickets', async () => {
+    // The wallet tops up the escrow per call through the grant's 10 ALGO flat allowance. Each ticket
+    // asks for its max price plus the storage deposit, so the tenth one is refused.
+    const open = (i: number) => wallet.usePlugin({
+      sender: agent.addr.toString(), signer: agent.signer, escrow: ESCROW,
+      fundsRequest: [{ asset: 0n, amount: 1_000_000n + TICKET_MBR }],
+      calls: [plugin.open({
+        sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider: akita, asset: 0n, maxPrice: 1_000_000n, request: request(10 + i),
+      })],
     })
-    await expect(topUp(1_000n, outsider.return!)).rejects.toThrow(errInferenceNotOwnChannel)
-
-    await asAgent(plugin.requestClose({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, channel }))
-    const beforeClose = await balance(escrow)
-    await network.send.settleAndClose({ sender: claimer.addr, signer: claimer.signer, args: { channel, total: 250_000n, signature: new Uint8Array(64) }, extraFee: microAlgo(2_000) })
-    expect(await balance(escrow)).toBe(beforeClose + 750_000n + CHANNEL_MBR)
+    for (let i = 0; i < 9; i++) await open(i)
+    await expect(open(9)).rejects.toThrow(errAllowanceExceeded)
   })
 
   test('an admin execution is not limited by the policy', async () => {
@@ -187,8 +181,8 @@ describe('InferencePlugin (LocalNet)', () => {
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(5_000_000) })
     await wallet.usePlugin({
       callerType: CallerType.Admin,
-      calls: [plugin.open({ network: network.appId, provider: other, asset: 0n, amount: 2_000_000n, sessionKey: sessionKey().publicKey })],
+      calls: [plugin.open({ network: network.appId, provider: other, asset: 0n, maxPrice: 2_000_000n, request: request(99) })],
     })
-    expect((await network.send.getChannel({ args: { channel: await lastChannel() } })).return).toMatchObject({ provider: other, deposit: 2_000_000n })
+    expect((await network.send.getTicket({ args: { ticket: await lastTicket() } })).return).toMatchObject({ provider: other, amount: 2_000_000n })
   })
 })

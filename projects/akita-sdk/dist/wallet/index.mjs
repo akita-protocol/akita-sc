@@ -12,7 +12,6 @@ import {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
-  INFERENCE_RECEIPT_DOMAIN,
   InferencePluginSDK,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
@@ -80,7 +79,7 @@ import {
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
-  inferenceReceiptMessage,
+  inferenceSettleReferences,
   initializeGuild,
   installFundedPlugin,
   isDripAllowance,
@@ -101,7 +100,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-MCD7DNVN.mjs";
+} from "../chunk-FDPIPVF4.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-IKZRFBWU.mjs";
@@ -131,7 +130,6 @@ export {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
-  INFERENCE_RECEIPT_DOMAIN,
   InferencePluginSDK,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
@@ -199,7 +197,7 @@ export {
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
-  inferenceReceiptMessage,
+  inferenceSettleReferences,
   initializeGuild,
   installFundedPlugin,
   isDripAllowance,

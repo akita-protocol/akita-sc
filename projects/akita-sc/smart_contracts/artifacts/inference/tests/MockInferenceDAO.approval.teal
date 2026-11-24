@@ -1,0 +1,93 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 1
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:7
+    // export class MockInferenceDAO extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@5
+    pushbytes 0x4ed09b8f // method "setInferenceFees(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match setInferenceFees
+    err
+
+main_create_NoOp@5:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:7
+    // export class MockInferenceDAO extends Contract {
+    pushbytes 0x240d2f67 // method "create(uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.create[routing]() -> void:
+create:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:11
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:13
+    // this.akitaAssets.value = { akta, bones: 0 }
+    itob
+    pushint 0
+    itob
+    concat
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:8
+    // akitaAssets = GlobalState<AkitaAssets>({ key: AkitaDAOGlobalStateKeysAkitaAssets })
+    pushbytes "akita_assets"
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:13
+    // this.akitaAssets.value = { akta, bones: 0 }
+    swap
+    app_global_put
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:11
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setInferenceFees[routing]() -> void:
+setInferenceFees:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:16
+    // setInferenceFees(chargePercentage: uint64, providerBond: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:17
+    // this.inferenceFees.value = { chargePercentage, providerBond }
+    swap
+    itob
+    swap
+    itob
+    concat
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:9
+    // inferenceFees = GlobalState<InferenceFees>({ key: AkitaDAOGlobalStateKeysInferenceFees })
+    pushbytes "inference_fees"
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:17
+    // this.inferenceFees.value = { chargePercentage, providerBond }
+    swap
+    app_global_put
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:16
+    // setInferenceFees(chargePercentage: uint64, providerBond: uint64): void {
+    intc_1 // 1
+    return
