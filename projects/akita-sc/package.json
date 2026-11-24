@@ -71,6 +71,7 @@
     "deploy:haystack-router-plugin": "ts-node --transpile-only scripts/deploy-haystack-router-plugin.ts",
     "deploy:self-optin-plugin": "ts-node --transpile-only scripts/deploy-self-optin-plugin.ts",
     "deploy:optin-plugin": "ts-node --transpile-only scripts/deploy-optin-plugin.ts",
+    "deploy:inference": "ts-node --transpile-only scripts/deploy-inference.ts",
     "deploy:gates": "ts-node --transpile-only scripts/deploy-gates.ts",
     "deploy:hyper-swap": "ts-node --transpile-only scripts/deploy-hyper-swap.ts",
     "deploy:social-impact": "ts-node --transpile-only scripts/deploy-social-impact.ts",

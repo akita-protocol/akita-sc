@@ -374,6 +374,18 @@
       },
       "extraPages": 0
     },
+    "arc58/plugins/inference/InferencePlugin": {
+      "name": "InferencePlugin",
+      "approval": {
+        "bytes": 2198,
+        "sha256": "9a7306a63cdc7db81d8bd7de3aeba7e545137328f96d2bb128379184f24ae823"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 1
+    },
     "arc58/plugins/marketplace/MarketplacePlugin": {
       "name": "MarketplacePlugin",
       "approval": {
@@ -936,6 +948,18 @@
       "approval": {
         "bytes": 3986,
         "sha256": "56cd68d18bac2b15c29ee755d68c85800976f1389bb14464fd9551b10e9cfc71"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 1
+    },
+    "inference/InferenceNetwork": {
+      "name": "InferenceNetwork",
+      "approval": {
+        "bytes": 3694,
+        "sha256": "8fdc5ed6cfe9473e0bfb615cf4ed300a7b1c6f5adf6140d021f9655a5670ceea"
       },
       "clear": {
         "bytes": 4,

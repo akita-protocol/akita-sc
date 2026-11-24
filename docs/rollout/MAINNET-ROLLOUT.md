@@ -219,6 +219,15 @@ Three steps of the sequence change: G2, H1 and H6. The owner asked for it on 202
 - **Manifest.** `release/manifest.json` lists 157 programs. MockPolicyForger and MockUnlimitedPayPlugin are new test programs.
 - **Not run on a public network.** The new commands were run on LocalNet only. Their dry runs need Meta on chain, which H1 creates (G17).
 
+## Update 2026-11-24: the inference network, after the rollout (proposed)
+
+The owner asked on 2026-11-24 for Akita's own inference network before TestNet. Nothing in steps A to H changes, and no program in the release changes bytes. Design: [Akita inference network: contract design](https://claude.ai/artifact/Ep1Fyh9NpfhDYKmvdmV7Je).
+
+- **Two new programs.** `InferenceNetwork` (`smart_contracts/inference`) holds providers, their AKTA bonds and prepaid payment channels; a provider claims the payer's latest signed receipt, and the protocol fee accrues until it is swept to the treasury. `InferencePlugin` (`arc58/plugins/inference`) lets a wallet's escrow open, top up and close channels as their payer, within a grant policy.
+- **One step after G2, outside the tracker until the owner confirms the order:** `npm run deploy:inference -- -n testnet --treasury <address> --claimer <address> --payout <address> --admin <DAO wallet address> --confirm`. It creates both apps, opts the network in to AKTA and USDC, sets a 10% fee, a 24-hour close window and closed registration, accepts ALGO and USDC, registers and activates Akita as provider 1, and hands the admin to `--admin`. Without `--confirm` it only prints the plan. It reads the Meta id for InferencePlugin from the SDK, so it runs after H1.
+- **Manifest.** `release/manifest.json` lists 157 programs (155 before); the two new entries are the only change.
+- **Not run on a public network.** Run on LocalNet only: 16 InferenceNetwork tests, 4 InferencePlugin tests and the deploy command.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
