@@ -51,9 +51,9 @@ export type Ticket = {
    * this is the address of the subscription it counts against.
    */
   payer: Account
-  /** The Akita account the request is attributed to: its wallet's controlled address, or a plain account. */
+  /** The Akita account the request is attributed to: its wallet's controlled address. */
   principal: Account
-  /** The principal's Akita wallet, or 0. */
+  /** The principal's Akita wallet. */
   wallet: uint64
   provider: uint64
   /** 0 for ALGO, else the ASA id. */
@@ -116,7 +116,7 @@ export type InferenceProviderStatus = { provider: uint64; status: uint64 }
 export type InferenceTicketOpened = {
   ticket: uint64
   payer: Account
-  /** The Akita account the request is attributed to, and its wallet (or 0). */
+  /** The Akita account the request is attributed to (the wallet's controlled address), and its wallet. */
   principal: Account
   wallet: uint64
   provider: uint64

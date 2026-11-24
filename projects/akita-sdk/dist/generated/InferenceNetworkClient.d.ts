@@ -844,9 +844,10 @@ export declare abstract class InferenceNetworkParamsFactory {
     the caller's id for the request, which the provider sees in the same request. The ticket must be
     settled before the settle window ends, or anyone can refund it. Returns the ticket id.
   
-    `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-    Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-    whichever delegated key (the member's app, a routine, a trigger) opened it.
+    `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+    InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+    wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+    opened it.
   
     Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
     payer off, losing at most that request.
@@ -922,9 +923,9 @@ export declare abstract class InferenceNetworkParamsFactory {
     /**
      * Constructs a no op call for the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method
      *
-    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-    and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-    ticket id.
+    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+    address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+    account of that wallet holds. Returns the ticket id.
   
      *
      * @param params Parameters for the call
@@ -1737,9 +1738,10 @@ export declare class InferenceNetworkClient {
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
     
-        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-        whichever delegated key (the member's app, a routine, a trigger) opened it.
+        `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+        InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+        wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+        opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -1829,9 +1831,9 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-        ticket id.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+        address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+        account of that wallet holds. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -2207,9 +2209,10 @@ export declare class InferenceNetworkClient {
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
     
-        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-        whichever delegated key (the member's app, a routine, a trigger) opened it.
+        `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+        InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+        wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+        opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -2327,9 +2330,9 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-        ticket id.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+        address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+        account of that wallet holds. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -2827,9 +2830,10 @@ export declare class InferenceNetworkClient {
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
     
-        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-        whichever delegated key (the member's app, a routine, a trigger) opened it.
+        `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+        InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+        wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+        opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -2982,9 +2986,9 @@ export declare class InferenceNetworkClient {
         /**
          * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-        ticket id.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+        address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+        account of that wallet holds. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
@@ -3553,9 +3557,10 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     the caller's id for the request, which the provider sees in the same request. The ticket must be
     settled before the settle window ends, or anyone can refund it. Returns the ticket id.
   
-    `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-    Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-    whichever delegated key (the member's app, a routine, a trigger) opened it.
+    `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+    InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+    wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+    opened it.
   
     Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
     payer off, losing at most that request.
@@ -3638,9 +3643,9 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method.
      *
-    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-    and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-    ticket id.
+    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+    address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+    account of that wallet holds. Returns the ticket id.
   
      *
      * @param args The arguments for the contract call

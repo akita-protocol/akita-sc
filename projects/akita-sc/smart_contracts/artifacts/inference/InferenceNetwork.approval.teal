@@ -4,15 +4,15 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 32 128 60500 57300 28500 86400
-    bytecblock "akita_dao" 0x151f7c75 "p" "o" "aal" "ERR:errInza" "settings" "x" "ERR:errInpx" "t" "admin" "treasury" "providers" "tickets" "pools" 0xf77876bf 0x00000000000000000000000000000000 "ERR:errInub" "ERR:errInpd" "u" "version" "ERR:errInbw" "inference_fees" "ERR:errInxa" "ERR:errInbp" 0x73ae78e0 "wallet" "ERR:errNdao" "ERR:errInbd" "ERR:errInns"
-    // smart_contracts/inference/contract.algo.ts:63
+    bytecblock 0x151f7c75 "akita_dao" "p" "o" "ERR:errInza" "settings" "x" "aal" "ERR:errInpx" "t" "admin" "treasury" "providers" "tickets" "pools" 0xf77876bf 0x00000000000000000000000000000000 "ERR:errInub" "ERR:errInpd" "u" "version" "ERR:errInbw" "inference_fees" "ERR:errInxa" "ERR:errInbp" "ERR:errInwl" 0x73ae78e0 "wallet" "ERR:errNdao" "ERR:errInbd" "ERR:errInns"
+    // smart_contracts/inference/contract.algo.ts:64
     // export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     pushbytes 0xea9180dd // method "update(string)void"
     txna ApplicationArgs 0
     match main_update_route@2
 
 main_switch_case_next@3:
-    // smart_contracts/inference/contract.algo.ts:63
+    // smart_contracts/inference/contract.algo.ts:64
     // export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     txn OnCompletion
     !
@@ -31,7 +31,7 @@ main_opUp_route@36:
     return
 
 main_create_NoOp@38:
-    // smart_contracts/inference/contract.algo.ts:63
+    // smart_contracts/inference/contract.algo.ts:64
     // export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     pushbytes 0x4283c019 // method "create(string,uint64,address,address)void"
     txna ApplicationArgs 0
@@ -156,323 +156,9 @@ ownsAtRest_after_if_else@4:
     retsub
 
 
-// smart_contracts/utils/functions.ts::principalOf(akitaDAO: uint64, hint: uint64) -> bytes:
-principalOf:
-    // smart_contracts/utils/functions.ts:929
-    // export function principalOf(akitaDAO: Application, hint: uint64): Principal {
-    proto 2 1
-    intc_0 // 0
-    // smart_contracts/utils/functions.ts:206
-    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    frame_dig -2
-    bytec 4 // "aal"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:930
-    // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
-    pushint 88
-    extract_uint64
-    // smart_contracts/utils/principal.ts:212
-    // Txn.sender,
-    txn Sender
-    // smart_contracts/utils/principal.ts:213
-    // Global.callerApplicationId,
-    global CallerApplicationID
-    // smart_contracts/utils/principal.ts:214
-    // Global.callerApplicationAddress,
-    global CallerApplicationAddress
-    cover 3
-    // smart_contracts/utils/principal.ts:148
-    // if (hint === 0) {
-    frame_dig -1
-    bnz principalOf_after_if_else@3
-    pop
-    bury 1
-    // smart_contracts/utils/principal.ts:93
-    // origin: Global.zeroAddress,
-    global ZeroAddress
-    // smart_contracts/utils/principal.ts:95
-    // referrer: Global.zeroAddress,
-    dup
-    // smart_contracts/utils/principal.ts:91
-    // wallet: 0,
-    intc_0 // 0
-    // smart_contracts/utils/principal.ts:90-97
-    // return {
-    //   wallet: 0,
-    //   principal: sender,
-    //   origin: Global.zeroAddress,
-    //   spender: sender,
-    //   referrer: Global.zeroAddress,
-    //   viaPlugin: false,
-    // }
-    itob
-    uncover 3
-    dup
-    cover 2
-    concat
-    uncover 3
-    concat
-    swap
-    concat
-    swap
-    concat
-    pushbytes 0x00
-    concat
-
-principalOf_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@32:
-    // smart_contracts/utils/functions.ts:930
-    // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
-    frame_bury 0
-    retsub
-
-principalOf_after_if_else@3:
-    // smart_contracts/utils/principal.ts:152
-    // if (!isGenuineWallet(hint, walletFactory)) {
-    frame_dig -1
-    uncover 3
-    callsub isGenuineWallet
-    bnz principalOf_after_if_else@5
-    // smart_contracts/utils/principal.ts:154
-    // loggedErr(errHintNotWallet)
-    pushbytes "ERR:errHnwl"
-    log
-    err // ERR:errHnwl
-
-principalOf_after_if_else@5:
-    // smart_contracts/utils/principal.ts:159
-    // if (callerApp === 0) {
-    dup
-    bnz principalOf_after_if_else@7
-    // smart_contracts/utils/principal.ts:161
-    // loggedErr(errHintTopLevel)
-    pushbytes "ERR:errHtop"
-    log
-    err // ERR:errHtop
-
-principalOf_after_if_else@7:
-    // smart_contracts/utils/principal.ts:166
-    // let viaPlugin = false
-    intc_0 // 0
-    cover 2
-    // smart_contracts/utils/principal.ts:167
-    // if (callerApp !== hint) {
-    frame_dig -1
-    !=
-    bz principalOf_after_if_else@14
-    bury 1
-    // smart_contracts/utils/principal.ts:171
-    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
-    frame_dig -1
-    pushbytes "spending_address"
-    app_global_get_ex
-    swap
-    frame_bury 0
-    // smart_contracts/utils/principal.ts:172
-    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
-    bz principalOf_if_body@12
-    frame_dig 0
-    len
-    intc_3 // 32
-    ==
-    bz principalOf_if_body@12
-    frame_dig 0
-    dig 1
-    ==
-    bz principalOf_if_body@12
-    dup
-    frame_dig 1
-    !=
-    bnz principalOf_after_if_else@13
-
-principalOf_if_body@12:
-    // smart_contracts/utils/principal.ts:174
-    // loggedErr(errHintNotBound)
-    pushbytes "ERR:errHnbd"
-    log
-    err // ERR:errHnbd
-
-principalOf_after_if_else@13:
-    // smart_contracts/utils/principal.ts:178
-    // viaPlugin = true
-    intc_1 // 1
-    swap
-
-principalOf_after_if_else@14:
-    // smart_contracts/utils/principal.ts:181
-    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
-    frame_dig -1
-    pushbytes "controlled_address"
-    app_global_get_ex
-    // smart_contracts/utils/principal.ts:182
-    // if (!(controlledExists && controlledBytes.length === 32)) {
-    bz principalOf_if_body@16
-    dup
-    len
-    intc_3 // 32
-    ==
-    bnz principalOf_after_if_else@17
-
-principalOf_if_body@16:
-    // smart_contracts/utils/principal.ts:184
-    // loggedErr(errHintBadWallet)
-    pushbytes "ERR:errIwlt"
-    log
-    err // ERR:errIwlt
-
-principalOf_after_if_else@17:
-    // smart_contracts/utils/principal.ts:119
-    // if (controlled === spender) {
-    dup
-    dig 2
-    ==
-    bz principalOf_after_if_else@19
-    // smart_contracts/utils/principal.ts:120
-    // return true
-    intc_1 // 1
-    swap
-
-principalOf_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@24:
-    // smart_contracts/utils/principal.ts:191
-    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
-    frame_dig -1
-    pushbytes "referrer"
-    app_global_get_ex
-    // smart_contracts/utils/principal.ts:192
-    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
-    bz principalOf_ternary_false@27
-    dup
-    len
-    intc_3 // 32
-    ==
-    bz principalOf_ternary_false@27
-    cover 3
-
-principalOf_ternary_merge@28:
-    // smart_contracts/utils/principal.ts:196
-    // principal: live ? controlled : sender,
-    dig 2
-    dig 1
-    uncover 3
-    dup
-    cover 3
-    select
-    swap
-    // smart_contracts/utils/principal.ts:197
-    // origin: live ? controlled : Global.zeroAddress,
-    bz principalOf_ternary_false@30
-    swap
-
-principalOf_ternary_merge@31:
-    // smart_contracts/utils/principal.ts:194-201
-    // return {
-    //   wallet: hint,
-    //   principal: live ? controlled : sender,
-    //   origin: live ? controlled : Global.zeroAddress,
-    //   spender: sender,
-    //   referrer,
-    //   viaPlugin,
-    // }
-    frame_dig -1
-    itob
-    uncover 2
-    concat
-    swap
-    concat
-    swap
-    concat
-    swap
-    concat
-    pushbytes 0x00
-    intc_0 // 0
-    uncover 3
-    setbit
-    concat
-    // smart_contracts/utils/principal.ts:209-216
-    // return resolvePrincipalCtx(
-    //   walletFactory,
-    //   hint,
-    //   Txn.sender,
-    //   Global.callerApplicationId,
-    //   Global.callerApplicationAddress,
-    //   true
-    // )
-    b principalOf_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@32
-
-principalOf_ternary_false@30:
-    bury 1
-    // smart_contracts/utils/principal.ts:197
-    // origin: live ? controlled : Global.zeroAddress,
-    global ZeroAddress
-    b principalOf_ternary_merge@31
-
-principalOf_ternary_false@27:
-    pop
-    // smart_contracts/utils/principal.ts:192
-    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
-    global ZeroAddress
-    cover 3
-    b principalOf_ternary_merge@28
-
-principalOf_after_if_else@19:
-    // smart_contracts/utils/principal.ts:122
-    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
-    frame_dig -1
-    app_params_get AppAddress
-    swap
-    cover 2
-    // smart_contracts/utils/principal.ts:123
-    // if (!walletExists) {
-    bnz principalOf_after_if_else@21
-    bury 1
-    // smart_contracts/utils/principal.ts:124
-    // return false
-    intc_0 // 0
-    swap
-    // smart_contracts/utils/principal.ts:189
-    // const live = walletControlsLive(hint, controlled, sender)
-    b principalOf_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@24
-
-principalOf_after_if_else@21:
-    // smart_contracts/utils/principal.ts:126
-    // if (controlled === walletAddress) {
-    dup
-    dig 2
-    ==
-    bz principalOf_after_if_else@23
-    // smart_contracts/utils/principal.ts:85
-    // const [auth] = op.AcctParams.acctAuthAddr(account)
-    swap
-    acct_params_get AcctAuthAddr
-    pop
-    // smart_contracts/utils/principal.ts:127
-    // return authAddrOf(walletAddress) === Global.zeroAddress
-    global ZeroAddress
-    ==
-    swap
-    // smart_contracts/utils/principal.ts:189
-    // const live = walletControlsLive(hint, controlled, sender)
-    b principalOf_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@24
-
-principalOf_after_if_else@23:
-    // smart_contracts/utils/principal.ts:85
-    // const [auth] = op.AcctParams.acctAuthAddr(account)
-    dup
-    acct_params_get AcctAuthAddr
-    pop
-    // smart_contracts/utils/principal.ts:129
-    // return authAddrOf(controlled) === walletAddress
-    uncover 2
-    ==
-    swap
-    // smart_contracts/utils/principal.ts:189
-    // const live = walletControlsLive(hint, controlled, sender)
-    b principalOf_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@24
-
-
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.create[routing]() -> void:
 create:
-    // smart_contracts/inference/contract.algo.ts:84
+    // smart_contracts/inference/contract.algo.ts:85
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -505,7 +191,7 @@ create:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/inference/contract.algo.ts:86
+    // smart_contracts/inference/contract.algo.ts:87
     // loggedAssert(admin !== Global.zeroAddress && treasury !== Global.zeroAddress, errInferenceZeroAddress)
     global ZeroAddress
     !=
@@ -517,10 +203,10 @@ create:
     intc_1 // 1
 
 create_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:86
+    // smart_contracts/inference/contract.algo.ts:87
     // loggedAssert(admin !== Global.zeroAddress && treasury !== Global.zeroAddress, errInferenceZeroAddress)
     bnz create_after_assert@7
-    bytec 5 // "ERR:errInza"
+    bytec 4 // "ERR:errInza"
     log
     err // ERR:errInza
 
@@ -528,35 +214,35 @@ create_after_assert@7:
     // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     bytec 20 // "version"
-    // smart_contracts/inference/contract.algo.ts:87
+    // smart_contracts/inference/contract.algo.ts:88
     // this.version.value = version
     uncover 4
     app_global_put
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:88
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:89
     // this.akitaDAO.value = akitaDAO
     uncover 3
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:66
+    // smart_contracts/inference/contract.algo.ts:67
     // admin = GlobalState<Account>({ key: 'admin' })
     bytec 10 // "admin"
-    // smart_contracts/inference/contract.algo.ts:89
+    // smart_contracts/inference/contract.algo.ts:90
     // this.admin.value = admin
     uncover 2
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:68
+    // smart_contracts/inference/contract.algo.ts:69
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 11 // "treasury"
-    // smart_contracts/inference/contract.algo.ts:90
+    // smart_contracts/inference/contract.algo.ts:91
     // this.treasury.value = treasury
     swap
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:69
+    // smart_contracts/inference/contract.algo.ts:70
     // settings = GlobalState<InferenceSettings>({ key: 'settings' })
-    bytec 6 // "settings"
-    // smart_contracts/inference/contract.algo.ts:91-95
+    bytec 5 // "settings"
+    // smart_contracts/inference/contract.algo.ts:92-96
     // this.settings.value = {
     //   unbondDelay: INFERENCE_MIN_UNBOND_DELAY * 2,
     //   settleWindow: 3_600,
@@ -564,28 +250,28 @@ create_after_assert@7:
     // }
     pushbytes 0x000000000024ea000000000000000e1000
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:70
+    // smart_contracts/inference/contract.algo.ts:71
     // providerCount = GlobalState<uint64>({ key: 'providers' })
     bytec 12 // "providers"
-    // smart_contracts/inference/contract.algo.ts:96
+    // smart_contracts/inference/contract.algo.ts:97
     // this.providerCount.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:71
+    // smart_contracts/inference/contract.algo.ts:72
     // ticketCount = GlobalState<uint64>({ key: 'tickets' })
     bytec 13 // "tickets"
-    // smart_contracts/inference/contract.algo.ts:97
+    // smart_contracts/inference/contract.algo.ts:98
     // this.ticketCount.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:72
+    // smart_contracts/inference/contract.algo.ts:73
     // poolCount = GlobalState<uint64>({ key: 'pools' })
     bytec 14 // "pools"
-    // smart_contracts/inference/contract.algo.ts:98
+    // smart_contracts/inference/contract.algo.ts:99
     // this.poolCount.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:84
+    // smart_contracts/inference/contract.algo.ts:85
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -597,7 +283,7 @@ create_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setAdmin[routing]() -> void:
 setAdmin:
-    // smart_contracts/inference/contract.algo.ts:103
+    // smart_contracts/inference/contract.algo.ts:104
     // setAdmin(admin: Account): void {
     txna ApplicationArgs 1
     dupn 2
@@ -605,27 +291,27 @@ setAdmin:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/inference/contract.algo.ts:104
+    // smart_contracts/inference/contract.algo.ts:105
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:105
+    // smart_contracts/inference/contract.algo.ts:106
     // loggedAssert(admin !== Global.zeroAddress, errInferenceZeroAddress)
     global ZeroAddress
     !=
     bnz setAdmin_after_assert@3
-    bytec 5 // "ERR:errInza"
+    bytec 4 // "ERR:errInza"
     log
     err // ERR:errInza
 
 setAdmin_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:66
+    // smart_contracts/inference/contract.algo.ts:67
     // admin = GlobalState<Account>({ key: 'admin' })
     bytec 10 // "admin"
-    // smart_contracts/inference/contract.algo.ts:106
+    // smart_contracts/inference/contract.algo.ts:107
     // this.admin.value = admin
     swap
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:103
+    // smart_contracts/inference/contract.algo.ts:104
     // setAdmin(admin: Account): void {
     intc_1 // 1
     return
@@ -633,7 +319,7 @@ setAdmin_after_assert@3:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setTreasury[routing]() -> void:
 setTreasury:
-    // smart_contracts/inference/contract.algo.ts:109
+    // smart_contracts/inference/contract.algo.ts:110
     // setTreasury(treasury: Account): void {
     txna ApplicationArgs 1
     dupn 2
@@ -641,27 +327,27 @@ setTreasury:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/inference/contract.algo.ts:110
+    // smart_contracts/inference/contract.algo.ts:111
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:111
+    // smart_contracts/inference/contract.algo.ts:112
     // loggedAssert(treasury !== Global.zeroAddress, errInferenceZeroAddress)
     global ZeroAddress
     !=
     bnz setTreasury_after_assert@3
-    bytec 5 // "ERR:errInza"
+    bytec 4 // "ERR:errInza"
     log
     err // ERR:errInza
 
 setTreasury_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:68
+    // smart_contracts/inference/contract.algo.ts:69
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 11 // "treasury"
-    // smart_contracts/inference/contract.algo.ts:112
+    // smart_contracts/inference/contract.algo.ts:113
     // this.treasury.value = treasury
     swap
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:109
+    // smart_contracts/inference/contract.algo.ts:110
     // setTreasury(treasury: Account): void {
     intc_1 // 1
     return
@@ -670,7 +356,7 @@ setTreasury_after_assert@3:
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setSettings[routing]() -> void:
 setSettings:
     pushbytes ""
-    // smart_contracts/inference/contract.algo.ts:120
+    // smart_contracts/inference/contract.algo.ts:121
     // setSettings(settings: InferenceSettings): void {
     txna ApplicationArgs 1
     dupn 2
@@ -678,10 +364,10 @@ setSettings:
     pushint 17
     ==
     assert // invalid number of bytes for smart_contracts/inference/types.ts::InferenceSettings
-    // smart_contracts/inference/contract.algo.ts:121
+    // smart_contracts/inference/contract.algo.ts:122
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:123
+    // smart_contracts/inference/contract.algo.ts:124
     // settings.settleWindow >= INFERENCE_MIN_SETTLE_WINDOW && settings.settleWindow <= INFERENCE_MAX_SETTLE_WINDOW,
     intc_2 // 8
     extract_uint64
@@ -697,7 +383,7 @@ setSettings:
     intc_1 // 1
 
 setSettings_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:122-125
+    // smart_contracts/inference/contract.algo.ts:123-126
     // loggedAssert(
     //   settings.settleWindow >= INFERENCE_MIN_SETTLE_WINDOW && settings.settleWindow <= INFERENCE_MAX_SETTLE_WINDOW,
     //   errInferenceBadWindow,
@@ -708,7 +394,7 @@ setSettings_bool_merge@5:
     err // ERR:errInbw
 
 setSettings_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:127
+    // smart_contracts/inference/contract.algo.ts:128
     // settings.unbondDelay >= INFERENCE_MIN_UNBOND_DELAY && settings.unbondDelay <= INFERENCE_MAX_UNBOND_DELAY,
     dup
     intc_0 // 0
@@ -725,7 +411,7 @@ setSettings_after_assert@7:
     intc_1 // 1
 
 setSettings_bool_merge@11:
-    // smart_contracts/inference/contract.algo.ts:126-129
+    // smart_contracts/inference/contract.algo.ts:127-130
     // loggedAssert(
     //   settings.unbondDelay >= INFERENCE_MIN_UNBOND_DELAY && settings.unbondDelay <= INFERENCE_MAX_UNBOND_DELAY,
     //   errInferenceBadWindow,
@@ -736,14 +422,14 @@ setSettings_bool_merge@11:
     err // ERR:errInbw
 
 setSettings_after_assert@13:
-    // smart_contracts/inference/contract.algo.ts:69
+    // smart_contracts/inference/contract.algo.ts:70
     // settings = GlobalState<InferenceSettings>({ key: 'settings' })
-    bytec 6 // "settings"
-    // smart_contracts/inference/contract.algo.ts:130
+    bytec 5 // "settings"
+    // smart_contracts/inference/contract.algo.ts:131
     // this.settings.value = clone(settings)
     swap
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:120
+    // smart_contracts/inference/contract.algo.ts:121
     // setSettings(settings: InferenceSettings): void {
     intc_1 // 1
     return
@@ -759,7 +445,7 @@ setSettings_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setPaymentAsset[routing]() -> void:
 setPaymentAsset:
-    // smart_contracts/inference/contract.algo.ts:137
+    // smart_contracts/inference/contract.algo.ts:138
     // setPaymentAsset(payment: gtxn.PaymentTxn, asset: uint64, allowed: boolean): void {
     txn GroupIndex
     intc_1 // 1
@@ -786,10 +472,10 @@ setPaymentAsset:
     intc_0 // 0
     getbit
     cover 2
-    // smart_contracts/inference/contract.algo.ts:138
+    // smart_contracts/inference/contract.algo.ts:139
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:531
+    // smart_contracts/inference/contract.algo.ts:530
     // loggedAssert(asset === 0 || Global.currentApplicationAddress.isOptedIn(Asset(asset)), errInferenceNotOptedIn)
     bz setPaymentAsset_bool_true@7
     global CurrentApplicationAddress
@@ -802,7 +488,7 @@ setPaymentAsset_bool_true@7:
     intc_1 // 1
 
 setPaymentAsset_bool_merge@9:
-    // smart_contracts/inference/contract.algo.ts:531
+    // smart_contracts/inference/contract.algo.ts:530
     // loggedAssert(asset === 0 || Global.currentApplicationAddress.isOptedIn(Asset(asset)), errInferenceNotOptedIn)
     bnz setPaymentAsset_after_assert@11
     pushbytes "ERR:errInoi"
@@ -810,26 +496,26 @@ setPaymentAsset_bool_merge@9:
     err // ERR:errInoi
 
 setPaymentAsset_after_assert@11:
-    // smart_contracts/inference/contract.algo.ts:140
+    // smart_contracts/inference/contract.algo.ts:141
     // if (this.assets(asset).exists) {
     itob
-    // smart_contracts/inference/contract.algo.ts:80
+    // smart_contracts/inference/contract.algo.ts:81
     // assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
-    bytec 7 // "x"
+    bytec 6 // "x"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:140
+    // smart_contracts/inference/contract.algo.ts:141
     // if (this.assets(asset).exists) {
     box_len
     bury 1
     bz setPaymentAsset_else_body@3
-    // smart_contracts/inference/contract.algo.ts:141
+    // smart_contracts/inference/contract.algo.ts:142
     // this.requireStoragePayment(payment, 0)
     uncover 2
     intc_0 // 0
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:142
+    // smart_contracts/inference/contract.algo.ts:143
     // this.assets(asset).value.allowed = allowed ? 1 : 0
     swap
     itob
@@ -838,18 +524,18 @@ setPaymentAsset_after_assert@11:
     box_replace // on error: index out of bounds
 
 setPaymentAsset_after_if_else@4:
-    // smart_contracts/inference/contract.algo.ts:137
+    // smart_contracts/inference/contract.algo.ts:138
     // setPaymentAsset(payment: gtxn.PaymentTxn, asset: uint64, allowed: boolean): void {
     intc_1 // 1
     return
 
 setPaymentAsset_else_body@3:
-    // smart_contracts/inference/contract.algo.ts:144
+    // smart_contracts/inference/contract.algo.ts:145
     // this.requireStoragePayment(payment, INFERENCE_ASSET_MBR)
     uncover 2
     pushint 12500
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:145
+    // smart_contracts/inference/contract.algo.ts:146
     // this.assets(asset).value = { allowed: allowed ? 1 : 0, fees: 0 }
     swap
     itob
@@ -866,7 +552,7 @@ setPaymentAsset_bool_false@8:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setProviderStatus[routing]() -> void:
 setProviderStatus:
-    // smart_contracts/inference/contract.algo.ts:152
+    // smart_contracts/inference/contract.algo.ts:153
     // setProviderStatus(provider: uint64, status: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -887,17 +573,17 @@ setProviderStatus:
     btoi
     dup
     cover 2
-    // smart_contracts/inference/contract.algo.ts:153
+    // smart_contracts/inference/contract.algo.ts:154
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:154
+    // smart_contracts/inference/contract.algo.ts:155
     // const current = this.mustGetProvider(provider).status
     swap
     callsub mustGetProvider
     pushint 112
     extract_uint64
     cover 4
-    // smart_contracts/inference/contract.algo.ts:156
+    // smart_contracts/inference/contract.algo.ts:157
     // (status === ProviderActive && (current === ProviderPending || current === ProviderPaused)) ||
     intc_1 // 1
     ==
@@ -910,7 +596,7 @@ setProviderStatus:
     bnz setProviderStatus_bool_true@7
 
 setProviderStatus_or_contd@4:
-    // smart_contracts/inference/contract.algo.ts:157
+    // smart_contracts/inference/contract.algo.ts:158
     // (status === ProviderPaused && (current === ProviderPending || current === ProviderActive)),
     dup
     pushint 2
@@ -927,7 +613,7 @@ setProviderStatus_bool_true@7:
     intc_1 // 1
 
 setProviderStatus_bool_merge@9:
-    // smart_contracts/inference/contract.algo.ts:155-159
+    // smart_contracts/inference/contract.algo.ts:156-160
     // loggedAssert(
     //   (status === ProviderActive && (current === ProviderPending || current === ProviderPaused)) ||
     //   (status === ProviderPaused && (current === ProviderPending || current === ProviderActive)),
@@ -939,21 +625,21 @@ setProviderStatus_bool_merge@9:
     err // ERR:errInbs
 
 setProviderStatus_after_assert@11:
-    // smart_contracts/inference/contract.algo.ts:160
+    // smart_contracts/inference/contract.algo.ts:161
     // this.providers(provider).value.status = status
     uncover 2
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:160
+    // smart_contracts/inference/contract.algo.ts:161
     // this.providers(provider).value.status = status
     pushint 112
     uncover 4
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:161
+    // smart_contracts/inference/contract.algo.ts:162
     // emit<InferenceProviderStatus>({ provider, status })
     swap
     itob
@@ -962,7 +648,7 @@ setProviderStatus_after_assert@11:
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:152
+    // smart_contracts/inference/contract.algo.ts:153
     // setProviderStatus(provider: uint64, status: uint64): void {
     intc_1 // 1
     return
@@ -974,7 +660,7 @@ setProviderStatus_bool_false@8:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.slash[routing]() -> void:
 slash:
-    // smart_contracts/inference/contract.algo.ts:165
+    // smart_contracts/inference/contract.algo.ts:166
     // slash(provider: uint64, amount: uint64, receiver: Account): void {
     txna ApplicationArgs 1
     dup
@@ -1000,16 +686,16 @@ slash:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/inference/contract.algo.ts:166
+    // smart_contracts/inference/contract.algo.ts:167
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/inference/contract.algo.ts:167
+    // smart_contracts/inference/contract.algo.ts:168
     // const info = this.mustGetProvider(provider)
     swap
     callsub mustGetProvider
     dup
     cover 2
-    // smart_contracts/inference/contract.algo.ts:168
+    // smart_contracts/inference/contract.algo.ts:169
     // loggedAssert(amount <= info.bond, errInferenceSlashTooHigh)
     pushint 96
     extract_uint64
@@ -1022,7 +708,7 @@ slash:
     err // ERR:errInsh
 
 slash_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:169
+    // smart_contracts/inference/contract.algo.ts:170
     // this.providers(provider).value.bond = info.bond - amount
     uncover 2
     dup
@@ -1030,19 +716,19 @@ slash_after_assert@3:
     -
     uncover 4
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:169
+    // smart_contracts/inference/contract.algo.ts:170
     // this.providers(provider).value.bond = info.bond - amount
     uncover 2
     itob
     pushint 96
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:170
+    // smart_contracts/inference/contract.algo.ts:171
     // this.send(receiver, info.bondAsset, amount)
     uncover 2
     pushint 104
@@ -1053,7 +739,7 @@ slash_after_assert@3:
     dig 1
     dig 5
     callsub send
-    // smart_contracts/inference/contract.algo.ts:171
+    // smart_contracts/inference/contract.algo.ts:172
     // emit<InferenceSlashed>({ provider, asset: info.bondAsset, amount, receiver })
     itob
     uncover 2
@@ -1068,7 +754,7 @@ slash_after_assert@3:
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:165
+    // smart_contracts/inference/contract.algo.ts:166
     // slash(provider: uint64, amount: uint64, receiver: Account): void {
     intc_1 // 1
     return
@@ -1076,7 +762,7 @@ slash_after_assert@3:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.optIn[routing]() -> void:
 optIn:
-    // smart_contracts/inference/contract.algo.ts:177
+    // smart_contracts/inference/contract.algo.ts:178
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     txn GroupIndex
     intc_1 // 1
@@ -1093,13 +779,13 @@ optIn:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:178
+    // smart_contracts/inference/contract.algo.ts:179
     // this.requireStoragePayment(payment, Global.assetOptInMinBalance)
     global AssetOptInMinBalance
     uncover 2
     swap
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:179
+    // smart_contracts/inference/contract.algo.ts:180
     // itxn.assetTransfer({ assetReceiver: Global.currentApplicationAddress, xferAsset: asset, assetAmount: 0 }).submit()
     itxn_begin
     global CurrentApplicationAddress
@@ -1112,7 +798,7 @@ optIn:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/inference/contract.algo.ts:177
+    // smart_contracts/inference/contract.algo.ts:178
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     intc_1 // 1
     return
@@ -1120,7 +806,7 @@ optIn:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.sweepFees[routing]() -> void:
 sweepFees:
-    // smart_contracts/inference/contract.algo.ts:183
+    // smart_contracts/inference/contract.algo.ts:184
     // sweepFees(asset: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -1129,16 +815,16 @@ sweepFees:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:184
+    // smart_contracts/inference/contract.algo.ts:185
     // const fees = this.assets(asset).value.fees
     dup
     itob
-    // smart_contracts/inference/contract.algo.ts:80
+    // smart_contracts/inference/contract.algo.ts:81
     // assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
-    bytec 7 // "x"
+    bytec 6 // "x"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:184
+    // smart_contracts/inference/contract.algo.ts:185
     // const fees = this.assets(asset).value.fees
     dup
     box_get
@@ -1148,7 +834,7 @@ sweepFees:
     swap
     intc_2 // 8
     extract_uint64
-    // smart_contracts/inference/contract.algo.ts:185
+    // smart_contracts/inference/contract.algo.ts:186
     // this.assets(asset).value.fees = 0
     intc_0 // 0
     itob
@@ -1156,22 +842,22 @@ sweepFees:
     intc_2 // 8
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:186
+    // smart_contracts/inference/contract.algo.ts:187
     // this.send(this.treasury.value, asset, fees)
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:68
+    // smart_contracts/inference/contract.algo.ts:69
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 11 // "treasury"
-    // smart_contracts/inference/contract.algo.ts:186
+    // smart_contracts/inference/contract.algo.ts:187
     // this.send(this.treasury.value, asset, fees)
     app_global_get_ex
     assert // check GlobalState exists
     uncover 3
     uncover 2
     callsub send
-    // smart_contracts/inference/contract.algo.ts:183
+    // smart_contracts/inference/contract.algo.ts:184
     // sweepFees(asset: uint64): uint64 {
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -1181,7 +867,7 @@ sweepFees:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.registerProvider[routing]() -> void:
 registerProvider:
-    // smart_contracts/inference/contract.algo.ts:197-203
+    // smart_contracts/inference/contract.algo.ts:198-204
     // registerProvider(
     //   payment: gtxn.PaymentTxn,
     //   bond: gtxn.Transaction,
@@ -1225,25 +911,25 @@ registerProvider:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     cover 2
-    // smart_contracts/inference/contract.algo.ts:204
+    // smart_contracts/inference/contract.algo.ts:205
     // const settings = clone(this.settings.value)
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:69
+    // smart_contracts/inference/contract.algo.ts:70
     // settings = GlobalState<InferenceSettings>({ key: 'settings' })
-    bytec 6 // "settings"
-    // smart_contracts/inference/contract.algo.ts:204
+    bytec 5 // "settings"
+    // smart_contracts/inference/contract.algo.ts:205
     // const settings = clone(this.settings.value)
     app_global_get_ex
     swap
     cover 2
     assert // check GlobalState exists
-    // smart_contracts/inference/contract.algo.ts:205
+    // smart_contracts/inference/contract.algo.ts:206
     // const bondAsset = getAkitaAssets(this.akitaDAO.value).akta
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:205
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:206
     // const bondAsset = getAkitaAssets(this.akitaDAO.value).akta
     app_global_get_ex
     assert // check GlobalState exists
@@ -1252,12 +938,12 @@ registerProvider:
     pushbytes "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/inference/contract.algo.ts:205
+    // smart_contracts/inference/contract.algo.ts:206
     // const bondAsset = getAkitaAssets(this.akitaDAO.value).akta
     intc_0 // 0
     extract_uint64
     cover 3
-    // smart_contracts/inference/contract.algo.ts:206
+    // smart_contracts/inference/contract.algo.ts:207
     // loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     global ZeroAddress
     !=
@@ -1269,15 +955,15 @@ registerProvider:
     intc_1 // 1
 
 registerProvider_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:206
+    // smart_contracts/inference/contract.algo.ts:207
     // loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     bnz registerProvider_after_assert@7
-    bytec 5 // "ERR:errInza"
+    bytec 4 // "ERR:errInza"
     log
     err // ERR:errInza
 
 registerProvider_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:207
+    // smart_contracts/inference/contract.algo.ts:208
     // this.requireStoragePayment(payment, INFERENCE_PROVIDER_MBR + this.metadataCost(metadata))
     dig 3
     callsub metadataCost
@@ -1286,19 +972,19 @@ registerProvider_after_assert@7:
     uncover 7
     swap
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:208
+    // smart_contracts/inference/contract.algo.ts:209
     // const amount = this.receive(bond, bondAsset)
     uncover 5
     dig 3
     callsub receive
     swap
-    // smart_contracts/inference/contract.algo.ts:209
+    // smart_contracts/inference/contract.algo.ts:210
     // loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:209
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:210
     // loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1313,7 +999,7 @@ registerProvider_after_assert@7:
     bytec 16 // 0x00000000000000000000000000000000
 
 registerProvider_after_inlined_smart_contracts/utils/functions.ts::getInferenceFees@13:
-    // smart_contracts/inference/contract.algo.ts:209
+    // smart_contracts/inference/contract.algo.ts:210
     // loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
     intc_2 // 8
     extract_uint64
@@ -1325,34 +1011,34 @@ registerProvider_after_inlined_smart_contracts/utils/functions.ts::getInferenceF
     err // ERR:errInbl
 
 registerProvider_after_assert@9:
-    // smart_contracts/inference/contract.algo.ts:211
+    // smart_contracts/inference/contract.algo.ts:212
     // const id: uint64 = this.providerCount.value + 1
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:70
+    // smart_contracts/inference/contract.algo.ts:71
     // providerCount = GlobalState<uint64>({ key: 'providers' })
     bytec 12 // "providers"
-    // smart_contracts/inference/contract.algo.ts:211
+    // smart_contracts/inference/contract.algo.ts:212
     // const id: uint64 = this.providerCount.value + 1
     app_global_get_ex
     assert // check GlobalState exists
     intc_1 // 1
     +
-    // smart_contracts/inference/contract.algo.ts:70
+    // smart_contracts/inference/contract.algo.ts:71
     // providerCount = GlobalState<uint64>({ key: 'providers' })
     bytec 12 // "providers"
-    // smart_contracts/inference/contract.algo.ts:212
+    // smart_contracts/inference/contract.algo.ts:213
     // this.providerCount.value = id
     dig 1
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:213
+    // smart_contracts/inference/contract.algo.ts:214
     // const status = settings.openRegistration ? ProviderActive : ProviderPending
     swap
     intc 4 // 128
     getbit
-    // smart_contracts/inference/contract.algo.ts:215
+    // smart_contracts/inference/contract.algo.ts:216
     // owner: Txn.sender,
     txn Sender
-    // smart_contracts/inference/contract.algo.ts:214-222
+    // smart_contracts/inference/contract.algo.ts:215-223
     // this.providers(id).value = {
     //   owner: Txn.sender,
     //   claimer,
@@ -1379,10 +1065,10 @@ registerProvider_after_assert@9:
     swap
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:221
+    // smart_contracts/inference/contract.algo.ts:222
     // unbondAt: 0,
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:214-222
+    // smart_contracts/inference/contract.algo.ts:215-223
     // this.providers(id).value = {
     //   owner: Txn.sender,
     //   claimer,
@@ -1394,16 +1080,16 @@ registerProvider_after_assert@9:
     // }
     itob
     concat
-    // smart_contracts/inference/contract.algo.ts:214
+    // smart_contracts/inference/contract.algo.ts:215
     // this.providers(id).value = {
     uncover 3
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:214-222
+    // smart_contracts/inference/contract.algo.ts:215-223
     // this.providers(id).value = {
     //   owner: Txn.sender,
     //   claimer,
@@ -1415,19 +1101,19 @@ registerProvider_after_assert@9:
     // }
     uncover 2
     box_put
-    // smart_contracts/inference/contract.algo.ts:75
+    // smart_contracts/inference/contract.algo.ts:76
     // metadata = BoxMap<uint64, string>({ keyPrefix: 'm' })
     pushbytes "m"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:223
+    // smart_contracts/inference/contract.algo.ts:224
     // this.metadata(id).value = metadata
     dup
     box_del
     pop
     uncover 4
     box_put
-    // smart_contracts/inference/contract.algo.ts:224
+    // smart_contracts/inference/contract.algo.ts:225
     // emit<InferenceProviderRegistered>({ provider: id, owner: Txn.sender, status, bond: amount })
     dup
     txn Sender
@@ -1440,7 +1126,7 @@ registerProvider_after_assert@9:
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:197-203
+    // smart_contracts/inference/contract.algo.ts:198-204
     // registerProvider(
     //   payment: gtxn.PaymentTxn,
     //   bond: gtxn.Transaction,
@@ -1448,7 +1134,7 @@ registerProvider_after_assert@9:
     //   payout: Account,
     //   metadata: string,
     // ): uint64 {
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -1456,7 +1142,7 @@ registerProvider_after_assert@9:
     return
 
 registerProvider_after_if_else@12:
-    // smart_contracts/inference/contract.algo.ts:209
+    // smart_contracts/inference/contract.algo.ts:210
     // loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
     b registerProvider_after_inlined_smart_contracts/utils/functions.ts::getInferenceFees@13
 
@@ -1467,7 +1153,7 @@ registerProvider_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.updateProvider[routing]() -> void:
 updateProvider:
-    // smart_contracts/inference/contract.algo.ts:228
+    // smart_contracts/inference/contract.algo.ts:229
     // updateProvider(provider: uint64, claimer: Account, payout: Account): void {
     txna ApplicationArgs 1
     dup
@@ -1492,12 +1178,12 @@ updateProvider:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/inference/contract.algo.ts:229
+    // smart_contracts/inference/contract.algo.ts:230
     // this.requireOwner(provider)
     swap
     callsub requireOwner
     pop
-    // smart_contracts/inference/contract.algo.ts:230
+    // smart_contracts/inference/contract.algo.ts:231
     // loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     global ZeroAddress
     !=
@@ -1509,35 +1195,35 @@ updateProvider:
     intc_1 // 1
 
 updateProvider_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:230
+    // smart_contracts/inference/contract.algo.ts:231
     // loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     bnz updateProvider_after_assert@7
-    bytec 5 // "ERR:errInza"
+    bytec 4 // "ERR:errInza"
     log
     err // ERR:errInza
 
 updateProvider_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:231
+    // smart_contracts/inference/contract.algo.ts:232
     // this.providers(provider).value.claimer = claimer
     uncover 2
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:231
+    // smart_contracts/inference/contract.algo.ts:232
     // this.providers(provider).value.claimer = claimer
     dup
     intc_3 // 32
     uncover 4
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:232
+    // smart_contracts/inference/contract.algo.ts:233
     // this.providers(provider).value.payout = payout
     pushint 64
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:228
+    // smart_contracts/inference/contract.algo.ts:229
     // updateProvider(provider: uint64, claimer: Account, payout: Account): void {
     intc_1 // 1
     return
@@ -1549,7 +1235,7 @@ updateProvider_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setMetadata[routing]() -> void:
 setMetadata:
-    // smart_contracts/inference/contract.algo.ts:239
+    // smart_contracts/inference/contract.algo.ts:240
     // setMetadata(payment: gtxn.PaymentTxn, provider: uint64, metadata: string): void {
     txn GroupIndex
     intc_1 // 1
@@ -1577,38 +1263,38 @@ setMetadata:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/inference/contract.algo.ts:240
+    // smart_contracts/inference/contract.algo.ts:241
     // const owner = this.requireOwner(provider)
     dig 1
     callsub requireOwner
-    // smart_contracts/inference/contract.algo.ts:241
+    // smart_contracts/inference/contract.algo.ts:242
     // this.requireStoragePayment(payment, this.metadataCost(metadata))
     dig 1
     callsub metadataCost
     uncover 4
     swap
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:242
+    // smart_contracts/inference/contract.algo.ts:243
     // const refund = this.metadataCost(this.metadata(provider).value)
     uncover 2
     itob
-    // smart_contracts/inference/contract.algo.ts:75
+    // smart_contracts/inference/contract.algo.ts:76
     // metadata = BoxMap<uint64, string>({ keyPrefix: 'm' })
     pushbytes "m"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:242
+    // smart_contracts/inference/contract.algo.ts:243
     // const refund = this.metadataCost(this.metadata(provider).value)
     dup
     box_get
     assert // Box must have value
     callsub metadataCost
-    // smart_contracts/inference/contract.algo.ts:243
+    // smart_contracts/inference/contract.algo.ts:244
     // this.metadata(provider).delete()
     dig 1
     box_del
     pop
-    // smart_contracts/inference/contract.algo.ts:244
+    // smart_contracts/inference/contract.algo.ts:245
     // this.metadata(provider).value = metadata
     dig 1
     box_del
@@ -1616,7 +1302,7 @@ setMetadata:
     swap
     uncover 3
     box_put
-    // smart_contracts/inference/contract.algo.ts:245
+    // smart_contracts/inference/contract.algo.ts:246
     // itxn.payment({ receiver: owner, amount: refund }).submit()
     itxn_begin
     itxn_field Amount
@@ -1626,7 +1312,7 @@ setMetadata:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/inference/contract.algo.ts:239
+    // smart_contracts/inference/contract.algo.ts:240
     // setMetadata(payment: gtxn.PaymentTxn, provider: uint64, metadata: string): void {
     intc_1 // 1
     return
@@ -1634,7 +1320,7 @@ setMetadata:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.setAttestation[routing]() -> void:
 setAttestation:
-    // smart_contracts/inference/contract.algo.ts:249
+    // smart_contracts/inference/contract.algo.ts:250
     // setAttestation(payment: gtxn.PaymentTxn, provider: uint64, attestation: Attestation): void {
     txn GroupIndex
     intc_1 // 1
@@ -1657,21 +1343,21 @@ setAttestation:
     pushint 72
     ==
     assert // invalid number of bytes for smart_contracts/inference/types.ts::Attestation
-    // smart_contracts/inference/contract.algo.ts:250
+    // smart_contracts/inference/contract.algo.ts:251
     // this.requireOwner(provider)
     dig 1
     callsub requireOwner
     pop
-    // smart_contracts/inference/contract.algo.ts:251
+    // smart_contracts/inference/contract.algo.ts:252
     // this.requireStoragePayment(payment, this.attestations(provider).exists ? 0 : INFERENCE_ATTESTATION_MBR)
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:76
+    // smart_contracts/inference/contract.algo.ts:77
     // attestations = BoxMap<uint64, Attestation>({ keyPrefix: 'a' })
     pushbytes "a"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:251
+    // smart_contracts/inference/contract.algo.ts:252
     // this.requireStoragePayment(payment, this.attestations(provider).exists ? 0 : INFERENCE_ATTESTATION_MBR)
     dup
     box_len
@@ -1683,11 +1369,11 @@ setAttestation:
     uncover 3
     swap
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:252
+    // smart_contracts/inference/contract.algo.ts:253
     // this.attestations(provider).value = clone(attestation)
     swap
     box_put
-    // smart_contracts/inference/contract.algo.ts:249
+    // smart_contracts/inference/contract.algo.ts:250
     // setAttestation(payment: gtxn.PaymentTxn, provider: uint64, attestation: Attestation): void {
     intc_1 // 1
     return
@@ -1695,7 +1381,7 @@ setAttestation:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.addBond[routing]() -> void:
 addBond:
-    // smart_contracts/inference/contract.algo.ts:256
+    // smart_contracts/inference/contract.algo.ts:257
     // addBond(provider: uint64, bond: gtxn.Transaction): void {
     txna ApplicationArgs 1
     dup
@@ -1709,11 +1395,11 @@ addBond:
     intc_1 // 1
     -
     swap
-    // smart_contracts/inference/contract.algo.ts:257
+    // smart_contracts/inference/contract.algo.ts:258
     // const info = this.mustGetProvider(provider)
     callsub mustGetProvider
     dup
-    // smart_contracts/inference/contract.algo.ts:258
+    // smart_contracts/inference/contract.algo.ts:259
     // loggedAssert(info.status !== ProviderUnbonding && info.status !== ProviderExited, errInferenceUnbonding)
     pushint 112
     extract_uint64
@@ -1729,7 +1415,7 @@ addBond:
     intc_1 // 1
 
 addBond_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:258
+    // smart_contracts/inference/contract.algo.ts:259
     // loggedAssert(info.status !== ProviderUnbonding && info.status !== ProviderExited, errInferenceUnbonding)
     bnz addBond_after_assert@7
     bytec 17 // "ERR:errInub"
@@ -1737,7 +1423,7 @@ addBond_bool_merge@5:
     err // ERR:errInub
 
 addBond_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:259
+    // smart_contracts/inference/contract.algo.ts:260
     // const amount = this.receive(bond, info.bondAsset)
     dup
     pushint 104
@@ -1745,7 +1431,7 @@ addBond_after_assert@7:
     uncover 2
     swap
     callsub receive
-    // smart_contracts/inference/contract.algo.ts:260
+    // smart_contracts/inference/contract.algo.ts:261
     // this.providers(provider).value.bond = info.bond + amount
     swap
     pushint 96
@@ -1753,19 +1439,19 @@ addBond_after_assert@7:
     +
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:260
+    // smart_contracts/inference/contract.algo.ts:261
     // this.providers(provider).value.bond = info.bond + amount
     swap
     itob
     pushint 96
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:256
+    // smart_contracts/inference/contract.algo.ts:257
     // addBond(provider: uint64, bond: gtxn.Transaction): void {
     intc_1 // 1
     return
@@ -1777,7 +1463,7 @@ addBond_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.beginUnbond[routing]() -> void:
 beginUnbond:
-    // smart_contracts/inference/contract.algo.ts:266
+    // smart_contracts/inference/contract.algo.ts:267
     // beginUnbond(provider: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1786,22 +1472,22 @@ beginUnbond:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:267
+    // smart_contracts/inference/contract.algo.ts:268
     // this.requireOwner(provider)
     dup
     callsub requireOwner
     pop
-    // smart_contracts/inference/contract.algo.ts:268
+    // smart_contracts/inference/contract.algo.ts:269
     // const status = this.providers(provider).value.status
     itob
     dup
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:268
+    // smart_contracts/inference/contract.algo.ts:269
     // const status = this.providers(provider).value.status
     box_get
     assert // Box must have value
@@ -1809,7 +1495,7 @@ beginUnbond:
     extract_uint64
     dup
     cover 3
-    // smart_contracts/inference/contract.algo.ts:269
+    // smart_contracts/inference/contract.algo.ts:270
     // loggedAssert(status !== ProviderUnbonding && status !== ProviderExited, errInferenceUnbonding)
     pushint 3
     !=
@@ -1821,7 +1507,7 @@ beginUnbond:
     intc_1 // 1
 
 beginUnbond_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:269
+    // smart_contracts/inference/contract.algo.ts:270
     // loggedAssert(status !== ProviderUnbonding && status !== ProviderExited, errInferenceUnbonding)
     bnz beginUnbond_after_assert@7
     bytec 17 // "ERR:errInub"
@@ -1829,7 +1515,7 @@ beginUnbond_bool_merge@5:
     err // ERR:errInub
 
 beginUnbond_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:270
+    // smart_contracts/inference/contract.algo.ts:271
     // this.providers(provider).value.status = ProviderUnbonding
     pushint 3
     itob
@@ -1837,14 +1523,14 @@ beginUnbond_after_assert@7:
     pushint 112
     dig 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:271
+    // smart_contracts/inference/contract.algo.ts:272
     // this.providers(provider).value.unbondAt = Global.latestTimestamp + this.settings.value.unbondDelay
     global LatestTimestamp
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:69
+    // smart_contracts/inference/contract.algo.ts:70
     // settings = GlobalState<InferenceSettings>({ key: 'settings' })
-    bytec 6 // "settings"
-    // smart_contracts/inference/contract.algo.ts:271
+    bytec 5 // "settings"
+    // smart_contracts/inference/contract.algo.ts:272
     // this.providers(provider).value.unbondAt = Global.latestTimestamp + this.settings.value.unbondDelay
     app_global_get_ex
     assert // check GlobalState exists
@@ -1856,14 +1542,14 @@ beginUnbond_after_assert@7:
     pushint 120
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:272
+    // smart_contracts/inference/contract.algo.ts:273
     // emit<InferenceProviderStatus>({ provider, status: ProviderUnbonding })
     concat
     bytec 15 // method "InferenceProviderStatus(uint64,uint64)"
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:266
+    // smart_contracts/inference/contract.algo.ts:267
     // beginUnbond(provider: uint64): void {
     intc_1 // 1
     return
@@ -1875,7 +1561,7 @@ beginUnbond_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.withdrawBond[routing]() -> void:
 withdrawBond:
-    // smart_contracts/inference/contract.algo.ts:276
+    // smart_contracts/inference/contract.algo.ts:277
     // withdrawBond(provider: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -1884,29 +1570,29 @@ withdrawBond:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:277
+    // smart_contracts/inference/contract.algo.ts:278
     // const owner = this.requireOwner(provider)
     dup
     callsub requireOwner
     swap
-    // smart_contracts/inference/contract.algo.ts:278
+    // smart_contracts/inference/contract.algo.ts:279
     // const info = clone(this.providers(provider).value)
     itob
     dup
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:278
+    // smart_contracts/inference/contract.algo.ts:279
     // const info = clone(this.providers(provider).value)
     box_get
     swap
     dup
     uncover 2
     assert // Box must have value
-    // smart_contracts/inference/contract.algo.ts:279
+    // smart_contracts/inference/contract.algo.ts:280
     // loggedAssert(info.status === ProviderUnbonding && Global.latestTimestamp >= info.unbondAt, errInferenceUnbonding)
     pushint 112
     extract_uint64
@@ -1922,7 +1608,7 @@ withdrawBond:
     intc_1 // 1
 
 withdrawBond_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:279
+    // smart_contracts/inference/contract.algo.ts:280
     // loggedAssert(info.status === ProviderUnbonding && Global.latestTimestamp >= info.unbondAt, errInferenceUnbonding)
     bnz withdrawBond_after_assert@7
     bytec 17 // "ERR:errInub"
@@ -1930,7 +1616,7 @@ withdrawBond_bool_merge@5:
     err // ERR:errInub
 
 withdrawBond_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:280
+    // smart_contracts/inference/contract.algo.ts:281
     // this.providers(provider).value.bond = 0
     intc_0 // 0
     itob
@@ -1940,7 +1626,7 @@ withdrawBond_after_assert@7:
     pushint 96
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:281
+    // smart_contracts/inference/contract.algo.ts:282
     // this.providers(provider).value.status = ProviderExited
     pushint 4
     itob
@@ -1948,7 +1634,7 @@ withdrawBond_after_assert@7:
     pushint 112
     dig 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:282
+    // smart_contracts/inference/contract.algo.ts:283
     // this.send(owner, info.bondAsset, info.bond)
     swap
     dup
@@ -1960,14 +1646,14 @@ withdrawBond_after_assert@7:
     uncover 4
     cover 2
     callsub send
-    // smart_contracts/inference/contract.algo.ts:283
+    // smart_contracts/inference/contract.algo.ts:284
     // emit<InferenceProviderStatus>({ provider, status: ProviderExited })
     concat
     bytec 15 // method "InferenceProviderStatus(uint64,uint64)"
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:276
+    // smart_contracts/inference/contract.algo.ts:277
     // withdrawBond(provider: uint64): void {
     intc_1 // 1
     return
@@ -1979,7 +1665,7 @@ withdrawBond_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.open[routing]() -> void:
 open:
-    // smart_contracts/inference/contract.algo.ts:301
+    // smart_contracts/inference/contract.algo.ts:303
     // open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>, wallet: uint64): uint64 {
     txn GroupIndex
     pushint 2
@@ -2019,29 +1705,20 @@ open:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:302
-    // const who = principalOf(this.akitaDAO.value, wallet)
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/upgradeable.ts:16
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:302
-    // const who = principalOf(this.akitaDAO.value, wallet)
-    app_global_get_ex
-    assert // check GlobalState exists
-    swap
-    callsub principalOf
-    // smart_contracts/inference/contract.algo.ts:303
+    // smart_contracts/inference/contract.algo.ts:304
+    // const who = this.walletPrincipal(wallet)
+    callsub walletPrincipal
+    // smart_contracts/inference/contract.algo.ts:305
     // this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
     uncover 5
     intc 5 // 60500
     callsub requireStoragePayment
-    // smart_contracts/inference/contract.algo.ts:304
+    // smart_contracts/inference/contract.algo.ts:306
     // const amount = this.receive(lock, asset)
     uncover 4
     dig 3
     callsub receive
-    // smart_contracts/inference/contract.algo.ts:305
+    // smart_contracts/inference/contract.algo.ts:307
     // return this.newTicket(Txn.sender, who.principal, who.wallet, provider, asset, amount, request, 0, 0, 0)
     txn Sender
     dig 2
@@ -2056,10 +1733,10 @@ open:
     intc_0 // 0
     dupn 2
     callsub newTicket
-    // smart_contracts/inference/contract.algo.ts:301
+    // smart_contracts/inference/contract.algo.ts:303
     // open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>, wallet: uint64): uint64 {
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -2069,7 +1746,7 @@ open:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.createPool[routing]() -> void:
 createPool:
-    // smart_contracts/inference/contract.algo.ts:316-318
+    // smart_contracts/inference/contract.algo.ts:318-320
     // createPool(
     //   payment: gtxn.PaymentTxn, asset: uint64, allocator: Account, merchant: Account, serviceID: uint64, perPayment: uint64,
     // ): uint64 {
@@ -2118,19 +1795,19 @@ createPool:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 5
-    // smart_contracts/inference/contract.algo.ts:319
+    // smart_contracts/inference/contract.algo.ts:321
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     itob
     dup
     cover 2
-    // smart_contracts/inference/contract.algo.ts:80
+    // smart_contracts/inference/contract.algo.ts:81
     // assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
-    bytec 7 // "x"
+    bytec 6 // "x"
     swap
     concat
     dup
     cover 7
-    // smart_contracts/inference/contract.algo.ts:319
+    // smart_contracts/inference/contract.algo.ts:321
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     box_len
     bury 1
@@ -2146,7 +1823,7 @@ createPool:
     intc_1 // 1
 
 createPool_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:319
+    // smart_contracts/inference/contract.algo.ts:321
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     bnz createPool_after_assert@7
     bytec 23 // "ERR:errInxa"
@@ -2154,7 +1831,7 @@ createPool_bool_merge@5:
     err // ERR:errInxa
 
 createPool_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:320
+    // smart_contracts/inference/contract.algo.ts:322
     // loggedAssert(serviceID !== 0 && merchant !== Global.zeroAddress, errInferenceBadService)
     dig 3
     bz createPool_bool_false@10
@@ -2165,7 +1842,7 @@ createPool_after_assert@7:
     intc_1 // 1
 
 createPool_bool_merge@11:
-    // smart_contracts/inference/contract.algo.ts:320
+    // smart_contracts/inference/contract.algo.ts:322
     // loggedAssert(serviceID !== 0 && merchant !== Global.zeroAddress, errInferenceBadService)
     bnz createPool_after_assert@13
     pushbytes "ERR:errInpe"
@@ -2173,44 +1850,44 @@ createPool_bool_merge@11:
     err // ERR:errInpe
 
 createPool_after_assert@13:
-    // smart_contracts/inference/contract.algo.ts:322
+    // smart_contracts/inference/contract.algo.ts:324
     // payment.receiver === Global.currentApplicationAddress &&
     dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:322-323
+    // smart_contracts/inference/contract.algo.ts:324-325
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount >= INFERENCE_POOL_MBR &&
     bz createPool_bool_false@18
-    // smart_contracts/inference/contract.algo.ts:323
+    // smart_contracts/inference/contract.algo.ts:325
     // payment.amount >= INFERENCE_POOL_MBR &&
     dup
     gtxns Amount
     intc 5 // 60500
     >=
-    // smart_contracts/inference/contract.algo.ts:322-323
+    // smart_contracts/inference/contract.algo.ts:324-325
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount >= INFERENCE_POOL_MBR &&
     bz createPool_bool_false@18
-    // smart_contracts/inference/contract.algo.ts:324
+    // smart_contracts/inference/contract.algo.ts:326
     // payment.closeRemainderTo === Global.zeroAddress &&
     dup
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:322-324
+    // smart_contracts/inference/contract.algo.ts:324-326
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount >= INFERENCE_POOL_MBR &&
     // payment.closeRemainderTo === Global.zeroAddress &&
     bz createPool_bool_false@18
-    // smart_contracts/inference/contract.algo.ts:325
+    // smart_contracts/inference/contract.algo.ts:327
     // payment.rekeyTo === Global.zeroAddress,
     dup
     gtxns RekeyTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:322-325
+    // smart_contracts/inference/contract.algo.ts:324-327
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount >= INFERENCE_POOL_MBR &&
     // payment.closeRemainderTo === Global.zeroAddress &&
@@ -2219,7 +1896,7 @@ createPool_after_assert@13:
     intc_1 // 1
 
 createPool_bool_merge@19:
-    // smart_contracts/inference/contract.algo.ts:321-327
+    // smart_contracts/inference/contract.algo.ts:323-329
     // loggedAssert(
     //   payment.receiver === Global.currentApplicationAddress &&
     //   payment.amount >= INFERENCE_POOL_MBR &&
@@ -2233,35 +1910,35 @@ createPool_bool_merge@19:
     err // ERR:errInbp
 
 createPool_after_assert@21:
-    // smart_contracts/inference/contract.algo.ts:328
+    // smart_contracts/inference/contract.algo.ts:330
     // const id: uint64 = this.poolCount.value + 1
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:72
+    // smart_contracts/inference/contract.algo.ts:73
     // poolCount = GlobalState<uint64>({ key: 'pools' })
     bytec 14 // "pools"
-    // smart_contracts/inference/contract.algo.ts:328
+    // smart_contracts/inference/contract.algo.ts:330
     // const id: uint64 = this.poolCount.value + 1
     app_global_get_ex
     assert // check GlobalState exists
     intc_1 // 1
     +
-    // smart_contracts/inference/contract.algo.ts:72
+    // smart_contracts/inference/contract.algo.ts:73
     // poolCount = GlobalState<uint64>({ key: 'pools' })
     bytec 14 // "pools"
-    // smart_contracts/inference/contract.algo.ts:329
+    // smart_contracts/inference/contract.algo.ts:331
     // this.poolCount.value = id
     dig 1
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:331
+    // smart_contracts/inference/contract.algo.ts:333
     // sponsor: Txn.sender,
     txn Sender
-    // smart_contracts/inference/contract.algo.ts:338
+    // smart_contracts/inference/contract.algo.ts:340
     // credit: payment.amount - INFERENCE_POOL_MBR,
     uncover 2
     gtxns Amount
     intc 5 // 60500
     -
-    // smart_contracts/inference/contract.algo.ts:330-339
+    // smart_contracts/inference/contract.algo.ts:332-341
     // this.pools(id).value = {
     //   sponsor: Txn.sender,
     //   allocator,
@@ -2279,10 +1956,10 @@ createPool_after_assert@21:
     concat
     uncover 3
     concat
-    // smart_contracts/inference/contract.algo.ts:335
+    // smart_contracts/inference/contract.algo.ts:337
     // balance: 0,
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:330-339
+    // smart_contracts/inference/contract.algo.ts:332-341
     // this.pools(id).value = {
     //   sponsor: Txn.sender,
     //   allocator,
@@ -2304,16 +1981,16 @@ createPool_after_assert@21:
     swap
     itob
     concat
-    // smart_contracts/inference/contract.algo.ts:330
+    // smart_contracts/inference/contract.algo.ts:332
     // this.pools(id).value = {
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:330-339
+    // smart_contracts/inference/contract.algo.ts:332-341
     // this.pools(id).value = {
     //   sponsor: Txn.sender,
     //   allocator,
@@ -2326,11 +2003,11 @@ createPool_after_assert@21:
     // }
     uncover 2
     box_put
-    // smart_contracts/inference/contract.algo.ts:316-318
+    // smart_contracts/inference/contract.algo.ts:318-320
     // createPool(
     //   payment: gtxn.PaymentTxn, asset: uint64, allocator: Account, merchant: Account, serviceID: uint64, perPayment: uint64,
     // ): uint64 {
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -2352,7 +2029,7 @@ createPool_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.fundPool[routing]() -> void:
 fundPool:
-    // smart_contracts/inference/contract.algo.ts:344
+    // smart_contracts/inference/contract.algo.ts:346
     // fundPool(pool: uint64, transfer: gtxn.Transaction): void {
     txna ApplicationArgs 1
     dup
@@ -2364,11 +2041,11 @@ fundPool:
     txn GroupIndex
     intc_1 // 1
     -
-    // smart_contracts/inference/contract.algo.ts:345
+    // smart_contracts/inference/contract.algo.ts:347
     // const info = this.mustGetPool(pool)
     dig 1
     callsub mustGetPool
-    // smart_contracts/inference/contract.algo.ts:346
+    // smart_contracts/inference/contract.algo.ts:348
     // this.pools(pool).value.balance = info.balance + this.receive(transfer, info.asset)
     dup
     pushint 104
@@ -2382,19 +2059,19 @@ fundPool:
     +
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:346
+    // smart_contracts/inference/contract.algo.ts:348
     // this.pools(pool).value.balance = info.balance + this.receive(transfer, info.asset)
     swap
     itob
     pushint 104
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:344
+    // smart_contracts/inference/contract.algo.ts:346
     // fundPool(pool: uint64, transfer: gtxn.Transaction): void {
     intc_1 // 1
     return
@@ -2402,7 +2079,7 @@ fundPool:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.addPoolCredit[routing]() -> void:
 addPoolCredit:
-    // smart_contracts/inference/contract.algo.ts:350
+    // smart_contracts/inference/contract.algo.ts:352
     // addPoolCredit(pool: uint64, payment: gtxn.Transaction): void {
     txna ApplicationArgs 1
     dup
@@ -2414,11 +2091,11 @@ addPoolCredit:
     txn GroupIndex
     intc_1 // 1
     -
-    // smart_contracts/inference/contract.algo.ts:351
+    // smart_contracts/inference/contract.algo.ts:353
     // const info = this.mustGetPool(pool)
     dig 1
     callsub mustGetPool
-    // smart_contracts/inference/contract.algo.ts:352
+    // smart_contracts/inference/contract.algo.ts:354
     // this.pools(pool).value.credit = info.credit + this.receive(payment, 0)
     intc 4 // 128
     extract_uint64
@@ -2428,19 +2105,19 @@ addPoolCredit:
     +
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:352
+    // smart_contracts/inference/contract.algo.ts:354
     // this.pools(pool).value.credit = info.credit + this.receive(payment, 0)
     swap
     itob
     intc 4 // 128
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:350
+    // smart_contracts/inference/contract.algo.ts:352
     // addPoolCredit(pool: uint64, payment: gtxn.Transaction): void {
     intc_1 // 1
     return
@@ -2448,7 +2125,7 @@ addPoolCredit:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.updatePool[routing]() -> void:
 updatePool:
-    // smart_contracts/inference/contract.algo.ts:356
+    // smart_contracts/inference/contract.algo.ts:358
     // updatePool(pool: uint64, allocator: Account, perPayment: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -2469,32 +2146,32 @@ updatePool:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/inference/contract.algo.ts:357
+    // smart_contracts/inference/contract.algo.ts:359
     // this.requireSponsor(pool)
     dig 2
     callsub requireSponsor
     pop
-    // smart_contracts/inference/contract.algo.ts:358
+    // smart_contracts/inference/contract.algo.ts:360
     // this.pools(pool).value.allocator = allocator
     uncover 2
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:358
+    // smart_contracts/inference/contract.algo.ts:360
     // this.pools(pool).value.allocator = allocator
     dup
     intc_3 // 32
     uncover 4
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:359
+    // smart_contracts/inference/contract.algo.ts:361
     // this.pools(pool).value.perPayment = perPayment
     pushint 120
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:356
+    // smart_contracts/inference/contract.algo.ts:358
     // updatePool(pool: uint64, allocator: Account, perPayment: uint64): void {
     intc_1 // 1
     return
@@ -2502,7 +2179,7 @@ updatePool:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.withdrawPool[routing]() -> void:
 withdrawPool:
-    // smart_contracts/inference/contract.algo.ts:363
+    // smart_contracts/inference/contract.algo.ts:365
     // withdrawPool(pool: uint64, amount: uint64, credit: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -2529,13 +2206,13 @@ withdrawPool:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/inference/contract.algo.ts:364
+    // smart_contracts/inference/contract.algo.ts:366
     // const info = this.requireSponsor(pool)
     swap
     callsub requireSponsor
     dup
     cover 2
-    // smart_contracts/inference/contract.algo.ts:365
+    // smart_contracts/inference/contract.algo.ts:367
     // loggedAssert(amount <= info.balance && credit <= info.credit, errInferencePoolExhausted)
     pushint 104
     extract_uint64
@@ -2552,7 +2229,7 @@ withdrawPool:
     intc_1 // 1
 
 withdrawPool_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:365
+    // smart_contracts/inference/contract.algo.ts:367
     // loggedAssert(amount <= info.balance && credit <= info.credit, errInferencePoolExhausted)
     bnz withdrawPool_after_assert@7
     bytec 8 // "ERR:errInpx"
@@ -2560,7 +2237,7 @@ withdrawPool_bool_merge@5:
     err // ERR:errInpx
 
 withdrawPool_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:366
+    // smart_contracts/inference/contract.algo.ts:368
     // this.pools(pool).value.balance = info.balance - amount
     uncover 2
     dup
@@ -2568,12 +2245,12 @@ withdrawPool_after_assert@7:
     -
     uncover 4
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:366
+    // smart_contracts/inference/contract.algo.ts:368
     // this.pools(pool).value.balance = info.balance - amount
     swap
     itob
@@ -2581,7 +2258,7 @@ withdrawPool_after_assert@7:
     pushint 104
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:367
+    // smart_contracts/inference/contract.algo.ts:369
     // this.pools(pool).value.credit = info.credit - credit
     uncover 2
     dup
@@ -2596,7 +2273,7 @@ withdrawPool_after_assert@7:
     intc 4 // 128
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:368
+    // smart_contracts/inference/contract.algo.ts:370
     // this.send(info.sponsor, info.asset, amount)
     dup
     extract 0 32
@@ -2607,12 +2284,12 @@ withdrawPool_after_assert@7:
     swap
     uncover 4
     callsub send
-    // smart_contracts/inference/contract.algo.ts:369
+    // smart_contracts/inference/contract.algo.ts:371
     // this.send(info.sponsor, 0, credit)
     intc_0 // 0
     uncover 2
     callsub send
-    // smart_contracts/inference/contract.algo.ts:363
+    // smart_contracts/inference/contract.algo.ts:365
     // withdrawPool(pool: uint64, amount: uint64, credit: uint64): void {
     intc_1 // 1
     return
@@ -2625,7 +2302,7 @@ withdrawPool_bool_false@4:
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.openPooled[routing]() -> void:
 openPooled:
     pushbytes ""
-    // smart_contracts/inference/contract.algo.ts:379
+    // smart_contracts/inference/contract.algo.ts:381
     // openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -2673,24 +2350,15 @@ openPooled:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:380
+    // smart_contracts/inference/contract.algo.ts:382
     // const info = this.mustGetPool(pool)
     uncover 2
     callsub mustGetPool
     cover 2
-    // smart_contracts/inference/contract.algo.ts:381
-    // const who = principalOf(this.akitaDAO.value, wallet)
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/upgradeable.ts:16
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:381
-    // const who = principalOf(this.akitaDAO.value, wallet)
-    app_global_get_ex
-    assert // check GlobalState exists
-    swap
-    callsub principalOf
-    // smart_contracts/inference/contract.algo.ts:382
+    // smart_contracts/inference/contract.algo.ts:383
+    // const who = this.walletPrincipal(wallet)
+    callsub walletPrincipal
+    // smart_contracts/inference/contract.algo.ts:384
     // const ctx: GateCtx = { principal: who.principal, wallet: who.wallet, spender: who.spender }
     dup
     extract 8 32
@@ -2713,13 +2381,13 @@ openPooled:
     concat
     dup
     cover 2
-    // smart_contracts/inference/contract.algo.ts:383
+    // smart_contracts/inference/contract.algo.ts:385
     // loggedAssert(ctxOwnsOf(this.akitaDAO.value, ctx, subscription.address), errInferencePoolDenied)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:383
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:385
     // loggedAssert(ctxOwnsOf(this.akitaDAO.value, ctx, subscription.address), errInferencePoolDenied)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2730,7 +2398,7 @@ openPooled:
     cover 12
     // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec 4 // "aal"
+    bytec 7 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:960
@@ -2757,7 +2425,7 @@ openPooled_if_body@6:
     intc_1 // 1
 
 openPooled_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@12:
-    // smart_contracts/inference/contract.algo.ts:383
+    // smart_contracts/inference/contract.algo.ts:385
     // loggedAssert(ctxOwnsOf(this.akitaDAO.value, ctx, subscription.address), errInferencePoolDenied)
     bnz openPooled_after_assert@3
     bytec 18 // "ERR:errInpd"
@@ -2765,7 +2433,7 @@ openPooled_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@12:
     err // ERR:errInpd
 
 openPooled_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:384
+    // smart_contracts/inference/contract.algo.ts:386
     // return this.poolTicket(pool, info, who.principal, who.wallet, subscription, provider, maxPrice, request)
     uncover 4
     cover 3
@@ -2775,10 +2443,10 @@ openPooled_after_assert@3:
     uncover 7
     callsub poolTicket
     popn 2
-    // smart_contracts/inference/contract.algo.ts:379
+    // smart_contracts/inference/contract.algo.ts:381
     // openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): uint64 {
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -2813,7 +2481,7 @@ openPooled_bool_false@10:
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.openSponsored[routing]() -> void:
 openSponsored:
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:392-395
+    // smart_contracts/inference/contract.algo.ts:394-397
     // openSponsored(
     //   pool: uint64, member: Account, memberWallet: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>,
     //   subscription: SubscriptionKey,
@@ -2871,11 +2539,11 @@ openSponsored:
     pushint 40
     ==
     assert // invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionKey
-    // smart_contracts/inference/contract.algo.ts:396
+    // smart_contracts/inference/contract.algo.ts:398
     // const info = this.mustGetPool(pool)
     callsub mustGetPool
     dup
-    // smart_contracts/inference/contract.algo.ts:397
+    // smart_contracts/inference/contract.algo.ts:399
     // loggedAssert(info.allocator !== Global.zeroAddress && Txn.sender === info.allocator, errInferencePoolDenied)
     extract 32 32
     dup
@@ -2890,7 +2558,7 @@ openSponsored:
     intc_1 // 1
 
 openSponsored_bool_merge@5:
-    // smart_contracts/inference/contract.algo.ts:397
+    // smart_contracts/inference/contract.algo.ts:399
     // loggedAssert(info.allocator !== Global.zeroAddress && Txn.sender === info.allocator, errInferencePoolDenied)
     bnz openSponsored_after_assert@7
     bytec 18 // "ERR:errInpd"
@@ -2898,39 +2566,21 @@ openSponsored_bool_merge@5:
     err // ERR:errInpd
 
 openSponsored_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:399
-    // subscription.address === member || (
-    dig 2
-    extract 0 32
-    dup
-    bury 11
-    dig 4
-    ==
-    // smart_contracts/inference/contract.algo.ts:399-403
-    // subscription.address === member || (
-    //   memberWallet !== 0 &&
-    //   ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
-    //   ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
-    // ),
-    bnz openSponsored_bool_true@11
-    // smart_contracts/inference/contract.algo.ts:400-401
-    // memberWallet !== 0 &&
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
+    // smart_contracts/inference/contract.algo.ts:400
+    // loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
     dig 1
-    bz openSponsored_bool_false@12
-    // smart_contracts/inference/contract.algo.ts:401
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
+    bz openSponsored_bool_false@10
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:401
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:400
+    // loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec 4 // "aal"
+    bytec 7 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:945
@@ -2940,23 +2590,40 @@ openSponsored_after_assert@7:
     dig 2
     dig 5
     callsub ownsAtRest
-    // smart_contracts/inference/contract.algo.ts:400-401
-    // memberWallet !== 0 &&
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
-    bz openSponsored_bool_false@12
+    // smart_contracts/inference/contract.algo.ts:400
+    // loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
+    bz openSponsored_bool_false@10
+    intc_1 // 1
+
+openSponsored_bool_merge@11:
+    // smart_contracts/inference/contract.algo.ts:400
+    // loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
+    bnz openSponsored_after_assert@13
+    bytec 25 // "ERR:errInwl"
+    log
+    err // ERR:errInwl
+
+openSponsored_after_assert@13:
     // smart_contracts/inference/contract.algo.ts:402
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
+    // subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
+    dig 2
+    extract 0 32
+    dup
+    bury 11
+    dig 4
+    ==
+    bnz openSponsored_bool_true@15
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
+    bytec_1 // "akita_dao"
     // smart_contracts/inference/contract.algo.ts:402
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
+    // subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec 4 // "aal"
+    bytec 7 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:945
@@ -2966,32 +2633,26 @@ openSponsored_after_assert@7:
     dig 2
     dig 11
     callsub ownsAtRest
-    // smart_contracts/inference/contract.algo.ts:400-402
-    // memberWallet !== 0 &&
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
-    // ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
-    bz openSponsored_bool_false@12
+    // smart_contracts/inference/contract.algo.ts:402
+    // subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
+    bz openSponsored_bool_false@16
 
-openSponsored_bool_true@11:
+openSponsored_bool_true@15:
     intc_1 // 1
 
-openSponsored_bool_merge@13:
-    // smart_contracts/inference/contract.algo.ts:398-405
+openSponsored_bool_merge@17:
+    // smart_contracts/inference/contract.algo.ts:401-404
     // loggedAssert(
-    //   subscription.address === member || (
-    //     memberWallet !== 0 &&
-    //     ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
-    //     ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
-    //   ),
+    //   subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
     //   errInferencePoolDenied,
     // )
-    bnz openSponsored_after_assert@15
+    bnz openSponsored_after_assert@19
     bytec 18 // "ERR:errInpd"
     log
     err // ERR:errInpd
 
-openSponsored_after_assert@15:
-    // smart_contracts/inference/contract.algo.ts:406
+openSponsored_after_assert@19:
+    // smart_contracts/inference/contract.algo.ts:405
     // return this.poolTicket(pool, info, member, memberWallet, subscription, provider, maxPrice, request)
     uncover 4
     swap
@@ -3003,22 +2664,26 @@ openSponsored_after_assert@15:
     uncover 7
     callsub poolTicket
     popn 2
-    // smart_contracts/inference/contract.algo.ts:392-395
+    // smart_contracts/inference/contract.algo.ts:394-397
     // openSponsored(
     //   pool: uint64, member: Account, memberWallet: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>,
     //   subscription: SubscriptionKey,
     // ): uint64 {
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
     return
 
-openSponsored_bool_false@12:
+openSponsored_bool_false@16:
     intc_0 // 0
-    b openSponsored_bool_merge@13
+    b openSponsored_bool_merge@17
+
+openSponsored_bool_false@10:
+    intc_0 // 0
+    b openSponsored_bool_merge@11
 
 openSponsored_bool_false@4:
     intc_0 // 0
@@ -3027,7 +2692,7 @@ openSponsored_bool_false@4:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.settle[routing]() -> void:
 settle:
-    // smart_contracts/inference/contract.algo.ts:414
+    // smart_contracts/inference/contract.algo.ts:413
     // settle(ticket: uint64, cost: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -3045,17 +2710,17 @@ settle:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/inference/contract.algo.ts:415
+    // smart_contracts/inference/contract.algo.ts:414
     // const info = this.mustGetTicket(ticket)
     callsub mustGetTicket
     dup
-    // smart_contracts/inference/contract.algo.ts:416
+    // smart_contracts/inference/contract.algo.ts:415
     // const provider = this.mustGetProvider(info.provider)
     pushint 72
     extract_uint64
     callsub mustGetProvider
     dup
-    // smart_contracts/inference/contract.algo.ts:417
+    // smart_contracts/inference/contract.algo.ts:416
     // loggedAssert(Txn.sender === provider.claimer, errInferenceNotClaimer)
     txn Sender
     swap
@@ -3067,7 +2732,7 @@ settle:
     err // ERR:errIncl
 
 settle_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:418
+    // smart_contracts/inference/contract.algo.ts:417
     // loggedAssert(Global.latestTimestamp < info.expiresAt, errInferenceExpired)
     global LatestTimestamp
     dig 2
@@ -3080,7 +2745,7 @@ settle_after_assert@3:
     err // ERR:errInex
 
 settle_after_assert@5:
-    // smart_contracts/inference/contract.algo.ts:419
+    // smart_contracts/inference/contract.algo.ts:418
     // loggedAssert(cost <= info.amount, errInferenceOverLock)
     dig 1
     pushint 88
@@ -3095,7 +2760,7 @@ settle_after_assert@5:
     err // ERR:errInol
 
 settle_after_assert@7:
-    // smart_contracts/inference/contract.algo.ts:421
+    // smart_contracts/inference/contract.algo.ts:420
     // const fee = op.divw(...op.mulw(cost, info.feePercentage), INFERENCE_FEE_DIVISOR)
     dig 1
     pushint 96
@@ -3108,25 +2773,25 @@ settle_after_assert@7:
     divw
     dup
     cover 7
-    // smart_contracts/inference/contract.algo.ts:422
+    // smart_contracts/inference/contract.algo.ts:421
     // const paid: uint64 = cost - fee
     swap
     dig 1
     -
     swap
-    // smart_contracts/inference/contract.algo.ts:423
+    // smart_contracts/inference/contract.algo.ts:422
     // if (fee > 0) {
     bz settle_after_if_else@9
-    // smart_contracts/inference/contract.algo.ts:424
+    // smart_contracts/inference/contract.algo.ts:423
     // this.assets(info.asset).value.fees = this.assets(info.asset).value.fees + fee
     dig 2
     extract 80 8
-    // smart_contracts/inference/contract.algo.ts:80
+    // smart_contracts/inference/contract.algo.ts:81
     // assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
-    bytec 7 // "x"
+    bytec 6 // "x"
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:424
+    // smart_contracts/inference/contract.algo.ts:423
     // this.assets(info.asset).value.fees = this.assets(info.asset).value.fees + fee
     dup
     box_get
@@ -3141,20 +2806,20 @@ settle_after_assert@7:
     box_replace // on error: index out of bounds
 
 settle_after_if_else@9:
-    // smart_contracts/inference/contract.algo.ts:426
+    // smart_contracts/inference/contract.algo.ts:425
     // this.tickets(ticket).delete()
     uncover 3
     itob
-    // smart_contracts/inference/contract.algo.ts:77
+    // smart_contracts/inference/contract.algo.ts:78
     // tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
     bytec 9 // "t"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:426
+    // smart_contracts/inference/contract.algo.ts:425
     // this.tickets(ticket).delete()
     box_del
     pop
-    // smart_contracts/inference/contract.algo.ts:427
+    // smart_contracts/inference/contract.algo.ts:426
     // this.send(provider.payout, info.asset, paid)
     uncover 2
     extract 64 32
@@ -3165,7 +2830,7 @@ settle_after_if_else@9:
     extract_uint64
     dig 4
     callsub send
-    // smart_contracts/inference/contract.algo.ts:428
+    // smart_contracts/inference/contract.algo.ts:427
     // this.refund(info, info.amount - cost)
     uncover 3
     uncover 4
@@ -3173,7 +2838,7 @@ settle_after_if_else@9:
     cover 3
     -
     callsub refund
-    // smart_contracts/inference/contract.algo.ts:429
+    // smart_contracts/inference/contract.algo.ts:428
     // emit<InferenceTicketSettled>({ ticket, principal: info.principal, wallet: info.wallet, provider: info.provider, cost, paid, fee })
     dup
     extract 32 32
@@ -3199,13 +2864,13 @@ settle_after_if_else@9:
     uncover 2
     itob
     concat
-    bytec 25 // method "InferenceTicketSettled(uint64,address,uint64,uint64,uint64,uint64,uint64)"
+    bytec 26 // method "InferenceTicketSettled(uint64,address,uint64,uint64,uint64,uint64,uint64)"
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:414
+    // smart_contracts/inference/contract.algo.ts:413
     // settle(ticket: uint64, cost: uint64): uint64 {
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3215,7 +2880,7 @@ settle_after_if_else@9:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.refundExpired[routing]() -> void:
 refundExpired:
-    // smart_contracts/inference/contract.algo.ts:434
+    // smart_contracts/inference/contract.algo.ts:433
     // refundExpired(ticket: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -3225,11 +2890,11 @@ refundExpired:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/inference/contract.algo.ts:435
+    // smart_contracts/inference/contract.algo.ts:434
     // const info = this.mustGetTicket(ticket)
     callsub mustGetTicket
     dup
-    // smart_contracts/inference/contract.algo.ts:436
+    // smart_contracts/inference/contract.algo.ts:435
     // loggedAssert(Global.latestTimestamp >= info.expiresAt, errInferenceNotExpired)
     global LatestTimestamp
     swap
@@ -3242,27 +2907,27 @@ refundExpired:
     err // ERR:errInnx
 
 refundExpired_after_assert@3:
-    // smart_contracts/inference/contract.algo.ts:437
+    // smart_contracts/inference/contract.algo.ts:436
     // this.tickets(ticket).delete()
     swap
     itob
-    // smart_contracts/inference/contract.algo.ts:77
+    // smart_contracts/inference/contract.algo.ts:78
     // tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
     bytec 9 // "t"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:437
+    // smart_contracts/inference/contract.algo.ts:436
     // this.tickets(ticket).delete()
     box_del
     pop
-    // smart_contracts/inference/contract.algo.ts:438
+    // smart_contracts/inference/contract.algo.ts:437
     // this.refund(info, info.amount)
     swap
     dup
     pushint 88
     extract_uint64
     callsub refund
-    // smart_contracts/inference/contract.algo.ts:439
+    // smart_contracts/inference/contract.algo.ts:438
     // emit<InferenceTicketSettled>({ ticket, principal: info.principal, wallet: info.wallet, provider: info.provider, cost: 0, paid: 0, fee: 0 })
     dup
     extract 32 32
@@ -3286,11 +2951,11 @@ refundExpired_after_assert@3:
     concat
     swap
     concat
-    bytec 25 // method "InferenceTicketSettled(uint64,address,uint64,uint64,uint64,uint64,uint64)"
+    bytec 26 // method "InferenceTicketSettled(uint64,address,uint64,uint64,uint64,uint64,uint64)"
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:434
+    // smart_contracts/inference/contract.algo.ts:433
     // refundExpired(ticket: uint64): void {
     intc_1 // 1
     return
@@ -3298,7 +2963,7 @@ refundExpired_after_assert@3:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.getProvider[routing]() -> void:
 getProvider:
-    // smart_contracts/inference/contract.algo.ts:444
+    // smart_contracts/inference/contract.algo.ts:443
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3307,12 +2972,12 @@ getProvider:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:446
+    // smart_contracts/inference/contract.algo.ts:445
     // return this.mustGetProvider(provider)
     callsub mustGetProvider
-    // smart_contracts/inference/contract.algo.ts:444
+    // smart_contracts/inference/contract.algo.ts:443
     // @abimethod({ readonly: true })
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3322,7 +2987,7 @@ getProvider:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.getTicket[routing]() -> void:
 getTicket:
-    // smart_contracts/inference/contract.algo.ts:449
+    // smart_contracts/inference/contract.algo.ts:448
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3331,12 +2996,12 @@ getTicket:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:451
+    // smart_contracts/inference/contract.algo.ts:450
     // return this.mustGetTicket(ticket)
     callsub mustGetTicket
-    // smart_contracts/inference/contract.algo.ts:449
+    // smart_contracts/inference/contract.algo.ts:448
     // @abimethod({ readonly: true })
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3346,7 +3011,7 @@ getTicket:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.getPool[routing]() -> void:
 getPool:
-    // smart_contracts/inference/contract.algo.ts:454
+    // smart_contracts/inference/contract.algo.ts:453
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3355,12 +3020,12 @@ getPool:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/inference/contract.algo.ts:456
+    // smart_contracts/inference/contract.algo.ts:455
     // return this.mustGetPool(pool)
     callsub mustGetPool
-    // smart_contracts/inference/contract.algo.ts:454
+    // smart_contracts/inference/contract.algo.ts:453
     // @abimethod({ readonly: true })
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3370,7 +3035,7 @@ getPool:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.poolUsage[routing]() -> void:
 poolUsage:
-    // smart_contracts/inference/contract.algo.ts:460
+    // smart_contracts/inference/contract.algo.ts:459
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3385,7 +3050,7 @@ poolUsage:
     pushint 40
     ==
     assert // invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionKey
-    // smart_contracts/inference/contract.algo.ts:462
+    // smart_contracts/inference/contract.algo.ts:461
     // const key: UsageKey = { pool, subscriber: subscription.address, subscription: subscription.id }
     dup
     extract 0 32
@@ -3397,13 +3062,13 @@ poolUsage:
     concat
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:79
+    // smart_contracts/inference/contract.algo.ts:80
     // usage = BoxMap<UsageKey, Usage>({ keyPrefix: 'u' })
     bytec 19 // "u"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:463
+    // smart_contracts/inference/contract.algo.ts:462
     // if (!this.usage(key).exists) return { lastPayment: 0, used: 0 }
     box_len
     bury 1
@@ -3412,9 +3077,9 @@ poolUsage:
     bytec 16 // 0x00000000000000000000000000000000
 
 poolUsage_after_inlined_smart_contracts/inference/contract.algo.ts::InferenceNetwork.poolUsage@4:
-    // smart_contracts/inference/contract.algo.ts:460
+    // smart_contracts/inference/contract.algo.ts:459
     // @abimethod({ readonly: true })
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3422,18 +3087,18 @@ poolUsage_after_inlined_smart_contracts/inference/contract.algo.ts::InferenceNet
     return
 
 poolUsage_after_if_else@3:
-    // smart_contracts/inference/contract.algo.ts:464
+    // smart_contracts/inference/contract.algo.ts:463
     // return clone(this.usage(key).value)
     box_get
     assert // Box must have value
-    // smart_contracts/inference/contract.algo.ts:460
+    // smart_contracts/inference/contract.algo.ts:459
     // @abimethod({ readonly: true })
     b poolUsage_after_inlined_smart_contracts/inference/contract.algo.ts::InferenceNetwork.poolUsage@4
 
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.providerCost[routing]() -> void:
 providerCost:
-    // smart_contracts/inference/contract.algo.ts:468
+    // smart_contracts/inference/contract.algo.ts:467
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3446,15 +3111,15 @@ providerCost:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/inference/contract.algo.ts:470
+    // smart_contracts/inference/contract.algo.ts:469
     // return INFERENCE_PROVIDER_MBR + this.metadataCost(metadata)
     callsub metadataCost
     intc 6 // 57300
     +
-    // smart_contracts/inference/contract.algo.ts:468
+    // smart_contracts/inference/contract.algo.ts:467
     // @abimethod({ readonly: true })
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -3485,12 +3150,12 @@ update:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
+    bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:19
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 26 // "wallet"
+    bytec 27 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/upgradeable.ts:37
@@ -3499,7 +3164,7 @@ update:
     assert // application exists
     ==
     bnz update_after_assert@3
-    bytec 27 // "ERR:errNdao"
+    bytec 28 // "ERR:errNdao"
     log
     err // ERR:errNdao
 
@@ -3509,7 +3174,7 @@ update_after_assert@3:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
+    bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:38
     // const [plugins] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     app_global_get_ex
@@ -3563,12 +3228,12 @@ updateAkitaDAO:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
+    bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:19
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 26 // "wallet"
+    bytec 27 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/upgradeable.ts:26
@@ -3577,14 +3242,14 @@ updateAkitaDAO:
     assert // application exists
     ==
     bnz updateAkitaDAO_after_assert@3
-    bytec 27 // "ERR:errNdao"
+    bytec 28 // "ERR:errNdao"
     log
     err // ERR:errNdao
 
 updateAkitaDAO_after_assert@3:
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
+    bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/upgradeable.ts:27
     // this.akitaDAO.value = akitaDAO
     swap
@@ -3597,14 +3262,14 @@ updateAkitaDAO_after_assert@3:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.receive(txn: uint64, asset: uint64) -> uint64:
 receive:
-    // smart_contracts/inference/contract.algo.ts:479
+    // smart_contracts/inference/contract.algo.ts:478
     // private receive(txn: gtxn.Transaction, asset: uint64): uint64 {
     proto 2 1
-    // smart_contracts/inference/contract.algo.ts:480
+    // smart_contracts/inference/contract.algo.ts:479
     // if (asset === 0) {
     frame_dig -1
     bnz receive_after_if_else@10
-    // smart_contracts/inference/contract.algo.ts:481
+    // smart_contracts/inference/contract.algo.ts:480
     // const pay = gtxn.PaymentTxn(txn.groupIndex)
     frame_dig -2
     gtxns GroupIndex
@@ -3613,43 +3278,43 @@ receive:
     intc_1 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/inference/contract.algo.ts:483
+    // smart_contracts/inference/contract.algo.ts:482
     // pay.sender === Txn.sender &&
     gtxns Sender
     txn Sender
     ==
-    // smart_contracts/inference/contract.algo.ts:483-484
+    // smart_contracts/inference/contract.algo.ts:482-483
     // pay.sender === Txn.sender &&
     // pay.receiver === Global.currentApplicationAddress &&
     bz receive_bool_false@6
-    // smart_contracts/inference/contract.algo.ts:484
+    // smart_contracts/inference/contract.algo.ts:483
     // pay.receiver === Global.currentApplicationAddress &&
     dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:483-484
+    // smart_contracts/inference/contract.algo.ts:482-483
     // pay.sender === Txn.sender &&
     // pay.receiver === Global.currentApplicationAddress &&
     bz receive_bool_false@6
-    // smart_contracts/inference/contract.algo.ts:485
+    // smart_contracts/inference/contract.algo.ts:484
     // pay.closeRemainderTo === Global.zeroAddress &&
     dup
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:483-485
+    // smart_contracts/inference/contract.algo.ts:482-484
     // pay.sender === Txn.sender &&
     // pay.receiver === Global.currentApplicationAddress &&
     // pay.closeRemainderTo === Global.zeroAddress &&
     bz receive_bool_false@6
-    // smart_contracts/inference/contract.algo.ts:486
+    // smart_contracts/inference/contract.algo.ts:485
     // pay.rekeyTo === Global.zeroAddress,
     dup
     gtxns RekeyTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:483-486
+    // smart_contracts/inference/contract.algo.ts:482-485
     // pay.sender === Txn.sender &&
     // pay.receiver === Global.currentApplicationAddress &&
     // pay.closeRemainderTo === Global.zeroAddress &&
@@ -3658,7 +3323,7 @@ receive:
     intc_1 // 1
 
 receive_bool_merge@7:
-    // smart_contracts/inference/contract.algo.ts:482-488
+    // smart_contracts/inference/contract.algo.ts:481-487
     // loggedAssert(
     //   pay.sender === Txn.sender &&
     //   pay.receiver === Global.currentApplicationAddress &&
@@ -3667,12 +3332,12 @@ receive_bool_merge@7:
     //   errInferenceBadTransfer,
     // )
     bnz receive_after_assert@9
-    bytec 28 // "ERR:errInbd"
+    bytec 29 // "ERR:errInbd"
     log
     err // ERR:errInbd
 
 receive_after_assert@9:
-    // smart_contracts/inference/contract.algo.ts:489
+    // smart_contracts/inference/contract.algo.ts:488
     // return pay.amount
     gtxns Amount
     retsub
@@ -3682,7 +3347,7 @@ receive_bool_false@6:
     b receive_bool_merge@7
 
 receive_after_if_else@10:
-    // smart_contracts/inference/contract.algo.ts:491
+    // smart_contracts/inference/contract.algo.ts:490
     // const xfer = gtxn.AssetTransferTxn(txn.groupIndex)
     frame_dig -2
     gtxns GroupIndex
@@ -3691,68 +3356,68 @@ receive_after_if_else@10:
     pushint 4 // axfer
     ==
     assert // transaction type is axfer
-    // smart_contracts/inference/contract.algo.ts:493
+    // smart_contracts/inference/contract.algo.ts:492
     // xfer.sender === Txn.sender &&
     gtxns Sender
     txn Sender
     ==
-    // smart_contracts/inference/contract.algo.ts:493-494
+    // smart_contracts/inference/contract.algo.ts:492-493
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     bz receive_bool_false@17
-    // smart_contracts/inference/contract.algo.ts:494
+    // smart_contracts/inference/contract.algo.ts:493
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     dup
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:493-494
+    // smart_contracts/inference/contract.algo.ts:492-493
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     bz receive_bool_false@17
-    // smart_contracts/inference/contract.algo.ts:495
+    // smart_contracts/inference/contract.algo.ts:494
     // xfer.xferAsset.id === asset &&
     dup
     gtxns XferAsset
     frame_dig -1
     ==
-    // smart_contracts/inference/contract.algo.ts:493-495
+    // smart_contracts/inference/contract.algo.ts:492-494
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     // xfer.xferAsset.id === asset &&
     bz receive_bool_false@17
-    // smart_contracts/inference/contract.algo.ts:496
+    // smart_contracts/inference/contract.algo.ts:495
     // xfer.assetSender === Global.zeroAddress &&
     dup
     gtxns AssetSender
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:493-496
+    // smart_contracts/inference/contract.algo.ts:492-495
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     // xfer.xferAsset.id === asset &&
     // xfer.assetSender === Global.zeroAddress &&
     bz receive_bool_false@17
-    // smart_contracts/inference/contract.algo.ts:497
+    // smart_contracts/inference/contract.algo.ts:496
     // xfer.assetCloseTo === Global.zeroAddress &&
     dup
     gtxns AssetCloseTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:493-497
+    // smart_contracts/inference/contract.algo.ts:492-496
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     // xfer.xferAsset.id === asset &&
     // xfer.assetSender === Global.zeroAddress &&
     // xfer.assetCloseTo === Global.zeroAddress &&
     bz receive_bool_false@17
-    // smart_contracts/inference/contract.algo.ts:498
+    // smart_contracts/inference/contract.algo.ts:497
     // xfer.rekeyTo === Global.zeroAddress,
     dup
     gtxns RekeyTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:493-498
+    // smart_contracts/inference/contract.algo.ts:492-497
     // xfer.sender === Txn.sender &&
     // xfer.assetReceiver === Global.currentApplicationAddress &&
     // xfer.xferAsset.id === asset &&
@@ -3763,7 +3428,7 @@ receive_after_if_else@10:
     intc_1 // 1
 
 receive_bool_merge@18:
-    // smart_contracts/inference/contract.algo.ts:492-500
+    // smart_contracts/inference/contract.algo.ts:491-499
     // loggedAssert(
     //   xfer.sender === Txn.sender &&
     //   xfer.assetReceiver === Global.currentApplicationAddress &&
@@ -3774,12 +3439,12 @@ receive_bool_merge@18:
     //   errInferenceBadTransfer,
     // )
     bnz receive_after_assert@20
-    bytec 28 // "ERR:errInbd"
+    bytec 29 // "ERR:errInbd"
     log
     err // ERR:errInbd
 
 receive_after_assert@20:
-    // smart_contracts/inference/contract.algo.ts:501
+    // smart_contracts/inference/contract.algo.ts:500
     // return xfer.assetAmount
     gtxns AssetAmount
     retsub
@@ -3791,21 +3456,21 @@ receive_bool_false@17:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.send(receiver: bytes, asset: uint64, amount: uint64) -> void:
 send:
-    // smart_contracts/inference/contract.algo.ts:504
+    // smart_contracts/inference/contract.algo.ts:503
     // private send(receiver: Account, asset: uint64, amount: uint64): void {
     proto 3 0
-    // smart_contracts/inference/contract.algo.ts:505
+    // smart_contracts/inference/contract.algo.ts:504
     // if (amount === 0) return
     frame_dig -1
     bnz send_after_if_else@2
     retsub
 
 send_after_if_else@2:
-    // smart_contracts/inference/contract.algo.ts:506
+    // smart_contracts/inference/contract.algo.ts:505
     // if (asset === 0) {
     frame_dig -2
     bnz send_else_body@5
-    // smart_contracts/inference/contract.algo.ts:507
+    // smart_contracts/inference/contract.algo.ts:506
     // itxn.payment({ receiver, amount }).submit()
     itxn_begin
     frame_dig -1
@@ -3820,7 +3485,7 @@ send_after_if_else@2:
     retsub
 
 send_else_body@5:
-    // smart_contracts/inference/contract.algo.ts:509
+    // smart_contracts/inference/contract.algo.ts:508
     // itxn.assetTransfer({ assetReceiver: receiver, xferAsset: asset, assetAmount: amount }).submit()
     itxn_begin
     frame_dig -1
@@ -3839,15 +3504,15 @@ send_else_body@5:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.metadataCost(metadata: bytes) -> uint64:
 metadataCost:
-    // smart_contracts/inference/contract.algo.ts:513
+    // smart_contracts/inference/contract.algo.ts:512
     // private metadataCost(metadata: string): uint64 {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:514
+    // smart_contracts/inference/contract.algo.ts:513
     // const length = Bytes(metadata).length
     frame_dig -1
     len
     dup
-    // smart_contracts/inference/contract.algo.ts:515
+    // smart_contracts/inference/contract.algo.ts:514
     // loggedAssert(length > 0 && length <= INFERENCE_METADATA_MAX_BYTES, errInferenceBadMetadata)
     bz metadataCost_bool_false@3
     dup
@@ -3857,7 +3522,7 @@ metadataCost:
     intc_1 // 1
 
 metadataCost_bool_merge@4:
-    // smart_contracts/inference/contract.algo.ts:515
+    // smart_contracts/inference/contract.algo.ts:514
     // loggedAssert(length > 0 && length <= INFERENCE_METADATA_MAX_BYTES, errInferenceBadMetadata)
     bnz metadataCost_after_assert@6
     pushbytes "ERR:errInbm"
@@ -3865,7 +3530,7 @@ metadataCost_bool_merge@4:
     err // ERR:errInbm
 
 metadataCost_after_assert@6:
-    // smart_contracts/inference/contract.algo.ts:516
+    // smart_contracts/inference/contract.algo.ts:515
     // return INFERENCE_METADATA_BASE_MBR + 400 * length
     pushint 400
     *
@@ -3880,14 +3545,14 @@ metadataCost_bool_false@3:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.requireAdmin() -> void:
 requireAdmin:
-    // smart_contracts/inference/contract.algo.ts:520
+    // smart_contracts/inference/contract.algo.ts:519
     // loggedAssert(Txn.sender === this.admin.value, errInferenceNotAdmin)
     txn Sender
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:66
+    // smart_contracts/inference/contract.algo.ts:67
     // admin = GlobalState<Account>({ key: 'admin' })
     bytec 10 // "admin"
-    // smart_contracts/inference/contract.algo.ts:520
+    // smart_contracts/inference/contract.algo.ts:519
     // loggedAssert(Txn.sender === this.admin.value, errInferenceNotAdmin)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3903,16 +3568,16 @@ requireAdmin_after_assert@2:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.requireOwner(provider: uint64) -> bytes:
 requireOwner:
-    // smart_contracts/inference/contract.algo.ts:524
+    // smart_contracts/inference/contract.algo.ts:523
     // private requireOwner(provider: uint64): Account {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:525
+    // smart_contracts/inference/contract.algo.ts:524
     // const owner = this.mustGetProvider(provider).owner
     frame_dig -1
     callsub mustGetProvider
     extract 0 32
     dup
-    // smart_contracts/inference/contract.algo.ts:526
+    // smart_contracts/inference/contract.algo.ts:525
     // loggedAssert(Txn.sender === owner, errInferenceNotOwner)
     txn Sender
     ==
@@ -3922,54 +3587,54 @@ requireOwner:
     err // ERR:errInow
 
 requireOwner_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:527
+    // smart_contracts/inference/contract.algo.ts:526
     // return owner
     retsub
 
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.requireStoragePayment(payment: uint64, amount: uint64) -> void:
 requireStoragePayment:
-    // smart_contracts/inference/contract.algo.ts:534
+    // smart_contracts/inference/contract.algo.ts:533
     // private requireStoragePayment(payment: gtxn.PaymentTxn, amount: uint64): void {
     proto 2 0
-    // smart_contracts/inference/contract.algo.ts:536
+    // smart_contracts/inference/contract.algo.ts:535
     // payment.receiver === Global.currentApplicationAddress &&
     frame_dig -2
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:536-537
+    // smart_contracts/inference/contract.algo.ts:535-536
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount === amount &&
     bz requireStoragePayment_bool_false@5
-    // smart_contracts/inference/contract.algo.ts:537
+    // smart_contracts/inference/contract.algo.ts:536
     // payment.amount === amount &&
     frame_dig -2
     gtxns Amount
     frame_dig -1
     ==
-    // smart_contracts/inference/contract.algo.ts:536-537
+    // smart_contracts/inference/contract.algo.ts:535-536
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount === amount &&
     bz requireStoragePayment_bool_false@5
-    // smart_contracts/inference/contract.algo.ts:538
+    // smart_contracts/inference/contract.algo.ts:537
     // payment.closeRemainderTo === Global.zeroAddress &&
     frame_dig -2
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:536-538
+    // smart_contracts/inference/contract.algo.ts:535-537
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount === amount &&
     // payment.closeRemainderTo === Global.zeroAddress &&
     bz requireStoragePayment_bool_false@5
-    // smart_contracts/inference/contract.algo.ts:539
+    // smart_contracts/inference/contract.algo.ts:538
     // payment.rekeyTo === Global.zeroAddress,
     frame_dig -2
     gtxns RekeyTo
     global ZeroAddress
     ==
-    // smart_contracts/inference/contract.algo.ts:536-539
+    // smart_contracts/inference/contract.algo.ts:535-538
     // payment.receiver === Global.currentApplicationAddress &&
     // payment.amount === amount &&
     // payment.closeRemainderTo === Global.zeroAddress &&
@@ -3978,7 +3643,7 @@ requireStoragePayment:
     intc_1 // 1
 
 requireStoragePayment_bool_merge@6:
-    // smart_contracts/inference/contract.algo.ts:535-541
+    // smart_contracts/inference/contract.algo.ts:534-540
     // loggedAssert(
     //   payment.receiver === Global.currentApplicationAddress &&
     //   payment.amount === amount &&
@@ -3999,9 +3664,358 @@ requireStoragePayment_bool_false@5:
     b requireStoragePayment_bool_merge@6
 
 
+// smart_contracts/inference/contract.algo.ts::InferenceNetwork.walletPrincipal(wallet: uint64) -> bytes:
+walletPrincipal:
+    // smart_contracts/inference/contract.algo.ts:548
+    // private walletPrincipal(wallet: uint64): Principal {
+    proto 1 1
+    intc_0 // 0
+    // smart_contracts/inference/contract.algo.ts:549
+    // const who = principalOf(this.akitaDAO.value, wallet)
+    dup
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:549
+    // const who = principalOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:206
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec 7 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:930
+    // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:212
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/utils/principal.ts:213
+    // Global.callerApplicationId,
+    global CallerApplicationID
+    // smart_contracts/utils/principal.ts:214
+    // Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    cover 3
+    // smart_contracts/utils/principal.ts:148
+    // if (hint === 0) {
+    frame_dig -1
+    bnz walletPrincipal_after_if_else@9
+    pop
+    bury 1
+    // smart_contracts/utils/principal.ts:93
+    // origin: Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/utils/principal.ts:95
+    // referrer: Global.zeroAddress,
+    dup
+    // smart_contracts/utils/principal.ts:91
+    // wallet: 0,
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:90-97
+    // return {
+    //   wallet: 0,
+    //   principal: sender,
+    //   origin: Global.zeroAddress,
+    //   spender: sender,
+    //   referrer: Global.zeroAddress,
+    //   viaPlugin: false,
+    // }
+    itob
+    uncover 3
+    dup
+    cover 2
+    concat
+    uncover 3
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    concat
+
+walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@38:
+    // smart_contracts/inference/contract.algo.ts:550
+    // loggedAssert(who.wallet !== 0 && who.origin !== Global.zeroAddress, errInferenceNoWallet)
+    dup
+    intc_0 // 0
+    extract_uint64
+    bz walletPrincipal_bool_false@3
+    dup
+    extract 40 32
+    global ZeroAddress
+    !=
+    bz walletPrincipal_bool_false@3
+    intc_1 // 1
+
+walletPrincipal_bool_merge@4:
+    // smart_contracts/inference/contract.algo.ts:550
+    // loggedAssert(who.wallet !== 0 && who.origin !== Global.zeroAddress, errInferenceNoWallet)
+    bnz walletPrincipal_after_assert@6
+    bytec 25 // "ERR:errInwl"
+    log
+    err // ERR:errInwl
+
+walletPrincipal_after_assert@6:
+    // smart_contracts/inference/contract.algo.ts:551
+    // return who
+    frame_bury 0
+    retsub
+
+walletPrincipal_bool_false@3:
+    intc_0 // 0
+    b walletPrincipal_bool_merge@4
+
+walletPrincipal_after_if_else@9:
+    // smart_contracts/utils/principal.ts:152
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    frame_dig -1
+    uncover 3
+    callsub isGenuineWallet
+    bnz walletPrincipal_after_if_else@11
+    // smart_contracts/utils/principal.ts:154
+    // loggedErr(errHintNotWallet)
+    pushbytes "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+walletPrincipal_after_if_else@11:
+    // smart_contracts/utils/principal.ts:159
+    // if (callerApp === 0) {
+    dup
+    bnz walletPrincipal_after_if_else@13
+    // smart_contracts/utils/principal.ts:161
+    // loggedErr(errHintTopLevel)
+    pushbytes "ERR:errHtop"
+    log
+    err // ERR:errHtop
+
+walletPrincipal_after_if_else@13:
+    // smart_contracts/utils/principal.ts:166
+    // let viaPlugin = false
+    intc_0 // 0
+    cover 2
+    // smart_contracts/utils/principal.ts:167
+    // if (callerApp !== hint) {
+    frame_dig -1
+    !=
+    bz walletPrincipal_after_if_else@20
+    bury 1
+    // smart_contracts/utils/principal.ts:171
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -1
+    pushbytes "spending_address"
+    app_global_get_ex
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:172
+    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
+    bz walletPrincipal_if_body@18
+    frame_dig 0
+    len
+    intc_3 // 32
+    ==
+    bz walletPrincipal_if_body@18
+    frame_dig 0
+    dig 1
+    ==
+    bz walletPrincipal_if_body@18
+    dup
+    frame_dig 1
+    !=
+    bnz walletPrincipal_after_if_else@19
+
+walletPrincipal_if_body@18:
+    // smart_contracts/utils/principal.ts:174
+    // loggedErr(errHintNotBound)
+    pushbytes "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+walletPrincipal_after_if_else@19:
+    // smart_contracts/utils/principal.ts:178
+    // viaPlugin = true
+    intc_1 // 1
+    swap
+
+walletPrincipal_after_if_else@20:
+    // smart_contracts/utils/principal.ts:181
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    frame_dig -1
+    pushbytes "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:182
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz walletPrincipal_if_body@22
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz walletPrincipal_after_if_else@23
+
+walletPrincipal_if_body@22:
+    // smart_contracts/utils/principal.ts:184
+    // loggedErr(errHintBadWallet)
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+walletPrincipal_after_if_else@23:
+    // smart_contracts/utils/principal.ts:119
+    // if (controlled === spender) {
+    dup
+    dig 2
+    ==
+    bz walletPrincipal_after_if_else@25
+    // smart_contracts/utils/principal.ts:120
+    // return true
+    intc_1 // 1
+    swap
+
+walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@30:
+    // smart_contracts/utils/principal.ts:191
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    frame_dig -1
+    pushbytes "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz walletPrincipal_ternary_false@33
+    dup
+    len
+    intc_3 // 32
+    ==
+    bz walletPrincipal_ternary_false@33
+    cover 3
+
+walletPrincipal_ternary_merge@34:
+    // smart_contracts/utils/principal.ts:196
+    // principal: live ? controlled : sender,
+    dig 2
+    dig 1
+    uncover 3
+    dup
+    cover 3
+    select
+    swap
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    bz walletPrincipal_ternary_false@36
+    swap
+
+walletPrincipal_ternary_merge@37:
+    // smart_contracts/utils/principal.ts:194-201
+    // return {
+    //   wallet: hint,
+    //   principal: live ? controlled : sender,
+    //   origin: live ? controlled : Global.zeroAddress,
+    //   spender: sender,
+    //   referrer,
+    //   viaPlugin,
+    // }
+    frame_dig -1
+    itob
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    b walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@38
+
+walletPrincipal_ternary_false@36:
+    bury 1
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    global ZeroAddress
+    b walletPrincipal_ternary_merge@37
+
+walletPrincipal_ternary_false@33:
+    pop
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    cover 3
+    b walletPrincipal_ternary_merge@34
+
+walletPrincipal_after_if_else@25:
+    // smart_contracts/utils/principal.ts:122
+    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
+    frame_dig -1
+    app_params_get AppAddress
+    swap
+    cover 2
+    // smart_contracts/utils/principal.ts:123
+    // if (!walletExists) {
+    bnz walletPrincipal_after_if_else@27
+    bury 1
+    // smart_contracts/utils/principal.ts:124
+    // return false
+    intc_0 // 0
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@30
+
+walletPrincipal_after_if_else@27:
+    // smart_contracts/utils/principal.ts:126
+    // if (controlled === walletAddress) {
+    dup
+    dig 2
+    ==
+    bz walletPrincipal_after_if_else@29
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    swap
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:127
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@30
+
+walletPrincipal_after_if_else@29:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dup
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:129
+    // return authAddrOf(controlled) === walletAddress
+    uncover 2
+    ==
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b walletPrincipal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@30
+
+
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.newTicket(payer: bytes, principal: bytes, wallet: uint64, provider: uint64, asset: uint64, amount: uint64, request: bytes, pool: uint64, subscription: uint64, lastPayment: uint64) -> uint64:
 newTicket:
-    // smart_contracts/inference/contract.algo.ts:544-547
+    // smart_contracts/inference/contract.algo.ts:554-557
     // private newTicket(
     //   payer: Account, principal: Account, wallet: uint64, provider: uint64, asset: uint64, amount: uint64, request: bytes<32>,
     //   pool: uint64, subscription: uint64, lastPayment: uint64,
@@ -4009,7 +4023,7 @@ newTicket:
     proto 10 1
     intc_0 // 0
     pushbytes ""
-    // smart_contracts/inference/contract.algo.ts:548
+    // smart_contracts/inference/contract.algo.ts:558
     // loggedAssert(this.mustGetProvider(provider).status === ProviderActive, errInferenceProviderInactive)
     frame_dig -7
     callsub mustGetProvider
@@ -4023,19 +4037,19 @@ newTicket:
     err // ERR:errInpi
 
 newTicket_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:549
+    // smart_contracts/inference/contract.algo.ts:559
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     frame_dig -6
     itob
     dup
-    // smart_contracts/inference/contract.algo.ts:80
+    // smart_contracts/inference/contract.algo.ts:81
     // assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
-    bytec 7 // "x"
+    bytec 6 // "x"
     swap
     concat
     dup
     frame_bury 0
-    // smart_contracts/inference/contract.algo.ts:549
+    // smart_contracts/inference/contract.algo.ts:559
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     box_len
     bury 1
@@ -4051,7 +4065,7 @@ newTicket_after_assert@2:
     intc_1 // 1
 
 newTicket_bool_merge@6:
-    // smart_contracts/inference/contract.algo.ts:549
+    // smart_contracts/inference/contract.algo.ts:559
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     bnz newTicket_after_assert@8
     bytec 23 // "ERR:errInxa"
@@ -4059,7 +4073,7 @@ newTicket_bool_merge@6:
     err // ERR:errInxa
 
 newTicket_after_assert@8:
-    // smart_contracts/inference/contract.algo.ts:550
+    // smart_contracts/inference/contract.algo.ts:560
     // loggedAssert(amount > 0, errInferenceZeroLock)
     frame_dig -5
     bnz newTicket_after_assert@10
@@ -4068,13 +4082,13 @@ newTicket_after_assert@8:
     err // ERR:errInzc
 
 newTicket_after_assert@10:
-    // smart_contracts/inference/contract.algo.ts:551
+    // smart_contracts/inference/contract.algo.ts:561
     // let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:551
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:561
     // let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
     app_global_get_ex
     assert // check GlobalState exists
@@ -4089,13 +4103,13 @@ newTicket_after_assert@10:
     bytec 16 // 0x00000000000000000000000000000000
 
 newTicket_after_inlined_smart_contracts/utils/functions.ts::getInferenceFees@16:
-    // smart_contracts/inference/contract.algo.ts:551
+    // smart_contracts/inference/contract.algo.ts:561
     // let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
     intc_0 // 0
     extract_uint64
     dup
     frame_bury 1
-    // smart_contracts/inference/contract.algo.ts:552
+    // smart_contracts/inference/contract.algo.ts:562
     // if (percentage > INFERENCE_MAX_FEE_PERCENTAGE) percentage = INFERENCE_MAX_FEE_PERCENTAGE
     pushint 2000
     >
@@ -4104,40 +4118,40 @@ newTicket_after_inlined_smart_contracts/utils/functions.ts::getInferenceFees@16:
     frame_bury 1
 
 newTicket_after_if_else@12:
-    // smart_contracts/inference/contract.algo.ts:553
+    // smart_contracts/inference/contract.algo.ts:563
     // const id: uint64 = this.ticketCount.value + 1
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:71
+    // smart_contracts/inference/contract.algo.ts:72
     // ticketCount = GlobalState<uint64>({ key: 'tickets' })
     bytec 13 // "tickets"
-    // smart_contracts/inference/contract.algo.ts:553
+    // smart_contracts/inference/contract.algo.ts:563
     // const id: uint64 = this.ticketCount.value + 1
     app_global_get_ex
     assert // check GlobalState exists
     intc_1 // 1
     +
-    // smart_contracts/inference/contract.algo.ts:71
+    // smart_contracts/inference/contract.algo.ts:72
     // ticketCount = GlobalState<uint64>({ key: 'tickets' })
     bytec 13 // "tickets"
-    // smart_contracts/inference/contract.algo.ts:554
+    // smart_contracts/inference/contract.algo.ts:564
     // this.ticketCount.value = id
     dig 1
     app_global_put
-    // smart_contracts/inference/contract.algo.ts:555
+    // smart_contracts/inference/contract.algo.ts:565
     // const expiresAt: uint64 = Global.latestTimestamp + this.settings.value.settleWindow
     global LatestTimestamp
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:69
+    // smart_contracts/inference/contract.algo.ts:70
     // settings = GlobalState<InferenceSettings>({ key: 'settings' })
-    bytec 6 // "settings"
-    // smart_contracts/inference/contract.algo.ts:555
+    bytec 5 // "settings"
+    // smart_contracts/inference/contract.algo.ts:565
     // const expiresAt: uint64 = Global.latestTimestamp + this.settings.value.settleWindow
     app_global_get_ex
     assert // check GlobalState exists
     intc_2 // 8
     extract_uint64
     +
-    // smart_contracts/inference/contract.algo.ts:556-558
+    // smart_contracts/inference/contract.algo.ts:566-568
     // this.tickets(id).value = {
     //   payer, principal, wallet, provider, asset, amount, feePercentage: percentage, expiresAt, pool, subscription, lastPayment,
     // }
@@ -4182,22 +4196,22 @@ newTicket_after_if_else@12:
     frame_dig -1
     itob
     concat
-    // smart_contracts/inference/contract.algo.ts:556
+    // smart_contracts/inference/contract.algo.ts:566
     // this.tickets(id).value = {
     dig 7
     itob
-    // smart_contracts/inference/contract.algo.ts:77
+    // smart_contracts/inference/contract.algo.ts:78
     // tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
     bytec 9 // "t"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:556-558
+    // smart_contracts/inference/contract.algo.ts:566-568
     // this.tickets(id).value = {
     //   payer, principal, wallet, provider, asset, amount, feePercentage: percentage, expiresAt, pool, subscription, lastPayment,
     // }
     uncover 2
     box_put
-    // smart_contracts/inference/contract.algo.ts:559
+    // smart_contracts/inference/contract.algo.ts:569
     // emit<InferenceTicketOpened>({ ticket: id, payer, principal, wallet, provider, asset, amount, request, expiresAt, pool })
     frame_dig -10
     concat
@@ -4221,13 +4235,13 @@ newTicket_after_if_else@12:
     swap
     concat
     log
-    // smart_contracts/inference/contract.algo.ts:560
+    // smart_contracts/inference/contract.algo.ts:570
     // return id
     frame_bury 0
     retsub
 
 newTicket_after_if_else@15:
-    // smart_contracts/inference/contract.algo.ts:551
+    // smart_contracts/inference/contract.algo.ts:561
     // let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
     b newTicket_after_inlined_smart_contracts/utils/functions.ts::getInferenceFees@16
 
@@ -4238,7 +4252,7 @@ newTicket_bool_false@5:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.poolTicket(pool: uint64, info: bytes, member: bytes, wallet: uint64, subscription: bytes, provider: uint64, maxPrice: uint64, request: bytes) -> uint64, bytes, bytes:
 poolTicket:
-    // smart_contracts/inference/contract.algo.ts:567-570
+    // smart_contracts/inference/contract.algo.ts:577-580
     // private poolTicket(
     //   pool: uint64, info: Pool, member: Account, wallet: uint64, subscription: SubscriptionKey, provider: uint64,
     //   maxPrice: uint64, request: bytes<32>,
@@ -4246,27 +4260,27 @@ poolTicket:
     proto 8 3
     pushbytes ""
     dupn 2
-    // smart_contracts/inference/contract.algo.ts:593
+    // smart_contracts/inference/contract.algo.ts:603
     // const subscriptions = getAkitaAppList(this.akitaDAO.value).subscriptions
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/inference/contract.algo.ts:593
+    bytec_1 // "akita_dao"
+    // smart_contracts/inference/contract.algo.ts:603
     // const subscriptions = getAkitaAppList(this.akitaDAO.value).subscriptions
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:206
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec 4 // "aal"
+    bytec 7 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/inference/contract.algo.ts:593
+    // smart_contracts/inference/contract.algo.ts:603
     // const subscriptions = getAkitaAppList(this.akitaDAO.value).subscriptions
     intc_3 // 32
     extract_uint64
     dup
-    // smart_contracts/inference/contract.algo.ts:594
+    // smart_contracts/inference/contract.algo.ts:604
     // const sub = abiCall<typeof Subscriptions.prototype.getSubscription>({ appId: subscriptions, args: [subscription], fee: 0 }).returnValue
     itxn_begin
     itxn_field ApplicationID
@@ -4284,7 +4298,7 @@ poolTicket:
     extract 4 0
     swap
     extract 0 4
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
@@ -4292,7 +4306,7 @@ poolTicket:
     pushint 105
     ==
     assert // invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionInfoWithExistence
-    // smart_contracts/inference/contract.algo.ts:596
+    // smart_contracts/inference/contract.algo.ts:606
     // sub.exists && sub.serviceID === info.serviceID && sub.recipient === info.merchant && sub.interval !== 0 &&
     intc_0 // 0
     getbit
@@ -4315,33 +4329,33 @@ poolTicket:
     pushint 61
     extract_uint64
     bz poolTicket_bool_false@27
-    // smart_contracts/inference/contract.algo.ts:597
+    // smart_contracts/inference/contract.algo.ts:607
     // sub.startDate <= Global.latestTimestamp,
     dup
     pushint 45
     extract_uint64
     global LatestTimestamp
     <=
-    // smart_contracts/inference/contract.algo.ts:596-597
+    // smart_contracts/inference/contract.algo.ts:606-607
     // sub.exists && sub.serviceID === info.serviceID && sub.recipient === info.merchant && sub.interval !== 0 &&
     // sub.startDate <= Global.latestTimestamp,
     bz poolTicket_bool_false@27
     intc_1 // 1
 
 poolTicket_bool_merge@28:
-    // smart_contracts/inference/contract.algo.ts:595-599
+    // smart_contracts/inference/contract.algo.ts:605-609
     // loggedAssert(
     //   sub.exists && sub.serviceID === info.serviceID && sub.recipient === info.merchant && sub.interval !== 0 &&
     //   sub.startDate <= Global.latestTimestamp,
     //   errInferenceNotSubscribed,
     // )
     bnz poolTicket_after_assert@30
-    bytec 29 // "ERR:errInns"
+    bytec 30 // "ERR:errInns"
     log
     err // ERR:errInns
 
 poolTicket_after_assert@30:
-    // smart_contracts/inference/contract.algo.ts:600
+    // smart_contracts/inference/contract.algo.ts:610
     // const shutdown = abiCall<typeof Subscriptions.prototype.isShutdown>({ appId: subscriptions, args: [info.merchant, info.serviceID], fee: 0 }).returnValue
     itxn_begin
     frame_dig -7
@@ -4365,7 +4379,7 @@ poolTicket_after_assert@30:
     extract 4 0
     swap
     extract 0 4
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
@@ -4375,7 +4389,7 @@ poolTicket_after_assert@30:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     bnz poolTicket_bool_false@34
     dupn 2
@@ -4408,25 +4422,25 @@ poolTicket_if_body@40:
     intc_0 // 0
 
 poolTicket_after_inlined_smart_contracts/gates/sub-gates/subscription/utils.ts::subscriptionPaidUp@51:
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     bz poolTicket_bool_false@34
     intc_1 // 1
 
 poolTicket_bool_merge@35:
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     bnz poolTicket_after_assert@37
-    bytec 29 // "ERR:errInns"
+    bytec 30 // "ERR:errInns"
     log
     err // ERR:errInns
 
 poolTicket_after_assert@37:
     pushint 85
-    // smart_contracts/inference/contract.algo.ts:602
+    // smart_contracts/inference/contract.algo.ts:612
     // return sub.lastPayment
     extract_uint64
-    // smart_contracts/inference/contract.algo.ts:572
+    // smart_contracts/inference/contract.algo.ts:582
     // const key: UsageKey = { pool, subscriber: subscription.address, subscription: subscription.id }
     frame_dig -4
     extract 0 32
@@ -4446,28 +4460,28 @@ poolTicket_after_assert@37:
     swap
     itob
     concat
-    // smart_contracts/inference/contract.algo.ts:573
+    // smart_contracts/inference/contract.algo.ts:583
     // let credit = info.credit
     frame_dig -7
     intc 4 // 128
     extract_uint64
     swap
-    // smart_contracts/inference/contract.algo.ts:574
+    // smart_contracts/inference/contract.algo.ts:584
     // let used: uint64 = 0
     intc_0 // 0
     frame_bury 2
-    // smart_contracts/inference/contract.algo.ts:79
+    // smart_contracts/inference/contract.algo.ts:80
     // usage = BoxMap<UsageKey, Usage>({ keyPrefix: 'u' })
     bytec 19 // "u"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:575
+    // smart_contracts/inference/contract.algo.ts:585
     // if (this.usage(key).exists) {
     box_len
     bury 1
     bz poolTicket_else_body@8
-    // smart_contracts/inference/contract.algo.ts:576
+    // smart_contracts/inference/contract.algo.ts:586
     // if (this.usage(key).value.lastPayment === lastPayment) used = this.usage(key).value.used
     dup
     box_get
@@ -4485,7 +4499,7 @@ poolTicket_after_assert@37:
     frame_bury 2
 
 poolTicket_after_if_else@11:
-    // smart_contracts/inference/contract.algo.ts:581
+    // smart_contracts/inference/contract.algo.ts:591
     // loggedAssert(credit >= INFERENCE_TICKET_MBR, errInferencePoolExhausted)
     dig 1
     intc 5 // 60500
@@ -4496,7 +4510,7 @@ poolTicket_after_if_else@11:
     err // ERR:errInpx
 
 poolTicket_after_assert@13:
-    // smart_contracts/inference/contract.algo.ts:582
+    // smart_contracts/inference/contract.algo.ts:592
     // loggedAssert(maxPrice <= info.balance && used + maxPrice <= info.perPayment, errInferencePoolExhausted)
     frame_dig -7
     pushint 104
@@ -4517,7 +4531,7 @@ poolTicket_after_assert@13:
     intc_1 // 1
 
 poolTicket_bool_merge@17:
-    // smart_contracts/inference/contract.algo.ts:582
+    // smart_contracts/inference/contract.algo.ts:592
     // loggedAssert(maxPrice <= info.balance && used + maxPrice <= info.perPayment, errInferencePoolExhausted)
     bnz poolTicket_after_assert@19
     bytec 8 // "ERR:errInpx"
@@ -4525,7 +4539,7 @@ poolTicket_bool_merge@17:
     err // ERR:errInpx
 
 poolTicket_after_assert@19:
-    // smart_contracts/inference/contract.algo.ts:583
+    // smart_contracts/inference/contract.algo.ts:593
     // this.usage(key).value = { lastPayment, used: used + maxPrice }
     frame_dig 2
     frame_dig -2
@@ -4540,17 +4554,17 @@ poolTicket_after_assert@19:
     uncover 2
     swap
     box_put
-    // smart_contracts/inference/contract.algo.ts:584
+    // smart_contracts/inference/contract.algo.ts:594
     // this.pools(pool).value.credit = credit - INFERENCE_TICKET_MBR
     swap
     intc 5 // 60500
     -
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     uncover 4
     concat
-    // smart_contracts/inference/contract.algo.ts:584
+    // smart_contracts/inference/contract.algo.ts:594
     // this.pools(pool).value.credit = credit - INFERENCE_TICKET_MBR
     swap
     itob
@@ -4558,7 +4572,7 @@ poolTicket_after_assert@19:
     intc 4 // 128
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:585
+    // smart_contracts/inference/contract.algo.ts:595
     // this.pools(pool).value.balance = info.balance - maxPrice
     uncover 2
     frame_dig -2
@@ -4567,12 +4581,12 @@ poolTicket_after_assert@19:
     pushint 104
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:587
+    // smart_contracts/inference/contract.algo.ts:597
     // subscription.address, member, wallet, provider, info.asset, maxPrice, request, pool, subscription.id, lastPayment,
     frame_dig -7
     pushint 96
     extract_uint64
-    // smart_contracts/inference/contract.algo.ts:586-588
+    // smart_contracts/inference/contract.algo.ts:596-598
     // return this.newTicket(
     //   subscription.address, member, wallet, provider, info.asset, maxPrice, request, pool, subscription.id, lastPayment,
     // )
@@ -4599,7 +4613,7 @@ poolTicket_bool_false@16:
     b poolTicket_bool_merge@17
 
 poolTicket_else_body@8:
-    // smart_contracts/inference/contract.algo.ts:578
+    // smart_contracts/inference/contract.algo.ts:588
     // loggedAssert(credit >= INFERENCE_USAGE_MBR, errInferencePoolExhausted)
     dig 1
     intc 7 // 28500
@@ -4610,7 +4624,7 @@ poolTicket_else_body@8:
     err // ERR:errInpx
 
 poolTicket_after_assert@10:
-    // smart_contracts/inference/contract.algo.ts:579
+    // smart_contracts/inference/contract.algo.ts:589
     // credit = credit - INFERENCE_USAGE_MBR
     swap
     intc 7 // 28500
@@ -4644,7 +4658,7 @@ poolTicket_after_if_else@41:
     // smart_contracts/gates/sub-gates/subscription/utils.ts:43
     // return true
     intc_1 // 1
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     b poolTicket_after_inlined_smart_contracts/gates/sub-gates/subscription/utils.ts::subscriptionPaidUp@51
 
@@ -4686,13 +4700,13 @@ poolTicket_ternary_merge@46:
     <
     bz poolTicket_bool_false@49
     intc_1 // 1
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     b poolTicket_after_inlined_smart_contracts/gates/sub-gates/subscription/utils.ts::subscriptionPaidUp@51
 
 poolTicket_bool_false@49:
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:601
+    // smart_contracts/inference/contract.algo.ts:611
     // loggedAssert(!shutdown && subscriptionPaidUp(sub.startDate, sub.interval, sub.lastPayment), errInferenceNotSubscribed)
     b poolTicket_after_inlined_smart_contracts/gates/sub-gates/subscription/utils.ts::subscriptionPaidUp@51
 
@@ -4709,18 +4723,18 @@ poolTicket_bool_false@27:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.refund(info: bytes, amount: uint64) -> bytes:
 refund:
-    // smart_contracts/inference/contract.algo.ts:609
+    // smart_contracts/inference/contract.algo.ts:619
     // private refund(info: Ticket, amount: uint64): void {
     proto 2 1
     intc_0 // 0
-    // smart_contracts/inference/contract.algo.ts:610
+    // smart_contracts/inference/contract.algo.ts:620
     // if (info.pool === 0) {
     frame_dig -2
     pushint 112
     extract_uint64
     dup
     bnz refund_after_if_else@3
-    // smart_contracts/inference/contract.algo.ts:611
+    // smart_contracts/inference/contract.algo.ts:621
     // this.send(info.payer, info.asset, amount)
     frame_dig -2
     extract 0 32
@@ -4731,7 +4745,7 @@ refund:
     swap
     frame_dig -1
     callsub send
-    // smart_contracts/inference/contract.algo.ts:612
+    // smart_contracts/inference/contract.algo.ts:622
     // itxn.payment({ receiver: info.payer, amount: INFERENCE_TICKET_MBR }).submit()
     itxn_begin
     intc 5 // 60500
@@ -4742,22 +4756,22 @@ refund:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/inference/contract.algo.ts:613
+    // smart_contracts/inference/contract.algo.ts:623
     // return
     frame_dig -2
     frame_bury 0
     retsub
 
 refund_after_if_else@3:
-    // smart_contracts/inference/contract.algo.ts:615
+    // smart_contracts/inference/contract.algo.ts:625
     // this.pools(info.pool).value.balance = this.pools(info.pool).value.balance + amount
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     dig 1
     concat
-    // smart_contracts/inference/contract.algo.ts:615
+    // smart_contracts/inference/contract.algo.ts:625
     // this.pools(info.pool).value.balance = this.pools(info.pool).value.balance + amount
     dup
     box_get
@@ -4771,7 +4785,7 @@ refund_after_if_else@3:
     pushint 104
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:616
+    // smart_contracts/inference/contract.algo.ts:626
     // this.pools(info.pool).value.credit = this.pools(info.pool).value.credit + INFERENCE_TICKET_MBR
     dup
     box_get
@@ -4784,7 +4798,7 @@ refund_after_if_else@3:
     intc 4 // 128
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/inference/contract.algo.ts:617
+    // smart_contracts/inference/contract.algo.ts:627
     // const key: UsageKey = { pool: info.pool, subscriber: info.payer, subscription: info.subscription }
     frame_dig -2
     extract 0 32
@@ -4794,14 +4808,14 @@ refund_after_if_else@3:
     concat
     swap
     concat
-    // smart_contracts/inference/contract.algo.ts:79
+    // smart_contracts/inference/contract.algo.ts:80
     // usage = BoxMap<UsageKey, Usage>({ keyPrefix: 'u' })
     bytec 19 // "u"
     swap
     concat
     dup
     frame_bury 0
-    // smart_contracts/inference/contract.algo.ts:618
+    // smart_contracts/inference/contract.algo.ts:628
     // if (this.usage(key).value.lastPayment === info.lastPayment) {
     box_get
     assert // Box must have value
@@ -4812,7 +4826,7 @@ refund_after_if_else@3:
     extract_uint64
     ==
     bz refund_after_if_else@8
-    // smart_contracts/inference/contract.algo.ts:619
+    // smart_contracts/inference/contract.algo.ts:629
     // const used = this.usage(key).value.used
     frame_dig 0
     box_get
@@ -4820,7 +4834,7 @@ refund_after_if_else@3:
     intc_2 // 8
     extract_uint64
     dup
-    // smart_contracts/inference/contract.algo.ts:620
+    // smart_contracts/inference/contract.algo.ts:630
     // this.usage(key).value.used = used > amount ? used - amount : 0
     frame_dig -1
     >
@@ -4829,7 +4843,7 @@ refund_after_if_else@3:
     -
 
 refund_ternary_merge@7:
-    // smart_contracts/inference/contract.algo.ts:620
+    // smart_contracts/inference/contract.algo.ts:630
     // this.usage(key).value.used = used > amount ? used - amount : 0
     itob
     frame_dig 0
@@ -4844,7 +4858,7 @@ refund_after_if_else@8:
 
 refund_ternary_false@6:
     pop
-    // smart_contracts/inference/contract.algo.ts:620
+    // smart_contracts/inference/contract.algo.ts:630
     // this.usage(key).value.used = used > amount ? used - amount : 0
     intc_0 // 0
     b refund_ternary_merge@7
@@ -4852,20 +4866,20 @@ refund_ternary_false@6:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.mustGetPool(pool: uint64) -> bytes:
 mustGetPool:
-    // smart_contracts/inference/contract.algo.ts:624
+    // smart_contracts/inference/contract.algo.ts:634
     // private mustGetPool(pool: uint64): Pool {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:625
+    // smart_contracts/inference/contract.algo.ts:635
     // loggedAssert(this.pools(pool).exists, errInferenceNoPool)
     frame_dig -1
     itob
-    // smart_contracts/inference/contract.algo.ts:78
+    // smart_contracts/inference/contract.algo.ts:79
     // pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
     bytec_3 // "o"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:625
+    // smart_contracts/inference/contract.algo.ts:635
     // loggedAssert(this.pools(pool).exists, errInferenceNoPool)
     box_len
     bury 1
@@ -4875,7 +4889,7 @@ mustGetPool:
     err // ERR:errInno
 
 mustGetPool_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:626
+    // smart_contracts/inference/contract.algo.ts:636
     // return clone(this.pools(pool).value)
     box_get
     assert // Box must have value
@@ -4884,15 +4898,15 @@ mustGetPool_after_assert@2:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.requireSponsor(pool: uint64) -> bytes:
 requireSponsor:
-    // smart_contracts/inference/contract.algo.ts:629
+    // smart_contracts/inference/contract.algo.ts:639
     // private requireSponsor(pool: uint64): Pool {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:630
+    // smart_contracts/inference/contract.algo.ts:640
     // const info = this.mustGetPool(pool)
     frame_dig -1
     callsub mustGetPool
     dup
-    // smart_contracts/inference/contract.algo.ts:631
+    // smart_contracts/inference/contract.algo.ts:641
     // loggedAssert(Txn.sender === info.sponsor, errInferenceNotSponsor)
     txn Sender
     swap
@@ -4904,27 +4918,27 @@ requireSponsor:
     err // ERR:errInsp
 
 requireSponsor_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:632
+    // smart_contracts/inference/contract.algo.ts:642
     // return info
     retsub
 
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.mustGetTicket(ticket: uint64) -> bytes:
 mustGetTicket:
-    // smart_contracts/inference/contract.algo.ts:635
+    // smart_contracts/inference/contract.algo.ts:645
     // private mustGetTicket(ticket: uint64): Ticket {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:636
+    // smart_contracts/inference/contract.algo.ts:646
     // loggedAssert(this.tickets(ticket).exists, errInferenceNoTicket)
     frame_dig -1
     itob
-    // smart_contracts/inference/contract.algo.ts:77
+    // smart_contracts/inference/contract.algo.ts:78
     // tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
     bytec 9 // "t"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:636
+    // smart_contracts/inference/contract.algo.ts:646
     // loggedAssert(this.tickets(ticket).exists, errInferenceNoTicket)
     box_len
     bury 1
@@ -4934,7 +4948,7 @@ mustGetTicket:
     err // ERR:errInnt
 
 mustGetTicket_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:637
+    // smart_contracts/inference/contract.algo.ts:647
     // return clone(this.tickets(ticket).value)
     box_get
     assert // Box must have value
@@ -4943,20 +4957,20 @@ mustGetTicket_after_assert@2:
 
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.mustGetProvider(provider: uint64) -> bytes:
 mustGetProvider:
-    // smart_contracts/inference/contract.algo.ts:640
+    // smart_contracts/inference/contract.algo.ts:650
     // private mustGetProvider(provider: uint64): Provider {
     proto 1 1
-    // smart_contracts/inference/contract.algo.ts:641
+    // smart_contracts/inference/contract.algo.ts:651
     // loggedAssert(this.providers(provider).exists, errInferenceNoProvider)
     frame_dig -1
     itob
-    // smart_contracts/inference/contract.algo.ts:74
+    // smart_contracts/inference/contract.algo.ts:75
     // providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
     bytec_2 // "p"
     swap
     concat
     dup
-    // smart_contracts/inference/contract.algo.ts:641
+    // smart_contracts/inference/contract.algo.ts:651
     // loggedAssert(this.providers(provider).exists, errInferenceNoProvider)
     box_len
     bury 1
@@ -4966,7 +4980,7 @@ mustGetProvider:
     err // ERR:errInnp
 
 mustGetProvider_after_assert@2:
-    // smart_contracts/inference/contract.algo.ts:642
+    // smart_contracts/inference/contract.algo.ts:652
     // return clone(this.providers(provider).value)
     box_get
     assert // Box must have value

@@ -56,3 +56,5 @@ export const errInferencePoolExhausted = 'errInpx'
 export const errInferenceBadService = 'errInpe'
 /** The subscription is not a paid-up subscription to the pool's service. */
 export const errInferenceNotSubscribed = 'errInns'
+/** Inference tickets are only for Akita wallets: the call must come through a wallet that controls its account. */
+export const errInferenceNoWallet = 'errInwl'

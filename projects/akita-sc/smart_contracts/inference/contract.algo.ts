@@ -8,7 +8,7 @@ import { subscriptionPaidUp } from '../gates/sub-gates/subscription/utils'
 import type { Subscriptions } from '../subscriptions/contract.algo'
 import { SubscriptionKey } from '../subscriptions/types'
 import { ctxOwnsOf, getAkitaAppList, getAkitaAssets, getInferenceFees, ownsAtRestOf, principalOf } from '../utils/functions'
-import { GateCtx } from '../utils/principal'
+import { GateCtx, Principal } from '../utils/principal'
 import {
   INFERENCE_ASSET_MBR, INFERENCE_ATTESTATION_MBR, INFERENCE_FEE_DIVISOR, INFERENCE_MAX_FEE_PERCENTAGE,
   INFERENCE_MAX_SETTLE_WINDOW, INFERENCE_MAX_UNBOND_DELAY, INFERENCE_METADATA_BASE_MBR, INFERENCE_METADATA_MAX_BYTES,
@@ -21,7 +21,7 @@ import {
   errInferenceBadTransfer, errInferenceBadWindow, errInferenceBondTooLow,
   errInferenceNoProvider, errInferenceNotAdmin, errInferenceNotOptedIn, errInferenceNotOwner,
   errInferenceProviderInactive, errInferenceSlashTooHigh, errInferenceUnbonding, errInferenceZeroAddress, errInferenceExpired, errInferenceNoTicket, errInferenceNotClaimer, errInferenceNotExpired, errInferenceOverLock,
-  errInferenceZeroLock, errInferenceBadService, errInferenceNoPool, errInferenceNotSubscribed, errInferenceNotSponsor, errInferencePoolDenied,
+  errInferenceZeroLock, errInferenceBadService, errInferenceNoPool, errInferenceNoWallet, errInferenceNotSubscribed, errInferenceNotSponsor, errInferencePoolDenied,
   errInferencePoolExhausted,
 } from './errors'
 import {
@@ -47,7 +47,8 @@ import {
  * member. A ticket left unsettled past the settle window is refunded in full. A provider whose ticket
  * never lands cuts the member off, losing at most that request.
  *
- * Every ticket is attributed to an Akita account (the principal its wallet hint resolves to), whichever
+ * Only Akita wallets open tickets. Every ticket is attributed to the wallet's account (the principal its
+ * wallet hint resolves to, the wallet's controlled address), whichever
  * delegated key opened it, and the opened and settled events carry that account.
  *
  * A sponsor (such as Akita, for usage included with a subscription) can fund a pool instead. Each
@@ -291,15 +292,16 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * the caller's id for the request, which the provider sees in the same request. The ticket must be
    * settled before the settle window ends, or anyone can refund it. Returns the ticket id.
    *
-   * `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
-   * Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
-   * whichever delegated key (the member's app, a routine, a trigger) opened it.
+   * `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
+   * InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
+   * wallet's controlled address whichever delegated key (the member's app, a routine, a trigger)
+   * opened it.
    *
    * Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
    * payer off, losing at most that request.
    */
   open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>, wallet: uint64): uint64 {
-    const who = principalOf(this.akitaDAO.value, wallet)
+    const who = this.walletPrincipal(wallet)
     this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
     const amount = this.receive(lock, asset)
     return this.newTicket(Txn.sender, who.principal, who.wallet, provider, asset, amount, request, 0, 0, 0)
@@ -378,16 +380,16 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    */
   openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): uint64 {
     const info = this.mustGetPool(pool)
-    const who = principalOf(this.akitaDAO.value, wallet)
+    const who = this.walletPrincipal(wallet)
     const ctx: GateCtx = { principal: who.principal, wallet: who.wallet, spender: who.spender }
     loggedAssert(ctxOwnsOf(this.akitaDAO.value, ctx, subscription.address), errInferencePoolDenied)
     return this.poolTicket(pool, info, who.principal, who.wallet, subscription, provider, maxPrice, request)
   }
 
   /**
-   * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
-   * and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
-   * ticket id.
+   * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
+   * address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
+   * account of that wallet holds. Returns the ticket id.
    */
   openSponsored(
     pool: uint64, member: Account, memberWallet: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>,
@@ -395,12 +397,9 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   ): uint64 {
     const info = this.mustGetPool(pool)
     loggedAssert(info.allocator !== Global.zeroAddress && Txn.sender === info.allocator, errInferencePoolDenied)
+    loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
     loggedAssert(
-      subscription.address === member || (
-        memberWallet !== 0 &&
-        ownsAtRestOf(this.akitaDAO.value, memberWallet, member) &&
-        ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address)
-      ),
+      subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
       errInferencePoolDenied,
     )
     return this.poolTicket(pool, info, member, memberWallet, subscription, provider, maxPrice, request)
@@ -539,6 +538,17 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
       payment.rekeyTo === Global.zeroAddress,
       errInferenceBadStoragePayment,
     )
+  }
+
+  /**
+   * The caller's Akita account. Tickets are only for Akita wallets: the hint must be a genuine wallet
+   * the caller acts for (an invalid hint reverts in `principalOf`), and the wallet must control its
+   * controlled address now.
+   */
+  private walletPrincipal(wallet: uint64): Principal {
+    const who = principalOf(this.akitaDAO.value, wallet)
+    loggedAssert(who.wallet !== 0 && who.origin !== Global.zeroAddress, errInferenceNoWallet)
+    return who
   }
 
   private newTicket(
