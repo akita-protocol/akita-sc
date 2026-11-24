@@ -203,6 +203,8 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
     ['welcome-plugin', 'WelcomePlugin deployed and registered', 'welcomePlugin', 'arc58/plugins/welcome/WelcomePlugin.arc56.json', ['p2:AbstractedAccountFactory'], 'runbook G1 (Phase 3 deploys it)'],
     ['balance-reader', 'Wallet balance reader deployed and registered', 'walletBalanceReader', 'arc58/account/AbstractedAccountBalanceReader.arc56.json', [], 'npm run deploy:wallet-balance-reader -- --manifest receipts/wallet-balance-reader.json --register'],
     ['social-claim', 'SocialClaim deployed and registered (not in release 2.0.0: name it in --allow-pending at I1)', 'socialClaim', 'arc58/social-claim/SocialClaim.arc56.json', ['welcome-plugin', 'plugin:payPlugin'], 'npm run deploy:immutable -- --contract SocialClaim --config social-claim.json --manifest receipts/social-claim.json --register'],
+    ['inference-network', 'InferenceNetwork deployed and registered (not in release 2.0.0: name it in --allow-pending at I1)', 'inferenceNetwork', 'inference/InferenceNetwork.arc56.json', ['meta-policy-writer'], 'npm run deploy:inference -- --treasury <address> --claimer <address> --payout <address> --manifest receipts/inference.json --register --confirm'],
+    ['inference-plugin', 'InferencePlugin deployed and registered, reading policies from Meta (not in release 2.0.0: name it in --allow-pending at I1)', 'inferencePlugin', 'arc58/plugins/inference/InferencePlugin.arc56.json', ['inference-network'], 'npm run deploy:inference (same run as the network)'],
   ]
   for (const [id, title, key, artifact, requires, run] of products) {
     add({ id, stage: 'H', title, requires, run, check: async () => {

@@ -261,6 +261,8 @@ A dash means not deployed on that network yet. Each deployment script's receipt
 | `governanceParticipationGate` | — | — |
 | `moderatorActivityGate` | — | — |
 | `rewardsV1` | [`763128244`](https://lora.algokit.io/testnet/application/763128244) | [`3569556095`](https://lora.algokit.io/mainnet/application/3569556095) |
+| `inferenceNetwork` | — | — |
+| `inferencePlugin` | — | — |
 
 ### Plugins (Latest Deployments)
 

@@ -7,29 +7,53 @@
  * `inference_fees` field, which an UpdateFields proposal sets once the DAO is upgraded to a version
  * that has it. Until then the fee and the bond are zero. The bond asset is the DAO's AKTA.
  *
- * What it sends, in order:
+ * What it does, in order. Every step after the creates reads the chain first and is skipped when it is
+ * already done, and the creates are recorded in the --manifest receipt, so a rerun with the same
+ * receipt resumes where a failed run stopped instead of creating a second app:
  *   1. create InferenceNetwork (admin = the sender for now, treasury = --treasury)
  *   2. fund the app, opt it in to AKTA (the bond asset) and USDC
  *   3. setSettings: 30-day unbonding, --settle-window seconds (default 3600), registration closed
  *   4. accept ALGO and USDC for tickets
  *   5. register Akita as provider 1 (--claimer, --payout, --metadata) with a zero bond, and activate it
  *   6. create InferencePlugin, reading grant policies from Meta (--registry, default the SDK's meta id)
- *   7. hand the network's admin to --admin, when given (the DAO wallet's address)
+ *   7. hand the network's admin to --admin, when given
+ *   8. with --register, record inferenceNetwork and inferencePlugin in the SDK's networks.ts
+ *
+ * Before sending anything it checks that Meta exists and takes policies from the SDK's MetaPlugin, and
+ * outside LocalNet that --payout and --treasury are opted in to USDC (settle and sweepFees pay them).
  *
  * Usage (from projects/akita-sc):
  *   npm run deploy:inference -- -n testnet --treasury "$TREASURY" --claimer "$CLAIMER" --payout "$PAYOUT" \
- *     --metadata https://inference.akita.community/provider.json --confirm
+ *     --metadata https://inference.akita.community/provider.json --manifest receipts/inference.json --register --confirm
  */
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { InferencePluginFactory } from '../smart_contracts/artifacts/arc58/plugins/inference/InferencePluginClient'
-import { InferenceNetworkFactory } from '../smart_contracts/artifacts/inference/InferenceNetworkClient'
-import { parseBaseArgs, runScript, setupContext } from './script-base'
+import { InferenceNetworkClient, InferenceNetworkFactory } from '../smart_contracts/artifacts/inference/InferenceNetworkClient'
+import { parseBaseArgs, recordNetworkAppDeployment, runScript, setupContext, type ScriptContext } from './script-base'
+import { openReceipt, sha256 } from './lib/deployment-receipt'
 
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 // Box MBRs, as in smart_contracts/inference/constants.ts
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const metadataMbr = (uri: string) => 2_500n + 400n * (9n + BigInt(Buffer.byteLength(uri)))
+const ProviderPending = 0n
+const ProviderActive = 1n
+const ProviderPaused = 2n
+
+async function globalUint(ctx: ScriptContext, appId: bigint, key: string): Promise<bigint | undefined> {
+  const app = await ctx.algorand.client.algod.getApplicationByID(appId).do().catch(() => undefined)
+  if (!app) return undefined
+  const entry = (app.params?.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === key)
+  return entry ? BigInt(entry.value.uint) : 0n
+}
+
+async function optedIn(ctx: ScriptContext, address: string, asset: bigint): Promise<boolean> {
+  if (asset === 0n) return true
+  return ctx.algorand.client.algod.accountAssetInformation(address, asset).do().then(() => true, () => false)
+}
+
+const orUndefined = <T>(promise: Promise<T>) => promise.catch(() => undefined)
 
 runScript(async () => {
   const args = process.argv.slice(2)
@@ -44,9 +68,11 @@ runScript(async () => {
   --claimer <address>    Akita's claim account (required outside LocalNet)
   --payout <address>     Akita's payout address (required outside LocalNet)
   --metadata <uri>       Akita's provider metadata URI
-  --admin <address>      Hand the network's admin to this address at the end (the DAO wallet)
+  --admin <address>      Hand the network's admin to this address at the end. Without it the sender stays admin
   --registry <app id>    Meta app for InferencePlugin policies. Default: the SDK's meta id
   --settle-window <s>    Seconds a provider has to settle a ticket before it can be refunded. Default: 3600
+  --manifest <json>      Durable receipt (required with --confirm); rerun with it to resume
+  --register             Record inferenceNetwork and inferencePlugin in the SDK network map
   --confirm              Send (plans only without it)`)
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
   const local = options.network === 'localnet'
@@ -58,50 +84,103 @@ runScript(async () => {
   const metadata = value('--metadata') ?? 'https://inference.akita.community/provider.json'
   const registry = BigInt(value('--registry') ?? ctx.appIds.meta ?? 0n)
   const settleWindow = BigInt(value('--settle-window') ?? 3_600)
+  const manifest = value('--manifest')
   const akta = ctx.appIds.akta
   const usdc = ctx.appIds.usdc
-  if (registry === 0n) throw new Error('No Meta app for policies: pass --registry or record meta in the SDK first')
+  if (registry === 0n) throw new Error('No Meta app for policies: pass --registry or record meta in the SDK first (H1)')
   if (!local && (akta === 0n || usdc === 0n)) throw new Error('The SDK records no AKTA or USDC id for this network')
+
+  // Pre-flight: InferencePlugin's registry can never change, so Meta must already take policies from
+  // MetaPlugin; and settle and sweepFees revert if the payout or the treasury can't receive USDC.
+  const problems: string[] = []
+  const writer = await globalUint(ctx, registry, 'policy_writer')
+  if (writer === undefined) problems.push(`Meta ${registry} does not exist`)
+  else if (!local && (!ctx.appIds.metaPlugin || writer !== ctx.appIds.metaPlugin)) {
+    problems.push(`Meta ${registry} takes policies from app ${writer}, not the SDK's MetaPlugin ${ctx.appIds.metaPlugin ?? 0n}`)
+  }
+  if (!local) {
+    for (const [name, account] of [['--payout', payout], ['--treasury', treasury]] as const) {
+      if (!(await optedIn(ctx, account, usdc))) problems.push(`${name} ${account} is not opted in to USDC ${usdc}`)
+    }
+  }
 
   const settings = { unbondDelay: 30n * 86_400n, settleWindow, openRegistration: false }
   console.log(`InferenceNetwork on ${options.network}
-  sender ${sender}, treasury ${treasury}, admin afterwards ${admin ?? sender}
+  sender ${sender}, treasury ${treasury}, admin afterwards ${admin ?? `${sender} (no --admin: the sender's key stays admin)`}
   settings ${JSON.stringify(settings, (_, v) => typeof v === 'bigint' ? v.toString() : v)}
   ticket assets: ALGO${usdc ? `, USDC ${usdc}` : ''}
   provider 1 (Akita): claimer ${claimer}, payout ${payout}, metadata ${metadata}
   InferencePlugin registry: Meta ${registry}`)
+  if (problems.length) throw new Error(`Pre-flight failed:\n  ${problems.join('\n  ')}`)
   if (options.dryRun || !args.includes('--confirm')) return console.log('\nNothing was sent; pass --confirm to send.')
 
-  const network = (await ctx.algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: sender, defaultSigner: ctx.signer })
-    .send.create.create({ args: { version: options.version, akitaDao: ctx.appIds.dao, admin: sender, treasury } })).appClient
-  console.log(`InferenceNetwork: ${network.appId}`)
+  const networkFactory = ctx.algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: sender, defaultSigner: ctx.signer })
+  const pluginFactory = ctx.algorand.client.getTypedAppFactory(InferencePluginFactory, { defaultSender: sender, defaultSigner: ctx.signer })
+  const networkCompiled = await networkFactory.appFactory.compile()
+  const pluginCompiled = await pluginFactory.appFactory.compile()
+  const receipt = await openReceipt(ctx, manifest, {
+    contract: 'InferenceNetwork', treasury, claimer, payout, metadata, registry, settleWindow,
+    network: sha256(networkCompiled.approvalProgram), plugin: sha256(pluginCompiled.approvalProgram),
+  })
+
+  const networkId = await receipt.createApp('InferenceNetwork', networkCompiled, async (note) => {
+    const { appClient, result } = await networkFactory.send.create.create({
+      note, args: { version: options.version, akitaDao: ctx.appIds.dao, admin: sender, treasury },
+    })
+    return { appId: appClient.appId, txId: result.txIds[0] }
+  })
+  const network = ctx.algorand.client.getTypedAppClientById(InferenceNetworkClient, { appId: networkId, defaultSender: sender, defaultSigner: ctx.signer })
+  console.log(`InferenceNetwork: ${networkId}`)
   const pay = (amount: bigint) => ctx.algorand.createTransaction.payment({ sender, receiver: network.appAddress, amount: microAlgo(amount) })
-  await network.appClient.fundAppAccount({ amount: microAlgo(200_000) })
+  await ctx.algorand.account.ensureFunded(network.appAddress, sender, microAlgo(200_000))
   for (const asset of [akta, usdc].filter((a) => a !== 0n)) {
+    if (await optedIn(ctx, network.appAddress.toString(), asset)) continue
     await network.send.optIn({ args: { payment: pay(100_000n), asset }, extraFee: microAlgo(1_000) })
   }
-  await network.send.setSettings({ args: { settings } })
-  for (const asset of [0n, usdc].filter((a, i) => i === 0 || a !== 0n)) {
-    await network.send.setPaymentAsset({ args: { payment: pay(ASSET_MBR), asset, allowed: true } })
+  const live = await orUndefined(network.state.global.settings())
+  if (!live || live.settleWindow !== settings.settleWindow || live.unbondDelay !== settings.unbondDelay || live.openRegistration !== settings.openRegistration) {
+    await network.send.setSettings({ args: { settings } })
   }
-  const bond = akta === 0n
-    ? pay(0n)
-    : ctx.algorand.createTransaction.assetTransfer({ sender, receiver: network.appAddress, assetId: akta, amount: 0n })
-  const provider = (await network.send.registerProvider({
-    args: { payment: pay(PROVIDER_MBR + metadataMbr(metadata)), bond, claimer, payout, metadata },
-  })).return!
-  await network.send.setProviderStatus({ args: { provider, status: 1n } })
+  for (const asset of [0n, usdc].filter((a, i) => i === 0 || a !== 0n)) {
+    const record = await orUndefined(network.state.box.assets.value(asset))
+    if (record?.allowed === 1n) continue
+    await network.send.setPaymentAsset({ args: { payment: pay(record ? 0n : ASSET_MBR), asset, allowed: true } })
+  }
+  let provider = 1n
+  const registered = await orUndefined(network.state.box.providers.value(provider))
+  if (!registered) {
+    const bond = akta === 0n
+      ? pay(0n)
+      : ctx.algorand.createTransaction.assetTransfer({ sender, receiver: network.appAddress, assetId: akta, amount: 0n })
+    provider = (await network.send.registerProvider({
+      args: { payment: pay(PROVIDER_MBR + metadataMbr(metadata)), bond, claimer, payout, metadata },
+    })).return!
+  } else if (registered.claimer !== claimer || registered.payout !== payout) {
+    throw new Error(`Provider 1 is registered with claimer ${registered.claimer} and payout ${registered.payout}, not the ones given`)
+  }
+  const status = registered?.status ?? ProviderPending
+  if (status === ProviderPending || status === ProviderPaused) {
+    await network.send.setProviderStatus({ args: { provider, status: ProviderActive } })
+  }
   console.log(`Akita is provider ${provider}, active`)
 
-  const plugin = (await ctx.algorand.client.getTypedAppFactory(InferencePluginFactory, { defaultSender: sender, defaultSigner: ctx.signer })
-    .send.create.create({ args: { registry } })).appClient
-  console.log(`InferencePlugin: ${plugin.appId}`)
+  const pluginId = await receipt.createApp('InferencePlugin', pluginCompiled, async (note) => {
+    const { appClient, result } = await pluginFactory.send.create.create({ note, args: { registry } })
+    return { appId: appClient.appId, txId: result.txIds[0] }
+  })
+  console.log(`InferencePlugin: ${pluginId}`)
 
-  if (admin) {
+  if (admin && (await orUndefined(network.state.global.admin())) !== admin) {
     await network.send.setAdmin({ args: { admin } })
     console.log(`Admin handed to ${admin}`)
   }
+  if (args.includes('--register')) {
+    await recordNetworkAppDeployment(options.network, 'inferenceNetwork', networkId)
+    await recordNetworkAppDeployment(options.network, 'inferencePlugin', pluginId)
+    receipt.receipt.registered = true
+    receipt.save()
+  }
   console.log(`
-IMPORTANT: record inferenceNetwork ${network.appId} and inferencePlugin ${plugin.appId} for ${options.network}
-in akita-sdk/src/networks.ts, and give the backend the network id, provider ${provider} and the claimer's key.`)
+Done. ${args.includes('--register') ? 'Recorded' : 'Record (rerun with --register)'} inferenceNetwork ${networkId} and inferencePlugin ${pluginId}
+for ${options.network}, then give the backend the network id, provider ${provider} and the claimer's key.`)
 })

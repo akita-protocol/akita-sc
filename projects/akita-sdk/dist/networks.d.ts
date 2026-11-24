@@ -98,6 +98,10 @@ export interface NetworkAppIds {
     moderatorActivityGate?: bigint;
     /** GovernanceParticipationGate (context-aware sub-gate over AkitaDAO.getGovernanceParticipation) */
     governanceParticipationGate?: bigint;
+    /** InferenceNetwork: inference providers, their bonds, and per-request tickets */
+    inferenceNetwork?: bigint;
+    /** InferencePlugin: lets a wallet's escrow open InferenceNetwork tickets */
+    inferencePlugin?: bigint;
 }
 export declare const PLUGIN_APP_ID_KEYS: readonly ["revenueManagerPlugin", "updatePlugin", "optinPlugin", "selfOptinPlugin", "asaManagerPlugin", "payPlugin", "haystackRouterPlugin", "hyperSwapPlugin", "subscriptionsPlugin", "auctionPlugin", "daoPlugin", "dualStakePlugin", "gatePlugin", "marketplacePlugin", "nfdPlugin", "pollPlugin", "rafflePlugin", "rewardsPlugin", "socialPlugin", "stakingPlugin", "stakingPoolPlugin"];
 export type PluginAppIdKey = (typeof PLUGIN_APP_ID_KEYS)[number];

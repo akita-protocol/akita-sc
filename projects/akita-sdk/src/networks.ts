@@ -117,6 +117,10 @@ export interface NetworkAppIds {
   moderatorActivityGate?: bigint;
   /** GovernanceParticipationGate (context-aware sub-gate over AkitaDAO.getGovernanceParticipation) */
   governanceParticipationGate?: bigint;
+  /** InferenceNetwork: inference providers, their bonds, and per-request tickets */
+  inferenceNetwork?: bigint;
+  /** InferencePlugin: lets a wallet's escrow open InferenceNetwork tickets */
+  inferencePlugin?: bigint;
 }
 
 export const PLUGIN_APP_ID_KEYS = ['revenueManagerPlugin', 'updatePlugin', 'optinPlugin', 'selfOptinPlugin', 'asaManagerPlugin', 'payPlugin', 'haystackRouterPlugin', 'hyperSwapPlugin', 'subscriptionsPlugin', 'auctionPlugin', 'daoPlugin', 'dualStakePlugin', 'gatePlugin', 'marketplacePlugin', 'nfdPlugin', 'pollPlugin', 'rafflePlugin', 'rewardsPlugin', 'socialPlugin', 'stakingPlugin', 'stakingPoolPlugin'] as const satisfies readonly (keyof NetworkAppIds)[];
@@ -451,6 +455,8 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   rewardsV1: 763128244n,
   governanceParticipationGate: 0n,
   moderatorActivityGate: 0n,
+  inferenceNetwork: 0n,
+  inferencePlugin: 0n,
 };
 
 /**
@@ -553,6 +559,8 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   rewardsV1: 3569556095n,
   governanceParticipationGate: 0n,
   moderatorActivityGate: 0n,
+  inferenceNetwork: 0n,
+  inferencePlugin: 0n,
 };
 
 /**
@@ -884,6 +892,8 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   SOCIAL_CLAIM_APP_ID: 'socialClaim',
   WALLET_BALANCE_READER_APP_ID: 'walletBalanceReader',
   REWARDS_V1_APP_ID: 'rewardsV1',
+  INFERENCE_NETWORK_APP_ID: 'inferenceNetwork',
+  INFERENCE_PLUGIN_APP_ID: 'inferencePlugin',
 };
 
 /**
