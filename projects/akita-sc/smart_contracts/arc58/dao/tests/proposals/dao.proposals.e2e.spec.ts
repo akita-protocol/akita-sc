@@ -245,6 +245,20 @@ describe('ARC58 DAO Proposals', () => {
       expect(state.swapFees.impactTaxMin).toBe(newImpactTaxMin);
       expect(state.swapFees.impactTaxMax).toBe(newImpactTaxMax);
     });
+
+    test('should set the inference fees', async () => {
+      const { dao } = context;
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.UpdateFields, field: 'inference_fees', value: { chargePercentage: 1_000n, providerBond: 250_000_000n } },
+      ]);
+      expect(await dao.client.state.global.inferenceFees()).toEqual({ chargePercentage: 1_000n, providerBond: 250_000_000n });
+
+      // a partial update keeps the other field
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.UpdateFields, field: 'inference_fees', value: { chargePercentage: 500n } },
+      ]);
+      expect(await dao.client.state.global.inferenceFees()).toEqual({ chargePercentage: 500n, providerBond: 250_000_000n });
+    });
   });
 
   describe('Escrow Management via Proposals', () => {

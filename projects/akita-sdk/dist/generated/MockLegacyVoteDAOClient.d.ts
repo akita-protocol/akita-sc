@@ -195,6 +195,14 @@ export type GuildFees = {
  * Converts the ABI tuple representation of a GuildFees to the struct representation
  */
 export declare function GuildFeesFromTuple(abiTuple: [bigint]): GuildFees;
+export type InferenceFees = {
+    chargePercentage: bigint;
+    providerBond: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a InferenceFees to the struct representation
+ */
+export declare function InferenceFeesFromTuple(abiTuple: [bigint, bigint]): InferenceFees;
 export type NftFees = {
     marketplaceSalePercentageMin: bigint;
     marketplaceSalePercentageMax: bigint;
@@ -716,6 +724,10 @@ export type MockLegacyVoteDaoTypes = {
                  * fees associated with swaps
                  */
                 swapFees: SwapFees;
+                /**
+                 * fees associated with the inference network; unset until an UpdateFields proposal writes it
+                 */
+                inferenceFees: InferenceFees;
                 /**
                  * the akita assets
                  */
@@ -3094,6 +3106,10 @@ export declare class MockLegacyVoteDaoClient {
              * Get the current value of the swapFees key in global state
              */
             swapFees: () => Promise<SwapFees | undefined>;
+            /**
+             * Get the current value of the inferenceFees key in global state
+             */
+            inferenceFees: () => Promise<InferenceFees | undefined>;
             /**
              * Get the current value of the akitaAssets key in global state
              */

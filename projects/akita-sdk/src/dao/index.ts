@@ -589,6 +589,17 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
               data = getABIEncodedValue(abiData, 'SwapFees', this.client.appClient.appSpec.structs)
               break;
             }
+            case 'inference_fees': {
+              const currentFees = await this.client.state.global.inferenceFees()
+
+              const {
+                chargePercentage = currentFees?.chargePercentage ?? 0n,
+                providerBond = currentFees?.providerBond ?? 0n
+              } = action.value;
+
+              data = getABIEncodedValue({ chargePercentage, providerBond }, 'InferenceFees', this.client.appClient.appSpec.structs)
+              break;
+            }
             case 'akita_assets': {
               const currentAssets = await this.client.state.global.akitaAssets()
 

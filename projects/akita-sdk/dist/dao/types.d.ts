@@ -1,4 +1,4 @@
-import { AkitaAppList, AkitaAssets, AkitaDaoArgs, AkitaSocialAppList, GlobalKeysState, GuildFees, NftFees, OtherAppList, PluginAppList, ProposalSettings, ProposalVoteTotals, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../generated/AkitaDAOClient";
+import { AkitaAppList, AkitaAssets, AkitaDaoArgs, AkitaSocialAppList, GlobalKeysState, GuildFees, InferenceFees, NftFees, OtherAppList, PluginAppList, ProposalSettings, ProposalVoteTotals, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../generated/AkitaDAOClient";
 import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalDeleteEscrow, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "../generated/AkitaDAOTypesClient";
 import { ProposalActionEnum } from "./constants";
 import { AddAllowanceArgs, AddPluginArgs, WalletAddPluginParams } from "../wallet";
@@ -136,6 +136,9 @@ export type FieldUpdate = ({
 } | {
     field: 'swap_fees';
     value: Partial<SwapFees>;
+} | {
+    field: 'inference_fees';
+    value: Partial<InferenceFees>;
 } | {
     field: 'akita_assets';
     value: Partial<AkitaAssets>;

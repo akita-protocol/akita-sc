@@ -219,6 +219,18 @@ Three steps of the sequence change: G2, H1 and H6. The owner asked for it on 202
 - **Manifest.** `release/manifest.json` lists 157 programs. MockPolicyForger and MockUnlimitedPayPlugin are new test programs.
 - **Not run on a public network.** The new commands were run on LocalNet only. Their dry runs need Meta on chain, which H1 creates (G17).
 
+## Update 2026-11-24: the DAO can hold the inference network's fees
+
+No step of the sequence changes. The owner asked for it on 2026-11-24.
+
+- **A new DAO field.** AkitaDAO gains the global field `inference_fees`. It holds `chargePercentage`, the DAO's share of an inference charge in hundredths of a percent, and `providerBond`, the AKTA a provider bonds to join. Only an UpdateFields proposal writes it. AkitaDAOProposalValidator accepts the field and checks its shape, as it does for the other fee fields. Neither program caps the share.
+- **Nothing in this release reads it.** The inference network that will read it is not part of this release, and no step here writes the field. A code upgrade does not create a global, so after B2 the field is absent until a proposal writes it.
+- **It fits the live DAOs.** The DAO's declared storage does not change. Both live DAOs have 59 byte slots allocated and use 24 (read from MainNet and TestNet on 2026-11-24).
+- **Programs.** Against the build of 2026-11-21: AkitaDAO is 10,856 bytes (10,823 before) and AkitaDAOProposalValidator 3,704 (3,682). The DAO keeps its six pages, so B2's page growth and its sponsorship are unchanged. The test program MockLegacyVoteDAO changes with the DAO. No other program's bytes change.
+- **Manifest.** `release/manifest.json` still lists 155 programs. Three entries change.
+- **SDK.** `AkitaDaoSDK` builds the UpdateFields action for `inference_fees`. A value left out keeps what the DAO stores, or 0 while the field is absent.
+- **Not run on a public network.** The DAO's proposal test sets the field on LocalNet.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -443,7 +455,7 @@ The new Update plugin first; then the DAO upgrades itself through it.
 #### B1. Phase 2a: install the new UpdateAkitaDAOPlugin
 
 - **What:** Deploy the page-growing Update plugin and run ONE proposal: UpdateFields pal (update = new; optin and revenueManager unchanged), AddPlugin new (global, execution key), RemovePlugin old 3569559689. Then record the id and rebuild the SDK.
-- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,765 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
+- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,856 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
 - **Requires:** A2. **Script:** ready.
 - **Tracked by rollout:status as** `phase2a`.
 - The pal write replaces the whole struct: it must carry optin 3569560490 and revenueManager 3642325118.
