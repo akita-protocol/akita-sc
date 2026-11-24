@@ -119,20 +119,25 @@ describe.skipIf(!OUTPUT)('setup for the backend inference billing test (LocalNet
         factoryParams: { appId: factory.appId, defaultSender: owner, defaultSigner: signer }, nickname: 'Inference billing',
       })
       await wallet.client.appClient.fundAppAccount({ amount: microAlgo(20_000_000) })
-      await wallet.addPlugin({ client: writer, callerType: CallerType.Admin })
-
       const billing = algorand.account.random()
       await algorand.account.ensureFunded(billing.addr, owner, microAlgo(5_000_000))
       const plugin = new InferencePluginSDK({ algorand, factoryParams: { appId: pluginClient.appId, defaultSender: owner, defaultSigner: signer } })
-      await wallet.addPlugin({
-        client: plugin, callerType: CallerType.Other, caller: billing.addr.toString(), escrow: ESCROW,
-        allowances: [{ asset: 0n, type: 'flat', amount: ALLOWANCE }],
-      })
       const policy = { network: network.appId, providers: [provider], assets: [0n], maxPrice: MAX_RUN }
-      await wallet.usePlugin({
-        callerType: CallerType.Admin,
-        calls: [writer.configurePolicy({ plugin: plugin.appId, caller: billing.addr.toString(), escrow: ESCROW, body: encodeInferencePolicy(policy), expectedRevision: 0n })],
-      })
+      // One group, as the member's app sends it: the MetaPlugin grant that writes policies, the
+      // InferencePlugin grant (open only, no execution key), its allowance, and its policy.
+      await wallet.getEscrows()
+      await wallet.group()
+        .addPlugin({ client: writer, callerType: CallerType.Admin })
+        .addPlugin({
+          client: plugin, callerType: CallerType.Other, caller: billing.addr.toString(), escrow: ESCROW,
+          methods: [{ name: [plugin.client.appClient.getABIMethod('open').getSelector()], cooldown: 0n }],
+          allowances: [{ asset: 0n, type: 'flat', amount: ALLOWANCE }],
+        })
+        .usePlugin({
+          callerType: CallerType.Admin,
+          calls: [writer.configurePolicy({ plugin: plugin.appId, caller: billing.addr.toString(), escrow: ESCROW, body: encodeInferencePolicy(policy), expectedRevision: 0n })],
+        })
+        .send()
       const stored = await writer.getPolicy({ wallet: wallet.appId, plugin: plugin.appId, caller: billing.addr.toString(), escrow: ESCROW })
       expect(decodeInferencePolicy(stored.body)).toEqual(policy)
 
