@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "akita.review-report.v1",
+  "title": "Akita review report",
+  "type": "object",
+  "required": ["schema", "subject", "reviewer", "summary", "findings", "notReviewed", "caveats"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "akita.review-report.v1" },
+    "subject": {
+      "type": "object",
+      "required": ["kind", "paths"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["source", "bytecode"] },
+        "family": { "type": "string" },
+        "repo": { "type": "string" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+        "network": { "enum": ["mainnet", "testnet", "localnet"] },
+        "appId": { "type": "integer", "minimum": 1 },
+        "round": { "type": "integer", "minimum": 0 },
+        "approvalHash": { "$ref": "#/$defs/sha256" },
+        "clearHash": { "$ref": "#/$defs/sha256" },
+        "programHash": { "$ref": "#/$defs/sha256" },
+        "paths": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "required": ["model", "harnessCommit", "rubricHash", "startedAt", "finishedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "harnessCommit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+        "rubricHash": { "$ref": "#/$defs/sha256" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "finishedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["critical", "high", "medium", "low", "info"],
+      "additionalProperties": false,
+      "properties": {
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 },
+        "info": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "confidence", "title", "locations", "description", "scenario", "fix", "refutation"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+-[0-9]+$" },
+          "severity": { "enum": ["critical", "high", "medium", "low", "info"] },
+          "confidence": { "enum": ["confirmed", "likely", "possible"] },
+          "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "locations": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "scenario": { "type": "string", "minLength": 1 },
+          "fix": { "type": "string", "minLength": 1 },
+          "refutation": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "notReviewed": { "type": "array", "items": { "type": "string" } },
+    "caveats": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "networks": {
+    "testnet": {
+      "algod": "https://testnet-api.algonode.cloud",
+      "apps": []
+    },
+    "mainnet": {
+      "algod": "https://mainnet-api.algonode.cloud",
+      "apps": []
+    }
+  }
+}
