@@ -46,8 +46,15 @@ export type Attestation = {
 
 /** One request's locked max price. Box key: 't' + ticket id. */
 export type Ticket = {
-  /** Paid the lock; gets the rest and the storage deposit back. */
+  /**
+   * Paid the lock and the storage deposit and gets the rest back. For a pool ticket the pool paid, and
+   * this is the address of the subscription it counts against.
+   */
   payer: Account
+  /** The Akita account the request is attributed to: its wallet's controlled address, or a plain account. */
+  principal: Account
+  /** The principal's Akita wallet, or 0. */
+  wallet: uint64
   provider: uint64
   /** 0 for ALGO, else the ASA id. */
   asset: uint64
@@ -57,42 +64,42 @@ export type Ticket = {
   feePercentage: uint64
   /** The end of the settle window. */
   expiresAt: uint64
-  /** The sponsor pool that paid the lock (0 when the payer paid it); the rest goes back to the pool. */
+  /** The sponsor pool that paid the lock, or 0; the rest goes back to the pool. */
   pool: uint64
-  /** For a pool ticket, the pool period it counts against. */
-  period: uint64
+  /** For a pool ticket, the id of the subscription it counts against. */
+  subscription: uint64
+  /** For a pool ticket, the subscription payment it counts against. */
+  lastPayment: uint64
 }
 
 /**
- * Prepaid inference a sponsor (such as Akita for its subscribers) gives members. Box key: 'o' + pool id.
- * Each member may use up to `perMember` per period of `period` seconds. A member who passes the
- * pool's gate (an Akita gate, such as a subscription gate) opens tickets themselves; the allocator
- * (such as Akita's backend, for routines) may open them for any member.
+ * Prepaid inference a sponsor (such as Akita) gives the subscribers of a subscription service. Box key:
+ * 'o' + pool id. Each subscription payment gives its subscriber `perPayment` until the next payment.
  */
 export type Pool = {
   /** Funds and manages the pool, and takes back what is left. */
   sponsor: Account
-  /** May open pool tickets for any member; the zero address for none. */
+  /** May open pool tickets for any subscriber (such as Akita's backend); the zero address for none. */
   allocator: Account
+  /** The subscription service's merchant. */
+  merchant: Account
   /** 0 for ALGO, else the ASA id. */
   asset: uint64
   /** What the pool holds and has not locked. */
   balance: uint64
-  /** The Akita gate a member must pass to open tickets themselves; 0 for allocator only. */
-  gate: uint64
-  /** The most one member may use per period. */
-  perMember: uint64
-  /** Seconds in a period. */
-  period: uint64
+  /** The merchant's subscription service. */
+  serviceID: uint64
+  /** What each subscription payment gives its subscriber. */
+  perPayment: uint64
   /** ALGO the sponsor set aside for ticket and usage boxes. */
   credit: uint64
 }
 
-/** A member's use of a pool. Box key: 'u' + this. */
-export type UsageKey = { pool: uint64; member: Account }
+/** A subscription's use of a pool. Box key: 'u' + this. */
+export type UsageKey = { pool: uint64; subscriber: Account; subscription: uint64 }
 export type Usage = {
-  /** The period `used` counts in: time divided by the pool's period. */
-  period: uint64
+  /** The subscription payment `used` counts against. A new payment starts it over. */
+  lastPayment: uint64
   used: uint64
 }
 
@@ -109,14 +116,25 @@ export type InferenceProviderStatus = { provider: uint64; status: uint64 }
 export type InferenceTicketOpened = {
   ticket: uint64
   payer: Account
+  /** The Akita account the request is attributed to, and its wallet (or 0). */
+  principal: Account
+  wallet: uint64
   provider: uint64
   asset: uint64
   amount: uint64
   /** The caller's id for the request, so the provider can match the ticket to what it served. */
   request: bytes<32>
   expiresAt: uint64
+  pool: uint64
 }
-export type InferencePoolTicket = { ticket: uint64; pool: uint64; member: Account }
 /** A settled or refunded ticket; a refund has cost 0. */
-export type InferenceTicketSettled = { ticket: uint64; cost: uint64; paid: uint64; fee: uint64 }
+export type InferenceTicketSettled = {
+  ticket: uint64
+  principal: Account
+  wallet: uint64
+  provider: uint64
+  cost: uint64
+  paid: uint64
+  fee: uint64
+}
 export type InferenceSlashed = { provider: uint64; asset: uint64; amount: uint64; receiver: Account }

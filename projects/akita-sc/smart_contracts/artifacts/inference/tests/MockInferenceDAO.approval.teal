@@ -11,9 +11,9 @@ main:
     assert
     txn ApplicationID
     bz main_create_NoOp@6
-    pushbytess 0x4ed09b8f 0xb4a8c490 // method "setInferenceFees(uint64,uint64)void", method "setGate(uint64)void"
+    pushbytess 0x4ed09b8f 0xc4afc117 // method "setInferenceFees(uint64,uint64)void", method "setApps(uint64,uint64)void"
     txna ApplicationArgs 0
-    match setInferenceFees setGate
+    match setInferenceFees setApps
     err
 
 main_create_NoOp@6:
@@ -50,9 +50,10 @@ create:
     swap
     app_global_put
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:17
-    // this.setGate(0)
+    // this.setApps(0, 0)
     intc_1 // 0
-    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setGate
+    dup
+    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:14
     // @abimethod({ onCreate: 'require' })
     intc_2 // 1
@@ -97,10 +98,10 @@ setInferenceFees:
     return
 
 
-// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setGate[routing]() -> void:
-setGate:
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps[routing]() -> void:
+setApps:
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:24
-    // setGate(gate: uint64): void {
+    // setApps(subscriptions: uint64, wallet: uint64): void {
     txna ApplicationArgs 1
     dup
     len
@@ -108,49 +109,59 @@ setGate:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setGate
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps
     intc_2 // 1
     return
 
 
-// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setGate(gate: uint64) -> void:
-smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setGate:
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps(subscriptions: uint64, wallet: uint64) -> void:
+smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps:
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:24
-    // setGate(gate: uint64): void {
-    proto 1 0
+    // setApps(subscriptions: uint64, wallet: uint64): void {
+    proto 2 0
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:26
-    // staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions: 0, gate, auction: 0, hyperSwap: 0,
+    // staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
     intc_1 // 0
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:25-28
     // this.akitaAppList.value = {
-    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions: 0, gate, auction: 0, hyperSwap: 0,
-    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet: 0,
+    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
+    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet,
     // }
     itob
+    frame_dig -2
+    itob
+    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+    swap
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    swap
+    concat
     frame_dig -1
     itob
-    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000
-    swap
-    concat
-    dig 1
-    concat
-    dig 1
-    concat
-    dig 1
-    concat
-    dig 1
-    concat
-    dig 1
-    concat
-    swap
     concat
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:11
     // akitaAppList = GlobalState<AkitaAppList>({ key: AkitaDAOGlobalStateKeysAkitaAppList })
     pushbytes "aal"
     // smart_contracts/inference/tests/mock-inference-dao.algo.ts:25-28
     // this.akitaAppList.value = {
-    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions: 0, gate, auction: 0, hyperSwap: 0,
-    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet: 0,
+    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
+    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet,
     // }
     swap
     app_global_put

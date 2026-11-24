@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import { TimeWarp } from '../../tests/utils/time'
 import { InferenceNetworkClient, InferenceNetworkFactory } from '../artifacts/inference/InferenceNetworkClient'
 import { MockInferenceDaoClient, MockInferenceDaoFactory } from '../artifacts/inference/tests/MockInferenceDAOClient'
-import { MockInferenceGateClient, MockInferenceGateFactory } from '../artifacts/inference/tests/MockInferenceGateClient'
+import { MockInferenceSubscriptionsClient, MockInferenceSubscriptionsFactory } from '../artifacts/inference/tests/MockInferenceSubscriptionsClient'
 
 const SETTLE_WINDOW = 3_600n
 const UNBOND_DELAY = 30n * 86_400n
@@ -15,9 +15,9 @@ const BOND = 100n
 
 /** Box MBR = 2_500 + 400 * (key + value); the same numbers as constants.ts, checked against algod below. */
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
-const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 7n)
-const POOL_MBR = 2_500n + 400n * (9n + 32n * 2n + 8n * 6n)
-const USAGE_MBR = 2_500n + 400n * (1n + 8n + 32n + 16n)
+const TICKET_MBR = 2_500n + 400n * (9n + 32n * 2n + 8n * 9n)
+const POOL_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 5n)
+const USAGE_MBR = 2_500n + 400n * (1n + 8n + 32n + 8n + 16n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 const ATTESTATION_MBR = 2_500n + 400n * (9n + 8n + 32n + 32n)
 const metadataMbr = (uri: string) => 2_500n + 400n * (9n + BigInt(Buffer.byteLength(uri)))
@@ -35,7 +35,7 @@ describe('InferenceNetwork', () => {
   let payer: Signer
   let stranger: Signer
   let dao: MockInferenceDaoClient
-  let gate: MockInferenceGateClient
+  let subscriptions: MockInferenceSubscriptionsClient
   let client: InferenceNetworkClient
   let appAddress: Address
   let akta: bigint
@@ -59,12 +59,14 @@ describe('InferenceNetwork', () => {
   const settleFee = { extraFee: microAlgo(3_000) }
   // An ASA settle touches three holdings (this app's, the payout's and the payer's); name them explicitly.
   const boxKey = (prefix: string, id: bigint) => new Uint8Array([...Buffer.from(prefix), ...algosdk.encodeUint64(id)])
-  const settleRefs = (ticket: bigint, asset: bigint, pool?: { id: bigint; member: Address }) => ({
+  const usageKey = (pool: bigint, subscriber: Address, subscription: bigint) =>
+    new Uint8Array([...Buffer.from('u'), ...algosdk.encodeUint64(pool), ...subscriber.publicKey, ...algosdk.encodeUint64(subscription)])
+  const settleRefs = (ticket: bigint, asset: bigint, pool?: { id: bigint; subscriber: Address; subscription: bigint }) => ({
     accountReferences: pool ? [payout.addr] : [payout.addr, payer.addr],
     assetReferences: [asset],
     boxReferences: [
       boxKey('t', ticket), boxKey('p', provider), boxKey('x', asset),
-      ...(pool ? [boxKey('o', pool.id), new Uint8Array([...Buffer.from('u'), ...algosdk.encodeUint64(pool.id), ...pool.member.publicKey])] : []),
+      ...(pool ? [boxKey('o', pool.id), usageKey(pool.id, pool.subscriber, pool.subscription)] : []),
     ],
   })
   const newAccount = async (algo = 50): Promise<Signer> => {
@@ -78,7 +80,7 @@ describe('InferenceNetwork', () => {
   async function open(who: Signer, asset: bigint, amount: bigint, id = 1, to = provider) {
     const result = await client.send.open({
       ...as(who),
-      args: { payment: storage(who, TICKET_MBR), lock: transfer(who, asset, amount), provider: to, asset, request: request(id) },
+      args: { payment: storage(who, TICKET_MBR), lock: transfer(who, asset, amount), provider: to, asset, request: request(id), wallet: 0n },
     })
     return result.return!
   }
@@ -102,10 +104,10 @@ describe('InferenceNetwork', () => {
     dao = (await fixture.algorand.client.getTypedAppFactory(MockInferenceDaoFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
       .send.create.create({ args: { akta } })).appClient
     await dao.send.setInferenceFees({ args: { chargePercentage: FEE, providerBond: BOND } })
-    gate = (await fixture.algorand.client.getTypedAppFactory(MockInferenceGateFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
+    subscriptions = (await fixture.algorand.client.getTypedAppFactory(MockInferenceSubscriptionsFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
       .send.create.bare()).appClient
-    await gate.appClient.fundAppAccount({ amount: microAlgo(1_000_000) })
-    await dao.send.setGate({ args: { gate: gate.appId } })
+    await subscriptions.appClient.fundAppAccount({ amount: microAlgo(1_000_000) })
+    await dao.send.setApps({ args: { subscriptions: subscriptions.appId, wallet: 0n } })
 
     const factory = fixture.algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
     const { appClient } = await factory.send.create.create({
@@ -204,14 +206,17 @@ describe('InferenceNetwork', () => {
       // the lock must come from the caller
       await expect(client.send.open({
         ...as(stranger),
-        args: { payment: storage(stranger, TICKET_MBR), lock: transfer(payer, usdc, 1_000n), provider, asset: usdc, request: request(1) },
+        args: { payment: storage(stranger, TICKET_MBR), lock: transfer(payer, usdc, 1_000n), provider, asset: usdc, request: request(1), wallet: 0n },
       })).rejects.toThrow(/errInbd/)
 
       const before = await minBalance()
       ticket = await open(payer, usdc, 50_000n)
       expect(await minBalance() - before).toBe(TICKET_MBR)
       const info = (await client.send.getTicket({ args: { ticket } })).return!
-      expect(info).toMatchObject({ payer: payer.addr.toString(), provider, asset: usdc, amount: 50_000n, feePercentage: FEE })
+      // a plain account is its own principal
+      expect(info).toMatchObject({
+        payer: payer.addr.toString(), principal: payer.addr.toString(), wallet: 0n, provider, asset: usdc, amount: 50_000n, feePercentage: FEE, pool: 0n,
+      })
     })
 
     test('the claim account settles at the actual cost; the fee stays and the rest goes back', async () => {
@@ -264,77 +269,120 @@ describe('InferenceNetwork', () => {
   })
 
   describe('sponsor pools', () => {
-    const PER_MEMBER = 100_000n
-    const GATE_ID = 7n
+    const PER_PAYMENT = 100_000n
+    const SERVICE = 3n
+    const MONTH = 30n * 86_400n
     let pool: bigint
+    let merchant: Signer
     let member: Signer
     let outsider: Signer
+    // a pool ticket reads the subscription with two inner calls
+    const subFee = { extraFee: microAlgo(2_000) }
+    const sub = (who: Signer, id: bigint) => ({ address: who.addr.toString(), id })
+    const subBox = (who: Signer, id: bigint) => new Uint8Array([...Buffer.from('s'), ...who.addr.publicKey, ...algosdk.encodeUint64(id)])
+    const subscribe = (who: Signer, id: bigint, service = SERVICE) => subscriptions.send.subscribe({
+      args: { key: sub(who, id), recipient: merchant.addr.toString(), serviceId: service, interval: MONTH }, boxReferences: [subBox(who, id)],
+    })
+    const pay = (who: Signer, id: bigint) => subscriptions.send.pay({ args: { key: sub(who, id) }, boxReferences: [subBox(who, id)] })
+    // A pool ticket touches more than one transaction's references (five boxes here, the DAO, and the
+    // subscriptions app and its boxes), so the group carries a second call to share them.
+    const withRoom = (who: Signer, id: number) => ({ ...as(who), args: { pool }, note: `room ${id}` })
+    const pooled = async (who: Signer, maxPrice: bigint, id: number, subscription = sub(who, 1n)) =>
+      (await client.newGroup()
+        .openPooled({ ...as(who), ...subFee, args: { pool, provider, maxPrice, request: request(id), subscription, wallet: 0n } })
+        .getPool(withRoom(who, id))
+        .send()).returns[0] as bigint
+    const usage = async (who: Signer, id = 1n) => (await client.send.poolUsage({ args: { pool, subscription: sub(who, id) } })).return!
+    const settlePooled = (t: bigint, cost: bigint, who: Signer, id = 1n) => client.send.settle(
+      { ...as(claimer), args: { ticket: t, cost }, ...settleFee, ...settleRefs(t, usdc, { id: pool, subscriber: who.addr, subscription: id }) },
+      { populateAppCallResources: false },
+    )
 
-    const gated = async (who: Signer, maxPrice: bigint, id: number) => {
-      const check = gate.params.mustCheck({ ...as(who), args: { caller: who.addr.toString(), gateId: GATE_ID, args: [] } })
-      return (await client.send.openGated({ ...as(who), args: { gateTxn: check, pool, provider, maxPrice, request: request(id) } })).return!
-    }
-
-    test('a sponsor creates and funds a pool; its storage comes from the pool credit', async () => {
-      ;[member, outsider] = await Promise.all([newAccount(5), newAccount(5)])
+    test('a sponsor creates a pool for a subscription service and funds it; its storage comes from the pool credit', async () => {
+      ;[merchant, member, outsider] = await Promise.all([newAccount(1), newAccount(5), newAccount(5)])
       const credit = 1_000_000n
-      await expect(client.send.createPool({
-        args: { payment: storage(admin, POOL_MBR - 1n), asset: usdc, allocator: claimer.addr.toString(), gate: GATE_ID, perMember: PER_MEMBER, period: 86_400n },
-      })).rejects.toThrow(/errInbp/)
+      const create = (payment: bigint, serviceId: bigint) => client.send.createPool({
+        args: {
+          payment: storage(admin, payment), asset: usdc, allocator: payout.addr.toString(), merchant: merchant.addr.toString(),
+          serviceId, perPayment: PER_PAYMENT,
+        },
+      })
+      await expect(create(POOL_MBR - 1n, SERVICE)).rejects.toThrow(/errInbp/)
+      await expect(create(POOL_MBR, 0n)).rejects.toThrow(/errInpe/)
       const before = await minBalance()
-      pool = (await client.send.createPool({
-        args: { payment: storage(admin, POOL_MBR + credit), asset: usdc, allocator: payout.addr.toString(), gate: GATE_ID, perMember: PER_MEMBER, period: 86_400n },
-      })).return!
+      pool = (await create(POOL_MBR + credit, SERVICE)).return!
       expect(await minBalance() - before).toBe(POOL_MBR)
       await client.send.fundPool({ ...as(payer), args: { pool, transfer: transfer(payer, usdc, 500_000n) } })
-      expect((await client.send.getPool({ args: { pool } })).return).toMatchObject({ sponsor: admin.addr.toString(), balance: 500_000n, credit, perMember: PER_MEMBER })
-      await gate.send.allow({ args: { account: member.addr.toString(), gateId: GATE_ID }, boxReferences: [member.addr.publicKey] })
+      expect((await client.send.getPool({ args: { pool } })).return).toMatchObject({
+        sponsor: admin.addr.toString(), merchant: merchant.addr.toString(), serviceId: SERVICE, balance: 500_000n, credit, perPayment: PER_PAYMENT,
+      })
+      await subscribe(member, 1n)
+      await subscribe(outsider, 1n, 4n) // another service
     })
 
-    test('a member who passes the gate opens tickets paid from the pool, up to the per-member amount', async () => {
-      await expect(gated(outsider, 10_000n, 20)).rejects.toThrow(/errMgat/)
-      const t = await gated(member, 60_000n, 21)
-      const info = (await client.send.getTicket({ args: { ticket: t } })).return!
-      expect(info).toMatchObject({ payer: member.addr.toString(), pool, amount: 60_000n })
-      expect((await client.send.poolRemaining({ args: { pool, member: member.addr.toString() } })).return).toBe(40_000n)
-      await expect(gated(member, 40_001n, 22)).rejects.toThrow(/errInpx/)
+    test('a subscriber opens tickets paid from the pool, up to what their payment gives; the ticket is theirs', async () => {
+      await expect(pooled(stranger, 10_000n, 19)).rejects.toThrow(/errInns/) // no subscription
+      await expect(pooled(outsider, 10_000n, 20)).rejects.toThrow(/errInns/) // the wrong service
+      await expect(pooled(outsider, 10_000n, 20, sub(member, 1n))).rejects.toThrow(/errInpd/) // someone else's
+      const t = await pooled(member, 60_000n, 21)
+      expect((await client.send.getTicket({ args: { ticket: t } })).return!).toMatchObject({
+        payer: member.addr.toString(), principal: member.addr.toString(), wallet: 0n, pool, subscription: 1n, amount: 60_000n,
+      })
+      expect((await usage(member)).used).toBe(60_000n)
+      await expect(pooled(member, 40_001n, 22)).rejects.toThrow(/errInpx/)
       expect((await client.send.getPool({ args: { pool } })).return).toMatchObject({
         balance: 440_000n, credit: 1_000_000n - USAGE_MBR - TICKET_MBR,
       })
 
-      // settled at 20_000: the provider is paid, and the rest goes back to the pool and the member's allowance
+      // settled at 20_000: the provider is paid, and the rest goes back to the pool and the subscription's allowance
       const memberBefore = await balance(member.addr, 0n)
-      await client.send.settle({ ...as(claimer), args: { ticket: t, cost: 20_000n }, ...settleFee, ...settleRefs(t, usdc, { id: pool, member: member.addr }) }, { populateAppCallResources: false })
+      await settlePooled(t, 20_000n, member)
       expect(await balance(member.addr, 0n)).toBe(memberBefore)
       expect((await client.send.getPool({ args: { pool } })).return).toMatchObject({ balance: 480_000n, credit: 1_000_000n - USAGE_MBR })
-      expect((await client.send.poolRemaining({ args: { pool, member: member.addr.toString() } })).return).toBe(80_000n)
+      expect((await usage(member)).used).toBe(20_000n)
     })
 
-    test('the allocator opens pool tickets for any member, and nobody else can', async () => {
-      const open = (who: Signer, forMember: Signer, maxPrice: bigint, id: number) =>
-        client.send.openSponsored({ ...as(who), args: { pool, member: forMember.addr.toString(), provider, maxPrice, request: request(id) } })
-      await expect(open(stranger, outsider, 10_000n, 30)).rejects.toThrow(/errInpd/)
-      const t = (await open(payout, outsider, 100_000n, 31)).return!
-      await expect(open(payout, outsider, 1n, 32)).rejects.toThrow(/errInpx/)
-      // an unsettled pool ticket is refunded to the pool
+    test('each subscription payment starts the allowance over; a lapsed or shut down subscription gets nothing', async () => {
+      await expect(pooled(member, 80_001n, 23)).rejects.toThrow(/errInpx/)
+      await warp.timeWarp(MONTH)
+      await pay(member, 1n)
+      const t = await pooled(member, PER_PAYMENT, 24)
+      expect((await usage(member)).used).toBe(PER_PAYMENT)
+      await settlePooled(t, PER_PAYMENT, member)
+
+      await subscriptions.send.setShutdown({ args: { address: merchant.addr.toString(), id: SERVICE, shutdown: true }, boxReferences: [new Uint8Array([...Buffer.from('x'), ...merchant.addr.publicKey, ...algosdk.encodeUint64(SERVICE)])] })
+      await expect(pooled(member, 1n, 25)).rejects.toThrow(/errInns/)
+      await subscriptions.send.setShutdown({ args: { address: merchant.addr.toString(), id: SERVICE, shutdown: false }, boxReferences: [new Uint8Array([...Buffer.from('x'), ...merchant.addr.publicKey, ...algosdk.encodeUint64(SERVICE)])] })
+      await subscriptions.send.setLastPayment({ args: { key: sub(member, 1n), lastPayment: 1n }, boxReferences: [subBox(member, 1n)] })
+      await expect(pooled(member, 1n, 26)).rejects.toThrow(/errInns/)
+      await pay(member, 1n)
+    })
+
+    test('the allocator opens pool tickets for a subscriber, and nobody else can', async () => {
+      await subscribe(outsider, 2n)
+      const open = async (who: Signer, forMember: Signer, subscription: { address: string; id: bigint }, maxPrice: bigint, id: number) =>
+        ({ return: (await client.newGroup()
+          .openSponsored({
+            ...as(who), ...subFee, args: { pool, member: forMember.addr.toString(), memberWallet: 0n, provider, maxPrice, request: request(id), subscription },
+          })
+          .getPool(withRoom(who, id))
+          .send()).returns[0] as bigint })
+      await expect(open(stranger, outsider, sub(outsider, 2n), 10_000n, 30)).rejects.toThrow(/errInpd/)
+      await expect(open(payout, outsider, sub(member, 1n), 10_000n, 30)).rejects.toThrow(/errInpd/)
+      const t = (await open(payout, outsider, sub(outsider, 2n), PER_PAYMENT, 31)).return!
+      expect((await client.send.getTicket({ args: { ticket: t } })).return!).toMatchObject({ principal: outsider.addr.toString(), subscription: 2n })
+      await expect(open(payout, outsider, sub(outsider, 2n), 1n, 32)).rejects.toThrow(/errInpx/)
+      // an unsettled pool ticket is refunded to the pool and the allowance
       await warp.timeWarp(SETTLE_WINDOW + 10n)
       await client.send.refundExpired({ ...as(stranger), args: { ticket: t } })
-      expect((await client.send.poolRemaining({ args: { pool, member: outsider.addr.toString() } })).return).toBe(PER_MEMBER)
-    })
-
-    test('each period starts fresh', async () => {
-      expect((await client.send.poolRemaining({ args: { pool, member: member.addr.toString() } })).return).toBe(80_000n)
-      await warp.timeWarp(86_400n)
-      expect((await client.send.poolRemaining({ args: { pool, member: member.addr.toString() } })).return).toBe(PER_MEMBER)
-      const t = await gated(member, PER_MEMBER, 40)
-      await client.send.settle({ ...as(claimer), args: { ticket: t, cost: PER_MEMBER }, ...settleFee, ...settleRefs(t, usdc, { id: pool, member: member.addr }) }, { populateAppCallResources: false })
+      expect((await usage(outsider, 2n)).used).toBe(0n)
     })
 
     test('only the sponsor changes or empties the pool', async () => {
-      await expect(client.send.updatePool({ ...as(stranger), args: { pool, allocator: stranger.addr.toString(), gate: 0n, perMember: 1n, period: 1n } }))
+      await expect(client.send.updatePool({ ...as(stranger), args: { pool, allocator: stranger.addr.toString(), perPayment: 1n } }))
         .rejects.toThrow(/errInsp/)
-      await client.send.updatePool({ args: { pool, allocator: payout.addr.toString(), gate: 0n, perMember: PER_MEMBER, period: 86_400n } })
-      await expect(gated(member, 1_000n, 50)).rejects.toThrow(/errInpd/)
+      await client.send.updatePool({ args: { pool, allocator: payout.addr.toString(), perPayment: 0n } })
+      await expect(pooled(member, 1n, 50)).rejects.toThrow(/errInpx/)
       const info = (await client.send.getPool({ args: { pool } })).return!
       await expect(client.send.withdrawPool({ ...as(stranger), args: { pool, amount: 1n, credit: 0n } })).rejects.toThrow(/errInsp/)
       const before = await balance(admin.addr, usdc)

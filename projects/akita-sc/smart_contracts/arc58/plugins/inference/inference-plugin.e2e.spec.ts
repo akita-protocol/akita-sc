@@ -1,7 +1,9 @@
 /**
  * InferencePlugin on LocalNet: a wallet's `inference` escrow opens per-request tickets on
  * InferenceNetwork as the payer, a delegated key (such as the one that runs routines) does so only
- * inside its policy, and what the provider does not settle comes back to the escrow.
+ * inside its policy, and what the provider does not settle comes back to the escrow. Every ticket is
+ * the wallet's, whichever key opened it, and a sponsor pool counts every key's use against the
+ * wallet's subscription.
  */
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
@@ -11,7 +13,7 @@ import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wa
 import { MetaFactory, MetaSDK, SchemaPart } from '../../../../../akita-sdk/src/meta'
 import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/wallet/plugins/meta'
 import {
-  decodeInferencePolicy, encodeInferencePolicy, InferencePluginSDK,
+  decodeInferencePolicy, encodeInferencePolicy, inferenceUsageKey, InferencePluginSDK,
 } from '../../../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
@@ -20,12 +22,16 @@ import { AbstractedAccountMbrFactory } from '../../../artifacts/arc58/account/Ab
 import { InferencePluginFactory } from '../../../artifacts/arc58/plugins/inference/InferencePluginClient'
 import { InferenceNetworkClient, InferenceNetworkFactory } from '../../../artifacts/inference/InferenceNetworkClient'
 import { MockInferenceDaoFactory } from '../../../artifacts/inference/tests/MockInferenceDAOClient'
+import {
+  MockInferenceSubscriptionsClient, MockInferenceSubscriptionsFactory,
+} from '../../../artifacts/inference/tests/MockInferenceSubscriptionsClient'
 import { errPolicyMissing } from '../../../utils/errors'
 import { errAllowanceExceeded } from '../../account/errors'
 import { errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields } from './errors'
 
 const ESCROW = 'inference'
-const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 7n)
+const TICKET_MBR = 2_500n + 400n * (9n + 32n * 2n + 8n * 9n)
+const POOL_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 5n)
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 
@@ -40,6 +46,8 @@ describe('InferencePlugin (LocalNet)', () => {
   let network: InferenceNetworkClient
   let wallet: WalletSDK
   let escrow: string
+  let walletAddress: string
+  let subscriptions: MockInferenceSubscriptionsClient
   let akita: bigint
   let other: bigint
   let agent: { addr: algosdk.Address; signer: algosdk.TransactionSigner }
@@ -88,6 +96,11 @@ describe('InferencePlugin (LocalNet)', () => {
     const { appClient: inferenceDao } = await algorand.client.getTypedAppFactory(MockInferenceDaoFactory, { defaultSender: owner, defaultSigner: signer })
       .send.create.create({ args: { akta: 0n } })
     await inferenceDao.send.setInferenceFees({ args: { chargePercentage: 1_000n, providerBond: 0n } })
+    // The network resolves wallets against the real wallet factory, and reads subscriptions from a mock.
+    subscriptions = (await algorand.client.getTypedAppFactory(MockInferenceSubscriptionsFactory, { defaultSender: owner, defaultSigner: signer })
+      .send.create.bare()).appClient
+    await subscriptions.appClient.fundAppAccount({ amount: microAlgo(1_000_000) })
+    await inferenceDao.send.setApps({ args: { subscriptions: subscriptions.appId, wallet: factory.appId } })
     const { appClient } = await algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: owner, defaultSigner: signer })
       .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner, treasury: owner } })
     network = appClient
@@ -117,6 +130,7 @@ describe('InferencePlugin (LocalNet)', () => {
     })
     const { id } = await wallet.getEscrow(ESCROW)
     escrow = algosdk.getApplicationAddress(id).toString()
+    walletAddress = wallet.client.appAddress.toString()
     await algorand.send.payment({ sender: owner, signer, receiver: escrow, amount: microAlgo(5_000_000) })
     return () => {
       if (previousMbrApp === undefined) delete process.env.WALLET_MBR_APP_ID
@@ -153,7 +167,10 @@ describe('InferencePlugin (LocalNet)', () => {
     await open(akita, 600_000n, 1)
     const ticket = await lastTicket()
     expect(await balance(escrow)).toBe(before - 600_000n - TICKET_MBR)
-    expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({ payer: escrow, provider: akita, asset: 0n, amount: 600_000n })
+    // The escrow paid, and the ticket is the wallet's account's.
+    expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({
+      payer: escrow, principal: walletAddress, wallet: wallet.appId, provider: akita, asset: 0n, amount: 600_000n,
+    })
 
     // The provider settles at the actual cost; the rest and the storage deposit return to the escrow.
     const payoutBefore = await balance(claimer.addr.toString())
@@ -183,6 +200,50 @@ describe('InferencePlugin (LocalNet)', () => {
       callerType: CallerType.Admin,
       calls: [plugin.open({ network: network.appId, provider: other, asset: 0n, maxPrice: 2_000_000n, request: request(99) })],
     })
-    expect((await network.send.getTicket({ args: { ticket: await lastTicket() } })).return).toMatchObject({ provider: other, amount: 2_000_000n })
+    // an admin call is the same account's
+    expect((await network.send.getTicket({ args: { ticket: await lastTicket() } })).return).toMatchObject({
+      principal: walletAddress, wallet: wallet.appId, provider: other, amount: 2_000_000n,
+    })
+  })
+
+  test('a sponsor pool pays for the wallet\'s subscription; every key that calls counts against the same allowance', async () => {
+    const { algorand } = fixture.context
+    const merchant = algorand.account.random()
+    const SERVICE = 3n
+    const subscription = { address: walletAddress, id: 1n }
+    const subBox = new Uint8Array([...Buffer.from('s'), ...algosdk.decodeAddress(walletAddress).publicKey, ...algosdk.encodeUint64(1n)])
+    await subscriptions.send.subscribe({
+      args: { key: subscription, recipient: merchant.addr.toString(), serviceId: SERVICE, interval: 30n * 86_400n }, boxReferences: [subBox],
+    })
+    const pay = (amount: bigint) => algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(amount) })
+    const pool = (await network.send.createPool({
+      args: { payment: pay(POOL_MBR + 1_000_000n), asset: 0n, allocator: owner, merchant: merchant.addr.toString(), serviceId: SERVICE, perPayment: 1_000_000n },
+    })).return!
+    await network.send.fundPool({ args: { pool, transfer: pay(5_000_000n) } })
+
+    const openPooled = (maxPrice: bigint, id: number, admin = false) => wallet.usePlugin({
+      ...(admin ? { callerType: CallerType.Admin } : { sender: agent.addr.toString(), signer: agent.signer, escrow: ESCROW }),
+      calls: [plugin.openPooled({
+        ...(admin ? {} : { sender: agent.addr.toString(), signer: agent.signer }),
+        network: network.appId, pool, provider: akita, maxPrice, request: request(id), subscription,
+      })],
+    })
+    const before = await balance(escrow)
+    await openPooled(400_000n, 40)
+    expect(await balance(escrow)).toBe(before)
+    const ticket = await lastTicket()
+    expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({
+      payer: walletAddress, principal: walletAddress, wallet: wallet.appId, pool, subscription: 1n, amount: 400_000n,
+    })
+    // the owner's own key and the routine key share the subscription's 1 ALGO
+    await openPooled(600_000n, 41, true)
+    await expect(openPooled(1n, 42)).rejects.toThrow(/errInpx/)
+    expect((await network.send.poolUsage({ args: { pool, subscription } })).return!.used).toBe(1_000_000n)
+
+    await network.send.settle({
+      sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 100_000n }, extraFee: microAlgo(3_000),
+      boxReferences: [inferenceUsageKey(pool, walletAddress, 1n)],
+    })
+    expect((await network.send.poolUsage({ args: { pool, subscription } })).return!.used).toBe(700_000n)
   })
 })

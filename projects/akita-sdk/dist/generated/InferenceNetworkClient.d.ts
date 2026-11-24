@@ -61,17 +61,17 @@ export declare function PaymentAssetFromTuple(abiTuple: [bigint, bigint]): Payme
 export type Pool = {
     sponsor: string;
     allocator: string;
+    merchant: string;
     asset: bigint;
     balance: bigint;
-    gate: bigint;
-    perMember: bigint;
-    period: bigint;
+    serviceId: bigint;
+    perPayment: bigint;
     credit: bigint;
 };
 /**
  * Converts the ABI tuple representation of a Pool to the struct representation
  */
-export declare function PoolFromTuple(abiTuple: [string, string, bigint, bigint, bigint, bigint, bigint, bigint]): Pool;
+export declare function PoolFromTuple(abiTuple: [string, string, string, bigint, bigint, bigint, bigint, bigint]): Pool;
 export type Provider = {
     owner: string;
     claimer: string;
@@ -87,20 +87,23 @@ export type Provider = {
 export declare function ProviderFromTuple(abiTuple: [string, string, string, bigint, bigint, bigint, bigint]): Provider;
 export type Ticket = {
     payer: string;
+    principal: string;
+    wallet: bigint;
     provider: bigint;
     asset: bigint;
     amount: bigint;
     feePercentage: bigint;
     expiresAt: bigint;
     pool: bigint;
-    period: bigint;
+    subscription: bigint;
+    lastPayment: bigint;
 };
 /**
  * Converts the ABI tuple representation of a Ticket to the struct representation
  */
-export declare function TicketFromTuple(abiTuple: [string, bigint, bigint, bigint, bigint, bigint, bigint, bigint]): Ticket;
+export declare function TicketFromTuple(abiTuple: [string, string, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]): Ticket;
 export type Usage = {
-    period: bigint;
+    lastPayment: bigint;
     used: bigint;
 };
 /**
@@ -109,12 +112,21 @@ export type Usage = {
 export declare function UsageFromTuple(abiTuple: [bigint, bigint]): Usage;
 export type UsageKey = {
     pool: bigint;
-    member: string;
+    subscriber: string;
+    subscription: bigint;
 };
 /**
  * Converts the ABI tuple representation of a UsageKey to the struct representation
  */
-export declare function UsageKeyFromTuple(abiTuple: [bigint, string]): UsageKey;
+export declare function UsageKeyFromTuple(abiTuple: [bigint, string, bigint]): UsageKey;
+export type SubscriptionKey = {
+    address: string;
+    id: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a SubscriptionKey to the struct representation
+ */
+export declare function SubscriptionKeyFromTuple(abiTuple: [string, bigint]): SubscriptionKey;
 /**
  * The argument types for the InferenceNetwork contract
  */
@@ -191,20 +203,21 @@ export type InferenceNetworkArgs = {
         'withdrawBond(uint64)void': {
             provider: bigint | number;
         };
-        'open(pay,txn,uint64,uint64,byte[32])uint64': {
+        'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': {
             payment?: AppMethodCallTransactionArgument;
             lock: AppMethodCallTransactionArgument;
             provider: bigint | number;
             asset: bigint | number;
             request: Uint8Array;
+            wallet: bigint | number;
         };
-        'createPool(pay,uint64,address,uint64,uint64,uint64)uint64': {
+        'createPool(pay,uint64,address,address,uint64,uint64)uint64': {
             payment: AppMethodCallTransactionArgument;
             asset: bigint | number;
             allocator: string;
-            gate: bigint | number;
-            perMember: bigint | number;
-            period: bigint | number;
+            merchant: string;
+            serviceId: bigint | number;
+            perPayment: bigint | number;
         };
         'fundPool(uint64,txn)void': {
             pool: bigint | number;
@@ -214,31 +227,32 @@ export type InferenceNetworkArgs = {
             pool: bigint | number;
             payment: AppMethodCallTransactionArgument;
         };
-        'updatePool(uint64,address,uint64,uint64,uint64)void': {
+        'updatePool(uint64,address,uint64)void': {
             pool: bigint | number;
             allocator: string;
-            gate: bigint | number;
-            perMember: bigint | number;
-            period: bigint | number;
+            perPayment: bigint | number;
         };
         'withdrawPool(uint64,uint64,uint64)void': {
             pool: bigint | number;
             amount: bigint | number;
             credit: bigint | number;
         };
-        'openSponsored(uint64,address,uint64,uint64,byte[32])uint64': {
+        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': {
+            pool: bigint | number;
+            provider: bigint | number;
+            maxPrice: bigint | number;
+            request: Uint8Array;
+            subscription: SubscriptionKey;
+            wallet: bigint | number;
+        };
+        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': {
             pool: bigint | number;
             member: string;
+            memberWallet: bigint | number;
             provider: bigint | number;
             maxPrice: bigint | number;
             request: Uint8Array;
-        };
-        'openGated(appl,uint64,uint64,uint64,byte[32])uint64': {
-            gateTxn: AppMethodCallTransactionArgument;
-            pool: bigint | number;
-            provider: bigint | number;
-            maxPrice: bigint | number;
-            request: Uint8Array;
+            subscription: SubscriptionKey;
         };
         'settle(uint64,uint64)uint64': {
             ticket: bigint | number;
@@ -250,15 +264,15 @@ export type InferenceNetworkArgs = {
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': {
             provider: bigint | number;
         };
-        'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
+        'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
             ticket: bigint | number;
         };
-        'getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)': {
+        'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': {
             pool: bigint | number;
         };
-        'poolRemaining(uint64,address)uint64': {
+        'poolUsage(uint64,(address,uint64))(uint64,uint64)': {
             pool: bigint | number;
-            member: string;
+            subscription: SubscriptionKey;
         };
         'providerCost(string)uint64': {
             metadata: string;
@@ -291,20 +305,20 @@ export type InferenceNetworkArgs = {
         'addBond(uint64,txn)void': [provider: bigint | number, bond: AppMethodCallTransactionArgument];
         'beginUnbond(uint64)void': [provider: bigint | number];
         'withdrawBond(uint64)void': [provider: bigint | number];
-        'open(pay,txn,uint64,uint64,byte[32])uint64': [payment: AppMethodCallTransactionArgument | undefined, lock: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, request: Uint8Array];
-        'createPool(pay,uint64,address,uint64,uint64,uint64)uint64': [payment: AppMethodCallTransactionArgument, asset: bigint | number, allocator: string, gate: bigint | number, perMember: bigint | number, period: bigint | number];
+        'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': [payment: AppMethodCallTransactionArgument | undefined, lock: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, request: Uint8Array, wallet: bigint | number];
+        'createPool(pay,uint64,address,address,uint64,uint64)uint64': [payment: AppMethodCallTransactionArgument, asset: bigint | number, allocator: string, merchant: string, serviceId: bigint | number, perPayment: bigint | number];
         'fundPool(uint64,txn)void': [pool: bigint | number, transfer: AppMethodCallTransactionArgument];
         'addPoolCredit(uint64,txn)void': [pool: bigint | number, payment: AppMethodCallTransactionArgument];
-        'updatePool(uint64,address,uint64,uint64,uint64)void': [pool: bigint | number, allocator: string, gate: bigint | number, perMember: bigint | number, period: bigint | number];
+        'updatePool(uint64,address,uint64)void': [pool: bigint | number, allocator: string, perPayment: bigint | number];
         'withdrawPool(uint64,uint64,uint64)void': [pool: bigint | number, amount: bigint | number, credit: bigint | number];
-        'openSponsored(uint64,address,uint64,uint64,byte[32])uint64': [pool: bigint | number, member: string, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array];
-        'openGated(appl,uint64,uint64,uint64,byte[32])uint64': [gateTxn: AppMethodCallTransactionArgument, pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array];
+        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': [pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey, wallet: bigint | number];
+        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': [pool: bigint | number, member: string, memberWallet: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
         'settle(uint64,uint64)uint64': [ticket: bigint | number, cost: bigint | number];
         'refundExpired(uint64)void': [ticket: bigint | number];
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': [provider: bigint | number];
-        'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ticket: bigint | number];
-        'getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)': [pool: bigint | number];
-        'poolRemaining(uint64,address)uint64': [pool: bigint | number, member: string];
+        'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ticket: bigint | number];
+        'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': [pool: bigint | number];
+        'poolUsage(uint64,(address,uint64))(uint64,uint64)': [pool: bigint | number, subscription: SubscriptionKey];
         'providerCost(string)uint64': [metadata: string];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
@@ -331,20 +345,20 @@ export type InferenceNetworkReturns = {
     'addBond(uint64,txn)void': void;
     'beginUnbond(uint64)void': void;
     'withdrawBond(uint64)void': void;
-    'open(pay,txn,uint64,uint64,byte[32])uint64': bigint;
-    'createPool(pay,uint64,address,uint64,uint64,uint64)uint64': bigint;
+    'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': bigint;
+    'createPool(pay,uint64,address,address,uint64,uint64)uint64': bigint;
     'fundPool(uint64,txn)void': void;
     'addPoolCredit(uint64,txn)void': void;
-    'updatePool(uint64,address,uint64,uint64,uint64)void': void;
+    'updatePool(uint64,address,uint64)void': void;
     'withdrawPool(uint64,uint64,uint64)void': void;
-    'openSponsored(uint64,address,uint64,uint64,byte[32])uint64': bigint;
-    'openGated(appl,uint64,uint64,uint64,byte[32])uint64': bigint;
+    'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': bigint;
+    'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': bigint;
     'settle(uint64,uint64)uint64': bigint;
     'refundExpired(uint64)void': void;
     'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': Provider;
-    'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': Ticket;
-    'getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)': Pool;
-    'poolRemaining(uint64,address)uint64': bigint;
+    'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': Ticket;
+    'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': Pool;
+    'poolUsage(uint64,(address,uint64))(uint64,uint64)': Usage;
     'providerCost(string)uint64': bigint;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
@@ -421,14 +435,14 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['withdrawBond(uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['withdrawBond(uint64)void'];
         returns: InferenceNetworkReturns['withdrawBond(uint64)void'];
-    }> & Record<'open(pay,txn,uint64,uint64,byte[32])uint64' | 'open', {
-        argsObj: InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64'];
-        returns: InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32])uint64'];
-    }> & Record<'createPool(pay,uint64,address,uint64,uint64,uint64)uint64' | 'createPool', {
-        argsObj: InferenceNetworkArgs['obj']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'];
-        returns: InferenceNetworkReturns['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'];
+    }> & Record<'open(pay,txn,uint64,uint64,byte[32],uint64)uint64' | 'open', {
+        argsObj: InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
+        returns: InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
+    }> & Record<'createPool(pay,uint64,address,address,uint64,uint64)uint64' | 'createPool', {
+        argsObj: InferenceNetworkArgs['obj']['createPool(pay,uint64,address,address,uint64,uint64)uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,address,uint64,uint64)uint64'];
+        returns: InferenceNetworkReturns['createPool(pay,uint64,address,address,uint64,uint64)uint64'];
     }> & Record<'fundPool(uint64,txn)void' | 'fundPool', {
         argsObj: InferenceNetworkArgs['obj']['fundPool(uint64,txn)void'];
         argsTuple: InferenceNetworkArgs['tuple']['fundPool(uint64,txn)void'];
@@ -437,22 +451,22 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['addPoolCredit(uint64,txn)void'];
         argsTuple: InferenceNetworkArgs['tuple']['addPoolCredit(uint64,txn)void'];
         returns: InferenceNetworkReturns['addPoolCredit(uint64,txn)void'];
-    }> & Record<'updatePool(uint64,address,uint64,uint64,uint64)void' | 'updatePool', {
-        argsObj: InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64,uint64,uint64)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64,uint64,uint64)void'];
-        returns: InferenceNetworkReturns['updatePool(uint64,address,uint64,uint64,uint64)void'];
+    }> & Record<'updatePool(uint64,address,uint64)void' | 'updatePool', {
+        argsObj: InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64)void'];
+        argsTuple: InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64)void'];
+        returns: InferenceNetworkReturns['updatePool(uint64,address,uint64)void'];
     }> & Record<'withdrawPool(uint64,uint64,uint64)void' | 'withdrawPool', {
         argsObj: InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void'];
         returns: InferenceNetworkReturns['withdrawPool(uint64,uint64,uint64)void'];
-    }> & Record<'openSponsored(uint64,address,uint64,uint64,byte[32])uint64' | 'openSponsored', {
-        argsObj: InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'];
-        returns: InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'];
-    }> & Record<'openGated(appl,uint64,uint64,uint64,byte[32])uint64' | 'openGated', {
-        argsObj: InferenceNetworkArgs['obj']['openGated(appl,uint64,uint64,uint64,byte[32])uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['openGated(appl,uint64,uint64,uint64,byte[32])uint64'];
-        returns: InferenceNetworkReturns['openGated(appl,uint64,uint64,uint64,byte[32])uint64'];
+    }> & Record<'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64' | 'openPooled', {
+        argsObj: InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
+        returns: InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
+    }> & Record<'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64' | 'openSponsored', {
+        argsObj: InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
+        returns: InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
     }> & Record<'settle(uint64,uint64)uint64' | 'settle', {
         argsObj: InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'];
         argsTuple: InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64'];
@@ -465,18 +479,18 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         argsTuple: InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         returns: InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
-    }> & Record<'getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'getTicket', {
-        argsObj: InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: InferenceNetworkReturns['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-    }> & Record<'getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)' | 'getPool', {
-        argsObj: InferenceNetworkArgs['obj']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: InferenceNetworkReturns['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'];
-    }> & Record<'poolRemaining(uint64,address)uint64' | 'poolRemaining', {
-        argsObj: InferenceNetworkArgs['obj']['poolRemaining(uint64,address)uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['poolRemaining(uint64,address)uint64'];
-        returns: InferenceNetworkReturns['poolRemaining(uint64,address)uint64'];
+    }> & Record<'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'getTicket', {
+        argsObj: InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        returns: InferenceNetworkReturns['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)' | 'getPool', {
+        argsObj: InferenceNetworkArgs['obj']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'];
+        returns: InferenceNetworkReturns['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'poolUsage(uint64,(address,uint64))(uint64,uint64)' | 'poolUsage', {
+        argsObj: InferenceNetworkArgs['obj']['poolUsage(uint64,(address,uint64))(uint64,uint64)'];
+        argsTuple: InferenceNetworkArgs['tuple']['poolUsage(uint64,(address,uint64))(uint64,uint64)'];
+        returns: InferenceNetworkReturns['poolUsage(uint64,(address,uint64))(uint64,uint64)'];
     }> & Record<'providerCost(string)uint64' | 'providerCost', {
         argsObj: InferenceNetworkArgs['obj']['providerCost(string)uint64'];
         argsTuple: InferenceNetworkArgs['tuple']['providerCost(string)uint64'];
@@ -823,12 +837,16 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static withdrawBond(params: CallParams<InferenceNetworkArgs['obj']['withdrawBond(uint64)void'] | InferenceNetworkArgs['tuple']['withdrawBond(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the open(pay,txn,uint64,uint64,byte[32])uint64 ABI method
+     * Constructs a no op call for the open(pay,txn,uint64,uint64,byte[32],uint64)uint64 ABI method
      *
     * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
     moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
     the caller's id for the request, which the provider sees in the same request. The ticket must be
     settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+  
+    `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
+    Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
+    whichever delegated key (the member's app, a routine, a trigger) opened it.
   
     Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
     payer off, losing at most that request.
@@ -837,19 +855,20 @@ export declare abstract class InferenceNetworkParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static open(params: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static open(params: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the createPool(pay,uint64,address,uint64,uint64,uint64)uint64 ABI method
+     * Constructs a no op call for the createPool(pay,uint64,address,address,uint64,uint64)uint64 ABI method
      *
-    * Creates a sponsor pool in `asset`, owned by the sender. `payment` pays the pool box
-    (INFERENCE_POOL_MBR) and anything above it becomes the pool's credit for ticket and usage boxes.
-    Fund it with `fundPool`. Returns the pool id.
+    * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
+    `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
+    use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
+    becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static createPool(params: CallParams<InferenceNetworkArgs['obj']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static createPool(params: CallParams<InferenceNetworkArgs['obj']['createPool(pay,uint64,address,address,uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,address,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the fundPool(uint64,txn)void ABI method
      *
@@ -869,14 +888,14 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static addPoolCredit(params: CallParams<InferenceNetworkArgs['obj']['addPoolCredit(uint64,txn)void'] | InferenceNetworkArgs['tuple']['addPoolCredit(uint64,txn)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the updatePool(uint64,address,uint64,uint64,uint64)void ABI method
+     * Constructs a no op call for the updatePool(uint64,address,uint64)void ABI method
      *
-     * The sponsor changes who may open pool tickets and how much each member gets.
+     * The sponsor changes the allocator and how much each subscription payment gives.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static updatePool(params: CallParams<InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static updatePool(params: CallParams<InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64)void'] | InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the withdrawPool(uint64,uint64,uint64)void ABI method
      *
@@ -887,27 +906,31 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static withdrawPool(params: CallParams<InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the openSponsored(uint64,address,uint64,uint64,byte[32])uint64 ABI method
+     * Constructs a no op call for the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64 ABI method
      *
-    * The pool's allocator opens a ticket for `member`, paid from the pool, within the member's use for
-    this period. Akita's backend uses this for members' routines and triggers. Returns the ticket id.
+    * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
+    gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
+    principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
+    the call. The allowance is counted per subscription and starts over with each payment; the ticket
+    is attributed to the principal. Returns the ticket id.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static openSponsored(params: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static openPooled(params: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the openGated(appl,uint64,uint64,uint64,byte[32])uint64 ABI method
+     * Constructs a no op call for the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method
      *
-    * A member who passes the pool's gate opens a ticket for themselves, paid from the pool. `gateTxn`
-    is the Akita gate's `mustCheck` for the sender and the pool's gate, earlier in the group.
+    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
+    and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
+    ticket id.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static openGated(params: CallParams<InferenceNetworkArgs['obj']['openGated(appl,uint64,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['openGated(appl,uint64,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static openSponsored(params: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the settle(uint64,uint64)uint64 ABI method
      *
@@ -937,28 +960,28 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getPool(params: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getPool(params: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the poolRemaining(uint64,address)uint64 ABI method
+     * Constructs a no op call for the poolUsage(uint64,(address,uint64))(uint64,uint64) ABI method
      *
-     * What `member` has left in `pool` this period.
+     * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static poolRemaining(params: CallParams<InferenceNetworkArgs['obj']['poolRemaining(uint64,address)uint64'] | InferenceNetworkArgs['tuple']['poolRemaining(uint64,address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static poolUsage(params: CallParams<InferenceNetworkArgs['obj']['poolUsage(uint64,(address,uint64))(uint64,uint64)'] | InferenceNetworkArgs['tuple']['poolUsage(uint64,(address,uint64))(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the providerCost(string)uint64 ABI method
      *
@@ -1707,12 +1730,16 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
+        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
+        whichever delegated key (the member's app, a routine, a trigger) opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -1721,21 +1748,22 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32])uint64"]> & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,address,uint64,uint64)uint64` ABI method.
          *
-        * Creates a sponsor pool in `asset`, owned by the sender. `payment` pays the pool box
-        (INFERENCE_POOL_MBR) and anything above it becomes the pool's credit for ticket and usage boxes.
-        Fund it with `fundPool`. Returns the pool id.
+        * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
+        `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
+        use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
+        becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"]> & {
+        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1761,14 +1789,14 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64,uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64)void` ABI method.
          *
-         * The sponsor changes who may open pool tickets and how much each member gets.
+         * The sponsor changes the allocator and how much each subscription payment gives.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64,uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64,uint64,uint64)void"]> & {
+        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1783,29 +1811,33 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
          *
-        * The pool's allocator opens a ticket for `member`, paid from the pool, within the member's use for
-        this period. Akita's backend uses this for members' routines and triggers. Returns the ticket id.
+        * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
+        gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
+        principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
+        the call. The allowance is counted per subscription and starts over with each payment; the ticket
+        is attributed to the principal. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"]> & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openGated(appl,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * A member who passes the pool's gate opens a ticket for themselves, paid from the pool. `gateTxn`
-        is the Akita gate's `mustCheck` for the sender and the pool's gate, earlier in the group.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
+        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
+        ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        openGated: (params: CallParams<InferenceNetworkArgs["obj"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"]> & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1845,38 +1877,38 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `poolRemaining(uint64,address)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `poolUsage(uint64,(address,uint64))(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `member` has left in `pool` this period.
+         * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        poolRemaining: (params: CallParams<InferenceNetworkArgs["obj"]["poolRemaining(uint64,address)uint64"] | InferenceNetworkArgs["tuple"]["poolRemaining(uint64,address)uint64"]> & {
+        poolUsage: (params: CallParams<InferenceNetworkArgs["obj"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"] | InferenceNetworkArgs["tuple"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -2168,12 +2200,16 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
+        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
+        whichever delegated key (the member's app, a routine, a trigger) opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -2182,7 +2218,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32])uint64"]> & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2190,17 +2226,18 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,address,uint64,uint64)uint64` ABI method.
          *
-        * Creates a sponsor pool in `asset`, owned by the sender. `payment` pays the pool box
-        (INFERENCE_POOL_MBR) and anything above it becomes the pool's credit for ticket and usage boxes.
-        Fund it with `fundPool`. Returns the pool id.
+        * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
+        `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
+        use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
+        becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"]> & {
+        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2238,14 +2275,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64,uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64)void` ABI method.
          *
-         * The sponsor changes who may open pool tickets and how much each member gets.
+         * The sponsor changes the allocator and how much each subscription payment gives.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64,uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64,uint64,uint64)void"]> & {
+        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2268,16 +2305,19 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
          *
-        * The pool's allocator opens a ticket for `member`, paid from the pool, within the member's use for
-        this period. Akita's backend uses this for members' routines and triggers. Returns the ticket id.
+        * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
+        gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
+        principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
+        the call. The allowance is counted per subscription and starts over with each payment; the ticket
+        is attributed to the principal. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"]> & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2285,16 +2325,17 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openGated(appl,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * A member who passes the pool's gate opens a ticket for themselves, paid from the pool. `gateTxn`
-        is the Akita gate's `mustCheck` for the sender and the pool's gate, earlier in the group.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
+        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
+        ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        openGated: (params: CallParams<InferenceNetworkArgs["obj"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"]> & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2350,14 +2391,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2365,14 +2406,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2380,16 +2421,16 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `poolRemaining(uint64,address)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `poolUsage(uint64,(address,uint64))(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `member` has left in `pool` this period.
+         * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        poolRemaining: (params: CallParams<InferenceNetworkArgs["obj"]["poolRemaining(uint64,address)uint64"] | InferenceNetworkArgs["tuple"]["poolRemaining(uint64,address)uint64"]> & {
+        poolUsage: (params: CallParams<InferenceNetworkArgs["obj"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"] | InferenceNetworkArgs["tuple"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2779,12 +2820,16 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
         the caller's id for the request, which the provider sees in the same request. The ticket must be
         settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    
+        `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
+        Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
+        whichever delegated key (the member's app, a routine, a trigger) opened it.
     
         Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
         payer off, losing at most that request.
@@ -2793,10 +2838,10 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32])uint64"]> & SendParams & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["open(pay,txn,uint64,uint64,byte[32])uint64"]);
+            return: (undefined | InferenceNetworkReturns["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2806,20 +2851,21 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `createPool(pay,uint64,address,address,uint64,uint64)uint64` ABI method.
          *
-        * Creates a sponsor pool in `asset`, owned by the sender. `payment` pays the pool box
-        (INFERENCE_POOL_MBR) and anything above it becomes the pool's credit for ticket and usage boxes.
-        Fund it with `fundPool`. Returns the pool id.
+        * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
+        `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
+        use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
+        becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"]> & SendParams & {
+        createPool: (params: CallParams<InferenceNetworkArgs["obj"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["createPool(pay,uint64,address,address,uint64,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["createPool(pay,uint64,address,uint64,uint64,uint64)uint64"]);
+            return: (undefined | InferenceNetworkReturns["createPool(pay,uint64,address,address,uint64,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2869,17 +2915,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64,uint64,uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `updatePool(uint64,address,uint64)void` ABI method.
          *
-         * The sponsor changes who may open pool tickets and how much each member gets.
+         * The sponsor changes the allocator and how much each subscription payment gives.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64,uint64,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64,uint64,uint64)void"]> & SendParams & {
+        updatePool: (params: CallParams<InferenceNetworkArgs["obj"]["updatePool(uint64,address,uint64)void"] | InferenceNetworkArgs["tuple"]["updatePool(uint64,address,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["updatePool(uint64,address,uint64,uint64,uint64)void"]);
+            return: (undefined | InferenceNetworkReturns["updatePool(uint64,address,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2909,19 +2955,22 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
          *
-        * The pool's allocator opens a ticket for `member`, paid from the pool, within the member's use for
-        this period. Akita's backend uses this for members' routines and triggers. Returns the ticket id.
+        * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
+        gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
+        principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
+        the call. The allowance is counted per subscription and starts over with each payment; the ticket
+        is attributed to the principal. Returns the ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"]> & SendParams & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["openSponsored(uint64,address,uint64,uint64,byte[32])uint64"]);
+            return: (undefined | InferenceNetworkReturns["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2931,19 +2980,20 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openGated(appl,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
          *
-        * A member who passes the pool's gate opens a ticket for themselves, paid from the pool. `gateTxn`
-        is the Akita gate's `mustCheck` for the sender and the pool's gate, earlier in the group.
+        * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
+        and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
+        ticket id.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        openGated: (params: CallParams<InferenceNetworkArgs["obj"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"] | InferenceNetworkArgs["tuple"]["openGated(appl,uint64,uint64,uint64,byte[32])uint64"]> & SendParams & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["openGated(appl,uint64,uint64,uint64,byte[32])uint64"]);
+            return: (undefined | InferenceNetworkReturns["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3016,17 +3066,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
+            return: (undefined | InferenceNetworkReturns["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3036,17 +3086,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+        getPool: (params: CallParams<InferenceNetworkArgs["obj"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)"]);
+            return: (undefined | InferenceNetworkReturns["getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3056,19 +3106,19 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `poolRemaining(uint64,address)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `poolUsage(uint64,(address,uint64))(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-         * What `member` has left in `pool` this period.
+         * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        poolRemaining: (params: CallParams<InferenceNetworkArgs["obj"]["poolRemaining(uint64,address)uint64"] | InferenceNetworkArgs["tuple"]["poolRemaining(uint64,address)uint64"]> & SendParams & {
+        poolUsage: (params: CallParams<InferenceNetworkArgs["obj"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"] | InferenceNetworkArgs["tuple"]["poolUsage(uint64,(address,uint64))(uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["poolRemaining(uint64,address)uint64"]);
+            return: (undefined | InferenceNetworkReturns["poolUsage(uint64,(address,uint64))(uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3153,34 +3203,34 @@ export declare class InferenceNetworkClient {
      */
     getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): Promise<Provider>;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Ticket>;
+    getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Ticket>;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getPool(params: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Pool>;
+    getPool(params: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)']>): Promise<Pool>;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `poolRemaining(uint64,address)uint64` ABI method.
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `poolUsage(uint64,(address,uint64))(uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * What `member` has left in `pool` this period.
+     * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    poolRemaining(params: CallParams<InferenceNetworkArgs['obj']['poolRemaining(uint64,address)uint64'] | InferenceNetworkArgs['tuple']['poolRemaining(uint64,address)uint64']>): Promise<bigint>;
+    poolUsage(params: CallParams<InferenceNetworkArgs['obj']['poolUsage(uint64,(address,uint64))(uint64,uint64)'] | InferenceNetworkArgs['tuple']['poolUsage(uint64,(address,uint64))(uint64,uint64)']>): Promise<Usage>;
     /**
      * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `providerCost(string)uint64` ABI method.
      *
@@ -3496,12 +3546,16 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     withdrawBond(params?: CallParams<InferenceNetworkArgs['obj']['withdrawBond(uint64)void'] | InferenceNetworkArgs['tuple']['withdrawBond(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['withdrawBond(uint64)void'] | undefined]>;
     /**
-     * Calls the open(pay,txn,uint64,uint64,byte[32])uint64 ABI method.
+     * Calls the open(pay,txn,uint64,uint64,byte[32],uint64)uint64 ABI method.
      *
     * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
     moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
     the caller's id for the request, which the provider sees in the same request. The ticket must be
     settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+  
+    `wallet` is the principal-resolution hint (0 for a plain account). Through InferencePlugin it is the
+    Akita wallet whose window sent the call, so the ticket is attributed to that wallet's account
+    whichever delegated key (the member's app, a routine, a trigger) opened it.
   
     Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
     payer off, losing at most that request.
@@ -3511,20 +3565,21 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    open(params?: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32])uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32])uint64'] | undefined]>;
+    open(params?: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | undefined]>;
     /**
-     * Calls the createPool(pay,uint64,address,uint64,uint64,uint64)uint64 ABI method.
+     * Calls the createPool(pay,uint64,address,address,uint64,uint64)uint64 ABI method.
      *
-    * Creates a sponsor pool in `asset`, owned by the sender. `payment` pays the pool box
-    (INFERENCE_POOL_MBR) and anything above it becomes the pool's credit for ticket and usage boxes.
-    Fund it with `fundPool`. Returns the pool id.
+    * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
+    `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
+    use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
+    becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    createPool(params?: CallParams<InferenceNetworkArgs['obj']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,uint64,uint64,uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['createPool(pay,uint64,address,uint64,uint64,uint64)uint64'] | undefined]>;
+    createPool(params?: CallParams<InferenceNetworkArgs['obj']['createPool(pay,uint64,address,address,uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,address,uint64,uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['createPool(pay,uint64,address,address,uint64,uint64)uint64'] | undefined]>;
     /**
      * Calls the fundPool(uint64,txn)void ABI method.
      *
@@ -3546,15 +3601,15 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     addPoolCredit(params?: CallParams<InferenceNetworkArgs['obj']['addPoolCredit(uint64,txn)void'] | InferenceNetworkArgs['tuple']['addPoolCredit(uint64,txn)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['addPoolCredit(uint64,txn)void'] | undefined]>;
     /**
-     * Calls the updatePool(uint64,address,uint64,uint64,uint64)void ABI method.
+     * Calls the updatePool(uint64,address,uint64)void ABI method.
      *
-     * The sponsor changes who may open pool tickets and how much each member gets.
+     * The sponsor changes the allocator and how much each subscription payment gives.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    updatePool(params?: CallParams<InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64,uint64,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['updatePool(uint64,address,uint64,uint64,uint64)void'] | undefined]>;
+    updatePool(params?: CallParams<InferenceNetworkArgs['obj']['updatePool(uint64,address,uint64)void'] | InferenceNetworkArgs['tuple']['updatePool(uint64,address,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['updatePool(uint64,address,uint64)void'] | undefined]>;
     /**
      * Calls the withdrawPool(uint64,uint64,uint64)void ABI method.
      *
@@ -3566,29 +3621,33 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     withdrawPool(params?: CallParams<InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['withdrawPool(uint64,uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the openSponsored(uint64,address,uint64,uint64,byte[32])uint64 ABI method.
+     * Calls the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64 ABI method.
      *
-    * The pool's allocator opens a ticket for `member`, paid from the pool, within the member's use for
-    this period. Akita's backend uses this for members' routines and triggers. Returns the ticket id.
+    * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
+    gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
+    principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
+    the call. The allowance is counted per subscription and starts over with each payment; the ticket
+    is attributed to the principal. Returns the ticket id.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    openSponsored(params?: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,byte[32])uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,byte[32])uint64'] | undefined]>;
+    openPooled(params?: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | undefined]>;
     /**
-     * Calls the openGated(appl,uint64,uint64,uint64,byte[32])uint64 ABI method.
+     * Calls the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method.
      *
-    * A member who passes the pool's gate opens a ticket for themselves, paid from the pool. `gateTxn`
-    is the Akita gate's `mustCheck` for the sender and the pool's gate, earlier in the group.
+    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member` (an Akita account,
+    and its wallet or 0), against a paid-up subscription that `member` or its wallet holds. Returns the
+    ticket id.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    openGated(params?: CallParams<InferenceNetworkArgs['obj']['openGated(appl,uint64,uint64,uint64,byte[32])uint64'] | InferenceNetworkArgs['tuple']['openGated(appl,uint64,uint64,uint64,byte[32])uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openGated(appl,uint64,uint64,uint64,byte[32])uint64'] | undefined]>;
+    openSponsored(params?: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | undefined]>;
     /**
      * Calls the settle(uint64,uint64)uint64 ABI method.
      *
@@ -3621,31 +3680,31 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     getProvider(params?: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     * Calls the getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getTicket(params?: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getTicket(uint64)(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
+    getTicket(params?: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     * Calls the getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64) ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getPool(params?: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getPool(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
+    getPool(params?: CallParams<InferenceNetworkArgs['obj']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the poolRemaining(uint64,address)uint64 ABI method.
+     * Calls the poolUsage(uint64,(address,uint64))(uint64,uint64) ABI method.
      *
-     * What `member` has left in `pool` this period.
+     * What `subscription` has used of `pool` since its last payment (`lastPayment` in the result).
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    poolRemaining(params?: CallParams<InferenceNetworkArgs['obj']['poolRemaining(uint64,address)uint64'] | InferenceNetworkArgs['tuple']['poolRemaining(uint64,address)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['poolRemaining(uint64,address)uint64'] | undefined]>;
+    poolUsage(params?: CallParams<InferenceNetworkArgs['obj']['poolUsage(uint64,(address,uint64))(uint64,uint64)'] | InferenceNetworkArgs['tuple']['poolUsage(uint64,(address,uint64))(uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['poolUsage(uint64,(address,uint64))(uint64,uint64)'] | undefined]>;
     /**
      * Calls the providerCost(string)uint64 ABI method.
      *

@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"name":"MockInferenceDAO","structs":{"AkitaAppList":[{"name":"staking","type":"uint64"},{"name":"rewards","type":"uint64"},{"name":"pool","type":"uint64"},{"name":"prizeBox","type":"uint64"},{"name":"subscriptions","type":"uint64"},{"name":"gate","type":"uint64"},{"name":"auction","type":"uint64"},{"name":"hyperSwap","type":"uint64"},{"name":"raffle","type":"uint64"},{"name":"metaMerkles","type":"uint64"},{"name":"marketplace","type":"uint64"},{"name":"wallet","type":"uint64"}],"AkitaAssets":[{"name":"akta","type":"uint64"},{"name":"bones","type":"uint64"}],"InferenceFees":[{"name":"chargePercentage","type":"uint64"},{"name":"providerBond","type":"uint64"}]},"methods":[{"name":"create","args":[{"type":"uint64","name":"akta"}],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]},"readonly":false,"events":[],"recommendations":{}},{"name":"setInferenceFees","args":[{"type":"uint64","name":"chargePercentage"},{"type":"uint64","name":"providerBond"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"setGate","args":[{"type":"uint64","name":"gate"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"desc":"The Akita DAO state InferenceNetwork reads: AKTA's id, the gate app and the inference fees.","networks":{},"state":{"schema":{"global":{"ints":0,"bytes":3},"local":{"ints":0,"bytes":0}},"keys":{"global":{"akitaAssets":{"keyType":"AVMString","valueType":"AkitaAssets","key":"YWtpdGFfYXNzZXRz"},"akitaAppList":{"keyType":"AVMString","valueType":"AkitaAppList","key":"YWFs"},"inferenceFees":{"keyType":"AVMString","valueType":"InferenceFees","key":"aW5mZXJlbmNlX2ZlZXM="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[58,93,102,136],"errorMessage":"invalid number of bytes for arc4.uint64"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAwIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6OQogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tJbmZlcmVuY2VEQU8gZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBieiBtYWluX2NyZWF0ZV9Ob09wQDYKICAgIHB1c2hieXRlc3MgMHg0ZWQwOWI4ZiAweGI0YThjNDkwIC8vIG1ldGhvZCAic2V0SW5mZXJlbmNlRmVlcyh1aW50NjQsdWludDY0KXZvaWQiLCBtZXRob2QgInNldEdhdGUodWludDY0KXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBzZXRJbmZlcmVuY2VGZWVzIHNldEdhdGUKICAgIGVycgoKbWFpbl9jcmVhdGVfTm9PcEA2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo5CiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0luZmVyZW5jZURBTyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHB1c2hieXRlcyAweDI0MGQyZjY3IC8vIG1ldGhvZCAiY3JlYXRlKHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCgovLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLmNyZWF0ZVtyb3V0aW5nXSgpIC0+IHZvaWQ6CmNyZWF0ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTQKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18wIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjE2CiAgICAvLyB0aGlzLmFraXRhQXNzZXRzLnZhbHVlID0geyBha3RhLCBib25lczogMCB9CiAgICBpdG9iCiAgICBpbnRjXzEgLy8gMAogICAgaXRvYgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjEwCiAgICAvLyBha2l0YUFzc2V0cyA9IEdsb2JhbFN0YXRlPEFraXRhQXNzZXRzPih7IGtleTogQWtpdGFEQU9HbG9iYWxTdGF0ZUtleXNBa2l0YUFzc2V0cyB9KQogICAgcHVzaGJ5dGVzICJha2l0YV9hc3NldHMiCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjE2CiAgICAvLyB0aGlzLmFraXRhQXNzZXRzLnZhbHVlID0geyBha3RhLCBib25lczogMCB9CiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoxNwogICAgLy8gdGhpcy5zZXRHYXRlKDApCiAgICBpbnRjXzEgLy8gMAogICAgY2FsbHN1YiBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLnNldEdhdGUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTQKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBpbnRjXzIgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5zZXRJbmZlcmVuY2VGZWVzW3JvdXRpbmddKCkgLT4gdm9pZDoKc2V0SW5mZXJlbmNlRmVlczoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MjAKICAgIC8vIHNldEluZmVyZW5jZUZlZXMoY2hhcmdlUGVyY2VudGFnZTogdWludDY0LCBwcm92aWRlckJvbmQ6IHVpbnQ2NCk6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyMQogICAgLy8gdGhpcy5pbmZlcmVuY2VGZWVzLnZhbHVlID0geyBjaGFyZ2VQZXJjZW50YWdlLCBwcm92aWRlckJvbmQgfQogICAgc3dhcAogICAgaXRvYgogICAgc3dhcAogICAgaXRvYgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjEyCiAgICAvLyBpbmZlcmVuY2VGZWVzID0gR2xvYmFsU3RhdGU8SW5mZXJlbmNlRmVlcz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzSW5mZXJlbmNlRmVlcyB9KQogICAgcHVzaGJ5dGVzICJpbmZlcmVuY2VfZmVlcyIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MjEKICAgIC8vIHRoaXMuaW5mZXJlbmNlRmVlcy52YWx1ZSA9IHsgY2hhcmdlUGVyY2VudGFnZSwgcHJvdmlkZXJCb25kIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjIwCiAgICAvLyBzZXRJbmZlcmVuY2VGZWVzKGNoYXJnZVBlcmNlbnRhZ2U6IHVpbnQ2NCwgcHJvdmlkZXJCb25kOiB1aW50NjQpOiB2b2lkIHsKICAgIGludGNfMiAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLnNldEdhdGVbcm91dGluZ10oKSAtPiB2b2lkOgpzZXRHYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyNAogICAgLy8gc2V0R2F0ZShnYXRlOiB1aW50NjQpOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIGNhbGxzdWIgc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5zZXRHYXRlCiAgICBpbnRjXzIgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5zZXRHYXRlKGdhdGU6IHVpbnQ2NCkgLT4gdm9pZDoKc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5zZXRHYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyNAogICAgLy8gc2V0R2F0ZShnYXRlOiB1aW50NjQpOiB2b2lkIHsKICAgIHByb3RvIDEgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyNgogICAgLy8gc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnM6IDAsIGdhdGUsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIGludGNfMSAvLyAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjI1LTI4CiAgICAvLyB0aGlzLmFraXRhQXBwTGlzdC52YWx1ZSA9IHsKICAgIC8vICAgc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnM6IDAsIGdhdGUsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIC8vICAgcmFmZmxlOiAwLCBtZXRhTWVya2xlczogMCwgbWFya2V0cGxhY2U6IDAsIHdhbGxldDogMCwKICAgIC8vIH0KICAgIGl0b2IKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgcHVzaGJ5dGVzIDB4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAKICAgIHN3YXAKICAgIGNvbmNhdAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgc3dhcAogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjExCiAgICAvLyBha2l0YUFwcExpc3QgPSBHbG9iYWxTdGF0ZTxBa2l0YUFwcExpc3Q+KHsga2V5OiBBa2l0YURBT0dsb2JhbFN0YXRlS2V5c0FraXRhQXBwTGlzdCB9KQogICAgcHVzaGJ5dGVzICJhYWwiCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjI1LTI4CiAgICAvLyB0aGlzLmFraXRhQXBwTGlzdC52YWx1ZSA9IHsKICAgIC8vICAgc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnM6IDAsIGdhdGUsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIC8vICAgcmFmZmxlOiAwLCBtZXRhTWVya2xlczogMCwgbWFya2V0cGxhY2U6IDAsIHdhbGxldDogMCwKICAgIC8vIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="},"byteCode":{"approval":"CyADCAABMRkURDEYQQAWggIETtCbjwS0qMSQNhoAjgIAMgBdAIAEJA0vZzYaAI4BAAEANhoBSRUiEkQXFiMWUIAMYWtpdGFfYXNzZXRzTGcjiAA7JEM2GgFJFSISRBc2GgJJFSISRBdMFkwWUIAOaW5mZXJlbmNlX2ZlZXNMZyRDNhoBSRUiEkQXiAACJEOKAQAjFov/FoAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExQSwFQSwFQSwFQSwFQSwFQTFCAA2FhbExniQ==","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"MockInferenceDAO","structs":{"AkitaAppList":[{"name":"staking","type":"uint64"},{"name":"rewards","type":"uint64"},{"name":"pool","type":"uint64"},{"name":"prizeBox","type":"uint64"},{"name":"subscriptions","type":"uint64"},{"name":"gate","type":"uint64"},{"name":"auction","type":"uint64"},{"name":"hyperSwap","type":"uint64"},{"name":"raffle","type":"uint64"},{"name":"metaMerkles","type":"uint64"},{"name":"marketplace","type":"uint64"},{"name":"wallet","type":"uint64"}],"AkitaAssets":[{"name":"akta","type":"uint64"},{"name":"bones","type":"uint64"}],"InferenceFees":[{"name":"chargePercentage","type":"uint64"},{"name":"providerBond","type":"uint64"}]},"methods":[{"name":"create","args":[{"type":"uint64","name":"akta"}],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]},"readonly":false,"events":[],"recommendations":{}},{"name":"setInferenceFees","args":[{"type":"uint64","name":"chargePercentage"},{"type":"uint64","name":"providerBond"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"setApps","args":[{"type":"uint64","name":"subscriptions"},{"type":"uint64","name":"wallet"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"desc":"The Akita DAO state InferenceNetwork reads: AKTA's id, the subscriptions and wallet factory apps, and the inference fees.","networks":{},"state":{"schema":{"global":{"ints":0,"bytes":3},"local":{"ints":0,"bytes":0}},"keys":{"global":{"akitaAssets":{"keyType":"AVMString","valueType":"AkitaAssets","key":"YWtpdGFfYXNzZXRz"},"akitaAppList":{"keyType":"AVMString","valueType":"AkitaAppList","key":"YWFs"},"inferenceFees":{"keyType":"AVMString","valueType":"InferenceFees","key":"aW5mZXJlbmNlX2ZlZXM="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[58,94,103,137,146],"errorMessage":"invalid number of bytes for arc4.uint64"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAwIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6OQogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tJbmZlcmVuY2VEQU8gZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBieiBtYWluX2NyZWF0ZV9Ob09wQDYKICAgIHB1c2hieXRlc3MgMHg0ZWQwOWI4ZiAweGM0YWZjMTE3IC8vIG1ldGhvZCAic2V0SW5mZXJlbmNlRmVlcyh1aW50NjQsdWludDY0KXZvaWQiLCBtZXRob2QgInNldEFwcHModWludDY0LHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggc2V0SW5mZXJlbmNlRmVlcyBzZXRBcHBzCiAgICBlcnIKCm1haW5fY3JlYXRlX05vT3BANjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6OQogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tJbmZlcmVuY2VEQU8gZXh0ZW5kcyBDb250cmFjdCB7CiAgICBwdXNoYnl0ZXMgMHgyNDBkMmY2NyAvLyBtZXRob2QgImNyZWF0ZSh1aW50NjQpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIGNyZWF0ZQogICAgZXJyCgoKLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5jcmVhdGVbcm91dGluZ10oKSAtPiB2b2lkOgpjcmVhdGU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjE0CiAgICAvLyBAYWJpbWV0aG9kKHsgb25DcmVhdGU6ICdyZXF1aXJlJyB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoxNgogICAgLy8gdGhpcy5ha2l0YUFzc2V0cy52YWx1ZSA9IHsgYWt0YSwgYm9uZXM6IDAgfQogICAgaXRvYgogICAgaW50Y18xIC8vIDAKICAgIGl0b2IKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoxMAogICAgLy8gYWtpdGFBc3NldHMgPSBHbG9iYWxTdGF0ZTxBa2l0YUFzc2V0cz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzQWtpdGFBc3NldHMgfSkKICAgIHB1c2hieXRlcyAiYWtpdGFfYXNzZXRzIgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoxNgogICAgLy8gdGhpcy5ha2l0YUFzc2V0cy52YWx1ZSA9IHsgYWt0YSwgYm9uZXM6IDAgfQogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTcKICAgIC8vIHRoaXMuc2V0QXBwcygwLCAwKQogICAgaW50Y18xIC8vIDAKICAgIGR1cAogICAgY2FsbHN1YiBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLnNldEFwcHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MTQKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBpbnRjXzIgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czo6TW9ja0luZmVyZW5jZURBTy5zZXRJbmZlcmVuY2VGZWVzW3JvdXRpbmddKCkgLT4gdm9pZDoKc2V0SW5mZXJlbmNlRmVlczoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MjAKICAgIC8vIHNldEluZmVyZW5jZUZlZXMoY2hhcmdlUGVyY2VudGFnZTogdWludDY0LCBwcm92aWRlckJvbmQ6IHVpbnQ2NCk6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyMQogICAgLy8gdGhpcy5pbmZlcmVuY2VGZWVzLnZhbHVlID0geyBjaGFyZ2VQZXJjZW50YWdlLCBwcm92aWRlckJvbmQgfQogICAgc3dhcAogICAgaXRvYgogICAgc3dhcAogICAgaXRvYgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjEyCiAgICAvLyBpbmZlcmVuY2VGZWVzID0gR2xvYmFsU3RhdGU8SW5mZXJlbmNlRmVlcz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzSW5mZXJlbmNlRmVlcyB9KQogICAgcHVzaGJ5dGVzICJpbmZlcmVuY2VfZmVlcyIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6MjEKICAgIC8vIHRoaXMuaW5mZXJlbmNlRmVlcy52YWx1ZSA9IHsgY2hhcmdlUGVyY2VudGFnZSwgcHJvdmlkZXJCb25kIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjIwCiAgICAvLyBzZXRJbmZlcmVuY2VGZWVzKGNoYXJnZVBlcmNlbnRhZ2U6IHVpbnQ2NCwgcHJvdmlkZXJCb25kOiB1aW50NjQpOiB2b2lkIHsKICAgIGludGNfMiAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLnNldEFwcHNbcm91dGluZ10oKSAtPiB2b2lkOgpzZXRBcHBzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyNAogICAgLy8gc2V0QXBwcyhzdWJzY3JpcHRpb25zOiB1aW50NjQsIHdhbGxldDogdWludDY0KTogdm9pZCB7CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18wIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18wIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICBjYWxsc3ViIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6Ok1vY2tJbmZlcmVuY2VEQU8uc2V0QXBwcwogICAgaW50Y18yIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9pbmZlcmVuY2UvdGVzdHMvbW9jay1pbmZlcmVuY2UtZGFvLmFsZ28udHM6Ok1vY2tJbmZlcmVuY2VEQU8uc2V0QXBwcyhzdWJzY3JpcHRpb25zOiB1aW50NjQsIHdhbGxldDogdWludDY0KSAtPiB2b2lkOgpzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjpNb2NrSW5mZXJlbmNlREFPLnNldEFwcHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjI0CiAgICAvLyBzZXRBcHBzKHN1YnNjcmlwdGlvbnM6IHVpbnQ2NCwgd2FsbGV0OiB1aW50NjQpOiB2b2lkIHsKICAgIHByb3RvIDIgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2luZmVyZW5jZS90ZXN0cy9tb2NrLWluZmVyZW5jZS1kYW8uYWxnby50czoyNgogICAgLy8gc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnMsIGdhdGU6IDAsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIGludGNfMSAvLyAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjI1LTI4CiAgICAvLyB0aGlzLmFraXRhQXBwTGlzdC52YWx1ZSA9IHsKICAgIC8vICAgc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnMsIGdhdGU6IDAsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIC8vICAgcmFmZmxlOiAwLCBtZXRhTWVya2xlczogMCwgbWFya2V0cGxhY2U6IDAsIHdhbGxldCwKICAgIC8vIH0KICAgIGl0b2IKICAgIGZyYW1lX2RpZyAtMgogICAgaXRvYgogICAgcHVzaGJ5dGVzIDB4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAogICAgc3dhcAogICAgY29uY2F0CiAgICBkaWcgMQogICAgY29uY2F0CiAgICBkaWcgMQogICAgY29uY2F0CiAgICBkaWcgMQogICAgY29uY2F0CiAgICBkaWcgMQogICAgY29uY2F0CiAgICBkaWcgMQogICAgY29uY2F0CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjExCiAgICAvLyBha2l0YUFwcExpc3QgPSBHbG9iYWxTdGF0ZTxBa2l0YUFwcExpc3Q+KHsga2V5OiBBa2l0YURBT0dsb2JhbFN0YXRlS2V5c0FraXRhQXBwTGlzdCB9KQogICAgcHVzaGJ5dGVzICJhYWwiCiAgICAvLyBzbWFydF9jb250cmFjdHMvaW5mZXJlbmNlL3Rlc3RzL21vY2staW5mZXJlbmNlLWRhby5hbGdvLnRzOjI1LTI4CiAgICAvLyB0aGlzLmFraXRhQXBwTGlzdC52YWx1ZSA9IHsKICAgIC8vICAgc3Rha2luZzogMCwgcmV3YXJkczogMCwgcG9vbDogMCwgcHJpemVCb3g6IDAsIHN1YnNjcmlwdGlvbnMsIGdhdGU6IDAsIGF1Y3Rpb246IDAsIGh5cGVyU3dhcDogMCwKICAgIC8vICAgcmFmZmxlOiAwLCBtZXRhTWVya2xlczogMCwgbWFya2V0cGxhY2U6IDAsIHdhbGxldCwKICAgIC8vIH0KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="},"byteCode":{"approval":"CyADCAABMRkURDEYQQAWggIETtCbjwTEr8EXNhoAjgIAMwBeAIAEJA0vZzYaAI4BAAEANhoBSRUiEkQXFiMWUIAMYWtpdGFfYXNzZXRzTGcjSYgARCRDNhoBSRUiEkQXNhoCSRUiEkQXTBZMFlCADmluZmVyZW5jZV9mZWVzTGckQzYaAUkVIhJEFzYaAkkVIhJEF4gAAiRDigIAIxaL/haAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATFBLAVBLAVBLAVBLAVBLAVBMUIv/FlCAA2FhbExniQ==","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -128,8 +128,9 @@ export type MockInferenceDaoArgs = {
       chargePercentage: bigint | number
       providerBond: bigint | number
     }
-    'setGate(uint64)void': {
-      gate: bigint | number
+    'setApps(uint64,uint64)void': {
+      subscriptions: bigint | number
+      wallet: bigint | number
     }
   }
   /**
@@ -138,7 +139,7 @@ export type MockInferenceDaoArgs = {
   tuple: {
     'create(uint64)void': [akta: bigint | number]
     'setInferenceFees(uint64,uint64)void': [chargePercentage: bigint | number, providerBond: bigint | number]
-    'setGate(uint64)void': [gate: bigint | number]
+    'setApps(uint64,uint64)void': [subscriptions: bigint | number, wallet: bigint | number]
   }
 }
 
@@ -148,7 +149,7 @@ export type MockInferenceDaoArgs = {
 export type MockInferenceDaoReturns = {
   'create(uint64)void': void
   'setInferenceFees(uint64,uint64)void': void
-  'setGate(uint64)void': void
+  'setApps(uint64,uint64)void': void
 }
 
 /**
@@ -169,10 +170,10 @@ export type MockInferenceDaoTypes = {
       argsTuple: MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']
       returns: MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void']
     }>
-    & Record<'setGate(uint64)void' | 'setGate', {
-      argsObj: MockInferenceDaoArgs['obj']['setGate(uint64)void']
-      argsTuple: MockInferenceDaoArgs['tuple']['setGate(uint64)void']
-      returns: MockInferenceDaoReturns['setGate(uint64)void']
+    & Record<'setApps(uint64,uint64)void' | 'setApps', {
+      argsObj: MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void']
+      argsTuple: MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']
+      returns: MockInferenceDaoReturns['setApps(uint64,uint64)void']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -283,16 +284,16 @@ export abstract class MockInferenceDaoParamsFactory {
     }
   }
   /**
-   * Constructs a no op call for the setGate(uint64)void ABI method
+   * Constructs a no op call for the setApps(uint64,uint64)void ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static setGate(params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static setApps(params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'setGate(uint64)void' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.gate],
+      method: 'setApps(uint64,uint64)void' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.subscriptions, params.args.wallet],
     }
   }
 }
@@ -539,13 +540,13 @@ export class MockInferenceDaoClient {
     },
 
     /**
-     * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+     * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    setGate: (params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(MockInferenceDaoParamsFactory.setGate(params))
+    setApps: (params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(MockInferenceDaoParamsFactory.setApps(params))
     },
 
   }
@@ -575,13 +576,13 @@ export class MockInferenceDaoClient {
     },
 
     /**
-     * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+     * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    setGate: (params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(MockInferenceDaoParamsFactory.setGate(params))
+    setApps: (params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(MockInferenceDaoParamsFactory.setApps(params))
     },
 
   }
@@ -612,14 +613,14 @@ export class MockInferenceDaoClient {
     },
 
     /**
-     * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+     * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    setGate: async (params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(MockInferenceDaoParamsFactory.setGate(params))
-      return {...result, return: result.return as unknown as (undefined | MockInferenceDaoReturns['setGate(uint64)void'])}
+    setApps: async (params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(MockInferenceDaoParamsFactory.setApps(params))
+      return {...result, return: result.return as unknown as (undefined | MockInferenceDaoReturns['setApps(uint64,uint64)void'])}
     },
 
   }
@@ -683,10 +684,10 @@ export class MockInferenceDaoClient {
         return this
       },
       /**
-       * Add a setGate(uint64)void method call against the MockInferenceDAO contract
+       * Add a setApps(uint64,uint64)void method call against the MockInferenceDAO contract
        */
-      setGate(params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setGate(params)))
+      setApps(params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.setApps(params)))
         resultMappers.push(undefined)
         return this
       },
@@ -735,13 +736,13 @@ export type MockInferenceDaoComposer<TReturns extends [...any[]] = []> = {
   setInferenceFees(params?: CallParams<MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void'] | undefined]>
 
   /**
-   * Calls the setGate(uint64)void ABI method.
+   * Calls the setApps(uint64,uint64)void ABI method.
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  setGate(params?: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setGate(uint64)void'] | undefined]>
+  setApps(params?: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setApps(uint64,uint64)void'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the MockInferenceDAO smart contract.

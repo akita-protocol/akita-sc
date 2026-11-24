@@ -4,7 +4,9 @@ import { INFERENCE_TICKET_MBR } from '../../../inference/constants'
 import { getControlledSpendingAccount, rekeyAddress } from '@akita-protocol/plugin/functions'
 import type { InferenceNetwork } from '../../../inference/contract.algo'
 import { errInvalidRegistry } from '../../../meta/errors'
+import { SubscriptionKey } from '../../../subscriptions/types'
 import { GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
+import { windowHint } from '../../../utils/principal'
 import {
   errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyEncoding,
   errInferencePolicyFields,
@@ -51,10 +53,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
     if (!this.isAdminWindow(wallet, grant)) {
       const policy = decodeArc4<InferencePolicy>(this.policy(wallet, grant))
       loggedAssert(policy.network === network.id, errInferencePolicyDenied)
-      let providerAllowed = false
-      for (const allowed of clone(policy.providers)) {
-        if (allowed === provider) providerAllowed = true
-      }
+      const providerAllowed = this.listed(clone(policy.providers), provider)
       let assetAllowed = false
       for (const allowed of clone(policy.assets)) {
         if (allowed === asset) assetAllowed = true
@@ -68,7 +67,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
       return abiCall<typeof InferenceNetwork.prototype.open>({
         sender,
         appId: network,
-        args: [payment, itxn.payment({ sender, receiver: network.address, amount: maxPrice }), provider, asset, request],
+        args: [payment, itxn.payment({ sender, receiver: network.address, amount: maxPrice }), provider, asset, request, windowHint(wallet)],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       }).returnValue
     }
@@ -81,9 +80,49 @@ export class InferencePlugin extends GrantPolicyPlugin {
         provider,
         asset,
         request,
+        windowHint(wallet),
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     }).returnValue
+  }
+
+  /**
+   * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
+   * pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
+   * the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+   * whichever key sends the call. Under a delegated grant the policy must name the network and the
+   * provider; the per-ticket cap still applies. Returns the ticket id.
+   */
+  openPooled(
+    wallet: Application,
+    rekeyBack: boolean,
+    network: Application,
+    pool: uint64,
+    provider: uint64,
+    maxPrice: uint64,
+    request: bytes<32>,
+    subscription: SubscriptionKey,
+  ): uint64 {
+    const grant = this.grant(wallet)
+    if (!this.isAdminWindow(wallet, grant)) {
+      const policy = decodeArc4<InferencePolicy>(this.policy(wallet, grant))
+      loggedAssert(policy.network === network.id, errInferencePolicyDenied)
+      loggedAssert(this.listed(clone(policy.providers), provider), errInferencePolicyDenied)
+      loggedAssert(maxPrice <= policy.maxPrice, errInferencePolicyCap)
+    }
+    return abiCall<typeof InferenceNetwork.prototype.openPooled>({
+      sender: getControlledSpendingAccount(wallet),
+      appId: network,
+      args: [pool, provider, maxPrice, request, subscription, windowHint(wallet)],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    }).returnValue
+  }
+
+  private listed(list: uint64[], value: uint64): boolean {
+    for (const entry of list) {
+      if (entry === value) return true
+    }
+    return false
   }
 
   /**

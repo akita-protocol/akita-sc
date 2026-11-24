@@ -81,8 +81,9 @@ export type MockInferenceDaoArgs = {
             chargePercentage: bigint | number;
             providerBond: bigint | number;
         };
-        'setGate(uint64)void': {
-            gate: bigint | number;
+        'setApps(uint64,uint64)void': {
+            subscriptions: bigint | number;
+            wallet: bigint | number;
         };
     };
     /**
@@ -91,7 +92,7 @@ export type MockInferenceDaoArgs = {
     tuple: {
         'create(uint64)void': [akta: bigint | number];
         'setInferenceFees(uint64,uint64)void': [chargePercentage: bigint | number, providerBond: bigint | number];
-        'setGate(uint64)void': [gate: bigint | number];
+        'setApps(uint64,uint64)void': [subscriptions: bigint | number, wallet: bigint | number];
     };
 };
 /**
@@ -100,7 +101,7 @@ export type MockInferenceDaoArgs = {
 export type MockInferenceDaoReturns = {
     'create(uint64)void': void;
     'setInferenceFees(uint64,uint64)void': void;
-    'setGate(uint64)void': void;
+    'setApps(uint64,uint64)void': void;
 };
 /**
  * Defines the types of available calls and state of the MockInferenceDao smart contract.
@@ -117,10 +118,10 @@ export type MockInferenceDaoTypes = {
         argsObj: MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'];
         argsTuple: MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void'];
         returns: MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void'];
-    }> & Record<'setGate(uint64)void' | 'setGate', {
-        argsObj: MockInferenceDaoArgs['obj']['setGate(uint64)void'];
-        argsTuple: MockInferenceDaoArgs['tuple']['setGate(uint64)void'];
-        returns: MockInferenceDaoReturns['setGate(uint64)void'];
+    }> & Record<'setApps(uint64,uint64)void' | 'setApps', {
+        argsObj: MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'];
+        argsTuple: MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void'];
+        returns: MockInferenceDaoReturns['setApps(uint64,uint64)void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -234,12 +235,12 @@ export declare abstract class MockInferenceDaoParamsFactory {
      */
     static setInferenceFees(params: CallParams<MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the setGate(uint64)void ABI method
+     * Constructs a no op call for the setApps(uint64,uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static setGate(params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setApps(params: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the MockInferenceDAO smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -610,12 +611,12 @@ export declare class MockInferenceDaoClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & {
+        setApps: (params: CallParams<MockInferenceDaoArgs["obj"]["setApps(uint64,uint64)void"] | MockInferenceDaoArgs["tuple"]["setApps(uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -644,12 +645,12 @@ export declare class MockInferenceDaoClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & {
+        setApps: (params: CallParams<MockInferenceDaoArgs["obj"]["setApps(uint64,uint64)void"] | MockInferenceDaoArgs["tuple"]["setApps(uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -687,15 +688,15 @@ export declare class MockInferenceDaoClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         * Makes a call to the MockInferenceDAO smart contract using the `setApps(uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & SendParams & {
+        setApps: (params: CallParams<MockInferenceDaoArgs["obj"]["setApps(uint64,uint64)void"] | MockInferenceDaoArgs["tuple"]["setApps(uint64,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MockInferenceDaoReturns["setGate(uint64)void"]);
+            return: (undefined | MockInferenceDaoReturns["setApps(uint64,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -750,13 +751,13 @@ export type MockInferenceDaoComposer<TReturns extends [...any[]] = []> = {
      */
     setInferenceFees(params?: CallParams<MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the setGate(uint64)void ABI method.
+     * Calls the setApps(uint64,uint64)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    setGate(params?: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setGate(uint64)void'] | undefined]>;
+    setApps(params?: CallParams<MockInferenceDaoArgs['obj']['setApps(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setApps(uint64,uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setApps(uint64,uint64)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the MockInferenceDAO smart contract.
      *

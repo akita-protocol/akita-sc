@@ -48,9 +48,11 @@ export const errInferenceBadMetadata = 'errInbm'
 export const errInferenceNoPool = 'errInno'
 /** Only the pool's sponsor may do this. */
 export const errInferenceNotSponsor = 'errInsp'
-/** Only the pool's allocator, or a member who passes its gate, may open a pool ticket. */
+/** Only the pool's allocator, or a subscriber for their own subscription, may open a pool ticket. */
 export const errInferencePoolDenied = 'errInpd'
-/** The member's use of the pool this period, or the pool's balance or credit, cannot cover this ticket. */
+/** The member's use since their last subscription payment, or the pool's balance or credit, cannot cover this ticket. */
 export const errInferencePoolExhausted = 'errInpx'
-/** The pool's period must be more than zero. */
-export const errInferenceBadPeriod = 'errInpe'
+/** A pool needs a merchant and a subscription service. */
+export const errInferenceBadService = 'errInpe'
+/** The subscription is not a paid-up subscription to the pool's service. */
+export const errInferenceNotSubscribed = 'errInns'

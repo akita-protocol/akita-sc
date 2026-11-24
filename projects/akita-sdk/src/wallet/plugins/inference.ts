@@ -13,11 +13,25 @@ const boxKey = (prefix: string, id: bigint | number) => {
   return key;
 };
 
+const addressBytes = (address: ReadableAddress) =>
+  typeof address === "string" ? decodeAddress(address).publicKey : address.publicKey;
+
+/** The box key of a subscription's use of an InferenceNetwork sponsor pool. */
+export function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAddress, subscription: bigint | number) {
+  const key = new Uint8Array(49);
+  key[0] = "u".charCodeAt(0);
+  key.set(encodeUint64(BigInt(pool)), 1);
+  key.set(addressBytes(subscriber), 9);
+  key.set(encodeUint64(BigInt(subscription)), 41);
+  return key;
+}
+
 /**
  * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
  * settle in an ASA touches three holdings (the network's, the payout's and the payer's), and a pool
  * ticket two more boxes, which can be more than automatic resource population will place in one call.
- * For a pool ticket pass `pool` (the ticket's pool); `payer` is then the member.
+ * For a pool ticket pass `pool` and `subscription` from the ticket; `payer` is then the ticket's payer
+ * field, the subscription's address.
  */
 export function inferenceSettleReferences(args: {
   ticket: bigint | number;
@@ -26,17 +40,11 @@ export function inferenceSettleReferences(args: {
   payer: ReadableAddress;
   payout: ReadableAddress;
   pool?: bigint | number;
+  subscription?: bigint | number;
 }) {
   const pooled = args.pool !== undefined && BigInt(args.pool) !== 0n;
   const boxes = [boxKey("t", args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
-  if (pooled) {
-    const member = typeof args.payer === "string" ? decodeAddress(args.payer).publicKey : args.payer.publicKey;
-    const usage = new Uint8Array(41);
-    usage[0] = "u".charCodeAt(0);
-    usage.set(encodeUint64(BigInt(args.pool!)), 1);
-    usage.set(member, 9);
-    boxes.push(boxKey("o", args.pool!), usage);
-  }
+  if (pooled) boxes.push(boxKey("o", args.pool!), inferenceUsageKey(args.pool!, args.payer, args.subscription ?? 0n));
   return {
     accountReferences: pooled ? [args.payout] : [args.payout, args.payer],
     assetReferences: BigInt(args.asset) === 0n ? [] : [BigInt(args.asset)],
@@ -95,6 +103,20 @@ type OpenArgs = MaybeSigner & {
   request: Uint8Array;
 };
 
+type OpenPooledArgs = MaybeSigner & {
+  rekeyBack?: boolean;
+  network: bigint | number;
+  /** The sponsor pool that pays. */
+  pool: bigint | number;
+  provider: bigint | number;
+  /** The most this request may cost; locked from the pool until the provider settles. */
+  maxPrice: bigint | number;
+  /** The caller's 32-byte id for the request, which it also sends to the provider. */
+  request: Uint8Array;
+  /** The wallet's paid-up subscription to the pool's service. */
+  subscription: { address: ReadableAddress; id: bigint | number };
+};
+
 /** Builds InferencePlugin calls for `WalletSDK.usePlugin`. */
 export class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
 
@@ -128,6 +150,40 @@ export class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
             asset: BigInt(args.asset),
             maxPrice: BigInt(args.maxPrice),
             request: args.request,
+          },
+        });
+        return [{ type: "methodCall", ...params }];
+      },
+    });
+  }
+
+  /**
+   * Opens a ticket paid from a sponsor pool, against the wallet's subscription to the pool's service;
+   * nothing leaves the wallet. The call returns the ticket id. The network call reads the subscription
+   * with two inner calls, so give the wallet call `extraFee` for them.
+   */
+  openPooled(): PluginSDKReturn;
+  openPooled(args: OpenPooledArgs): PluginSDKReturn;
+  openPooled(args?: OpenPooledArgs): PluginSDKReturn {
+    if (args === undefined) {
+      return (_?: ReadableAddress) => ({ appId: this.client.appId, selectors: this.selector("openPooled"), getTxns });
+    }
+    const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
+    return (_?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: this.selector("openPooled"),
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const params = await this.client.params.openPooled({
+          ...sendParams,
+          args: {
+            wallet,
+            rekeyBack: args.rekeyBack ?? true,
+            network: BigInt(args.network),
+            pool: BigInt(args.pool),
+            provider: BigInt(args.provider),
+            maxPrice: BigInt(args.maxPrice),
+            request: args.request,
+            subscription: { address: args.subscription.address.toString(), id: BigInt(args.subscription.id) },
           },
         });
         return [{ type: "methodCall", ...params }];
