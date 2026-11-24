@@ -82,8 +82,8 @@
     "arc58/dao/AkitaDAO": {
       "name": "AkitaDAO",
       "approval": {
-        "bytes": 10823,
-        "sha256": "2256b293b083c22339df020cdba8a0a03fc9e2be07d4fb7d947510004fa9423c"
+        "bytes": 10856,
+        "sha256": "61e983653fa6370e19b4b95ce0e9a7c3d3a3017a73005a6a7ee1717cd29211b9"
       },
       "clear": {
         "bytes": 4,
@@ -94,8 +94,8 @@
     "arc58/dao/AkitaDAOProposalValidator": {
       "name": "AkitaDAOProposalValidator",
       "approval": {
-        "bytes": 3682,
-        "sha256": "1d27ff533f9d80be3222397e81ea09a762c1803152d38d13d2e652727da25167"
+        "bytes": 3704,
+        "sha256": "4484d338aeb0cadabb5684d41c00771d6138197c50e0a6e41ccab26b0cabd1bc"
       },
       "clear": {
         "bytes": 4,
@@ -1269,8 +1269,8 @@
       "name": "MockLegacyVoteDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 11054,
-        "sha256": "9d7d83496d57c0b84813656120b3a01e60ca7d69f9bf711c1a8da67b060bcc54"
+        "bytes": 11087,
+        "sha256": "f41a545e97a4bc0c92af7891a871309ac99f8819e8d033f100867ca6fc949000"
       },
       "clear": {
         "bytes": 4,

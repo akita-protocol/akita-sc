@@ -21,6 +21,7 @@ export const AkitaDAOGlobalStateKeysStakingFees = 'staking_fees'
 export const AkitaDAOGlobalStateKeysSubscriptionFees = 'subscription_fees'
 export const AkitaDAOGlobalStateKeysSwapFees = 'swap_fees'
 export const AkitaDAOGlobalStateKeysNFTFees = 'nft_fees'
+export const AkitaDAOGlobalStateKeysInferenceFees = 'inference_fees'
 
 export const AkitaDAOGlobalStateKeysAkitaAssets = 'akita_assets'
 export const AkitaDAOGlobalStateKeysRevenueSplits = 'revenue_splits'
