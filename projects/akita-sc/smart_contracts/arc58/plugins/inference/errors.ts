@@ -1,0 +1,10 @@
+/** An InferencePlugin policy body is not the canonical ARC-4 encoding of its fields. */
+export const errInferencePolicyEncoding = 'errIpen'
+/** An InferencePlugin policy must name a network, 1 to 8 providers and 1 to 8 assets (ascending, no repeats), and a cap above zero. */
+export const errInferencePolicyFields = 'errIpfl'
+/** The grant's policy does not allow this network, provider or asset. */
+export const errInferencePolicyDenied = 'errIpdn'
+/** The deposit would take the channel above the policy's cap. */
+export const errInferencePolicyCap = 'errIpcp'
+/** The channel was not opened by this wallet's spending account. */
+export const errInferenceNotOwnChannel = 'errIpnc'

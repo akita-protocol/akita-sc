@@ -1581,9 +1581,9 @@ open_bool_merge@7:
     // smart_contracts/inference/contract.algo.ts:288
     // loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     bnz open_after_assert@9
-    pushbytes "ERR:errInaa"
+    pushbytes "ERR:errInxa"
     log
-    err // ERR:errInaa
+    err // ERR:errInxa
 
 open_after_assert@9:
     // smart_contracts/inference/contract.algo.ts:289

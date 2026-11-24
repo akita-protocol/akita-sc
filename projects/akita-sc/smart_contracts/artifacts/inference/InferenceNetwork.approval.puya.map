@@ -12066,9 +12066,9 @@
       ]
     },
     "2000": {
-      "op": "pushbytes \"ERR:errInaa\"",
+      "op": "pushbytes \"ERR:errInxa\"",
       "defined_out": [
-        "\"ERR:errInaa\""
+        "\"ERR:errInxa\""
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
@@ -12078,7 +12078,7 @@
         "encoded_value%0#0",
         "asset#0",
         "sessionKey#0",
-        "\"ERR:errInaa\""
+        "\"ERR:errInxa\""
       ]
     },
     "2013": {
@@ -12094,8 +12094,8 @@
       ]
     },
     "2014": {
-      "error": "ERR:errInaa",
-      "op": "err // ERR:errInaa"
+      "error": "ERR:errInxa",
+      "op": "err // ERR:errInxa"
     },
     "2015": {
       "block": "open_after_assert@9",

@@ -17,7 +17,7 @@ export const errInferenceBadWindow = 'errInbw'
 /** The address must not be the zero address. */
 export const errInferenceZeroAddress = 'errInza'
 /** The asset is not accepted for channels. */
-export const errInferenceAssetNotAllowed = 'errInaa'
+export const errInferenceAssetNotAllowed = 'errInxa'
 /** This app is not opted in to the asset. */
 export const errInferenceNotOptedIn = 'errInoi'
 /** No provider with this id. */

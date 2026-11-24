@@ -194,7 +194,7 @@ describe('InferenceNetwork', () => {
     let channel: bigint
 
     test('a payer opens a channel with a deposit and a session key', async () => {
-      await expect(openChannel(payer, akta, 1_000n, key.publicKey)).rejects.toThrow(/errInaa/)
+      await expect(openChannel(payer, akta, 1_000n, key.publicKey)).rejects.toThrow(/errInxa/)
       await expect(openChannel(payer, usdc, 1_000n, new Uint8Array(32))).rejects.toThrow(/errInsk/)
       // the deposit must come from the caller
       await expect(client.send.open({
