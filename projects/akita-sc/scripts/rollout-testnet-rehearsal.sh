@@ -58,6 +58,14 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+# Set while the release is being changed. A run would send programs that are about to be replaced.
+HOLD_REASON="the DAO in release 2.0.0 is gaining the inference fee field, so the commit to deploy from is changing. Wait for the new one-line command in the thread."
+if [ -n "$HOLD_REASON" ] && [ "$MODE" != list ]; then
+  echo "On hold: $HOLD_REASON" >&2
+  echo "Nothing was run." >&2
+  exit 1
+fi
+
 known() { case " $2 " in *" $1 "*) return 0 ;; esac; return 1; }
 if [ -n "$ONLY" ] && ! known "$ONLY" "$STEPS"; then echo "No step named $ONLY. Steps: $STEPS" >&2; exit 2; fi
 if [ -n "$UNTIL" ] && ! known "$UNTIL" "$STEPS"; then echo "No step named $UNTIL. Steps: $STEPS" >&2; exit 2; fi
