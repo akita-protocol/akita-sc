@@ -2,21 +2,25 @@
 #
 # TestNet rehearsal of the Akita contracts 2.0.0 rollout, steps A4a to G2.
 #
-# Every command below is copied from docs/rollout/MAINNET-ROLLOUT.md at commit 5957736, with the
-# runbook's own TestNet differences applied: testnet for mainnet, TestNet's ids for the kept
-# sub-gates in C2 and C3, and no Haystack router plugin in G2. D1a is a manual MainNet step and has
-# no command.
+# Every command below is copied from docs/rollout/MAINNET-ROLLOUT.md, with the runbook's own
+# TestNet differences applied: testnet for mainnet, TestNet's ids for the kept sub-gates in C2 and
+# C3, and no Haystack router plugin in G2. D1a is a manual MainNet step and has no command. When
+# the runbook's commands for these steps change, this file has to be made again from them.
 #
-# Run it yourself, from inside the akita-sc checkout that is at the commit to deploy from. It signs
-# and sends with the DAO creator's key, which it takes from DEPLOYER_MNEMONIC (or MNEMONIC) in your
-# shell, and asks for it without showing it if neither is set. It never prints the key and writes
-# it nowhere.
+# Run it yourself, from inside the akita-sc checkout, and name the commit to deploy from. It
+# refuses any other commit:
 #
-#   bash rollout-testnet-rehearsal.sh              every step that is not done yet, in order
-#   bash rollout-testnet-rehearsal.sh --list       the steps, and which commands are done
-#   bash rollout-testnet-rehearsal.sh --until C4   stop after a step
-#   bash rollout-testnet-rehearsal.sh --only B1    one step
-#   bash rollout-testnet-rehearsal.sh --yes        do not ask before the first command
+#   REHEARSAL_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-testnet-rehearsal.sh
+#
+# It signs and sends with the DAO creator's key, which it takes from DEPLOYER_MNEMONIC (or
+# MNEMONIC) in your shell, and asks for it without showing it if neither is set. It never prints
+# the key and writes it nowhere.
+#
+#   (no option)    every step that is not done yet, in order
+#   --list         the steps, and which commands are done
+#   --until C4     stop after a step
+#   --only B1      one step
+#   --yes          do not ask before the first command
 #
 # It stops at the first command that fails and runs nothing after it. A second start carries on
 # from there: finished commands are listed in receipts/rehearsal-done.txt and are not run again.
@@ -25,8 +29,8 @@
 # Six plugin deploys in G2 keep no receipt, so a second run of one could create a second app. If
 # one of them fails, the next start refuses it until you say which it is:
 #
-#   bash rollout-testnet-rehearsal.sh --retry G2#4       it created nothing: run it again
-#   bash rollout-testnet-rehearsal.sh --mark-done G2#4   it created the app and its id is recorded
+#   --retry 'G2#4'       it created nothing: run it again
+#   --mark-done 'G2#4'   it created the app and its id is recorded
 #
 # It ends after G2. G2a onward need values from you (the heartbeat manager's address first), and
 # I1 is not part of a rehearsal that keeps the TestNet DAO in Draft.
@@ -35,7 +39,7 @@ set -uo pipefail
 
 REPO="${AKITA_SC_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 if [ -z "$REPO" ]; then echo "Run this from inside the akita-sc checkout. Nothing was run." >&2; exit 1; fi
-EXPECT_COMMIT="${REHEARSAL_COMMIT:-59577360fd1c0ca1567aa9604d7e8cefdeae6d12}"
+EXPECT_COMMIT="${REHEARSAL_COMMIT:-}"
 STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2"
 COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#2 E1#4 E2#2 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10"
 
@@ -59,7 +63,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Set while the release is being changed. A run would send programs that are about to be replaced.
-HOLD_REASON="the DAO in release 2.0.0 is gaining the inference fee field, so the commit to deploy from is changing. Wait for the new one-line command in the thread."
+HOLD_REASON=""
 if [ -n "$HOLD_REASON" ] && [ "$MODE" != list ]; then
   echo "On hold: $HOLD_REASON" >&2
   echo "Nothing was run." >&2
@@ -97,10 +101,18 @@ fi
 
 if [ "$MODE" = run ]; then
   HEAD_NOW="$(git rev-parse HEAD)"
-  if [ "$HEAD_NOW" != "$EXPECT_COMMIT" ]; then
-    echo "This checkout is at $HEAD_NOW, not the commit to deploy from ($EXPECT_COMMIT). Nothing was run." >&2
+  if [ "${#EXPECT_COMMIT}" -lt 7 ]; then
+    echo "Name the commit to deploy from: REHEARSAL_COMMIT=<commit> bash $0" >&2
+    echo "This checkout is at $HEAD_NOW. Nothing was run." >&2
     exit 1
   fi
+  case "$HEAD_NOW" in
+    "$EXPECT_COMMIT"*) ;;
+    *)
+      echo "This checkout is at $HEAD_NOW, not the commit to deploy from ($EXPECT_COMMIT). Nothing was run." >&2
+      exit 1
+      ;;
+  esac
 
   case "$(node -v 2>/dev/null)" in
     v24.*) ;;
