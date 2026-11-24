@@ -21,7 +21,7 @@ import {
   errInferenceBadTransfer, errInferenceBadWindow, errInferenceBondTooLow,
   errInferenceNoProvider, errInferenceNotAdmin, errInferenceNotOptedIn, errInferenceNotOwner,
   errInferenceProviderInactive, errInferenceSlashTooHigh, errInferenceUnbonding, errInferenceZeroAddress, errInferenceExpired, errInferenceNoTicket, errInferenceNotClaimer, errInferenceNotExpired, errInferenceOverLock,
-  errInferenceZeroLock, errInferenceBadService, errInferenceNoPool, errInferenceNoWallet, errInferenceNotSubscribed, errInferenceNotSponsor, errInferencePoolDenied,
+  errInferenceZeroLock, errInferenceBadService, errInferenceNoPool, errInferenceNoWallet, errInferenceTicketExists, errInferenceNotSubscribed, errInferenceNotSponsor, errInferencePoolDenied,
   errInferencePoolExhausted,
 } from './errors'
 import {
@@ -75,7 +75,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
   metadata = BoxMap<uint64, string>({ keyPrefix: 'm' })
   attestations = BoxMap<uint64, Attestation>({ keyPrefix: 'a' })
-  tickets = BoxMap<uint64, Ticket>({ keyPrefix: 't' })
+  tickets = BoxMap<bytes<32>, Ticket>({ keyPrefix: 't' })
   pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
   usage = BoxMap<UsageKey, Usage>({ keyPrefix: 'u' })
   assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
@@ -289,8 +289,10 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   /**
    * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
    * moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-   * the caller's id for the request, which the provider sees in the same request. The ticket must be
-   * settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+   * the caller's id for the request, which the provider sees in the same request. The ticket's id is
+   * sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+   * tickets for different requests never collide. The ticket must be settled before the settle window
+   * ends, or anyone can refund it. Returns the ticket id.
    *
    * `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
    * InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -300,7 +302,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * Providers serve without waiting for this to confirm: a provider whose ticket never lands cuts the
    * payer off, losing at most that request.
    */
-  open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>, wallet: uint64): uint64 {
+  open(payment: gtxn.PaymentTxn, lock: gtxn.Transaction, provider: uint64, asset: uint64, request: bytes<32>, wallet: uint64): bytes<32> {
     const who = this.walletPrincipal(wallet)
     this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
     const amount = this.receive(lock, asset)
@@ -378,7 +380,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * the call. The allowance is counted per subscription and starts over with each payment; the ticket
    * is attributed to the principal. Returns the ticket id.
    */
-  openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): uint64 {
+  openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): bytes<32> {
     const info = this.mustGetPool(pool)
     const who = this.walletPrincipal(wallet)
     const ctx: GateCtx = { principal: who.principal, wallet: who.wallet, spender: who.spender }
@@ -394,7 +396,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   openSponsored(
     pool: uint64, member: Account, memberWallet: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>,
     subscription: SubscriptionKey,
-  ): uint64 {
+  ): bytes<32> {
     const info = this.mustGetPool(pool)
     loggedAssert(info.allocator !== Global.zeroAddress && Txn.sender === info.allocator, errInferencePoolDenied)
     loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
@@ -410,7 +412,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
    * and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
    */
-  settle(ticket: uint64, cost: uint64): uint64 {
+  settle(ticket: bytes<32>, cost: uint64): uint64 {
     const info = this.mustGetTicket(ticket)
     const provider = this.mustGetProvider(info.provider)
     loggedAssert(Txn.sender === provider.claimer, errInferenceNotClaimer)
@@ -430,7 +432,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   /** After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer. */
-  refundExpired(ticket: uint64): void {
+  refundExpired(ticket: bytes<32>): void {
     const info = this.mustGetTicket(ticket)
     loggedAssert(Global.latestTimestamp >= info.expiresAt, errInferenceNotExpired)
     this.tickets(ticket).delete()
@@ -445,8 +447,14 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     return this.mustGetProvider(provider)
   }
 
+  /** A ticket's id: sha256 of the principal's address and the caller's request id. */
   @abimethod({ readonly: true })
-  getTicket(ticket: uint64): Ticket {
+  ticketId(principal: Account, request: bytes<32>): bytes<32> {
+    return this.idOf(principal, request)
+  }
+
+  @abimethod({ readonly: true })
+  getTicket(ticket: bytes<32>): Ticket {
     return this.mustGetTicket(ticket)
   }
 
@@ -554,14 +562,15 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   private newTicket(
     payer: Account, principal: Account, wallet: uint64, provider: uint64, asset: uint64, amount: uint64, request: bytes<32>,
     pool: uint64, subscription: uint64, lastPayment: uint64,
-  ): uint64 {
+  ): bytes<32> {
     loggedAssert(this.mustGetProvider(provider).status === ProviderActive, errInferenceProviderInactive)
     loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
     loggedAssert(amount > 0, errInferenceZeroLock)
     let percentage = getInferenceFees(this.akitaDAO.value).chargePercentage
     if (percentage > INFERENCE_MAX_FEE_PERCENTAGE) percentage = INFERENCE_MAX_FEE_PERCENTAGE
-    const id: uint64 = this.ticketCount.value + 1
-    this.ticketCount.value = id
+    const id = this.idOf(principal, request)
+    loggedAssert(!this.tickets(id).exists, errInferenceTicketExists)
+    this.ticketCount.value = this.ticketCount.value + 1
     const expiresAt: uint64 = Global.latestTimestamp + this.settings.value.settleWindow
     this.tickets(id).value = {
       payer, principal, wallet, provider, asset, amount, feePercentage: percentage, expiresAt, pool, subscription, lastPayment,
@@ -577,7 +586,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   private poolTicket(
     pool: uint64, info: Pool, member: Account, wallet: uint64, subscription: SubscriptionKey, provider: uint64,
     maxPrice: uint64, request: bytes<32>,
-  ): uint64 {
+  ): bytes<32> {
     const lastPayment = this.paidSubscription(info, subscription)
     const key: UsageKey = { pool, subscriber: subscription.address, subscription: subscription.id }
     let credit = info.credit
@@ -642,7 +651,11 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     return info
   }
 
-  private mustGetTicket(ticket: uint64): Ticket {
+  private idOf(principal: Account, request: bytes<32>): bytes<32> {
+    return op.sha256(principal.bytes.concat(request)).toFixed({ length: 32 })
+  }
+
+  private mustGetTicket(ticket: bytes<32>): Ticket {
     loggedAssert(this.tickets(ticket).exists, errInferenceNoTicket)
     return clone(this.tickets(ticket).value)
   }

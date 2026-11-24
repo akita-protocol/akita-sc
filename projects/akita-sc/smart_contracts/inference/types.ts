@@ -44,7 +44,7 @@ export type Attestation = {
   encryptionKey: bytes<32>
 }
 
-/** One request's locked max price. Box key: 't' + ticket id. */
+/** One request's locked max price. Box key: 't' + ticket id, sha256(principal, request). */
 export type Ticket = {
   /**
    * Paid the lock and the storage deposit and gets the rest back. For a pool ticket the pool paid, and
@@ -114,7 +114,7 @@ export type PaymentAsset = {
 export type InferenceProviderRegistered = { provider: uint64; owner: Account; status: uint64; bond: uint64 }
 export type InferenceProviderStatus = { provider: uint64; status: uint64 }
 export type InferenceTicketOpened = {
-  ticket: uint64
+  ticket: bytes<32>
   payer: Account
   /** The Akita account the request is attributed to (the wallet's controlled address), and its wallet. */
   principal: Account
@@ -129,7 +129,7 @@ export type InferenceTicketOpened = {
 }
 /** A settled or refunded ticket; a refund has cost 0. */
 export type InferenceTicketSettled = {
-  ticket: uint64
+  ticket: bytes<32>
   principal: Account
   wallet: uint64
   provider: uint64

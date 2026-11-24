@@ -2,6 +2,11 @@ type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { InferencePluginClient } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginSDKReturn } from "../../types";
+/**
+ * An InferenceNetwork ticket's id: sha256 of the principal's address (the wallet's controlled address)
+ * and the caller's 32-byte request id. The caller knows it before the ticket lands.
+ */
+export declare function inferenceTicketId(principal: ReadableAddress, request: Uint8Array): Uint8Array;
 /** The box key of a subscription's use of an InferenceNetwork sponsor pool. */
 export declare function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAddress, subscription: bigint | number): Uint8Array<ArrayBuffer>;
 /**
@@ -12,7 +17,7 @@ export declare function inferenceUsageKey(pool: bigint | number, subscriber: Rea
  * field, the subscription's address.
  */
 export declare function inferenceSettleReferences(args: {
-    ticket: bigint | number;
+    ticket: Uint8Array;
     provider: bigint | number;
     asset: bigint | number;
     payer: ReadableAddress;

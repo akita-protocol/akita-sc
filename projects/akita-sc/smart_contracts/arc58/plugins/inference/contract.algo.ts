@@ -38,7 +38,8 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /**
    * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-   * locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+   * locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+   * sha256(the wallet's controlled address, request).
    */
   open(
     wallet: Application,
@@ -48,7 +49,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
     asset: uint64,
     maxPrice: uint64,
     request: bytes<32>,
-  ): uint64 {
+  ): bytes<32> {
     const grant = this.grant(wallet)
     if (!this.isAdminWindow(wallet, grant)) {
       const policy = decodeArc4<InferencePolicy>(this.policy(wallet, grant))
@@ -102,7 +103,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
     maxPrice: uint64,
     request: bytes<32>,
     subscription: SubscriptionKey,
-  ): uint64 {
+  ): bytes<32> {
     const grant = this.grant(wallet)
     if (!this.isAdminWindow(wallet, grant)) {
       const policy = decodeArc4<InferencePolicy>(this.policy(wallet, grant))

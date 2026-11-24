@@ -378,7 +378,7 @@
       "name": "InferencePlugin",
       "approval": {
         "bytes": 2107,
-        "sha256": "9bc8050b15e8f84d76c70bef9ec69f729a4226610dd64185efc3f9ee844750a0"
+        "sha256": "59958d7f32c203c7ee8256ce8c30af7ac72677e89a7c24aa59747ccdc9dce2f4"
       },
       "clear": {
         "bytes": 4,
@@ -958,8 +958,8 @@
     "inference/InferenceNetwork": {
       "name": "InferenceNetwork",
       "approval": {
-        "bytes": 5657,
-        "sha256": "a5575adbc058d2aa5ec851eca85e48b2eb8e3df8b8a347afbc7f978d9333b270"
+        "bytes": 5715,
+        "sha256": "2aa41627ddf6641b00717f7b0305bc42631995e2a05ec2e8794482b33cf7e2e2"
       },
       "clear": {
         "bytes": 4,

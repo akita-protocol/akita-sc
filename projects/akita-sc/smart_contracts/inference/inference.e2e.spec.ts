@@ -4,7 +4,7 @@ import type { Address, TransactionSigner } from 'algosdk'
 import algosdk from 'algosdk'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet'
-import { InferencePluginSDK } from '../../../akita-sdk/src/wallet/plugins/inference'
+import { inferenceTicketId, InferencePluginSDK } from '../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../tests/fixtures/escrow'
@@ -22,7 +22,7 @@ const BOND = 100n
 
 /** Box MBR = 2_500 + 400 * (key + value); the same numbers as constants.ts, checked against algod below. */
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
-const TICKET_MBR = 2_500n + 400n * (9n + 32n * 2n + 8n * 9n)
+const TICKET_MBR = 2_500n + 400n * (33n + 32n * 2n + 8n * 9n)
 const POOL_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 5n)
 const USAGE_MBR = 2_500n + 400n * (1n + 8n + 32n + 8n + 16n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
@@ -75,11 +75,11 @@ describe('InferenceNetwork', () => {
   const boxKey = (prefix: string, id: bigint) => new Uint8Array([...Buffer.from(prefix), ...algosdk.encodeUint64(id)])
   const usageKey = (pool: bigint, subscriber: Address, subscription: bigint) =>
     new Uint8Array([...Buffer.from('u'), ...algosdk.encodeUint64(pool), ...subscriber.publicKey, ...algosdk.encodeUint64(subscription)])
-  const settleRefs = (ticket: bigint, asset: bigint, pool?: { id: bigint; subscriber: Address; subscription: bigint }) => ({
+  const settleRefs = (ticket: Uint8Array, asset: bigint, pool?: { id: bigint; subscriber: Address; subscription: bigint }) => ({
     accountReferences: pool ? [payout.addr] : [payout.addr, payer.addr],
     assetReferences: [asset],
     boxReferences: [
-      boxKey('t', ticket), boxKey('p', provider), boxKey('x', asset),
+      new Uint8Array([...Buffer.from('t'), ...ticket]), boxKey('p', provider), boxKey('x', asset),
       ...(pool ? [boxKey('o', pool.id), usageKey(pool.id, pool.subscriber, pool.subscription)] : []),
     ],
   })
@@ -91,7 +91,6 @@ describe('InferenceNetwork', () => {
   const fund = async (who: Signer, asset: bigint, amount: bigint) =>
     fixture.algorand.send.assetTransfer({ ...as(admin), receiver: who.addr, assetId: asset, amount })
 
-  const lastTicket = async () => (await client.state.global.ticketCount())!
   const newMember = async (algo = 20n): Promise<Member> => {
     const wallet = await newWallet({
       algorand: fixture.algorand, readerAccount: admin.addr.toString(), nickname: `inference ${++wallets}`,
@@ -107,7 +106,7 @@ describe('InferenceNetwork', () => {
       callerType: CallerType.Admin,
       calls: [plugin.open({ network: client.appId, provider: to, asset, maxPrice: amount, request: request(id) })],
     })
-    return lastTicket()
+    return inferenceTicketId(member.address, request(id))
   }
 
   beforeAll(async () => {
@@ -242,7 +241,7 @@ describe('InferenceNetwork', () => {
   })
 
   describe('tickets', () => {
-    let ticket: bigint
+    let ticket: Uint8Array
 
     test('only an Akita wallet opens a ticket; it locks the max price and is the wallet\'s', async () => {
       // a plain account, calling directly
@@ -261,6 +260,9 @@ describe('InferenceNetwork', () => {
       const walletBefore = await balance(algosdk.Address.fromString(buyer.address), 0n)
       ticket = await open(buyer, 0n, 500_000n)
       expect(await minBalance() - before).toBe(TICKET_MBR)
+      // the id is known before the ticket lands, and one request opens one ticket
+      expect((await client.send.ticketId({ args: { principal: buyer.address, request: request(1) } })).return).toEqual(ticket)
+      await expect(open(buyer, 0n, 500_000n)).rejects.toThrow(/errInte/)
       expect(walletBefore - await balance(algosdk.Address.fromString(buyer.address), 0n)).toBe(500_000n + TICKET_MBR)
       const info = (await client.send.getTicket({ args: { ticket } })).return!
       expect(info).toMatchObject({
@@ -340,10 +342,10 @@ describe('InferenceNetwork', () => {
         callerType: CallerType.Admin,
         calls: [plugin.openPooled({ network: client.appId, pool, provider, maxPrice, request: request(id), subscription })],
       })
-      return lastTicket()
+      return inferenceTicketId(m.address, request(id))
     }
     const usage = async (m: Member, id = 1n) => (await client.send.poolUsage({ args: { pool, subscription: sub(m, id) } })).return!
-    const settlePooled = (t: bigint, cost: bigint, m: Member, id = 1n) => client.send.settle(
+    const settlePooled = (t: Uint8Array, cost: bigint, m: Member, id = 1n) => client.send.settle(
       { ...as(claimer), args: { ticket: t, cost }, ...settleFee, ...settleRefs(t, usdc, { id: pool, subscriber: addr(m), subscription: id }) },
       { populateAppCallResources: false },
     )
@@ -428,7 +430,7 @@ describe('InferenceNetwork', () => {
         (await client.newGroup()
           .openSponsored({ ...as(who), ...subFee, args: { pool, member: account, memberWallet, provider, maxPrice, request: request(id), subscription } })
           .getPool(withRoom(who, id))
-          .send()).returns[0] as bigint
+          .send()).returns[0] as Uint8Array
       await expect(open(stranger, outsider.address, outsider.id, sub(outsider, 2n), 10_000n, 30)).rejects.toThrow(/errInpd/)
       await expect(open(payout, outsider.address, 0n, sub(outsider, 2n), 10_000n, 30)).rejects.toThrow(/errInwl/) // not a wallet
       await expect(open(payout, outsider.address, member.id, sub(outsider, 2n), 10_000n, 30)).rejects.toThrow(/errInwl/) // not its wallet

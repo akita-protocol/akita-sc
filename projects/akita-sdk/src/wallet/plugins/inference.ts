@@ -1,4 +1,5 @@
 type ReadableAddress = string | import('algosdk').Address;
+import { sha256 } from "@noble/hashes/sha2.js";
 import { ABIType, decodeAddress, encodeUint64 } from "algosdk";
 import { BaseSDK } from "../../base";
 import { InferencePluginClient, InferencePluginFactory } from "../../generated/InferencePluginClient";
@@ -15,6 +16,26 @@ const boxKey = (prefix: string, id: bigint | number) => {
 
 const addressBytes = (address: ReadableAddress) =>
   typeof address === "string" ? decodeAddress(address).publicKey : address.publicKey;
+
+/**
+ * An InferenceNetwork ticket's id: sha256 of the principal's address (the wallet's controlled address)
+ * and the caller's 32-byte request id. The caller knows it before the ticket lands.
+ */
+export function inferenceTicketId(principal: ReadableAddress, request: Uint8Array): Uint8Array {
+  if (request.length !== 32) throw new Error("An inference request id is 32 bytes");
+  const data = new Uint8Array(64);
+  data.set(addressBytes(principal), 0);
+  data.set(request, 32);
+  return sha256(data);
+}
+
+const ticketBoxKey = (ticket: Uint8Array) => {
+  if (ticket.length !== 32) throw new Error("An inference ticket id is 32 bytes");
+  const key = new Uint8Array(33);
+  key[0] = "t".charCodeAt(0);
+  key.set(ticket, 1);
+  return key;
+};
 
 /** The box key of a subscription's use of an InferenceNetwork sponsor pool. */
 export function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAddress, subscription: bigint | number) {
@@ -34,7 +55,7 @@ export function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAdd
  * field, the subscription's address.
  */
 export function inferenceSettleReferences(args: {
-  ticket: bigint | number;
+  ticket: Uint8Array;
   provider: bigint | number;
   asset: bigint | number;
   payer: ReadableAddress;
@@ -43,7 +64,7 @@ export function inferenceSettleReferences(args: {
   subscription?: bigint | number;
 }) {
   const pooled = args.pool !== undefined && BigInt(args.pool) !== 0n;
-  const boxes = [boxKey("t", args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
+  const boxes = [ticketBoxKey(args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
   if (pooled) boxes.push(boxKey("o", args.pool!), inferenceUsageKey(args.pool!, args.payer, args.subscription ?? 0n));
   return {
     accountReferences: pooled ? [args.payout] : [args.payout, args.payer],

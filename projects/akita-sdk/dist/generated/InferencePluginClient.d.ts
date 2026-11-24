@@ -51,7 +51,7 @@ export type InferencePluginArgs = {
         'create(uint64)void': {
             registry: bigint | number;
         };
-        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': {
+        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]': {
             wallet: bigint | number;
             rekeyBack: boolean;
             network: bigint | number;
@@ -60,7 +60,7 @@ export type InferencePluginArgs = {
             maxPrice: bigint | number;
             request: Uint8Array;
         };
-        'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64': {
+        'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': {
             wallet: bigint | number;
             rekeyBack: boolean;
             network: bigint | number;
@@ -79,8 +79,8 @@ export type InferencePluginArgs = {
      */
     tuple: {
         'create(uint64)void': [registry: bigint | number];
-        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, asset: bigint | number, maxPrice: bigint | number, request: Uint8Array];
-        'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
+        'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, asset: bigint | number, maxPrice: bigint | number, request: Uint8Array];
+        'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
         'validatePolicy(byte[])void': [body: Uint8Array];
     };
 };
@@ -89,8 +89,8 @@ export type InferencePluginArgs = {
  */
 export type InferencePluginReturns = {
     'create(uint64)void': void;
-    'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64': bigint;
-    'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64': bigint;
+    'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]': Uint8Array;
+    'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': Uint8Array;
     'validatePolicy(byte[])void': void;
 };
 /**
@@ -104,14 +104,14 @@ export type InferencePluginTypes = {
         argsObj: InferencePluginArgs['obj']['create(uint64)void'];
         argsTuple: InferencePluginArgs['tuple']['create(uint64)void'];
         returns: InferencePluginReturns['create(uint64)void'];
-    }> & Record<'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64' | 'open', {
-        argsObj: InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
-        argsTuple: InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
-        returns: InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'];
-    }> & Record<'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64' | 'openPooled', {
-        argsObj: InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
-        argsTuple: InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
-        returns: InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
+    }> & Record<'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]' | 'open', {
+        argsObj: InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'];
+        argsTuple: InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'];
+        returns: InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'];
+    }> & Record<'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]' | 'openPooled', {
+        argsObj: InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+        argsTuple: InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+        returns: InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
     }> & Record<'validatePolicy(byte[])void' | 'validatePolicy', {
         argsObj: InferencePluginArgs['obj']['validatePolicy(byte[])void'];
         argsTuple: InferencePluginArgs['tuple']['validatePolicy(byte[])void'];
@@ -227,18 +227,19 @@ export declare abstract class InferencePluginParamsFactory {
         };
     };
     /**
-     * Constructs a no op call for the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64 ABI method
+     * Constructs a no op call for the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32] ABI method
      *
     * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+    sha256(the wallet's controlled address, request).
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static open(params: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static open(params: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method
+     * Constructs a no op call for the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method
      *
     * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
     pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
@@ -250,7 +251,7 @@ export declare abstract class InferencePluginParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static openPooled(params: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static openPooled(params: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the validatePolicy(byte[])void ABI method
      *
@@ -628,20 +629,21 @@ export declare class InferencePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]` ABI method.
          *
         * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+        sha256(the wallet's controlled address, request).
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"]> & {
+        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
         pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
@@ -653,7 +655,7 @@ export declare class InferencePluginClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
+        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -684,16 +686,17 @@ export declare class InferencePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]` ABI method.
          *
         * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+        sha256(the wallet's controlled address, request).
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"]> & {
+        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -701,7 +704,7 @@ export declare class InferencePluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
         pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
@@ -713,7 +716,7 @@ export declare class InferencePluginClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
+        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -752,19 +755,20 @@ export declare class InferencePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]` ABI method.
          *
         * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+        locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+        sha256(the wallet's controlled address, request).
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"]> & SendParams & {
+        open: (params: CallParams<InferencePluginArgs["obj"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"] | InferencePluginArgs["tuple"]["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferencePluginReturns["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64"]);
+            return: (undefined | InferencePluginReturns["open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -774,7 +778,7 @@ export declare class InferencePluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
         pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
@@ -786,10 +790,10 @@ export declare class InferencePluginClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & SendParams & {
+        openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferencePluginReturns["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]);
+            return: (undefined | InferencePluginReturns["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -865,19 +869,20 @@ export declare class InferencePluginClient {
 }
 export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64 ABI method.
+     * Calls the open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32] ABI method.
      *
     * Opens a ticket from the spending account to `provider`, paying the ticket's storage deposit and
-    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id.
+    locking `maxPrice` of `asset`, for the request `request`. Returns the ticket id,
+    sha256(the wallet's controlled address, request).
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    open(params?: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])uint64'] | undefined]>;
+    open(params?: CallParams<InferencePluginArgs['obj']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'] | InferencePluginArgs['tuple']['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]'] | undefined]>;
     /**
-     * Calls the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method.
+     * Calls the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method.
      *
     * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
     pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
@@ -890,7 +895,7 @@ export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    openPooled(params?: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | undefined]>;
+    openPooled(params?: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | undefined]>;
     /**
      * Calls the validatePolicy(byte[])void ABI method.
      *

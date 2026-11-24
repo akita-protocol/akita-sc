@@ -203,7 +203,7 @@ export type InferenceNetworkArgs = {
         'withdrawBond(uint64)void': {
             provider: bigint | number;
         };
-        'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': {
+        'open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]': {
             payment?: AppMethodCallTransactionArgument;
             lock: AppMethodCallTransactionArgument;
             provider: bigint | number;
@@ -237,7 +237,7 @@ export type InferenceNetworkArgs = {
             amount: bigint | number;
             credit: bigint | number;
         };
-        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': {
+        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]': {
             pool: bigint | number;
             provider: bigint | number;
             maxPrice: bigint | number;
@@ -245,7 +245,7 @@ export type InferenceNetworkArgs = {
             subscription: SubscriptionKey;
             wallet: bigint | number;
         };
-        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': {
+        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': {
             pool: bigint | number;
             member: string;
             memberWallet: bigint | number;
@@ -254,18 +254,22 @@ export type InferenceNetworkArgs = {
             request: Uint8Array;
             subscription: SubscriptionKey;
         };
-        'settle(uint64,uint64)uint64': {
-            ticket: bigint | number;
+        'settle(byte[32],uint64)uint64': {
+            ticket: Uint8Array;
             cost: bigint | number;
         };
-        'refundExpired(uint64)void': {
-            ticket: bigint | number;
+        'refundExpired(byte[32])void': {
+            ticket: Uint8Array;
         };
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': {
             provider: bigint | number;
         };
-        'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
-            ticket: bigint | number;
+        'ticketId(address,byte[32])byte[32]': {
+            principal: string;
+            request: Uint8Array;
+        };
+        'getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
+            ticket: Uint8Array;
         };
         'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': {
             pool: bigint | number;
@@ -305,18 +309,19 @@ export type InferenceNetworkArgs = {
         'addBond(uint64,txn)void': [provider: bigint | number, bond: AppMethodCallTransactionArgument];
         'beginUnbond(uint64)void': [provider: bigint | number];
         'withdrawBond(uint64)void': [provider: bigint | number];
-        'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': [payment: AppMethodCallTransactionArgument | undefined, lock: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, request: Uint8Array, wallet: bigint | number];
+        'open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]': [payment: AppMethodCallTransactionArgument | undefined, lock: AppMethodCallTransactionArgument, provider: bigint | number, asset: bigint | number, request: Uint8Array, wallet: bigint | number];
         'createPool(pay,uint64,address,address,uint64,uint64)uint64': [payment: AppMethodCallTransactionArgument, asset: bigint | number, allocator: string, merchant: string, serviceId: bigint | number, perPayment: bigint | number];
         'fundPool(uint64,txn)void': [pool: bigint | number, transfer: AppMethodCallTransactionArgument];
         'addPoolCredit(uint64,txn)void': [pool: bigint | number, payment: AppMethodCallTransactionArgument];
         'updatePool(uint64,address,uint64)void': [pool: bigint | number, allocator: string, perPayment: bigint | number];
         'withdrawPool(uint64,uint64,uint64)void': [pool: bigint | number, amount: bigint | number, credit: bigint | number];
-        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': [pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey, wallet: bigint | number];
-        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': [pool: bigint | number, member: string, memberWallet: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
-        'settle(uint64,uint64)uint64': [ticket: bigint | number, cost: bigint | number];
-        'refundExpired(uint64)void': [ticket: bigint | number];
+        'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]': [pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey, wallet: bigint | number];
+        'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': [pool: bigint | number, member: string, memberWallet: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
+        'settle(byte[32],uint64)uint64': [ticket: Uint8Array, cost: bigint | number];
+        'refundExpired(byte[32])void': [ticket: Uint8Array];
         'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': [provider: bigint | number];
-        'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ticket: bigint | number];
+        'ticketId(address,byte[32])byte[32]': [principal: string, request: Uint8Array];
+        'getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ticket: Uint8Array];
         'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': [pool: bigint | number];
         'poolUsage(uint64,(address,uint64))(uint64,uint64)': [pool: bigint | number, subscription: SubscriptionKey];
         'providerCost(string)uint64': [metadata: string];
@@ -345,18 +350,19 @@ export type InferenceNetworkReturns = {
     'addBond(uint64,txn)void': void;
     'beginUnbond(uint64)void': void;
     'withdrawBond(uint64)void': void;
-    'open(pay,txn,uint64,uint64,byte[32],uint64)uint64': bigint;
+    'open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]': Uint8Array;
     'createPool(pay,uint64,address,address,uint64,uint64)uint64': bigint;
     'fundPool(uint64,txn)void': void;
     'addPoolCredit(uint64,txn)void': void;
     'updatePool(uint64,address,uint64)void': void;
     'withdrawPool(uint64,uint64,uint64)void': void;
-    'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64': bigint;
-    'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64': bigint;
-    'settle(uint64,uint64)uint64': bigint;
-    'refundExpired(uint64)void': void;
+    'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]': Uint8Array;
+    'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': Uint8Array;
+    'settle(byte[32],uint64)uint64': bigint;
+    'refundExpired(byte[32])void': void;
     'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)': Provider;
-    'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': Ticket;
+    'ticketId(address,byte[32])byte[32]': Uint8Array;
+    'getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': Ticket;
     'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)': Pool;
     'poolUsage(uint64,(address,uint64))(uint64,uint64)': Usage;
     'providerCost(string)uint64': bigint;
@@ -435,10 +441,10 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['withdrawBond(uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['withdrawBond(uint64)void'];
         returns: InferenceNetworkReturns['withdrawBond(uint64)void'];
-    }> & Record<'open(pay,txn,uint64,uint64,byte[32],uint64)uint64' | 'open', {
-        argsObj: InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
-        returns: InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'];
+    }> & Record<'open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]' | 'open', {
+        argsObj: InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'];
+        argsTuple: InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'];
+        returns: InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'];
     }> & Record<'createPool(pay,uint64,address,address,uint64,uint64)uint64' | 'createPool', {
         argsObj: InferenceNetworkArgs['obj']['createPool(pay,uint64,address,address,uint64,uint64)uint64'];
         argsTuple: InferenceNetworkArgs['tuple']['createPool(pay,uint64,address,address,uint64,uint64)uint64'];
@@ -459,30 +465,34 @@ export type InferenceNetworkTypes = {
         argsObj: InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'];
         argsTuple: InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void'];
         returns: InferenceNetworkReturns['withdrawPool(uint64,uint64,uint64)void'];
-    }> & Record<'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64' | 'openPooled', {
-        argsObj: InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
-        returns: InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'];
-    }> & Record<'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64' | 'openSponsored', {
-        argsObj: InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
-        returns: InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'];
-    }> & Record<'settle(uint64,uint64)uint64' | 'settle', {
-        argsObj: InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'];
-        argsTuple: InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64'];
-        returns: InferenceNetworkReturns['settle(uint64,uint64)uint64'];
-    }> & Record<'refundExpired(uint64)void' | 'refundExpired', {
-        argsObj: InferenceNetworkArgs['obj']['refundExpired(uint64)void'];
-        argsTuple: InferenceNetworkArgs['tuple']['refundExpired(uint64)void'];
-        returns: InferenceNetworkReturns['refundExpired(uint64)void'];
+    }> & Record<'openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]' | 'openPooled', {
+        argsObj: InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'];
+        argsTuple: InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'];
+        returns: InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'];
+    }> & Record<'openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]' | 'openSponsored', {
+        argsObj: InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+        argsTuple: InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+        returns: InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+    }> & Record<'settle(byte[32],uint64)uint64' | 'settle', {
+        argsObj: InferenceNetworkArgs['obj']['settle(byte[32],uint64)uint64'];
+        argsTuple: InferenceNetworkArgs['tuple']['settle(byte[32],uint64)uint64'];
+        returns: InferenceNetworkReturns['settle(byte[32],uint64)uint64'];
+    }> & Record<'refundExpired(byte[32])void' | 'refundExpired', {
+        argsObj: InferenceNetworkArgs['obj']['refundExpired(byte[32])void'];
+        argsTuple: InferenceNetworkArgs['tuple']['refundExpired(byte[32])void'];
+        returns: InferenceNetworkReturns['refundExpired(byte[32])void'];
     }> & Record<'getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)' | 'getProvider', {
         argsObj: InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         argsTuple: InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
         returns: InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'];
-    }> & Record<'getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'getTicket', {
-        argsObj: InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: InferenceNetworkReturns['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'ticketId(address,byte[32])byte[32]' | 'ticketId', {
+        argsObj: InferenceNetworkArgs['obj']['ticketId(address,byte[32])byte[32]'];
+        argsTuple: InferenceNetworkArgs['tuple']['ticketId(address,byte[32])byte[32]'];
+        returns: InferenceNetworkReturns['ticketId(address,byte[32])byte[32]'];
+    }> & Record<'getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'getTicket', {
+        argsObj: InferenceNetworkArgs['obj']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: InferenceNetworkArgs['tuple']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        returns: InferenceNetworkReturns['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
     }> & Record<'getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)' | 'getPool', {
         argsObj: InferenceNetworkArgs['obj']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'];
         argsTuple: InferenceNetworkArgs['tuple']['getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)'];
@@ -543,7 +553,7 @@ export type InferenceNetworkTypes = {
                 providers: Map<bigint | number, Provider>;
                 metadata: Map<bigint | number, string>;
                 attestations: Map<bigint | number, Attestation>;
-                tickets: Map<bigint | number, Ticket>;
+                tickets: Map<Uint8Array | string, Ticket>;
                 pools: Map<bigint | number, Pool>;
                 usage: Map<UsageKey, Usage>;
                 assets: Map<bigint | number, PaymentAsset>;
@@ -837,12 +847,14 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static withdrawBond(params: CallParams<InferenceNetworkArgs['obj']['withdrawBond(uint64)void'] | InferenceNetworkArgs['tuple']['withdrawBond(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the open(pay,txn,uint64,uint64,byte[32],uint64)uint64 ABI method
+     * Constructs a no op call for the open(pay,txn,uint64,uint64,byte[32],uint64)byte[32] ABI method
      *
     * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
     moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-    the caller's id for the request, which the provider sees in the same request. The ticket must be
-    settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    the caller's id for the request, which the provider sees in the same request. The ticket's id is
+    sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+    tickets for different requests never collide. The ticket must be settled before the settle window
+    ends, or anyone can refund it. Returns the ticket id.
   
     `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
     InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -856,7 +868,7 @@ export declare abstract class InferenceNetworkParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static open(params: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static open(params: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the createPool(pay,uint64,address,address,uint64,uint64)uint64 ABI method
      *
@@ -907,7 +919,7 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static withdrawPool(params: CallParams<InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64 ABI method
+     * Constructs a no op call for the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32] ABI method
      *
     * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
     gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
@@ -919,9 +931,9 @@ export declare abstract class InferenceNetworkParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static openPooled(params: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static openPooled(params: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method
+     * Constructs a no op call for the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method
      *
     * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
     address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
@@ -931,9 +943,9 @@ export declare abstract class InferenceNetworkParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static openSponsored(params: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static openSponsored(params: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the settle(uint64,uint64)uint64 ABI method
+     * Constructs a no op call for the settle(byte[32],uint64)uint64 ABI method
      *
     * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
     locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
@@ -943,16 +955,16 @@ export declare abstract class InferenceNetworkParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static settle(params: CallParams<InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static settle(params: CallParams<InferenceNetworkArgs['obj']['settle(byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(byte[32],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the refundExpired(uint64)void ABI method
+     * Constructs a no op call for the refundExpired(byte[32])void ABI method
      *
      * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static refundExpired(params: CallParams<InferenceNetworkArgs['obj']['refundExpired(uint64)void'] | InferenceNetworkArgs['tuple']['refundExpired(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static refundExpired(params: CallParams<InferenceNetworkArgs['obj']['refundExpired(byte[32])void'] | InferenceNetworkArgs['tuple']['refundExpired(byte[32])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64) ABI method
      *
@@ -961,12 +973,21 @@ export declare abstract class InferenceNetworkParamsFactory {
      */
     static getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the ticketId(address,byte[32])byte[32] ABI method
+     *
+     * A ticket's id: sha256 of the principal's address and the caller's request id.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static ticketId(params: CallParams<InferenceNetworkArgs['obj']['ticketId(address,byte[32])byte[32]'] | InferenceNetworkArgs['tuple']['ticketId(address,byte[32])byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64) ABI method
      *
@@ -1731,12 +1752,14 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-        the caller's id for the request, which the provider sees in the same request. The ticket must be
-        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+        the caller's id for the request, which the provider sees in the same request. The ticket's id is
+        sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+        tickets for different requests never collide. The ticket must be settled before the settle window
+        ends, or anyone can refund it. Returns the ticket id.
     
         `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
         InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -1750,7 +1773,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1813,7 +1836,7 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]` ABI method.
          *
         * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
@@ -1825,11 +1848,11 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
         address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
@@ -1839,11 +1862,11 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(byte[32],uint64)uint64` ABI method.
          *
         * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
         locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
@@ -1853,18 +1876,18 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(byte[32],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(byte[32])void` ABI method.
          *
          * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(byte[32])void"] | InferenceNetworkArgs["tuple"]["refundExpired(byte[32])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1879,14 +1902,27 @@ export declare class InferenceNetworkClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `ticketId(address,byte[32])byte[32]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * A ticket's id: sha256 of the principal's address and the caller's request id.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        ticketId: (params: CallParams<InferenceNetworkArgs["obj"]["ticketId(address,byte[32])byte[32]"] | InferenceNetworkArgs["tuple"]["ticketId(address,byte[32])byte[32]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -2202,12 +2238,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-        the caller's id for the request, which the provider sees in the same request. The ticket must be
-        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+        the caller's id for the request, which the provider sees in the same request. The ticket's id is
+        sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+        tickets for different requests never collide. The ticket must be settled before the settle window
+        ends, or anyone can refund it. Returns the ticket id.
     
         `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
         InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -2221,7 +2259,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2308,7 +2346,7 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]` ABI method.
          *
         * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
@@ -2320,7 +2358,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2328,7 +2366,7 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
         address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
@@ -2338,7 +2376,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2346,7 +2384,7 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(byte[32],uint64)uint64` ABI method.
          *
         * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
         locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
@@ -2356,7 +2394,7 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(byte[32],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2364,14 +2402,14 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(byte[32])void` ABI method.
          *
          * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(byte[32])void"] | InferenceNetworkArgs["tuple"]["refundExpired(byte[32])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2394,14 +2432,31 @@ export declare class InferenceNetworkClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `ticketId(address,byte[32])byte[32]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * A ticket's id: sha256 of the principal's address and the caller's request id.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        ticketId: (params: CallParams<InferenceNetworkArgs["obj"]["ticketId(address,byte[32])byte[32]"] | InferenceNetworkArgs["tuple"]["ticketId(address,byte[32])byte[32]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2823,12 +2878,14 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]` ABI method.
          *
         * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
         moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-        the caller's id for the request, which the provider sees in the same request. The ticket must be
-        settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+        the caller's id for the request, which the provider sees in the same request. The ticket's id is
+        sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+        tickets for different requests never collide. The ticket must be settled before the settle window
+        ends, or anyone can refund it. Returns the ticket id.
     
         `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
         InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -2842,10 +2899,10 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]> & SendParams & {
+        open: (params: CallParams<InferenceNetworkArgs["obj"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["open(pay,txn,uint64,uint64,byte[32],uint64)uint64"]);
+            return: (undefined | InferenceNetworkReturns["open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2959,7 +3016,7 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]` ABI method.
          *
         * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
@@ -2971,10 +3028,10 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]> & SendParams & {
+        openPooled: (params: CallParams<InferenceNetworkArgs["obj"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"] | InferenceNetworkArgs["tuple"]["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64"]);
+            return: (undefined | InferenceNetworkReturns["openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2984,7 +3041,7 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
         address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
@@ -2994,10 +3051,10 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]> & SendParams & {
+        openSponsored: (params: CallParams<InferenceNetworkArgs["obj"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferenceNetworkArgs["tuple"]["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64"]);
+            return: (undefined | InferenceNetworkReturns["openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3007,7 +3064,7 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `settle(uint64,uint64)uint64` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `settle(byte[32],uint64)uint64` ABI method.
          *
         * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
         locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
@@ -3017,10 +3074,10 @@ export declare class InferenceNetworkClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(uint64,uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(uint64,uint64)uint64"]> & SendParams & {
+        settle: (params: CallParams<InferenceNetworkArgs["obj"]["settle(byte[32],uint64)uint64"] | InferenceNetworkArgs["tuple"]["settle(byte[32],uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["settle(uint64,uint64)uint64"]);
+            return: (undefined | InferenceNetworkReturns["settle(byte[32],uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3030,17 +3087,17 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(uint64)void` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `refundExpired(byte[32])void` ABI method.
          *
          * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(uint64)void"] | InferenceNetworkArgs["tuple"]["refundExpired(uint64)void"]> & SendParams & {
+        refundExpired: (params: CallParams<InferenceNetworkArgs["obj"]["refundExpired(byte[32])void"] | InferenceNetworkArgs["tuple"]["refundExpired(byte[32])void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["refundExpired(uint64)void"]);
+            return: (undefined | InferenceNetworkReturns["refundExpired(byte[32])void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3070,17 +3127,39 @@ export declare class InferenceNetworkClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+         * Makes a call to the InferenceNetwork smart contract using the `ticketId(address,byte[32])byte[32]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * A ticket's id: sha256 of the principal's address and the caller's request id.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        ticketId: (params: CallParams<InferenceNetworkArgs["obj"]["ticketId(address,byte[32])byte[32]"] | InferenceNetworkArgs["tuple"]["ticketId(address,byte[32])byte[32]"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferenceNetworkReturns["ticketId(address,byte[32])byte[32]"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferenceNetwork smart contract using the `getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+        getTicket: (params: CallParams<InferenceNetworkArgs["obj"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"] | InferenceNetworkArgs["tuple"]["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | InferenceNetworkReturns["getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
+            return: (undefined | InferenceNetworkReturns["getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3207,14 +3286,25 @@ export declare class InferenceNetworkClient {
      */
     getProvider(params: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): Promise<Provider>;
     /**
-     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `ticketId(address,byte[32])byte[32]` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * A ticket's id: sha256 of the principal's address and the caller's request id.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    ticketId(params: CallParams<InferenceNetworkArgs['obj']['ticketId(address,byte[32])byte[32]'] | InferenceNetworkArgs['tuple']['ticketId(address,byte[32])byte[32]']>): Promise<Uint8Array<ArrayBufferLike>>;
+    /**
+     * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Ticket>;
+    getTicket(params: CallParams<InferenceNetworkArgs['obj']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): Promise<Ticket>;
     /**
      * Makes a readonly (simulated) call to the InferenceNetwork smart contract using the `getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
@@ -3345,11 +3435,11 @@ export declare class InferenceNetworkClient {
                 /**
                  * Get all current values of the tickets map in box state
                  */
-                getMap: () => Promise<Map<bigint, Ticket>>;
+                getMap: () => Promise<Map<Uint8Array, Ticket>>;
                 /**
                  * Get a current value of the tickets map by key from box state
                  */
-                value: (key: bigint | number) => Promise<Ticket | undefined>;
+                value: (key: Uint8Array | string) => Promise<Ticket | undefined>;
             };
             /**
              * Get values from the pools map in box state
@@ -3550,12 +3640,14 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     withdrawBond(params?: CallParams<InferenceNetworkArgs['obj']['withdrawBond(uint64)void'] | InferenceNetworkArgs['tuple']['withdrawBond(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['withdrawBond(uint64)void'] | undefined]>;
     /**
-     * Calls the open(pay,txn,uint64,uint64,byte[32],uint64)uint64 ABI method.
+     * Calls the open(pay,txn,uint64,uint64,byte[32],uint64)byte[32] ABI method.
      *
     * Opens a ticket for one request: `payment` pays the ticket box (INFERENCE_TICKET_MBR), `lock`
     moves the request's max price in `asset` from the sender (the payer) to this app, and `request` is
-    the caller's id for the request, which the provider sees in the same request. The ticket must be
-    settled before the settle window ends, or anyone can refund it. Returns the ticket id.
+    the caller's id for the request, which the provider sees in the same request. The ticket's id is
+    sha256(principal, request) (see `ticketId`), so the caller knows it before the call lands and
+    tickets for different requests never collide. The ticket must be settled before the settle window
+    ends, or anyone can refund it. Returns the ticket id.
   
     `wallet` is the Akita wallet the call is for; tickets are only for Akita wallets. Through
     InferencePlugin it is the wallet whose window sent the call, so the ticket is attributed to that
@@ -3570,7 +3662,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    open(params?: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)uint64'] | undefined]>;
+    open(params?: CallParams<InferenceNetworkArgs['obj']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'] | InferenceNetworkArgs['tuple']['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['open(pay,txn,uint64,uint64,byte[32],uint64)byte[32]'] | undefined]>;
     /**
      * Calls the createPool(pay,uint64,address,address,uint64,uint64)uint64 ABI method.
      *
@@ -3626,7 +3718,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     withdrawPool(params?: CallParams<InferenceNetworkArgs['obj']['withdrawPool(uint64,uint64,uint64)void'] | InferenceNetworkArgs['tuple']['withdrawPool(uint64,uint64,uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['withdrawPool(uint64,uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64 ABI method.
+     * Calls the openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32] ABI method.
      *
     * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
     gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
@@ -3639,9 +3731,9 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    openPooled(params?: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)uint64'] | undefined]>;
+    openPooled(params?: CallParams<InferenceNetworkArgs['obj']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'] | InferenceNetworkArgs['tuple']['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openPooled(uint64,uint64,uint64,byte[32],(address,uint64),uint64)byte[32]'] | undefined]>;
     /**
-     * Calls the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64 ABI method.
+     * Calls the openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method.
      *
     * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
     address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
@@ -3652,9 +3744,9 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    openSponsored(params?: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))uint64'] | undefined]>;
+    openSponsored(params?: CallParams<InferenceNetworkArgs['obj']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferenceNetworkArgs['tuple']['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['openSponsored(uint64,address,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | undefined]>;
     /**
-     * Calls the settle(uint64,uint64)uint64 ABI method.
+     * Calls the settle(byte[32],uint64)uint64 ABI method.
      *
     * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
     locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
@@ -3665,9 +3757,9 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    settle(params?: CallParams<InferenceNetworkArgs['obj']['settle(uint64,uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(uint64,uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['settle(uint64,uint64)uint64'] | undefined]>;
+    settle(params?: CallParams<InferenceNetworkArgs['obj']['settle(byte[32],uint64)uint64'] | InferenceNetworkArgs['tuple']['settle(byte[32],uint64)uint64']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['settle(byte[32],uint64)uint64'] | undefined]>;
     /**
-     * Calls the refundExpired(uint64)void ABI method.
+     * Calls the refundExpired(byte[32])void ABI method.
      *
      * After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer.
      *
@@ -3675,7 +3767,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    refundExpired(params?: CallParams<InferenceNetworkArgs['obj']['refundExpired(uint64)void'] | InferenceNetworkArgs['tuple']['refundExpired(uint64)void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['refundExpired(uint64)void'] | undefined]>;
+    refundExpired(params?: CallParams<InferenceNetworkArgs['obj']['refundExpired(byte[32])void'] | InferenceNetworkArgs['tuple']['refundExpired(byte[32])void']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['refundExpired(byte[32])void'] | undefined]>;
     /**
      * Calls the getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64) ABI method.
      *
@@ -3685,13 +3777,23 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
      */
     getProvider(params?: CallParams<InferenceNetworkArgs['obj']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getProvider(uint64)(address,address,address,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     * Calls the ticketId(address,byte[32])byte[32] ABI method.
+     *
+     * A ticket's id: sha256 of the principal's address and the caller's request id.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getTicket(params?: CallParams<InferenceNetworkArgs['obj']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getTicket(uint64)(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
+    ticketId(params?: CallParams<InferenceNetworkArgs['obj']['ticketId(address,byte[32])byte[32]'] | InferenceNetworkArgs['tuple']['ticketId(address,byte[32])byte[32]']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['ticketId(address,byte[32])byte[32]'] | undefined]>;
+    /**
+     * Calls the getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getTicket(params?: CallParams<InferenceNetworkArgs['obj']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | InferenceNetworkArgs['tuple']['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)']>): InferenceNetworkComposer<[...TReturns, InferenceNetworkReturns['getTicket(byte[32])(address,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
      * Calls the getPool(uint64)(address,address,address,uint64,uint64,uint64,uint64,uint64) ABI method.
      *

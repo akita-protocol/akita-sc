@@ -58,3 +58,5 @@ export const errInferenceBadService = 'errInpe'
 export const errInferenceNotSubscribed = 'errInns'
 /** Inference tickets are only for Akita wallets: the call must come through a wallet that controls its account. */
 export const errInferenceNoWallet = 'errInwl'
+/** A ticket for this principal and request id already exists. */
+export const errInferenceTicketExists = 'errInte'

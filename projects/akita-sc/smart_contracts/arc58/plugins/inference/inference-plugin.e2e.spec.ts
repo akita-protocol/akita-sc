@@ -13,7 +13,7 @@ import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wa
 import { MetaFactory, MetaSDK, SchemaPart } from '../../../../../akita-sdk/src/meta'
 import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/wallet/plugins/meta'
 import {
-  decodeInferencePolicy, encodeInferencePolicy, inferenceUsageKey, InferencePluginSDK,
+  decodeInferencePolicy, encodeInferencePolicy, inferenceTicketId, inferenceUsageKey, InferencePluginSDK,
 } from '../../../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
@@ -30,7 +30,7 @@ import { errAllowanceExceeded } from '../../account/errors'
 import { errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields } from './errors'
 
 const ESCROW = 'inference'
-const TICKET_MBR = 2_500n + 400n * (9n + 32n * 2n + 8n * 9n)
+const TICKET_MBR = 2_500n + 400n * (33n + 32n * 2n + 8n * 9n)
 const POOL_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 5n)
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
@@ -62,7 +62,7 @@ describe('InferencePlugin (LocalNet)', () => {
     callerType: CallerType.Admin,
     calls: [writer.configurePolicy({ plugin: plugin.appId, caller: agent.addr.toString(), escrow: ESCROW, body, expectedRevision })],
   })
-  const lastTicket = async () => (await network.state.global.ticketCount())!
+  const ticketOf = (id: number) => inferenceTicketId(walletAddress, request(id))
 
   beforeAll(async () => {
     Config.configure({ populateAppCallResources: true })
@@ -165,7 +165,7 @@ describe('InferencePlugin (LocalNet)', () => {
 
     const before = await balance(escrow)
     await open(akita, 600_000n, 1)
-    const ticket = await lastTicket()
+    const ticket = ticketOf(1)
     expect(await balance(escrow)).toBe(before - 600_000n - TICKET_MBR)
     // The escrow paid, and the ticket is the wallet's account's.
     expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({
@@ -201,7 +201,7 @@ describe('InferencePlugin (LocalNet)', () => {
       calls: [plugin.open({ network: network.appId, provider: other, asset: 0n, maxPrice: 2_000_000n, request: request(99) })],
     })
     // an admin call is the same account's
-    expect((await network.send.getTicket({ args: { ticket: await lastTicket() } })).return).toMatchObject({
+    expect((await network.send.getTicket({ args: { ticket: ticketOf(99) } })).return).toMatchObject({
       principal: walletAddress, wallet: wallet.appId, provider: other, amount: 2_000_000n,
     })
   })
@@ -231,7 +231,7 @@ describe('InferencePlugin (LocalNet)', () => {
     const before = await balance(escrow)
     await openPooled(400_000n, 40)
     expect(await balance(escrow)).toBe(before)
-    const ticket = await lastTicket()
+    const ticket = ticketOf(40)
     expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({
       payer: walletAddress, principal: walletAddress, wallet: wallet.appId, pool, subscription: 1n, amount: 400_000n,
     })

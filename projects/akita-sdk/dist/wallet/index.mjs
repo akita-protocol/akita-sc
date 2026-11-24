@@ -80,6 +80,7 @@ import {
   guildExecutionRecord,
   guildPluginSelectors,
   inferenceSettleReferences,
+  inferenceTicketId,
   inferenceUsageKey,
   initializeGuild,
   installFundedPlugin,
@@ -101,7 +102,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-IKPIOGMD.mjs";
+} from "../chunk-K3YDNPL7.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-IKZRFBWU.mjs";
@@ -199,6 +200,7 @@ export {
   guildExecutionRecord,
   guildPluginSelectors,
   inferenceSettleReferences,
+  inferenceTicketId,
   inferenceUsageKey,
   initializeGuild,
   installFundedPlugin,
