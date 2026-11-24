@@ -25,7 +25,7 @@ import { errAllowanceExceeded } from '../../account/errors'
 import { errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields } from './errors'
 
 const ESCROW = 'inference'
-const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 5n)
+const TICKET_MBR = 2_500n + 400n * (9n + 32n + 8n * 7n)
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
 

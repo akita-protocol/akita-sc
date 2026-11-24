@@ -15,7 +15,7 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1 8 2 34900"
+      "op": "intcblock 0 1 8 2 41300"
     },
     "10": {
       "op": "bytecblock \"ERR:errGctx\" \"ERR:errIpfl\" 0x151f7c75 \"\" 0x002a \"registry\" \"spending_address\" \"ERR:errIpdn\" 0x83a51021"
@@ -15362,9 +15362,9 @@
       "op": "itxn_begin"
     },
     "1188": {
-      "op": "intc 4 // 34900",
+      "op": "intc 4 // 41300",
       "defined_out": [
-        "34900",
+        "41300",
         "value%0#0"
       ],
       "stack_out": [
@@ -15388,7 +15388,7 @@
         "wallet#0",
         "spendingAddressBytes#0",
         "value%0#0",
-        "34900"
+        "41300"
       ]
     },
     "1190": {
@@ -16769,9 +16769,9 @@
       "op": "itxn_begin"
     },
     "1289": {
-      "op": "intc 4 // 34900",
+      "op": "intc 4 // 41300",
       "defined_out": [
-        "34900"
+        "41300"
       ],
       "stack_out": [
         "aggregate%substring3%1#0",
@@ -16795,7 +16795,7 @@
         "wallet#0",
         "spendingAddressBytes#0",
         "value%0#0",
-        "34900"
+        "41300"
       ]
     },
     "1291": {

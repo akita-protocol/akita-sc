@@ -30,8 +30,12 @@ export const ProviderExited: uint64 = 4
 export const INFERENCE_PROVIDER_MBR: uint64 = 2_500 + 400 * (9 + 32 * 3 + 8 * 4)
 /** Attestation box: a uint64 kind, a 32-byte measurement and a 32-byte encryption key. */
 export const INFERENCE_ATTESTATION_MBR: uint64 = 2_500 + 400 * (9 + 8 + 32 + 32)
-/** Ticket box: the payer and five uint64s. Refunded to the payer when the ticket is settled or refunded. */
-export const INFERENCE_TICKET_MBR: uint64 = 2_500 + 400 * (9 + 32 + 8 * 5)
+/** Ticket box: the payer and seven uint64s. Refunded to whoever paid it when the ticket is settled or refunded. */
+export const INFERENCE_TICKET_MBR: uint64 = 2_500 + 400 * (9 + 32 + 8 * 7)
+/** Pool box: two addresses and six uint64s. */
+export const INFERENCE_POOL_MBR: uint64 = 2_500 + 400 * (9 + 32 * 2 + 8 * 6)
+/** Usage box: key (pool, member), value (period, used). Paid from the pool's credit. */
+export const INFERENCE_USAGE_MBR: uint64 = 2_500 + 400 * (1 + 8 + 32 + 16)
 /** Payment asset box: allowed flag and accrued fees. */
 export const INFERENCE_ASSET_MBR: uint64 = 2_500 + 400 * (9 + 8 + 8)
 /** Metadata box, before the URI's own bytes (stored as is, without a length prefix). */

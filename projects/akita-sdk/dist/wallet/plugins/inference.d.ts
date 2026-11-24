@@ -4,8 +4,9 @@ import { InferencePluginClient } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginSDKReturn } from "../../types";
 /**
  * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
- * settle in an ASA touches three holdings (the network's, the payout's and the payer's), which can be
- * more than automatic resource population will place in one call.
+ * settle in an ASA touches three holdings (the network's, the payout's and the payer's), and a pool
+ * ticket two more boxes, which can be more than automatic resource population will place in one call.
+ * For a pool ticket pass `pool` (the ticket's pool); `payer` is then the member.
  */
 export declare function inferenceSettleReferences(args: {
     ticket: bigint | number;
@@ -13,6 +14,7 @@ export declare function inferenceSettleReferences(args: {
     asset: bigint | number;
     payer: ReadableAddress;
     payout: ReadableAddress;
+    pool?: bigint | number;
 }): {
     accountReferences: ReadableAddress[];
     assetReferences: bigint[];

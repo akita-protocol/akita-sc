@@ -32,6 +32,24 @@ export interface BinaryState {
 export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expand<A>) => Expand<R> : T extends infer O ? {
     [K in keyof O]: O[K];
 } : never;
+export type AkitaAppList = {
+    staking: bigint;
+    rewards: bigint;
+    pool: bigint;
+    prizeBox: bigint;
+    subscriptions: bigint;
+    gate: bigint;
+    auction: bigint;
+    hyperSwap: bigint;
+    raffle: bigint;
+    metaMerkles: bigint;
+    marketplace: bigint;
+    wallet: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a AkitaAppList to the struct representation
+ */
+export declare function AkitaAppListFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]): AkitaAppList;
 export type AkitaAssets = {
     akta: bigint;
     bones: bigint;
@@ -63,6 +81,9 @@ export type MockInferenceDaoArgs = {
             chargePercentage: bigint | number;
             providerBond: bigint | number;
         };
+        'setGate(uint64)void': {
+            gate: bigint | number;
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -70,6 +91,7 @@ export type MockInferenceDaoArgs = {
     tuple: {
         'create(uint64)void': [akta: bigint | number];
         'setInferenceFees(uint64,uint64)void': [chargePercentage: bigint | number, providerBond: bigint | number];
+        'setGate(uint64)void': [gate: bigint | number];
     };
 };
 /**
@@ -78,6 +100,7 @@ export type MockInferenceDaoArgs = {
 export type MockInferenceDaoReturns = {
     'create(uint64)void': void;
     'setInferenceFees(uint64,uint64)void': void;
+    'setGate(uint64)void': void;
 };
 /**
  * Defines the types of available calls and state of the MockInferenceDao smart contract.
@@ -94,6 +117,10 @@ export type MockInferenceDaoTypes = {
         argsObj: MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'];
         argsTuple: MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void'];
         returns: MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void'];
+    }> & Record<'setGate(uint64)void' | 'setGate', {
+        argsObj: MockInferenceDaoArgs['obj']['setGate(uint64)void'];
+        argsTuple: MockInferenceDaoArgs['tuple']['setGate(uint64)void'];
+        returns: MockInferenceDaoReturns['setGate(uint64)void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -102,6 +129,7 @@ export type MockInferenceDaoTypes = {
         global: {
             keys: {
                 akitaAssets: AkitaAssets;
+                akitaAppList: AkitaAppList;
                 inferenceFees: InferenceFees;
             };
             maps: {};
@@ -205,6 +233,13 @@ export declare abstract class MockInferenceDaoParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static setInferenceFees(params: CallParams<MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setGate(uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setGate(params: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the MockInferenceDAO smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -404,13 +439,7 @@ export declare class MockInferenceDaoFactory {
                     rejectVersion?: number | undefined;
                     lease?: (Uint8Array | string) | undefined;
                     rekeyTo?: (string | Address) | undefined;
-                    staticFee
-                    /**
-                     * Maps a method signature from the MockInferenceDao smart contract to the method's return type
-                     */
-                    ? /**
-                     * Maps a method signature from the MockInferenceDao smart contract to the method's return type
-                     */: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
                     extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
                     validityWindow?: number | bigint | undefined;
                     firstValidRound?: bigint | undefined;
@@ -580,6 +609,15 @@ export declare class MockInferenceDaoClient {
         setInferenceFees: (params: CallParams<MockInferenceDaoArgs["obj"]["setInferenceFees(uint64,uint64)void"] | MockInferenceDaoArgs["tuple"]["setInferenceFees(uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
     };
     /**
      * Create transactions for the current app
@@ -599,6 +637,19 @@ export declare class MockInferenceDaoClient {
          * @returns The call transaction
          */
         setInferenceFees: (params: CallParams<MockInferenceDaoArgs["obj"]["setInferenceFees(uint64,uint64)void"] | MockInferenceDaoArgs["tuple"]["setInferenceFees(uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -635,6 +686,24 @@ export declare class MockInferenceDaoClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the MockInferenceDAO smart contract using the `setGate(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setGate: (params: CallParams<MockInferenceDaoArgs["obj"]["setGate(uint64)void"] | MockInferenceDaoArgs["tuple"]["setGate(uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockInferenceDaoReturns["setGate(uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -660,6 +729,10 @@ export declare class MockInferenceDaoClient {
              */
             akitaAssets: () => Promise<AkitaAssets | undefined>;
             /**
+             * Get the current value of the akitaAppList key in global state
+             */
+            akitaAppList: () => Promise<AkitaAppList | undefined>;
+            /**
              * Get the current value of the inferenceFees key in global state
              */
             inferenceFees: () => Promise<InferenceFees | undefined>;
@@ -676,6 +749,14 @@ export type MockInferenceDaoComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     setInferenceFees(params?: CallParams<MockInferenceDaoArgs['obj']['setInferenceFees(uint64,uint64)void'] | MockInferenceDaoArgs['tuple']['setInferenceFees(uint64,uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setInferenceFees(uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the setGate(uint64)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setGate(params?: CallParams<MockInferenceDaoArgs['obj']['setGate(uint64)void'] | MockInferenceDaoArgs['tuple']['setGate(uint64)void']>): MockInferenceDaoComposer<[...TReturns, MockInferenceDaoReturns['setGate(uint64)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the MockInferenceDAO smart contract.
      *

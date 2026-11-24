@@ -100,7 +100,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-FDPIPVF4.mjs";
+} from "../chunk-QRZD3JVX.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-IKZRFBWU.mjs";

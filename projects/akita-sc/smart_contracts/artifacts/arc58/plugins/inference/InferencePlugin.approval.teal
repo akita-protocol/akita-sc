@@ -4,7 +4,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 2 34900
+    intcblock 0 1 8 2 41300
     bytecblock "ERR:errGctx" "ERR:errIpfl" 0x151f7c75 "" 0x002a "registry" "spending_address" "ERR:errIpdn" 0x83a51021
     // smart_contracts/arc58/plugins/inference/contract.algo.ts:28-29
     // @contract({ avmVersion: 13 })
@@ -934,7 +934,7 @@ open_after_assert@33:
     itxn_begin
     // smart_contracts/arc58/plugins/inference/contract.algo.ts:66
     // const payment = itxn.payment({ sender, receiver: network.address, amount: INFERENCE_TICKET_MBR })
-    intc 4 // 34900
+    intc 4 // 41300
     itxn_field Amount
     itxn_field Receiver
     dup
@@ -1046,7 +1046,7 @@ open_after_if_else@26:
     itxn_begin
     // smart_contracts/arc58/plugins/inference/contract.algo.ts:66
     // const payment = itxn.payment({ sender, receiver: network.address, amount: INFERENCE_TICKET_MBR })
-    intc 4 // 34900
+    intc 4 // 41300
     itxn_field Amount
     itxn_field Receiver
     dup

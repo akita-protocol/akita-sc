@@ -57,6 +57,43 @@ export type Ticket = {
   feePercentage: uint64
   /** The end of the settle window. */
   expiresAt: uint64
+  /** The sponsor pool that paid the lock (0 when the payer paid it); the rest goes back to the pool. */
+  pool: uint64
+  /** For a pool ticket, the pool period it counts against. */
+  period: uint64
+}
+
+/**
+ * Prepaid inference a sponsor (such as Akita for its subscribers) gives members. Box key: 'o' + pool id.
+ * Each member may use up to `perMember` per period of `period` seconds. A member who passes the
+ * pool's gate (an Akita gate, such as a subscription gate) opens tickets themselves; the allocator
+ * (such as Akita's backend, for routines) may open them for any member.
+ */
+export type Pool = {
+  /** Funds and manages the pool, and takes back what is left. */
+  sponsor: Account
+  /** May open pool tickets for any member; the zero address for none. */
+  allocator: Account
+  /** 0 for ALGO, else the ASA id. */
+  asset: uint64
+  /** What the pool holds and has not locked. */
+  balance: uint64
+  /** The Akita gate a member must pass to open tickets themselves; 0 for allocator only. */
+  gate: uint64
+  /** The most one member may use per period. */
+  perMember: uint64
+  /** Seconds in a period. */
+  period: uint64
+  /** ALGO the sponsor set aside for ticket and usage boxes. */
+  credit: uint64
+}
+
+/** A member's use of a pool. Box key: 'u' + this. */
+export type UsageKey = { pool: uint64; member: Account }
+export type Usage = {
+  /** The period `used` counts in: time divided by the pool's period. */
+  period: uint64
+  used: uint64
 }
 
 /** A payment asset's state. Box key: 'x' + asset id. */
@@ -79,6 +116,7 @@ export type InferenceTicketOpened = {
   request: bytes<32>
   expiresAt: uint64
 }
+export type InferencePoolTicket = { ticket: uint64; pool: uint64; member: Account }
 /** A settled or refunded ticket; a refund has cost 0. */
 export type InferenceTicketSettled = { ticket: uint64; cost: uint64; paid: uint64; fee: uint64 }
 export type InferenceSlashed = { provider: uint64; asset: uint64; amount: uint64; receiver: Account }

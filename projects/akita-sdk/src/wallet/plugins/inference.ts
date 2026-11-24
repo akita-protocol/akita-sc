@@ -1,5 +1,5 @@
 type ReadableAddress = string | import('algosdk').Address;
-import { ABIType, encodeUint64 } from "algosdk";
+import { ABIType, decodeAddress, encodeUint64 } from "algosdk";
 import { BaseSDK } from "../../base";
 import { InferencePluginClient, InferencePluginFactory } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
@@ -15,8 +15,9 @@ const boxKey = (prefix: string, id: bigint | number) => {
 
 /**
  * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
- * settle in an ASA touches three holdings (the network's, the payout's and the payer's), which can be
- * more than automatic resource population will place in one call.
+ * settle in an ASA touches three holdings (the network's, the payout's and the payer's), and a pool
+ * ticket two more boxes, which can be more than automatic resource population will place in one call.
+ * For a pool ticket pass `pool` (the ticket's pool); `payer` is then the member.
  */
 export function inferenceSettleReferences(args: {
   ticket: bigint | number;
@@ -24,11 +25,22 @@ export function inferenceSettleReferences(args: {
   asset: bigint | number;
   payer: ReadableAddress;
   payout: ReadableAddress;
+  pool?: bigint | number;
 }) {
+  const pooled = args.pool !== undefined && BigInt(args.pool) !== 0n;
+  const boxes = [boxKey("t", args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
+  if (pooled) {
+    const member = typeof args.payer === "string" ? decodeAddress(args.payer).publicKey : args.payer.publicKey;
+    const usage = new Uint8Array(41);
+    usage[0] = "u".charCodeAt(0);
+    usage.set(encodeUint64(BigInt(args.pool!)), 1);
+    usage.set(member, 9);
+    boxes.push(boxKey("o", args.pool!), usage);
+  }
   return {
-    accountReferences: [args.payout, args.payer],
+    accountReferences: pooled ? [args.payout] : [args.payout, args.payer],
     assetReferences: BigInt(args.asset) === 0n ? [] : [BigInt(args.asset)],
-    boxReferences: [boxKey("t", args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)],
+    boxReferences: boxes,
   };
 }
 

@@ -378,7 +378,7 @@
       "name": "InferencePlugin",
       "approval": {
         "bytes": 1793,
-        "sha256": "aaa4cd9ee02cf2d02b956b3e22fb197c792938e6d017fd4ae98627ca55eb8bad"
+        "sha256": "8e43198ed5418bd31bead709d0da3a961d9362886c6a2b87cf079bb7ef38a477"
       },
       "clear": {
         "bytes": 4,
@@ -958,21 +958,34 @@
     "inference/InferenceNetwork": {
       "name": "InferenceNetwork",
       "approval": {
-        "bytes": 3165,
-        "sha256": "4b2ce6c1a5459dc184f3473562351bf3d9731d7dc74497089a8585dca02695a8"
+        "bytes": 4658,
+        "sha256": "ecee551f1ccb560d8638ac4f6f400a716dbcee1bb727c86aa5524c7decc92e57"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
-      "extraPages": 1
+      "extraPages": 2
     },
     "inference/tests/MockInferenceDAO": {
       "name": "MockInferenceDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 117,
-        "sha256": "8a13e3885d8c0b049107f70142b85fd7f1a3b5ff6c1d8c2f58dfd75e4199e2fb"
+        "bytes": 220,
+        "sha256": "fa19fb326036f94cabdab22e61193f3c30bf66d1f4e7402d78a0da4fdf2cf8fb"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
+    "inference/tests/MockInferenceGate": {
+      "name": "MockInferenceGate",
+      "testOnly": true,
+      "approval": {
+        "bytes": 202,
+        "sha256": "99cd86e84f4c5cd1413ae0b04d3450928f6ab2d2497cb072c6a7c0c479306ce8"
       },
       "clear": {
         "bytes": 4,

@@ -44,3 +44,13 @@ export const errInferenceBadTransfer = 'errInbd'
 export const errInferenceBadStoragePayment = 'errInbp'
 /** The metadata URI is empty or longer than 512 bytes. */
 export const errInferenceBadMetadata = 'errInbm'
+/** No sponsor pool with this id. */
+export const errInferenceNoPool = 'errInno'
+/** Only the pool's sponsor may do this. */
+export const errInferenceNotSponsor = 'errInsp'
+/** Only the pool's allocator, or a member who passes its gate, may open a pool ticket. */
+export const errInferencePoolDenied = 'errInpd'
+/** The member's use of the pool this period, or the pool's balance or credit, cannot cover this ticket. */
+export const errInferencePoolExhausted = 'errInpx'
+/** The pool's period must be more than zero. */
+export const errInferenceBadPeriod = 'errInpe'
