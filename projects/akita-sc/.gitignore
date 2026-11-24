@@ -64,3 +64,6 @@ debug_traces/
 
 # Third-party test fixtures downloaded at test time (not redistributed; see tests/fixtures/external/README.md)
 tests/fixtures/external/.cache/
+
+# the demo Guild made by scripts/localnet-guild-demo.ts
+.localnet-guild-demo.json

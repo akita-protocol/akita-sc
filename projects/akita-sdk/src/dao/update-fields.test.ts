@@ -17,7 +17,7 @@ const NFT_FEES = {
 };
 const STAKING_FEES = { creationFee: 50_000_000n, impactTaxMin: 500n, impactTaxMax: 3_000n };
 
-const setup = () => {
+const setup = (inferenceFees?: { chargePercentage: bigint; providerBond: bigint }) => {
   const sdk = Object.create(AkitaDaoSDK.prototype) as AkitaDaoSDK;
   const proposalCost = vi.fn().mockResolvedValue({ total: 1n });
   sdk.sendParams = { sender: CALLER, signer: vi.fn() };
@@ -26,7 +26,7 @@ const setup = () => {
   sdk.client = {
     proposalCost,
     appClient: { appSpec: DAO_SPEC },
-    state: { global: { nftFees: async () => NFT_FEES, stakingFees: async () => STAKING_FEES } },
+    state: { global: { nftFees: async () => NFT_FEES, stakingFees: async () => STAKING_FEES, inferenceFees: async () => inferenceFees } },
   } as unknown as typeof sdk.client;
   return { sdk, proposalCost };
 };
@@ -63,5 +63,22 @@ describe('DAO UpdateFields encoding', () => {
     const [field, value] = prepared(proposalCost);
     expect(field).toBe('staking_fees');
     expect(ABIType.from('(uint64,uint64,uint64)').decode(value)).toEqual([100_000_000n, 500n, 3_000n]);
+  });
+
+  test('inference_fees: a member left out is 0 while the DAO does not hold the field', async () => {
+    expect('InferenceFees' in DAO_SPEC.structs).toBe(true);
+    const { sdk, proposalCost } = setup();
+    await sdk.proposalCost({ actions: [{ type: ProposalActionEnum.UpdateFields, field: 'inference_fees', value: { chargePercentage: 350n } }] });
+    const [field, value] = prepared(proposalCost);
+    expect(field).toBe('inference_fees');
+    expect(ABIType.from('(uint64,uint64)').decode(value)).toEqual([350n, 0n]);
+  });
+
+  test('inference_fees: a member left out keeps the value the DAO holds', async () => {
+    const { sdk, proposalCost } = setup({ chargePercentage: 350n, providerBond: 250_000_000n });
+    await sdk.proposalCost({ actions: [{ type: ProposalActionEnum.UpdateFields, field: 'inference_fees', value: { providerBond: 500_000_000n } }] });
+    const [field, value] = prepared(proposalCost);
+    expect(field).toBe('inference_fees');
+    expect(ABIType.from('(uint64,uint64)').decode(value)).toEqual([350n, 500_000_000n]);
   });
 });

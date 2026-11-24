@@ -219,14 +219,25 @@ Three steps of the sequence change: G2, H1 and H6. The owner asked for it on 202
 - **Manifest.** `release/manifest.json` lists 157 programs. MockPolicyForger and MockUnlimitedPayPlugin are new test programs.
 - **Not run on a public network.** The new commands were run on LocalNet only. Their dry runs need Meta on chain, which H1 creates (G17).
 
+## Update 2026-11-24: the DAO can hold the inference network's fees
+
+No step of the sequence changes. The owner asked for it on 2026-11-24.
+
+- **A new DAO field.** AkitaDAO gains the global field `inference_fees`. It holds `chargePercentage`, the DAO's share of an inference charge in hundredths of a percent, and `providerBond`, the AKTA a provider bonds to join. Only an UpdateFields proposal writes it. AkitaDAOProposalValidator accepts the field and checks its shape, as it does for the other fee fields. Neither program caps the share.
+- **Nothing in this release reads it.** The inference network that will read it is not part of this release, and no step here writes the field. A code upgrade does not create a global, so after B2 the field is absent until a proposal writes it.
+- **It fits the live DAOs.** The DAO's declared storage does not change. Both live DAOs have 59 byte slots allocated and use 24 (read from MainNet and TestNet on 2026-11-24).
+- **Programs.** Against the build of 2026-11-21: AkitaDAO is 10,856 bytes (10,823 before) and AkitaDAOProposalValidator 3,704 (3,682). The DAO keeps its six pages, so B2's page growth and its sponsorship are unchanged. The test program MockLegacyVoteDAO changes with the DAO. No other program's bytes change.
+- **Manifest.** `release/manifest.json` still lists 155 programs. Three entries change.
+- **SDK.** `AkitaDaoSDK` builds the UpdateFields action for `inference_fees`. A value left out keeps what the DAO stores, or 0 while the field is absent.
+- **Not run on a public network.** The DAO's proposal test sets the field on LocalNet.
+
 ## Update 2026-11-24: the inference network, after the rollout (proposed)
 
-The owner asked on 2026-11-24 for Akita's own inference network before TestNet, paid per request the way ZeroSignal's escrow works, with the fee set by the DAO like other services (approved in the thread). Design: [Akita inference network: contract design](https://claude.ai/artifact/Ep1Fyh9NpfhDYKmvdmV7Je).
+The owner asked on 2026-11-24 for Akita's own inference network before TestNet, paid per request the way ZeroSignal's escrow works, with the fee set by the DAO like other services. The DAO's `inference_fees` field is in the release (see the note above); the network that reads it is not. Design: [Akita inference network: contract design](https://claude.ai/artifact/Ep1Fyh9NpfhDYKmvdmV7Je).
 
-- **Two release programs change bytes.** `arc58/dao/AkitaDAO` gains an `inference_fees` field (`{ chargePercentage, providerBond }`) that UpdateFields proposals write, and `arc58/dao/AkitaDAOProposalValidator` accepts that field. Nothing else in either changes: the DAO's create arguments and extra pages (5) are the same, and the field stays unset (read as zero) until a proposal sets it. A DAO already deployed gets it through an UpgradeApp proposal for both apps.
 - **Two new programs.** `InferenceNetwork` (`smart_contracts/inference`) holds providers and their AKTA bonds, and per-request tickets. For each request the caller (the member's app, or the key that runs their routines) opens a ticket through `InferencePlugin` (`arc58/plugins/inference`) that locks the request's max price from the member's escrow. The provider serves without waiting, settles the ticket at the actual cost less the DAO's `chargePercentage`, and the rest comes back; an unsettled ticket is refunded after the settle window. A provider that overcharges is slashed (to a receiver the admin names) and paused. The bond minimum is the DAO's `providerBond`. Sponsor pools carry usage included with a subscription: a sponsor (Akita) funds a pool with a per-member amount per period; a member who passes the pool's Akita gate (such as a subscription gate) opens tickets paid from it, or the pool's allocator (Akita's backend, for routines) opens them for a member, and what a ticket does not spend goes back to the pool and the member's allowance.
 - **One step after G2, outside the tracker until the owner confirms the order:** `npm run deploy:inference -- -n testnet --treasury <address> --claimer <address> --payout <address> --admin <DAO wallet address> --confirm`. It creates both apps, opts the network in to AKTA and USDC, sets a one-hour settle window and closed registration, accepts ALGO and USDC, registers and activates Akita as provider 1, and hands the admin to `--admin`. The fee and bond come from a later UpdateFields proposal for `inference_fees`. Without `--confirm` it only prints the plan. It reads the Meta id for InferencePlugin from the SDK, so it runs after H1.
-- **Manifest.** `release/manifest.json` lists 159 programs (155 before): the two new programs and test-only mocks of the DAO and the gate, plus the new hashes for AkitaDAO, AkitaDAOProposalValidator and the test-only MockLegacyVoteDAO.
+- **Manifest.** `release/manifest.json` lists 159 programs (155 in the release): the two new programs and test-only mocks of the DAO and the gate.
 - **Not run on a public network.** Run on LocalNet only: 18 InferenceNetwork tests (5 of them for sponsor pools), 5 InferencePlugin tests, the DAO proposal tests (including `inference_fees`) and the wider DAO suite (114 tests).
 
 ## Live state (read 2026-10-10)
@@ -453,7 +464,7 @@ The new Update plugin first; then the DAO upgrades itself through it.
 #### B1. Phase 2a: install the new UpdateAkitaDAOPlugin
 
 - **What:** Deploy the page-growing Update plugin and run ONE proposal: UpdateFields pal (update = new; optin and revenueManager unchanged), AddPlugin new (global, execution key), RemovePlugin old 3569559689. Then record the id and rebuild the SDK.
-- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,765 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
+- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,856 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
 - **Requires:** A2. **Script:** ready.
 - **Tracked by rollout:status as** `phase2a`.
 - The pal write replaces the whole struct: it must carry optin 3569560490 and revenueManager 3642325118.
