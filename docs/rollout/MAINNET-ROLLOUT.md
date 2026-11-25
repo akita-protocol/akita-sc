@@ -1397,5 +1397,5 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - **G14.** Closed 2026-11-16: `update:app-dao-escrow` sends `updateAkitaDaoEscrowForApp` for any fee generator (H1).
 - **G17.** No dry run can show a step whose prerequisite is not on chain yet, so the Sequence as a whole is proven only by running it. That is the TestNet rehearsal (A4).
 - **G15.** Parked with the Plugin DEX: PluginDexAdminPlugin and `accept:plugin-dex-admin` are on branch `feat/plugin-dex-v2`, built and tested but not reviewed.
-- **G16.** `npm run check-types` reports 12 errors, all in test files; CI does not gate on it yet. The contract CI workflow was rewritten on 2026-11-10 and has not run on GitHub yet, because nothing has been pushed (it first runs in I2).
+- **G16.** `npm run check-types` reports 12 errors, all in test files; CI does not gate on it yet. The contract CI workflow (`.github/workflows/akita-sc-ci.yaml`) does run on the release branch: it was dispatched on every commit of the audit fix batch of 2026-11-25 (runs 96 to 106), and each run is a reproducible build of the whole tree against `release/manifest.json` plus the suite in six shards, about twenty minutes. A push does not start it, so dispatch it by hand, and never while a run you need is still going: a new dispatch cancels the one in progress.
 

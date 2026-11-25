@@ -149,6 +149,50 @@ describe('rollout runbook commands', () => {
     expect(missing.map((c) => `${c.step}: ${c.line}`)).toEqual([])
   })
 
+  /**
+   * The TestNet rehearsal runner is a copy of the runbook's own commands, with the runbook's TestNet
+   * differences applied, so it goes stale the moment a step's command changes. Every command the runner
+   * sends has to be the runbook's command for that step with `testnet` for `mainnet`.
+   */
+  test('the TestNet rehearsal runner sends the runbook commands of the steps it covers', () => {
+    const runner = readFileSync(path.join(project, 'scripts/rollout-testnet-rehearsal.sh'), 'utf8')
+    /** A command without the note the runbook writes after it. */
+    const bare = (line: string) => line.replace(/\s+#.*$/, '')
+    const sent = [...runner.matchAll(/^run_cmd (\S+) (\d+) (dry|send|check|build) \S+ \S+ '(.+)'$/gm)]
+      .filter(([, , , kind]) => kind === 'dry' || kind === 'send')
+      .map(([, step, , , cmd]) => ({ step, line: bare(cmd.replace(/testnet/g, 'mainnet')) }))
+    expect(sent.length).toBeGreaterThan(30)
+
+    // The runbook's own TestNet differences (A4 and the steps that name them).
+    const skip = (step: string, line: string) =>
+      // TestNet has no Haystack router, so G2 leaves that plugin out: the runner sends one command fewer.
+      (step === 'G2' && line.includes('haystack-router-plugin'))
+      // A4a is a TestNet-only step and has no MainNet command block.
+      || step === 'A4a'
+
+    const runbook = new Map<string, Set<string>>()
+    for (const c of commands) {
+      if (!runbook.has(c.step)) runbook.set(c.step, new Set())
+      runbook.get(c.step)!.add(bare(c.line))
+    }
+    const wrong: string[] = []
+    for (const { step, line } of sent) {
+      if (skip(step, line)) continue
+      const lines = runbook.get(step)
+      if (!lines) { wrong.push(`${step}: the runbook has no command block for this step`); continue }
+      if (!lines.has(line)) wrong.push(`${step}: the runner sends a command the runbook does not: ${line}`)
+    }
+    // and nothing the runbook asks for in those steps is left out
+    for (const [step, lines] of runbook) {
+      if (!sent.some((c) => c.step === step)) continue
+      for (const line of lines) {
+        if (skip(step, line)) continue
+        if (!sent.some((c) => c.step === step && c.line === line)) wrong.push(`${step}: the runner leaves out ${line}`)
+      }
+    }
+    expect(wrong).toEqual([])
+  })
+
   test('every step the runbook says is tracked is a step of rollout:status', () => {
     expect(tracked.length).toBeGreaterThan(20)
     const tracker = readFileSync(path.join(project, 'scripts/lib/rollout-steps.ts'), 'utf8')
