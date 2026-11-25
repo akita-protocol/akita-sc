@@ -4,7 +4,7 @@ import type { Address, TransactionSigner } from 'algosdk'
 import algosdk from 'algosdk'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet'
-import { inferenceTicketId, InferencePluginSDK } from '../../../akita-sdk/src/wallet/plugins/inference'
+import { inferenceSettleReferences, inferenceTicketId, InferencePluginSDK } from '../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../tests/fixtures/escrow'
@@ -75,15 +75,13 @@ describe('InferenceNetwork', () => {
   const boxKey = (prefix: string, id: bigint) => new Uint8Array([...Buffer.from(prefix), ...algosdk.encodeUint64(id)])
   const usageKey = (pool: bigint, subscriber: Address, subscription: bigint) =>
     new Uint8Array([...Buffer.from('u'), ...algosdk.encodeUint64(pool), ...subscriber.publicKey, ...algosdk.encodeUint64(subscription)])
-  const settleRefs = (ticket: Uint8Array, asset: bigint, pool?: { id: bigint; subscriber: Address; subscription: bigint }) => ({
-    // a pool ticket's storage deposit goes back to the subscriber who paid it
-    accountReferences: pool ? [payout.addr, pool.subscriber] : [payout.addr, payer.addr],
-    assetReferences: [asset],
-    boxReferences: [
-      new Uint8Array([...Buffer.from('t'), ...ticket]), boxKey('p', provider), boxKey('x', asset),
-      ...(pool ? [boxKey('o', pool.id), usageKey(pool.id, pool.subscriber, pool.subscription)] : []),
-    ],
-  })
+  // The SDK's references, which providers use with automatic population off: a pool ticket's
+  // subscriber is its payer and, for a member's own wallet, its principal.
+  const settleRefs = (ticket: Uint8Array, asset: bigint, pool: { id: bigint; subscriber: Address; subscription: bigint }) =>
+    inferenceSettleReferences({
+      ticket, provider, asset, payer: pool.subscriber, principal: pool.subscriber, payout: payout.addr,
+      pool: pool.id, subscription: pool.subscription,
+    })
   const newAccount = async (algo = 50): Promise<Signer> => {
     const account = await fixture.context.generateAccount({ initialFunds: microAlgo(algo * 1_000_000) })
     return { addr: account.addr, signer: account.signer }
@@ -360,8 +358,7 @@ describe('InferenceNetwork', () => {
     }
     const usage = async (m: Member, id = 1n) => (await client.send.poolUsage({ args: { pool, subscription: sub(m, id) } })).return!
     const settlePooled = (t: Uint8Array, cost: bigint, m: Member, id = 1n) => client.send.settle(
-      { ...as(claimer), args: { ticket: t, cost }, ...settleFee, ...settleRefs(t, usdc, { id: pool, subscriber: addr(m), subscription: id }) },
-      { populateAppCallResources: false },
+      { ...as(claimer), args: { ticket: t, cost }, ...settleFee, ...settleRefs(t, usdc, { id: pool, subscriber: addr(m), subscription: id }), populateAppCallResources: false },
     )
     // A direct pool ticket reads the subscription with two inner calls and touches more than one
     // transaction's references, so the group carries a second call to share them.

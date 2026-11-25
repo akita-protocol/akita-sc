@@ -14,7 +14,7 @@ import { CallerType, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wa
 import { MetaFactory, MetaSDK, SchemaPart } from '../../../../../akita-sdk/src/meta'
 import { MetaPluginSDK, newMetaPlugin } from '../../../../../akita-sdk/src/wallet/plugins/meta'
 import {
-  decodeInferencePolicy, encodeInferencePolicy, inferenceTicketId, inferenceUsageKey, InferencePluginSDK,
+  decodeInferencePolicy, encodeInferencePolicy, inferenceSettleReferences, inferenceTicketId, InferencePluginSDK,
 } from '../../../../../akita-sdk/src/wallet/plugins/inference'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
@@ -65,6 +65,15 @@ describe('InferencePlugin (LocalNet)', () => {
     calls: [writer.configurePolicy({ plugin: plugin.appId, caller: agent.addr.toString(), escrow: ESCROW, body, expectedRevision })],
   })
   const ticketOf = (id: number) => inferenceTicketId(walletAddress, request(id))
+  /** Settles with only the SDK's references, the way a provider builds the call. */
+  const settleWithRefs = (ticket: Uint8Array, cost: bigint, payer: string, pool?: { id: bigint; subscription: bigint }) => network.send.settle({
+    sender: claimer.addr, signer: claimer.signer, args: { ticket, cost }, extraFee: microAlgo(3_000),
+    ...inferenceSettleReferences({
+      ticket, provider: akita, asset: 0n, payer, principal: walletAddress, payout: claimer.addr.toString(),
+      pool: pool?.id, subscription: pool?.subscription,
+    }),
+    populateAppCallResources: false,
+  })
 
   beforeAll(async () => {
     Config.configure({ populateAppCallResources: true })
@@ -177,7 +186,7 @@ describe('InferencePlugin (LocalNet)', () => {
 
     // The provider settles at the actual cost; the rest and the storage deposit return to the escrow.
     const payoutBefore = await balance(claimer.addr.toString())
-    await network.send.settle({ sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 250_000n }, extraFee: microAlgo(3_000) })
+    await settleWithRefs(ticket, 250_000n, escrow)
     expect(await balance(escrow)).toBe(before - 250_000n)
     expect(await balance(claimer.addr.toString()) - payoutBefore).toBe(225_000n - 4_000n)
   })
@@ -245,12 +254,26 @@ describe('InferencePlugin (LocalNet)', () => {
     await expect(openPooled(1n, 42)).rejects.toThrow(/errInpx/)
     expect((await network.send.poolUsage({ args: { pool, subscription } })).return!.used).toBe(1_000_000n)
 
-    await network.send.settle({
-      sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 100_000n }, extraFee: microAlgo(3_000),
-      boxReferences: [inferenceUsageKey(pool, walletAddress, 1n)],
-    })
+    const walletBefore = await balance(walletAddress)
+    await settleWithRefs(ticket, 100_000n, walletAddress, { id: pool, subscription: 1n })
     expect((await network.send.poolUsage({ args: { pool, subscription } })).return!.used).toBe(700_000n)
-    expect(await balance(escrow)).toBe(before)
+    // the storage deposit goes to the ticket's principal, the wallet's own account, which a settle can always name
+    expect(before - await balance(escrow)).toBe(TICKET_MBR)
+    expect(await balance(walletAddress) - walletBefore).toBe(TICKET_MBR)
+  })
+
+  test('a delegated grant runs none of the admin pass-throughs', async () => {
+    // The agent's grant is on an escrow with a policy; only an admin window may reach the network's admin.
+    for (const call of [
+      plugin.setProviderStatus({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider: akita, status: 2n }),
+      plugin.slash({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, provider: akita, amount: 0n, receiver: owner }),
+      plugin.setSettings({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: false } }),
+      plugin.setPaymentAsset({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, asset: 0n, allowed: false, newBox: false }),
+      plugin.setAdmin({ sender: agent.addr.toString(), signer: agent.signer, network: network.appId, admin: owner }),
+    ]) {
+      await expect(wallet.usePlugin({ sender: agent.addr.toString(), signer: agent.signer, escrow: ESCROW, calls: [call] }))
+        .rejects.toThrow(errInferencePolicyDenied)
+    }
   })
 
   test('a payer that can no longer receive is refunded through the wallet\'s own account', async () => {
@@ -264,7 +287,7 @@ describe('InferencePlugin (LocalNet)', () => {
     await wallet.client.send.arc58DeleteEscrow({ args: { escrow: ESCROW }, ...fees })
     expect(await balance(escrow)).toBe(0n)
     const before = await balance(walletAddress)
-    await network.send.settle({ sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 400_000n }, extraFee: microAlgo(3_000) })
+    await settleWithRefs(ticket, 400_000n, escrow)
     expect(await balance(walletAddress) - before).toBe(600_000n + TICKET_MBR)
     expect(await balance(escrow)).toBe(0n)
     // and an expired one the same way

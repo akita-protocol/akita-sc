@@ -1012,7 +1012,7 @@ export declare abstract class InferenceNetworkParamsFactory {
     gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
     principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
     the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-    the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+    the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
     not the pool's. The allowance is counted per subscription and starts over with each payment; the
     ticket is attributed to the principal. Returns the ticket id.
   
@@ -1985,7 +1985,7 @@ export declare class InferenceNetworkClient {
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
         principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
         the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-        the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+        the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
         not the pool's. The allowance is counted per subscription and starts over with each payment; the
         ticket is attributed to the principal. Returns the ticket id.
     
@@ -2565,7 +2565,7 @@ export declare class InferenceNetworkClient {
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
         principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
         the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-        the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+        the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
         not the pool's. The allowance is counted per subscription and starts over with each payment; the
         ticket is attributed to the principal. Returns the ticket id.
     
@@ -3322,7 +3322,7 @@ export declare class InferenceNetworkClient {
         gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
         principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
         the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-        the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+        the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
         not the pool's. The allowance is counted per subscription and starts over with each payment; the
         ticket is attributed to the principal. Returns the ticket id.
     
@@ -4151,7 +4151,7 @@ export type InferenceNetworkComposer<TReturns extends [...any[]] = []> = {
     gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
     principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
     the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-    the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+    the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
     not the pool's. The allowance is counted per subscription and starts over with each payment; the
     ticket is attributed to the principal. Returns the ticket id.
   

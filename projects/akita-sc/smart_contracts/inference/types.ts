@@ -55,7 +55,8 @@ export type Ticket = {
   principal: Account
   /**
    * Paid the storage deposit and gets it back (or, if it can no longer receive, the principal does).
-   * The zero address when the pool's credit paid it, as for a ticket the pool's allocator opened.
+   * For a pool ticket the deposit goes back to the principal, or to the pool's credit when this is
+   * the zero address: the pool paid it, as for a ticket the pool's allocator opened.
    */
   depositor: Account
   /** The principal's Akita wallet. */

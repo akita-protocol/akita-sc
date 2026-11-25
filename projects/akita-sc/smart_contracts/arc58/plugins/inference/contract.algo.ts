@@ -30,8 +30,9 @@ const MaxPolicyEntries: uint64 = 8
  *
  * It is also how the Akita DAO administers InferenceNetwork: the DAO's wallet holds a grant of this
  * plugin that needs an execution key, and each admin call below is one ExecutePlugin proposal. The
- * calls are sent from the wallet's spending account, and the network accepts them only from the DAO's
- * wallet (or its bootstrap admin), so the same calls from any other wallet are refused there.
+ * calls run only in a window the wallet's admin approved (never under a delegated grant), are sent
+ * from the wallet's spending account, and the network accepts them only from the DAO's wallet (or its
+ * bootstrap admin), so the same calls from any other wallet are refused there.
  */
 @contract({ avmVersion: 13 })
 export class InferencePlugin extends GrantPolicyPlugin {
@@ -133,6 +134,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /** InferenceNetwork.setSettings, sent from the wallet's spending account. */
   setSettings(wallet: Application, rekeyBack: boolean, network: Application, settings: InferenceSettings): void {
+    this.requireAdminWindow(wallet)
     abiCall<typeof InferenceNetwork.prototype.setSettings>({
       sender: getControlledSpendingAccount(wallet),
       appId: network,
@@ -146,6 +148,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
    * box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
    */
   setPaymentAsset(wallet: Application, rekeyBack: boolean, network: Application, asset: uint64, allowed: boolean, newBox: boolean): void {
+    this.requireAdminWindow(wallet)
     const sender = getControlledSpendingAccount(wallet)
     const deposit: uint64 = newBox ? INFERENCE_ASSET_MBR : 0
     abiCall<typeof InferenceNetwork.prototype.setPaymentAsset>({
@@ -158,6 +161,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /** InferenceNetwork.setProviderStatus, sent from the wallet's spending account. */
   setProviderStatus(wallet: Application, rekeyBack: boolean, network: Application, provider: uint64, status: uint64): void {
+    this.requireAdminWindow(wallet)
     abiCall<typeof InferenceNetwork.prototype.setProviderStatus>({
       sender: getControlledSpendingAccount(wallet),
       appId: network,
@@ -168,6 +172,7 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /** InferenceNetwork.slash, sent from the wallet's spending account. */
   slash(wallet: Application, rekeyBack: boolean, network: Application, provider: uint64, amount: uint64, receiver: Account): void {
+    this.requireAdminWindow(wallet)
     abiCall<typeof InferenceNetwork.prototype.slash>({
       sender: getControlledSpendingAccount(wallet),
       appId: network,
@@ -178,12 +183,22 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /** InferenceNetwork.setAdmin, sent from the wallet's spending account. */
   setAdmin(wallet: Application, rekeyBack: boolean, network: Application, admin: Account): void {
+    this.requireAdminWindow(wallet)
     abiCall<typeof InferenceNetwork.prototype.setAdmin>({
       sender: getControlledSpendingAccount(wallet),
       appId: network,
       args: [admin],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
+  }
+
+  /**
+   * The admin pass-throughs run only in a window the wallet's admin approved: an admin execution, or a
+   * global grant that needs an execution key (how the DAO holds this plugin). A delegated key has no
+   * policy for them, so it is refused, whatever methods its grant lists.
+   */
+  private requireAdminWindow(wallet: Application): void {
+    loggedAssert(this.isAdminWindow(wallet, this.grant(wallet)), errInferencePolicyDenied)
   }
 
   private listed(list: uint64[], value: uint64): boolean {

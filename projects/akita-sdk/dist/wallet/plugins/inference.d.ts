@@ -2,6 +2,7 @@ type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { InferencePluginClient } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginSDKReturn } from "../../types";
+export { INFERENCE_ERROR_MESSAGES, translateInferenceError } from "../../inference/errors";
 /**
  * An InferenceNetwork ticket's id: sha256 of the principal's address (the wallet's controlled address)
  * and the caller's 32-byte request id. The caller knows it before the ticket lands.
@@ -10,17 +11,21 @@ export declare function inferenceTicketId(principal: ReadableAddress, request: U
 /** The box key of a subscription's use of an InferenceNetwork sponsor pool. */
 export declare function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAddress, subscription: bigint | number): Uint8Array<ArrayBuffer>;
 /**
- * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
- * settle in an ASA touches three holdings (the network's, the payout's and the payer's), and a pool
- * ticket two more boxes, which can be more than automatic resource population will place in one call.
- * For a pool ticket pass `pool` and `subscription` from the ticket; `payer` is then the ticket's payer
- * field, the subscription's address.
+ * The references `InferenceNetwork.settle` (and `refundExpired`) need, for providers that build the call
+ * themselves, with automatic resource population off. Pass the ticket's fields: `payer`, `principal`,
+ * and for a pool ticket `pool` and `subscription` (`payer` is then the subscription's address).
+ *
+ * A plain ticket names the payout, the payer and the principal (the refund falls back to the principal
+ * when the payer can no longer receive) and the asset: 7 references with its three boxes. A pool
+ * ticket's deposit goes back to the principal and its lock to the pool, so it names the payout and the
+ * principal, the asset and five boxes: 8, the most one call holds.
  */
 export declare function inferenceSettleReferences(args: {
     ticket: Uint8Array;
     provider: bigint | number;
     asset: bigint | number;
     payer: ReadableAddress;
+    principal: ReadableAddress;
     payout: ReadableAddress;
     pool?: bigint | number;
     subscription?: bigint | number;
@@ -151,4 +156,3 @@ export declare class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
     /** One admin pass-through. */
     private adminCall;
 }
-export {};

@@ -12,6 +12,7 @@ import {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  INFERENCE_ERROR_MESSAGES,
   InferencePluginSDK,
   InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
@@ -100,10 +101,11 @@ import {
   socialClaimAttestationMessage,
   socialClaimGiftBoxName,
   socialClaimSubject,
+  translateInferenceError,
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-Z34FYCHY.mjs";
+} from "../chunk-4I6AEIXI.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-4XKSJAPH.mjs";
@@ -133,6 +135,7 @@ export {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  INFERENCE_ERROR_MESSAGES,
   InferencePluginSDK,
   InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
@@ -221,6 +224,7 @@ export {
   socialClaimAttestationMessage,
   socialClaimGiftBoxName,
   socialClaimSubject,
+  translateInferenceError,
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress

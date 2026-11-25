@@ -1,5 +1,5 @@
 /**
- * ARC-65 codes for InferenceNetwork. Keep in sync with akita-sdk/src/errors.ts.
+ * ARC-65 codes for InferenceNetwork. Keep in sync with akita-sdk/src/inference/errors.ts.
  */
 
 /** Only the Akita DAO's wallet, or the network's bootstrap admin while it has one, may do this. */

@@ -377,8 +377,8 @@
     "arc58/plugins/inference/InferencePlugin": {
       "name": "InferencePlugin",
       "approval": {
-        "bytes": 2627,
-        "sha256": "a160f47b9bdaee80a0d22744a25ce76d5ba2b17ec1c648b302a1ca62058f2668"
+        "bytes": 2672,
+        "sha256": "ee3bf834f96a2460637dc8a8a650dcc7ba2927f2b49f191fa42eb6b8417a7c15"
       },
       "clear": {
         "bytes": 4,
@@ -958,8 +958,8 @@
     "inference/InferenceNetwork": {
       "name": "InferenceNetwork",
       "approval": {
-        "bytes": 6797,
-        "sha256": "9d1273867dbef05fea2216f69120a462477b898f9e167247b4c570e9cc51e707"
+        "bytes": 6855,
+        "sha256": "281564141e79e60c212be71bde4dfe24e1eef7dc7abdd47e1dfa802615313def"
       },
       "clear": {
         "bytes": 4,

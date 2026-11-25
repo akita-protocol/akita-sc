@@ -428,7 +428,7 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
    * gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
    * principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
    * the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
-   * the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+   * the principal's account when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
    * not the pool's. The allowance is counted per subscription and starts over with each payment; the
    * ticket is attributed to the principal. Returns the ticket id.
    */
@@ -706,21 +706,30 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
   }
 
   /**
-   * Returns what a ticket did not spend, and its storage deposit, to whoever paid them. The lock goes
-   * back to the payer, or to the pool (which also gives the subscription back that part of its use, if
-   * no payment came since). The deposit goes back to the depositor, or to the pool's credit when the
-   * pool paid it. A payer or depositor that can no longer receive (an account closed since, such as a
-   * deleted escrow, or one that opted out of the asset) is replaced by the ticket's principal, so a
-   * settle or refund never fails for it.
+   * Returns what a ticket did not spend, and its storage deposit. The lock goes back to the payer, or to
+   * the pool (which also gives the subscription back that part of its use, if no payment came since).
+   * The deposit goes back to the depositor; for a pool ticket, to the pool's credit when the pool paid
+   * it, else to the subscriber's account (the principal), so a settle names no more accounts than it
+   * must. A payer or depositor that can no longer receive (an account closed since, such as a deleted
+   * escrow, or one that opted out of the asset) is replaced by the principal; if the principal cannot
+   * receive the asset either, that part of the lock is added to the network's fees, so a ticket can
+   * always close.
    */
   private refund(info: Ticket, amount: uint64): void {
     if (info.depositor === Global.zeroAddress) {
       this.pools(info.pool).value.credit = this.pools(info.pool).value.credit + INFERENCE_TICKET_MBR
     } else {
-      itxn.payment({ receiver: this.receiverOf(info.depositor, info.principal, 0), amount: INFERENCE_TICKET_MBR }).submit()
+      const depositor = info.pool === 0 && this.canReceive(info.depositor, 0) ? info.depositor : info.principal
+      itxn.payment({ receiver: depositor, amount: INFERENCE_TICKET_MBR }).submit()
     }
     if (info.pool === 0) {
-      this.send(this.receiverOf(info.payer, info.principal, info.asset), info.asset, amount)
+      if (this.canReceive(info.payer, info.asset)) {
+        this.send(info.payer, info.asset, amount)
+      } else if (this.canReceive(info.principal, info.asset)) {
+        this.send(info.principal, info.asset, amount)
+      } else {
+        this.assets(info.asset).value.fees = this.assets(info.asset).value.fees + amount
+      }
       return
     }
     this.pools(info.pool).value.balance = this.pools(info.pool).value.balance + amount
@@ -731,13 +740,12 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
     }
   }
 
-  /** `account` if it can receive `asset` (it exists, and holds an ASA), else `fallback`. */
-  private receiverOf(account: Account, fallback: Account, asset: uint64): Account {
+  /** Whether `account` can receive `asset`: it exists, and holds the asset if it is an ASA. */
+  private canReceive(account: Account, asset: uint64): boolean {
     // A closed account has no balance record: `account.balance` would fail on it, so read the flag.
     const [balance, exists] = op.AcctParams.acctBalance(account)
-    if (!exists || balance === 0) return fallback
-    if (asset !== 0 && !account.isOptedIn(Asset(asset))) return fallback
-    return account
+    if (!exists || balance === 0) return false
+    return asset === 0 || account.isOptedIn(Asset(asset))
   }
 
   private mustGetPool(pool: uint64): Pool {

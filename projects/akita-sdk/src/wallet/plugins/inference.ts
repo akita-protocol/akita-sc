@@ -5,6 +5,7 @@ import { BaseSDK } from "../../base";
 import { InferencePluginClient, InferencePluginFactory } from "../../generated/InferencePluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn, PluginTxn } from "../../types";
 import { getTxns } from "../utils";
+export { INFERENCE_ERROR_MESSAGES, translateInferenceError } from "../../inference/errors";
 
 /** InferenceNetwork box key prefixes, for naming references explicitly. */
 const boxKey = (prefix: string, id: bigint | number) => {
@@ -48,17 +49,21 @@ export function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAdd
 }
 
 /**
- * The references `InferenceNetwork.settle` needs, for providers that build the call themselves. A
- * settle in an ASA touches three holdings (the network's, the payout's and the payer's), and a pool
- * ticket two more boxes, which can be more than automatic resource population will place in one call.
- * For a pool ticket pass `pool` and `subscription` from the ticket; `payer` is then the ticket's payer
- * field, the subscription's address.
+ * The references `InferenceNetwork.settle` (and `refundExpired`) need, for providers that build the call
+ * themselves, with automatic resource population off. Pass the ticket's fields: `payer`, `principal`,
+ * and for a pool ticket `pool` and `subscription` (`payer` is then the subscription's address).
+ *
+ * A plain ticket names the payout, the payer and the principal (the refund falls back to the principal
+ * when the payer can no longer receive) and the asset: 7 references with its three boxes. A pool
+ * ticket's deposit goes back to the principal and its lock to the pool, so it names the payout and the
+ * principal, the asset and five boxes: 8, the most one call holds.
  */
 export function inferenceSettleReferences(args: {
   ticket: Uint8Array;
   provider: bigint | number;
   asset: bigint | number;
   payer: ReadableAddress;
+  principal: ReadableAddress;
   payout: ReadableAddress;
   pool?: bigint | number;
   subscription?: bigint | number;
@@ -66,8 +71,9 @@ export function inferenceSettleReferences(args: {
   const pooled = args.pool !== undefined && BigInt(args.pool) !== 0n;
   const boxes = [ticketBoxKey(args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
   if (pooled) boxes.push(boxKey("o", args.pool!), inferenceUsageKey(args.pool!, args.payer, args.subscription ?? 0n));
+  const accounts = pooled ? [args.payout, args.principal] : [args.payout, args.payer, args.principal];
   return {
-    accountReferences: pooled ? [args.payout] : [args.payout, args.payer],
+    accountReferences: accounts.filter((a, i) => accounts.findIndex((b) => b.toString() === a.toString()) === i),
     assetReferences: BigInt(args.asset) === 0n ? [] : [BigInt(args.asset)],
     boxReferences: boxes,
   };
