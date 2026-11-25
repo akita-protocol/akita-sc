@@ -61,7 +61,7 @@ describe('Staking plugin contract', () => {
     // Over-fund the wallet with 10 ALGO: plenty of headroom for SOFT stake MBR
     // (32_100 microAlgos) + inner-transaction fees.
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 10_000_000n) });
-    await wallet.addPlugin({ client: stakingPluginSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: stakingPluginSdk, callerType: CallerType.Global });
   });
 
   beforeEach(fixture.newScope);
@@ -89,7 +89,7 @@ describe('Staking plugin contract', () => {
       const stakeAmount = 1_000_000n; // 1 ALGO — recorded amount, not transferred
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           stakingPluginSdk.stake({
             assetId: 0n,            // 0 = ALGO
@@ -123,7 +123,7 @@ describe('Staking plugin contract', () => {
       const additionalAmount = 500_000n; // 0.5 ALGO
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           stakingPluginSdk.stake({
             assetId: 0n,
@@ -166,11 +166,11 @@ describe('Staking plugin contract', () => {
 
       await wallet.addPlugin({
         client: akitaUniverse.selfOptInPlugin,
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [stakeAsset] })],
       });
 
@@ -183,7 +183,7 @@ describe('Staking plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           stakingPluginSdk.stake({
             assetId: stakeAsset,
@@ -210,9 +210,7 @@ describe('Staking plugin contract', () => {
       await proposeAndExecute(akitaUniverse.dao, [
         buildAddPluginAction({
           client: stakingPluginSdk,
-          // a grant anyone may use is refused by the plugin, so the DAO names the caller
-          callerType: CallerType.Other,
-          caller: deployer.addr.toString(),
+          callerType: CallerType.Global,
           useExecutionKey: false,
         }),
       ]);
@@ -226,6 +224,7 @@ describe('Staking plugin contract', () => {
       await akitaUniverse.dao.wallet.usePlugin({
         sender: deployer.addr,
         signer: deployer.signer,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.setHeartbeatManager({ manager: manager.addr.toString() })],
       });
       const stored = await akitaUniverse.staking.client.state.global.heartbeatManagerAddress();
@@ -233,7 +232,7 @@ describe('Staking plugin contract', () => {
 
       // the user's wallet opens an ALGO heartbeat record: it starts with no samples
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.stake({ assetId: 0n, type: StakingType.Heartbeat, amount: 0n, expiration: 0n, isUpdate: false })],
       });
       const walletAddress = wallet.client.appAddress.toString();
@@ -260,6 +259,7 @@ describe('Staking plugin contract', () => {
       await akitaUniverse.dao.wallet.usePlugin({
         sender: deployer.addr,
         signer: deployer.signer,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.updateSettings({ asset: akta, value: twoYears })],
       });
       const [settings] = await akitaUniverse.staking.client.getSettings({ args: { assets: [akta] } });
@@ -269,6 +269,7 @@ describe('Staking plugin contract', () => {
       await expect(akitaUniverse.dao.wallet.usePlugin({
         sender: deployer.addr,
         signer: deployer.signer,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.updateSettings({ asset: akta, value: 31_536_000n })],
       })).rejects.toThrow();
     });
@@ -276,7 +277,7 @@ describe('Staking plugin contract', () => {
     test('L-2: a wallet closes its SOFT stake through the plugin and gets the MBR back', async () => {
       const before = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.closeSoftStake({ asset: 0n })],
       });
       const after = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
@@ -290,7 +291,7 @@ describe('Staking plugin contract', () => {
 
     test('empty checkpoint batches are rejected', async () => {
       await expect(wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [stakingPluginSdk.checkpointSoftStake({ stakeKeys: [] })],
       })).rejects.toThrow();
     });

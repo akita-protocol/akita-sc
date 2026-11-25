@@ -91,7 +91,7 @@ describe('Guild member proposals', () => {
     })
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     return wallet
   }
 
@@ -136,7 +136,7 @@ describe('Guild member proposals', () => {
     const [aliceAddress, bobAddress] = [await controlled(alice), await controlled(bob)]
     // both members must approve; Pay can run on the treasury by vote
     const created = await alice.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [
         ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ rekeyBack: false, nonce: BigInt(nonce) })),
@@ -156,7 +156,7 @@ describe('Guild member proposals', () => {
     const guild = Array.isArray(ids) ? ids[0] : ids.guild
     const treasuryId = Array.isArray(ids) ? ids[2] : ids.wallet
 
-    await alice.usePlugin({ callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.initialize({ guild })] })
+    await alice.usePlugin({ callerType: CallerType.Global, consolidateFees: true, calls: [plugin.initialize({ guild })] })
     return { guild, treasuryId }
   }
 
@@ -182,7 +182,7 @@ describe('Guild member proposals', () => {
       wallet: alice,
       guildPlugin: plugin,
       guild,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       actions: [
         executePluginAction({
           plugin: pay.appId,
@@ -194,7 +194,7 @@ describe('Guild member proposals', () => {
       ],
       ...sendAs,
     })
-    const guildWallet = { wallet: alice, guildPlugin: plugin, guild, callerType: CallerType.Admin, ...sendAs }
+    const guildWallet = { wallet: alice, guildPlugin: plugin, guild, callerType: CallerType.Global, ...sendAs }
     await voteOnGuildProposal({ ...guildWallet, proposalId, vote: APPROVE })
     await voteOnGuildProposal({ ...guildWallet, wallet: bob, proposalId, vote: APPROVE })
 
@@ -210,7 +210,7 @@ describe('Guild member proposals', () => {
 
   test('a member proposes letting members use another plugin by vote', async () => {
     const { guild, treasuryId } = await activeGuild()
-    const guildWallet = { wallet: bob, guildPlugin: plugin, guild, callerType: CallerType.Admin, ...sendAs }
+    const guildWallet = { wallet: bob, guildPlugin: plugin, guild, callerType: CallerType.Global, ...sendAs }
     const proposalId = await proposeToGuild({
       ...guildWallet,
       actions: [addVotedPluginAction({ plugin: plugin.appId, settings: proposalSettings() })],

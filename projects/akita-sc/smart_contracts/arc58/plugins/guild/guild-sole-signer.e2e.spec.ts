@@ -126,7 +126,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
     })
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     return wallet
   }
 
@@ -169,7 +169,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
     // no approval percentage: the approval count alone decides
     const settings = proposalSettings({ approval: 0n, minimumApprovals: threshold })
     const created = await alice.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [
         ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ rekeyBack: false, nonce: BigInt(nonce) })),
@@ -190,7 +190,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
     const guild = Array.isArray(ids) ? ids[0] : ids.guild
     const consensus = Array.isArray(ids) ? ids[1] : ids.consensus
     const treasuryId = Array.isArray(ids) ? ids[2] : ids.wallet
-    await alice.usePlugin({ callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.initialize({ guild })] })
+    await alice.usePlugin({ callerType: CallerType.Global, consolidateFees: true, calls: [plugin.initialize({ guild })] })
     return { guild, consensus, treasuryId }
   }
 
@@ -211,7 +211,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
     const proposalId = await nextProposalId(guild)
     const result = await wallet.usePlugin({
       ...sendAs,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [
         ...Array.from({ length: OP_UPS }, (_, nonce) => plugin.opUp({ ...sendAs, rekeyBack: false, nonce: BigInt(nonce) })),
@@ -333,7 +333,7 @@ describe('Guild sole signer: propose through execute in one group', () => {
   const useDirectly = (wallet: WalletSDK, guild: bigint, calls: Uint8Array[][], escrow = '', funds: [bigint, bigint][] = []) =>
     wallet.usePlugin({
       ...sendAs,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [plugin.usePluginAsSigner({ ...sendAs, guild, plugin: pay.appId, escrow, fundsRequest: funds, calls })],
     })

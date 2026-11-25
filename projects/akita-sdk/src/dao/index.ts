@@ -195,8 +195,7 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
           if (pluginCallerType === CallerType.Global) {
             caller = ALGORAND_ZERO_ADDRESS_STRING
           } else if (pluginCallerType === CallerType.Admin) {
-            // the wallet keys its admin's own grant by the WALLET's app address, not the plugin's
-            caller = algosdk.getApplicationAddress((await this.getWallet()).appId).toString()
+            caller = algosdk.getApplicationAddress(client.appId).toString()
           }
 
           let transformedMethods: [Uint8Array<ArrayBufferLike>, number | bigint][] = [];

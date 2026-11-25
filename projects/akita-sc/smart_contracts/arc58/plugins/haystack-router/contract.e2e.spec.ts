@@ -95,7 +95,7 @@ describe('Haystack temporary-account funding', () => {
       appId: walletFactory.appId, defaultSender: sender, defaultSigner: testAccount.signer,
     }, readerAccount: sender, nickname: 'Haystack funding test' })
     await wallet.client.appClient.fundAppAccount({ amount: (10).algos() })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     await wallet.addPlugin({ client: optInPlugin, callerType: CallerType.Global })
     await wallet.usePlugin({ callerType: CallerType.Global, calls: [optInPlugin.optIn({ assets: [inputAsset, outputAsset] })] })
     await algorand.send.assetTransfer({ sender: referrer, signer: referrerSigner, receiver: wallet.client.appAddress, assetId: inputAsset, amount: amount * 2n })
@@ -133,7 +133,7 @@ describe('Haystack temporary-account funding', () => {
     const group = wallet.client.newGroup()
     for (const [w, swaps] of windows.entries()) {
       group.arc58RekeyToPlugin({ ...sendParams, note: `window ${w}`, extraFee: microAlgo(1_000n + 1_000n * BigInt(swaps)),
-        args: { plugin: plugin.appId, type: CallerType.Admin, escrow: '', methodOffsets: [], fundsRequest: [] } })
+        args: { plugin: plugin.appId, type: CallerType.Global, escrow: '', methodOffsets: [], fundsRequest: [] } })
       const composer = await group.composer()
       for (let c = 0; c < swaps; c++) {
         composer.addAppCallMethodCall(await plugin.client.params.swap({ ...sendParams, note: `swap ${w}.${c}`, args: {
@@ -178,7 +178,7 @@ describe('Haystack temporary-account funding', () => {
     if (!options.omitFinalize && !options.finalizeFirst) await finalize()
     // End the wallet's protected plugin segment before the intact router route.
     const group = options.windows ? await swapWindows(options.windows, options.asa ?? false)
-      : (await wallet.prepareUsePlugin({ callerType: CallerType.Admin,
+      : (await wallet.prepareUsePlugin({ callerType: CallerType.Global,
         calls: [plugin.swap({ asset: options.asa ? inputAsset : 0n, amount, outputAsset, minOutputAmount })] })).group
     const composer = await group.composer()
     composer.addAtc((await route.build()).atc.clone())

@@ -281,8 +281,8 @@
     "arc58/plugins/asa-manager/AsaManagerPlugin": {
       "name": "AsaManagerPlugin",
       "approval": {
-        "bytes": 853,
-        "sha256": "39a64f9582f923ff73c4fe6f0d1a8045bfb9dccda027bba45339ff539ccd788f"
+        "bytes": 749,
+        "sha256": "712462a8cc1ee46de2a22de30615e7bdad53b6674dc839ce14fbefa90bce039b"
       },
       "clear": {
         "bytes": 4,
@@ -293,8 +293,8 @@
     "arc58/plugins/auction/AuctionPlugin": {
       "name": "AuctionPlugin",
       "approval": {
-        "bytes": 3912,
-        "sha256": "7d04c478dc89886b61ef05550d8f26c5c4a33ef9fb0a21bb202b465780513745"
+        "bytes": 3809,
+        "sha256": "3cf44ff4b1946f11f714fb036628eede80c2c1e739ca114496eaae6f68e70072"
       },
       "clear": {
         "bytes": 4,
@@ -305,8 +305,8 @@
     "arc58/plugins/dao/AkitaDAOPlugin": {
       "name": "AkitaDAOPlugin",
       "approval": {
-        "bytes": 1650,
-        "sha256": "264ecc2b2f041c66a5482bd37fa6948a01ada35d969617b3730242f44d8a5001"
+        "bytes": 1547,
+        "sha256": "86b61316141deced824b121acecde4f62153fdae55d1963ef04fb4e109253fd4"
       },
       "clear": {
         "bytes": 4,
@@ -317,8 +317,8 @@
     "arc58/plugins/dual-stake/DualStakePlugin": {
       "name": "DualStakePlugin",
       "approval": {
-        "bytes": 713,
-        "sha256": "5142041aff20280bb11be498deaafbfc5c3c0e61773f3d244cacdbf54f2e13f3"
+        "bytes": 610,
+        "sha256": "eccd774c629abee58cabcdc56b9a7928c1a675b459d3a1903b395678b3cca3b7"
       },
       "clear": {
         "bytes": 4,
@@ -329,8 +329,8 @@
     "arc58/plugins/gate/GatePlugin": {
       "name": "GatePlugin",
       "approval": {
-        "bytes": 585,
-        "sha256": "fdad14b1e85cb113294bb87309a6cc60a8d0ab6d3a5e3f7e342a46b62f27b5fb"
+        "bytes": 481,
+        "sha256": "3036eaca358eb91bdc17d24e9d8fd161cf23e9da7ee6aa9213c7798e94a02c50"
       },
       "clear": {
         "bytes": 4,
@@ -341,8 +341,8 @@
     "arc58/plugins/guild/GuildPlugin": {
       "name": "GuildPlugin",
       "approval": {
-        "bytes": 5667,
-        "sha256": "b9633491a2cca90fda98a20c834c2369128b7eb3d3e586f3687b28f93ac6a647"
+        "bytes": 5564,
+        "sha256": "20afbfb9f0e6c8077702d3a4879314093a7ea4b94e43ba3bcdfa4633d268e001"
       },
       "clear": {
         "bytes": 4,
@@ -353,8 +353,8 @@
     "arc58/plugins/haystack-router/HaystackRouterPlugin": {
       "name": "HaystackRouterPlugin",
       "approval": {
-        "bytes": 995,
-        "sha256": "f8a716799589d81b49d6e020dd9a713431ac708ffb9166b5ccc99bf61cc58c46"
+        "bytes": 892,
+        "sha256": "949b210d491b8fc0e81e2d58254fbc08cbf41d117bf4fc722f05f15ed036984c"
       },
       "clear": {
         "bytes": 4,
@@ -365,8 +365,8 @@
     "arc58/plugins/hyper-swap/HyperSwapPlugin": {
       "name": "HyperSwapPlugin",
       "approval": {
-        "bytes": 1418,
-        "sha256": "669be7ace1dda9799ea2313891cba25b58d9106bfd88b7a5f8a49d70d1b589b4"
+        "bytes": 1314,
+        "sha256": "343591c0a01fbeffc3f91d9ae175c7beb6a8618557bbdbcbaae594c188a1e739"
       },
       "clear": {
         "bytes": 4,
@@ -377,8 +377,8 @@
     "arc58/plugins/marketplace/MarketplacePlugin": {
       "name": "MarketplacePlugin",
       "approval": {
-        "bytes": 2780,
-        "sha256": "14bd951077f17cbbe2fea81c5c014906ea6d08257989f251ec3d0bcd72059914"
+        "bytes": 2677,
+        "sha256": "294f38d9b83212546e249d8841f9e862ab3f7656966f382babf93a67b3905d69"
       },
       "clear": {
         "bytes": 4,
@@ -389,8 +389,8 @@
     "arc58/plugins/meta/MetaPlugin": {
       "name": "MetaPlugin",
       "approval": {
-        "bytes": 4058,
-        "sha256": "298e34c7906d9eda6fd2ec888d97710a4dbb7dae05136c8d7e1e46b1a27cec5e"
+        "bytes": 4075,
+        "sha256": "f4659039aaef892ceddc1ff10890780f35f7eed4f1a3d50353b3985e5c497e41"
       },
       "clear": {
         "bytes": 4,
@@ -427,8 +427,8 @@
     "arc58/plugins/nfd/NFDPlugin": {
       "name": "NFDPlugin",
       "approval": {
-        "bytes": 3059,
-        "sha256": "10663e94f157225105e0fb0e2d23dd196c593b1eef07fd215c7ba670462841d3"
+        "bytes": 2956,
+        "sha256": "e7a1c0a0e22d0c393a94620d98fa632982556df7d8284f0c195dfe3e748cc8b2"
       },
       "clear": {
         "bytes": 4,
@@ -463,8 +463,8 @@
     "arc58/plugins/poll/PollPluginContract": {
       "name": "PollPluginContract",
       "approval": {
-        "bytes": 1102,
-        "sha256": "12100b19203991376476e4660d943beb517aab8c688ced28ec11ad73b2f421c4"
+        "bytes": 998,
+        "sha256": "e1331476707f3655e59488d0a4d1a789044d73ce3bb1a90bd178bb3d9893d78c"
       },
       "clear": {
         "bytes": 4,
@@ -475,8 +475,8 @@
     "arc58/plugins/raffle/RafflePlugin": {
       "name": "RafflePlugin",
       "approval": {
-        "bytes": 4403,
-        "sha256": "a39dac738979398bc7b71400a983b21250621eef97201984407c60102bdf6ac3"
+        "bytes": 4300,
+        "sha256": "ea97db6f2e5834239276c8a836509d72c34e3d8ae6d2ad884d03269c6fe78043"
       },
       "clear": {
         "bytes": 4,
@@ -499,8 +499,8 @@
     "arc58/plugins/rewards/RewardsPlugin": {
       "name": "RewardsPlugin",
       "approval": {
-        "bytes": 2683,
-        "sha256": "a4b6853939e1fe15dba21067f9806dd1875d1efba324ca9c5b9cc202fef6d300"
+        "bytes": 2580,
+        "sha256": "11b998dc6faccc284ee764c6285422a86d1b839af16ee016e209574123793d91"
       },
       "clear": {
         "bytes": 4,
@@ -511,8 +511,8 @@
     "arc58/plugins/self-optin/SelfOptInPlugin": {
       "name": "SelfOptInPlugin",
       "approval": {
-        "bytes": 532,
-        "sha256": "0e9c98356d1568477201851e7d3ae4ab5dbb2040e9e4d58ea80fe7e0e5006af8"
+        "bytes": 431,
+        "sha256": "ca5cc75f1c3483b736f2f1cb8e27361244de7513cd93932bc5a303b352086237"
       },
       "clear": {
         "bytes": 4,
@@ -523,8 +523,8 @@
     "arc58/plugins/social/AkitaSocialPlugin": {
       "name": "AkitaSocialPlugin",
       "approval": {
-        "bytes": 8112,
-        "sha256": "9fd1cbc06be74cae24acba65581efd54940137050b692ba195d9921884d713f2"
+        "bytes": 8174,
+        "sha256": "66c41c5ec0f365d3364fa0477675320059895b791e9f02e2aa7159d81decee97"
       },
       "clear": {
         "bytes": 4,
@@ -535,8 +535,8 @@
     "arc58/plugins/staking-pool/StakingPoolPlugin": {
       "name": "StakingPoolPlugin",
       "approval": {
-        "bytes": 2801,
-        "sha256": "2c7a527a7ceb205f770f8dd69305aa8e94999a2d09171a0d4e3592f4fdbb5893"
+        "bytes": 2698,
+        "sha256": "d4383666fbf0787166afbad7d5cbb27fcd22814a5faafb80dc0692858c373bc6"
       },
       "clear": {
         "bytes": 4,
@@ -547,8 +547,8 @@
     "arc58/plugins/staking/StakingPlugin": {
       "name": "StakingPlugin",
       "approval": {
-        "bytes": 1955,
-        "sha256": "3a733eeb541c38310aae825d89afc22e6158bd6f7087c6b39b5bbd5326c45b5d"
+        "bytes": 1852,
+        "sha256": "ce645c4bbb522f4af7d9fe8b787e910b99f8bfd60769dca256e676c7f08b0a20"
       },
       "clear": {
         "bytes": 4,
@@ -559,8 +559,8 @@
     "arc58/plugins/subscriptions/SubscriptionsPlugin": {
       "name": "SubscriptionsPlugin",
       "approval": {
-        "bytes": 4905,
-        "sha256": "7ef1d0154827c2037d60b0690d0a16c1726e006cd1cea282fe4964a81e564271"
+        "bytes": 4794,
+        "sha256": "c03a05096569cfe27170c17d94f3d74f1e68bc20710157054e5597a89df7ab0d"
       },
       "clear": {
         "bytes": 4,
@@ -571,8 +571,8 @@
     "arc58/plugins/sunset/SunsetPlugin": {
       "name": "SunsetPlugin",
       "approval": {
-        "bytes": 626,
-        "sha256": "f8ae7ef6829b8eed1166e973e1f7e452c7edab41c6ea0c65b31747ed4409d624"
+        "bytes": 522,
+        "sha256": "c4d60fd756390c5e71132682ca41db2a38f954696e35075960d5bc005646db50"
       },
       "clear": {
         "bytes": 4,
@@ -621,8 +621,8 @@
     "arc58/plugins/welcome/WelcomePlugin": {
       "name": "WelcomePlugin",
       "approval": {
-        "bytes": 1422,
-        "sha256": "7a2c9fe3814c30c675e512fa77ceb666cafeaaab825b5cdbd698057acbe3a0e5"
+        "bytes": 1310,
+        "sha256": "6aa0e7b00f69883b6ed387457fb5a2789187f1adb4e0892968f27037a2ce38f8"
       },
       "clear": {
         "bytes": 4,

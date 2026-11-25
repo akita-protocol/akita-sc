@@ -106,7 +106,7 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
       { txn: algosdk.makePaymentTxnWithSuggestedParamsFromObject({ sender: caller, receiver: tempAddr, amount: 100_000n * (call.asset === 0n ? 1n : 2n) + extraAlgo, suggestedParams: fundingFee }), signer: admin.signer },
       ...(call.asset === 0n ? [] : [{ txn: algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({ sender: tempAddr, receiver: tempAddr, assetIndex: call.asset, amount: 0n, suggestedParams: sp }), signer: tempSigner }]),
     ]
-    const { group } = await wallet.prepareUsePlugin({ callerType: CallerType.Admin, preTransactions: pre, calls: [plugin.swap(call)] })
+    const { group } = await wallet.prepareUsePlugin({ callerType: CallerType.Global, preTransactions: pre, calls: [plugin.swap(call)] })
     const composer = await group.composer()
     for (const { txn, signer } of route) composer.addTransaction(txn, signer)
     if (call.asset !== 0n) {
@@ -173,7 +173,7 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     optInPlugin = await deployOptInPlugin({ fixture, sender, signer })
     wallet = await newWallet({ algorand, factoryParams: { appId: walletFactory.appId, defaultSender: sender, defaultSigner: signer }, readerAccount: sender, nickname: 'mock haystack' })
     await wallet.client.appClient.fundAppAccount({ amount: (500).algo() })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     await wallet.addPlugin({ client: optInPlugin, callerType: CallerType.Global })
     await wallet.usePlugin({ callerType: CallerType.Global, calls: [optInPlugin.optIn({ assets: [tka, tkb] })] })
     await algorand.send.assetTransfer({ sender, receiver: wallet.client.appAddress, assetId: tka, amount: 10_000n * UNIT })

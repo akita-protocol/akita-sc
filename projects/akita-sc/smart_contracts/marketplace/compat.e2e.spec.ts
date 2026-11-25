@@ -167,7 +167,7 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
 
   const install = async (wallet: WalletSDK, owner: TransactionSignerAccount, plugins: MarketplacePluginSDK[]) => {
     for (const client of plugins) {
-      await wallet.addPlugin({ client, callerType: CallerType.Admin, sender: owner.addr, signer: owner.signer })
+      await wallet.addPlugin({ client, callerType: CallerType.Global, sender: owner.addr, signer: owner.signer })
     }
   }
 
@@ -199,7 +199,7 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
     await wallet.usePlugin({
       sender: owner.addr,
       signer: owner.signer,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.list({ asset: prize, assetAmount: 1n, price, paymentAsset: 0n, expiration: (await now()) + ONE_DAY * 30n, reservedFor: ZERO, gateId, marketplace: ZERO, name: '', proof: [] })],
     })
     const created = (await createdBy(factory)).filter((id) => !before.has(id))
@@ -214,7 +214,7 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
   }
 
   const use = (wallet: WalletSDK, owner: TransactionSignerAccount, calls: PluginSDKReturn[]) =>
-    wallet.usePlugin({ sender: owner.addr, signer: owner.signer, callerType: CallerType.Admin, calls })
+    wallet.usePlugin({ sender: owner.addr, signer: owner.signer, callerType: CallerType.Global, calls })
 
   const state = (appId: bigint) => marketplace().getListing({ appId }).state()
 

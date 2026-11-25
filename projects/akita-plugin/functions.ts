@@ -1,13 +1,8 @@
 import { Account, Application, Bytes, Global, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
-import { methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import {
   ARC58_CONTROLLED_ADDRESS_KEY,
-  ARC58_CURRENT_PLUGIN_KEY,
   ARC58_ERR_INVALID_WALLET,
-  ARC58_ERR_OPEN_GRANT,
   ARC58_ERR_PLUGIN_NOT_AUTH_ADDR,
-  ARC58_GET_PLUGINS_SIGNATURE,
-  ARC58_GET_PLUGINS_USE_EXECUTION_KEY_BIT,
   ARC58_REFERRER_KEY,
   ARC58_SPENDING_ADDRESS_KEY,
 } from './constants'
@@ -30,79 +25,19 @@ export function getSpendingAccount(wallet: Application): Account {
 
 /**
  * Like `getSpendingAccount`, but also asserts that the spending account is currently rekeyed to
- * this plugin, and that the call does not run under a grant anyone may use.
+ * this plugin. The `wallet` argument is caller-supplied, so a fake app can point
+ * `spending_address` at any account; with this check, an account the plugin does not control
+ * (such as the plugin's own, never-rekeyed app account) fails with `ERR:errNath`.
  *
- * The `wallet` argument is caller-supplied, so a fake app can point `spending_address` at any
- * account; with the first check, an account the plugin does not control (such as the plugin's own,
- * never-rekeyed app account) fails with `ERR:errNath`.
- *
- * The second check is `assertNotOpenGrant`: under a grant whose caller is the zero address and that
- * needs no execution key, the wallet has checked nothing about who is calling, so the call fails
- * with `ERR:errOgnk`. A method that is safe for any caller asks for
- * `getOpenGrantSpendingAccount` by name instead.
- *
- * Use this whenever the plugin spends from the account.
+ * Prefer this over `getSpendingAccount` whenever the plugin spends from the account.
  *
  * @param wallet - The ARC-58 wallet Application passed as the first arg to your plugin method
  * @returns The spending account, guaranteed to be rekeyed to this plugin
  */
 export function getControlledSpendingAccount(wallet: Application): Account {
-  const sender = getOpenGrantSpendingAccount(wallet)
-  assertNotOpenGrant(wallet)
-  return sender
-}
-
-/**
- * Like `getControlledSpendingAccount`, but also accepts a call under a grant anyone may use: caller
- * is the zero address and no execution key is needed. With such a grant the wallet opens a window
- * for any account, and the wallet's allowances limit only what is moved into a named escrow, never
- * what a plugin spends from the account it is handed.
- *
- * Only for a method that is safe when a stranger calls it with arguments of the stranger's choice:
- * it moves nothing to a destination, at a price or for a duration that the caller picks, and it
- * leaves the spending account no worse off than the wallet's owner already agreed to. Say next to
- * each use why the method qualifies.
- *
- * @param wallet - The ARC-58 wallet Application passed as the first arg to your plugin method
- * @returns The spending account, guaranteed to be rekeyed to this plugin
- */
-export function getOpenGrantSpendingAccount(wallet: Application): Account {
   const sender = getSpendingAccount(wallet)
   loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
   return sender
-}
-
-/**
- * Fails with `ERR:errOgnk` when the wallet's open window belongs to this plugin under a grant anyone
- * may use: the grant's caller is the zero address and the grant needs no execution key.
- *
- * A grant for the zero address that needs an execution key passes: the wallet opens its window only
- * in a group whose id the wallet's admin registered beforehand. A grant for a named caller, and the
- * admin's own grant, pass: the wallet checked the sender when it opened the window.
- *
- * A window that belongs to another plugin is that plugin's to answer for and passes here. So does a
- * wallet with no `current_plugin`, which has no window open.
- *
- * Costs one inner call to the wallet's readonly `arc58_getPlugins`, and only for a window opened
- * under a zero-address grant.
- *
- * @param wallet - The ARC-58 wallet Application passed as the first arg to your plugin method
- */
-export function assertNotOpenGrant(wallet: Application): void {
-  // `current_plugin` is the ARC-4 tuple (plugin uint64, caller address, escrow string)
-  const [key, open] = op.AppGlobal.getExBytes(wallet, Bytes(ARC58_CURRENT_PLUGIN_KEY))
-  if (!open) return
-  if (op.extractUint64(key, 0) !== Global.currentApplicationId.id) return
-  if (op.extract(key, 8, 32) !== Global.zeroAddress.bytes) return
-  // an array of one key: length 1, then the offset of its only element
-  const grants = itxn
-    .applicationCall({
-      appId: wallet,
-      appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
-      fee: 0,
-    })
-    .submit().lastLog
-  loggedAssert(op.getBit(grants, ARC58_GET_PLUGINS_USE_EXECUTION_KEY_BIT), ARC58_ERR_OPEN_GRANT)
 }
 
 /**

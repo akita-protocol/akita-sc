@@ -116,7 +116,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins * 2n + 100_000_000n), sender: owner.addr, signer: owner.signer })
     await wallet.addPlugin({ client: universe.optInPlugin, callerType: CallerType.Global, sender: owner.addr, signer: owner.signer })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin, sender: owner.addr, signer: owner.signer })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global, sender: owner.addr, signer: owner.signer })
     await wallet.usePlugin({
       sender: owner.addr,
       signer: owner.signer,
@@ -131,7 +131,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
     await wallet.usePlugin({
       sender: owner.addr,
       signer: owner.signer,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.list({
         asset,
         assetAmount: 1n,
@@ -159,7 +159,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
     wallet.usePlugin({
       sender: owner.addr,
       signer: owner.signer,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.purchase({ appId, marketplace: ZERO, maxPrice, args })],
     })
 
@@ -479,7 +479,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
       const listingId = await pluginList(Wu, user, 1_000_000n, referrerGate)
       // Wr's referrer is referrerR, not referrerU
       await expectContractError(pluginPurchase(Wr, user, listingId, 1_000_000n, [algosdk.encodeUint64(0)]), 'errFgte')
-      await Wu.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Admin, calls: [plugin.delist({ appId: listingId })] })
+      await Wu.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Global, calls: [plugin.delist({ appId: listingId })] })
     })
 
     test('M-11 direct buyer: hinted gatedPurchase with mustCheckFor((buyer, 0, buyer)) passes; the SDK builds it', async () => {
@@ -523,7 +523,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
         marketplace().purchase({ sender: buyer.addr, signer: buyer.signer, listingAppId: listingId, marketplace: ZERO, gateTxn, wallet: Wb.client.appId }),
         'errHtop',
       )
-      await Wr.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Admin, calls: [plugin.delist({ appId: listingId })] })
+      await Wr.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Global, calls: [plugin.delist({ appId: listingId })] })
     })
   })
 

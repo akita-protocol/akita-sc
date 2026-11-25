@@ -79,7 +79,7 @@ describe('NFD plugin contract', () => {
 
       await wallet.addPlugin({
         client: nfdPluginSdk,
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
       });
 
       // Note: NFDPlugin has 13 methods, but they require NFD registry setup
@@ -90,10 +90,9 @@ describe('NFD plugin contract', () => {
   });
 
   /**
-   * F4: autoRenew is a keeper method, so it may only renew NFDs owned by the wallet's
-   * spending account. The keeper is a named caller: the plugin refuses a grant anyone
-   * may use (errOgnk). F5: a spoofed `wallet` cannot make the plugin spend its own app
-   * balance.
+   * F4: autoRenew is a keeper/global method, so it may only renew NFDs owned by
+   * the wallet's spending account. F5: a spoofed `wallet` cannot make the plugin
+   * spend its own app balance.
    */
   describe('autoRenew ownership and spending-account control', () => {
     const RENEW_PRICE = 1_000_000n;
@@ -121,7 +120,7 @@ describe('NFD plugin contract', () => {
     const autoRenew = (appId: bigint) => keeperWallet.usePlugin({
       sender: stranger.addr,
       signer: stranger.signer,
-      callerType: CallerType.Other,
+      callerType: CallerType.Global,
       calls: [nfdPlugin.autoRenew({ sender: stranger.addr, signer: stranger.signer, appId, maxPrice: RENEW_PRICE })],
     });
 
@@ -147,41 +146,12 @@ describe('NFD plugin contract', () => {
         nickname: 'Keeper Wallet',
       });
       await keeperWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(20_000_000) });
-      // Keeper-style grant: the named keeper may call autoRenew, and only autoRenew.
+      // Keeper-style grant: anyone may call autoRenew, and only autoRenew.
       await keeperWallet.addPlugin({
         client: nfdPlugin,
-        callerType: CallerType.Other,
-        caller: stranger.addr.toString(),
-        methods: [{ name: nfdPlugin.autoRenew(), cooldown: 0n }],
-      });
-    });
-
-    test('refuses a grant anyone may use, even one limited to autoRenew (errOgnk)', async () => {
-      const openWallet = await newWallet({
-        algorand,
-        factoryParams: { appId: akitaUniverse.walletFactory.appId, defaultSender: user.addr, defaultSigner: user.signer },
-        sender: user.addr,
-        signer: user.signer,
-        nickname: 'Open Grant Wallet',
-      });
-      await openWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(20_000_000) });
-      await openWallet.addPlugin({
-        client: nfdPlugin,
         callerType: CallerType.Global,
         methods: [{ name: nfdPlugin.autoRenew(), cooldown: 0n }],
       });
-      const owned = await mintNfd('open.algo', openWallet.client.appAddress.toString(), 10n * ONE_DAY);
-      const walletBefore = await algorand.account.getInformation(openWallet.client.appAddress);
-
-      await expectContractError(openWallet.usePlugin({
-        sender: stranger.addr,
-        signer: stranger.signer,
-        callerType: CallerType.Global,
-        calls: [nfdPlugin.autoRenew({ sender: stranger.addr, signer: stranger.signer, appId: owned.appId, maxPrice: RENEW_PRICE })],
-      }), 'errOgnk');
-
-      const walletAfter = await algorand.account.getInformation(openWallet.client.appAddress);
-      expect(walletAfter.balance.microAlgos).toBe(walletBefore.balance.microAlgos);
     });
 
     test('renews an NFD owned by the wallet within the window', async () => {

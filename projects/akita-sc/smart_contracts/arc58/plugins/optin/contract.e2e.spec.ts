@@ -82,7 +82,7 @@ describe('Optin plugin contract', () => {
 
       await wallet.addPlugin({
         client: asaMintSdk,
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         escrow,
       });
 
@@ -95,7 +95,7 @@ describe('Optin plugin contract', () => {
 
       const results = await wallet.usePlugin({
         escrow,
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [{

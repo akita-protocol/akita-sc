@@ -137,20 +137,20 @@ boxedProgramChunk_after_if_else@2:
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -160,30 +160,30 @@ rekeyAddress_after_if_else@2:
 
 // @akita-protocol/plugin/functions.ts::rekeyBackIfNecessary(rekeyBack: uint64, wallet: uint64) -> void:
 rekeyBackIfNecessary:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:228
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:163
     // export function rekeyBackIfNecessary(rekeyBack: boolean, wallet: Application): void {
     proto 2 0
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:229
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:164
     // if (rekeyBack) {
     frame_dig -2
     bz rekeyBackIfNecessary_after_if_else@3
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 4 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-238
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-173
     // itxn
     //   .payment({
     //     sender,
@@ -193,20 +193,20 @@ rekeyBackIfNecessary:
     //   })
     //   .submit()
     itxn_begin
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:236
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:171
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     frame_dig -2
     frame_dig -1
     callsub rekeyAddress
     itxn_field RekeyTo
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:235
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:170
     // amount: 0,
     intc_0 // 0
     itxn_field Amount
     dup
     itxn_field Receiver
     itxn_field Sender
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-237
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-172
     // itxn
     //   .payment({
     //     sender,
@@ -218,7 +218,7 @@ rekeyBackIfNecessary:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-238
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-173
     // itxn
     //   .payment({
     //     sender,
@@ -451,16 +451,16 @@ loadBoxedContract:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     cover 2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 4 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -654,16 +654,16 @@ deleteBoxedContract:
     intc_0 // 0
     getbit
     swap
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 4 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -1356,16 +1356,16 @@ requireUpgradeExecution:
     dupn 3
     pushbytes ""
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 4 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -2122,16 +2122,16 @@ requireTerminalUpdate:
     proto 1 0
     intc_0 // 0
     pushbytes ""
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 4 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)

@@ -80,7 +80,7 @@ describe('Gate plugin contract', () => {
     });
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 100_000n) });
-    await wallet.addPlugin({ client: gatePluginSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: gatePluginSdk, callerType: CallerType.Global });
   });
 
   beforeEach(fixture.newScope);
@@ -121,7 +121,7 @@ describe('Gate plugin contract', () => {
       await fundWallet();
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           gatePluginSdk.register({
             sender: user.addr,
@@ -152,7 +152,7 @@ describe('Gate plugin contract', () => {
       await fundWallet();
 
       await expect(wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           gatePluginSdk.register({
             sender: user.addr,

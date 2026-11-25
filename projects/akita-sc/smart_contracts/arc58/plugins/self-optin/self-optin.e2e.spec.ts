@@ -85,7 +85,7 @@ describe('Self opt-in plugin contract', () => {
     await wallet.client.appClient.fundAppAccount({
       amount: algokit.microAlgo(mbr.plugins + 1_000_000n),
     });
-    await wallet.addPlugin({ client: selfOptInPluginSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: selfOptInPluginSdk, callerType: CallerType.Global });
   });
 
   describe('optIn', () => {
@@ -101,7 +101,7 @@ describe('Self opt-in plugin contract', () => {
       expect(before.assets?.some((asset) => asset.assetId === assetId)).toBe(false);
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [selfOptInPluginSdk.optIn({ assets: [assetId] })],
       });
 
@@ -130,7 +130,7 @@ describe('Self opt-in plugin contract', () => {
       const before = await algorand.account.getInformation(wallet.client.appAddress);
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [selfOptInPluginSdk.optIn({ assets: [firstAssetId, secondAssetId] })],
       });
 
@@ -149,13 +149,13 @@ describe('Self opt-in plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [selfOptInPluginSdk.optIn({ assets: [assetId] })],
       });
 
       await expect(
         wallet.usePlugin({
-          callerType: CallerType.Admin,
+          callerType: CallerType.Global,
           calls: [selfOptInPluginSdk.optIn({ assets: [assetId] })],
         })
       ).rejects.toThrow(errAlreadyOptedIn);

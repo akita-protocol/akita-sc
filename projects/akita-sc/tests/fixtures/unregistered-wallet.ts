@@ -81,11 +81,6 @@ export type RawPluginGrant = {
   plugin: bigint
   /** zero address = global grant (CallerType.Global) */
   caller?: string
-  /**
-   * the wallet admin's own grant (CallerType.Admin: the caller is the wallet's app address). The
-   * shape for every plugin that refuses a grant anyone may use; open the window with CallerType.Admin.
-   */
-  ownerOnly?: boolean
   escrow?: string
   defaultToEscrow?: boolean
 }
@@ -97,7 +92,7 @@ export async function addRawPlugin(wallet: WalletSDK, grant: RawPluginGrant, { s
     signer,
     args: {
       plugin: grant.plugin,
-      caller: grant.caller ?? (grant.ownerOnly ? wallet.client.appAddress.toString() : ALGORAND_ZERO_ADDRESS_STRING),
+      caller: grant.caller ?? ALGORAND_ZERO_ADDRESS_STRING,
       escrow: grant.escrow ?? '',
       admin: false,
       delegationType: 0,

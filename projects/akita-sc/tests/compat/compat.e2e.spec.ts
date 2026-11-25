@@ -243,14 +243,14 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       return (await socialFree()) - before
     }
 
-    const use = (w: WalletSDK, call: PluginSDKReturn) => w.usePlugin({ ...send(deployer), callerType: CallerType.Admin, calls: [call] })
+    const use = (w: WalletSDK, call: PluginSDKReturn) => w.usePlugin({ ...send(deployer), callerType: CallerType.Global, calls: [call] })
 
     /** A social actor: AKTA for fees, an NFT to react with, the self-opt-in plugin and `client` installed. */
     const actor = async (w: WalletSDK, client: SocialPluginSDK): Promise<bigint> => {
-      await w.addPlugin({ ...send(deployer), client, callerType: CallerType.Admin })
-      await w.addPlugin({ ...send(deployer), client: universe.selfOptInPlugin, callerType: CallerType.Admin })
+      await w.addPlugin({ ...send(deployer), client, callerType: CallerType.Global })
+      await w.addPlugin({ ...send(deployer), client: universe.selfOptInPlugin, callerType: CallerType.Global })
       const nft = BigInt((await algorand.send.assetCreate({ ...send(deployer), total: 1n, decimals: 0, assetName: 'Compat NFT', unitName: 'CNFT' })).confirmation.assetIndex!)
-      await w.usePlugin({ ...send(deployer), callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [akta, nft] })] })
+      await w.usePlugin({ ...send(deployer), callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [akta, nft] })] })
       await algorand.send.assetTransfer({ ...send(deployer), receiver: addr(w), assetId: akta, amount: postFee * 20n + reactFee * 40n })
       await algorand.send.assetTransfer({ ...send(deployer), receiver: addr(w), assetId: nft, amount: 1n })
       return nft
@@ -641,8 +641,8 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       const pluginId = await installDeployed(algorand, 'RafflePlugin.may', send(deployer), pluginCreateArgs('RafflePlugin.may', { dao: dao(), factory: universe.raffleFactory.appId }))
       const W = await registeredWallet('compat-raffle-k6')
       await addRawPlugin(W, { plugin: pluginId }, send(deployer))
-      await W.addPlugin({ ...send(deployer), client: universe.selfOptInPlugin, callerType: CallerType.Admin })
-      await W.usePlugin({ ...send(deployer), callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [prize] })] })
+      await W.addPlugin({ ...send(deployer), client: universe.selfOptInPlugin, callerType: CallerType.Global })
+      await W.usePlugin({ ...send(deployer), callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [prize] })] })
       await algorand.send.assetTransfer({ ...send(deployer), assetId: prize, amount: 1n, receiver: addr(W) })
 
       const before = await createdBy(factory.appAddress)
@@ -884,20 +884,20 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       } catch {
         // already opted in
       }
-      await Wl.addPlugin({ ...send(deployer), client: universe.socialPlugin, callerType: CallerType.Admin })
-      await Wl.usePlugin({ ...send(deployer), callerType: CallerType.Admin, calls: [universe.socialPlugin.initMeta({ user: addr(Wl), automated: false, subscriptionIndex: 0n, nfd: 0n, akitaNft: 0n })] })
+      await Wl.addPlugin({ ...send(deployer), client: universe.socialPlugin, callerType: CallerType.Global })
+      await Wl.usePlugin({ ...send(deployer), callerType: CallerType.Global, calls: [universe.socialPlugin.initMeta({ user: addr(Wl), automated: false, subscriptionIndex: 0n, nfd: 0n, akitaNft: 0n })] })
       expect((await universe.social.getMeta({ user: addr(Wl) })).wallet).toBe(Wl.client.appId)
       await assertUnregistered(universe.escrowFactory, [addr(Wl), WlE])
     })
 
     test('the NEW subscriptions plugin: hinted newService pays the referral to the live wallet\'s referrer (registry-free)', async () => {
-      await Wl.addPlugin({ ...send(deployer), client: universe.subscriptionsPlugin, callerType: CallerType.Admin })
+      await Wl.addPlugin({ ...send(deployer), client: universe.subscriptionsPlugin, callerType: CallerType.Global })
       await algorand.send.payment({ ...send(deployer), receiver: algosdk.getApplicationAddress(universe.subscriptionsPlugin.appId), amount: microAlgo(10_000_000) })
       // newService charges the DAO's 100 ALGO service creation fee (DEFAULT_SERVICE_CREATION_FEE) plus box MBR
       await algorand.send.payment({ ...send(deployer), receiver: Wl.client.appAddress, amount: (150).algo() })
       const before = await allocationsFor(algorand, universe.rewards.appId, R1)
       await Wl.usePlugin({
-        ...send(deployer), callerType: CallerType.Admin,
+        ...send(deployer), callerType: CallerType.Global,
         calls: universe.subscriptionsPlugin.newServiceWithDescription({
           interval: 3_600n, asset: 0n, amount: 100_000n, passes: 0n, gate: 0n, payoutAddress: addr(Wl),
           title: 'live wallet service', description: 'compat', bannerImage: EMPTY_CID, highlightMessage: 0, highlightColor: new Uint8Array([1, 2, 3]),

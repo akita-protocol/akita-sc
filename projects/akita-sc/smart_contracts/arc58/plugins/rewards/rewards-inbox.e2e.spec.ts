@@ -99,7 +99,7 @@ describe('RewardsPlugin ARC-59 inbox', () => {
 
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
 
     const assetCreate = await algorand.send.assetCreate({
       sender,
@@ -128,7 +128,7 @@ describe('RewardsPlugin ARC-59 inbox', () => {
     })
 
     await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.claimInbox({ asset: testAsset })],
     })
 
@@ -154,7 +154,7 @@ describe('RewardsPlugin ARC-59 inbox', () => {
     })
 
     await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.rejectInbox({ asset: testAsset })],
     })
 
@@ -183,7 +183,7 @@ describe('RewardsPlugin ARC-59 inbox', () => {
     const claimable = routerBefore.balance.microAlgos - routerBefore.minBalance.microAlgos
 
     await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [plugin.claimInboxAlgo({})],
     })
 

@@ -79,7 +79,7 @@ describe('Poll plugin contract', () => {
     pollPluginSdk = akitaUniverse.pollPlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins) });
-    await wallet.addPlugin({ client: pollPluginSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: pollPluginSdk, callerType: CallerType.Global });
   });
 
   beforeEach(async () => {
@@ -115,7 +115,7 @@ describe('Poll plugin contract', () => {
     await fundWallet();
 
     const results = await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [
         pollPluginSdk.new({
           type: PollTypeEnum.SingleChoice,
@@ -160,7 +160,7 @@ describe('Poll plugin contract', () => {
 
       await fundWallet();
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           pollPluginSdk.vote({
             pollAppId: poll.appId,
@@ -180,7 +180,7 @@ describe('Poll plugin contract', () => {
 
       await fundWallet();
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           pollPluginSdk.vote({
             pollAppId: poll.appId,
@@ -194,7 +194,7 @@ describe('Poll plugin contract', () => {
 
       const controlledAddress = (await wallet.client.state.global.controlledAddress())!;
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           pollPluginSdk.deleteBoxes({
             pollAppId: poll.appId,
@@ -249,12 +249,12 @@ describe('Poll plugin contract', () => {
       await fundWallet();
       await wallet.addPlugin({
         client: pollPluginSdk,
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         escrow: 'voter',
         allowances: [{ asset: 0n, type: 'flat', amount: 2_000_000n }],
       });
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         escrow: 'voter',
         fundsRequest: [{ asset: 0n, amount: 1_000_000n }],
         calls: [pollPluginSdk.vote({ pollAppId: poll.appId, votes: [0n], args: [new Uint8Array()] })],
@@ -270,7 +270,7 @@ describe('Poll plugin contract', () => {
       await fundWallet();
 
       await expect(wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           pollPluginSdk.vote({
             pollAppId: wallet.client.appId,
@@ -281,7 +281,7 @@ describe('Poll plugin contract', () => {
       })).rejects.toThrow(errCreatorNotPollFactory);
 
       await expect(wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           pollPluginSdk.deleteBoxes({
             pollAppId: wallet.client.appId,

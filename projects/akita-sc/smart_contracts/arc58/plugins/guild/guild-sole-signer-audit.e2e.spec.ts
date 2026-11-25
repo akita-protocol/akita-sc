@@ -118,7 +118,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     })
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     return wallet
   }
 
@@ -161,7 +161,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     // no approval percentage: the approval count alone decides
     const settings = proposalSettings({ approval: 0n, minimumApprovals: threshold })
     const created = await alice.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [
         ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ rekeyBack: false, nonce: BigInt(nonce) })),
@@ -183,7 +183,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     const consensus = Array.isArray(ids) ? ids[1] : ids.consensus
     const treasuryId = Array.isArray(ids) ? ids[2] : ids.wallet
     if (initialize) {
-      await alice.usePlugin({ callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.initialize({ guild })] })
+      await alice.usePlugin({ callerType: CallerType.Global, consolidateFees: true, calls: [plugin.initialize({ guild })] })
     }
     return { guild, consensus, treasuryId }
   }
@@ -196,7 +196,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     const proposalId = await nextProposalId(guild)
     const result = await wallet.usePlugin({
       ...sendAs,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [
         ...Array.from({ length: OP_UPS }, (_, nonce) => plugin.opUp({ ...sendAs, rekeyBack: false, nonce: BigInt(nonce) })),
@@ -232,7 +232,7 @@ describe('Guild sole signer direct route: audit cases', () => {
   ) =>
     wallet.usePlugin({
       ...sendAs,
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [plugin.usePluginAsSigner({ ...sendAs, guild, plugin: pay.appId, escrow, methodOffsets, fundsRequest: funds, calls })],
     })
@@ -339,7 +339,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     const { guild, consensus, treasuryId } = await signerGuild(1n)
     await proposeAndRunAlone(alice, guild, [grantToConsensus(consensus)])
     // clear the Guild's own free balance first, so the next sweep moves only what the use forwarded
-    await alice.usePlugin({ ...sendAs, callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.sweep({ ...sendAs, guild })] })
+    await alice.usePlugin({ ...sendAs, callerType: CallerType.Global, consolidateFees: true, calls: [plugin.sweep({ ...sendAs, guild })] })
     const consensusBefore = await appBalance(consensus)
     const guildBefore = await appBalance(guild)
     const treasuryBefore = await appBalance(treasuryId)
@@ -351,7 +351,7 @@ describe('Guild sole signer direct route: audit cases', () => {
     expect(await appBalance(guild)).toBe(guildBefore + 300_000n)
     expect(await appBalance(treasuryId)).toBe(treasuryBefore - 300_000n)
 
-    await alice.usePlugin({ ...sendAs, callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.sweep({ ...sendAs, guild })] })
+    await alice.usePlugin({ ...sendAs, callerType: CallerType.Global, consolidateFees: true, calls: [plugin.sweep({ ...sendAs, guild })] })
     expect(await appBalance(guild)).toBe(guildBefore)
     expect(await appBalance(treasuryId)).toBe(treasuryBefore)
   })

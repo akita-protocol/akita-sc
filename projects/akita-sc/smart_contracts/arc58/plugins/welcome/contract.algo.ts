@@ -3,7 +3,7 @@ import {
   itxn, loggedAssert, uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { assertNotOpenGrant, getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { getSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import { pluginPrincipal } from '../../../utils/principal'
 import { AbstractedAccountFactory } from '../../account/factory.algo'
 
@@ -87,8 +87,6 @@ export class WelcomePlugin extends Contract {
     const sender = getSpendingAccount(wallet)
     loggedAssert(sender !== Global.zeroAddress, 'welcomeInactiveWallet')
     loggedAssert(sender.authAddress === Global.currentApplicationAddress, 'welcomeMissingAuthority')
-    // the caller picks who gets the new wallet and how much it is given
-    assertNotOpenGrant(wallet)
 
     const total: uint64 = abiCall<typeof AbstractedAccountFactory.prototype.cost>({
       sender,

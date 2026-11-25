@@ -70,14 +70,14 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-LWRNMCWQ.mjs";
+} from "./chunk-GWIYNEMC.mjs";
 import "./chunk-RWATY7TI.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-4M36YKSI.mjs";
+} from "./chunk-DRLQOKPU.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes

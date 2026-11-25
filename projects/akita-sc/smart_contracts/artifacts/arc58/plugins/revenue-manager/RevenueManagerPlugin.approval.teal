@@ -67,25 +67,25 @@ dynamic_array_read_dynamic_element:
 
 // @akita-protocol/plugin/functions.ts::getOriginAccount(wallet: uint64) -> bytes:
 getOriginAccount:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:140
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:75
     // export function getOriginAccount(wallet: Application): Account {
     proto 1 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:141-144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:76-79
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_CONTROLLED_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:78
     // Bytes(ARC58_CONTROLLED_ADDRESS_KEY)
     pushbytes "controlled_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:141-144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:76-79
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_CONTROLLED_ADDRESS_KEY)
     // )
     app_global_get_ex
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:80
     // loggedAssert(exists && controlledAccountBytes.length === 32, ARC58_ERR_INVALID_WALLET)
     bz getOriginAccount_bool_false@3
     dup
@@ -96,7 +96,7 @@ getOriginAccount:
     intc_1 // 1
 
 getOriginAccount_bool_merge@4:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:80
     // loggedAssert(exists && controlledAccountBytes.length === 32, ARC58_ERR_INVALID_WALLET)
     bnz getOriginAccount_after_assert@6
     pushbytes "ERR:errIwlt"
@@ -104,7 +104,7 @@ getOriginAccount_bool_merge@4:
     err // ERR:errIwlt
 
 getOriginAccount_after_assert@6:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:146
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:81
     // return Account(controlledAccountBytes)
     retsub
 
@@ -115,20 +115,20 @@ getOriginAccount_bool_false@3:
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -138,30 +138,30 @@ rekeyAddress_after_if_else@2:
 
 // @akita-protocol/plugin/functions.ts::rekeyBackIfNecessary(rekeyBack: uint64, wallet: uint64) -> void:
 rekeyBackIfNecessary:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:228
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:163
     // export function rekeyBackIfNecessary(rekeyBack: boolean, wallet: Application): void {
     proto 2 0
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:229
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:164
     // if (rekeyBack) {
     frame_dig -2
     bz rekeyBackIfNecessary_after_if_else@3
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     app_global_get_ex
     pop
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-238
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-173
     // itxn
     //   .payment({
     //     sender,
@@ -171,20 +171,20 @@ rekeyBackIfNecessary:
     //   })
     //   .submit()
     itxn_begin
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:236
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:171
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     frame_dig -2
     frame_dig -1
     callsub rekeyAddress
     itxn_field RekeyTo
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:235
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:170
     // amount: 0,
     intc_0 // 0
     itxn_field Amount
     dup
     itxn_field Receiver
     itxn_field Sender
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-237
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-172
     // itxn
     //   .payment({
     //     sender,
@@ -196,7 +196,7 @@ rekeyBackIfNecessary:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:231-238
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:166-173
     // itxn
     //   .payment({
     //     sender,
@@ -347,10 +347,10 @@ optIn:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:204
     // this.validateEscrowName(escrow)
     callsub validateEscrowName
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -860,16 +860,16 @@ newReceiveEscrow_after_for@4:
     // this.requireDaoWallet(wallet)
     dup
     callsub requireDaoWallet
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -1134,16 +1134,16 @@ newReceiveEscrowWithRef:
     // this.requireDaoWallet(wallet)
     dig 1
     callsub requireDaoWallet
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -1523,16 +1523,16 @@ migrateReceiveEscrow_after_for@4:
     // this.requireDaoWallet(wallet)
     dup
     callsub requireDaoWallet
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -1968,10 +1968,10 @@ startEscrowDisbursement:
     swap
     callsub namedEscrowAddress
     swap
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -2184,10 +2184,10 @@ processEscrowAllocation:
     swap
     callsub namedEscrowAddress
     swap
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -3426,10 +3426,10 @@ finalizeEscrowDisbursement:
     swap
     callsub namedEscrowAddress
     cover 2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -4421,16 +4421,16 @@ requireDaoMainAccount:
     // this.requireDaoWallet(wallet)
     frame_dig -1
     callsub requireDaoWallet
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)

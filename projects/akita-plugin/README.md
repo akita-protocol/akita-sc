@@ -12,32 +12,11 @@ TypeScript (PuyaTs 1.3.1).
 
 | Helper | Use |
 |---|---|
-| `getControlledSpendingAccount(wallet)` | The wallet's spending account, asserted to be rekeyed to your plugin (`errNath`), in a window that was not opened under a grant anyone may use (`errOgnk`, see below). Use it as `sender` of every inner transaction that spends. |
-| `getOpenGrantSpendingAccount(wallet)` | The same account and the same `errNath` check, without the open-grant rule. Only for a method that is safe when a stranger calls it. |
-| `assertNotOpenGrant(wallet)` | The open-grant rule on its own, for a plugin that keeps `getSpendingAccount` and makes its own authority check. |
+| `getControlledSpendingAccount(wallet)` | The wallet's spending account, asserted to be rekeyed to your plugin (`errNath`). Use it as `sender` of every inner transaction that spends. |
 | `getSpendingAccount(wallet)` | The raw `spending_address` global (no check). |
 | `rekeyAddress(rekeyBack, wallet)` / `rekeyBackIfNecessary(rekeyBack, wallet)` | Return the spending account to the wallet on your last inner transaction. |
 | `controls(account)` | `account.authAddress == this app`. |
 | `getOriginAccount`, `getReferrerAccount`, `getAccounts` | **Display only, not identity** (see below). `getOriginAccount` fails with `errIwlt` on an app that has no 32-byte `controlled_address`. |
-
-## Grants anyone may use (`errOgnk`)
-
-A wallet can install a plugin for the zero address: any account may then open the plugin's window.
-If that grant also needs no execution key, the wallet has checked nothing about who is calling, and
-its allowances limit only what moves into a named escrow, never what your plugin spends from the
-account it is handed. So `getControlledSpendingAccount` refuses such a window with `errOgnk`.
-
-- A grant for a named caller, the admin's own grant, and a zero-address grant that needs an
-  execution key all pass: in each the wallet's admin approved who runs the call, or the exact group.
-- The check costs one inner call to the wallet's readonly `arc58_getPlugins`, and only in a window
-  opened under a zero-address grant.
-- A method may opt out with `getOpenGrantSpendingAccount` when it is safe for a stranger to call it
-  with arguments of the stranger's choice: it sends nothing to a destination, at a price or for a
-  duration the caller picks, and it leaves the account no worse off than its owner already agreed
-  to. Say next to the call why the method qualifies. In this repository three methods do:
-  `OptInPlugin.optIn` (the caller pays the opt-in minimum balance), `PayPlugin.pay` (it refuses an
-  open grant that has no policy) and `SubscriptionsPlugin.fundTriggerPayment` (it tops up one due
-  payment of a subscription the account already holds).
 
 ## Identity: use `pluginPrincipal` / `resolvePrincipal`, never raw `getOriginAccount`
 

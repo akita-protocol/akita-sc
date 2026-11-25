@@ -87,7 +87,7 @@ describe('Guild proposal fees in a chosen asset', () => {
 
   const usePlugin = async (call: PluginSDKReturn, opUps = 8) =>
     alice.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [...Array.from({ length: opUps }, (_, nonce) => plugin.opUp({ rekeyBack: false, nonce: BigInt(nonce) })), call],
     })
@@ -221,7 +221,7 @@ describe('Guild proposal fees in a chosen asset', () => {
     aliceAddress = (await alice.client.state.global.controlledAddress())!
     const mbr = await alice.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await alice.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await alice.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await alice.addPlugin({ client: plugin, callerType: CallerType.Global })
 
     feeToken = await createToken('Fee token')
     otherToken = await createToken('Other token')

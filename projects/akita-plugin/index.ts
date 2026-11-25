@@ -5,8 +5,6 @@ export { Plugin } from './base.algo'
 export {
   getSpendingAccount,
   getControlledSpendingAccount,
-  getOpenGrantSpendingAccount,
-  assertNotOpenGrant,
   isAkitaWallet,
   getOriginAccount,
   getReferrerAccount,
@@ -55,8 +53,5 @@ export {
   ARC58_CURRENT_PLUGIN_KEY,
   ARC58_REKEY_INDEX_KEY,
   ARC58_ERR_PLUGIN_NOT_AUTH_ADDR,
-  ARC58_ERR_OPEN_GRANT,
-  ARC58_GET_PLUGINS_SIGNATURE,
-  ARC58_GET_PLUGINS_USE_EXECUTION_KEY_BIT,
   ARC58_ERR_INVALID_WALLET,
 } from './constants'

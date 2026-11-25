@@ -90,7 +90,7 @@ describe('Shared GuildPlugin', () => {
 
   const use = (wallet: WalletSDK, call: PluginSDKReturn, opUps = 0) =>
     wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       consolidateFees: true,
       calls: [...Array.from({ length: opUps }, (_, nonce) => plugin.opUp({ rekeyBack: false, nonce: BigInt(nonce) })), call],
     })
@@ -112,7 +112,7 @@ describe('Shared GuildPlugin', () => {
     })
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     return wallet
   }
 

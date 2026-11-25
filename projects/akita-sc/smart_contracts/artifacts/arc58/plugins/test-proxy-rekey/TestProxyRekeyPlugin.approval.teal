@@ -93,16 +93,16 @@ proxyPay:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     uncover 5
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)

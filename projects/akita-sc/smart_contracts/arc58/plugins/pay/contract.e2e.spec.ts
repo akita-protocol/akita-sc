@@ -61,7 +61,7 @@ describe('Pay plugin contract', () => {
     // Fund wallet and add both plugins once
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n) });
-    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
     // The wallet's own grant: a global PayPlugin grant would need a policy (pay-policy.e2e.spec.ts).
     await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Admin });
   });
@@ -111,7 +111,7 @@ describe('Pay plugin contract', () => {
     test('pay ASA OK', async () => {
       // First, mint an ASA using the AsaManager plugin
       const mintResults = await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [{
@@ -217,7 +217,7 @@ describe('Pay plugin contract', () => {
     test('pay mixed ALGO and ASA OK', async () => {
       // First, mint an ASA using the AsaManager plugin
       const mintResults = await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [{

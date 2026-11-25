@@ -127,9 +127,9 @@ describe('Marketplace plugin contract', () => {
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 100_000_000n) });
     await buyerWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 100_000_000n) });
     await wallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
-    await wallet.addPlugin({ client: marketplacePluginSdk, callerType: CallerType.Admin, sender: user.addr, signer: user.signer });
+    await wallet.addPlugin({ client: marketplacePluginSdk, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
     await buyerWallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global, sender: buyer.addr, signer: buyer.signer });
-    await buyerWallet.addPlugin({ client: marketplacePluginSdk, callerType: CallerType.Admin, sender: buyer.addr, signer: buyer.signer });
+    await buyerWallet.addPlugin({ client: marketplacePluginSdk, callerType: CallerType.Global, sender: buyer.addr, signer: buyer.signer });
 
     const assetCreateTxn = await algorand.send.assetCreate({
       sender: deployer.addr,
@@ -187,7 +187,7 @@ describe('Marketplace plugin contract', () => {
       await expectListingState(listing, { price: 5_000_000n, seller: wallet.client.appAddress.toString() });
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           marketplacePluginSdk.changePrice({
             appId: listingId,
@@ -203,7 +203,7 @@ describe('Marketplace plugin contract', () => {
       const listingId = await createListing({ amount: 1n, price: 4_000_000n, name: 'Plugin Delisted ASA' });
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           marketplacePluginSdk.delist({
             appId: listingId,
@@ -220,7 +220,7 @@ describe('Marketplace plugin contract', () => {
       const buyerAssetBefore = buyerInfoBefore.assets?.find((asset) => asset.assetId === testAssetId)?.amount ?? 0n;
 
       await buyerWallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           marketplacePluginSdk.purchase({
             appId: listingId,
@@ -242,14 +242,14 @@ describe('Marketplace plugin contract', () => {
 
       // seller raises the price after the buyer saw 2 ALGO
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [marketplacePluginSdk.changePrice({ appId: listingId, price: 50_000_000n })],
       });
 
       const buyerBalanceBefore = (await algorand.account.getInformation(buyerWallet.client.appAddress)).balance.microAlgo;
       await expectContractError(
         buyerWallet.usePlugin({
-          callerType: CallerType.Admin,
+          callerType: CallerType.Global,
           calls: [marketplacePluginSdk.purchase({ appId: listingId, marketplace: ZERO_ADDRESS, maxPrice: 2_000_000n, args: [] })],
         }),
         'errPamx'
@@ -259,7 +259,7 @@ describe('Marketplace plugin contract', () => {
       expect(await algorand.client.algod.getApplicationByID(Number(listingId)).do()).toBeDefined();
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [marketplacePluginSdk.delist({ appId: listingId })],
       });
     });
@@ -273,7 +273,7 @@ describe('Marketplace plugin contract', () => {
       const currentTimestamp = await getBlockTimestamp(algorand);
 
       const result = await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [
           marketplacePluginSdk.list({
             asset: testAssetId,
@@ -295,7 +295,7 @@ describe('Marketplace plugin contract', () => {
       expect(state.paymentAsset).toBe(payAsset);
 
       await wallet.usePlugin({
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [marketplacePluginSdk.delist({ appId: listingId })],
       });
     });
@@ -319,7 +319,7 @@ describe('Marketplace plugin contract', () => {
     const createdBefore = new Set(await getCreatedAppIds(algorand, marketplaceAddress));
 
     const result = await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [
         marketplacePluginSdk.list({
           asset: testAssetId,
@@ -354,7 +354,7 @@ describe('Marketplace plugin contract', () => {
     const createdBefore = new Set(await getCreatedAppIds(algorand, marketplaceAddress));
 
     const result = await wallet.usePlugin({
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       calls: [
         marketplacePluginSdk.listPrizeBox({
           prizeBox: prizeBoxId,

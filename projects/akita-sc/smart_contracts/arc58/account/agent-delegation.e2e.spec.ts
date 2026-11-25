@@ -544,13 +544,13 @@ describe('ARC-58 cumulative asset and payment allowances', () => {
       if (asset !== 0n) {
         await wallet.addPlugin({
           client: deployment.selfOptInPlugin,
-          callerType: CallerType.Admin,
+          callerType: CallerType.Global,
           delegationType: AGENT_DELEGATION_TYPE,
         })
         await wallet.usePlugin({
           sender: owner.addr,
           signer: owner.signer,
-          callerType: CallerType.Admin,
+          callerType: CallerType.Global,
           calls: [
             deployment.selfOptInPlugin.optIn({
               sender: owner.addr,

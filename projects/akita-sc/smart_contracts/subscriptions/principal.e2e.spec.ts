@@ -127,12 +127,12 @@ describe('Subscriptions principal resolution (§6.4)', () => {
       walletFactory: universe.walletFactory, ...send(admin), referrer: referrer.addr.toString(), nickname: 'subs-principal', fund: (Number(fund)).algo(),
     })
     // a default grant: the SDK registers nothing (it only registers NEW escrows), so the wallet stays unregistered
-    await w.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Admin })
+    await w.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Global })
     return w
   }
 
   type PluginCalls = Parameters<WalletSDK['usePlugin']>[0]['calls']
-  const use = (w: WalletSDK, calls: PluginCalls) => w.usePlugin({ ...send(admin), callerType: CallerType.Admin, calls })
+  const use = (w: WalletSDK, calls: PluginCalls) => w.usePlugin({ ...send(admin), callerType: CallerType.Global, calls })
 
   /** Subscribe `w.address` through the NEW plugin (hint = windowHint(wallet)); returns the subscription id. */
   const pluginSubscribe = async (w: WalletSDK, serviceId: bigint, args: Uint8Array[] = [], asset = 0n): Promise<bigint> => {
@@ -479,7 +479,7 @@ describe('Subscriptions principal resolution (§6.4)', () => {
     let algoId: bigint
 
     const useIn = (w: WalletSDK, escrow: string, calls: PluginCalls) =>
-      w.usePlugin({ ...send(admin), callerType: CallerType.Admin, escrow, calls })
+      w.usePlugin({ ...send(admin), callerType: CallerType.Global, escrow, calls })
 
     /** Subscribe the escrow `S` through the NEW plugin from `w`'s escrow window (hint = windowHint(w)). */
     const escrowSubscribe = async (w: WalletSDK, escrow: string, S: string, serviceId: bigint, args: Uint8Array[]): Promise<bigint> => {
@@ -492,7 +492,7 @@ describe('Subscriptions principal resolution (§6.4)', () => {
     beforeAll(async () => {
       W = await pluginWallet()
       // named escrow 'e' (created by the grant; LocalNet: the SDK does not register it)
-      await W.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Admin, escrow: 'e' })
+      await W.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Global, escrow: 'e' })
       E = await escrowAddress(W, 'e')
       await algorand.send.payment({ ...send(deployer), receiver: E, amount: (5).algo() })
       // arbitrary-address escrow 'x' (E5): an EOA rekeyed to W.address, recorded raw (never registered)
@@ -500,7 +500,7 @@ describe('Subscriptions principal resolution (§6.4)', () => {
       Ax = x.addr.toString()
       await rekeyToWallet(algorand, W, send(x))
       await addRawEscrow(W, 'x', { ...send(admin), address: Ax })
-      await addRawPlugin(W, { plugin: plugin().appId, ownerOnly: true, escrow: 'x' }, send(admin))
+      await addRawPlugin(W, { plugin: plugin().appId, escrow: 'x' }, send(admin))
       await W.getEscrows()
 
       for (const { name, S } of escrows()) {
@@ -584,8 +584,8 @@ describe('Subscriptions principal resolution (§6.4)', () => {
         walletFactory: universe.walletFactory, ...send(admin), referrer: R1.addr.toString(), nickname: 'subs-principal-x',
         controlledAddress: Cx, controlledSigner: C.signer, fund: (2).algo(),
       })
-      await Wx.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Admin })
-      await Wx.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Admin, escrow: 'e' })
+      await Wx.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Global })
+      await Wx.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Global, escrow: 'e' })
       const WxE = await escrowAddress(Wx, 'e')
       await algorand.send.payment({ ...send(deployer), receiver: WxE, amount: (5).algo() })
 
@@ -627,7 +627,7 @@ describe('Subscriptions principal resolution (§6.4)', () => {
       // A genuine wallet cannot leave its escrow rekeyed away (the window must rekey back, errAuam / T14b), so the
       // reachable way for an escrow to stop being owned at rest is losing W itself (isGenuineWallet fails).
       const Wg = await pluginWallet()
-      await Wg.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Admin, escrow: 'e' })
+      await Wg.addPlugin({ ...send(admin), client: plugin(), callerType: CallerType.Global, escrow: 'e' })
       const Eg = await escrowAddress(Wg, 'e')
       await algorand.send.payment({ ...send(deployer), receiver: Eg, amount: (5).algo() })
       const id = await escrowSubscribe(Wg, 'e', Eg, svcRef, REFERRER_ARGS)

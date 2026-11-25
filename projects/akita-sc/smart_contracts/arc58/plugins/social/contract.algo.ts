@@ -1,13 +1,12 @@
 import { Account, Application, Asset, Bytes, bytes, Global, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, abimethod, decodeArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { GateArgs } from '../../../gates/types'
 import { AmendmentMBR, EditBackRefMBR, ImpactMetaMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, ReplyParentRefMBR, SubscriptionStateModifierMBR } from '../../../social/constants'
 import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
-import { GateMustCheckForAbiMethod, getAkitaAppList, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo, tipWallet } from '../../../utils/functions'
+import { GateMustCheckForAbiMethod, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo, tipWallet } from '../../../utils/functions'
 import { gateCtx, windowHint } from '../../../utils/principal'
 import { CID } from '../../../utils/types/base'
-import type { AkitaAssets, AkitaSocialAppList } from '../../dao/types'
 
 // CONTRACT IMPORTS
 import { BaseSocial } from '../../../social/base'
@@ -18,8 +17,7 @@ import type { AkitaSocialModeration } from '../../../social/moderation.algo'
 import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 import { errHasGate, errInvalidAsset, errInvalidRefLength } from '../../../social/errors'
 import { btoi, itob } from '@algorandfoundation/algorand-typescript/op'
-import { errInvalidApp, errNotAkitaDao } from './errors'
-import { AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList } from '../../dao/constants'
+import { errInvalidApp } from './errors'
 
 
 /**
@@ -41,24 +39,6 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   }
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
-
-  /**
-   * The DAO's social app list, refused when the app held as the DAO has none. One routine for every
-   * method: the list is read in 31 places, and reading it in line takes this program past the size
-   * an app may have.
-   */
-  private socialApps(): AkitaSocialAppList {
-    const [list, exists] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
-    loggedAssert(exists, errNotAkitaDao)
-    return decodeArc4<AkitaSocialAppList>(list)
-  }
-
-  /** The DAO's AKTA asset, read through one routine for the same reason as `socialApps`. */
-  private akta(): Asset {
-    const [assets, exists] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))
-    loggedAssert(exists, errNotAkitaDao)
-    return Asset(decodeArc4<AkitaAssets>(assets).akta)
-  }
 
   /**
    * The 32-byte key the social contract stores a target under, from the ref a caller passes
@@ -96,7 +76,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   }
 
   private getCreatorDetails(type: uint64, sender: Account, ref: bytes<32>): { postExists: boolean, creator: Account, creatorWallet: uint64, gateID: uint64 } {
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     let creator = Global.zeroAddress
     let creatorWallet: uint64 = 0
@@ -161,7 +141,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   // hinted target pays the verified principal's referrer (`principalOf(dao, windowHint(wallet))`),
   // which for this plugin's own window is `wallet`'s referrer (spec §6.11).
   private referralQuote(wallet: Application): uint64 {
-    return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), this.akta().id)
+    return referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet.id), getAkitaAssets(this.akitaDAO.value).akta)
   }
 
   // Referral MBR charged when the window tips a creator (reply, react, upvote). Tipping no one
@@ -194,7 +174,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const akitaSocial = Application(this.socialApps().social)
+    const akitaSocial = Application(getAkitaSocialAppList(this.akitaDAO.value).social)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     // AkitaSocial.validatePostPayment also charges the referral disbursement MBR for the sender
     const mbrAmount: uint64 = posts + votes + votelist + this.referralQuote(wallet)
@@ -204,7 +184,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { postFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -241,7 +221,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     const mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + this.referralQuote(wallet)
     const mbrPayment = itxn.payment({
@@ -250,7 +230,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { postFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -291,7 +271,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     // replies fund the 32-byte parentRef and, through the creator tip, the sender's referral MBR
@@ -309,7 +289,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -368,7 +348,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     // replies fund the 32-byte parentRef and, through the creator tip, the sender's referral MBR
@@ -386,7 +366,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -426,7 +406,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     // edit replies also fund the amendment marker on the original and the back-ref on the edit
     let mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + ReplyParentRefMBR
@@ -450,7 +430,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -496,7 +476,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     // edit replies also fund the amendment marker on the original and the back-ref on the edit
     let mbrAmount: uint64 = posts + votes + votelist + AmendmentMBR + EditBackRefMBR + ReplyParentRefMBR
@@ -520,7 +500,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -553,7 +533,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { votelist, posts, votes } = this.mbr(op.bzero(0), '', Bytes(''))
     let mbrAmount: uint64 = votelist
 
@@ -577,7 +557,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -609,7 +589,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const { isUp: wasUp } = abiCall<typeof AkitaSocial.prototype.getVote>({
       sender,
@@ -623,7 +603,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: 0,
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
 
     const tip = itxn.assetTransfer({
       sender,
@@ -671,7 +651,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     const sender = getControlledSpendingAccount(wallet)
     const refBytes = this.refKey(type, ref)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
       sender,
@@ -701,7 +681,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -748,7 +728,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     const sender = getControlledSpendingAccount(wallet)
     const refBytes = this.refKey(type, ref)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
       sender,
@@ -778,7 +758,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       amount: mbrAmount
     })
 
-    const akta = this.akta()
+    const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
     const { reactFee } = getSocialFees(this.akitaDAO.value)
     const tip = itxn.assetTransfer({
       sender,
@@ -810,7 +790,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocial.prototype.deleteReaction>({
       sender,
@@ -828,7 +808,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social, graph } = this.socialApps()
+    const { social, graph } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const { followGateID } = abiCall<typeof AkitaSocial.prototype.getMeta>({
       sender,
@@ -874,7 +854,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { graph } = this.socialApps()
+    const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const mbrPayment = itxn.payment({
       sender,
@@ -900,7 +880,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { graph } = this.socialApps()
+    const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialGraph.prototype.unfollow>({
       sender,
@@ -919,7 +899,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { graph } = this.socialApps()
+    const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const mbrPayment = itxn.payment({
       sender,
@@ -942,7 +922,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { graph } = this.socialApps()
+    const { graph } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialGraph.prototype.unblock>({
       sender,
@@ -959,7 +939,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.addModerator>({
       sender,
@@ -977,7 +957,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.removeModerator>({
       sender,
@@ -995,7 +975,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.ban>({
       sender,
@@ -1012,7 +992,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.flagPost>({
       sender,
@@ -1029,7 +1009,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.unflagPost>({
       sender,
@@ -1046,7 +1026,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.unban>({
       sender,
@@ -1064,7 +1044,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.addAction>({
       sender,
@@ -1084,7 +1064,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { moderation } = this.socialApps()
+    const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialModeration.prototype.removeAction>({
       sender,
@@ -1105,7 +1085,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): uint64 {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const impact = abiCall<typeof AkitaSocial.prototype.initMeta>({
       sender,
@@ -1140,7 +1120,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   ): void {
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocial.prototype.setMetaWallet>({
       sender,
@@ -1163,7 +1143,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const sender = getControlledSpendingAccount(wallet)
 
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     // setting a wall gate creates the wall's posts box if it isn't there yet
     let wallMbr: uint64 = 0
@@ -1205,7 +1185,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     newModifier: uint64
   ): void {
     const sender = getControlledSpendingAccount(wallet)
-    const { impact } = this.socialApps()
+    const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
 
     abiCall<typeof AkitaSocialImpact.prototype.updateSubscriptionStateModifier>({
       sender,
@@ -1230,7 +1210,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     inheritRoot: boolean
   ): void {
     const sender = getControlledSpendingAccount(wallet)
-    const { impact } = this.socialApps()
+    const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
     const impactApp = Application(impact)
 
     const cost = abiCall<typeof AkitaSocialImpact.prototype.stakingImpactCost>({
@@ -1262,7 +1242,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     schema: bytes
   ): uint64 {
     const sender = getControlledSpendingAccount(wallet)
-    const { social } = this.socialApps()
+    const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     return abiCall<typeof AkitaSocial.prototype.registerRefType>({
       sender,

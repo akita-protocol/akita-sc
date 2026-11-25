@@ -124,7 +124,7 @@ describe('Guild ARC-58 wallet plugin', () => {
       }),
     )
     calls.push(call)
-    return wallet.usePlugin({ callerType: CallerType.Admin, calls, consolidateFees: true })
+    return wallet.usePlugin({ callerType: CallerType.Global, calls, consolidateFees: true })
   }
 
   const installGuildPlugin = async (guildId: bigint) => {
@@ -137,7 +137,7 @@ describe('Guild ARC-58 wallet plugin', () => {
     })
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
     return plugin
   }
 
@@ -221,7 +221,7 @@ describe('Guild ARC-58 wallet plugin', () => {
 
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-    await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+    await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
 
     const newGuild = await usePlugin(
       plugin.newGuild({
@@ -598,7 +598,7 @@ describe('Guild ARC-58 wallet plugin', () => {
     const created = await createGuild({
       wallet: wallet as never,
       creationPlugin: creation,
-      creationCallerType: CallerType.Admin,
+      creationCallerType: CallerType.Global,
       consensusName: FIXED_SIGNERS,
       governanceConfig: fixedSignerConsensusConfig(1n),
       consensusConfiguration: fixedSignerConfiguration(FixedSignerWeightMode.Equal, [[controlledAddress, 1n]]),

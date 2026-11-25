@@ -61,31 +61,31 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
   const metaWallet = async (user: string) => (await posterSdk.getMeta({ user })).wallet
 
   type Opts = { referrer?: string; escrow?: string; controlled?: TransactionSignerAccount; aktaForMain?: boolean; extraPlugins?: bigint[] }
-  /** Unregistered wallet with the admin's own default grant of the new social plugin (+ an escrow grant). */
+  /** Unregistered wallet with a global default grant of the new social plugin (+ an escrow grant). */
   async function makeWallet(nickname: string, opts: Opts = {}): Promise<{ w: WalletSDK; escrow?: string }> {
     const w = await newUnregisteredWallet({
       walletFactory: universe.walletFactory, ...send(deployer), nickname, referrer: opts.referrer, fund: (20).algo(),
       ...(opts.controlled ? { controlledAddress: opts.controlled.addr.toString(), controlledSigner: opts.controlled.signer } : {}),
     })
-    await addRawPlugin(w, { plugin: plugin.appId, ownerOnly: true }, send(deployer))
-    for (const extra of opts.extraPlugins ?? []) await addRawPlugin(w, { plugin: extra, ownerOnly: true }, send(deployer))
+    await addRawPlugin(w, { plugin: plugin.appId }, send(deployer))
+    for (const extra of opts.extraPlugins ?? []) await addRawPlugin(w, { plugin: extra }, send(deployer))
     let escrow: string | undefined
     if (opts.escrow) {
-      await addRawPlugin(w, { plugin: plugin.appId, ownerOnly: true, escrow: opts.escrow }, send(deployer))
+      await addRawPlugin(w, { plugin: plugin.appId, escrow: opts.escrow }, send(deployer))
       escrow = (await w.client.state.box.escrows.value(opts.escrow))!.address
       await w.client.send.arc58OptInEscrow({ ...send(deployer), args: { escrow: opts.escrow, assets: [akta] }, extraFee: microAlgo(5_000), populateAppCallResources: true })
       await algorand.send.payment({ ...send(deployer), receiver: escrow, amount: (5).algo() })
       await algorand.send.assetTransfer({ ...send(deployer), receiver: escrow, assetId: akta, amount: postFee * 5n + reactFee * 10n })
     }
     if (opts.aktaForMain) {
-      await addRawPlugin(w, { plugin: universe.selfOptInPlugin.appId, ownerOnly: true }, send(deployer))
-      await w.usePlugin({ callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [akta] })] })
+      await addRawPlugin(w, { plugin: universe.selfOptInPlugin.appId }, send(deployer))
+      await w.usePlugin({ callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [akta] })] })
       await algorand.send.assetTransfer({ ...send(deployer), receiver: addr(w), assetId: akta, amount: postFee * 5n + reactFee * 10n })
     }
     return { w, escrow }
   }
 
-  const inWindow = (w: WalletSDK, call: PluginSDKReturn, escrow = '') => w.usePlugin({ escrow, callerType: CallerType.Admin, calls: [call] })
+  const inWindow = (w: WalletSDK, call: PluginSDKReturn, escrow = '') => w.usePlugin({ escrow, callerType: CallerType.Global, calls: [call] })
   const initMeta = (user: string) => plugin.initMeta({ user, automated: false, subscriptionIndex: 0n, nfd: 0n, akitaNft: 0n })
   const post = async (gateId = 0n) => plugin.post({ timestamp: await chainTime(), nonce: bytes(24), cid: bytes(36), gateId, usePayWall: false, payWallId: 0n, creatorFlags: 0n })
   const gatedReply = async (ref: Uint8Array, args: Uint8Array[]) => plugin.gatedReply({
@@ -286,9 +286,9 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
   test('SOCIAL-1 tip route: an escrow creator is tipped at the wallet origin; only an origin without AKTA costs the tipper an opt-in', async () => {
     const admin = await fixture.context.generateAccount({ initialFunds: (50).algo() })
     const w = await newUnregisteredWallet({ walletFactory: universe.walletFactory, ...send(admin), nickname: 'tip-escrow', fund: (20).algo() })
-    await addRawPlugin(w, { plugin: plugin.appId, ownerOnly: true }, send(admin))
+    await addRawPlugin(w, { plugin: plugin.appId }, send(admin))
     await addRawPlugin(w, { plugin: universe.optInPlugin.appId }, send(admin))
-    await addRawPlugin(w, { plugin: plugin.appId, ownerOnly: true, escrow: 'e' }, send(admin))
+    await addRawPlugin(w, { plugin: plugin.appId, escrow: 'e' }, send(admin))
     const E = (await w.client.state.box.escrows.value('e'))!.address
     await algorand.send.payment({ ...send(admin), receiver: E, amount: (2).algo() })
     await inWindow(w, initMeta(E), 'e')
@@ -336,7 +336,7 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
     // the admin pays the wallet creation and the 20 ALGO funding, so it needs more than 20 ALGO
     const admin = await fixture.context.generateAccount({ initialFunds: (50).algo() })
     const w = await newUnregisteredWallet({ walletFactory: universe.walletFactory, ...send(admin), nickname: 'tip-wt', fund: (20).algo() })
-    await addRawPlugin(w, { plugin: plugin.appId, ownerOnly: true }, send(admin))
+    await addRawPlugin(w, { plugin: plugin.appId }, send(admin))
     await addRawPlugin(w, { plugin: universe.optInPlugin.appId }, send(admin))
     const creator = addr(w)
     await inWindow(w, initMeta(creator))

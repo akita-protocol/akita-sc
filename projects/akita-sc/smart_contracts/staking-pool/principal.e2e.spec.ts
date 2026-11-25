@@ -142,7 +142,7 @@ describe('StakingPool principal resolution (§6.5)', () => {
   const enterVia = async (wallet: WalletSDK, client: StakingPoolPluginSDK, pool: StakingPoolSDK, args: Uint8Array[], escrow = '') =>
     wallet.usePlugin({
       ...send(user),
-      callerType: CallerType.Admin,
+      callerType: CallerType.Global,
       ...(escrow ? { escrow } : {}),
       calls: [client.enter({ appId: pool.appId, entries: [[0n, 1n, []]], args })],
     })
@@ -203,8 +203,8 @@ describe('StakingPool principal resolution (§6.5)', () => {
     gatePlainId = await registerGate(ECHO_PLAIN)
 
     Wd = await newUserWallet('Wd')
-    await Wd.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Admin })
-    await Wd.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Admin, escrow: 'e' })
+    await Wd.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Global })
+    await Wd.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Global, escrow: 'e' })
     Ed = await escrowAddress(Wd, 'e')
     await algorand.send.payment({ ...send(dispenser), receiver: Ed, amount: microAlgo(5_000_000) })
   })
@@ -280,7 +280,7 @@ describe('StakingPool principal resolution (§6.5)', () => {
 
     test('P2-STK-03: a forged entrant wallet cannot block gateCheck; deleting it disqualifies, never panics', async () => {
       const forger = await newUserWallet('forger')
-      await forger.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Admin })
+      await forger.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Global })
       const pool = await livePool(gateCtxId)
       const ctx: Ctx = { principal: addr(forger), wallet: forger.appId, spender: addr(forger) }
       await enterVia(forger, plugin, pool, [encodeCtx(ctx)])
@@ -392,7 +392,7 @@ describe('StakingPool principal resolution (§6.5)', () => {
     test('newPoolCost(wallet) adds the referral MBR only for a wallet with a referrer; the plugin pays it exactly', async () => {
       const referrer = (await fixture.context.generateAccount({ initialFunds: (1).algo() })).addr.toString()
       const referred = await newUserWallet('referred', false, referrer)
-      await referred.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Admin })
+      await referred.addPlugin({ ...send(user), client: plugin, callerType: CallerType.Global })
       // the pool costs the DAO creation fee plus the child MBR (about 51.7 ALGO): more than newUserWallet funds
       await algorand.send.payment({ ...send(dispenser), receiver: addr(referred), amount: microAlgo(60_000_000) })
 
@@ -407,7 +407,7 @@ describe('StakingPool principal resolution (§6.5)', () => {
       // the plugin quotes newPoolCost(windowHint) and pays it: the exact-payment check passes
       await referred.usePlugin({
         ...send(user),
-        callerType: CallerType.Admin,
+        callerType: CallerType.Global,
         calls: [plugin.newPool({
           title: 'referred pool', type: NONE_POOL, marketplace: addr(referred), stakeKey: ZERO_KEY,
           minimumStakeAmount: 0n, allowLateSignups: true, gateId: 0n, maxEntries: 0n,
@@ -444,8 +444,8 @@ describe('StakingPool principal resolution (§6.5)', () => {
       julyPlugin = await deployLegacyPlugin(DEPLOYED_STAKING_POOL_PLUGIN)
       mayPlugin = await deployLegacyPlugin(DEPLOYED_STAKING_POOL_PLUGIN_MAY_2026)
       Wr = await newUserWallet('Wr', true)
-      await Wr.addPlugin({ ...send(user), client: julyPlugin, callerType: CallerType.Admin, escrow: 'e', registerEscrow: true })
-      await Wr.addPlugin({ ...send(user), client: mayPlugin, callerType: CallerType.Admin, escrow: 'm', registerEscrow: true })
+      await Wr.addPlugin({ ...send(user), client: julyPlugin, callerType: CallerType.Global, escrow: 'e', registerEscrow: true })
+      await Wr.addPlugin({ ...send(user), client: mayPlugin, callerType: CallerType.Global, escrow: 'm', registerEscrow: true })
       Er = await escrowAddress(Wr, 'e')
       await algorand.send.payment({ ...send(dispenser), receiver: Er, amount: microAlgo(5_000_000) })
       await algorand.send.payment({ ...send(dispenser), receiver: await escrowAddress(Wr, 'm'), amount: microAlgo(5_000_000) })
