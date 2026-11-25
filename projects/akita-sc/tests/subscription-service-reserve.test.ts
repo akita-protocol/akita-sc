@@ -13,7 +13,9 @@ import {
   SERVICES_MBR,
   SERVICES_PREFIX,
   SUBSCRIPTION_BYTES,
+  SUBSCRIPTION_FIELDS,
   SUBSCRIPTIONS_PREFIX,
+  subscriptionOffset,
   type ServiceReservePlan,
 } from '../scripts/lib/subscription-service-reserve'
 
@@ -23,6 +25,21 @@ const constant = (name: string, pattern: string): string => {
   const match = constants.match(new RegExp(`export const ${name}[^=]*= ${pattern}`))
   if (!match) throw new Error(`${name} not found in the subscriptions constants`)
   return match[1]
+}
+
+/** The fields of one of the contract's own structs, in order, read from its source. */
+const types = readFileSync(path.resolve(__dirname, '../smart_contracts/subscriptions/types.ts'), 'utf8')
+const structFields = (name: string): { field: string; type: string }[] => {
+  const match = types.match(new RegExp(`export type ${name} = \\{([^}]*)\\}`))
+  if (!match) throw new Error(`${name} not found in the subscriptions types`)
+  return match[1]
+    .split('\n')
+    .map((line) => line.replace(/\/\/.*$/, '').trim().replace(/[,;]$/, ''))
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const [field, type] = line.split(':').map((part) => part.trim())
+      return { field, type }
+    })
 }
 
 /** What `planServiceReserve` works out, with the chain reads replaced by numbers. */
@@ -64,6 +81,18 @@ describe('subscription service reserve (SUB-02)', () => {
     expect(SERVICES_MBR).toBe(boxMbr(41, 3_400))
   })
 
+  test('a subscription box is read at the offsets the contract stores', () => {
+    // `asset` read one field early would see `interval`, which is never 0, so every ALGO escrow would
+    // be skipped and the shortfall under-counted.
+    const fields = structFields('SubscriptionInfo')
+    expect(fields.map((f) => f.field)).toEqual(['recipient', ...SUBSCRIPTION_FIELDS])
+    expect(fields[0].type).toBe('Account')
+    expect(fields.slice(1).map((f) => f.type)).toEqual(fields.slice(1).map((f) => (f.field === 'serviceID' ? 'ServiceID' : 'uint64')))
+    expect(SUBSCRIPTION_BYTES).toBe(104)
+    expect(subscriptionOffset('asset')).toBe(64)
+    expect(subscriptionOffset('escrowed')).toBe(96)
+  })
+
   test('a service owes the reserve less what its box already holds', () => {
     const one = plan(10_000_000n, 1_000_000n, [168], [])
     expect(one.services[0].mbr).toBe(2_500n + 400n * 209n)
@@ -93,8 +122,9 @@ describe('subscription service reserve (SUB-02)', () => {
     const box = (asset: bigint, escrowed: bigint) => {
       const value = new Uint8Array(SUBSCRIPTION_BYTES)
       const view = new DataView(value.buffer)
-      view.setBigUint64(32 + 8 * 3, asset)
-      view.setBigUint64(32 + 8 * 8, escrowed)
+      view.setBigUint64(subscriptionOffset('interval'), 2_592_000n) // a renewal interval is never 0
+      view.setBigUint64(subscriptionOffset('asset'), asset)
+      view.setBigUint64(subscriptionOffset('escrowed'), escrowed)
       return value
     }
     expect(readAlgoEscrow(box(0n, 1_234n))).toBe(1_234n)

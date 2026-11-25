@@ -48,12 +48,31 @@ export type ServiceReservePlan = {
   shortfall: bigint
 }
 
+/**
+ * `SubscriptionInfo` as the contract declares it (`smart_contracts/subscriptions/types.ts`): `recipient`
+ * is a 32-byte address and the nine fields after it are uint64, in this order. The test asserts this
+ * list against the struct, because reading `asset` at the wrong offset silently skips ALGO escrow.
+ */
+export const SUBSCRIPTION_FIELDS = [
+  'serviceID',
+  'startDate',
+  'amount',
+  'interval',
+  'asset',
+  'gateID',
+  'lastPayment',
+  'streak',
+  'escrowed',
+] as const
+
+/** Byte offset of one uint64 field of a `SubscriptionInfo` box value. */
+export const subscriptionOffset = (field: (typeof SUBSCRIPTION_FIELDS)[number]): number =>
+  32 + 8 * SUBSCRIPTION_FIELDS.indexOf(field)
+
 /** Bytes of a `SubscriptionInfo` box value. */
-export const SUBSCRIPTION_BYTES = 104
-/** Offset of `asset` in `SubscriptionInfo`: recipient(32) serviceID startDate amount interval asset. */
-const ASSET_OFFSET = 32 + 8 * 3
-/** Offset of `escrowed`, the last of the ten fields. */
-const ESCROWED_OFFSET = 32 + 8 * 8
+export const SUBSCRIPTION_BYTES = 32 + 8 * SUBSCRIPTION_FIELDS.length
+const ASSET_OFFSET = subscriptionOffset('asset')
+const ESCROWED_OFFSET = subscriptionOffset('escrowed')
 
 /** The ALGO a subscription box holds in escrow. `asset` 0 means the escrow is ALGO. */
 export function readAlgoEscrow(value: Uint8Array): bigint {
