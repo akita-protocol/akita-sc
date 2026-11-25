@@ -197,7 +197,8 @@ Options:
   --network, -n <network>     Network (localnet, testnet, mainnet). Default: localnet
   --mnemonic, -m <mnemonic>   Mnemonic phrase (required for testnet/mainnet)
   --version, -v <version>     New version string. Default: "1.0.0"
-  --token, -t <token>         Algod API token (e.g. Nodely API key)
+  --token, -t <token>         Nodely API key. Prefer the NODELY_API_KEY variable, which keeps it off the
+                              command line; NODELY_PLAN (boost, unlimited, enterprise) picks the hosts
   --proposal-id <id>          Resume an existing upgrade proposal instead of creating one
   --sender <address>          Read-only sender for --dry-run
   --dao-app-id <id>           Explicit DAO ID, e.g. a LocalNet deployment
@@ -216,24 +217,44 @@ ${extraHelp || ''}`)
   return { network, mnemonic, version, dryRun, algodToken, proposalId, sender, daoAppId }
 }
 
+/**
+ * Where a Nodely key is honoured, by plan (https://nodely.io/docs/access/authentication/, read
+ * 2026-11-25): a Boost key on the public hosts, an Unlimited or Enterprise key on the commercial
+ * ones. A key sent to the other set of hosts is not counted under the plan.
+ */
+const NODELY_DOMAINS: Record<string, string> = { boost: 'nodely.dev', unlimited: 'nodely.io', enterprise: 'nodely.io' }
+
+/** The node key of a run: `--token`, else `NODELY_API_KEY`. Never used on LocalNet. */
+export function nodeToken(network: Network, explicit?: string, env: NodeJS.ProcessEnv = process.env): string | undefined {
+  if (network === 'localnet') return undefined
+  return explicit?.trim() || env.NODELY_API_KEY?.trim() || undefined
+}
+
+/** The Nodely algod and indexer hosts of a public network for `NODELY_PLAN` (default: boost, the public hosts). */
+export function nodelyEndpoints(network: Network, env: NodeJS.ProcessEnv = process.env): { algod: string; indexer: string } | undefined {
+  if (network !== 'testnet' && network !== 'mainnet') return undefined
+  const plan = (env.NODELY_PLAN ?? '').trim().toLowerCase() || 'boost'
+  const domain = NODELY_DOMAINS[plan]
+  if (!domain) throw new Error(`NODELY_PLAN is "${env.NODELY_PLAN}"; use one of ${Object.keys(NODELY_DOMAINS).join(', ')}`)
+  return { algod: `https://${network}-api.4160.${domain}`, indexer: `https://${network}-idx.4160.${domain}` }
+}
+
+/** One line for the log: which node a run talks to. It never contains the key. */
+export function describeNode(network: Network, explicit?: string, env: NodeJS.ProcessEnv = process.env): string {
+  if (network === 'localnet') return 'LocalNet'
+  const hosts = nodeToken(network, explicit, env) ? nodelyEndpoints(network, env) : undefined
+  return hosts ? `${hosts.algod} (with the Nodely key)` : `the public ${network} endpoint (no key; set NODELY_API_KEY to use one)`
+}
+
 /** Create an AlgorandClient for the given network. */
 export function createAlgorandClient(network: Network, algodToken?: string): AlgorandClient {
-  if (algodToken) {
-    const servers: Record<string, string> = {
-      testnet: 'https://testnet-api.4160.nodely.dev',
-      mainnet: 'https://mainnet-api.4160.nodely.dev',
-    }
-    const indexers: Record<string, string> = {
-      testnet: 'https://testnet-idx.4160.nodely.dev',
-      mainnet: 'https://mainnet-idx.4160.nodely.dev',
-    }
-    const server = servers[network]
-    if (server) {
-      return AlgorandClient.fromConfig({
-        algodConfig: { server, port: 443, token: algodToken },
-        ...(indexers[network] ? { indexerConfig: { server: indexers[network], port: 443, token: algodToken } } : {}),
-      })
-    }
+  const token = nodeToken(network, algodToken)
+  const hosts = token ? nodelyEndpoints(network) : undefined
+  if (token && hosts) {
+    return AlgorandClient.fromConfig({
+      algodConfig: { server: hosts.algod, port: 443, token },
+      indexerConfig: { server: hosts.indexer, port: 443, token },
+    })
   }
 
   switch (network) {
@@ -312,7 +333,8 @@ export async function setupContext(
     },
   })
 
-  console.log(`DAO: ${appIds.dao}, Update Plugin: ${appIds.updatePlugin}\n`)
+  console.log(`DAO: ${appIds.dao}, Update Plugin: ${appIds.updatePlugin}`)
+  console.log(`Node: ${describeNode(options.network, options.algodToken)}\n`)
 
   // The DAO SDK's `wallet` getter throws until getWallet() has resolved. A script that sends resolves
   // it here, before anything is sent, so no step can stop part-way on it (the B2 stop of the TestNet
