@@ -58,6 +58,7 @@ import {
   errGuildInvalidThreshold,
   errGuildInvalidType,
   errGuildInvalidWeight,
+  errGuildLockout,
   errGuildMemberExists,
   errGuildMemberMissing,
   errGuildMembershipLocked,
@@ -423,8 +424,14 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
     if (this.activated.value) this.validateGuildSettings()
   }
 
-  private setThreshold(threshold: uint64): void {
+  private setThreshold(threshold: uint64, proposalID: uint64): void {
     this.validateThreshold(threshold)
+    // The threshold is every ballot's approval floor. Like the other policies' floors, a raise is bounded
+    // by the approvals the applying proposal demonstrated, so its coalition can still pass the next change.
+    loggedAssert(
+      threshold <= this.threshold.value || threshold <= this.demonstratedApprovals(proposalID),
+      errGuildLockout,
+    )
     this.threshold.value = threshold
   }
 
@@ -609,9 +616,8 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
 
   /**
    * Apply an approved Guild consensus action; direct accounts cannot call this route.
-   * The threshold is already bounded by total member power, so the proposal ID is unused.
+   * A threshold raise is bounded by the approvals of the proposal that applies it.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   applyConsensusAction(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, data: bytes): void {
     this.requireGuild()
     const amount = this.validateConsensusAction(data)
@@ -634,7 +640,7 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
       const action = decodeArc4<FixedSignerActionSetMemberWeight>(payload)
       this.setMemberWeight(action.member, action.weight)
     } else if (code === ActionSetThreshold) {
-      this.setThreshold(decodeArc4<FixedSignerActionSetThreshold>(payload).threshold)
+      this.setThreshold(decodeArc4<FixedSignerActionSetThreshold>(payload).threshold, proposalID)
     } else if (code === ActionSetWeightMode) {
       this.setWeightMode(decodeArc4<FixedSignerActionSetWeightMode>(payload).mode)
     } else if (code === ActionLockMembership) {

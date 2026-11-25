@@ -69,16 +69,16 @@ forward:
     assert // invalid number of bytes for arc4.bool
     intc_2 // 0
     getbit
-    // smart_contracts/utils/functions.ts:479-482
+    // smart_contracts/utils/functions.ts:497-500
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     swap
-    // smart_contracts/utils/functions.ts:481
+    // smart_contracts/utils/functions.ts:499
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // smart_contracts/utils/functions.ts:497-500
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)

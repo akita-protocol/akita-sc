@@ -85,7 +85,7 @@ export interface NetworkAppIds {
     metaPlugin?: bigint;
     guildFactory?: bigint;
     guildConsensusFactory?: bigint;
-    /** creation-only GuildPlugin (guild = 0) */
+    /** shared GuildPlugin (guild = 0): creates Guilds and can act in any Guild of the factory */
     guildPlugin?: bigint;
     welcomePlugin?: bigint;
     /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */

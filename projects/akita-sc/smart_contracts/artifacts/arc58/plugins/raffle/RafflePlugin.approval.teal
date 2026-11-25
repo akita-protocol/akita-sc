@@ -3192,7 +3192,7 @@ gateSubject:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:955
+    // smart_contracts/utils/functions.ts:973
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64
@@ -3928,7 +3928,7 @@ newPrizeBoxRaffleImpl:
     // loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, errNotPrizeBoxOwner)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:671
+    // smart_contracts/utils/functions.ts:689
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, errNotAPrizeBox)
     frame_dig -10
     app_params_get AppCreator
@@ -3939,7 +3939,7 @@ newPrizeBoxRaffleImpl:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:671
+    // smart_contracts/utils/functions.ts:689
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, errNotAPrizeBox)
     pushint 24
     extract_uint64
@@ -3947,7 +3947,7 @@ newPrizeBoxRaffleImpl:
     assert // application exists
     ==
     assert // errNapb
-    // smart_contracts/utils/functions.ts:672
+    // smart_contracts/utils/functions.ts:690
     // const [ownerBytes] = op.AppGlobal.getExBytes(prizeBox, Bytes(PrizeBoxGlobalStateKeyOwner))
     frame_dig -10
     pushbytes "owner"

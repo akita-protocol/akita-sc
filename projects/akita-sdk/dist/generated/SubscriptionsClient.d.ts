@@ -1327,7 +1327,7 @@ export declare abstract class SubscriptionsParamsFactory {
      * Constructs a no op call for the adoptPrincipal(pay,(address,uint64))void ABI method
      *
     * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-    registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+    registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
     Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
     `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
   
@@ -2435,7 +2435,7 @@ export declare class SubscriptionsClient {
          * Makes a call to the Subscriptions smart contract using the `adoptPrincipal(pay,(address,uint64))void` ABI method.
          *
         * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-        registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+        registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
         Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
         `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
     
@@ -3220,7 +3220,7 @@ export declare class SubscriptionsClient {
          * Makes a call to the Subscriptions smart contract using the `adoptPrincipal(pay,(address,uint64))void` ABI method.
          *
         * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-        registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+        registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
         Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
         `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
     
@@ -4260,7 +4260,7 @@ export declare class SubscriptionsClient {
          * Makes a call to the Subscriptions smart contract using the `adoptPrincipal(pay,(address,uint64))void` ABI method.
          *
         * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-        registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+        registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
         Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
         `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
     
@@ -5465,7 +5465,7 @@ export type SubscriptionsComposer<TReturns extends [...any[]] = []> = {
      * Calls the adoptPrincipal(pay,(address,uint64))void ABI method.
      *
     * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-    registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+    registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
     Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
     `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
   

@@ -98,7 +98,7 @@ Use `--config constructor.json` for additional constructor arguments, with exact
 | PayPlugin | `{ "registry": "META_ID" }` (the Meta whose policy writer is the MetaPlugin) |
 | PollPluginContract | `{ "factory": "POLL_FACTORY_ID" }` |
 | AssetInboxPlugin | `{ "router": "ARC59_ROUTER_ID" }` |
-| GuildPlugin | `{ "factory": "GUILD_FACTORY_ID", "guild": "0" }` for creation-only, or a real Guild created by that factory |
+| GuildPlugin | `{ "factory": "GUILD_FACTORY_ID", "guild": "0" }` for the shared instance, or a real Guild created by that factory |
 | MetaPlugin | `{ "registry": "META_ID", "namespace": "profile", "keys": ["name"] }` |
 | PluginDex | `{ "admin": "ALGORAND_ADDRESS" }` when different from sender |
 

@@ -3278,7 +3278,7 @@ release_after_assert@19:
     dup
     cover 2
     frame_bury 0
-    // smart_contracts/utils/functions.ts:597
+    // smart_contracts/utils/functions.ts:615
     // assert(assets.length === amounts.length, errAssetsAndAmountsMismatch)
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -3296,7 +3296,7 @@ release_after_assert@19:
     bytec 20 // "pal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:598
+    // smart_contracts/utils/functions.ts:616
     // const optinPlugin = getPluginAppList(akitaDAO).optin
     dup
     extract 0 8
@@ -3304,16 +3304,16 @@ release_after_assert@19:
     intc_0 // 0
     extract_uint64
     cover 2
-    // smart_contracts/utils/functions.ts:341-344
+    // smart_contracts/utils/functions.ts:359-362
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     frame_dig -4
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:361
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     pushbytes "controlled_address"
-    // smart_contracts/utils/functions.ts:341-344
+    // smart_contracts/utils/functions.ts:359-362
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
@@ -3321,7 +3321,7 @@ release_after_assert@19:
     app_global_get_ex
     swap
     cover 3
-    // smart_contracts/utils/functions.ts:345
+    // smart_contracts/utils/functions.ts:363
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bz release_bool_false@31
     dig 2
@@ -3332,7 +3332,7 @@ release_after_assert@19:
     intc_1 // 1
 
 release_bool_merge@32:
-    // smart_contracts/utils/functions.ts:345
+    // smart_contracts/utils/functions.ts:363
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bnz release_after_assert@34
     pushbytes "ERR:errIwlt"
@@ -3340,7 +3340,7 @@ release_bool_merge@32:
     err // ERR:errIwlt
 
 release_after_assert@34:
-    // smart_contracts/utils/functions.ts:601-604
+    // smart_contracts/utils/functions.ts:619-622
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: recipientWallet.id,
     //   args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
@@ -3357,13 +3357,13 @@ release_after_assert@34:
     // '',
     bytec 12 // 0x0000
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:603
+    // smart_contracts/utils/functions.ts:621
     // args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
     bytec 12 // 0x0000
     itxn_field ApplicationArgs
     bytec 12 // 0x0000
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:601-604
+    // smart_contracts/utils/functions.ts:619-622
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: recipientWallet.id,
     //   args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
@@ -3372,7 +3372,7 @@ release_after_assert@34:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:606-617
+    // smart_contracts/utils/functions.ts:624-635
     // itxnCompose.next<typeof OptInPlugin.prototype.optIn>({
     //   appId: optinPlugin,
     //   args: [
@@ -3386,7 +3386,7 @@ release_after_assert@34:
     //   ]
     // })
     itxn_next
-    // smart_contracts/utils/functions.ts:614
+    // smart_contracts/utils/functions.ts:632
     // amount: Global.assetOptInMinBalance * assets.length
     global AssetOptInMinBalance
     uncover 3
@@ -3394,7 +3394,7 @@ release_after_assert@34:
     itxn_field Amount
     dup
     itxn_field Receiver
-    // smart_contracts/utils/functions.ts:612-615
+    // smart_contracts/utils/functions.ts:630-633
     // itxn.payment({
     //   receiver: origin,
     //   amount: Global.assetOptInMinBalance * assets.length
@@ -3403,7 +3403,7 @@ release_after_assert@34:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:606-617
+    // smart_contracts/utils/functions.ts:624-635
     // itxnCompose.next<typeof OptInPlugin.prototype.optIn>({
     //   appId: optinPlugin,
     //   args: [
@@ -3417,13 +3417,13 @@ release_after_assert@34:
     //   ]
     // })
     itxn_next
-    // smart_contracts/utils/functions.ts:609
+    // smart_contracts/utils/functions.ts:627
     // recipientWallet,
     frame_dig -4
     itob
     uncover 2
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:606-617
+    // smart_contracts/utils/functions.ts:624-635
     // itxnCompose.next<typeof OptInPlugin.prototype.optIn>({
     //   appId: optinPlugin,
     //   args: [
@@ -3439,13 +3439,13 @@ release_after_assert@34:
     pushbytes 0x6835e3bc // method "optIn(uint64,bool,uint64[],pay)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:610
+    // smart_contracts/utils/functions.ts:628
     // true,
     pushbytes 0x80
     itxn_field ApplicationArgs
     dig 1
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:606-617
+    // smart_contracts/utils/functions.ts:624-635
     // itxnCompose.next<typeof OptInPlugin.prototype.optIn>({
     //   appId: optinPlugin,
     //   args: [
@@ -3462,18 +3462,18 @@ release_after_assert@34:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:619
+    // smart_contracts/utils/functions.ts:637
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     intc_0 // 0
 
 release_while_top@35:
-    // smart_contracts/utils/functions.ts:619
+    // smart_contracts/utils/functions.ts:637
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     dup
     frame_dig 2
     <
     bz release_after_while@39
-    // smart_contracts/utils/functions.ts:620
+    // smart_contracts/utils/functions.ts:638
     // if (amounts[i] > 0) {
     frame_dig 0
     extract 2 0
@@ -3486,7 +3486,7 @@ release_while_top@35:
     dup
     frame_bury 7
     bz release_after_if_else@38
-    // smart_contracts/utils/functions.ts:621-627
+    // smart_contracts/utils/functions.ts:639-645
     // itxnCompose.next(
     //   itxn.assetTransfer({
     //     assetAmount: amounts[i],
@@ -3495,7 +3495,7 @@ release_while_top@35:
     //   })
     // )
     itxn_next
-    // smart_contracts/utils/functions.ts:625
+    // smart_contracts/utils/functions.ts:643
     // xferAsset: assets[i]
     dig 2
     extract 2 0
@@ -3506,7 +3506,7 @@ release_while_top@35:
     itxn_field AssetReceiver
     frame_dig 7
     itxn_field AssetAmount
-    // smart_contracts/utils/functions.ts:622-626
+    // smart_contracts/utils/functions.ts:640-644
     // itxn.assetTransfer({
     //   assetAmount: amounts[i],
     //   assetReceiver: origin,
@@ -3518,7 +3518,7 @@ release_while_top@35:
     itxn_field Fee
 
 release_after_if_else@38:
-    // smart_contracts/utils/functions.ts:619
+    // smart_contracts/utils/functions.ts:637
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     intc_1 // 1
     +
@@ -3526,7 +3526,7 @@ release_after_if_else@38:
 
 release_after_while@39:
     popn 3
-    // smart_contracts/utils/functions.ts:631-633
+    // smart_contracts/utils/functions.ts:649-651
     // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({
     //   appId: recipientWallet
     // })
@@ -3539,7 +3539,7 @@ release_after_while@39:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:635
+    // smart_contracts/utils/functions.ts:653
     // itxnCompose.submit()
     itxn_submit
     // smart_contracts/hyper-swap/contract.algo.ts:190

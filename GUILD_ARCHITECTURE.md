@@ -184,9 +184,12 @@ and the active Guild's upgrade authorization remain separate boundaries.
 Each participating plugin instance is permanently bound to one Guild and its
 Guild factory. It checks both before any spending operation. A delegated member
 wallet therefore cannot use that instance against another Guild, even one
-from the same factory. A separate instance with Guild ID zero can create
-Guilds but cannot configure, propose, or vote in an existing Guild. Install a
-Guild-specific instance after creation.
+from the same factory. A separate instance with Guild ID zero is shared: it
+creates Guilds and also runs every other method (configure, propose, vote,
+execute, direct signer use) in any Guild its factory created. Granting it to
+a caller grants that caller the wallet's rights in all of those Guilds, so
+wallet interfaces should present the grant as "act in any Guild". Install a
+Guild-specific instance where a grant must stay inside one Guild.
 
 ## Program storage and clients
 

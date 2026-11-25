@@ -3505,16 +3505,16 @@ grant:
     // smart_contracts/utils/base-contracts/grant-policy.ts:105
     // protected grant(wallet: Application): GrantContext {
     proto 1 1
-    // smart_contracts/utils/functions.ts:525-528
+    // smart_contracts/utils/functions.ts:543-546
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:527
+    // smart_contracts/utils/functions.ts:545
     // Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     pushbytes "rekey_index"
-    // smart_contracts/utils/functions.ts:525-528
+    // smart_contracts/utils/functions.ts:543-546
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)

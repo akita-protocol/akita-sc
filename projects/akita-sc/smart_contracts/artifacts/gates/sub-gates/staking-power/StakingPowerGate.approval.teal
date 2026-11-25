@@ -343,10 +343,10 @@ check_after_assert@3:
     // getAkitaAppList(this.akitaDAO.value).staking,
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:713
+    // smart_contracts/utils/functions.ts:731
     // return getStakingPowerThrough(stakingApp, user, asset, Global.latestTimestamp)
     global LatestTimestamp
-    // smart_contracts/utils/functions.ts:687-696
+    // smart_contracts/utils/functions.ts:705-714
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -358,16 +358,16 @@ check_after_assert@3:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:691-694
+    // smart_contracts/utils/functions.ts:709-712
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
     // },
     uncover 2
-    // smart_contracts/utils/functions.ts:693
+    // smart_contracts/utils/functions.ts:711
     // type: STAKING_TYPE_LOCK,
     pushbytes 0x28
-    // smart_contracts/utils/functions.ts:691-694
+    // smart_contracts/utils/functions.ts:709-712
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
@@ -375,7 +375,7 @@ check_after_assert@3:
     concat
     uncover 2
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:687-696
+    // smart_contracts/utils/functions.ts:705-714
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -411,7 +411,7 @@ check_after_assert@3:
     ==
     assert // invalid number of bytes for smart_contracts/staking/types.ts::Stake
     pushint 20
-    // smart_contracts/utils/functions.ts:698
+    // smart_contracts/utils/functions.ts:716
     // if (info.expiration <= requiredThrough) {
     extract_uint64
     dup
@@ -420,7 +420,7 @@ check_after_assert@3:
     bz check_after_if_else@6
     pop
     bury 1
-    // smart_contracts/utils/functions.ts:699
+    // smart_contracts/utils/functions.ts:717
     // return 0
     intc_0 // 0
 
@@ -478,7 +478,7 @@ check_after_if_else@15:
     // smart_contracts/gates/sub-gates/staking-power/contract.algo.ts:67
     // case LessThanOrEqualTo: return userPower <= power
     dig 1
-    // smart_contracts/utils/functions.ts:693
+    // smart_contracts/utils/functions.ts:711
     // type: STAKING_TYPE_LOCK,
     pushbytes 0x28
     // smart_contracts/gates/sub-gates/staking-power/contract.algo.ts:67
@@ -526,31 +526,31 @@ check_after_if_else@21:
     b check_after_inlined_smart_contracts/gates/sub-gates/staking-power/contract.algo.ts::StakingPowerGate.stakingPowerGate@22
 
 check_after_if_else@6:
-    // smart_contracts/utils/functions.ts:702
+    // smart_contracts/utils/functions.ts:720
     // const remainingTime: uint64 = info.expiration - Global.latestTimestamp
     global LatestTimestamp
     -
     dup
-    // smart_contracts/utils/functions.ts:704
+    // smart_contracts/utils/functions.ts:722
     // if (remainingTime < ONE_WEEK) {
     pushint 604800
     <
     bz check_after_if_else@8
     pop
     bury 1
-    // smart_contracts/utils/functions.ts:705
+    // smart_contracts/utils/functions.ts:723
     // return 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:713
+    // smart_contracts/utils/functions.ts:731
     // return getStakingPowerThrough(stakingApp, user, asset, Global.latestTimestamp)
     b check_after_inlined_smart_contracts/utils/functions.ts::getStakingPowerThrough@9
 
 check_after_if_else@8:
-    // smart_contracts/utils/functions.ts:708
+    // smart_contracts/utils/functions.ts:726
     // const remainingDays: uint64 = remainingTime / ONE_DAY
     pushint 86400
     /
-    // smart_contracts/utils/functions.ts:709
+    // smart_contracts/utils/functions.ts:727
     // return op.divw(...op.mulw(wideRatio([info.amount, 1_000_000], [ONE_YEAR_IN_DAYS, 1_000_000]), remainingDays), 1_000_000)
     uncover 2
     extract 4 8
@@ -570,7 +570,7 @@ check_after_if_else@8:
     bury 1
     intc 4 // 1000000
     divw
-    // smart_contracts/utils/functions.ts:713
+    // smart_contracts/utils/functions.ts:731
     // return getStakingPowerThrough(stakingApp, user, asset, Global.latestTimestamp)
     b check_after_inlined_smart_contracts/utils/functions.ts::getStakingPowerThrough@9
 

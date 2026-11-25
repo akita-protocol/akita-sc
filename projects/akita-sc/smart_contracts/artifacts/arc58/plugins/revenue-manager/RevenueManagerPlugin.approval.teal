@@ -213,26 +213,26 @@ rekeyBackIfNecessary_after_if_else@3:
 
 // smart_contracts/utils/functions.ts::getEscrow(wallet: uint64) -> bytes:
 getEscrow:
-    // smart_contracts/utils/functions.ts:498
+    // smart_contracts/utils/functions.ts:516
     // export function getEscrow(wallet: Application): string {
     proto 1 1
-    // smart_contracts/utils/functions.ts:501-504
+    // smart_contracts/utils/functions.ts:519-522
     // const [currentPluginBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:503
+    // smart_contracts/utils/functions.ts:521
     // Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     pushbytes "current_plugin"
-    // smart_contracts/utils/functions.ts:501-504
+    // smart_contracts/utils/functions.ts:519-522
     // const [currentPluginBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:507
+    // smart_contracts/utils/functions.ts:525
     // return currentPlugin.escrow
     dup
     pushint 40
@@ -452,16 +452,16 @@ optIn_after_assert@11:
     cover 2
     extract 41 1
     swap
-    // smart_contracts/utils/functions.ts:525-528
+    // smart_contracts/utils/functions.ts:543-546
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     // )
     dig 6
-    // smart_contracts/utils/functions.ts:527
+    // smart_contracts/utils/functions.ts:545
     // Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     pushbytes "rekey_index"
-    // smart_contracts/utils/functions.ts:525-528
+    // smart_contracts/utils/functions.ts:543-546
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)

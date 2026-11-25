@@ -20,7 +20,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, Contract, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { GlobalStateKeyVersion } from '../../../constants'
-import { BoxCostPerByte } from '../../../utils/constants'
+import { BoxCostPerByte, ONE_HUNDRED_PERCENT } from '../../../utils/constants'
 import { recordPayer, releasePayer, sponsorCost } from '../../../utils/functions'
 import type { CID } from '../../../utils/types/base'
 import { AbstractAccountGlobalStateKeysControlledAddress } from '../../account/constants'
@@ -643,15 +643,41 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
   }
 
   /**
-   * A voted change may keep or lower an approval minimum, but may raise it only to the approvals its own
-   * ballot demonstrated, so the coalition that passed it can always pass the next change. Draft setters
-   * (proposal ID 0) and bootstrap proposals run before any ballot exists and are not bounded.
+   * A voted change may keep or lower an approval requirement, but may raise one only as far as its own
+   * ballot met it, so the coalition that passed it can always pass the next change. That holds for the
+   * approval minimum and for both ratios: a raised participation needs that turnout on this ballot, and
+   * a raised approval ratio needs that share of this ballot's decisive votes. Draft setters (proposal
+   * ID 0) and bootstrap proposals run before any ballot exists and are not bounded.
    */
-  private requireAttainableMinimum(proposalID: uint64, current: uint64, next: uint64): void {
-    if (next <= current || !this.proposals(proposalID).exists || this.proposals(proposalID).value.votingTs === 0) {
+  private requireAttainable(proposalID: uint64, current: GuildProposalSettings, next: GuildProposalSettings): void {
+    if (!this.proposals(proposalID).exists || this.proposals(proposalID).value.votingTs === 0) {
       return
     }
-    loggedAssert(next <= this.getBallot(proposalID).votes.approvals, errGuildLockout)
+    const raisesMinimum = next.minimumApprovals > current.minimumApprovals
+    const raisesParticipation = next.participation > current.participation
+    const raisesApproval = next.approval > current.approval
+    if (!raisesMinimum && !raisesParticipation && !raisesApproval) {
+      return
+    }
+    const { votes, eligiblePower } = this.getBallot(proposalID)
+    const decisive: uint64 = votes.approvals + votes.rejections
+    loggedAssert(!raisesMinimum || next.minimumApprovals <= votes.approvals, errGuildLockout)
+    loggedAssert(
+      !raisesParticipation ||
+        this.productAtLeast(decisive + votes.abstains, ONE_HUNDRED_PERCENT, eligiblePower, next.participation),
+      errGuildLockout,
+    )
+    loggedAssert(
+      !raisesApproval || this.productAtLeast(votes.approvals, ONE_HUNDRED_PERCENT, decisive, next.approval),
+      errGuildLockout,
+    )
+  }
+
+  /** a * b >= c * d, without overflow */
+  private productAtLeast(a: uint64, b: uint64, c: uint64, d: uint64): boolean {
+    const [ah, al] = op.mulw(a, b)
+    const [ch, cl] = op.mulw(c, d)
+    return ah > ch || (ah === ch && al >= cl)
   }
 
   /** Wallet-facing actions need a wallet, except Guild-local plugin settings and execution keys. */
@@ -720,6 +746,24 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       const update = decodeArc4<GuildProposalSetPluginSettings>(action.data)
       loggedAssert(this.plugins({ plugin: update.plugin, escrow: update.escrow }).exists, errGuildInvalidAction)
       this.validateSettings(update.settings)
+    } else if (action.type === GuildActionUpgradeApp) {
+      this.validateUpgrade(decodeArc4<GuildProposalUpgradeApp>(action.data))
+    } else if (action.type === GuildActionExecutePlugin) {
+      // The wallet's own rule (errExecutionNotReady), checked here so it cannot pass a vote and never execute.
+      const execution = decodeArc4<GuildProposalExecution>(action.data)
+      loggedAssert(execution.groups.length > 0 && execution.firstValid <= execution.lastValid, errGuildInvalidAction)
+    }
+  }
+
+  /**
+   * A self-upgrade commits to transaction groups. A transaction sent on its own has an all-zero group ID,
+   * so a zero entry would commit to nothing: it is never a valid commitment.
+   */
+  private validateUpgrade(upgrade: GuildProposalUpgradeApp): void {
+    loggedAssert(upgrade.app === Global.currentApplicationId.id, errGuildInvalidAction)
+    loggedAssert(upgrade.groups.length > 0 && upgrade.firstValid <= upgrade.lastValid, errGuildInvalidAction)
+    for (let i: uint64 = 0; i < upgrade.groups.length; i += 1) {
+      loggedAssert(upgrade.groups[i] !== op.bzero(32), errGuildInvalidAction)
     }
   }
 
@@ -842,7 +886,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
 
   private setSettingsForAction(type: GuildActionType, settings: GuildProposalSettings, proposalID: uint64): void {
     this.validateSettings(settings)
-    this.requireAttainableMinimum(proposalID, this.classSettings(type).minimumApprovals, settings.minimumApprovals)
+    this.requireAttainable(proposalID, this.classSettings(type), settings)
     if (this.isUpdateGuildAction(type)) {
       this.updateGuildProposalSettings.value = clone(settings)
       return
@@ -1529,9 +1573,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       switch (type) {
         case GuildActionUpgradeApp: {
           const action = decodeArc4<GuildProposalUpgradeApp>(data)
-          loggedAssert(action.app === Global.currentApplicationId.id, errGuildInvalidAction)
+          this.validateUpgrade(action)
           loggedAssert(!this.executions(action.executionKey).exists, errGuildInvalidAction)
-          loggedAssert(action.groups.length > 0 && action.firstValid <= action.lastValid, errGuildInvalidAction)
           this.executions(action.executionKey).value = { proposalID, index: i }
           break
         }
@@ -1649,11 +1692,7 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
         case GuildActionSetConsensusActionSettings: {
           const action = decodeArc4<GuildProposalConsensusActionSettings>(data)
           this.validateSettings(action.settings)
-          this.requireAttainableMinimum(
-            proposalID,
-            this.getConsensusActionSettings(action.code).minimumApprovals,
-            action.settings.minimumApprovals,
-          )
+          this.requireAttainable(proposalID, this.getConsensusActionSettings(action.code), action.settings)
           this.consensusActions(action.code).value = clone(action.settings)
           break
         }
@@ -1721,6 +1760,8 @@ export class Guild extends Contract implements GuildFactoryCreateInterface {
       const upgrade = decodeArc4<GuildProposalUpgradeApp>(action.data)
       loggedAssert(upgrade.app === Global.currentApplicationId.id && upgrade.executionKey === Txn.lease, errGuildInvalidAction)
       loggedAssert(Global.round >= upgrade.firstValid && Global.round <= upgrade.lastValid, errGuildInvalidAction)
+      // An ungrouped call has no group ID to commit to.
+      loggedAssert(Global.groupId !== op.bzero(32), errGuildInvalidAction)
       let approvedGroup = false
       for (let i: uint64 = 0; i < upgrade.groups.length; i += 1) {
         if (upgrade.groups[i] === Global.groupId) {

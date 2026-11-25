@@ -780,7 +780,7 @@ listPrizeBox:
     // loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, errNotPrizeBoxOwner)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:671
+    // smart_contracts/utils/functions.ts:689
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, errNotAPrizeBox)
     dig 2
     app_params_get AppCreator
@@ -791,7 +791,7 @@ listPrizeBox:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:671
+    // smart_contracts/utils/functions.ts:689
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, errNotAPrizeBox)
     pushint 24
     extract_uint64
@@ -799,7 +799,7 @@ listPrizeBox:
     assert // application exists
     ==
     assert // errNapb
-    // smart_contracts/utils/functions.ts:672
+    // smart_contracts/utils/functions.ts:690
     // const [ownerBytes] = op.AppGlobal.getExBytes(prizeBox, Bytes(PrizeBoxGlobalStateKeyOwner))
     swap
     pushbytes "owner"
@@ -2903,7 +2903,7 @@ gateSubject:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:955
+    // smart_contracts/utils/functions.ts:973
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64
@@ -3296,12 +3296,12 @@ gateSubject_after_if_else@2:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:380
+    // smart_contracts/utils/functions.ts:398
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     pushint 88
     extract_uint64
     frame_bury 3
-    // smart_contracts/utils/functions.ts:388-391
+    // smart_contracts/utils/functions.ts:406-409
     // const data = abiCall<typeof EscrowFactory.prototype.get>({
     //   appId: escrowFactory,
     //   args: [address]
@@ -3336,14 +3336,14 @@ gateSubject_after_if_else@2:
     assert // invalid number of bytes for bytes
     extract 6 0
     dup
-    // smart_contracts/utils/functions.ts:393
+    // smart_contracts/utils/functions.ts:411
     // if (Bytes(data).length !== 8) {
     len
     intc_1 // 8
     !=
     bz gateSubject_after_if_else@5
     pop
-    // smart_contracts/utils/functions.ts:394
+    // smart_contracts/utils/functions.ts:412
     // return 0
     intc_0 // 0
     frame_bury 4
@@ -3362,22 +3362,22 @@ gateSubject_after_inlined_smart_contracts/utils/functions.ts::legacyOriginOr@21:
     retsub
 
 gateSubject_after_if_else@10:
-    // smart_contracts/utils/functions.ts:341-344
+    // smart_contracts/utils/functions.ts:359-362
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     frame_dig 4
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:361
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     bytec 16 // "controlled_address"
-    // smart_contracts/utils/functions.ts:341-344
+    // smart_contracts/utils/functions.ts:359-362
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     app_global_get_ex
-    // smart_contracts/utils/functions.ts:345
+    // smart_contracts/utils/functions.ts:363
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bz gateSubject_bool_false@13
     dup
@@ -3388,7 +3388,7 @@ gateSubject_after_if_else@10:
     intc_2 // 1
 
 gateSubject_bool_merge@14:
-    // smart_contracts/utils/functions.ts:345
+    // smart_contracts/utils/functions.ts:363
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bnz gateSubject_after_assert@16
     bytec 17 // "ERR:errIwlt"
@@ -3432,45 +3432,45 @@ gateSubject_bool_false@13:
     b gateSubject_bool_merge@14
 
 gateSubject_after_if_else@5:
-    // smart_contracts/utils/functions.ts:397
+    // smart_contracts/utils/functions.ts:415
     // const wallet = btoi(data)
     btoi
     dup
     frame_bury -3
-    // smart_contracts/utils/functions.ts:364
+    // smart_contracts/utils/functions.ts:382
     // if (wallet === 0 || walletFactory === 0) {
     bz gateSubject_if_body@66
     frame_dig 3
     bnz gateSubject_after_if_else@67
 
 gateSubject_if_body@66:
-    // smart_contracts/utils/functions.ts:365
+    // smart_contracts/utils/functions.ts:383
     // return false
     intc_0 // 0
 
 gateSubject_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@72:
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:416
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     intc_0 // 0
     frame_dig -3
     uncover 2
     select
     frame_bury 4
-    // smart_contracts/utils/functions.ts:380
+    // smart_contracts/utils/functions.ts:398
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     b gateSubject_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@6
 
 gateSubject_after_if_else@67:
-    // smart_contracts/utils/functions.ts:367
+    // smart_contracts/utils/functions.ts:385
     // const [creator, exists] = op.AppParams.appCreator(wallet)
     frame_dig -3
     app_params_get AppCreator
     swap
     frame_bury 1
-    // smart_contracts/utils/functions.ts:368
+    // smart_contracts/utils/functions.ts:386
     // return exists && creator === appAddress(walletFactory)
     bz gateSubject_bool_false@70
-    // smart_contracts/utils/functions.ts:359
+    // smart_contracts/utils/functions.ts:377
     // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
     frame_dig 3
     itob
@@ -3478,19 +3478,19 @@ gateSubject_after_if_else@67:
     swap
     concat
     sha512_256
-    // smart_contracts/utils/functions.ts:368
+    // smart_contracts/utils/functions.ts:386
     // return exists && creator === appAddress(walletFactory)
     frame_dig 1
     ==
     bz gateSubject_bool_false@70
     intc_2 // 1
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:416
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b gateSubject_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@72
 
 gateSubject_bool_false@70:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:398
+    // smart_contracts/utils/functions.ts:416
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b gateSubject_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@72
 

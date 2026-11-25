@@ -478,7 +478,7 @@ export type GuildCreationWallet = {
 
 export type CreateGuildParams = MaybeSigner & {
   wallet: GuildCreationWallet;
-  /** the network's creation-only GuildPlugin (guild = 0), already installed on `wallet` */
+  /** the network's shared GuildPlugin (guild = 0), already installed on `wallet` */
   creationPlugin: GuildPluginSDK;
   /** registered consensus program, e.g. 'fixed-signers' */
   consensusName: string;
@@ -947,7 +947,7 @@ export function guildPluginSelectors(names: string[]): Uint8Array[] {
 
 /**
  * Create, configure and initialize a Guild from an Akita wallet, in the order the Guild requires:
- * `newGuild` through the creation-only plugin, then a GuildPlugin bound to the new Guild is deployed and
+ * `newGuild` through the shared plugin (guild = 0), then a GuildPlugin bound to the new Guild is deployed and
  * installed on the wallet, which configures the consensus draft, sets up the Guild's treasury wallet and
  * initializes it. Each step is its own wallet window; `onStep` reports progress for a UI.
  */

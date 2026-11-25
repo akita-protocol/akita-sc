@@ -743,10 +743,10 @@ controlledSpending:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/functions.ts:481
+    // smart_contracts/utils/functions.ts:499
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:479-482
+    // smart_contracts/utils/functions.ts:497-500
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -754,7 +754,7 @@ controlledSpending:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:494
+    // smart_contracts/utils/functions.ts:512
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded

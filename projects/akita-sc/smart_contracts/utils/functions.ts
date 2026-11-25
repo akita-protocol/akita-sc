@@ -321,6 +321,24 @@ export function legacyOriginOr(walletID: Application, or: Account): Account {
   return origin
 }
 
+/**
+ * LEGACY, for paths a third party calls (a keeper triggering someone else's subscription): like
+ * `legacyOriginOr`, but the wallet's declared controlled address counts only when the wallet owns it
+ * at rest (it is the wallet's own address, or it is rekeyed to the wallet). Being the current sender
+ * proves nothing there: the sender is the keeper, and a wallet's admin can make the wallet name any
+ * account, so the subscriber would be choosing whose eligibility is checked (audit 07, SUB-01).
+ */
+export function legacyOriginAtRestOr(walletID: Application, or: Account): Account {
+  if (walletID.id === 0) {
+    return or
+  }
+  const origin = getOriginAccount(walletID)
+  if (origin !== walletID.address && origin.authAddress !== walletID.address) {
+    return or
+  }
+  return origin
+}
+
 export function legacyOriginOrTxnSender(walletID: Application): Account {
   return legacyOriginOr(walletID, Txn.sender)
 }

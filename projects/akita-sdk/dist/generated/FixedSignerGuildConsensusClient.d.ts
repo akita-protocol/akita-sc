@@ -679,7 +679,7 @@ export declare abstract class FixedSignerGuildConsensusParamsFactory {
      * Constructs a no op call for the applyConsensusAction(pay,uint64,byte[])void ABI method
      *
     * Apply an approved Guild consensus action; direct accounts cannot call this route.
-    The threshold is already bounded by total member power, so the proposal ID is unused.
+    A threshold raise is bounded by the approvals of the proposal that applies it.
   
      *
      * @param params Parameters for the call
@@ -1268,7 +1268,7 @@ export declare class FixedSignerGuildConsensusClient {
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyConsensusAction(pay,uint64,byte[])void` ABI method.
          *
         * Apply an approved Guild consensus action; direct accounts cannot call this route.
-        The threshold is already bounded by total member power, so the proposal ID is unused.
+        A threshold raise is bounded by the approvals of the proposal that applies it.
     
          *
          * @param params The params for the smart contract call
@@ -1582,7 +1582,7 @@ export declare class FixedSignerGuildConsensusClient {
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyConsensusAction(pay,uint64,byte[])void` ABI method.
          *
         * Apply an approved Guild consensus action; direct accounts cannot call this route.
-        The threshold is already bounded by total member power, so the proposal ID is unused.
+        A threshold raise is bounded by the approvals of the proposal that applies it.
     
          *
          * @param params The params for the smart contract call
@@ -1995,7 +1995,7 @@ export declare class FixedSignerGuildConsensusClient {
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `applyConsensusAction(pay,uint64,byte[])void` ABI method.
          *
         * Apply an approved Guild consensus action; direct accounts cannot call this route.
-        The threshold is already bounded by total member power, so the proposal ID is unused.
+        A threshold raise is bounded by the approvals of the proposal that applies it.
     
          *
          * @param params The params for the smart contract call
@@ -2506,7 +2506,7 @@ export type FixedSignerGuildConsensusComposer<TReturns extends [...any[]] = []> 
      * Calls the applyConsensusAction(pay,uint64,byte[])void ABI method.
      *
     * Apply an approved Guild consensus action; direct accounts cannot call this route.
-    The threshold is already bounded by total member power, so the proposal ID is unused.
+    A threshold raise is bounded by the approvals of the proposal that applies it.
   
      *
      * @param args The arguments for the contract call

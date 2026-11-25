@@ -309,7 +309,7 @@ deletePrizeBox:
     err // ERR:errNapb
 
 deletePrizeBox_after_assert@3:
-    // smart_contracts/utils/functions.ts:677
+    // smart_contracts/utils/functions.ts:695
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     uncover 2
     dup
@@ -830,7 +830,7 @@ optIn:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:891
+    // smart_contracts/utils/functions.ts:909
     // return escrow.isOptedIn(asset) ? 0 : 1
     swap
     asset_holding_get AssetBalance
@@ -1123,7 +1123,7 @@ optIn_after_assert@14:
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:891
+    // smart_contracts/utils/functions.ts:909
     // return escrow.isOptedIn(asset) ? 0 : 1
     dig 5
     dup
@@ -1286,7 +1286,7 @@ optInCost:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:891
+    // smart_contracts/utils/functions.ts:909
     // return escrow.isOptedIn(asset) ? 0 : 1
     swap
     asset_holding_get AssetBalance

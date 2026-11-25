@@ -1043,7 +1043,7 @@ gatedVote_after_assert@11:
     swap
     bury 7
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:442
+    // smart_contracts/utils/functions.ts:460
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     dig 4
     gtxns ApplicationID
@@ -1053,67 +1053,67 @@ gatedVote_after_assert@11:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:442
+    // smart_contracts/utils/functions.ts:460
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:442-443
+    // smart_contracts/utils/functions.ts:460-461
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:443
+    // smart_contracts/utils/functions.ts:461
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 3
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:442-443
+    // smart_contracts/utils/functions.ts:460-461
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:444
+    // smart_contracts/utils/functions.ts:462
     // gateTxn.numAppArgs === 4 &&
     dig 3
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:442-444
+    // smart_contracts/utils/functions.ts:460-462
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:445
+    // smart_contracts/utils/functions.ts:463
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     dig 3
     gtxnsa ApplicationArgs 0
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:442-445
+    // smart_contracts/utils/functions.ts:460-463
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:446
+    // smart_contracts/utils/functions.ts:464
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     dig 3
     gtxnsa ApplicationArgs 1
     dig 6
     ==
-    // smart_contracts/utils/functions.ts:442-446
+    // smart_contracts/utils/functions.ts:460-464
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     bz gatedVote_bool_false@25
-    // smart_contracts/utils/functions.ts:447
+    // smart_contracts/utils/functions.ts:465
     // gateTxn.appArgs(2) === itob(id)
     dig 3
     gtxnsa ApplicationArgs 2
     dig 5
     itob
     ==
-    // smart_contracts/utils/functions.ts:442-447
+    // smart_contracts/utils/functions.ts:460-465
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&

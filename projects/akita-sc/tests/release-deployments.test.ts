@@ -133,7 +133,7 @@ describe('SDK keys for the 2026-10 release', () => {
     expect(MAINNET_APP_IDS.guildFactory).toBe(0n)
   })
 
-  test('routes each key to its recorder and records only the creation-only GuildPlugin', async () => {
+  test('routes each key to its recorder and records only the shared GuildPlugin (guild = 0)', async () => {
     const ctx = await setupContext({ network: 'mainnet', version: 'release', daoAppId: 1n, dryRun: true })
     await recordSdkKey(ctx, 'GuildPlugin', prepareImmutable(ctx, 'GuildPlugin', { factory: '7', guild: '9' }), 10n)
     expect(recordNetworkAppDeployment).not.toHaveBeenCalled()
