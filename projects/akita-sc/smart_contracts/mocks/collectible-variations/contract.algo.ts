@@ -73,7 +73,7 @@ export class MockSmartAsa extends Contract {
   }
 }
 
-/** LocalNet delegate for writer admission: answers arcTBD_admit with a settable boolean. */
+/** LocalNet delegate for writer admission: answers admit with a settable boolean. */
 @contract({ avmVersion: 13 })
 export class MockAdmitDelegate extends Contract {
   answer = GlobalState<boolean>({ key: 'y', initialValue: false })
@@ -82,7 +82,7 @@ export class MockAdmitDelegate extends Contract {
     this.answer.value = answer
   }
 
-  @abimethod({ name: 'arcTBD_admit' })
+  @abimethod()
   admit(asset: uint64, writer: Account, slot: bytes, holder: Account): boolean {
     return this.answer.value
   }

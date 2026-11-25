@@ -227,7 +227,7 @@ export class CollectibleVariations extends Contract {
    * collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
    * writer sets.
    */
-  @abimethod({ name: 'arcTBD_write_variation' })
+  @abimethod()
   writeVariation(
     asset: uint64,
     controllingApp: uint64,
@@ -315,7 +315,7 @@ export class CollectibleVariations extends Contract {
    * is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
    * The refund goes to the writer.
    */
-  @abimethod({ name: 'arcTBD_delete_variation' })
+  @abimethod()
   deleteVariation(asset: uint64, controllingApp: uint64, writer: Account, slot: bytes): RemoveResult {
     const facts = this.assetFacts(asset)
     loggedAssert(facts.exists, errAssetMissing)
@@ -360,7 +360,7 @@ export class CollectibleVariations extends Contract {
   // MAIN IMAGE -----------------------------------------------------------------------------------
 
   /** Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image. */
-  @abimethod({ name: 'arcTBD_pin_main_creator' })
+  @abimethod()
   pinMainCreator(
     asset: uint64,
     controllingApp: uint64,
@@ -391,7 +391,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it. */
-  @abimethod({ name: 'arcTBD_pin_main_holder' })
+  @abimethod()
   pinMainHolder(asset: uint64, writer: Account, slot: bytes, sourceRevision: uint64): WriteResult {
     const facts = this.assetFacts(asset)
     loggedAssert(facts.exists, errAssetMissing)
@@ -416,7 +416,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12). */
-  @abimethod({ name: 'arcTBD_unpin_main_creator' })
+  @abimethod()
   unpinMainCreator(asset: uint64, controllingApp: uint64): RemoveResult {
     const facts = this.assetFacts(asset)
     loggedAssert(facts.exists, errAssetMissing)
@@ -432,7 +432,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it. */
-  @abimethod({ name: 'arcTBD_unpin_main_holder' })
+  @abimethod()
   unpinMainHolder(asset: uint64): RemoveResult {
     const facts = this.assetFacts(asset)
     loggedAssert(facts.exists, errAssetMissing)
@@ -455,7 +455,7 @@ export class CollectibleVariations extends Contract {
   // CREATOR POLICY -------------------------------------------------------------------------------
 
   /** Set the policy of one asset. It overrides the manager policy. `lock` is one way. */
-  @abimethod({ name: 'arcTBD_set_asset_policy' })
+  @abimethod()
   setAssetPolicy(
     asset: uint64,
     controllingApp: uint64,
@@ -477,7 +477,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Set the policy of every asset whose ASA manager field is the sender. It has no lock. */
-  @abimethod({ name: 'arcTBD_set_manager_policy' })
+  @abimethod()
   setManagerPolicy(
     collectible: bytes,
     holder: bytes,
@@ -491,7 +491,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12). */
-  @abimethod({ name: 'arcTBD_delete_asset_policy' })
+  @abimethod()
   deleteAssetPolicy(asset: uint64, controllingApp: uint64): RemoveResult {
     const facts = this.assetFacts(asset)
     loggedAssert(facts.exists, errAssetMissing)
@@ -502,7 +502,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Delete the sender's manager policy. */
-  @abimethod({ name: 'arcTBD_delete_manager_policy' })
+  @abimethod()
   deleteManagerPolicy(): RemoveResult {
     const result = this.deletePolicy(PrefixManagerPolicy.concat(Txn.sender.bytes), Txn.sender, RemovedByCreator, true)
     if (result.removed) this.emitPolicy(0, Txn.sender, 0, 0, true)
@@ -512,7 +512,7 @@ export class CollectibleVariations extends Contract {
   // HOLDER GRANT ---------------------------------------------------------------------------------
 
   /** Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds. */
-  @abimethod({ name: 'arcTBD_set_grant' })
+  @abimethod()
   setGrant(writers: bytes): WriteResult {
     const name = PrefixGrant.concat(Txn.sender.bytes)
     const set = this.checkWriterSet(writers)
@@ -531,7 +531,7 @@ export class CollectibleVariations extends Contract {
   }
 
   /** Delete the sender's grant. Entries it admitted stay; the holder removes them separately. */
-  @abimethod({ name: 'arcTBD_delete_grant' })
+  @abimethod()
   deleteGrant(): RemoveResult {
     const name = PrefixGrant.concat(Txn.sender.bytes)
     const [stored, exists] = op.Box.get(name)
@@ -554,7 +554,7 @@ export class CollectibleVariations extends Contract {
    * writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
    * caller; `p` refunds the caller (no creator resolves after destroy, as in ARC-89).
    */
-  @abimethod({ name: 'arcTBD_purge' })
+  @abimethod()
   purge(name: bytes): RemoveResult {
     loggedAssert(name.length >= AssetNameLength, errBadPurge)
     const family = name.slice(0, 1)
@@ -607,7 +607,7 @@ export class CollectibleVariations extends Contract {
    * The pin that applies: a valid holder pin, else the creator pin, else role 0. `pin` is the
    * section's PinCore followed by its flat image (the holder's address is dropped).
    */
-  @abimethod({ name: 'arcTBD_get_main', readonly: true })
+  @abimethod({ readonly: true })
   getMain(asset: uint64): MainView {
     const [main, exists] = op.Box.get(this.mainName(asset))
     if (exists) {
@@ -751,7 +751,7 @@ export class CollectibleVariations extends Contract {
     }).returnValue
   }
 
-  /** A delegate answers arcTBD_admit(asset, writer, slot, holder). It must return false rather than fail. */
+  /** A delegate answers admit(asset, writer, slot, holder). It must return false rather than fail. */
   private admitsByDelegate(set: bytes, asset: uint64, writer: Account, slot: bytes, holder: Account): boolean {
     if (getByte(set, 0) !== WriterSetDelegate) return false
     const call = itxn

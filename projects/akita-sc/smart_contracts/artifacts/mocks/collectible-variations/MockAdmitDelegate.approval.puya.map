@@ -104,26 +104,26 @@
       "stack_out": []
     },
     "28": {
-      "op": "pushbytess 0xcb8b447d 0x71737681 // method \"setAnswer(bool)void\", method \"arcTBD_admit(uint64,address,byte[],address)bool\"",
+      "op": "pushbytess 0xcb8b447d 0x20c54fc9 // method \"setAnswer(bool)void\", method \"admit(uint64,address,byte[],address)bool\"",
       "defined_out": [
-        "Method(arcTBD_admit(uint64,address,byte[],address)bool)",
+        "Method(admit(uint64,address,byte[],address)bool)",
         "Method(setAnswer(bool)void)"
       ],
       "stack_out": [
         "Method(setAnswer(bool)void)",
-        "Method(arcTBD_admit(uint64,address,byte[],address)bool)"
+        "Method(admit(uint64,address,byte[],address)bool)"
       ]
     },
     "40": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
-        "Method(arcTBD_admit(uint64,address,byte[],address)bool)",
+        "Method(admit(uint64,address,byte[],address)bool)",
         "Method(setAnswer(bool)void)",
         "tmp%6#0"
       ],
       "stack_out": [
         "Method(setAnswer(bool)void)",
-        "Method(arcTBD_admit(uint64,address,byte[],address)bool)",
+        "Method(admit(uint64,address,byte[],address)bool)",
         "tmp%6#0"
       ]
     },

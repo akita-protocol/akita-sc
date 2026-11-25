@@ -42,19 +42,19 @@ export type { RemoveResult, WriteResult } from '../generated/CollectibleVariatio
 const DISCOVERY_FEE = 60_000n;
 
 type Method =
-  | 'arcTbdWriteVariation'
-  | 'arcTbdDeleteVariation'
-  | 'arcTbdPinMainCreator'
-  | 'arcTbdPinMainHolder'
-  | 'arcTbdUnpinMainCreator'
-  | 'arcTbdUnpinMainHolder'
-  | 'arcTbdSetAssetPolicy'
-  | 'arcTbdSetManagerPolicy'
-  | 'arcTbdDeleteAssetPolicy'
-  | 'arcTbdDeleteManagerPolicy'
-  | 'arcTbdSetGrant'
-  | 'arcTbdDeleteGrant'
-  | 'arcTbdPurge';
+  | 'writeVariation'
+  | 'deleteVariation'
+  | 'pinMainCreator'
+  | 'pinMainHolder'
+  | 'unpinMainCreator'
+  | 'unpinMainHolder'
+  | 'setAssetPolicy'
+  | 'setManagerPolicy'
+  | 'deleteAssetPolicy'
+  | 'deleteManagerPolicy'
+  | 'setGrant'
+  | 'deleteGrant'
+  | 'purge';
 
 /** A call's ABI result and the deposit paid in front of it (0 when none). */
 export type Sent<T> = { result: T; deposit: bigint };
@@ -122,7 +122,7 @@ export class CollectibleVariationsSDK extends BaseSDK<CollectibleVariationsClien
     controllingApp = BigInt(PlainAsa),
   }: WriteVariationParams): Promise<Sent<WriteResult>> {
     return this.call(
-      'arcTbdWriteVariation',
+      'writeVariation',
       {
         asset,
         controllingApp,
@@ -141,7 +141,7 @@ export class CollectibleVariationsSDK extends BaseSDK<CollectibleVariationsClien
   }
 
   async deleteVariation({ sender, signer, asset, writer, slot, controllingApp = 0n }: MaybeSigner & Controlled & VariationKey) {
-    return this.call<RemoveResult>('arcTbdDeleteVariation', { asset, controllingApp, writer, slot: slotBytes(slot) }, { sender, signer });
+    return this.call<RemoveResult>('deleteVariation', { asset, controllingApp, writer, slot: slotBytes(slot) }, { sender, signer });
   }
 
   /** Pin a collectible-scope variation as the creator's main image. */
@@ -156,7 +156,7 @@ export class CollectibleVariationsSDK extends BaseSDK<CollectibleVariationsClien
     controllingApp = 0n,
   }: MaybeSigner & Controlled & VariationKey & { sourceRevision: bigint; lock?: boolean }) {
     return this.call<WriteResult>(
-      'arcTbdPinMainCreator',
+      'pinMainCreator',
       { asset, controllingApp, writer, slot: slotBytes(slot), sourceRevision, lock },
       { sender, signer },
     );
@@ -164,47 +164,47 @@ export class CollectibleVariationsSDK extends BaseSDK<CollectibleVariationsClien
 
   /** Pin a variation as the holder's main image (single-unit assets only). */
   async pinMainHolder({ sender, signer, asset, writer, slot, sourceRevision }: MaybeSigner & VariationKey & { sourceRevision: bigint }) {
-    return this.call<WriteResult>('arcTbdPinMainHolder', { asset, writer, slot: slotBytes(slot), sourceRevision }, { sender, signer });
+    return this.call<WriteResult>('pinMainHolder', { asset, writer, slot: slotBytes(slot), sourceRevision }, { sender, signer });
   }
 
   async unpinMainCreator({ sender, signer, asset, controllingApp = 0n }: MaybeSigner & Controlled & { asset: bigint }) {
-    return this.call<RemoveResult>('arcTbdUnpinMainCreator', { asset, controllingApp }, { sender, signer });
+    return this.call<RemoveResult>('unpinMainCreator', { asset, controllingApp }, { sender, signer });
   }
 
   async unpinMainHolder({ sender, signer, asset }: MaybeSigner & { asset: bigint }) {
-    return this.call<RemoveResult>('arcTbdUnpinMainHolder', { asset }, { sender, signer });
+    return this.call<RemoveResult>('unpinMainHolder', { asset }, { sender, signer });
   }
 
   /** Set one asset's policy (overrides the manager policy). `lock` is permanent. */
   async setAssetPolicy({ sender, signer, asset, controllingApp = 0n, lock = false, ...policy }: MaybeSigner & Controlled & PolicyParams & { asset: bigint; lock?: boolean }) {
-    return this.call<WriteResult>('arcTbdSetAssetPolicy', { asset, controllingApp, ...this.policyArgs(policy), lock }, { sender, signer });
+    return this.call<WriteResult>('setAssetPolicy', { asset, controllingApp, ...this.policyArgs(policy), lock }, { sender, signer });
   }
 
   /** Set the policy of every asset whose ASA manager is the sender. */
   async setManagerPolicy({ sender, signer, ...policy }: MaybeSigner & PolicyParams) {
-    return this.call<WriteResult>('arcTbdSetManagerPolicy', this.policyArgs(policy), { sender, signer });
+    return this.call<WriteResult>('setManagerPolicy', this.policyArgs(policy), { sender, signer });
   }
 
   async deleteAssetPolicy({ sender, signer, asset, controllingApp = 0n }: MaybeSigner & Controlled & { asset: bigint }) {
-    return this.call<RemoveResult>('arcTbdDeleteAssetPolicy', { asset, controllingApp }, { sender, signer });
+    return this.call<RemoveResult>('deleteAssetPolicy', { asset, controllingApp }, { sender, signer });
   }
 
   async deleteManagerPolicy(params: MaybeSigner = {}) {
-    return this.call<RemoveResult>('arcTbdDeleteManagerPolicy', {}, params);
+    return this.call<RemoveResult>('deleteManagerPolicy', {}, params);
   }
 
   /** Writers the sender admits for holder-scope entries bound to it. */
   async setGrant({ sender, signer, writers }: MaybeSigner & { writers: WriterSet }) {
-    return this.call<WriteResult>('arcTbdSetGrant', { writers: encodeWriterSet(writers) }, { sender, signer });
+    return this.call<WriteResult>('setGrant', { writers: encodeWriterSet(writers) }, { sender, signer });
   }
 
   async deleteGrant(params: MaybeSigner = {}) {
-    return this.call<RemoveResult>('arcTbdDeleteGrant', {}, params);
+    return this.call<RemoveResult>('deleteGrant', {}, params);
   }
 
   /** Delete a `v`, `m` or `p` box of a destroyed asset. Anyone may call. */
   async purge({ sender, signer, name }: MaybeSigner & { name: Uint8Array }) {
-    return this.call<RemoveResult>('arcTbdPurge', { name }, { sender, signer });
+    return this.call<RemoveResult>('purge', { name }, { sender, signer });
   }
 
   // ========== Reads ==========
@@ -247,7 +247,7 @@ export class CollectibleVariationsSDK extends BaseSDK<CollectibleVariationsClien
   }
 
   /**
-   * The pin that applies, as arcTBD_get_main computes it: a holder pin whose
+   * The pin that applies, as getMain computes it: a holder pin whose
    * holder still holds one whole unit, else the creator pin, else role 0.
    * Read from the box and the holder's balance, so it needs no funded reader.
    */

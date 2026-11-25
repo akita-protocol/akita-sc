@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"name":"MockAdmitDelegate","structs":{},"methods":[{"name":"setAnswer","args":[{"type":"bool","name":"answer"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"arcTBD_admit","args":[{"type":"uint64","name":"asset"},{"type":"address","name":"writer"},{"type":"byte[]","name":"slot"},{"type":"address","name":"holder"}],"returns":{"type":"bool"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"desc":"LocalNet delegate for writer admission: answers arcTBD_admit with a settable boolean.","networks":{},"state":{"schema":{"global":{"ints":1,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{"answer":{"keyType":"AVMString","valueType":"AVMUint64","key":"eQ=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[111],"errorMessage":"check GlobalState exists"},{"pc":[93],"errorMessage":"invalid array length header"},{"pc":[65],"errorMessage":"invalid number of bytes for arc4.bool"},{"pc":[100],"errorMessage":"invalid number of bytes for arc4.dynamic_array<arc4.uint8>"},{"pc":[87,107],"errorMessage":"invalid number of bytes for arc4.static_array<arc4.uint8, 32>"},{"pc":[80],"errorMessage":"invalid number of bytes for arc4.uint64"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9hcmM0L2luZGV4LmQudHM6OkNvbnRyYWN0LmFwcHJvdmFsUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgMzIKICAgIGJ5dGVjYmxvY2sgInkiCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzctNzgKICAgIC8vIEBjb250cmFjdCh7IGF2bVZlcnNpb246IDEzIH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0FkbWl0RGVsZWdhdGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAMTEKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydAogICAgcHVzaGJ5dGVzcyAweGNiOGI0NDdkIDB4NzE3Mzc2ODEgLy8gbWV0aG9kICJzZXRBbnN3ZXIoYm9vbCl2b2lkIiwgbWV0aG9kICJhcmNUQkRfYWRtaXQodWludDY0LGFkZHJlc3MsYnl0ZVtdLGFkZHJlc3MpYm9vbCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIHNldEFuc3dlciBhZG1pdAogICAgZXJyCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUAxMToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzctNzgKICAgIC8vIEBjb250cmFjdCh7IGF2bVZlcnNpb246IDEzIH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0FkbWl0RGVsZWdhdGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tBZG1pdERlbGVnYXRlLnNldEFuc3dlcltyb3V0aW5nXSgpIC0+IHZvaWQ6CnNldEFuc3dlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODEKICAgIC8vIHNldEFuc3dlcihhbnN3ZXI6IGJvb2xlYW4pOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzEgLy8gMQogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5ib29sCiAgICBpbnRjXzAgLy8gMAogICAgZ2V0Yml0CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4MgogICAgLy8gdGhpcy5hbnN3ZXIudmFsdWUgPSBhbnN3ZXIKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjgxCiAgICAvLyBzZXRBbnN3ZXIoYW5zd2VyOiBib29sZWFuKTogdm9pZCB7CiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo6TW9ja0FkbWl0RGVsZWdhdGUuYWRtaXRbcm91dGluZ10oKSAtPiB2b2lkOgphZG1pdDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODUKICAgIC8vIEBhYmltZXRob2QoeyBuYW1lOiAnYXJjVEJEX2FkbWl0JyB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBsZW4KICAgIGludGNfMiAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBkdXAKICAgIGludGNfMCAvLyAwCiAgICBleHRyYWN0X3VpbnQxNiAvLyBvbiBlcnJvcjogaW52YWxpZCBhcnJheSBsZW5ndGggaGVhZGVyCiAgICBwdXNoaW50IDIKICAgICsKICAgIHN3YXAKICAgIGxlbgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5keW5hbWljX2FycmF5PGFyYzQudWludDg+CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA0CiAgICBsZW4KICAgIGludGNfMiAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjg3CiAgICAvLyByZXR1cm4gdGhpcy5hbnN3ZXIudmFsdWUKICAgIGludGNfMCAvLyAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4NwogICAgLy8gcmV0dXJuIHRoaXMuYW5zd2VyLnZhbHVlCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIEdsb2JhbFN0YXRlIGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4NQogICAgLy8gQGFiaW1ldGhvZCh7IG5hbWU6ICdhcmNUQkRfYWRtaXQnIH0pCiAgICBwdXNoYnl0ZXMgMHgwMAogICAgaW50Y18wIC8vIDAKICAgIHVuY292ZXIgMgogICAgc2V0Yml0CiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K","clear":"I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9iYXNlLWNvbnRyYWN0LmQudHM6OkJhc2VDb250cmFjdC5jbGVhclN0YXRlUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"DSADAAEgJgEBeTEYQAYoImcxG0E6MRkURDEYRIICBMuLRH0EcXN2gTYaAI4CAAkAGAAxGRQxGBQQQzYaAUkVIxJEIlMoTGcjQzYaARWBCBJENhoCFSQSRDYaA0kiWYECCEwVEkQ2GgQVJBJEIihlRIABACJPAlSABBUffHVMULAjQw==","clear":"DYEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"MockAdmitDelegate","structs":{},"methods":[{"name":"setAnswer","args":[{"type":"bool","name":"answer"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"admit","args":[{"type":"uint64","name":"asset"},{"type":"address","name":"writer"},{"type":"byte[]","name":"slot"},{"type":"address","name":"holder"}],"returns":{"type":"bool"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"desc":"LocalNet delegate for writer admission: answers admit with a settable boolean.","networks":{},"state":{"schema":{"global":{"ints":1,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{"answer":{"keyType":"AVMString","valueType":"AVMUint64","key":"eQ=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[111],"errorMessage":"check GlobalState exists"},{"pc":[93],"errorMessage":"invalid array length header"},{"pc":[65],"errorMessage":"invalid number of bytes for arc4.bool"},{"pc":[100],"errorMessage":"invalid number of bytes for arc4.dynamic_array<arc4.uint8>"},{"pc":[87,107],"errorMessage":"invalid number of bytes for arc4.static_array<arc4.uint8, 32>"},{"pc":[80],"errorMessage":"invalid number of bytes for arc4.uint64"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9hcmM0L2luZGV4LmQudHM6OkNvbnRyYWN0LmFwcHJvdmFsUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgMzIKICAgIGJ5dGVjYmxvY2sgInkiCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzctNzgKICAgIC8vIEBjb250cmFjdCh7IGF2bVZlcnNpb246IDEzIH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0FkbWl0RGVsZWdhdGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAMTEKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydAogICAgcHVzaGJ5dGVzcyAweGNiOGI0NDdkIDB4MjBjNTRmYzkgLy8gbWV0aG9kICJzZXRBbnN3ZXIoYm9vbCl2b2lkIiwgbWV0aG9kICJhZG1pdCh1aW50NjQsYWRkcmVzcyxieXRlW10sYWRkcmVzcylib29sIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggc2V0QW5zd2VyIGFkbWl0CiAgICBlcnIKCm1haW5fX19hbGdvdHNfXy5kZWZhdWx0Q3JlYXRlQDExOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo3Ny03OAogICAgLy8gQGNvbnRyYWN0KHsgYXZtVmVyc2lvbjogMTMgfSkKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrQWRtaXREZWxlZ2F0ZSBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICAmJgogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo6TW9ja0FkbWl0RGVsZWdhdGUuc2V0QW5zd2VyW3JvdXRpbmddKCkgLT4gdm9pZDoKc2V0QW5zd2VyOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4MQogICAgLy8gc2V0QW5zd2VyKGFuc3dlcjogYm9vbGVhbik6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMSAvLyAxCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LmJvb2wKICAgIGludGNfMCAvLyAwCiAgICBnZXRiaXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzkKICAgIC8vIGFuc3dlciA9IEdsb2JhbFN0YXRlPGJvb2xlYW4+KHsga2V5OiAneScsIGluaXRpYWxWYWx1ZTogZmFsc2UgfSkKICAgIGJ5dGVjXzAgLy8gInkiCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjgyCiAgICAvLyB0aGlzLmFuc3dlci52YWx1ZSA9IGFuc3dlcgogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODEKICAgIC8vIHNldEFuc3dlcihhbnN3ZXI6IGJvb2xlYW4pOiB2b2lkIHsKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjpNb2NrQWRtaXREZWxlZ2F0ZS5hZG1pdFtyb3V0aW5nXSgpIC0+IHZvaWQ6CmFkbWl0OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBsZW4KICAgIHB1c2hpbnQgOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGxlbgogICAgaW50Y18yIC8vIDMyCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnN0YXRpY19hcnJheTxhcmM0LnVpbnQ4LCAzMj4KICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIGR1cAogICAgaW50Y18wIC8vIDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMgogICAgKwogICAgc3dhcAogICAgbGVuCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LmR5bmFtaWNfYXJyYXk8YXJjNC51aW50OD4KICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDQKICAgIGxlbgogICAgaW50Y18yIC8vIDMyCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnN0YXRpY19hcnJheTxhcmM0LnVpbnQ4LCAzMj4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODcKICAgIC8vIHJldHVybiB0aGlzLmFuc3dlci52YWx1ZQogICAgaW50Y18wIC8vIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzkKICAgIC8vIGFuc3dlciA9IEdsb2JhbFN0YXRlPGJvb2xlYW4+KHsga2V5OiAneScsIGluaXRpYWxWYWx1ZTogZmFsc2UgfSkKICAgIGJ5dGVjXzAgLy8gInkiCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjg3CiAgICAvLyByZXR1cm4gdGhpcy5hbnN3ZXIudmFsdWUKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgR2xvYmFsU3RhdGUgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjg1CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHB1c2hieXRlcyAweDAwCiAgICBpbnRjXzAgLy8gMAogICAgdW5jb3ZlciAyCiAgICBzZXRiaXQKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgo=","clear":"I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9iYXNlLWNvbnRyYWN0LmQudHM6OkJhc2VDb250cmFjdC5jbGVhclN0YXRlUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"DSADAAEgJgEBeTEYQAYoImcxG0E6MRkURDEYRIICBMuLRH0EIMVPyTYaAI4CAAkAGAAxGRQxGBQQQzYaAUkVIxJEIlMoTGcjQzYaARWBCBJENhoCFSQSRDYaA0kiWYECCEwVEkQ2GgQVJBJEIihlRIABACJPAlSABBUffHVMULAjQw==","clear":"DYEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -73,7 +73,7 @@ export type MockAdmitDelegateArgs = {
     'setAnswer(bool)void': {
       answer: boolean
     }
-    'arcTBD_admit(uint64,address,byte[],address)bool': {
+    'admit(uint64,address,byte[],address)bool': {
       asset: bigint | number
       writer: string
       slot: Uint8Array
@@ -85,7 +85,7 @@ export type MockAdmitDelegateArgs = {
    */
   tuple: {
     'setAnswer(bool)void': [answer: boolean]
-    'arcTBD_admit(uint64,address,byte[],address)bool': [asset: bigint | number, writer: string, slot: Uint8Array, holder: string]
+    'admit(uint64,address,byte[],address)bool': [asset: bigint | number, writer: string, slot: Uint8Array, holder: string]
   }
 }
 
@@ -94,7 +94,7 @@ export type MockAdmitDelegateArgs = {
  */
 export type MockAdmitDelegateReturns = {
   'setAnswer(bool)void': void
-  'arcTBD_admit(uint64,address,byte[],address)bool': boolean
+  'admit(uint64,address,byte[],address)bool': boolean
 }
 
 /**
@@ -110,10 +110,10 @@ export type MockAdmitDelegateTypes = {
       argsTuple: MockAdmitDelegateArgs['tuple']['setAnswer(bool)void']
       returns: MockAdmitDelegateReturns['setAnswer(bool)void']
     }>
-    & Record<'arcTBD_admit(uint64,address,byte[],address)bool' | 'arcTBD_admit', {
-      argsObj: MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool']
-      argsTuple: MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']
-      returns: MockAdmitDelegateReturns['arcTBD_admit(uint64,address,byte[],address)bool']
+    & Record<'admit(uint64,address,byte[],address)bool' | 'admit', {
+      argsObj: MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool']
+      argsTuple: MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']
+      returns: MockAdmitDelegateReturns['admit(uint64,address,byte[],address)bool']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -195,15 +195,15 @@ export abstract class MockAdmitDelegateParamsFactory {
     }
   }
   /**
-   * Constructs a no op call for the arcTBD_admit(uint64,address,byte[],address)bool ABI method
+   * Constructs a no op call for the admit(uint64,address,byte[],address)bool ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static arcTbdAdmit(params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static admit(params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'arcTBD_admit(uint64,address,byte[],address)bool' as const,
+      method: 'admit(uint64,address,byte[],address)bool' as const,
       args: Array.isArray(params.args) ? params.args : [params.args.asset, params.args.writer, params.args.slot, params.args.holder],
     }
   }
@@ -458,13 +458,13 @@ export class MockAdmitDelegateClient {
     },
 
     /**
-     * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+     * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    arcTbdAdmit: (params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(MockAdmitDelegateParamsFactory.arcTbdAdmit(params))
+    admit: (params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(MockAdmitDelegateParamsFactory.admit(params))
     },
 
   }
@@ -494,13 +494,13 @@ export class MockAdmitDelegateClient {
     },
 
     /**
-     * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+     * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    arcTbdAdmit: (params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(MockAdmitDelegateParamsFactory.arcTbdAdmit(params))
+    admit: (params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(MockAdmitDelegateParamsFactory.admit(params))
     },
 
   }
@@ -531,14 +531,14 @@ export class MockAdmitDelegateClient {
     },
 
     /**
-     * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+     * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    arcTbdAdmit: async (params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(MockAdmitDelegateParamsFactory.arcTbdAdmit(params))
-      return {...result, return: result.return as unknown as (undefined | MockAdmitDelegateReturns['arcTBD_admit(uint64,address,byte[],address)bool'])}
+    admit: async (params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(MockAdmitDelegateParamsFactory.admit(params))
+      return {...result, return: result.return as unknown as (undefined | MockAdmitDelegateReturns['admit(uint64,address,byte[],address)bool'])}
     },
 
   }
@@ -592,11 +592,11 @@ export class MockAdmitDelegateClient {
         return this
       },
       /**
-       * Add a arcTBD_admit(uint64,address,byte[],address)bool method call against the MockAdmitDelegate contract
+       * Add a admit(uint64,address,byte[],address)bool method call against the MockAdmitDelegate contract
        */
-      arcTbdAdmit(params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.arcTbdAdmit(params)))
-        resultMappers.push((v) => client.decodeReturnValue('arcTBD_admit(uint64,address,byte[],address)bool', v))
+      admit(params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.admit(params)))
+        resultMappers.push((v) => client.decodeReturnValue('admit(uint64,address,byte[],address)bool', v))
         return this
       },
       /**
@@ -644,13 +644,13 @@ export type MockAdmitDelegateComposer<TReturns extends [...any[]] = []> = {
   setAnswer(params?: CallParams<MockAdmitDelegateArgs['obj']['setAnswer(bool)void'] | MockAdmitDelegateArgs['tuple']['setAnswer(bool)void']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['setAnswer(bool)void'] | undefined]>
 
   /**
-   * Calls the arcTBD_admit(uint64,address,byte[],address)bool ABI method.
+   * Calls the admit(uint64,address,byte[],address)bool ABI method.
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  arcTbdAdmit(params?: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['arcTBD_admit(uint64,address,byte[],address)bool'] | undefined]>
+  admit(params?: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['admit(uint64,address,byte[],address)bool'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the MockAdmitDelegate smart contract.

@@ -58,7 +58,7 @@ export type Pin = {
     sub: number;
     flat: Uint8Array;
 };
-/** Decode PinCore || flat, as stored in a main section or returned by arcTBD_get_main. */
+/** Decode PinCore || flat, as stored in a main section or returned by getMain. */
 export declare function decodePin(pin: Uint8Array): Pin;
 export type MainBox = {
     creatorLocked: boolean;

@@ -45,13 +45,13 @@ describe('Collectible Variations layout', () => {
     expect(Object.keys(COLLECTIBLE_VARIATIONS_ERROR_MESSAGES).sort()).toEqual([...codes].sort());
   });
 
-  test('the generated client exposes the ARC methods', () => {
+  test('the generated client exposes the registry methods', () => {
     const signatures = APP_SPEC.methods.map((m) => `${m.name}(${m.args.map((a) => a.type).join(',')})${m.returns.type}`);
     expect(signatures).toContain(
-      'arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))',
+      'writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))',
     );
-    expect(signatures).toContain('arcTBD_get_main(uint64)(uint8,byte[])');
-    expect(signatures).toContain('arcTBD_purge(byte[])(bool,uint8,uint64)');
-    expect(APP_SPEC.methods.find((m) => m.name === 'arcTBD_get_main')?.readonly).toBe(true);
+    expect(signatures).toContain('getMain(uint64)(uint8,byte[])');
+    expect(signatures).toContain('purge(byte[])(bool,uint8,uint64)');
+    expect(APP_SPEC.methods.find((m) => m.name === 'getMain')?.readonly).toBe(true);
   });
 });

@@ -25,7 +25,7 @@ main_after_if_else@2:
     assert
     txn ApplicationID
     assert
-    pushbytess 0xcb8b447d 0x71737681 // method "setAnswer(bool)void", method "arcTBD_admit(uint64,address,byte[],address)bool"
+    pushbytess 0xcb8b447d 0x20c54fc9 // method "setAnswer(bool)void", method "admit(uint64,address,byte[],address)bool"
     txna ApplicationArgs 0
     match setAnswer admit
     err
@@ -70,7 +70,7 @@ setAnswer:
 // smart_contracts/mocks/collectible-variations/contract.algo.ts::MockAdmitDelegate.admit[routing]() -> void:
 admit:
     // smart_contracts/mocks/collectible-variations/contract.algo.ts:85
-    // @abimethod({ name: 'arcTBD_admit' })
+    // @abimethod()
     txna ApplicationArgs 1
     len
     pushint 8
@@ -107,7 +107,7 @@ admit:
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/mocks/collectible-variations/contract.algo.ts:85
-    // @abimethod({ name: 'arcTBD_admit' })
+    // @abimethod()
     pushbytes 0x00
     intc_0 // 0
     uncover 2

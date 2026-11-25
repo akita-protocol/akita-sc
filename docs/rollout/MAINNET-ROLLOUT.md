@@ -236,9 +236,9 @@ No step of the sequence changes. The owner asked for it on 2026-11-24.
 
 One step is added: H1a, after the Meta deploy. No existing step changes and none is renumbered. The owner asked for it on 2026-11-24.
 
-- **TestNet only for 2.0.0.** The registry deploys to TestNet with this release. MainNet waits until its ARC has a number and the `arcTBD_*` methods are renamed, which changes the program (new hash, new audit pass, fresh TestNet deploy). Do not run H1a on MainNet; at I1 on MainNet name `collectible-variations` in `--allow-pending`.
+- **Reversed on 2026-11-25:** this entry first held the registry to TestNet for 2.0.0, because its methods carried placeholder names for an ARC number. The owner set the ARC aside and the methods now have plain names, so H1a runs on MainNet with the rest of stage H. See the 2026-11-25 entry.
 
-- **A new immutable contract.** `CollectibleVariations` (smart_contracts/collectible-variations) is the registry of the Collectible Variations ARC draft: per-asset variations (images, render bundles, data, links) written by admitted writers, a main image pinned by the creator or the holder, creator policies per asset (`p`) or per ASA manager (`P`), holder grants (`g`), and purge after an asset is destroyed. It is a singleton that accepts no update or delete. Every box is paid by the account that owns it and refunded to it.
+- **A new immutable contract.** `CollectibleVariations` (smart_contracts/collectible-variations) is the Collectible Variations registry: per-asset variations (images, render bundles, data, links) written by admitted writers, a main image pinned by the creator or the holder, creator policies per asset (`p`) or per ASA manager (`P`), holder grants (`g`), and purge after an asset is destroyed. It is a singleton that accepts no update or delete. Every box is paid by the account that owns it and refunded to it.
 - **It depends on Meta only.** A `meta` writer set is a Merkle root that the registry itself owns in Meta, under the "collectible writer list" tree type, and checks with Meta.verify. Meta's app id and that type id are fixed at create. The registry needs no DAO proposal and no app-list slot.
 - **Programs.** CollectibleVariations is 8,022 bytes with three extra pages. The LocalNet mocks MockSmartAsa, MockAdmitDelegate, MockRegistryCaller and MockOddDelegate are added for its tests. No other program's bytes change.
 - **Manifest.** `release/manifest.json` gains four entries (159 programs; MockOddDelegate is a bare program with no app spec and is not listed). The 155 existing entries are unchanged.
@@ -304,6 +304,7 @@ Thirteen independent audits were read over the release tree, one per system, and
 - **Manifest.** `release/manifest.json` is regenerated: 160 programs: the 32 above, five mocks and one new mock.
 - **Held AKTA and Akita NFTs count in vote weights and the tip tax again** (S-06, reverted on the owner's decision of 2026-11-25, after the audits). Since 2026-11-10 the tree had left both out of the score AkitaSocial reads for a vote's weight and for the tax on a tip, because a held balance can be passed between accounts and counts for each one that holds it when it is read. The owner accepts that: holding counts wherever the score is read, as on the deployed AkitaSocialImpact, and as gates and fee discounts already read it. One more program changes, AkitaSocialImpact 3,160 → 3,146 bytes, in E1 as a ride-along, and its manifest entry with it. No step, argument or payment changes.
 - **The rollout does not launch the DAO** (the owner, 2026-11-25, after the audits). The sequence ends at I2, the push and tag, with the MainNet DAO in Draft. I1 (the threshold rescale, the grant clean-up, `clearBootstrapKeys` and `initialize()`) is kept as the launch procedure and run later, on the owner's call. No step of stages B to H changes: each already ran with the DAO in Draft. Wherever a step says to name something in `--allow-pending` at I1, that still holds for the day I1 is run.
+- **Collectible Variations has plain method names and goes to MainNet** (the owner, 2026-11-25, after the audits). The ARC is set aside for now, so the registry is a regular contract. Its 14 methods drop the `arcTBD_` placeholder and take their handlers' names: `writeVariation`, `deleteVariation`, `pinMainCreator`, `pinMainHolder`, `unpinMainCreator`, `unpinMainHolder`, `setAssetPolicy`, `setManagerPolicy`, `deleteAssetPolicy`, `deleteManagerPolicy`, `setGrant`, `deleteGrant`, `purge` and `getMain`. The callback a delegate app answers is `admit(uint64,address,byte[],address)bool`. Arguments, return values, boxes and logic are unchanged: against the previous build the approval program differs only in the 15 method selectors and is still 8,022 bytes. MockAdmitDelegate changes the same way. No other program's bytes change; the manifest still lists 160 programs. The SDK's `CollectibleVariationsSDK` keeps its own method names and calls the new ones. With the names settled, the MainNet hold of 2026-11-25 is lifted: H1a runs on MainNet after H1 (200 ALGO of Meta type fees, see H1a) and `collectible-variations` is no longer named in `--allow-pending` at I1.
 
 ## Live state (read 2026-10-10)
 
@@ -1150,9 +1151,9 @@ npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta a
 (cd ../akita-sdk && npm run build)
 ```
 
-#### H1a. Collectible Variations registry (TestNet only for 2.0.0)
+#### H1a. Collectible Variations registry
 
-- **MainNet hold:** do not run this step on MainNet. The owner decided on 2026-11-25 that the registry ships to TestNet with 2.0.0 and waits for MainNet until its ARC has a number and the `arcTBD_*` methods are renamed. The app can never be updated, so those names would be permanent. The rename changes the program: it gets a new hash, a new audit pass and a fresh TestNet deploy before MainNet. The TestNet app deployed now is a throwaway. At I1 on MainNet, name `collectible-variations` in `--allow-pending`.
+- **Names are permanent:** the app can never be updated, so the method names it is created with stay for good. They are plain names (`writeVariation`, `getMain`, `purge` and so on; the delegate callback is `admit(uint64,address,byte[],address)bool`). The owner set the ARC aside on 2026-11-25, which lifted the earlier MainNet hold. The program deployed on MainNet must be the one rehearsed on TestNet: compare its hash with `release/manifest.json` (H1a's receipt records it).
 - **What:** Deploy the Collectible Variations registry bound to the Meta of H1, with a receipt, and record its id.
 - **Why here:** It is created with Meta's app id and the id of Meta's "collectible writer list" tree type, and neither can change afterwards.
 - **Requires:** H1 (Meta deployed and recorded as `meta`). Nothing else: no DAO proposal, no app-list slot, no plugin grant. **Script:** ready: `deploy:collectible-variations` writes a resumable receipt and `--register` records the `collectibleVariations` SDK key.
@@ -1163,9 +1164,8 @@ npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta a
 - **Tracked by rollout:status as** `collectible-variations`. It is not a launch prerequisite: if it is not deployed before I1, name it in `--allow-pending`.
 
 ```bash
-# TestNet only until the ARC has a number (see MainNet hold above).
-npm run deploy:collectible-variations -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
-npm run deploy:collectible-variations -- -n testnet -v "$V" --manifest receipts/collectible-variations.testnet.json --reserve-type-zero --register
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --manifest receipts/collectible-variations.json --reserve-type-zero --register
 (cd ../akita-sdk && npm run build)
 ```
 
@@ -1266,7 +1266,7 @@ No script supports a voting DAO end to end, so whenever I1 is run, everything ab
 - **Tracked by rollout:status as** `power`, `initialize`.
 - Expired proposal #107 stays inert; 19 expired execution boxes hold ~420k µA.
 - `dao:rescale-power` rewrites each `*_ps` global whose power is still in whole tokens (x 1e6; see B2), keeps every other setting, and reads each back. It refuses a value neither unit explains (above 1,000 and below 1,000,000). The plugin settings were rescaled by the grant swaps; the tracker's `power` step names any that were not. The Update plugin's own settings are never read (the DAO drives it through UpgradeApp only) and are left as they are.
-- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19). They name `collectible-variations` because H1a is held on MainNet until its ARC has a number (owner, 2026-11-25).
+- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19).
 - `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, as `social-claim` is while H7 is left out. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
 
 ```bash
@@ -1275,8 +1275,8 @@ npm run dao:rescale-power -- -n mainnet --dry-run
 npm run dao:rescale-power -- -n mainnet --confirm-rescale
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --confirm-revoke
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --dry-run
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --confirm-initialize
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --dry-run
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --confirm-initialize
 ```
 
 #### I2. Push and tag the release

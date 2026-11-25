@@ -39,7 +39,23 @@ algokit.Config.configure({ populateAppCallResources: true })
 installAccessListResourcePopulator()
 
 type Account = TransactionSignerAccount
-type Method = keyof ReturnType<CollectibleVariationsClient['newGroup']> & `arcTbd${string}`
+type Method = keyof ReturnType<CollectibleVariationsClient['newGroup']> &
+  (
+    | 'writeVariation'
+    | 'deleteVariation'
+    | 'pinMainCreator'
+    | 'pinMainHolder'
+    | 'unpinMainCreator'
+    | 'unpinMainHolder'
+    | 'setAssetPolicy'
+    | 'setManagerPolicy'
+    | 'deleteAssetPolicy'
+    | 'deleteManagerPolicy'
+    | 'setGrant'
+    | 'deleteGrant'
+    | 'purge'
+    | 'getMain'
+  )
 
 const ZERO = algosdk.encodeAddress(new Uint8Array(32))
 const SEND = { populateAppCallResources: true } as const
@@ -294,7 +310,7 @@ describe('Collectible Variations registry', () => {
   describe('collectible-scope writes', () => {
     test('the creator writes under the default policy and pays exactly the box MBR', async () => {
       const asset = await mintAsset(creator)
-      const { ret, paid } = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const { ret, paid } = await call(creator, 'writeVariation', writeArgs(asset))
       const name = variationName(asset, creator.addr.toString(), 'thumb')
       const value = await box(name)
       expect(value).toBeDefined()
@@ -309,72 +325,72 @@ describe('Collectible Variations registry', () => {
 
     test('a stranger is rejected under the default (closed) policy', async () => {
       const asset = await mintAsset(creator)
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await expect(call(alice, 'writeVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
     })
 
     test('an equal rewrite is a no-op that takes no payment', async () => {
       const asset = await mintAsset(creator)
-      const first = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const first = await call(creator, 'writeVariation', writeArgs(asset))
       // Same bytes except the revision: the candidate keeps the stored revision, so it is equal.
-      const again = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const again = await call(creator, 'writeVariation', writeArgs(asset))
       expect(again.paid).toBe(0n)
       expect(again.ret).toEqual({ revision: first.ret.revision, changed: false, mbr: { sign: 0, amount: 0n } })
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset), 1_000n)).rejects.toThrow(errDepositMismatch)
+      await expect(call(creator, 'writeVariation', writeArgs(asset), 1_000n)).rejects.toThrow(errDepositMismatch)
     })
 
     test('a wrong or missing deposit is rejected', async () => {
       const asset = await mintAsset(creator)
-      const deposit = await depositFor(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const deposit = await depositFor(creator, 'writeVariation', writeArgs(asset))
       expect(deposit).toBeGreaterThan(0n)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset), deposit + 1n)).rejects.toThrow(errDepositMismatch)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset), 0n)).rejects.toThrow(errDepositMismatch)
+      await expect(call(creator, 'writeVariation', writeArgs(asset), deposit + 1n)).rejects.toThrow(errDepositMismatch)
+      await expect(call(creator, 'writeVariation', writeArgs(asset), 0n)).rejects.toThrow(errDepositMismatch)
     })
 
     test('a smaller replacement refunds the difference to the writer', async () => {
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdWriteVariation', writeArgs(asset, { body: new Uint8Array(100) }))
-      const { ret, paid } = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      await call(creator, 'writeVariation', writeArgs(asset, { body: new Uint8Array(100) }))
+      const { ret, paid } = await call(creator, 'writeVariation', writeArgs(asset))
       expect(paid).toBe(0n)
       expect(ret.mbr).toEqual({ sign: 255, amount: 40_000n })
     })
 
     test('ifRevision guards create and replace', async () => {
       const asset = await mintAsset(creator)
-      const first = await call(creator, 'arcTbdWriteVariation', writeArgs(asset, { ifRevision: 0n }))
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { sub: 2, ifRevision: 0n }))).rejects.toThrow(
+      const first = await call(creator, 'writeVariation', writeArgs(asset, { ifRevision: 0n }))
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { sub: 2, ifRevision: 0n }))).rejects.toThrow(
         errPreconditionFailed,
       )
       await expect(
-        call(creator, 'arcTbdWriteVariation', writeArgs(asset, { sub: 2, ifRevision: first.ret.revision + 1000n })),
+        call(creator, 'writeVariation', writeArgs(asset, { sub: 2, ifRevision: first.ret.revision + 1000n })),
       ).rejects.toThrow(errPreconditionFailed)
-      const second = await call(creator, 'arcTbdWriteVariation', writeArgs(asset, { sub: 2, ifRevision: first.ret.revision }))
+      const second = await call(creator, 'writeVariation', writeArgs(asset, { sub: 2, ifRevision: first.ret.revision }))
       expect(second.ret.revision).toBeGreaterThan(first.ret.revision)
     })
 
     test('argument checks', async () => {
       const asset = await mintAsset(creator)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { kind: 0 }))).rejects.toThrow(errBadArgument)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { slot: new Uint8Array() }))).rejects.toThrow(errBadArgument)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { slot: new Uint8Array(24) }))).rejects.toThrow(errBadArgument)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { flat: new Uint8Array() }))).rejects.toThrow(errBadArgument)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { flat: new Uint8Array(769) }))).rejects.toThrow(errTooLarge)
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { kind: 0 }))).rejects.toThrow(errBadArgument)
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { slot: new Uint8Array() }))).rejects.toThrow(errBadArgument)
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { slot: new Uint8Array(24) }))).rejects.toThrow(errBadArgument)
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { flat: new Uint8Array() }))).rejects.toThrow(errBadArgument)
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { flat: new Uint8Array(769) }))).rejects.toThrow(errTooLarge)
       // A data entry needs no flat image.
-      await call(creator, 'arcTbdWriteVariation', writeArgs(asset, { kind: 3, flat: new Uint8Array(), body: enc('{}') }))
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(999_999_999n))).rejects.toThrow(errAssetMissing)
+      await call(creator, 'writeVariation', writeArgs(asset, { kind: 3, flat: new Uint8Array(), body: enc('{}') }))
+      await expect(call(creator, 'writeVariation', writeArgs(999_999_999n))).rejects.toThrow(errAssetMissing)
     })
 
     test('a locked entry cannot be changed or deleted by its writer, but the creator can evict it', async () => {
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN }))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { lock: true }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN }))
+      await call(alice, 'writeVariation', writeArgs(asset, { lock: true }))
       // The no-op still converges under the lock.
-      expect((await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { lock: true }))).ret.changed).toBe(false)
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset, { sub: 9 }))).rejects.toThrow(errLocked)
+      expect((await call(alice, 'writeVariation', writeArgs(asset, { lock: true }))).ret.changed).toBe(false)
+      await expect(call(alice, 'writeVariation', writeArgs(asset, { sub: 9 }))).rejects.toThrow(errLocked)
       const del = { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') }
-      await expect(call(alice, 'arcTbdDeleteVariation', del)).rejects.toThrow(errNotAuthorized)
-      await expect(call(bob, 'arcTbdDeleteVariation', del)).rejects.toThrow(errNotAuthorized)
+      await expect(call(alice, 'deleteVariation', del)).rejects.toThrow(errNotAuthorized)
+      await expect(call(bob, 'deleteVariation', del)).rejects.toThrow(errNotAuthorized)
       const before = await balance(alice)
-      const { ret } = await call(creator, 'arcTbdDeleteVariation', del)
+      const { ret } = await call(creator, 'deleteVariation', del)
       expect(ret.removed).toBe(true)
       expect(ret.reason).toBe(5)
       // The refund goes to the writer, not the creator.
@@ -383,11 +399,11 @@ describe('Collectible Variations registry', () => {
 
     test('the writer deletes an unlocked entry and gets its deposit back; a missing entry is a no-op', async () => {
       const asset = await mintAsset(creator)
-      const { paid } = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const { paid } = await call(creator, 'writeVariation', writeArgs(asset))
       const del = { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb') }
-      const { ret } = await call(creator, 'arcTbdDeleteVariation', del)
+      const { ret } = await call(creator, 'deleteVariation', del)
       expect(ret).toEqual({ removed: true, reason: 2, refund: paid })
-      const again = await call(creator, 'arcTbdDeleteVariation', del)
+      const again = await call(creator, 'deleteVariation', del)
       expect(again.ret).toEqual({ removed: false, reason: 0, refund: 0n })
     })
   })
@@ -395,17 +411,17 @@ describe('Collectible Variations registry', () => {
   describe('creator policy', () => {
     test('open, allow and managerWrites rules', async () => {
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: allow(alice.addr.toString()), managerWrites: false }))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset))
-      await expect(call(bob, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN, managerWrites: false }))
-      await call(bob, 'arcTbdWriteVariation', writeArgs(asset))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: allow(alice.addr.toString()), managerWrites: false }))
+      await call(alice, 'writeVariation', writeArgs(asset))
+      await expect(call(bob, 'writeVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await expect(call(creator, 'writeVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN, managerWrites: false }))
+      await call(bob, 'writeVariation', writeArgs(asset))
     })
 
     test('only the creator sets an asset policy, and the writer sets are validated', async () => {
       const asset = await mintAsset(creator)
-      await expect(call(alice, 'arcTbdSetAssetPolicy', policyArgs(asset))).rejects.toThrow(errNotCreator)
+      await expect(call(alice, 'setAssetPolicy', policyArgs(asset))).rejects.toThrow(errNotCreator)
       for (const bad of [
         new Uint8Array(),
         new Uint8Array([5]),
@@ -415,7 +431,7 @@ describe('Collectible Variations registry', () => {
         delegate(0n),
         metaSet(new Uint8Array(32)),
       ]) {
-        await expect(call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: bad }))).rejects.toThrow(errBadArgument)
+        await expect(call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: bad }))).rejects.toThrow(errBadArgument)
       }
     })
 
@@ -423,7 +439,7 @@ describe('Collectible Variations registry', () => {
       const manager = await newAccount()
       const a = await mintAsset(manager)
       const b = await mintAsset(manager)
-      const { ret, paid } = await call(manager, 'arcTbdSetManagerPolicy', {
+      const { ret, paid } = await call(manager, 'setManagerPolicy', {
         collectible: OPEN,
         holder: CLOSED,
         managerWrites: true,
@@ -431,33 +447,33 @@ describe('Collectible Variations registry', () => {
       })
       expect(ret.changed).toBe(true)
       expect(paid).toBe(mbr(33, 12))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(a))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(b))
-      await call(manager, 'arcTbdSetAssetPolicy', policyArgs(b))
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(b, { sub: 5 }))).rejects.toThrow(errNotAuthorized)
-      await call(alice, 'arcTbdWriteVariation', writeArgs(a, { sub: 5 }))
+      await call(alice, 'writeVariation', writeArgs(a))
+      await call(alice, 'writeVariation', writeArgs(b))
+      await call(manager, 'setAssetPolicy', policyArgs(b))
+      await expect(call(alice, 'writeVariation', writeArgs(b, { sub: 5 }))).rejects.toThrow(errNotAuthorized)
+      await call(alice, 'writeVariation', writeArgs(a, { sub: 5 }))
 
-      const removed = await call(manager, 'arcTbdDeleteManagerPolicy', {})
+      const removed = await call(manager, 'deleteManagerPolicy', {})
       expect(removed.ret).toEqual({ removed: true, reason: 5, refund: paid })
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(a, { sub: 6 }))).rejects.toThrow(errNotAuthorized)
+      await expect(call(alice, 'writeVariation', writeArgs(a, { sub: 6 }))).rejects.toThrow(errNotAuthorized)
     })
 
     test('a locked asset policy cannot change, be deleted, or let the creator evict entries', async () => {
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN, lock: true }))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN, lock: true }))
+      await call(alice, 'writeVariation', writeArgs(asset))
       // Re-sending the same locked policy is a no-op.
-      expect((await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN, lock: true }))).ret.changed).toBe(false)
-      await expect(call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset))).rejects.toThrow(errLocked)
-      await expect(call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })).rejects.toThrow(errLocked)
+      expect((await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN, lock: true }))).ret.changed).toBe(false)
+      await expect(call(creator, 'setAssetPolicy', policyArgs(asset))).rejects.toThrow(errLocked)
+      await expect(call(creator, 'deleteAssetPolicy', { asset, controllingApp: 0n })).rejects.toThrow(errLocked)
       await expect(
-        call(creator, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') }),
+        call(creator, 'deleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') }),
       ).rejects.toThrow(errNotAuthorized)
     })
 
     test('the AssetCreator removes creator-side boxes once no creator resolves', async () => {
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN }))
       // Clear the manager (keeping a reserve, since a config with no addresses is a destroy): no creator resolves.
       await algorand.send.assetConfig({
         sender: creator.addr,
@@ -466,9 +482,9 @@ describe('Collectible Variations registry', () => {
         manager: undefined,
         reserve: creator.addr,
       })
-      await expect(call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset))).rejects.toThrow(errNotCreator)
-      await expect(call(alice, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })).rejects.toThrow(errNotCreator)
-      const { ret } = await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+      await expect(call(creator, 'setAssetPolicy', policyArgs(asset))).rejects.toThrow(errNotCreator)
+      await expect(call(alice, 'deleteAssetPolicy', { asset, controllingApp: 0n })).rejects.toThrow(errNotCreator)
+      const { ret } = await call(creator, 'deleteAssetPolicy', { asset, controllingApp: 0n })
       expect(ret.removed).toBe(true)
       expect(ret.reason).toBe(6)
     })
@@ -479,21 +495,21 @@ describe('Collectible Variations registry', () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
       const args = writeArgs(asset, { holder: holder.addr.toString() })
-      const { ret, paid } = await call(holder, 'arcTbdWriteVariation', args)
+      const { ret, paid } = await call(holder, 'writeVariation', args)
       expect(ret.changed).toBe(true)
       const value = await box(variationName(asset, holder.addr.toString(), 'thumb'))
       expect(paid).toBe(mbr(41 + 5, value!.length))
       expect(value![1]).toBe(0x01)
       expect(algosdk.encodeAddress(value!.subarray(14, 46))).toBe(holder.addr.toString())
-      await expect(call(alice, 'arcTbdWriteVariation', args)).rejects.toThrow(errNotAuthorized)
-      await expect(call(holder2, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder2.addr.toString() }))).rejects.toThrow(
+      await expect(call(alice, 'writeVariation', args)).rejects.toThrow(errNotAuthorized)
+      await expect(call(holder2, 'writeVariation', writeArgs(asset, { holder: holder2.addr.toString() }))).rejects.toThrow(
         errNotHolder,
       )
     })
 
     test('an asset below one whole unit has no holder', async () => {
       const asset = await mintAsset(creator, 50n, 2)
-      await expect(call(creator, 'arcTbdWriteVariation', writeArgs(asset, { holder: creator.addr.toString() }))).rejects.toThrow(
+      await expect(call(creator, 'writeVariation', writeArgs(asset, { holder: creator.addr.toString() }))).rejects.toThrow(
         errNotHolder,
       )
     })
@@ -501,50 +517,50 @@ describe('Collectible Variations registry', () => {
     test('a grant admits writers for entries bound to the granting holder', async () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
-      const granted = await call(holder, 'arcTbdSetGrant', { writers: allow(alice.addr.toString()) })
+      const granted = await call(holder, 'setGrant', { writers: allow(alice.addr.toString()) })
       expect(granted.paid).toBe(mbr(33, 9 + 34))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString() }))
-      await expect(call(bob, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString() }))).rejects.toThrow(
+      await call(alice, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString() }))
+      await expect(call(bob, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString() }))).rejects.toThrow(
         errNotAuthorized,
       )
-      const removed = await call(holder, 'arcTbdDeleteGrant', {})
+      const removed = await call(holder, 'deleteGrant', {})
       expect(removed.ret).toEqual({ removed: true, reason: 4, refund: granted.paid })
     })
 
     test('the policy holder set admits writers too', async () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { holder: OPEN }))
-      await call(bob, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString() }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { holder: OPEN }))
+      await call(bob, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString() }))
     })
 
     test('a transfer voids holder-scope entries: anyone may delete them and a locked one can be rewritten', async () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
-      await call(holder, 'arcTbdSetGrant', { writers: allow(alice.addr.toString()) })
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), lock: true, slot: enc('a') }))
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), slot: enc('b') }))
+      await call(holder, 'setGrant', { writers: allow(alice.addr.toString()) })
+      await call(alice, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), lock: true, slot: enc('a') }))
+      await call(alice, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), slot: enc('b') }))
       const delA = { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('a') }
       const delB = { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('b') }
       // While bound, the holder may remove an entry about it.
-      expect((await call(holder, 'arcTbdDeleteVariation', delB)).ret.reason).toBe(4)
-      await expect(call(bob, 'arcTbdDeleteVariation', delA)).rejects.toThrow(errNotAuthorized)
+      expect((await call(holder, 'deleteVariation', delB)).ret.reason).toBe(4)
+      await expect(call(bob, 'deleteVariation', delA)).rejects.toThrow(errNotAuthorized)
 
       await give(asset, holder, holder2)
-      await call(holder2, 'arcTbdSetGrant', { writers: allow(alice.addr.toString()) })
+      await call(holder2, 'setGrant', { writers: allow(alice.addr.toString()) })
       // The void locked entry can be rewritten for the new holder.
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder2.addr.toString(), slot: enc('a') }))
-      await call(holder2, 'arcTbdDeleteGrant', {})
-      await call(holder, 'arcTbdDeleteGrant', {})
+      await call(alice, 'writeVariation', writeArgs(asset, { holder: holder2.addr.toString(), slot: enc('a') }))
+      await call(holder2, 'deleteGrant', {})
+      await call(holder, 'deleteGrant', {})
     })
 
     test('a void entry is deletable by anyone', async () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
-      await call(holder, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), lock: true }))
+      await call(holder, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), lock: true }))
       await give(asset, holder, creator)
       const before = await balance(holder)
-      const { ret } = await call(bob, 'arcTbdDeleteVariation', {
+      const { ret } = await call(bob, 'deleteVariation', {
         asset,
         controllingApp: 0n,
         writer: holder.addr.toString(),
@@ -562,26 +578,26 @@ describe('Collectible Variations registry', () => {
       const policyName = assetPolicyName(asset)
       const rootName = metaRootName('c', policyName)
       const rootCost = await metaSdk.rootCosts({ name: rootName })
-      const { paid } = await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: metaSet(tree.root) }))
+      const { paid } = await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: metaSet(tree.root) }))
       expect(paid).toBe(mbr(9, 10 + 33 + 1) + rootCost)
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name: rootName })).toEqual(tree.root)
 
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { proof: tree.getProof(0) }))
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset, { slot: enc('x'), proof: tree.getProof(1) }))).rejects.toThrow(
+      await call(alice, 'writeVariation', writeArgs(asset, { proof: tree.getProof(0) }))
+      await expect(call(alice, 'writeVariation', writeArgs(asset, { slot: enc('x'), proof: tree.getProof(1) }))).rejects.toThrow(
         errNotAuthorized,
       )
-      await expect(call(holder, 'arcTbdWriteVariation', writeArgs(asset, { proof: tree.getProof(0) }))).rejects.toThrow(errNotAuthorized)
+      await expect(call(holder, 'writeVariation', writeArgs(asset, { proof: tree.getProof(0) }))).rejects.toThrow(errNotAuthorized)
 
       // A new tree updates the same root in place and costs nothing.
       const next = createAddressTree([pk(holder.addr.toString()), pk(bob.addr.toString())])
-      const updated = await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: metaSet(next.root) }))
+      const updated = await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: metaSet(next.root) }))
       expect(updated.paid).toBe(0n)
       expect(updated.ret.mbr).toEqual({ sign: 0, amount: 0n })
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name: rootName })).toEqual(next.root)
-      await call(holder, 'arcTbdWriteVariation', writeArgs(asset, { proof: next.getProof(0) }))
+      await call(holder, 'writeVariation', writeArgs(asset, { proof: next.getProof(0) }))
 
       // Deleting the policy deletes the root and refunds both deposits to the creator.
-      const removed = await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+      const removed = await call(creator, 'deleteAssetPolicy', { asset, controllingApp: 0n })
       expect(removed.ret).toEqual({ removed: true, reason: 5, refund: paid })
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name: rootName })).toBeUndefined()
     })
@@ -591,8 +607,8 @@ describe('Collectible Variations registry', () => {
       const tree = createAddressTree([pk(alice.addr.toString())])
       const rootName = metaRootName('h', assetPolicyName(asset))
       const rootCost = await metaSdk.rootCosts({ name: rootName })
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { holder: metaSet(tree.root) }))
-      const { ret } = await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { holder: OPEN }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { holder: metaSet(tree.root) }))
+      const { ret } = await call(creator, 'setAssetPolicy', policyArgs(asset, { holder: OPEN }))
       expect(ret.mbr).toEqual({ sign: 255, amount: rootCost + 32n * 400n })
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name: rootName })).toBeUndefined()
     })
@@ -601,14 +617,14 @@ describe('Collectible Variations registry', () => {
       const asset = await mintAsset(creator)
       await give(asset, creator, holder)
       const tree = createAddressTree([pk(bob.addr.toString())])
-      await call(holder, 'arcTbdSetGrant', { writers: metaSet(tree.root) })
+      await call(holder, 'setGrant', { writers: metaSet(tree.root) })
       const name = metaRootName('g', grantName(holder.addr.toString()))
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name })).toEqual(tree.root)
-      await call(bob, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), proof: tree.getProof(0) }))
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), proof: tree.getProof(0) }))).rejects.toThrow(
+      await call(bob, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), proof: tree.getProof(0) }))
+      await expect(call(alice, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), proof: tree.getProof(0) }))).rejects.toThrow(
         errNotAuthorized,
       )
-      await call(holder, 'arcTbdDeleteGrant', {})
+      await call(holder, 'deleteGrant', {})
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name })).toBeUndefined()
     })
 
@@ -616,7 +632,7 @@ describe('Collectible Variations registry', () => {
       const manager = await newAccount()
       const asset = await mintAsset(manager)
       const tree = createAddressTree([pk(alice.addr.toString())])
-      await call(manager, 'arcTbdSetManagerPolicy', {
+      await call(manager, 'setManagerPolicy', {
         collectible: metaSet(tree.root),
         holder: CLOSED,
         managerWrites: false,
@@ -624,8 +640,8 @@ describe('Collectible Variations registry', () => {
       })
       const name = metaRootName('c', managerPolicyName(manager.addr.toString()))
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name })).toEqual(tree.root)
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { proof: tree.getProof(0) }))
-      await call(manager, 'arcTbdDeleteManagerPolicy', {})
+      await call(alice, 'writeVariation', writeArgs(asset, { proof: tree.getProof(0) }))
+      await call(manager, 'deleteManagerPolicy', {})
     })
   })
 
@@ -635,10 +651,10 @@ describe('Collectible Variations registry', () => {
         .getTypedAppFactory(MockAdmitDelegateFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
         .send.create.bare()
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: delegate(mock.appClient.appId), managerWrites: false }))
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: delegate(mock.appClient.appId), managerWrites: false }))
+      await expect(call(alice, 'writeVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
       await mock.appClient.send.setAnswer({ args: { answer: true } })
-      await call(alice, 'arcTbdWriteVariation', writeArgs(asset))
+      await call(alice, 'writeVariation', writeArgs(asset))
     })
 
     test('a delegate on a grant admits holder-scope writers', async () => {
@@ -648,13 +664,13 @@ describe('Collectible Variations registry', () => {
       const asset = await mintAsset(creator)
       const owner = await newAccount()
       await give(asset, creator, owner)
-      await call(owner, 'arcTbdSetGrant', { writers: delegate(mock.appClient.appId) })
+      await call(owner, 'setGrant', { writers: delegate(mock.appClient.appId) })
       const bound = writeArgs(asset, { holder: owner.addr.toString() })
-      await expect(call(alice, 'arcTbdWriteVariation', bound)).rejects.toThrow(errNotAuthorized)
+      await expect(call(alice, 'writeVariation', bound)).rejects.toThrow(errNotAuthorized)
       await mock.appClient.send.setAnswer({ args: { answer: true } })
-      await call(alice, 'arcTbdWriteVariation', bound)
-      await call(alice, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') })
-      await call(owner, 'arcTbdDeleteGrant', {})
+      await call(alice, 'writeVariation', bound)
+      await call(alice, 'deleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') })
+      await call(owner, 'deleteGrant', {})
     })
 
     test('a malformed answer does not admit, and a failing delegate fails the write', async () => {
@@ -672,81 +688,81 @@ describe('Collectible Variations registry', () => {
         algorand.send.appCall({ sender: deployer.addr, signer: deployer.signer, appId: odd, args: [enc('mode'), be64(mode)] })
       await setMode(0n)
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: delegate(odd), managerWrites: false }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: delegate(odd), managerWrites: false }))
       // Mode 0 logs 0x151f7c75 || 0x01, which is not an ARC-4 true.
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await expect(call(alice, 'writeVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
       await setMode(1n)
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset), 0n)).rejects.toThrow()
+      await expect(call(alice, 'writeVariation', writeArgs(asset), 0n)).rejects.toThrow()
       expect(await box(variationName(asset, alice.addr.toString(), 'thumb'))).toBeUndefined()
-      await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+      await call(creator, 'deleteAssetPolicy', { asset, controllingApp: 0n })
     })
   })
 
   describe('main image', () => {
     test('creator pin, holder pin, fallback after transfer, holder replacement and unpins', async () => {
       const asset = await mintAsset(creator)
-      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const written = await call(creator, 'writeVariation', writeArgs(asset))
       const pin = { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: written.ret.revision, lock: false }
 
-      await expect(call(alice, 'arcTbdPinMainCreator', pin)).rejects.toThrow(errNotCreator)
-      await expect(call(creator, 'arcTbdPinMainCreator', { ...pin, sourceRevision: 1n })).rejects.toThrow(errSourceChanged)
-      await expect(call(creator, 'arcTbdPinMainCreator', { ...pin, slot: enc('none') })).rejects.toThrow(errSourceMissing)
-      const pinned = await call(creator, 'arcTbdPinMainCreator', pin)
+      await expect(call(alice, 'pinMainCreator', pin)).rejects.toThrow(errNotCreator)
+      await expect(call(creator, 'pinMainCreator', { ...pin, sourceRevision: 1n })).rejects.toThrow(errSourceChanged)
+      await expect(call(creator, 'pinMainCreator', { ...pin, slot: enc('none') })).rejects.toThrow(errSourceMissing)
+      const pinned = await call(creator, 'pinMainCreator', pin)
       const main = await box(mainName(asset))
       expect(pinned.paid).toBe(mbr(9, main!.length))
-      expect((await call(creator, 'arcTbdPinMainCreator', pin)).ret.changed).toBe(false)
+      expect((await call(creator, 'pinMainCreator', pin)).ret.changed).toBe(false)
 
-      let view = (await registry.send.arcTbdGetMain({ args: { asset } })).return!
+      let view = (await registry.send.getMain({ args: { asset } })).return!
       expect(view.role).toBe(1)
       expect(algosdk.encodeAddress(view.pin.subarray(0, 32))).toBe(creator.addr.toString())
       expect([...view.pin.subarray(66)]).toEqual([...FLAT])
 
       // Holder pin, from a holder-scope source bound to the holder.
       await give(asset, creator, holder)
-      const own = await call(holder, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString(), slot: enc('me') }))
+      const own = await call(holder, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString(), slot: enc('me') }))
       const holderPin = { asset, writer: holder.addr.toString(), slot: enc('me'), sourceRevision: own.ret.revision }
-      await expect(call(alice, 'arcTbdPinMainHolder', holderPin)).rejects.toThrow(errNotHolder)
-      const hp = await call(holder, 'arcTbdPinMainHolder', holderPin)
+      await expect(call(alice, 'pinMainHolder', holderPin)).rejects.toThrow(errNotHolder)
+      const hp = await call(holder, 'pinMainHolder', holderPin)
       expect(hp.ret.mbr.sign).toBe(1)
-      view = (await registry.send.arcTbdGetMain({ args: { asset } })).return!
+      view = (await registry.send.getMain({ args: { asset } })).return!
       expect(view.role).toBe(2)
       // A creator may not pin a holder-scope source.
       await expect(
-        call(creator, 'arcTbdPinMainCreator', { ...pin, writer: holder.addr.toString(), slot: enc('me'), sourceRevision: own.ret.revision }),
+        call(creator, 'pinMainCreator', { ...pin, writer: holder.addr.toString(), slot: enc('me'), sourceRevision: own.ret.revision }),
       ).rejects.toThrow(errSourceNotAllowed)
 
       // After a transfer the holder pin is void and the creator pin shows.
       await give(asset, holder, holder2)
-      view = (await registry.send.arcTbdGetMain({ args: { asset } })).return!
+      view = (await registry.send.getMain({ args: { asset } })).return!
       expect(view.role).toBe(1)
 
       // The new holder replaces the void pin: the old holder gets its whole deposit back.
       const before = await balance(holder)
-      const replaced = await call(holder2, 'arcTbdPinMainHolder', { ...pin, sourceRevision: written.ret.revision })
+      const replaced = await call(holder2, 'pinMainHolder', { ...pin, sourceRevision: written.ret.revision })
       expect(replaced.paid).toBeGreaterThan(0n)
       expect((await balance(holder)) - before).toBe(hp.paid)
-      expect((await registry.send.arcTbdGetMain({ args: { asset } })).return!.role).toBe(2)
-      await expect(call(alice, 'arcTbdUnpinMainHolder', { asset })).rejects.toThrow(errNotAuthorized)
+      expect((await registry.send.getMain({ args: { asset } })).return!.role).toBe(2)
+      await expect(call(alice, 'unpinMainHolder', { asset })).rejects.toThrow(errNotAuthorized)
 
       // Void again, then anyone clears it; the refund goes to the holder in the section.
       await give(asset, holder2, creator)
       const before2 = await balance(holder2)
-      const cleared = await call(alice, 'arcTbdUnpinMainHolder', { asset })
+      const cleared = await call(alice, 'unpinMainHolder', { asset })
       expect(cleared.ret.reason).toBe(3)
       expect((await balance(holder2)) - before2).toBe(cleared.ret.refund)
 
       // The creator section is last: unpinning it deletes the box, and the deposits sum to its MBR.
-      const last = await call(creator, 'arcTbdUnpinMainCreator', { asset, controllingApp: 0n })
+      const last = await call(creator, 'unpinMainCreator', { asset, controllingApp: 0n })
       expect(last.ret.removed).toBe(true)
       expect(await box(mainName(asset))).toBeUndefined()
       expect(last.ret.refund + cleared.ret.refund).toBe(pinned.paid + replaced.paid)
-      expect((await registry.send.arcTbdGetMain({ args: { asset } })).return!.role).toBe(0)
+      expect((await registry.send.getMain({ args: { asset } })).return!.role).toBe(0)
     })
 
     test('the creator unpins first while a holder section remains, then the holder', async () => {
       const asset = await mintAsset(creator)
-      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
-      const pinned = await call(creator, 'arcTbdPinMainCreator', {
+      const written = await call(creator, 'writeVariation', writeArgs(asset))
+      const pinned = await call(creator, 'pinMainCreator', {
         asset,
         controllingApp: 0n,
         writer: creator.addr.toString(),
@@ -756,52 +772,52 @@ describe('Collectible Variations registry', () => {
       })
       const owner = await newAccount()
       await give(asset, creator, owner)
-      const hp = await call(owner, 'arcTbdPinMainHolder', {
+      const hp = await call(owner, 'pinMainHolder', {
         asset,
         writer: creator.addr.toString(),
         slot: enc('thumb'),
         sourceRevision: written.ret.revision,
       })
 
-      const first = await call(creator, 'arcTbdUnpinMainCreator', { asset, controllingApp: 0n })
+      const first = await call(creator, 'unpinMainCreator', { asset, controllingApp: 0n })
       expect(first.ret.removed).toBe(true)
       expect(await box(mainName(asset))).toBeDefined()
-      expect((await registry.send.arcTbdGetMain({ args: { asset } })).return!.role).toBe(2)
+      expect((await registry.send.getMain({ args: { asset } })).return!.role).toBe(2)
 
       const ownerBefore = await balance(owner)
-      const second = await call(owner, 'arcTbdUnpinMainHolder', { asset })
+      const second = await call(owner, 'unpinMainHolder', { asset })
       expect(second.ret.removed).toBe(true)
       expect(await box(mainName(asset))).toBeUndefined()
       expect((await balance(owner)) - ownerBefore + second.fees).toBe(second.ret.refund)
       expect(first.ret.refund + second.ret.refund).toBe(pinned.paid + hp.paid)
-      await call(creator, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb') })
+      await call(creator, 'deleteVariation', { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb') })
     })
 
     test('a locked creator pin cannot be changed or cleared', async () => {
       const asset = await mintAsset(creator)
-      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const written = await call(creator, 'writeVariation', writeArgs(asset))
       const pin = { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: written.ret.revision, lock: true }
-      await call(creator, 'arcTbdPinMainCreator', pin)
-      const other = await call(creator, 'arcTbdWriteVariation', writeArgs(asset, { slot: enc('alt') }))
+      await call(creator, 'pinMainCreator', pin)
+      const other = await call(creator, 'writeVariation', writeArgs(asset, { slot: enc('alt') }))
       await expect(
-        call(creator, 'arcTbdPinMainCreator', { ...pin, slot: enc('alt'), sourceRevision: other.ret.revision }),
+        call(creator, 'pinMainCreator', { ...pin, slot: enc('alt'), sourceRevision: other.ret.revision }),
       ).rejects.toThrow(errLocked)
-      await expect(call(creator, 'arcTbdUnpinMainCreator', { asset, controllingApp: 0n })).rejects.toThrow(errLocked)
+      await expect(call(creator, 'unpinMainCreator', { asset, controllingApp: 0n })).rejects.toThrow(errLocked)
     })
 
     test('holder pins need a single-unit asset, and holderPinsCollectibleOnly blocks holder-scope sources', async () => {
       const fungible = await mintAsset(creator, 10n)
-      await call(creator, 'arcTbdWriteVariation', writeArgs(fungible))
+      await call(creator, 'writeVariation', writeArgs(fungible))
       await expect(
-        call(creator, 'arcTbdPinMainHolder', { asset: fungible, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: 0n }),
+        call(creator, 'pinMainHolder', { asset: fungible, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: 0n }),
       ).rejects.toThrow(errNotSingleUnit)
 
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { holderPinsCollectibleOnly: true }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { holderPinsCollectibleOnly: true }))
       await give(asset, creator, holder)
-      const own = await call(holder, 'arcTbdWriteVariation', writeArgs(asset, { holder: holder.addr.toString() }))
+      const own = await call(holder, 'writeVariation', writeArgs(asset, { holder: holder.addr.toString() }))
       await expect(
-        call(holder, 'arcTbdPinMainHolder', { asset, writer: holder.addr.toString(), slot: enc('thumb'), sourceRevision: own.ret.revision }),
+        call(holder, 'pinMainHolder', { asset, writer: holder.addr.toString(), slot: enc('thumb'), sourceRevision: own.ret.revision }),
       ).rejects.toThrow(errSourceNotAllowed)
     })
   })
@@ -810,9 +826,9 @@ describe('Collectible Variations registry', () => {
     test('anyone purges the boxes of a destroyed asset, refunding their owners', async () => {
       const asset = await mintAsset(creator)
       const tree = createAddressTree([pk(alice.addr.toString())])
-      const policy = await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: metaSet(tree.root), managerWrites: true }))
-      const written = await call(alice, 'arcTbdWriteVariation', writeArgs(asset, { proof: tree.getProof(0) }))
-      const pinned = await call(creator, 'arcTbdPinMainCreator', {
+      const policy = await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: metaSet(tree.root), managerWrites: true }))
+      const written = await call(alice, 'writeVariation', writeArgs(asset, { proof: tree.getProof(0) }))
+      const pinned = await call(creator, 'pinMainCreator', {
         asset,
         controllingApp: 0n,
         writer: alice.addr.toString(),
@@ -821,50 +837,50 @@ describe('Collectible Variations registry', () => {
         lock: true,
       })
 
-      await expect(call(bob, 'arcTbdPurge', { name: variationName(asset, alice.addr.toString(), 'thumb') })).rejects.toThrow(errAssetExists)
+      await expect(call(bob, 'purge', { name: variationName(asset, alice.addr.toString(), 'thumb') })).rejects.toThrow(errAssetExists)
       await algorand.send.assetDestroy({ sender: creator.addr, signer: creator.signer, assetId: asset })
 
       // Writes and deletes on a destroyed asset fail; only purge touches its boxes.
-      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errAssetMissing)
+      await expect(call(alice, 'writeVariation', writeArgs(asset))).rejects.toThrow(errAssetMissing)
       for (const bad of [enc('v'), concat(enc('g'), be64(asset)), concat(enc('m'), be64(asset), enc('x')), concat(enc('v'), be64(asset), pk(alice.addr.toString()))]) {
-        await expect(call(bob, 'arcTbdPurge', { name: bad })).rejects.toThrow(errBadPurge)
+        await expect(call(bob, 'purge', { name: bad })).rejects.toThrow(errBadPurge)
       }
 
       const aliceBefore = await balance(alice)
-      const v = await call(bob, 'arcTbdPurge', { name: variationName(asset, alice.addr.toString(), 'thumb') })
+      const v = await call(bob, 'purge', { name: variationName(asset, alice.addr.toString(), 'thumb') })
       expect(v.ret).toEqual({ removed: true, reason: 1, refund: written.paid })
       expect((await balance(alice)) - aliceBefore).toBe(written.paid)
 
-      const m = await call(bob, 'arcTbdPurge', { name: mainName(asset) })
+      const m = await call(bob, 'purge', { name: mainName(asset) })
       expect(m.ret).toEqual({ removed: true, reason: 1, refund: pinned.paid })
 
       const rootName = metaRootName('c', assetPolicyName(asset))
-      const p = await call(bob, 'arcTbdPurge', { name: assetPolicyName(asset) })
+      const p = await call(bob, 'purge', { name: assetPolicyName(asset) })
       expect(p.ret).toEqual({ removed: true, reason: 1, refund: policy.paid })
       expect(await metaSdk.getRoot({ address: registry.appAddress.toString(), name: rootName })).toBeUndefined()
 
-      expect((await call(bob, 'arcTbdPurge', { name: assetPolicyName(asset) })).ret).toEqual({ removed: false, reason: 0, refund: 0n })
+      expect((await call(bob, 'purge', { name: assetPolicyName(asset) })).ret).toEqual({ removed: false, reason: 0, refund: 0n })
     })
 
     test('purging an m box with both sections refunds the holder deposit to the holder and the rest to the caller', async () => {
       const asset = await mintAsset(creator)
-      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const written = await call(creator, 'writeVariation', writeArgs(asset))
       const source = { asset, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: written.ret.revision }
-      const pinned = await call(creator, 'arcTbdPinMainCreator', { ...source, controllingApp: 0n, lock: false })
+      const pinned = await call(creator, 'pinMainCreator', { ...source, controllingApp: 0n, lock: false })
       const owner = await newAccount()
       await give(asset, creator, owner)
-      const hp = await call(owner, 'arcTbdPinMainHolder', source)
+      const hp = await call(owner, 'pinMainHolder', source)
       await give(asset, owner, creator)
       await algorand.send.assetDestroy({ sender: creator.addr, signer: creator.signer, assetId: asset })
 
       const ownerBefore = await balance(owner)
       const purger = await newAccount()
       const purgerBefore = await balance(purger)
-      const m = await call(purger, 'arcTbdPurge', { name: mainName(asset) })
+      const m = await call(purger, 'purge', { name: mainName(asset) })
       expect(m.ret.refund).toBe(pinned.paid + hp.paid)
       expect((await balance(owner)) - ownerBefore).toBe(hp.paid)
       expect((await balance(purger)) - purgerBefore + m.fees).toBe(pinned.paid)
-      await call(purger, 'arcTbdPurge', { name: variationName(asset, creator.addr.toString(), 'thumb') })
+      await call(purger, 'purge', { name: variationName(asset, creator.addr.toString(), 'thumb') })
     })
   })
 
@@ -874,13 +890,13 @@ describe('Collectible Variations registry', () => {
       const owner = await newAccount()
       const writer = await newAccount()
       await give(asset, creator, owner)
-      await call(owner, 'arcTbdSetGrant', { writers: allow(writer.addr.toString()) })
-      const written = await call(writer, 'arcTbdWriteVariation', writeArgs(asset, { holder: owner.addr.toString() }))
+      await call(owner, 'setGrant', { writers: allow(writer.addr.toString()) })
+      const written = await call(writer, 'writeVariation', writeArgs(asset, { holder: owner.addr.toString() }))
       await closeAccount(writer)
       await give(asset, owner, creator)
 
       const before = await balance(bob)
-      const { ret, fees } = await call(bob, 'arcTbdDeleteVariation', {
+      const { ret, fees } = await call(bob, 'deleteVariation', {
         asset,
         controllingApp: 0n,
         writer: writer.addr.toString(),
@@ -889,23 +905,23 @@ describe('Collectible Variations registry', () => {
       expect(ret).toEqual({ removed: true, reason: 3, refund: written.paid })
       expect((await balance(bob)) - before + fees).toBe(written.paid)
       expect(await balance(writer)).toBe(0n)
-      await call(owner, 'arcTbdDeleteGrant', {})
+      await call(owner, 'deleteGrant', {})
     })
 
     test('purging an entry whose writer has closed pays the refund to the caller', async () => {
       const asset = await mintAsset(creator)
       const writer = await newAccount()
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN }))
-      const written = await call(writer, 'arcTbdWriteVariation', writeArgs(asset))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN }))
+      const written = await call(writer, 'writeVariation', writeArgs(asset))
       await closeAccount(writer)
       await algorand.send.assetDestroy({ sender: creator.addr, signer: creator.signer, assetId: asset })
 
       const before = await balance(bob)
-      const { ret, fees } = await call(bob, 'arcTbdPurge', { name: variationName(asset, writer.addr.toString(), 'thumb') })
+      const { ret, fees } = await call(bob, 'purge', { name: variationName(asset, writer.addr.toString(), 'thumb') })
       expect(ret.refund).toBe(written.paid)
       expect((await balance(bob)) - before + fees).toBe(written.paid)
       expect(await balance(writer)).toBe(0n)
-      await call(bob, 'arcTbdPurge', { name: assetPolicyName(asset) })
+      await call(bob, 'purge', { name: assetPolicyName(asset) })
     })
   })
 
@@ -915,8 +931,8 @@ describe('Collectible Variations registry', () => {
         .getTypedAppFactory(MockRegistryCallerFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
         .send.create.bare()
       await algorand.send.payment({ sender: deployer.addr, receiver: caller.appAddress, amount: algokit.algos(1) })
-      const setGrant = registry.appClient.getABIMethod('arcTBD_set_grant').getSelector()
-      const deleteGrant = registry.appClient.getABIMethod('arcTBD_delete_grant').getSelector()
+      const setGrant = registry.appClient.getABIMethod('setGrant').getSelector()
+      const deleteGrant = registry.appClient.getABIMethod('deleteGrant').getSelector()
       const writers = allow(alice.addr.toString())
       const deposit = mbr(33, 9 + writers.length)
       const forward = (amount: bigint, selector: Uint8Array, hasArg: boolean) =>
@@ -948,20 +964,20 @@ describe('Collectible Variations registry', () => {
         leaf,
       )
       const asset = await mintAsset(creator)
-      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: metaSet(root), managerWrites: false }))
+      await call(creator, 'setAssetPolicy', policyArgs(asset, { collectible: metaSet(root), managerWrites: false }))
 
       // The value cap binds, not the app-args limit: header 14 + flat 9 + body 4073 = MaxValueBytes
       // (4096), sent with a 24-level proof in one call (about 4.9 KB of app args).
       const args = (n: number) => writeArgs(asset, { slot: enc('x'), body: new Uint8Array(n).fill(7), proof })
-      const written = await call(alice, 'arcTbdWriteVariation', args(4073))
+      const written = await call(alice, 'writeVariation', args(4073))
       expect(written.ret.changed).toBe(true)
       expect(written.paid).toBe(mbr(41 + 1, 4096))
       const stored = await box(variationName(asset, alice.addr.toString(), 'x'))
       expect(stored!.length).toBe(4096)
-      await expect(call(alice, 'arcTbdWriteVariation', args(4074), 400n)).rejects.toThrow(errTooLarge)
+      await expect(call(alice, 'writeVariation', args(4074), 400n)).rejects.toThrow(errTooLarge)
 
-      await call(alice, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('x') })
-      await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+      await call(alice, 'deleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('x') })
+      await call(creator, 'deleteAssetPolicy', { asset, controllingApp: 0n })
     })
   })
 
@@ -973,20 +989,20 @@ describe('Collectible Variations registry', () => {
       const minted = await smart.send.mint({ args: { total: 1n, decimals: 0n, creator: alice.addr.toString() }, extraFee: microAlgo(1000) })
       const asset = minted.return!
 
-      await expect(call(alice, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
-      await call(alice, 'arcTbdSetAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: OPEN }))
+      await expect(call(alice, 'setAssetPolicy', policyArgs(asset, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
+      await call(alice, 'setAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: OPEN }))
       await expect(
-        call(bob, 'arcTbdSetAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: CLOSED })),
+        call(bob, 'setAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: CLOSED })),
       ).rejects.toThrow(errNotCreator)
       // A controlling app that is not the clawback is rejected.
       const plain = await mintAsset(creator)
-      await expect(call(creator, 'arcTbdSetAssetPolicy', policyArgs(plain, { controllingApp: smart.appId }))).rejects.toThrow(
+      await expect(call(creator, 'setAssetPolicy', policyArgs(plain, { controllingApp: smart.appId }))).rejects.toThrow(
         errBadSmartAsa,
       )
 
       await smart.send.setCreator({ args: { creator: bob.addr.toString() } })
-      await call(bob, 'arcTbdSetAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: CLOSED }))
-      await call(bob, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: smart.appId })
+      await call(bob, 'setAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: CLOSED }))
+      await call(bob, 'deleteAssetPolicy', { asset, controllingApp: smart.appId })
     })
 
     test('the app must be both clawback and manager, so an asset has one creator', async () => {
@@ -1001,18 +1017,18 @@ describe('Collectible Variations registry', () => {
       // Manager zero: the app path is refused, and the plain path resolves no creator.
       const unmanaged = await mint(undefined)
       await expect(
-        call(alice, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { controllingApp: smart.appId, collectible: OPEN })),
+        call(alice, 'setAssetPolicy', policyArgs(unmanaged, { controllingApp: smart.appId, collectible: OPEN })),
       ).rejects.toThrow(errBadSmartAsa)
-      await expect(call(owner, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
-      await expect(call(alice, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
+      await expect(call(owner, 'setAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
+      await expect(call(alice, 'setAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
 
       // Manager neither the app nor zero: the app path is refused, and the manager is the creator.
       const managed = await mint(owner.addr.toString())
       await expect(
-        call(alice, 'arcTbdSetAssetPolicy', policyArgs(managed, { controllingApp: smart.appId, collectible: OPEN })),
+        call(alice, 'setAssetPolicy', policyArgs(managed, { controllingApp: smart.appId, collectible: OPEN })),
       ).rejects.toThrow(errBadSmartAsa)
-      await call(owner, 'arcTbdSetAssetPolicy', policyArgs(managed, { collectible: OPEN }))
-      await call(owner, 'arcTbdDeleteAssetPolicy', { asset: managed, controllingApp: 0n })
+      await call(owner, 'setAssetPolicy', policyArgs(managed, { collectible: OPEN }))
+      await call(owner, 'deleteAssetPolicy', { asset: managed, controllingApp: 0n })
     })
   })
 
