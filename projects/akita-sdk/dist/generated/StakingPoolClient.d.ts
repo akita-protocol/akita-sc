@@ -691,6 +691,10 @@ export type StakingPoolTypes = {
                  */
                 entryId: bigint;
                 /**
+                 * the number of entries that exist now; `maxEntries` caps this, not the ids ever issued (STK-04)
+                 */
+                liveEntries: bigint;
+                /**
                  * the number of rewards for the pool
                  */
                 rewardId: bigint;
@@ -1157,8 +1161,8 @@ export declare abstract class StakingPoolParamsFactory {
      *
     * Draws the shuffle tickets from the beacon round committed when allocation started
     (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-    read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-    after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+    read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+    BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
   
      *
      * @param params Parameters for the call
@@ -2201,8 +2205,8 @@ export declare class StakingPoolClient {
          *
         * Draws the shuffle tickets from the beacon round committed when allocation started
         (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-        after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+        BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
     
          *
          * @param params The params for the smart contract call
@@ -2762,8 +2766,8 @@ export declare class StakingPoolClient {
          *
         * Draws the shuffle tickets from the beacon round committed when allocation started
         (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-        after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+        BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
     
          *
          * @param params The params for the smart contract call
@@ -3502,8 +3506,8 @@ export declare class StakingPoolClient {
          *
         * Draws the shuffle tickets from the beacon round committed when allocation started
         (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-        after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+        read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+        BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
     
          *
          * @param params The params for the smart contract call
@@ -4157,6 +4161,10 @@ export declare class StakingPoolClient {
              */
             entryId: () => Promise<bigint | undefined>;
             /**
+             * Get the current value of the liveEntries key in global state
+             */
+            liveEntries: () => Promise<bigint | undefined>;
+            /**
              * Get the current value of the rewardID key in global state
              */
             rewardId: () => Promise<bigint | undefined>;
@@ -4534,8 +4542,8 @@ export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
      *
     * Draws the shuffle tickets from the beacon round committed when allocation started
     (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-    read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-    after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+    read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+    BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
   
      *
      * @param args The arguments for the contract call

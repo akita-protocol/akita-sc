@@ -21,7 +21,7 @@ import {
   newStakingPool,
   stakingPoolEntryMbr,
   translateStakingPoolError
-} from "../chunk-I5QUE3DV.mjs";
+} from "../chunk-VRJABR3N.mjs";
 import "../chunk-GOQ4H3PG.mjs";
 import "../chunk-XNLUW6YQ.mjs";
 import "../chunk-2CFXBUHF.mjs";

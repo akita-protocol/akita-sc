@@ -7,7 +7,7 @@ import {
 import {
   StakingPoolFactorySDK,
   StakingPoolSDK
-} from "./chunk-I5QUE3DV.mjs";
+} from "./chunk-VRJABR3N.mjs";
 import {
   HighlightMessage,
   ServiceStatus,

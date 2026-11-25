@@ -1906,8 +1906,8 @@
     "staking-pool/StakingPool": {
       "name": "StakingPool",
       "approval": {
-        "bytes": 13235,
-        "sha256": "e30f4a82c83c6542be162755541cf601ed6fc7a0f50b55dbe5cd193e66e6ad63"
+        "bytes": 13472,
+        "sha256": "a0374a58d827bea6548660316804048e205c5cc3f2241d75f96e20b1cc8c25c2"
       },
       "clear": {
         "bytes": 4,
@@ -1919,7 +1919,7 @@
       "name": "StakingPoolFactory",
       "approval": {
         "bytes": 3972,
-        "sha256": "d93505273c3326ceebba0116a006cd223e0c70028268a3618de204014e3f1556"
+        "sha256": "99a9c66c60937c097cf9052dd635a8d38b9cb017ece9be5599c9e7520e46cfd8"
       },
       "clear": {
         "bytes": 4,

@@ -18,7 +18,7 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1 8 2 100000 4096 25300 54500 870500 2592000"
+      "op": "intcblock 0 1 8 2 100000 4096 25300 54500 899000 2592000"
     },
     "25": {
       "op": "bytecblock \"akita_dao\" 0x151f7c75 \"bc\" \"akita_escrow\" \"wallet\" \"aal\" \"ERR:errNdao\" 0x00 \"ERR:errCnst\" \"referrer\" 0x0001 0xc53b32cc 0x394eaeb2 \"appID\" \"version\" \"child_contract_version\" \"pal\" \"staking_fees\" \"ERR:errIpay\" \"sal\" \"wallet_fees\""
@@ -23188,9 +23188,9 @@
       ]
     },
     "3118": {
-      "op": "intc 8 // 870500",
+      "op": "intc 8 // 899000",
       "defined_out": [
-        "870500",
+        "899000",
         "tmp%1#2"
       ],
       "stack_out": [
@@ -23199,7 +23199,7 @@
         "referralFee#1",
         "aggregate%val_as_bytes%0#0",
         "tmp%1#2",
-        "870500"
+        "899000"
       ]
     },
     "3120": {
@@ -25113,9 +25113,9 @@
       ]
     },
     "3288": {
-      "op": "pushint 13",
+      "op": "pushint 14",
       "defined_out": [
-        "13",
+        "14",
         "abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%encoded_value%0#0",
@@ -25150,7 +25150,7 @@
         "tmp%53#0",
         "tmp%54#0",
         "abi_call_inner_txn_params%1%%param_ExtraProgramPages_idx_0#0",
-        "13"
+        "14"
       ]
     },
     "3290": {
@@ -30569,14 +30569,14 @@
       ]
     },
     "3854": {
-      "op": "intc 8 // 870500",
+      "op": "intc 8 // 899000",
       "defined_out": [
-        "870500",
+        "899000",
         "tmp%1#2"
       ],
       "stack_out": [
         "tmp%1#2",
-        "870500"
+        "899000"
       ]
     },
     "3856": {

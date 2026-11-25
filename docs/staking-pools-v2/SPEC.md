@@ -385,7 +385,10 @@ and `HEARTBEAT` get no power variant:
    and `HEARTBEAT` are not custody (`clampSoft`, `staking/contract.algo.ts:223-235`). Live reads of
    those across several prepare batches can count the same tokens twice, once per account. v1 needs the
    frozen-since rule for `HARD` (`contract.algo.ts:722`) and forbids `SOFT` for value weights for this
-   reason. LOCK only keeps the counted-once property (4.5) with no extra rule.
+   reason. LOCK needs the same frozen-since rule (2026-11 audit, STK-02): Staking accepts a lock of
+   any length, so a one-second lock could be withdrawn and locked again on another account between
+   two prepare batches. v1 applies the rule to LOCK as well, and with it LOCK keeps the counted-once
+   property (4.5).
 3. A flat amount of a non-LOCK stake is already `QUANTITY`. A past-holding signal exists
    (`weightedAge`, `getWeightedStake`, `staking/contract.algo.ts:855-951`), but it measures age, not
    commitment, and no use needs it. It can be a new weight source value later without changing

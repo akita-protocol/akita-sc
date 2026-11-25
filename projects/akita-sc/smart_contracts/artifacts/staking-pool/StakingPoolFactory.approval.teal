@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 2 100000 4096 25300 54500 870500 2592000
+    intcblock 0 1 8 2 100000 4096 25300 54500 899000 2592000
     bytecblock "akita_dao" 0x151f7c75 "bc" "akita_escrow" "wallet" "aal" "ERR:errNdao" 0x00 "ERR:errCnst" "referrer" 0x0001 0xc53b32cc 0x394eaeb2 "appID" "version" "child_contract_version" "pal" "staking_fees" "ERR:errIpay" "sal" "wallet_fees"
     // smart_contracts/staking-pool/factory.algo.ts:20-26
     // @contract({
@@ -3066,7 +3066,7 @@ createPool_after_assert@17:
     // this.childPagesMbr(pool.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * pool.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * pool.globalBytes)
-    intc 8 // 870500
+    intc 8 // 899000
     +
     // smart_contracts/staking-pool/factory.algo.ts:102
     // const refundableMBR: uint64 = childCreationMBR + Global.minBalance
@@ -3308,7 +3308,7 @@ createPool_after_if_else@29:
     // const pool = compileArc4(StakingPool)
     pushint 10
     itxn_field GlobalNumByteSlice
-    pushint 13
+    pushint 14
     itxn_field GlobalNumUint
     // smart_contracts/staking-pool/factory.algo.ts:139-164
     // const newPoolApp = pool.call
@@ -4014,7 +4014,7 @@ poolCost:
     // this.childPagesMbr(pool.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * pool.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * pool.globalBytes) +
-    intc 8 // 870500
+    intc 8 // 899000
     +
     // smart_contracts/staking-pool/factory.algo.ts:249
     // Global.minBalance

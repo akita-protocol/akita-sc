@@ -130,8 +130,10 @@ describe('staking-pool compatibility (static)', () => {
     }
   })
 
-  test('pv marker: one more global uint on the child (the factory charges it through the schema)', () => {
-    expect(child.state.schema.global).toEqual({ ints: 13, bytes: 10 })
+  test('pv marker and live_entries: one more global uint each on the child (the factory charges them through the schema)', () => {
+    // 2026-11-25: 13 -> 14 with `live_entries`, the count `maxEntries` caps (audit 06, STK-04)
+    expect(child.state.schema.global).toEqual({ ints: 14, bytes: 10 })
+    expect(Buffer.from(child.state.keys.global.liveEntries.key, 'base64').toString()).toBe('live_entries')
     expect(Buffer.from(child.state.keys.global.principalVersion.key, 'base64').toString()).toBe('pv')
     // the boxed child must still fit the factory's four 4 KB chunks (AVM 13: 16 KB incl. clear)
     expect(Buffer.from(child.byteCode.approval, 'base64').length + Buffer.from(child.byteCode.clear, 'base64').length).toBeLessThanOrEqual(16_384)
