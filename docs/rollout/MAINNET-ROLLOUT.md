@@ -303,6 +303,7 @@ Thirteen independent audits were read over the release tree, one per system, and
 - **Left open for the owner.** The creator-royalty findings (a fix is drafted, the owner asked for it if it is clean), SOC-05 (how one AKTA balance backs the staking part of many accounts' impact score), a price ceiling for public NFD auto-renew of segment names, and the DualStakePlugin fix (EXT-07, which is the pool check G2 already describes and the same fix). That plugin stays out of release 2.0.0 until the owner picks it, and I1 names it in `--allow-pending`.
 - **Manifest.** `release/manifest.json` is regenerated: 160 programs: the 32 above, five mocks and one new mock.
 - **Held AKTA and Akita NFTs count in vote weights and the tip tax again** (S-06, reverted on the owner's decision of 2026-11-25, after the audits). Since 2026-11-10 the tree had left both out of the score AkitaSocial reads for a vote's weight and for the tax on a tip, because a held balance can be passed between accounts and counts for each one that holds it when it is read. The owner accepts that: holding counts wherever the score is read, as on the deployed AkitaSocialImpact, and as gates and fee discounts already read it. One more program changes, AkitaSocialImpact 3,160 → 3,146 bytes, in E1 as a ride-along, and its manifest entry with it. No step, argument or payment changes.
+- **The rollout does not launch the DAO** (the owner, 2026-11-25, after the audits). The sequence ends at I2, the push and tag, with the MainNet DAO in Draft. I1 (the threshold rescale, the grant clean-up, `clearBootstrapKeys` and `initialize()`) is kept as the launch procedure and run later, on the owner's call. No step of stages B to H changes: each already ran with the DAO in Draft. Wherever a step says to name something in `--allow-pending` at I1, that still holds for the day I1 is run.
 
 ## Live state (read 2026-10-10)
 
@@ -1253,7 +1254,9 @@ npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config s
 
 ### Stage I: Launch the DAO
 
-No script supports a voting DAO end to end, so everything above runs first.
+**The 2.0.0 rollout does not launch the DAO (the owner, 2026-11-25).** It ends at I2, with the MainNet DAO still in Draft, as TestNet's is. I1 is not run with the rollout. It stays here as the launch procedure for the day the owner calls it; until then the creator keeps sending the DAO's proposals, each of which executes at once. Nothing in stages B to H needs an initialized DAO. The proposal thresholds stay as they are until I1, which is safe because thresholds are not enforced in Draft (B2), and `dao:initialize` refuses to run before `dao:rescale-power` has.
+
+No script supports a voting DAO end to end, so whenever I1 is run, everything above runs first.
 
 #### I1. Rescale thresholds, review grants, clear bootstrap keys, initialize (one-way)
 
@@ -1296,7 +1299,7 @@ git push origin <release tag>
 
 ### Stage J: After launch
 
-Monitoring until Phase 4.
+Monitoring until Phase 4. It starts when stage G is done and does not wait for I1: the legacy shims, the AkitaSocial balance and the Marketplace float need watching from the upgrades on, whether or not the DAO has launched.
 
 #### J1. Monitor and plan Phase 4
 
