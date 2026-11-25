@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# TestNet rehearsal of the Akita contracts 2.0.0 rollout: steps A4a to G2, then G3b to H6.
+# TestNet rehearsal of the Akita contracts 2.0.0 rollout: steps A4a to H6.
 #
 # Every command below is copied from docs/rollout/MAINNET-ROLLOUT.md, with the runbook's own
 # TestNet differences applied: testnet for mainnet, and no Haystack router plugin in G2. D1a is a
@@ -27,33 +27,34 @@
 # from there: finished commands are listed in receipts/rehearsal-done.txt and are not run again.
 # Each command's output is kept under receipts/rehearsal-logs.
 #
-# Six plugin deploys in G2 keep no receipt, so a second run of one could create a second app. If
-# one of them fails, the next start refuses it until you say which it is:
+# Seven plugin deploys, six in G2 and the one in G3, keep no receipt, so a second run of one
+# could create a second app. If one of them fails, the next start refuses it until you say which
+# it is:
 #
 #   --retry 'G2#4'       it created nothing: run it again
 #   --mark-done 'G2#4'   it created the app and its id is recorded
 #
-# The second part, G3b to H6 (added 2026-11-25), types no id by hand: each id a step needs is read
-# with rollout:id from what the step before it recorded. H6 needs the Akita Labs address:
+# The steps after G2 (added 2026-11-25) type no id by hand: each id a step needs is read with
+# rollout:id from what the step before it recorded. They need the three addresses the owner
+# supplies, given the way the runbook's A0 names them:
 #
-#   LABS_ADDRESS=<address> REHEARSAL_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-testnet-rehearsal.sh
+#   HEARTBEAT_MANAGER=<address> REV_NFD_SOURCE=<address> LABS_ADDRESS=<address> \
+#     REHEARSAL_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-testnet-rehearsal.sh
 #
-# Without it the run stops before H6, with everything before it done. G3b names TestNet's USDC
-# and AKTA with --asset, because TestNet's revenue escrows hold neither (runbook, G3b).
+# G2a needs the first, G3a the second and H6 the third. Without one, the run stops before the
+# step that needs it, with everything before it done. G3b names TestNet's USDC and AKTA with
+# --asset, because TestNet's revenue escrows hold neither (runbook, G3b).
 #
-# Not in this file: G2a, G3 and G3a, which are run by hand with the owner's addresses before the
-# second part (they were on 2026-11-25, before it existed, and this file cannot tell that a step
-# was done by hand: a second run of G3 would deploy the plugin again); G2b, which TestNet has
-# nothing to do for; G4, an edit by hand; and I1, which is not part of a rehearsal that keeps the
-# TestNet DAO in Draft.
+# Not in this file: G2b, which TestNet has nothing to do for; G4, an edit by hand; and I1, which
+# is not part of a rehearsal that keeps the TestNet DAO in Draft.
 
 set -uo pipefail
 
 REPO="${AKITA_SC_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 if [ -z "$REPO" ]; then echo "Run this from inside the akita-sc checkout. Nothing was run." >&2; exit 1; fi
 EXPECT_COMMIT="${REHEARSAL_COMMIT:-}"
-STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2a E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2 G3b H1 H1a H2 H5 H6"
-COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#3 E1#5 E2a#2 E2#3 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10 G3b#2 H1#2 H1#3 H1#6 H1#7 H1#9 H1#11 H1#12 H1#13 H1#15 H1#16 H1#18 H1#20 H1#21 H1a#2 H1a#3 H2#1 H2#4 H2#5 H2#8 H2#10 H2#11 H5#2 H5#3 H6#2"
+STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2a E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2 G2a G3 G3a G3b H1 H1a H2 H5 H6"
+COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#3 E1#5 E2a#2 E2#3 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10 G2a#2 G3#2 G3#3 G3a#2 G3b#2 H1#2 H1#3 H1#6 H1#7 H1#9 H1#11 H1#12 H1#13 H1#15 H1#16 H1#18 H1#20 H1#21 H1a#2 H1a#3 H2#1 H2#4 H2#5 H2#8 H2#10 H2#11 H5#2 H5#3 H6#2"
 
 MODE=run
 ONLY=""
@@ -459,7 +460,25 @@ run_cmd G2 9 dry G2#10 - 'npm run update:dao-wallet-plugins -- -n testnet --add-
 run_cmd G2 10 send - - 'npm run update:dao-wallet-plugins -- -n testnet --add-method rewardsPlugin:reclaimRewards,claimLegacyRewards,reclaimLegacyRewards --confirm-update'
 end_step G2
 
-# --- Second part: G3b to H6. G2a, G3 and G3a were run by hand (see the top of this file). ---
+# --- The steps after G2. They take the owner's three addresses from the shell (see the top). ---
+
+begin_step G2a 'Set the heartbeat manager' 'G2a#2'
+need_value HEARTBEAT_MANAGER 'the heartbeat manager, an account the backend holds for this one job'
+run_cmd G2a 1 dry G2a#2 - 'npm run staking:set-heartbeat-manager -- -n testnet --manager "$HEARTBEAT_MANAGER" --dry-run'
+run_cmd G2a 2 send - - 'npm run staking:set-heartbeat-manager -- -n testnet --manager "$HEARTBEAT_MANAGER"'
+end_step G2a
+
+begin_step G3 'RevenueManagerPlugin' 'G3#2 G3#3'
+run_cmd G3 1 dry G3#2 - 'npm run deploy:revenue-manager-plugin -- -n testnet -v "$V" --dry-run --sender "$CREATOR"'
+run_cmd G3 2 send - once 'npm run deploy:revenue-manager-plugin -- -n testnet -v "$V"'
+run_cmd G3 3 build - - '(cd ../akita-sdk && npm run build)'
+end_step G3
+
+begin_step G3a 'Register rev_nfd with the RevenueManager' 'G3a#2'
+need_value REV_NFD_SOURCE 'the account allowed to opt rev_nfd in to an asset'
+run_cmd G3a 1 dry G3a#2 - 'npm run register:revenue-escrow -- -n testnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --dry-run'
+run_cmd G3a 2 send - - 'npm run register:revenue-escrow -- -n testnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --confirm'
+end_step G3a
 
 begin_step G3b 'Opt the split receivers in to the assets the revenue escrows pay out' 'G3b#2'
 run_cmd G3b 1 dry G3b#2 - 'npm run opt-in:revenue-receivers -- -n testnet --asset 10458941,752884771 --dry-run --sender "$CREATOR"'
@@ -530,6 +549,6 @@ if [ "$MODE" = run ]; then
   elif [ -n "$UNTIL" ]; then
     echo "Finished through $UNTIL."
   else
-    echo "A4a to G2 and G3b to H6 are finished. What is left is by hand: G4 (the SDK switches), and I1 only when the DAO launches."
+    echo "A4a to H6 are finished. What is left is by hand: G4 (the SDK switches), and I1 only when the DAO launches."
   fi
 fi

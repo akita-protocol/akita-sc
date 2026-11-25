@@ -214,6 +214,59 @@ describe('rollout runbook commands', () => {
     const set = new Set([...runbook.matchAll(/^export ([A-Z_]+)=/gm)].map((m) => m[1]))
     const used = new Set(commands.flatMap((c) => [...c.line.matchAll(/\$\{?([A-Z_]+)/g)].map((m) => m[1])))
     expect([...used].filter((name) => !set.has(name))).toEqual([])
+
+    // The three addresses the owner supplies: the runner takes each from the shell under the name A0
+    // gives it, and stops before the step that needs one that is not set.
+    const needs = [...runner.matchAll(/^need_value ([A-Z_]+) /gm)].map((m) => m[1])
+    expect(needs).toEqual(['HEARTBEAT_MANAGER', 'REV_NFD_SOURCE', 'LABS_ADDRESS'])
+    for (const name of needs) expect(runbook).toMatch(new RegExp(`^export ${name}=<`, 'm'))
+    // Every variable a runner command uses is checked or read before the first command that uses it.
+    const lines = runner.split('\n')
+    const inCommands = new Set(lines.filter((l) => l.startsWith('run_cmd ')).flatMap((l) => [...l.matchAll(/\$\{?([A-Z_]+)/g)].map((m) => m[1])))
+    const late = [...inCommands].filter((name) => {
+      if (name === 'V' || name === 'CREATOR') return false // set before the first step
+      const given = lines.findIndex((l) => l.startsWith(`need_value ${name} `) || l.startsWith(`set_from ${name} `))
+      const firstUse = lines.findIndex((l) => l.startsWith('run_cmd ') && new RegExp(`\\$\\{?${name}\\b`).test(l))
+      return given < 0 || given > firstUse
+    })
+    expect(late).toEqual([])
+  })
+
+  test('the runner runs its steps in the order it lists them, which is the runbook\'s', () => {
+    const runner = readFileSync(path.join(project, 'scripts/rollout-testnet-rehearsal.sh'), 'utf8')
+    const listed = /^STEPS="([^"]+)"$/m.exec(runner)![1].split(' ')
+    const begun = [...runner.matchAll(/^begin_step (\S+) /gm)].map((m) => m[1])
+    const ended = [...runner.matchAll(/^end_step (\S+)$/gm)].map((m) => m[1])
+    expect(begun).toEqual(listed)
+    expect(ended).toEqual(listed)
+    // every command sits between its own step's begin and end
+    const stray: string[] = []
+    let open = ''
+    for (const line of runner.split('\n')) {
+      const begin = /^begin_step (\S+) /.exec(line)
+      if (begin) open = begin[1]
+      const cmd = /^run_cmd (\S+) /.exec(line)
+      if (cmd && cmd[1] !== open) stray.push(line)
+      if (/^end_step /.test(line)) open = ''
+    }
+    expect(stray).toEqual([])
+    // The runbook's order, by its headings. E2a is written after E2 and says "(before E2)" in its heading.
+    const text = readFileSync(runbookPath, 'utf8')
+    const headings = [...text.slice(text.indexOf('\n## Sequence'), text.indexOf('\n## Script changes made')).matchAll(/\n#### ([A-Z][0-9]+[a-z]?)\. ([^\n]*)/g)]
+    const order = headings.map((m) => m[1])
+    expect(headings.find((m) => m[1] === 'E2a')![2]).toContain('(before E2)')
+    order.splice(order.indexOf('E2a'), 1)
+    order.splice(order.indexOf('E2'), 0, 'E2a')
+    expect(listed.filter((step) => !order.includes(step))).toEqual([])
+    expect(order.filter((step) => listed.includes(step))).toEqual(listed)
+    // each recorded command id the file accepts for --retry and --mark-done is a command it has
+    const ids = /^COMMAND_IDS="([^"]+)"$/m.exec(runner)![1].split(' ')
+    const recorded = [...runner.matchAll(/^run_cmd (\S+) (\d+) (send|check|build) /gm)].map((m) => `${m[1]}#${m[2]}`)
+    expect(ids).toEqual(recorded)
+    // and each step's own list of them, which decides "already done", is exactly its commands
+    for (const [, step, own] of runner.matchAll(/^begin_step (\S+) .* '([^']+)'$/gm)) {
+      expect(own.split(' ')).toEqual(recorded.filter((id) => id.startsWith(`${step}#`)))
+    }
   })
 
   test('every step the runbook says is tracked is a step of rollout:status', () => {
