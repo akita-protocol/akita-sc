@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# TestNet rehearsal of the Akita contracts 2.0.0 rollout, steps A4a to G2.
+# TestNet rehearsal of the Akita contracts 2.0.0 rollout: steps A4a to G2, then G3b to H6.
 #
 # Every command below is copied from docs/rollout/MAINNET-ROLLOUT.md, with the runbook's own
 # TestNet differences applied: testnet for mainnet, and no Haystack router plugin in G2. D1a is a
@@ -33,16 +33,27 @@
 #   --retry 'G2#4'       it created nothing: run it again
 #   --mark-done 'G2#4'   it created the app and its id is recorded
 #
-# It ends after G2. G2a onward need values from you (the heartbeat manager's address first), and
-# I1 is not part of a rehearsal that keeps the TestNet DAO in Draft.
+# The second part, G3b to H6 (added 2026-11-25), types no id by hand: each id a step needs is read
+# with rollout:id from what the step before it recorded. H6 needs the Akita Labs address:
+#
+#   LABS_ADDRESS=<address> REHEARSAL_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-testnet-rehearsal.sh
+#
+# Without it the run stops before H6, with everything before it done. G3b names TestNet's USDC
+# and AKTA with --asset, because TestNet's revenue escrows hold neither (runbook, G3b).
+#
+# Not in this file: G2a, G3 and G3a, which are run by hand with the owner's addresses before the
+# second part (they were on 2026-11-25, before it existed, and this file cannot tell that a step
+# was done by hand: a second run of G3 would deploy the plugin again); G2b, which TestNet has
+# nothing to do for; G4, an edit by hand; and I1, which is not part of a rehearsal that keeps the
+# TestNet DAO in Draft.
 
 set -uo pipefail
 
 REPO="${AKITA_SC_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 if [ -z "$REPO" ]; then echo "Run this from inside the akita-sc checkout. Nothing was run." >&2; exit 1; fi
 EXPECT_COMMIT="${REHEARSAL_COMMIT:-}"
-STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2a E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2"
-COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#3 E1#5 E2a#2 E2#3 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10"
+STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2a E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2 G3b H1 H1a H2 H5 H6"
+COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#3 E1#5 E2a#2 E2#3 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10 G3b#2 H1#2 H1#3 H1#6 H1#7 H1#9 H1#11 H1#12 H1#13 H1#15 H1#16 H1#18 H1#20 H1#21 H1a#2 H1a#3 H2#1 H2#4 H2#5 H2#8 H2#10 H2#11 H5#2 H5#3 H6#2"
 
 MODE=run
 ONLY=""
@@ -257,6 +268,40 @@ run_cmd() { # step, index, kind (dry|send|check|build), guard id or -, once or -
   if [ "$kind" != dry ]; then echo "$id" >>"$DONE"; fi
 }
 
+need_value() { # variable, what it holds: an address the owner supplies
+  if [ "$SKIP_STEP" = yes ] || [ "$MODE" != run ]; then return; fi
+  local value
+  eval "value=\${$1:-}"
+  if [ "${#value}" -ne 58 ]; then
+    echo
+    echo "STOPPED before this step: $1 is not set. It is $2."
+    echo "Start again with it:  $1=<address> REHEARSAL_COMMIT=$EXPECT_COMMIT bash $0"
+    exit 1
+  fi
+  export "$1=$value"
+}
+
+set_from() { # variable, read-only command that prints the value alone
+  if [ "$SKIP_STEP" = yes ]; then return; fi
+  if [ "$MODE" = list ]; then
+    printf '  [read] export %s=$(%s)\n' "$1" "$2"
+    return
+  fi
+  local value
+  value="$(bash -c "$2" 2>>"$LOGS/rollout-id.log")"
+  case "$value" in
+    ''|*[!0-9A-Z]*)
+      echo
+      echo "STOPPED: could not read $1. Nothing after it was run."
+      echo "  $2"
+      echo "Its messages are in projects/akita-sc/$LOGS/rollout-id.log"
+      exit 1
+      ;;
+  esac
+  export "$1=$value"
+  echo "    $1=$value"
+}
+
 begin_step A4a 'Give TestNet'"'"'s DAO wallet MainNet'"'"'s escrows and grants (TestNet only, before B1)' 'A4a#2 A4a#3'
 run_cmd A4a 1 dry A4a#2 - 'npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"'
 run_cmd A4a 2 send - - 'npm run rollout:testnet-parity -- -n testnet --confirm'
@@ -414,6 +459,70 @@ run_cmd G2 9 dry G2#10 - 'npm run update:dao-wallet-plugins -- -n testnet --add-
 run_cmd G2 10 send - - 'npm run update:dao-wallet-plugins -- -n testnet --add-method rewardsPlugin:reclaimRewards,claimLegacyRewards,reclaimLegacyRewards --confirm-update'
 end_step G2
 
+# --- Second part: G3b to H6. G2a, G3 and G3a were run by hand (see the top of this file). ---
+
+begin_step G3b 'Opt the split receivers in to the assets the revenue escrows pay out' 'G3b#2'
+run_cmd G3b 1 dry G3b#2 - 'npm run opt-in:revenue-receivers -- -n testnet --asset 10458941,752884771 --dry-run --sender "$CREATOR"'
+run_cmd G3b 2 send - - 'npm run opt-in:revenue-receivers -- -n testnet --asset 10458941,752884771 --confirm'
+end_step G3b
+
+begin_step H1 'Meta, MetaPlugin, PayPlugin and the rev_meta escrow' 'H1#2 H1#3 H1#6 H1#7 H1#9 H1#11 H1#12 H1#13 H1#15 H1#16 H1#18 H1#20 H1#21'
+run_cmd H1 1 dry H1#2 - 'npm run deploy:meta -- -n testnet -v "$V" --dry-run --sender "$CREATOR"'
+run_cmd H1 2 send - - 'npm run deploy:meta -- -n testnet -v "$V" --manifest receipts/meta.json --register'
+run_cmd H1 3 build - - '(cd ../akita-sdk && npm run build)'
+set_from META 'npm run -s rollout:id -- -n testnet --app meta'
+set_from META_ADDRESS 'npm run -s rollout:id -- -n testnet --app meta --address'
+run_cmd H1 6 send - - 'npm run deploy:meta-plugin -- -n testnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/meta-plugin.json --register'
+run_cmd H1 7 build - - '(cd ../akita-sdk && npm run build)'
+run_cmd H1 8 dry H1#9 - 'npm run set:policy-writer -- -n testnet --dry-run --sender "$CREATOR"'
+run_cmd H1 9 send - - 'npm run set:policy-writer -- -n testnet --confirm'
+run_cmd H1 10 dry H1#11 - 'npm run install:policy-writer-grant -- -n testnet --dry-run'
+run_cmd H1 11 send - - 'npm run install:policy-writer-grant -- -n testnet --confirm'
+run_cmd H1 12 send - - 'npm run deploy:pay-plugin -- -n testnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/pay-plugin.json --register'
+run_cmd H1 13 build - - '(cd ../akita-sdk && npm run build)'
+run_cmd H1 14 dry H1#15 - 'npm run update:dao-wallet-plugins -- -n testnet --dry-run --sender "$CREATOR"'
+run_cmd H1 15 send - - 'npm run update:dao-wallet-plugins -- -n testnet --confirm-update'
+run_cmd H1 16 send - - 'npm run create:dao-escrow -- -n testnet --escrow rev_meta --execute'
+run_cmd H1 17 dry H1#18 - 'npm run update:app-dao-escrow -- -n testnet --app meta --escrow rev_meta --dry-run'
+run_cmd H1 18 send - - 'npm run update:app-dao-escrow -- -n testnet --app meta --escrow rev_meta --confirm'
+run_cmd H1 19 dry H1#20 - 'npm run register:revenue-escrow -- -n testnet --escrow rev_meta --source "$META_ADDRESS" --dry-run'
+run_cmd H1 20 send - - 'npm run register:revenue-escrow -- -n testnet --escrow rev_meta --source "$META_ADDRESS" --confirm'
+run_cmd H1 21 build - - '(cd ../akita-sdk && npm run build)'
+end_step H1
+
+begin_step H1a 'Collectible Variations registry' 'H1a#2 H1a#3'
+run_cmd H1a 1 dry H1a#2 - 'npm run deploy:collectible-variations -- -n testnet -v "$V" --dry-run --sender "$CREATOR"'
+run_cmd H1a 2 send - - 'npm run deploy:collectible-variations -- -n testnet -v "$V" --manifest receipts/collectible-variations.json --reserve-type-zero --register'
+run_cmd H1a 3 build - - '(cd ../akita-sdk && npm run build)'
+end_step H1a
+
+# --confirm-mainnet is the runbook's flag for MainNet; on TestNet the script does not ask for it and ignores it.
+begin_step H2 'Guilds' 'H2#1 H2#4 H2#5 H2#8 H2#10 H2#11'
+run_cmd H2 1 send - - 'npm run create:dao-escrow -- -n testnet --escrow rev_guilds --execute'
+set_from REV_GUILDS_APP 'npm run -s rollout:id -- -n testnet --escrow rev_guilds'
+run_cmd H2 3 dry H2#4 - 'npm run deploy:guild-factory -- -n testnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"'
+run_cmd H2 4 send - - 'npm run deploy:guild-factory -- -n testnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet'
+run_cmd H2 5 build - - '(cd ../akita-sdk && npm run build)'
+set_from GUILD_FACTORY 'npm run -s rollout:id -- -n testnet --app guildFactory'
+set_from GUILD_FACTORY_ADDRESS 'npm run -s rollout:id -- -n testnet --app guildFactory --address'
+run_cmd H2 8 send - - 'npm run deploy:guild-plugin -- -n testnet -v "$V" --config "{\"factory\":\"$GUILD_FACTORY\",\"guild\":\"0\"}" --manifest receipts/guild-plugin.json --register'
+run_cmd H2 9 dry H2#10 - 'npm run register:revenue-escrow -- -n testnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --dry-run'
+run_cmd H2 10 send - - 'npm run register:revenue-escrow -- -n testnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --confirm'
+run_cmd H2 11 build - - '(cd ../akita-sdk && npm run build)'
+end_step H2
+
+begin_step H5 'Wallet balance reader' 'H5#2 H5#3'
+run_cmd H5 1 dry H5#2 - 'npm run deploy:wallet-balance-reader -- -n testnet -v "$V" --dry-run --sender "$CREATOR"'
+run_cmd H5 2 send - - 'npm run deploy:wallet-balance-reader -- -n testnet -v "$V" --manifest receipts/wallet-balance-reader.json --register'
+run_cmd H5 3 build - - '(cd ../akita-sdk && npm run build)'
+end_step H5
+
+begin_step H6 'Labs revenue payout (rec_krby)' 'H6#2'
+need_value LABS_ADDRESS 'the Akita Labs address, the one receiver of rec_krby payouts'
+run_cmd H6 1 dry H6#2 - 'npm run install:pay-policy-grant -- -n testnet --escrow rec_krby --recipient "$LABS_ADDRESS" --dry-run'
+run_cmd H6 2 send - - 'npm run install:pay-policy-grant -- -n testnet --escrow rec_krby --recipient "$LABS_ADDRESS" --confirm'
+end_step H6
+
 if [ "$MODE" = run ]; then
   echo
   if [ -n "$ONLY" ]; then
@@ -421,6 +530,6 @@ if [ "$MODE" = run ]; then
   elif [ -n "$UNTIL" ]; then
     echo "Finished through $UNTIL."
   else
-    echo "A4a to G2 are finished. Next is G2a, which needs the heartbeat manager's address."
+    echo "A4a to G2 and G3b to H6 are finished. What is left is by hand: G4 (the SDK switches), and I1 only when the DAO launches."
   fi
 fi

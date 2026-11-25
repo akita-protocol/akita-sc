@@ -26,7 +26,7 @@ function words(line: string): string[] {
 }
 
 /** Lines of a step's bash blocks that are shell housekeeping, not a rollout script. */
-const plainShell = /^(#|git |nvm use$|cd projects\/akita-sc$|read -rs DEPLOYER_MNEMONIC && export DEPLOYER_MNEMONIC$|read -rs NODELY_API_KEY && export NODELY_API_KEY$|export NODELY_PLAN=(boost|unlimited|enterprise)$|export [A-Z]+=|mkdir -p receipts\/|npm test$|\(cd \.\.\/\.\. && npm ci\)$|\(cd \.\.\/akita-sdk && npm run build\)$)/
+const plainShell = /^(#|git |nvm use$|cd projects\/akita-sc$|read -rs DEPLOYER_MNEMONIC && export DEPLOYER_MNEMONIC$|read -rs NODELY_API_KEY && export NODELY_API_KEY$|export NODELY_PLAN=(boost|unlimited|enterprise)$|export [A-Z_]+=|mkdir -p receipts\/|npm test$|\(cd \.\.\/\.\. && npm ci\)$|\(cd \.\.\/akita-sdk && npm run build\)$)/
 
 function readCommands(): { commands: Command[]; other: { step: string; line: string }[]; tracked: string[] } {
   const text = readFileSync(runbookPath, 'utf8')
@@ -134,8 +134,11 @@ describe('rollout runbook commands', () => {
   })
 
   test('no command passes the key or an abbreviation', () => {
-    // The key comes from DEPLOYER_MNEMONIC (step A0); "…" used to stand for the rest of a command.
-    const bad = commands.filter((c) => c.args.includes('-m') || c.args.includes('--mnemonic') || c.line.includes('…') || c.line.includes('$M'))
+    // The key comes from DEPLOYER_MNEMONIC and the node key from NODELY_API_KEY (step A0), read by the
+    // scripts themselves: no command line names either, by flag or by variable. "…" used to stand for
+    // the rest of a command.
+    const secret = /\$\{?[A-Z_]*(MNEMONIC|KEY|SECRET|TOKEN|PASSWORD)/
+    const bad = commands.filter((c) => ['-m', '--mnemonic', '-t', '--token'].some((flag) => c.args.includes(flag)) || c.line.includes('…') || secret.test(c.line))
     expect(bad.map((c) => `${c.step}: ${c.line}`)).toEqual([])
   })
 
@@ -160,8 +163,9 @@ describe('rollout runbook commands', () => {
     const bare = (line: string) => line.replace(/\s+#.*$/, '')
     const sent = [...runner.matchAll(/^run_cmd (\S+) (\d+) (dry|send|check|build) \S+ \S+ '(.+)'$/gm)]
       .filter(([, , , kind]) => kind === 'dry' || kind === 'send')
-      .map(([, step, , , cmd]) => ({ step, line: bare(cmd.replace(/testnet/g, 'mainnet')) }))
-    expect(sent.length).toBeGreaterThan(30)
+      // G3b names TestNet's USDC and AKTA, which its revenue escrows do not hold (runbook, G3b).
+      .map(([, step, , , cmd]) => ({ step, line: bare((step === 'G3b' ? cmd.replace(' --asset 10458941,752884771', '') : cmd).replace(/testnet/g, 'mainnet')) }))
+    expect(sent.length).toBeGreaterThan(50)
 
     // The runbook's own TestNet differences (A4 and the steps that name them).
     const skip = (step: string, line: string) =>
@@ -191,6 +195,25 @@ describe('rollout runbook commands', () => {
       }
     }
     expect(wrong).toEqual([])
+  })
+
+  test('the runner reads each id the way the runbook does, and neither types one by hand', () => {
+    const runner = readFileSync(path.join(project, 'scripts/rollout-testnet-rehearsal.sh'), 'utf8')
+    const runbook = readFileSync(runbookPath, 'utf8')
+    const reads = [...runner.matchAll(/^set_from ([A-Z_]+) '(.+)'$/gm)].map(([, name, cmd]) => ({ name, cmd }))
+    expect(reads.map((r) => r.name)).toEqual(['META', 'META_ADDRESS', 'REV_GUILDS_APP', 'GUILD_FACTORY', 'GUILD_FACTORY_ADDRESS'])
+    for (const { name, cmd } of reads) {
+      expect(cmd).toMatch(/^npm run -s rollout:id -- -n testnet (--app [A-Za-z]+( --address)?|--escrow [a-z_]+)$/)
+      expect(runbook).toContain(`export ${name}=$(${cmd.replace('testnet', 'mainnet')})`)
+    }
+    expect(npmScripts['rollout:id']).toBe('ts-node --transpile-only scripts/rollout-id.ts')
+    // A command that still names a value in angle brackets would have to be edited before it is run.
+    const typed = commands.filter((c) => /<[^>]+>/.test(c.line)).map((c) => `${c.step}: ${c.line}`)
+    expect(typed.filter((line) => !/^(H7|I1)\b/.test(line))).toEqual([])
+    // every variable a command uses is set in A0, read by rollout:id, or the key
+    const set = new Set([...runbook.matchAll(/^export ([A-Z_]+)=/gm)].map((m) => m[1]))
+    const used = new Set(commands.flatMap((c) => [...c.line.matchAll(/\$\{?([A-Z_]+)/g)].map((m) => m[1])))
+    expect([...used].filter((name) => !set.has(name))).toEqual([])
   })
 
   test('every step the runbook says is tracked is a step of rollout:status', () => {

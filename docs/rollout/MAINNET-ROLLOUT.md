@@ -307,6 +307,7 @@ Thirteen independent audits were read over the release tree, one per system, and
 - **Collectible Variations has plain method names and goes to MainNet** (the owner, 2026-11-25, after the audits). The ARC is set aside for now, so the registry is a regular contract. Its 14 methods drop the `arcTBD_` placeholder and take their handlers' names: `writeVariation`, `deleteVariation`, `pinMainCreator`, `pinMainHolder`, `unpinMainCreator`, `unpinMainHolder`, `setAssetPolicy`, `setManagerPolicy`, `deleteAssetPolicy`, `deleteManagerPolicy`, `setGrant`, `deleteGrant`, `purge` and `getMain`. The callback a delegate app answers is `admit(uint64,address,byte[],address)bool`. Arguments, return values, boxes and logic are unchanged: against the previous build the approval program differs only in the 15 method selectors and is still 8,022 bytes. MockAdmitDelegate changes the same way. No other program's bytes change; the manifest still lists 160 programs. The SDK's `CollectibleVariationsSDK` keeps its own method names and calls the new ones. With the names settled, the MainNet hold of 2026-11-25 is lifted: H1a runs on MainNet after H1 (200 ALGO of Meta type fees, see H1a) and `collectible-variations` is no longer named in `--allow-pending` at I1.
 - **TestNet rehearsal, first stop: B2 (2026-11-25).** A4a and B1 ran, and `update:dao` deployed the validator and repointed the DAO, then stopped with `Wallet not initialized` before funding the DAO upgrade. Nothing was half-sent: the stop came before any payment or proposal of the upgrade. Cause: the Phase 2 runner read the DAO wallet through the SDK getter that throws until `getWallet()` has resolved, and nothing on that path resolved it. The LocalNet suite resolves the wallet in its setup and a dry run returns before the send path, so only the command line could hit it, on every target of the Phase 2 runner (B2 and the stage E upgrades; D1 goes through `runUpdate`, which resolves the wallet first). Fixed in three places: the runner asks for the wallet where it uses it; `setupContext` resolves it before a script that sends does anything (a failure there stops the script before it sends); and `update:dao` reuses the validator the DAO already points to when it runs the tree program, so the same command carries on. Scripts only: no program and no manifest entry changes.
 - **TestNet rehearsal, A4a to G2 done (2026-11-25).** The runner finished every step from A4a to G2 on TestNet from commit `c89509be`. Read back the same day with the registry the run recorded: every tracked check of stages B to G is done except the three that are meant to wait (the Haystack router plugin, which TestNet leaves out; DualStakePlugin, which is held; RevenueManagerPlugin, which is G3) and the heartbeat manager (G2a). The DAO is still in Draft. Each later step was then planned on TestNet before it was run. One refused: G3b read `pal.optin`, which G2 leaves on the old OptInPlugin while it moves the receivers' grants to the new one. The step now reads the plugin from the receivers' grants (see G3b). The node key (A0) was added the same day, after the public endpoints slowed the run.
+- **No id is typed by hand (2026-11-25).** The steps after G2 named their ids and addresses in angle brackets, to be filled in from receipts. They now use variables: the three addresses the owner supplies are set once in A0, and an id that a step creates is read by `rollout:id` (`scripts/rollout-id.ts`), which prints the app id the SDK records under a key, that app's address, or the app id of a DAO wallet escrow, and prints nothing when the value is not there. The TestNet runner gained a second part, G3b to H6, built from the same lines, so the rehearsal runs the commands MainNet will. `tests/rollout-runbook.test.ts` holds the two together and refuses a command that still names a value in angle brackets. Found on the way: a dry run of G3a without `--sender` reported an existing escrow as missing, because the escrow lookup was a simulated call that a node refuses from an empty sender; the lookup now reads the wallet's boxes.
 
 ## Live state (read 2026-10-10)
 
@@ -412,6 +413,7 @@ Off-chain. Nothing is sent.
 - **Requires:** none. **Script:** plain shell.
 - `2.0.0` is the release label (the owner confirmed it on 2026-11-17). Version labels are free text; live apps carry 0.0.2, 0.0.3, 1.0.0 and 1.0.1 today.
 - `CREATOR` is read from the chain by the tracker. `echo "$CREATOR"` should print one address, the one whose key was entered above.
+- **The three addresses the owner supplies** are set here once and used by name: `HEARTBEAT_MANAGER` (G2a), `REV_NFD_SOURCE` (G3a) and `LABS_ADDRESS` (H6). Ids that a step creates are not typed either: the step that needs one reads it with `rollout:id`, from what the earlier step recorded (`--app <key>`, with `--address` for the app's address) or from the DAO wallet (`--escrow <name>`). `rollout:id` prints nothing when the value is not there yet, so the variable stays empty and the command that uses it refuses. `echo` a variable to see it.
 - **The node key.** The public endpoints limit requests by address, and the TestNet rehearsal of 2026-11-25 was slowed by it. With `NODELY_API_KEY` set, every command of this runbook sends its requests to Nodely with the key; `read -rs` keeps it out of the shell history, and a command line never carries it. `NODELY_PLAN` names the plan the key belongs to, because a key is honoured only on its plan's hosts: `boost` (the default) is the public `nodely.dev` hosts, `unlimited` and `enterprise` are the `nodely.io` hosts. Each command prints a `Node:` line that names the host in use and says whether a key is sent; it never prints the key. Leave both unset to use the public endpoints. LocalNet ignores them.
 
 ```bash
@@ -422,6 +424,9 @@ read -rs NODELY_API_KEY && export NODELY_API_KEY
 export NODELY_PLAN=boost
 export V=2.0.0
 export CREATOR=$(npm run -s rollout:status -- --network mainnet | sed -n 's/^DAO creator: //p')
+export HEARTBEAT_MANAGER=<heartbeat manager address>
+export REV_NFD_SOURCE=<rev_nfd source address>
+export LABS_ADDRESS=<Akita Labs LLC address>
 mkdir -p receipts/gates receipts/phase2 receipts/phase3
 ```
 
@@ -1032,8 +1037,8 @@ npm run update:dao-wallet-plugins -- -n mainnet --add-method rewardsPlugin:recla
 - The manager is an account the owner's backend holds for this one job. The owner creates it and gives the address (asked 2026-11-17).
 
 ```bash
-npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address> --dry-run
-npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address>
+npm run staking:set-heartbeat-manager -- -n mainnet --manager "$HEARTBEAT_MANAGER" --dry-run
+npm run staking:set-heartbeat-manager -- -n mainnet --manager "$HEARTBEAT_MANAGER"
 ```
 
 #### G2b. Withdraw the stickers escrow's storage credits from Rewards v1
@@ -1078,8 +1083,8 @@ npm run deploy:revenue-manager-plugin -- -n mainnet -v "$V"
 - `--source` is the account allowed to opt the escrow in to an asset. For the nine registered escrows it is the address of the app that fills the escrow (read 2026-11-16), so use the Meta app's address for `rev_meta` and the GuildFactory's for `rev_guilds`. Nothing fills `rev_nfd` from an app; its only caller today is the operator account that holds its NFD and RevenueManager grants. Suggested for `rev_nfd` on 2026-11-17: that operator account. The owner's answer is open.
 
 ```bash
-npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --confirm
+npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --confirm
 ```
 
 #### G3b. Opt the split's receivers in to the assets the revenue escrows hold
@@ -1132,7 +1137,7 @@ Independent of each other; each after its prerequisites.
 - Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
 - **Grant policies:** right after deploy:meta-plugin, `set:policy-writer` registers MetaPlugin as Meta's only policy writer. The creator can set it once while it is unset; after that only the DAO wallet can change it. Until it is set no wallet can store a grant policy, so a plugin that reads one (PayPlugin on rec_krby, H6) refuses every delegated call. The DAO writes a policy through a global MetaPlugin grant with an execution key: AddPlugin (`useExecutionKey`), then one ExecutePlugin proposal for the configurePolicy group.
 - **The DAO's policy writer grant:** `install:policy-writer-grant` gives the DAO wallet MetaPlugin as a global grant on no escrow that needs an execution key, at the DAO's app upgrade thresholds. It stays installed. Every policy the DAO writes, now or after launch, is then one ExecutePlugin proposal that registers one group; without the grant a policy change after launch needs an AddPlugin vote first. The script refuses while Meta's policy writer is not the recorded MetaPlugin, and refuses to reuse a grant that needs no execution key.
-- **PayPlugin:** it is created with Meta's app id as its `registry` and reads every grant's policy from that app. The id cannot change afterwards and `deploy:pay-plugin` cannot check it, so read the id from `receipts/meta.json`. `rollout:status` and H6 refuse a PayPlugin whose registry is not the recorded Meta. `update:dao-wallet-plugins` then moves the DAO wallet's own PayPlugin grant, which needs an execution key and so needs no policy. It is the grant swap of G2, run again: it replaces only the grants that still point at an old version.
+- **PayPlugin:** it is created with Meta's app id as its `registry` and reads every grant's policy from that app. The id cannot change afterwards and `deploy:pay-plugin` cannot check it, so the command takes it from the Meta this step recorded (`$META`, read by `rollout:id`); compare it with the Meta app id in `receipts/meta.json`. `rollout:status` and H6 refuse a PayPlugin whose registry is not the recorded Meta. `update:dao-wallet-plugins` then moves the DAO wallet's own PayPlugin grant, which needs an execution key and so needs no policy. It is the grant swap of G2, run again: it replaces only the grants that still point at an old version.
 - **The backend's inference billing settings:** akita-backend's pay-as-you-go inference billing collects through this PayPlugin and a policy on each member's grant (akita-backend pull request 31). Its `AKITA_INFERENCE_BILLING` entry for a network takes `payPluginAppId`, `metaAppId` and `metaPluginAppId` from this step's receipts, and `payPluginApprovalSha256` from `arc58/plugins/pay/PayPlugin` in `release/manifest.json`. At startup the backend checks the program hash, PayPlugin's `registry` and Meta's `policy_writer` against them, so set the entry only after `set:policy-writer` and `deploy:pay-plugin` here. An entry that still has the pay silo keys is refused.
 - **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `dao-policy-writer`, `plugin:payPlugin`, `meta-escrow`.
 
@@ -1140,21 +1145,23 @@ Independent of each other; each after its prerequisites.
 npm run deploy:meta -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
 npm run deploy:meta -- -n mainnet -v "$V" --manifest receipts/meta.json --register
 (cd ../akita-sdk && npm run build)
-npm run deploy:meta-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/meta-plugin.json --register
+export META=$(npm run -s rollout:id -- -n mainnet --app meta)
+export META_ADDRESS=$(npm run -s rollout:id -- -n mainnet --app meta --address)
+npm run deploy:meta-plugin -- -n mainnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/meta-plugin.json --register
 (cd ../akita-sdk && npm run build)
 npm run set:policy-writer -- -n mainnet --dry-run --sender "$CREATOR"
 npm run set:policy-writer -- -n mainnet --confirm
 npm run install:policy-writer-grant -- -n mainnet --dry-run
 npm run install:policy-writer-grant -- -n mainnet --confirm
-npm run deploy:pay-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/pay-plugin.json --register
+npm run deploy:pay-plugin -- -n mainnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/pay-plugin.json --register
 (cd ../akita-sdk && npm run build)
 npm run update:dao-wallet-plugins -- -n mainnet --dry-run --sender "$CREATOR"
 npm run update:dao-wallet-plugins -- -n mainnet --confirm-update
 npm run create:dao-escrow -- -n mainnet --escrow rev_meta --execute
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-run
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm
-npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --confirm
+npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source "$META_ADDRESS" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source "$META_ADDRESS" --confirm
 (cd ../akita-sdk && npm run build)
 ```
 
@@ -1188,12 +1195,15 @@ npm run deploy:collectible-variations -- -n mainnet -v "$V" --manifest receipts/
 
 ```bash
 npm run create:dao-escrow -- -n mainnet --escrow rev_guilds --execute
-npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app <rev_guilds escrow app id> --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"
-npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app <rev_guilds escrow app id> --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet
+export REV_GUILDS_APP=$(npm run -s rollout:id -- -n mainnet --escrow rev_guilds)
+npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"
+npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet
 (cd ../akita-sdk && npm run build)
-npm run deploy:guild-plugin -- -n mainnet -v "$V" --config '{"factory":"<GuildFactory app id>","guild":"0"}' --manifest receipts/guild-plugin.json --register
-npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source <GuildFactory app address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source <GuildFactory app address> --confirm
+export GUILD_FACTORY=$(npm run -s rollout:id -- -n mainnet --app guildFactory)
+export GUILD_FACTORY_ADDRESS=$(npm run -s rollout:id -- -n mainnet --app guildFactory --address)
+npm run deploy:guild-plugin -- -n mainnet -v "$V" --config "{\"factory\":\"$GUILD_FACTORY\",\"guild\":\"0\"}" --manifest receipts/guild-plugin.json --register
+npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --confirm
 (cd ../akita-sdk && npm run build)
 ```
 
@@ -1236,8 +1246,8 @@ npm run deploy:wallet-balance-reader -- -n mainnet -v "$V" --manifest receipts/w
 - PayPlugin sends an asset only to an address that holds it. The Akita Labs LLC address must be opted in to USDC and AKTA before a payment in either. The script says so when it is not.
 
 ```bash
-npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --dry-run
-npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --confirm
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient "$LABS_ADDRESS" --dry-run
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient "$LABS_ADDRESS" --confirm
 ```
 
 #### H7. SocialClaim (not in this release)

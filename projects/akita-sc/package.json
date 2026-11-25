@@ -197,6 +197,7 @@
     "update:raffle-children": "ts-node --transpile-only scripts/update-children.ts --kind raffle",
     "update:staking-pool-children": "ts-node --transpile-only scripts/update-children.ts --kind staking-pool",
     "rollout:status": "ts-node --transpile-only scripts/rollout-status.ts",
+    "rollout:id": "ts-node --transpile-only scripts/rollout-id.ts",
     "check:social-legacy-prefixes": "ts-node --transpile-only scripts/check-social-legacy-prefixes.ts",
     "rollout:testnet-parity": "ts-node --transpile-only scripts/testnet-dao-parity.ts",
     "release:manifest": "node scripts/release-manifest.mjs",

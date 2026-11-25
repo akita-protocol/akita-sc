@@ -42,9 +42,15 @@ export async function bootstrapWallet(ctx: ScriptContext, sender: string) {
   return { wallet, walletAddress: wallet.client.appAddress.toString() }
 }
 
-/** The app id of a named DAO wallet escrow; throws when the escrow does not exist. */
+/**
+ * The app id of a named DAO wallet escrow; throws when the escrow does not exist.
+ *
+ * It reads the wallet's escrow boxes. The wallet's own lookup is a simulated call, which a node refuses
+ * from the empty sender of a dry run without `--sender`; until 2026-11-25 that refusal was reported
+ * here as "has no escrow" for an escrow that exists.
+ */
 async function escrowApp(wallet: Awaited<ReturnType<typeof bootstrapWallet>>['wallet'], escrow: string): Promise<bigint> {
-  const info = await wallet.getEscrow(escrow).catch(() => undefined)
+  const info = (await wallet.getEscrows()).get(escrow)
   if (!info || info.id <= 0n) throw new Error(`The DAO wallet has no escrow "${escrow}"; create it first: npm run create:dao-escrow -- --escrow ${escrow} --execute`)
   return info.id
 }
