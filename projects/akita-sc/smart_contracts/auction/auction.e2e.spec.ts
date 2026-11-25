@@ -1100,26 +1100,44 @@ describe('Auction SDK', () => {
       await expect(createAuction(owner, { bidFee: 0n, bidAssetId: testAssetId })).rejects.toThrow(/Piba/)
     })
 
-    test('AR-12: quoted bid MBR equals the actual min-balance increase', async () => {
+    test('AR-12: the quoted bid MBR is what the bid deposits, and it covers the actual min-balance increase', async () => {
       const owner = await newSeller()
       const [a, b] = [await newBidder(), await newBidder()]
       const auction = await createAuction(owner)
       await timeWarp.timeWarp(70n)
 
       const { bids, bidsByAddress, locations } = await auction.mbr()
-      const minBalance = async () =>
-        BigInt((await algorand.client.algod.accountInformation(auction.client.appAddress).do()).minBalance)
+      const account = async () => {
+        const info = await algorand.client.algod.accountInformation(auction.client.appAddress).do()
+        return { minBalance: BigInt(info.minBalance), balance: BigInt(info.amount) }
+      }
+      // A unique bidder of a fee auction pays a flat share of the weights storage (AuctionMBRWeightSlot,
+      // part of `locations`): its 8-byte slot, plus opening a weights box and adding that box's total.
+      // Only the bidder that opens a weights box needs all of it.
+      const SLOT = 400n * 8n
+      const WEIGHT_SLOT = 12_500n
 
-      const before = await minBalance()
+      const before = await account()
       await bid(auction, a, 1_000_000n)
-      const afterFirst = await minBalance()
-      expect(afterFirst - before).toBe(bids + bidsByAddress + locations)
+      const afterFirst = await account()
+      // a opens the first weights box: the quote is exactly what the storage costs
+      expect(afterFirst.minBalance - before.minBalance).toBe(bids + bidsByAddress + locations)
+      expect(afterFirst.balance - before.balance).toBe(1_000_000n + bids + bidsByAddress + locations)
 
       await bid(auction, b, 1_100_000n)
+      const afterSecond = await account()
+      // b pays the same share and needs only a slot; the rest stays on the auction, held against the
+      // next weights box, and comes back to b with its storage refund
+      expect(afterSecond.minBalance - afterFirst.minBalance).toBe(bids + bidsByAddress + locations - (WEIGHT_SLOT - SLOT))
+      expect(afterSecond.balance - afterFirst.balance).toBe(1_100_000n + bids + bidsByAddress + locations)
+
       await bid(auction, a, 1_200_000n)
-      const afterRepeat = await minBalance()
-      // b: first bid (3 boxes); a's second bid: only a new bid box
-      expect(afterRepeat - afterFirst).toBe(bids + bidsByAddress + locations + bids)
+      const afterRepeat = await account()
+      // a's second bid: only a new bid box
+      expect(afterRepeat.minBalance - afterSecond.minBalance).toBe(bids)
+      expect(afterRepeat.balance - afterSecond.balance).toBe(1_200_000n + bids)
+      // what the auction holds is never less than its minimum balance plus the bids it must give back
+      expect(afterRepeat.balance - afterRepeat.minBalance).toBeGreaterThanOrEqual(1_000_000n + 1_100_000n + 1_200_000n)
     })
 
     test('TRADE-2: the factory rejects a prize ASA that has a clawback or freeze address', async () => {
