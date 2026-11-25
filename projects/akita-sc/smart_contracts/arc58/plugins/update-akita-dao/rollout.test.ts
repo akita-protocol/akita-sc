@@ -4,6 +4,7 @@
  * of the new plugin versions. The LocalNet rehearsal is `rollout.e2e.spec.ts` (P2-UPD-01).
  */
 import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
 import path from 'node:path'
 import algosdk from 'algosdk'
 import { describe, expect, test } from 'vitest'
@@ -15,7 +16,7 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { ProposalActionEnum } from 'akita-sdk/dao'
 import { UPGRADE_BINDING_NOTE_PROPOSAL } from 'akita-sdk/wallet'
 import { CallerType } from 'akita-sdk/wallet'
-import { assertAbiAcknowledged, describeAbiAcknowledgment, parseRemovalWaivers, planTarget, runPhase2, runPhase2a, type TargetPlan } from '../../../../scripts/lib/principal-rollout-run'
+import { assertAbiAcknowledged, describeAbiAcknowledgment, executeTargetPlan, parseRemovalWaivers, planTarget, runPhase2, runPhase2a, treeValidatorInUse, type TargetPlan } from '../../../../scripts/lib/principal-rollout-run'
 import { runUpdate } from '../../../../scripts/script-base'
 import {
   acceptedRemoval,
@@ -922,6 +923,64 @@ describe('review 2026-10-05: rollout guards', () => {
       expect(split.afterUpgrade.map((p) => p.catalog)).toEqual(['HyperSwapPlugin'])
       const upgraded = { HyperSwap: { appId: 1n, program: loadCompiled('hyper-swap/HyperSwap.arc56.json').approval }, PollFactory: live.PollFactory }
       expect(splitLockstep(LOCKSTEP_PLUGINS, upgraded).afterUpgrade).toEqual([])
+    })
+  })
+})
+
+/**
+ * TestNet rehearsal 2026-11-25, the stop at B2#2: `update:dao` reached the funding of its upgrade with a
+ * DAO SDK whose wallet nothing had resolved. The LocalNet suite resolves the wallet in its setup and a
+ * dry run returns before the send path, so only the command line could hit it.
+ */
+describe('TestNet rehearsal 2026-11-25: the Phase 2 send path', () => {
+  /** A DAO SDK stand-in with the SDK's own rule: `wallet` throws until getWallet() has resolved. */
+  const lazyDao = (wallet: unknown) => {
+    let resolved = false
+    return {
+      appId: 5n,
+      client: { state: { global: { getAll: async () => ({ state: 0n }) } } },
+      getWallet: async () => { resolved = true; return wallet },
+      get wallet() {
+        if (!resolved) throw new Error('Wallet not initialized. Call "await dao.getWallet()" first to initialize the wallet SDK')
+        return wallet
+      },
+    }
+  }
+
+  test('funding a target asks for the DAO wallet; it does not rely on an earlier call', async () => {
+    const reached = new Error('reached the DAO wallet')
+    const ctx = { options: { network: 'testnet', version: 't' }, sender: 'SENDER', dao: lazyDao({ getMbr: async () => { throw reached } }) } as unknown as ScriptContext
+    const plan = { target: { name: 'AkitaDAO', leasePrefix: 'dao' }, appId: 5n, groups: { groups: [{ app: true, child: false, txns: 3 }] } } as unknown as TargetPlan
+    await expect(executeTargetPlan(ctx, plan, { log: () => {} })).rejects.toBe(reached)
+  })
+
+  test('the runner never reads the wallet through the getter that throws', () => {
+    const source = fs.readFileSync(path.resolve(__dirname, '../../../../scripts/lib/principal-rollout-run.ts'), 'utf8')
+    expect(source).not.toMatch(/ctx\.dao\.wallet\b/)
+  })
+
+  describe('update:dao reuses the validator the DAO already points to', () => {
+    const tree = loadCompiled('arc58/dao/AkitaDAOProposalValidator.arc56.json')
+    const other = loadCompiled('arc58/dao/AkitaDAO.arc56.json')
+    const chainOf = (apps: Record<string, { approval: Uint8Array; clear: Uint8Array }>) => ({
+      algorand: { client: { algod: { getApplicationByID: (id: bigint) => ({ do: async () => {
+        const app = apps[id.toString()]
+        if (!app) throw new Error(`no app ${id}`)
+        return { params: { approvalProgram: app.approval, clearStateProgram: app.clear, creator: { toString: () => algosdk.ALGORAND_ZERO_ADDRESS_STRING } } }
+      } }) } } },
+    }) as unknown as ScriptContext
+
+    test('the tree program at the pointer is reused, so a second start deploys nothing', async () => {
+      expect(await treeValidatorInUse(chainOf({ '9': { approval: tree.approval, clear: tree.clear } }), 9n)).toBe(9n)
+    })
+
+    test('another program, another clear program, a missing app or no pointer deploys', async () => {
+      const apps = { '7': { approval: other.approval, clear: tree.clear }, '8': { approval: tree.approval, clear: other.approval } }
+      expect(await treeValidatorInUse(chainOf(apps), 7n)).toBeUndefined()
+      expect(await treeValidatorInUse(chainOf(apps), 8n)).toBeUndefined()
+      expect(await treeValidatorInUse(chainOf(apps), 9n)).toBeUndefined()
+      expect(await treeValidatorInUse(chainOf(apps), 0n)).toBeUndefined()
+      expect(await treeValidatorInUse(chainOf(apps), undefined)).toBeUndefined()
     })
   })
 })

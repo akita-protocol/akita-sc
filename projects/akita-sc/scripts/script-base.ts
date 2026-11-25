@@ -314,6 +314,19 @@ export async function setupContext(
 
   console.log(`DAO: ${appIds.dao}, Update Plugin: ${appIds.updatePlugin}\n`)
 
+  // The DAO SDK's `wallet` getter throws until getWallet() has resolved. A script that sends resolves
+  // it here, before anything is sent, so no step can stop part-way on it (the B2 stop of the TestNet
+  // rehearsal, 2026-11-25). Dry runs stay lazy, as they must run offline. LocalNet may have no DAO yet
+  // (deploy-only flows), so a read that fails there leaves the SDK lazy, as before.
+  if (!options.dryRun && appIds.dao) {
+    try {
+      await getDao().getWallet()
+    } catch (error) {
+      if (options.network !== 'localnet') throw error
+      dao = undefined
+    }
+  }
+
   return { options, algorand, sender, signer, appIds, get dao() { return getDao() }, set dao(value) { dao = value }, get updatePlugin() { return getUpdatePlugin() } }
 }
 

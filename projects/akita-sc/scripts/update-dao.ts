@@ -13,7 +13,7 @@
  */
 
 import { parseBaseArgs, recordDaoEscrowActionV2Round, setupContext, runScript } from './script-base'
-import { requirePhase2aDone, runPhase2 } from './lib/principal-rollout-run'
+import { requirePhase2aDone, runPhase2, treeValidatorInUse } from './lib/principal-rollout-run'
 import { PHASE2_DAO_TARGET } from './lib/principal-rollout'
 import { AkitaDaoProposalValidatorFactory } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOProposalValidatorClient'
 import { ProposalActionEnum } from 'akita-sdk/dao'
@@ -68,17 +68,27 @@ Examples:
     const compiledValidator = await validatorFactory.appFactory.compile()
     console.log(`   Approval: ${compiledValidator.approvalProgram.length} bytes\n`)
 
+    // A second start after a stop between the pointer update and the DAO upgrade reuses the validator
+    // the DAO already points to, when it runs this program, rather than leaving an orphan app behind.
+    const currentApps = await ctx.dao.client.state.global.otherAppList()
+    const inUse = validatorAppIdArg === undefined ? await treeValidatorInUse(ctx, currentApps?.daoProposalValidator) : undefined
+
     if (options.dryRun) {
       console.log(
-        validatorAppIdArg === undefined
-          ? 'DRY RUN - Would deploy a new immutable proposal validator and update oal.daoProposalValidator\n'
-          : `DRY RUN - Would update oal.daoProposalValidator to ${validatorAppIdArg}\n`,
+        validatorAppIdArg !== undefined
+          ? `DRY RUN - Would update oal.daoProposalValidator to ${validatorAppIdArg}\n`
+          : inUse !== undefined
+            ? `DRY RUN - Validator ${inUse} already runs this program and the DAO points to it; would not deploy another\n`
+            : 'DRY RUN - Would deploy a new immutable proposal validator and update oal.daoProposalValidator\n',
       )
     } else {
       let validatorAppId: bigint
       if (validatorAppIdArg !== undefined) {
         if (!/^[1-9]\d*$/.test(validatorAppIdArg)) throw new Error('--validator-app-id must be a positive integer')
         validatorAppId = BigInt(validatorAppIdArg)
+      } else if (inUse !== undefined) {
+        validatorAppId = inUse
+        console.log(`Validator ${validatorAppId} already runs this program and the DAO points to it; not deploying another\n`)
       } else {
         console.log('Deploying AkitaDAOProposalValidator...')
         const { appClient } = await validatorFactory.send.create.create({ args: {} })
@@ -86,7 +96,6 @@ Examples:
         console.log(`   Validator deployed: ${validatorAppId}\n`)
       }
 
-      const currentApps = await ctx.dao.client.state.global.otherAppList()
       if (currentApps?.daoProposalValidator === validatorAppId) {
         console.log(`DAO already points to validator ${validatorAppId}\n`)
       } else {
