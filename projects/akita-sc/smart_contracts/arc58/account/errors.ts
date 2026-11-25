@@ -101,6 +101,8 @@ export const errEscrowNameRequired = 'errEnrq'
 export const errEscrowDoesNotExist = 'errNesc'
 export const errWrongEscrowForOperation = 'errWesc'
 export const errEscrowRequiredToBeSetAsDefault = 'errErsd'
+/** arc58_closeFrozenToCreator: the escrow's holding of the asset is not frozen, so arc58_reclaim returns it. */
+export const errNotFrozen = 'errNfrz'
 
 // --- Allowances -------------------------------------------------------------
 

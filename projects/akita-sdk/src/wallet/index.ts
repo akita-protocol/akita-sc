@@ -933,6 +933,26 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   /**
+   * Give an escrow's frozen holdings back to the creator of each asset and opt the escrow out of them.
+   * Admin only, since 2.0.0.
+   *
+   * The network closes a frozen holding only to the asset's creator, and an escrow that still holds an
+   * asset cannot be deleted. `reclaimFunds` never sends a holding anywhere but the wallet's account, so
+   * giving one up is this separate call: whatever the escrow holds of each asset goes to that asset's
+   * creator and does not come back. The wallet refuses an asset whose holding is not frozen, because
+   * `reclaimFunds` returns that one to the wallet.
+   */
+  async closeFrozenToCreator({ sender, signer, ...args }: ContractArgs['arc58_closeFrozenToCreator(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>> {
+
+    const sendParams = this.getSendParams({ sender, signer });
+
+    return await this.client.send.arc58CloseFrozenToCreator({
+      ...sendParams,
+      args
+    });
+  }
+
+  /**
    * How many plugins and allowances the wallet counts for an escrow. Undefined for an escrow made
    * before the wallet kept this count.
    */
@@ -1005,7 +1025,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
     const frozen = (account.assets ?? []).filter((holding) => holding.isFrozen).map((holding) => holding.assetId);
     if (frozen.length > 0) {
-      blockers.push(`its holding of ${frozen.join(', ')} is frozen`);
+      blockers.push(`its holding of ${frozen.join(', ')} is frozen: closeFrozenToCreator gives a frozen holding back to the asset's creator`);
     }
     if (assets.length > 0 && controlledAddress !== undefined) {
       const receiver = await this.algorand.account.getInformation(controlledAddress);

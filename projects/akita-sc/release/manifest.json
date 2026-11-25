@@ -8,8 +8,8 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8750,
-        "sha256": "0eea4894fc8863938238c3ca4e59304259d8874c619fbc854ed6b059e117e552"
+        "bytes": 8918,
+        "sha256": "fbfe767457c0b2c1b28a3080650c48b1ce0f19822c98f7fa51ef78bed113ec08"
       },
       "clear": {
         "bytes": 4,
@@ -32,8 +32,8 @@
     "arc58/account/AbstractedAccountFactory": {
       "name": "AbstractedAccountFactory",
       "approval": {
-        "bytes": 3536,
-        "sha256": "6ebd8972d9b0c9c209e3d54b806b179d3e431b85b535e5d7bed8a47e311350bb"
+        "bytes": 3652,
+        "sha256": "8e596d1a5bd5a9b25a0e1c7f11885caea924162ad5aaac2901d24b456d724d35"
       },
       "clear": {
         "bytes": 4,
@@ -44,8 +44,8 @@
     "arc58/account/AbstractedAccountMBR": {
       "name": "AbstractedAccountMBR",
       "approval": {
-        "bytes": 308,
-        "sha256": "9a7cc405dea458e0db28ef4b158689f877272ae372ccc72bdd13ba2ed157d95e"
+        "bytes": 312,
+        "sha256": "379dbe968d45f06241416bfb3be92a8e5944387458e2efa0fca84359af0f9051"
       },
       "clear": {
         "bytes": 4,
@@ -511,8 +511,8 @@
     "arc58/plugins/self-optin/SelfOptInPlugin": {
       "name": "SelfOptInPlugin",
       "approval": {
-        "bytes": 431,
-        "sha256": "ca5cc75f1c3483b736f2f1cb8e27361244de7513cd93932bc5a303b352086237"
+        "bytes": 428,
+        "sha256": "1979d170374db00178a443b898401ec099c2ffae4276ac2ee6bbfcc898c64496"
       },
       "clear": {
         "bytes": 4,
@@ -1060,8 +1060,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 11169,
-        "sha256": "eaad45377d145c12ede9115532acb4ab8dc03dcaf03171be7fd7d66e74d7a837"
+        "bytes": 11337,
+        "sha256": "ac24d654dc49e466805a1bfd90ae3af666f5fd87b721c86d842f00336495bdea"
       },
       "clear": {
         "bytes": 4,
@@ -1755,6 +1755,19 @@
       "clear": {
         "bytes": 4,
         "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 0
+    },
+    "mocks/window-reclaim/MockWindowReclaim": {
+      "name": "MockWindowReclaim",
+      "testOnly": true,
+      "approval": {
+        "bytes": 231,
+        "sha256": "8f0c094889bbfe79c4d37d87bf0f1f9597c71d8a9db5d63be3c9c1cd3b389ae6"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
       "extraPages": 0
     },

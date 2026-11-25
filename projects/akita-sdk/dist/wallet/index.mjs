@@ -87,6 +87,7 @@ import {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pluginInstallCost,
   proposeToGuild,
   runDraftProposal,
   sendGuildExecution,
@@ -96,7 +97,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-DRLQOKPU.mjs";
+} from "../chunk-CSUJXP3E.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
@@ -201,6 +202,7 @@ export {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pluginInstallCost,
   proposeToGuild,
   runDraftProposal,
   sendGuildExecution,

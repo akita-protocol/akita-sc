@@ -6,7 +6,7 @@ import {
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-DRLQOKPU.mjs";
+} from "./chunk-CSUJXP3E.mjs";
 import {
   assertByteArrayLength,
   decodeABIValue,
@@ -1575,7 +1575,7 @@ var AkitaDaoSDK = class extends BaseSDK {
           if (pluginCallerType === CallerType.Global) {
             caller = ALGORAND_ZERO_ADDRESS_STRING;
           } else if (pluginCallerType === CallerType.Admin) {
-            caller = algosdk2.getApplicationAddress(client.appId).toString();
+            caller = algosdk2.getApplicationAddress((await this.getWallet()).appId).toString();
           }
           let transformedMethods = [];
           if (methods.length > 0) {
@@ -2453,4 +2453,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-GWIYNEMC.mjs.map
+//# sourceMappingURL=chunk-QFLZULKR.mjs.map

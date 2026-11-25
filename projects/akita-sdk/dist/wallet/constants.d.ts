@@ -45,6 +45,18 @@ export declare function escrowCountMbr(escrow: string): bigint;
  */
 export declare function defaultEscrowGrantMbr(escrow: string): bigint;
 /**
+ * What the wallet factory adds to the price of a new wallet for the plugins installed with it, since 2.0.0.
+ * It is what the wallet then spends on them: each grant's box, the name a grant on a default escrow stores
+ * beside it, and, the first time an escrow is named, the escrow itself (its app, its account's minimum and
+ * the wallet's two boxes for it). `newAccount` takes an exact payment, so this follows the factory's
+ * `pluginInstallCost` term by term.
+ */
+export declare function pluginInstallCost(plugins: {
+    escrow?: string;
+    methods?: unknown[];
+    defaultToEscrow?: boolean;
+}[]): bigint;
+/**
  * Deleting an escrow the factory made takes 6 extra transactions
  * 1 payment that closes the escrow account out to the controlled address
  * 1 'exists' app call that asks the escrow factory whether it has the escrow on record

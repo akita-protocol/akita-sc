@@ -161,4 +161,45 @@ describe('Self opt-in plugin contract', () => {
       ).rejects.toThrow(errAlreadyOptedIn);
     });
   });
+
+  describe('optOut', () => {
+    // GFT-04: a destroyed asset has no creator to read. Its empty holding closes to the account itself.
+    test('frees the slot of a destroyed asset and of a live one in the same call', async () => {
+      const create = async (assetName: string) => {
+        const result = await algorand.send.assetCreate({
+          sender: deployer.addr,
+          signer: deployer.signer,
+          total: 1_000n,
+          decimals: 0,
+          assetName,
+          unitName: 'SELF',
+          manager: deployer.addr,
+        });
+        return BigInt(result.confirmation.assetIndex!);
+      };
+      const destroyed = await create('Self OptOut Destroyed');
+      const live = await create('Self OptOut Live');
+
+      const before = await algorand.account.getInformation(wallet.client.appAddress);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [selfOptInPluginSdk.optIn({ assets: [destroyed, live] })],
+      });
+      const optedIn = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(optedIn.minBalance.microAlgos - before.minBalance.microAlgos).toBe(200_000n);
+
+      // the creator holds the whole supply, so the manager may destroy the asset
+      await algorand.send.assetDestroy({ sender: deployer.addr, signer: deployer.signer, assetId: destroyed });
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [selfOptInPluginSdk.optOut({ assets: [destroyed, live] })],
+      });
+
+      const after = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(after.assets?.some((asset) => asset.assetId === destroyed || asset.assetId === live)).toBe(false);
+      expect(after.minBalance.microAlgos).toBe(before.minBalance.microAlgos);
+    });
+  });
 });

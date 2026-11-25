@@ -20,12 +20,12 @@ import { abiCall, abimethod, compileArc4, decodeArc4 } from '@algorandfoundation
 import { GlobalStateKeyEscrowFactory, GlobalStateKeyRevocation } from '../../constants'
 import { errNotAkitaDao } from '../../errors'
 import { errAdminOnly, errControlledAddressNotProven, errFactoryUpdatesNotAllowed, errNotAWallet } from './errors'
-import { ARC58WalletIDsByAccountsMbr } from '../../escrow/constants'
+import { ARC58WalletIDsByAccountsMbr, NewCostForARC58 } from '../../escrow/constants'
 import { BoxCostPerByte, FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../../utils/constants'
-import { appGlobalSchema, extraPagesToGrow, programPagesMbr } from '../../utils/programs'
+import { extraPagesToGrow, programPagesMbr } from '../../utils/programs'
 import { errInvalidPayment } from '../../utils/errors'
 import { calcPercent, costInstantDisbursement, getWalletFees, rekeyAddress, sendReferralPaymentTo } from '../../utils/functions'
-import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysUpdateSettings, AbstractedAccountFactoryGlobalStateKeyDomain, MethodRestrictionByteLength, MinPluginMBR } from './constants'
+import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysUpdateSettings, AbstractedAccountFactoryGlobalStateKeyDomain, MethodRestrictionByteLength, MinDefaultEscrowMBR, MinEscrowRefsMBR, MinEscrowsMBR, MinPluginMBR } from './constants'
 import { FactoryUpdateSettings, PluginInstall } from './types'
 
 // CONTRACT IMPORTS
@@ -109,12 +109,7 @@ export class AbstractedAccountFactory extends FactoryContract {
 
     const assetMBR: uint64 = Global.assetOptInMinBalance * assets.length
 
-    let pluginMBR: uint64 = 0
-    for (let i: uint64 = 0; i < plugins.length; i += 1) {
-      pluginMBR += MinPluginMBR + (BoxCostPerByte * (
-        (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
-      ))
-    }
+    const pluginMBR = this.pluginInstallCost(plugins)
 
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     // Q1-A2: the payer no longer funds a referral disbursement MBR (see creationFeeLeftover)
@@ -174,22 +169,23 @@ export class AbstractedAccountFactory extends FactoryContract {
     const walletApp = Application(walletID)
     const isExternalControlled = controlledAddress !== Global.zeroAddress
 
-    // Fund wallet app (MBR + plugins + extra funding)
-    // Asset MBR goes to the controlled address (which may differ from the wallet app)
+    // Everything the wallet spends after this comes out of its controlled address: the wallet
+    // charges that account for each plugin's storage and each new escrow (WAL-03), assets opt in
+    // there, and extra funding is for the owner to use (WAL-08). The app account itself needs only
+    // its own minimum and the price of its registry record.
+    const spendable: uint64 = pluginMBR + extraFunding + assetMBR
     itxn
       .payment({
         receiver: walletApp.address,
-        amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
-          + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+        amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + (isExternalControlled ? 0 : spendable)
       })
       .submit()
 
-    // Fund external controlled address with asset opt-in MBR
-    if (isExternalControlled && assetMBR > 0) {
+    if (isExternalControlled && spendable > 0) {
       itxn
         .payment({
           receiver: controlledAddress,
-          amount: assetMBR
+          amount: spendable
         })
         .submit()
     }
@@ -199,29 +195,6 @@ export class AbstractedAccountFactory extends FactoryContract {
       abiCall<typeof AbstractedAccount.prototype.setBio>({
         appId: walletID,
         args: [bio]
-      })
-    }
-
-    // Install plugins
-    for (let i: uint64 = 0; i < plugins.length; i += 1) {
-      const p = clone(plugins[i])
-      abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
-        appId: walletID,
-        args: [
-          p.plugin,
-          p.caller,
-          p.escrow,
-          p.admin,
-          p.delegationType,
-          p.lastValid,
-          p.cooldown,
-          p.methods,
-          p.useRounds,
-          p.useExecutionKey,
-          p.coverFees,
-          p.canReclaim,
-          p.defaultToEscrow
-        ]
       })
     }
 
@@ -261,6 +234,31 @@ export class AbstractedAccountFactory extends FactoryContract {
         .submit()
     }
 
+    // Install plugins. WAL-03: only now, because the wallet sends each plugin's storage payment from
+    // the controlled address, and an external one answers to the wallet only after the hand-over
+    // above (until then it is rekeyed to this factory).
+    for (let i: uint64 = 0; i < plugins.length; i += 1) {
+      const p = clone(plugins[i])
+      abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
+        appId: walletID,
+        args: [
+          p.plugin,
+          p.caller,
+          p.escrow,
+          p.admin,
+          p.delegationType,
+          p.lastValid,
+          p.cooldown,
+          p.methods,
+          p.useRounds,
+          p.useExecutionKey,
+          p.coverFees,
+          p.canReclaim,
+          p.defaultToEscrow
+        ]
+      })
+    }
+
     // Transfer admin to the real owner
     if (useSetup) {
       abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
@@ -279,6 +277,47 @@ export class AbstractedAccountFactory extends FactoryContract {
     }
 
     return walletID
+  }
+
+  /**
+   * What the wallet spends to install `plugins` at creation: each grant's box, the name a grant on
+   * a default escrow stores beside it, and, the first time an escrow is named, the escrow itself
+   * (its app, its account's minimum and the wallet's two boxes for it). WAL-03: the same amounts
+   * the wallet charges in arc58_addPlugin, so the payment for `newAccount` is exact.
+   */
+  private pluginInstallCost(plugins: PluginInstall[]): uint64 {
+    let total: uint64 = 0
+    for (let i: uint64 = 0; i < plugins.length; i += 1) {
+      const escrow = plugins[i].escrow
+      const escrowBytes: uint64 = Bytes(escrow).length
+
+      total += MinPluginMBR + (BoxCostPerByte * (
+        (MethodRestrictionByteLength * plugins[i].methods.length) +
+        (plugins[i].defaultToEscrow ? 0 : escrowBytes)
+      ))
+      if (plugins[i].defaultToEscrow) {
+        total += MinDefaultEscrowMBR + (BoxCostPerByte * escrowBytes)
+      }
+
+      if (escrow !== '') {
+        let seen = false
+        for (let j: uint64 = 0; j < i; j += 1) {
+          if (plugins[j].escrow === escrow) {
+            seen = true
+          }
+        }
+        if (!seen) {
+          total += (
+            NewCostForARC58 +
+            Global.minBalance +
+            MinEscrowsMBR +
+            MinEscrowRefsMBR +
+            (BoxCostPerByte * escrowBytes * 2)
+          )
+        }
+      }
+    }
+    return total
   }
 
   @abimethod({ readonly: true })
@@ -349,15 +388,19 @@ export class AbstractedAccountFactory extends FactoryContract {
       loggedAssert(Txn.sender === Account(adminBytes), errAdminOnly)
     }
 
-    const clearProgram = compileArc4(AbstractedAccount).clearStateProgram
+    const abstractedAccount = compileArc4(AbstractedAccount)
+    const clearProgram = abstractedAccount.clearStateProgram
     // Wave 0: grow the wallet's program pages only when the new program no longer fits. The
     // factory sends the update, so on growth it becomes the wallet's size sponsor and must hold
     // the wallet's full program/schema MBR (fund the factory before pushing a larger program).
     const growTo = extraPagesToGrow(wallet, this.childApprovalSize(), clearProgram.length)
 
     if (growTo > 0) {
-      // a size change also resets the global schema to the given values: keep the current one
-      const [numUint, numBytes] = appGlobalSchema(wallet)
+      // A size change also sets the global schema, and makes this factory the wallet's size
+      // sponsor. WAL-02: declare the schema the wallet contract itself declares, never the wallet's
+      // current one, which its admin can inflate with a direct update just before this call.
+      const numUint: uint64 = abstractedAccount.globalUints
+      const numBytes: uint64 = abstractedAccount.globalBytes
       abiCall<typeof AbstractedAccount.prototype.update>({
         appId: wallet,
         args: [this.childContractVersion.value],

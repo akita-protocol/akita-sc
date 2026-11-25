@@ -39,7 +39,7 @@ main_switch_case_next@3:
     err
 
 main_opUp_route@9:
-    // smart_contracts/arc58/account/factory.algo.ts:392
+    // smart_contracts/arc58/account/factory.algo.ts:435
     // opUp(): void {
     intc_1 // 1
     return
@@ -388,8 +388,9 @@ updateRevocation_after_assert@3:
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.newAccount[routing]() -> void:
 newAccount:
     intc_0 // 0
+    dup
     pushbytes ""
-    dupn 7
+    dupn 10
     // smart_contracts/arc58/account/factory.algo.ts:80-92
     // newAccount(
     //   payment: gtxn.PaymentTxn,
@@ -479,6 +480,7 @@ newAccount:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    cover 2
     txna ApplicationArgs 9
     dup
     cover 4
@@ -500,13 +502,13 @@ newAccount:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 3
     intc_2 // 2
     *
-    cover 2
+    cover 3
     dup
     len
-    cover 3
+    cover 4
     extract 2 0
     intc_0 // 0
 
@@ -526,7 +528,7 @@ newAccount_for_header@1:
     //   plugins: PluginInstall[]
     // ): uint64 {
     dup
-    dig 3
+    dig 4
     <
     bz newAccount_after_for@4
     dup
@@ -537,7 +539,7 @@ newAccount_for_header@1:
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    uncover 6
+    uncover 7
     dup
     cover 4
     ==
@@ -581,7 +583,7 @@ newAccount_for_header@1:
     +
     +
     +
-    cover 3
+    cover 4
     intc_1 // 1
     +
     b newAccount_for_header@1
@@ -602,10 +604,10 @@ newAccount_after_for@4:
     //   assets: uint64[],
     //   plugins: PluginInstall[]
     // ): uint64 {
-    swap
+    uncover 2
     intc_2 // 2
     +
-    uncover 2
+    uncover 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInstall>
     // smart_contracts/arc58/account/factory.algo.ts:96
@@ -639,7 +641,7 @@ newAccount_after_for@4:
     // return programExtraPages(this.childApprovalSize(), clearSize, minExtraPages)
     callsub programExtraPages
     dup
-    bury 23
+    bury 25
     // smart_contracts/utils/programs.ts:49
     // return MIN_PROGRAM_PAGES * (1 + extraPages)
     intc_1 // 1
@@ -679,31 +681,54 @@ newAccount_after_for@4:
     // ARC58WalletIDsByAccountsMbr +
     // creationFee
     +
-    cover 3
+    bury 26
     // smart_contracts/arc58/account/factory.algo.ts:110
     // const assetMBR: uint64 = Global.assetOptInMinBalance * assets.length
     global AssetOptInMinBalance
-    dig 8
+    dig 7
     *
-    bury 24
-    // smart_contracts/arc58/account/factory.algo.ts:112
-    // let pluginMBR: uint64 = 0
+    cover 4
+    // smart_contracts/arc58/account/factory.algo.ts:289
+    // let total: uint64 = 0
     intc_0 // 0
-    cover 5
-    // smart_contracts/arc58/account/factory.algo.ts:113
+    cover 3
+    // smart_contracts/arc58/account/factory.algo.ts:290
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     intc_0 // 0
 
-newAccount_while_top@6:
-    // smart_contracts/arc58/account/factory.algo.ts:113
+newAccount_while_top@86:
+    // smart_contracts/arc58/account/factory.algo.ts:290
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     dup
-    dig 3
+    dig 4
     <
-    bz newAccount_after_while@8
-    // smart_contracts/arc58/account/factory.algo.ts:115
-    // (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
-    dig 3
+    bz newAccount_after_while@99
+    // smart_contracts/arc58/account/factory.algo.ts:291
+    // const escrow = plugins[i].escrow
+    dig 2
+    dup
+    dig 2
+    dup
+    cover 3
+    callsub dynamic_array_read_dynamic_element
+    dup
+    pushint 40
+    extract_uint16
+    dig 1
+    pushint 60
+    extract_uint16
+    substring3
+    extract 2 0
+    dup
+    bury 33
+    // smart_contracts/arc58/account/factory.algo.ts:292
+    // const escrowBytes: uint64 = Bytes(escrow).length
+    len
+    dup
+    cover 3
+    bury 30
+    // smart_contracts/arc58/account/factory.algo.ts:295
+    // (MethodRestrictionByteLength * plugins[i].methods.length) +
     dup
     dig 2
     callsub dynamic_array_read_dynamic_element
@@ -717,7 +742,82 @@ newAccount_while_top@6:
     extract_uint16 // on error: invalid array length header
     pushint 20
     *
+    // smart_contracts/arc58/account/factory.algo.ts:296
+    // (plugins[i].defaultToEscrow ? 0 : escrowBytes)
     swap
+    uncover 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 500
+    getbit
+    uncover 2
+    intc_0 // 0
+    dig 2
+    select
+    // smart_contracts/arc58/account/factory.algo.ts:295-296
+    // (MethodRestrictionByteLength * plugins[i].methods.length) +
+    // (plugins[i].defaultToEscrow ? 0 : escrowBytes)
+    uncover 2
+    +
+    // smart_contracts/arc58/account/factory.algo.ts:294
+    // total += MinPluginMBR + (BoxCostPerByte * (
+    pushint 400
+    // smart_contracts/arc58/account/factory.algo.ts:294-297
+    // total += MinPluginMBR + (BoxCostPerByte * (
+    //   (MethodRestrictionByteLength * plugins[i].methods.length) +
+    //   (plugins[i].defaultToEscrow ? 0 : escrowBytes)
+    // ))
+    *
+    // smart_contracts/arc58/account/factory.algo.ts:294
+    // total += MinPluginMBR + (BoxCostPerByte * (
+    pushint 38900
+    // smart_contracts/arc58/account/factory.algo.ts:294-297
+    // total += MinPluginMBR + (BoxCostPerByte * (
+    //   (MethodRestrictionByteLength * plugins[i].methods.length) +
+    //   (plugins[i].defaultToEscrow ? 0 : escrowBytes)
+    // ))
+    +
+    uncover 6
+    +
+    cover 5
+    // smart_contracts/arc58/account/factory.algo.ts:298
+    // if (plugins[i].defaultToEscrow) {
+    bz newAccount_after_if_else@89
+    // smart_contracts/arc58/account/factory.algo.ts:299
+    // total += MinDefaultEscrowMBR + (BoxCostPerByte * escrowBytes)
+    pushint 400
+    dig 27
+    *
+    pushint 20500
+    +
+    uncover 5
+    +
+    cover 4
+
+newAccount_after_if_else@89:
+    // smart_contracts/arc58/account/factory.algo.ts:302
+    // if (escrow !== '') {
+    dig 29
+    pushbytes ""
+    !=
+    bz newAccount_after_if_else@98
+    // smart_contracts/arc58/account/factory.algo.ts:303
+    // let seen = false
+    intc_0 // 0
+    bury 21
+    // smart_contracts/arc58/account/factory.algo.ts:304
+    // for (let j: uint64 = 0; j < i; j += 1) {
+    intc_0 // 0
+    swap
+
+newAccount_while_top@91:
+    // smart_contracts/arc58/account/factory.algo.ts:304
+    // for (let j: uint64 = 0; j < i; j += 1) {
+    dup2
+    <
+    bz newAccount_after_while@95
+    // smart_contracts/arc58/account/factory.algo.ts:305
+    // if (plugins[j].escrow === escrow) {
+    dig 3
     dig 2
     callsub dynamic_array_read_dynamic_element
     dup
@@ -728,159 +828,196 @@ newAccount_while_top@6:
     extract_uint16
     substring3
     extract 2 0
-    len
+    dig 31
+    ==
+    bz newAccount_after_if_else@94
+    // smart_contracts/arc58/account/factory.algo.ts:306
+    // seen = true
+    intc_1 // 1
+    bury 22
+
+newAccount_after_if_else@94:
+    // smart_contracts/arc58/account/factory.algo.ts:304
+    // for (let j: uint64 = 0; j < i; j += 1) {
+    swap
+    intc_1 // 1
     +
-    // smart_contracts/arc58/account/factory.algo.ts:114
-    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
-    pushint 400
-    // smart_contracts/arc58/account/factory.algo.ts:114-116
-    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
-    //   (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
-    // ))
+    swap
+    b newAccount_while_top@91
+
+newAccount_after_while@95:
+    bury 1
+    // smart_contracts/arc58/account/factory.algo.ts:309
+    // if (!seen) {
+    dig 20
+    bnz newAccount_after_if_else@98
+    // smart_contracts/arc58/account/factory.algo.ts:312
+    // Global.minBalance +
+    global MinBalance
+    // smart_contracts/arc58/account/factory.algo.ts:311-314
+    // NewCostForARC58 +
+    // Global.minBalance +
+    // MinEscrowsMBR +
+    // MinEscrowRefsMBR +
+    pushint 175400
+    +
+    // smart_contracts/arc58/account/factory.algo.ts:315
+    // (BoxCostPerByte * escrowBytes * 2)
+    dig 27
+    pushint 800
     *
-    // smart_contracts/arc58/account/factory.algo.ts:114
-    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
-    pushint 38900
-    // smart_contracts/arc58/account/factory.algo.ts:114-116
-    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
-    //   (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
-    // ))
+    // smart_contracts/arc58/account/factory.algo.ts:311-315
+    // NewCostForARC58 +
+    // Global.minBalance +
+    // MinEscrowsMBR +
+    // MinEscrowRefsMBR +
+    // (BoxCostPerByte * escrowBytes * 2)
     +
-    uncover 7
+    // smart_contracts/arc58/account/factory.algo.ts:310-316
+    // total += (
+    //   NewCostForARC58 +
+    //   Global.minBalance +
+    //   MinEscrowsMBR +
+    //   MinEscrowRefsMBR +
+    //   (BoxCostPerByte * escrowBytes * 2)
+    // )
+    uncover 5
     +
-    cover 6
-    // smart_contracts/arc58/account/factory.algo.ts:113
+    cover 4
+
+newAccount_after_if_else@98:
+    // smart_contracts/arc58/account/factory.algo.ts:290
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     intc_1 // 1
     +
-    b newAccount_while_top@6
+    b newAccount_while_top@86
 
-newAccount_after_while@8:
+newAccount_after_while@99:
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:119
+    // smart_contracts/arc58/account/factory.algo.ts:114
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    dig 7
+    dig 6
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    bnz newAccount_after_assert@10
+    bnz newAccount_after_assert@7
     bytec 17 // "ERR:errIpay"
     log
     err // ERR:errIpay
 
-newAccount_after_assert@10:
-    // smart_contracts/arc58/account/factory.algo.ts:121
+newAccount_after_assert@7:
+    // smart_contracts/arc58/account/factory.algo.ts:116
     // loggedAssert(payment.amount === childMBR + extraFunding + assetMBR + pluginMBR, errInvalidPayment)
-    uncover 7
+    uncover 6
     gtxns Amount
-    uncover 4
+    dig 27
+    dig 8
+    +
+    dig 7
+    +
     dig 5
     +
-    dig 24
-    +
-    dig 6
-    +
     ==
-    bnz newAccount_after_assert@12
+    bnz newAccount_after_assert@9
     bytec 17 // "ERR:errIpay"
     log
     err // ERR:errIpay
 
-newAccount_after_assert@12:
-    // smart_contracts/arc58/account/factory.algo.ts:311
+newAccount_after_assert@9:
+    // smart_contracts/arc58/account/factory.algo.ts:350
     // if (creationFee === 0 || referrer === Global.zeroAddress) {
     dup
-    bz newAccount_if_body@75
-    dig 5
+    bz newAccount_if_body@69
+    dig 4
     global ZeroAddress
     ==
-    bz newAccount_after_if_else@76
+    bz newAccount_after_if_else@70
 
-newAccount_if_body@75:
-    bury 18
+newAccount_if_body@69:
+    bury 21
 
-newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@90:
-    // smart_contracts/arc58/account/factory.algo.ts:130
+newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@84:
+    // smart_contracts/arc58/account/factory.algo.ts:125
     // if (controlledAddress !== Global.zeroAddress) {
-    dig 13
+    dig 14
     global ZeroAddress
     !=
-    bz newAccount_after_if_else@22
-    // smart_contracts/arc58/account/factory.algo.ts:131
+    bz newAccount_after_if_else@19
+    // smart_contracts/arc58/account/factory.algo.ts:126
     // let proven = false
     intc_0 // 0
-    bury 17
-    // smart_contracts/arc58/account/factory.algo.ts:132
+    bury 20
+    // smart_contracts/arc58/account/factory.algo.ts:127
     // for (let i: uint64 = 0; i < Txn.groupIndex; i += 1) {
     intc_0 // 0
 
-newAccount_while_top@14:
-    // smart_contracts/arc58/account/factory.algo.ts:132
+newAccount_while_top@11:
+    // smart_contracts/arc58/account/factory.algo.ts:127
     // for (let i: uint64 = 0; i < Txn.groupIndex; i += 1) {
     dup
     txn GroupIndex
     <
-    bz newAccount_after_while@19
-    // smart_contracts/arc58/account/factory.algo.ts:134
+    bz newAccount_after_while@16
+    // smart_contracts/arc58/account/factory.algo.ts:129
     // if (txn.sender === controlledAddress && txn.rekeyTo === Global.currentApplicationAddress) {
     dup
     gtxns Sender
-    dig 15
+    dig 16
     ==
-    bz newAccount_after_if_else@18
+    bz newAccount_after_if_else@15
     dup
     gtxns RekeyTo
     global CurrentApplicationAddress
     ==
-    bz newAccount_after_if_else@18
-    // smart_contracts/arc58/account/factory.algo.ts:135
+    bz newAccount_after_if_else@15
+    // smart_contracts/arc58/account/factory.algo.ts:130
     // proven = true
     intc_1 // 1
-    bury 18
+    bury 21
 
-newAccount_after_if_else@18:
-    // smart_contracts/arc58/account/factory.algo.ts:132
+newAccount_after_if_else@15:
+    // smart_contracts/arc58/account/factory.algo.ts:127
     // for (let i: uint64 = 0; i < Txn.groupIndex; i += 1) {
     intc_1 // 1
     +
-    b newAccount_while_top@14
+    b newAccount_while_top@11
 
-newAccount_after_while@19:
+newAccount_after_while@16:
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:138
+    // smart_contracts/arc58/account/factory.algo.ts:133
     // loggedAssert(proven, errControlledAddressNotProven)
-    dig 16
-    bnz newAccount_after_if_else@22
+    dig 19
+    bnz newAccount_after_if_else@19
     pushbytes "ERR:errCnap"
     log
     err // ERR:errCnap
 
-newAccount_after_if_else@22:
-    // smart_contracts/arc58/account/factory.algo.ts:142
+newAccount_after_if_else@19:
+    // smart_contracts/arc58/account/factory.algo.ts:137
     // const useSetup = bio !== '' || plugins.length > 0 || assets.length > 0
-    dig 8
+    dig 9
     pushbytes ""
     !=
     dup
-    bury 16
-    bnz newAccount_bool_true@25
-    dup
-    bnz newAccount_bool_true@25
-    dig 5
-    bz newAccount_bool_false@26
+    bury 17
+    bnz newAccount_bool_true@22
+    dig 1
+    bnz newAccount_bool_true@22
+    dig 6
+    bz newAccount_bool_false@23
 
-newAccount_bool_true@25:
+newAccount_bool_true@22:
     intc_1 // 1
 
-newAccount_bool_merge@27:
-    // smart_contracts/arc58/account/factory.algo.ts:143
+newAccount_bool_merge@24:
+    // smart_contracts/arc58/account/factory.algo.ts:138
     // const initialAdmin = useSetup ? Global.currentApplicationAddress : admin
     dup
-    bz newAccount_ternary_false@29
+    bz newAccount_ternary_false@26
     global CurrentApplicationAddress
 
-newAccount_ternary_merge@30:
-    // smart_contracts/arc58/account/factory.algo.ts:145-169
+newAccount_ternary_merge@27:
+    // smart_contracts/arc58/account/factory.algo.ts:140-164
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
@@ -907,13 +1044,13 @@ newAccount_ternary_merge@30:
     //     extraProgramPages: extraPages
     //   })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:148
+    // smart_contracts/arc58/account/factory.algo.ts:143
     // this.childContractVersion.value,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:62
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/arc58/account/factory.algo.ts:148
+    // smart_contracts/arc58/account/factory.algo.ts:143
     // this.childContractVersion.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -923,24 +1060,24 @@ newAccount_ternary_merge@30:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:149
+    // smart_contracts/arc58/account/factory.algo.ts:144
     // this.akitaDAO.value.id,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:149
+    // smart_contracts/arc58/account/factory.algo.ts:144
     // this.akitaDAO.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:152
+    // smart_contracts/arc58/account/factory.algo.ts:147
     // this.domain.value,
     intc_0 // 0
     // smart_contracts/arc58/account/factory.algo.ts:52
     // domain = GlobalState<string>({ key: AbstractedAccountFactoryGlobalStateKeyDomain })
     bytec 16 // "domain"
-    // smart_contracts/arc58/account/factory.algo.ts:152
+    // smart_contracts/arc58/account/factory.algo.ts:147
     // this.domain.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -950,41 +1087,41 @@ newAccount_ternary_merge@30:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:153
+    // smart_contracts/arc58/account/factory.algo.ts:148
     // this.escrowFactory.value.id,
     intc_0 // 0
     // smart_contracts/arc58/account/factory.algo.ts:48
     // escrowFactory = GlobalState<Application>({ key: GlobalStateKeyEscrowFactory })
     bytec 15 // "escrow_factory"
-    // smart_contracts/arc58/account/factory.algo.ts:153
+    // smart_contracts/arc58/account/factory.algo.ts:148
     // this.escrowFactory.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:154
+    // smart_contracts/arc58/account/factory.algo.ts:149
     // this.revocation.value.id,
     intc_0 // 0
     // smart_contracts/arc58/account/factory.algo.ts:50
     // revocation = GlobalState<Application>({ key: GlobalStateKeyRevocation })
     bytec 10 // "revocation"
-    // smart_contracts/arc58/account/factory.algo.ts:154
+    // smart_contracts/arc58/account/factory.algo.ts:149
     // this.revocation.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:162
+    // smart_contracts/arc58/account/factory.algo.ts:157
     // this.childApprovalChunk(0),
     intc_0 // 0
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:163
+    // smart_contracts/arc58/account/factory.algo.ts:158
     // this.childApprovalChunk(1),
     intc_1 // 1
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:164
+    // smart_contracts/arc58/account/factory.algo.ts:159
     // this.childApprovalChunk(2),
     intc_2 // 2
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:165
+    // smart_contracts/arc58/account/factory.algo.ts:160
     // this.childApprovalChunk(3),
     pushint 3
     callsub childApprovalChunk
@@ -994,7 +1131,7 @@ newAccount_ternary_merge@30:
     itxn_field GlobalNumByteSlice
     pushint 12
     itxn_field GlobalNumUint
-    // smart_contracts/arc58/account/factory.algo.ts:145-169
+    // smart_contracts/arc58/account/factory.algo.ts:140-164
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
@@ -1022,7 +1159,7 @@ newAccount_ternary_merge@30:
     //   })
     intc_0 // 0
     itxn_field OnCompletion
-    dig 30
+    dig 33
     itxn_field ExtraProgramPages
     // smart_contracts/arc58/account/factory.algo.ts:94
     // const abstractedAccount = compileArc4(AbstractedAccount)
@@ -1035,7 +1172,7 @@ newAccount_ternary_merge@30:
     swap
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:145-169
+    // smart_contracts/arc58/account/factory.algo.ts:140-164
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
@@ -1067,7 +1204,7 @@ newAccount_ternary_merge@30:
     itxn_field ApplicationArgs
     uncover 3
     itxn_field ApplicationArgs
-    dig 18
+    dig 19
     dup
     itxn_field ApplicationArgs
     uncover 4
@@ -1078,20 +1215,20 @@ newAccount_ternary_merge@30:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 13
+    dig 14
     itxn_field ApplicationArgs
-    uncover 6
+    uncover 5
     itxn_field ApplicationArgs
-    dig 11
+    dig 12
     itxn_field ApplicationArgs
-    dig 8
+    dig 9
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:145-171
+    // smart_contracts/arc58/account/factory.algo.ts:140-166
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
@@ -1122,119 +1259,114 @@ newAccount_ternary_merge@30:
     gitxn 0 CreatedApplicationID
     dup
     cover 3
-    // smart_contracts/arc58/account/factory.algo.ts:175
+    // smart_contracts/arc58/account/factory.algo.ts:170
     // const isExternalControlled = controlledAddress !== Global.zeroAddress
     global ZeroAddress
     uncover 2
     !=
     dup
     cover 2
-    cover 4
-    // smart_contracts/arc58/account/factory.algo.ts:179-185
+    cover 3
+    // smart_contracts/arc58/account/factory.algo.ts:176
+    // const spendable: uint64 = pluginMBR + extraFunding + assetMBR
+    uncover 7
+    uncover 9
+    +
+    uncover 8
+    +
+    dup
+    bury 19
+    // smart_contracts/arc58/account/factory.algo.ts:177-182
     // itxn
     //   .payment({
     //     receiver: walletApp.address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
-    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + (isExternalControlled ? 0 : spendable)
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:181
+    // smart_contracts/arc58/account/factory.algo.ts:179
     // receiver: walletApp.address,
-    app_params_get AppAddress
     swap
-    cover 6
+    app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/account/factory.algo.ts:182
-    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+    // smart_contracts/arc58/account/factory.algo.ts:180
+    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + (isExternalControlled ? 0 : spendable)
     global MinBalance
     intc 5 // 12100
     +
-    uncover 9
-    +
-    swap
-    // smart_contracts/arc58/account/factory.algo.ts:183
-    // + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
-    bz newAccount_ternary_false@33
-    uncover 7
-
-newAccount_ternary_merge@34:
-    // smart_contracts/arc58/account/factory.algo.ts:182-183
-    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
-    //   + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    uncover 2
+    intc_0 // 0
+    dig 4
+    select
     +
     itxn_field Amount
-    uncover 4
     itxn_field Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:179-184
+    // smart_contracts/arc58/account/factory.algo.ts:177-181
     // itxn
     //   .payment({
     //     receiver: walletApp.address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
-    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + (isExternalControlled ? 0 : spendable)
     //   })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:179-185
+    // smart_contracts/arc58/account/factory.algo.ts:177-182
     // itxn
     //   .payment({
     //     receiver: walletApp.address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
-    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + (isExternalControlled ? 0 : spendable)
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:188
-    // if (isExternalControlled && assetMBR > 0) {
-    dig 2
-    bz newAccount_after_if_else@39
-    dig 21
-    bz newAccount_after_if_else@39
-    // smart_contracts/arc58/account/factory.algo.ts:189-194
+    // smart_contracts/arc58/account/factory.algo.ts:184
+    // if (isExternalControlled && spendable > 0) {
+    bz newAccount_after_if_else@33
+    dig 15
+    bz newAccount_after_if_else@33
+    // smart_contracts/arc58/account/factory.algo.ts:185-190
     // itxn
     //   .payment({
     //     receiver: controlledAddress,
-    //     amount: assetMBR
+    //     amount: spendable
     //   })
     //   .submit()
     itxn_begin
-    dig 21
+    dig 15
     itxn_field Amount
     dig 13
     itxn_field Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:189-193
+    // smart_contracts/arc58/account/factory.algo.ts:185-189
     // itxn
     //   .payment({
     //     receiver: controlledAddress,
-    //     amount: assetMBR
+    //     amount: spendable
     //   })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:189-194
+    // smart_contracts/arc58/account/factory.algo.ts:185-190
     // itxn
     //   .payment({
     //     receiver: controlledAddress,
-    //     amount: assetMBR
+    //     amount: spendable
     //   })
     //   .submit()
     itxn_submit
 
-newAccount_after_if_else@39:
-    // smart_contracts/arc58/account/factory.algo.ts:198
+newAccount_after_if_else@33:
+    // smart_contracts/arc58/account/factory.algo.ts:194
     // if (bio !== '') {
     dig 14
-    bz newAccount_after_if_else@42
-    // smart_contracts/arc58/account/factory.algo.ts:199-202
+    bz newAccount_after_if_else@36
+    // smart_contracts/arc58/account/factory.algo.ts:195-198
     // abiCall<typeof AbstractedAccount.prototype.setBio>({
     //   appId: walletID,
     //   args: [bio]
     // })
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     pushbytes 0x5ef0b415 // method "setBio(string)void"
     itxn_field ApplicationArgs
@@ -1246,20 +1378,173 @@ newAccount_after_if_else@39:
     itxn_field Fee
     itxn_submit
 
-newAccount_after_if_else@42:
-    // smart_contracts/arc58/account/factory.algo.ts:206
+newAccount_after_if_else@36:
+    // smart_contracts/arc58/account/factory.algo.ts:202
+    // const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
+    dig 1
+    bz newAccount_ternary_false@38
+    dig 13
+    bury 27
+
+newAccount_ternary_merge@39:
+    // smart_contracts/arc58/account/factory.algo.ts:204
+    // if (assets.length > 0) {
+    dig 5
+    bz newAccount_else_body@48
+    // smart_contracts/arc58/account/factory.algo.ts:207
+    // if (!isExternalControlled) {
+    swap
+    bnz newAccount_after_if_else@43
+    // smart_contracts/arc58/account/factory.algo.ts:208-211
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:210
+    // args: [Global.currentApplicationAddress, false]
+    global CurrentApplicationAddress
+    dig 2
+    itxn_field ApplicationID
+    // smart_contracts/arc58/account/factory.algo.ts:208-211
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    pushbytes 0xc95a5d3d // method "arc58_rekeyTo(address,bool)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/account/factory.algo.ts:210
+    // args: [Global.currentApplicationAddress, false]
+    bytec 4 // 0x00
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/account/factory.algo.ts:208-211
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+newAccount_after_if_else@43:
+    // smart_contracts/arc58/account/factory.algo.ts:214
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_0 // 0
+    bury 20
+
+newAccount_while_top@44:
+    // smart_contracts/arc58/account/factory.algo.ts:214
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dig 19
+    dig 5
+    <
+    bz newAccount_after_if_else@52
+    // smart_contracts/arc58/account/factory.algo.ts:215-223
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:219
+    // xferAsset: Asset(assets[i]),
+    dig 5
+    extract 2 0
+    dig 20
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    extract_uint64
+    cover 3
+    // smart_contracts/arc58/account/factory.algo.ts:221
+    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    dig 6
+    intc_1 // 1
+    -
+    ==
+    // smart_contracts/utils/functions.ts:547
+    // if (!rekeyBack) {
+    bnz newAccount_after_if_else@65
+    // smart_contracts/utils/functions.ts:548
+    // return Global.zeroAddress
+    global ZeroAddress
+
+newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@66:
+    itxn_field RekeyTo
+    // smart_contracts/arc58/account/factory.algo.ts:220
+    // assetAmount: 0,
+    intc_0 // 0
+    itxn_field AssetAmount
+    uncover 2
+    itxn_field XferAsset
+    dig 25
+    dup
+    itxn_field AssetReceiver
+    itxn_field Sender
+    // smart_contracts/arc58/account/factory.algo.ts:215-222
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/factory.algo.ts:215-223
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/account/factory.algo.ts:214
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dig 19
+    intc_1 // 1
+    +
+    bury 20
+    b newAccount_while_top@44
+
+newAccount_after_if_else@65:
+    // smart_contracts/utils/functions.ts:551
+    // return wallet.address
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/account/factory.algo.ts:221
+    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    b newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@66
+
+newAccount_after_if_else@52:
+    // smart_contracts/arc58/account/factory.algo.ts:240
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     intc_0 // 0
     swap
 
-newAccount_while_top@43:
-    // smart_contracts/arc58/account/factory.algo.ts:206
+newAccount_while_top@53:
+    // smart_contracts/arc58/account/factory.algo.ts:240
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     dig 1
     dig 5
     <
-    bz newAccount_after_while@46
-    // smart_contracts/arc58/account/factory.algo.ts:208-225
+    bz newAccount_after_while@56
+    // smart_contracts/arc58/account/factory.algo.ts:242-259
     // abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
     //   appId: walletID,
     //   args: [
@@ -1279,22 +1564,22 @@ newAccount_while_top@43:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:211
+    // smart_contracts/arc58/account/factory.algo.ts:245
     // p.plugin,
-    dig 5
+    dig 3
     dup
     uncover 3
     dup
     cover 3
     callsub dynamic_array_read_dynamic_element
     extract 0 8
-    // smart_contracts/arc58/account/factory.algo.ts:212
+    // smart_contracts/arc58/account/factory.algo.ts:246
     // p.caller,
     dig 1
     dig 3
     callsub dynamic_array_read_dynamic_element
     extract 8 32
-    // smart_contracts/arc58/account/factory.algo.ts:213
+    // smart_contracts/arc58/account/factory.algo.ts:247
     // p.escrow,
     dig 2
     dig 4
@@ -1306,7 +1591,7 @@ newAccount_while_top@43:
     pushint 60
     extract_uint16
     substring3
-    // smart_contracts/arc58/account/factory.algo.ts:214
+    // smart_contracts/arc58/account/factory.algo.ts:248
     // p.admin,
     dig 3
     dig 5
@@ -1317,25 +1602,25 @@ newAccount_while_top@43:
     intc_0 // 0
     uncover 2
     setbit
-    // smart_contracts/arc58/account/factory.algo.ts:215
+    // smart_contracts/arc58/account/factory.algo.ts:249
     // p.delegationType,
     dig 4
     dig 6
     callsub dynamic_array_read_dynamic_element
     extract 43 1
-    // smart_contracts/arc58/account/factory.algo.ts:216
+    // smart_contracts/arc58/account/factory.algo.ts:250
     // p.lastValid,
     dig 5
     dig 7
     callsub dynamic_array_read_dynamic_element
     extract 44 8
-    // smart_contracts/arc58/account/factory.algo.ts:217
+    // smart_contracts/arc58/account/factory.algo.ts:251
     // p.cooldown,
     dig 6
     dig 8
     callsub dynamic_array_read_dynamic_element
     extract 52 8
-    // smart_contracts/arc58/account/factory.algo.ts:218
+    // smart_contracts/arc58/account/factory.algo.ts:252
     // p.methods,
     dig 7
     dig 9
@@ -1346,7 +1631,7 @@ newAccount_while_top@43:
     dig 1
     len
     substring3
-    // smart_contracts/arc58/account/factory.algo.ts:219
+    // smart_contracts/arc58/account/factory.algo.ts:253
     // p.useRounds,
     dig 8
     dig 10
@@ -1357,7 +1642,7 @@ newAccount_while_top@43:
     intc_0 // 0
     uncover 2
     setbit
-    // smart_contracts/arc58/account/factory.algo.ts:220
+    // smart_contracts/arc58/account/factory.algo.ts:254
     // p.useExecutionKey,
     dig 9
     dig 11
@@ -1368,7 +1653,7 @@ newAccount_while_top@43:
     intc_0 // 0
     uncover 2
     setbit
-    // smart_contracts/arc58/account/factory.algo.ts:221
+    // smart_contracts/arc58/account/factory.algo.ts:255
     // p.coverFees,
     dig 10
     dig 12
@@ -1379,7 +1664,7 @@ newAccount_while_top@43:
     intc_0 // 0
     uncover 2
     setbit
-    // smart_contracts/arc58/account/factory.algo.ts:222
+    // smart_contracts/arc58/account/factory.algo.ts:256
     // p.canReclaim,
     dig 11
     dig 13
@@ -1390,7 +1675,7 @@ newAccount_while_top@43:
     intc_0 // 0
     uncover 2
     setbit
-    // smart_contracts/arc58/account/factory.algo.ts:223
+    // smart_contracts/arc58/account/factory.algo.ts:257
     // p.defaultToEscrow
     uncover 12
     dig 13
@@ -1403,7 +1688,7 @@ newAccount_while_top@43:
     setbit
     dig 15
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/factory.algo.ts:208-225
+    // smart_contracts/arc58/account/factory.algo.ts:242-259
     // abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
     //   appId: walletID,
     //   args: [
@@ -1454,176 +1739,23 @@ newAccount_while_top@43:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:206
+    // smart_contracts/arc58/account/factory.algo.ts:240
     // for (let i: uint64 = 0; i < plugins.length; i += 1) {
     intc_1 // 1
     +
     swap
-    b newAccount_while_top@43
+    b newAccount_while_top@53
 
-newAccount_after_while@46:
+newAccount_after_while@56:
     bury 1
-    uncover 3
-    pop
-    uncover 3
-    pop
-    // smart_contracts/arc58/account/factory.algo.ts:229
-    // const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
-    dig 2
-    bz newAccount_ternary_false@48
-    dig 11
-    bury 21
-
-newAccount_ternary_merge@49:
-    // smart_contracts/arc58/account/factory.algo.ts:231
-    // if (assets.length > 0) {
-    dig 3
-    bz newAccount_else_body@58
-    // smart_contracts/arc58/account/factory.algo.ts:234
-    // if (!isExternalControlled) {
     uncover 2
-    bnz newAccount_after_if_else@53
-    // smart_contracts/arc58/account/factory.algo.ts:235-238
-    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
-    //   appId: walletID,
-    //   args: [Global.currentApplicationAddress, false]
-    // })
-    itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:237
-    // args: [Global.currentApplicationAddress, false]
-    global CurrentApplicationAddress
-    dig 2
-    itxn_field ApplicationID
-    // smart_contracts/arc58/account/factory.algo.ts:235-238
-    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
-    //   appId: walletID,
-    //   args: [Global.currentApplicationAddress, false]
-    // })
-    pushbytes 0xc95a5d3d // method "arc58_rekeyTo(address,bool)void"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    // smart_contracts/arc58/account/factory.algo.ts:237
-    // args: [Global.currentApplicationAddress, false]
-    bytec 4 // 0x00
-    itxn_field ApplicationArgs
-    // smart_contracts/arc58/account/factory.algo.ts:235-238
-    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
-    //   appId: walletID,
-    //   args: [Global.currentApplicationAddress, false]
-    // })
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-
-newAccount_after_if_else@53:
-    // smart_contracts/arc58/account/factory.algo.ts:241
-    // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    intc_0 // 0
-    bury 16
-
-newAccount_while_top@54:
-    // smart_contracts/arc58/account/factory.algo.ts:241
-    // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    dig 15
-    dig 3
-    <
-    bz newAccount_after_if_else@62
-    // smart_contracts/arc58/account/factory.algo.ts:242-250
-    // itxn
-    //   .assetTransfer({
-    //     sender: assetAccount,
-    //     assetReceiver: assetAccount,
-    //     xferAsset: Asset(assets[i]),
-    //     assetAmount: 0,
-    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
-    //   })
-    //   .submit()
-    itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:246
-    // xferAsset: Asset(assets[i]),
-    dig 3
-    extract 2 0
-    dig 16
-    dup
-    cover 2
-    intc_3 // 8
-    *
-    extract_uint64
-    cover 2
-    // smart_contracts/arc58/account/factory.algo.ts:248
-    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
-    dig 4
-    intc_1 // 1
-    -
-    ==
-    // smart_contracts/utils/functions.ts:547
-    // if (!rekeyBack) {
-    bnz newAccount_after_if_else@71
-    // smart_contracts/utils/functions.ts:548
-    // return Global.zeroAddress
-    global ZeroAddress
-
-newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@72:
-    itxn_field RekeyTo
-    // smart_contracts/arc58/account/factory.algo.ts:247
-    // assetAmount: 0,
-    intc_0 // 0
-    itxn_field AssetAmount
-    swap
-    itxn_field XferAsset
-    dig 19
-    dup
-    itxn_field AssetReceiver
-    itxn_field Sender
-    // smart_contracts/arc58/account/factory.algo.ts:242-249
-    // itxn
-    //   .assetTransfer({
-    //     sender: assetAccount,
-    //     assetReceiver: assetAccount,
-    //     xferAsset: Asset(assets[i]),
-    //     assetAmount: 0,
-    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
-    //   })
-    pushint 4
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:242-250
-    // itxn
-    //   .assetTransfer({
-    //     sender: assetAccount,
-    //     assetReceiver: assetAccount,
-    //     xferAsset: Asset(assets[i]),
-    //     assetAmount: 0,
-    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
-    //   })
-    //   .submit()
-    itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:241
-    // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    dig 15
-    intc_1 // 1
-    +
-    bury 16
-    b newAccount_while_top@54
-
-newAccount_after_if_else@71:
-    // smart_contracts/utils/functions.ts:551
-    // return wallet.address
-    dig 2
-    app_params_get AppAddress
-    assert // application exists
-    // smart_contracts/arc58/account/factory.algo.ts:248
-    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
-    b newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@72
-
-newAccount_after_if_else@62:
-    // smart_contracts/arc58/account/factory.algo.ts:265
+    pop
+    uncover 2
+    pop
+    // smart_contracts/arc58/account/factory.algo.ts:263
     // if (useSetup) {
-    bz newAccount_after_if_else@65
-    // smart_contracts/arc58/account/factory.algo.ts:266-269
+    bz newAccount_after_if_else@59
+    // smart_contracts/arc58/account/factory.algo.ts:264-267
     // abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
     //   appId: walletID,
     //   args: [admin]
@@ -1641,12 +1773,12 @@ newAccount_after_if_else@62:
     itxn_field Fee
     itxn_submit
 
-newAccount_after_if_else@65:
-    // smart_contracts/arc58/account/factory.algo.ts:272
+newAccount_after_if_else@59:
+    // smart_contracts/arc58/account/factory.algo.ts:270
     // if (leftover > 0) {
-    dig 13
-    bz newAccount_after_if_else@68
-    // smart_contracts/arc58/account/factory.algo.ts:273-278
+    dig 15
+    bz newAccount_after_if_else@62
+    // smart_contracts/arc58/account/factory.algo.ts:271-276
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.app.address,
@@ -1654,13 +1786,13 @@ newAccount_after_if_else@65:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:275
+    // smart_contracts/arc58/account/factory.algo.ts:273
     // receiver: this.akitaDAOEscrow.value.app.address,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec_3 // "akita_escrow"
-    // smart_contracts/arc58/account/factory.algo.ts:275
+    // smart_contracts/arc58/account/factory.algo.ts:273
     // receiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1668,10 +1800,10 @@ newAccount_after_if_else@65:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    dig 14
+    dig 16
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:273-277
+    // smart_contracts/arc58/account/factory.algo.ts:271-275
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.app.address,
@@ -1681,7 +1813,7 @@ newAccount_after_if_else@65:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:273-278
+    // smart_contracts/arc58/account/factory.algo.ts:271-276
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.app.address,
@@ -1690,7 +1822,7 @@ newAccount_after_if_else@65:
     //   .submit()
     itxn_submit
 
-newAccount_after_if_else@68:
+newAccount_after_if_else@62:
     // smart_contracts/arc58/account/factory.algo.ts:80-92
     // newAccount(
     //   payment: gtxn.PaymentTxn,
@@ -1713,12 +1845,12 @@ newAccount_after_if_else@68:
     intc_1 // 1
     return
 
-newAccount_else_body@58:
-    // smart_contracts/arc58/account/factory.algo.ts:252
+newAccount_else_body@48:
+    // smart_contracts/arc58/account/factory.algo.ts:225
     // } else if (isExternalControlled) {
-    uncover 2
-    bz newAccount_after_if_else@62
-    // smart_contracts/arc58/account/factory.algo.ts:254-261
+    swap
+    bz newAccount_after_if_else@52
+    // smart_contracts/arc58/account/factory.algo.ts:227-234
     // itxn
     //   .payment({
     //     sender: controlledAddress,
@@ -1728,21 +1860,21 @@ newAccount_else_body@58:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:259
+    // smart_contracts/arc58/account/factory.algo.ts:232
     // rekeyTo: walletApp.address
     dig 1
     app_params_get AppAddress
     assert // application exists
     itxn_field RekeyTo
-    // smart_contracts/arc58/account/factory.algo.ts:258
+    // smart_contracts/arc58/account/factory.algo.ts:231
     // amount: 0,
     intc_0 // 0
     itxn_field Amount
-    dig 10
+    dig 12
     dup
     itxn_field Receiver
     itxn_field Sender
-    // smart_contracts/arc58/account/factory.algo.ts:254-260
+    // smart_contracts/arc58/account/factory.algo.ts:227-233
     // itxn
     //   .payment({
     //     sender: controlledAddress,
@@ -1754,7 +1886,7 @@ newAccount_else_body@58:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:254-261
+    // smart_contracts/arc58/account/factory.algo.ts:227-234
     // itxn
     //   .payment({
     //     sender: controlledAddress,
@@ -1764,41 +1896,33 @@ newAccount_else_body@58:
     //   })
     //   .submit()
     itxn_submit
-    b newAccount_after_if_else@62
+    b newAccount_after_if_else@52
 
-newAccount_ternary_false@48:
-    // smart_contracts/arc58/account/factory.algo.ts:229
+newAccount_ternary_false@38:
+    // smart_contracts/arc58/account/factory.algo.ts:202
     // const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
-    dig 1
+    dig 2
     app_params_get AppAddress
     assert // application exists
-    bury 21
-    b newAccount_ternary_merge@49
+    bury 27
+    b newAccount_ternary_merge@39
 
-newAccount_ternary_false@33:
-    // smart_contracts/arc58/account/factory.algo.ts:183
-    // + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
-    uncover 7
-    dig 24
-    +
-    b newAccount_ternary_merge@34
+newAccount_ternary_false@26:
+    dig 14
+    b newAccount_ternary_merge@27
 
-newAccount_ternary_false@29:
-    dig 13
-    b newAccount_ternary_merge@30
-
-newAccount_bool_false@26:
+newAccount_bool_false@23:
     intc_0 // 0
-    b newAccount_bool_merge@27
+    b newAccount_bool_merge@24
 
-newAccount_after_if_else@76:
-    // smart_contracts/arc58/account/factory.algo.ts:316
+newAccount_after_if_else@70:
+    // smart_contracts/arc58/account/factory.algo.ts:355
     // let cut: uint64 = calcPercent(creationFee, getWalletFees(this.akitaDAO.value).referrerPercentage)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:316
+    // smart_contracts/arc58/account/factory.algo.ts:355
     // let cut: uint64 = calcPercent(creationFee, getWalletFees(this.akitaDAO.value).referrerPercentage)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1807,7 +1931,7 @@ newAccount_after_if_else@76:
     bytec 7 // "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:316
+    // smart_contracts/arc58/account/factory.algo.ts:355
     // let cut: uint64 = calcPercent(creationFee, getWalletFees(this.akitaDAO.value).referrerPercentage)
     intc_3 // 8
     extract_uint64
@@ -1824,50 +1948,50 @@ newAccount_after_if_else@76:
     intc 4 // 100000
     divw
     dup
-    bury 23
-    // smart_contracts/arc58/account/factory.algo.ts:317
+    bury 27
+    // smart_contracts/arc58/account/factory.algo.ts:356
     // if (cut === 0) {
-    bnz newAccount_after_if_else@78
-    // smart_contracts/arc58/account/factory.algo.ts:318
+    bnz newAccount_after_if_else@72
+    // smart_contracts/arc58/account/factory.algo.ts:357
     // cut = 1
     intc_1 // 1
-    bury 22
+    bury 26
 
-newAccount_after_if_else@78:
-    // smart_contracts/arc58/account/factory.algo.ts:320
+newAccount_after_if_else@72:
+    // smart_contracts/arc58/account/factory.algo.ts:359
     // if (creationFee < cut + costInstantDisbursement(this.akitaDAO.value, 0, 1)) {
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:320
+    // smart_contracts/arc58/account/factory.algo.ts:359
     // if (creationFee < cut + costInstantDisbursement(this.akitaDAO.value, 0, 1)) {
     app_global_get_ex
     bury 1
     assert // check GlobalState exists
-    dig 21
+    dig 25
     // smart_contracts/utils/functions.ts:718
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocationsLength)
     pushint 79800
-    // smart_contracts/arc58/account/factory.algo.ts:320
+    // smart_contracts/arc58/account/factory.algo.ts:359
     // if (creationFee < cut + costInstantDisbursement(this.akitaDAO.value, 0, 1)) {
     +
     dig 1
     >
-    bz newAccount_after_if_else@81
-    bury 18
-    // smart_contracts/arc58/account/factory.algo.ts:123
+    bz newAccount_after_if_else@75
+    bury 21
+    // smart_contracts/arc58/account/factory.algo.ts:118
     // const leftover = this.creationFeeLeftover(creationFee, referrer)
-    b newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@90
+    b newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@84
 
-newAccount_after_if_else@81:
-    // smart_contracts/arc58/account/factory.algo.ts:324
+newAccount_after_if_else@75:
+    // smart_contracts/arc58/account/factory.algo.ts:363
     // const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:324
+    // smart_contracts/arc58/account/factory.algo.ts:363
     // const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1875,7 +1999,7 @@ newAccount_after_if_else@81:
     // smart_contracts/utils/base-contracts/base.ts:48
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec_3 // "akita_escrow"
-    // smart_contracts/arc58/account/factory.algo.ts:324
+    // smart_contracts/arc58/account/factory.algo.ts:363
     // const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1883,16 +2007,16 @@ newAccount_after_if_else@81:
     extract_uint64
     app_params_get AppAddress
     swap
-    cover 4
+    cover 5
     assert // application exists
     // smart_contracts/utils/functions.ts:997
     // if (amount > 0 && referrer !== Global.zeroAddress) {
     dig 1
-    bz newAccount_after_if_else@88
-    dig 7
+    bz newAccount_after_if_else@82
+    dig 6
     global ZeroAddress
     !=
-    bz newAccount_after_if_else@88
+    bz newAccount_after_if_else@82
     // smart_contracts/utils/functions.ts:230
     // const [walletFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWalletFees))
     dup
@@ -1916,18 +2040,18 @@ newAccount_after_if_else@81:
     intc 4 // 100000
     divw
     dup
-    bury 20
+    bury 23
     // smart_contracts/utils/functions.ts:1002
     // if (referralFee === 0 && amount > 0) {
-    bnz newAccount_after_if_else@86
+    bnz newAccount_after_if_else@80
     dig 1
-    bz newAccount_after_if_else@86
+    bz newAccount_after_if_else@80
     // smart_contracts/utils/functions.ts:1003
     // referralFee = 1
     intc_1 // 1
-    bury 19
+    bury 22
 
-newAccount_after_if_else@86:
+newAccount_after_if_else@80:
     // smart_contracts/utils/functions.ts:1009
     // Global.latestTimestamp,
     global LatestTimestamp
@@ -1938,10 +2062,10 @@ newAccount_after_if_else@86:
     +
     // smart_contracts/utils/functions.ts:1011
     // [{ address: referrer, amount: referralFee }],
-    dig 20
+    dig 23
     dup
     itob
-    dig 11
+    dig 10
     swap
     concat
     bytec 18 // 0x0001
@@ -2048,7 +2172,7 @@ newAccount_after_if_else@86:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    uncover 4
+    uncover 5
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2095,8 +2219,8 @@ newAccount_after_if_else@86:
     swap
     concat
 
-newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPaymentTo@89:
-    // smart_contracts/arc58/account/factory.algo.ts:324
+newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPaymentTo@83:
+    // smart_contracts/arc58/account/factory.algo.ts:363
     // const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
     dup
     intc_0 // 0
@@ -2104,17 +2228,17 @@ newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPayment
     swap
     intc_3 // 8
     extract_uint64
-    // smart_contracts/arc58/account/factory.algo.ts:325
+    // smart_contracts/arc58/account/factory.algo.ts:364
     // return leftover - referralMbr
     -
-    bury 18
-    // smart_contracts/arc58/account/factory.algo.ts:123
+    bury 21
+    // smart_contracts/arc58/account/factory.algo.ts:118
     // const leftover = this.creationFeeLeftover(creationFee, referrer)
-    b newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@90
+    b newAccount_after_inlined_smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.creationFeeLeftover@84
 
-newAccount_after_if_else@88:
+newAccount_after_if_else@82:
     pop
-    uncover 2
+    uncover 3
     pop
     // smart_contracts/utils/functions.ts:1020
     // return { leftover: amount, referralMbr: 0 }
@@ -2122,9 +2246,9 @@ newAccount_after_if_else@88:
     intc_0 // 0
     itob
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:324
+    // smart_contracts/arc58/account/factory.algo.ts:363
     // const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
-    b newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPaymentTo@89
+    b newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPaymentTo@83
 
 
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.cost[routing]() -> void:
@@ -2133,7 +2257,7 @@ cost:
     // return boxedProgramSize(Bytes(BoxKeyBoxedContract))
     bytec_1 // "bc"
     callsub boxedProgramSize
-    // smart_contracts/arc58/account/factory.algo.ts:292
+    // smart_contracts/arc58/account/factory.algo.ts:331
     // this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
     pushints 4 3
     // smart_contracts/utils/base-contracts/factory.ts:90
@@ -2145,38 +2269,38 @@ cost:
     +
     intc 4 // 100000
     *
-    // smart_contracts/arc58/account/factory.algo.ts:292-294
+    // smart_contracts/arc58/account/factory.algo.ts:331-333
     // this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
     intc 7 // 1842000
     +
-    // smart_contracts/arc58/account/factory.algo.ts:295
+    // smart_contracts/arc58/account/factory.algo.ts:334
     // Global.minBalance +
     global MinBalance
-    // smart_contracts/arc58/account/factory.algo.ts:292-295
+    // smart_contracts/arc58/account/factory.algo.ts:331-334
     // this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
     // Global.minBalance +
     +
-    // smart_contracts/arc58/account/factory.algo.ts:296
+    // smart_contracts/arc58/account/factory.algo.ts:335
     // ARC58WalletIDsByAccountsMbr +
     intc 5 // 12100
-    // smart_contracts/arc58/account/factory.algo.ts:292-296
+    // smart_contracts/arc58/account/factory.algo.ts:331-335
     // this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
     +
-    // smart_contracts/arc58/account/factory.algo.ts:297
+    // smart_contracts/arc58/account/factory.algo.ts:336
     // getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
     // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:297
+    // smart_contracts/arc58/account/factory.algo.ts:336
     // getWalletFees(this.akitaDAO.value).createFee
     app_global_get_ex
     assert // check GlobalState exists
@@ -2185,11 +2309,11 @@ cost:
     bytec 7 // "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:297
+    // smart_contracts/arc58/account/factory.algo.ts:336
     // getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/account/factory.algo.ts:292-297
+    // smart_contracts/arc58/account/factory.algo.ts:331-336
     // this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
     // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
@@ -2197,7 +2321,7 @@ cost:
     // ARC58WalletIDsByAccountsMbr +
     // getWalletFees(this.akitaDAO.value).createFee
     +
-    // smart_contracts/arc58/account/factory.algo.ts:284
+    // smart_contracts/arc58/account/factory.algo.ts:323
     // @abimethod({ readonly: true })
     itob
     bytec 6 // 0x151f7c75
@@ -2210,7 +2334,7 @@ cost:
 
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.updateWallet[routing]() -> void:
 updateWallet:
-    // smart_contracts/arc58/account/factory.algo.ts:337
+    // smart_contracts/arc58/account/factory.algo.ts:376
     // updateWallet(wallet: Application): void {
     txna ApplicationArgs 1
     dup
@@ -2220,12 +2344,12 @@ updateWallet:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/arc58/account/factory.algo.ts:340
+    // smart_contracts/arc58/account/factory.algo.ts:379
     // const [creator, exists] = op.AppParams.appCreator(wallet)
     app_params_get AppCreator
     swap
     cover 2
-    // smart_contracts/arc58/account/factory.algo.ts:341
+    // smart_contracts/arc58/account/factory.algo.ts:380
     // loggedAssert(exists && creator === Global.currentApplicationAddress, errNotAWallet)
     bz updateWallet_bool_false@4
     dig 1
@@ -2235,7 +2359,7 @@ updateWallet:
     intc_1 // 1
 
 updateWallet_bool_merge@5:
-    // smart_contracts/arc58/account/factory.algo.ts:341
+    // smart_contracts/arc58/account/factory.algo.ts:380
     // loggedAssert(exists && creator === Global.currentApplicationAddress, errNotAWallet)
     bnz updateWallet_after_assert@7
     pushbytes "ERR:errNwal"
@@ -2243,13 +2367,13 @@ updateWallet_bool_merge@5:
     err // ERR:errNwal
 
 updateWallet_after_assert@7:
-    // smart_contracts/arc58/account/factory.algo.ts:343
+    // smart_contracts/arc58/account/factory.algo.ts:382
     // const [updateSettingsBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysUpdateSettings))
     dup
     pushbytes "update_settings"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:344
+    // smart_contracts/arc58/account/factory.algo.ts:383
     // const { allowed, automatic } = decodeArc4<FactoryUpdateSettings>(updateSettingsBytes)
     dup
     intc_0 // 0
@@ -2258,7 +2382,7 @@ updateWallet_after_assert@7:
     intc_1 // 1
     getbit
     swap
-    // smart_contracts/arc58/account/factory.algo.ts:345
+    // smart_contracts/arc58/account/factory.algo.ts:384
     // loggedAssert(allowed, errFactoryUpdatesNotAllowed)
     bnz updateWallet_after_assert@9
     pushbytes "ERR:errFuna"
@@ -2266,16 +2390,16 @@ updateWallet_after_assert@7:
     err // ERR:errFuna
 
 updateWallet_after_assert@9:
-    // smart_contracts/arc58/account/factory.algo.ts:347
+    // smart_contracts/arc58/account/factory.algo.ts:386
     // if (!automatic) {
     bnz updateWallet_after_if_else@13
-    // smart_contracts/arc58/account/factory.algo.ts:348
+    // smart_contracts/arc58/account/factory.algo.ts:387
     // const [adminBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
     dup
     pushbytes "admin"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:349
+    // smart_contracts/arc58/account/factory.algo.ts:388
     // loggedAssert(Txn.sender === Account(adminBytes), errAdminOnly)
     txn Sender
     ==
@@ -2289,7 +2413,7 @@ updateWallet_after_if_else@13:
     // return boxedProgramSize(Bytes(BoxKeyBoxedContract))
     bytec_1 // "bc"
     callsub boxedProgramSize
-    // smart_contracts/arc58/account/factory.algo.ts:356
+    // smart_contracts/arc58/account/factory.algo.ts:396
     // const growTo = extraPagesToGrow(wallet, this.childApprovalSize(), clearProgram.length)
     pushint 4
     // smart_contracts/utils/programs.ts:61
@@ -2309,22 +2433,10 @@ updateWallet_after_if_else@13:
     cover 2
     select
     dup
-    // smart_contracts/arc58/account/factory.algo.ts:358
+    // smart_contracts/arc58/account/factory.algo.ts:398
     // if (growTo > 0) {
     bz updateWallet_else_body@16
-    // smart_contracts/utils/programs.ts:75
-    // const [numUint] = op.AppParams.appGlobalNumUint(app)
-    swap
-    dup
-    app_params_get AppGlobalNumUint
-    pop
-    swap
-    // smart_contracts/utils/programs.ts:76
-    // const [numBytes] = op.AppParams.appGlobalNumByteSlice(app)
-    dup
-    app_params_get AppGlobalNumByteSlice
-    pop
-    // smart_contracts/arc58/account/factory.algo.ts:361-375
+    // smart_contracts/arc58/account/factory.algo.ts:404-418
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],
@@ -2341,13 +2453,13 @@ updateWallet_after_if_else@13:
     //   globalNumBytes: numBytes,
     // })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:363
+    // smart_contracts/arc58/account/factory.algo.ts:406
     // args: [this.childContractVersion.value],
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:62
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/arc58/account/factory.algo.ts:363
+    // smart_contracts/arc58/account/factory.algo.ts:406
     // args: [this.childContractVersion.value],
     app_global_get_ex
     assert // check GlobalState exists
@@ -2357,30 +2469,30 @@ updateWallet_after_if_else@13:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:366
+    // smart_contracts/arc58/account/factory.algo.ts:409
     // this.childApprovalChunk(0),
     intc_0 // 0
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:367
+    // smart_contracts/arc58/account/factory.algo.ts:410
     // this.childApprovalChunk(1),
     intc_1 // 1
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:368
+    // smart_contracts/arc58/account/factory.algo.ts:411
     // this.childApprovalChunk(2),
     intc_2 // 2
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:369
+    // smart_contracts/arc58/account/factory.algo.ts:412
     // this.childApprovalChunk(3),
     pushint 3
     callsub childApprovalChunk
-    uncover 5
+    // smart_contracts/arc58/account/factory.algo.ts:391
+    // const abstractedAccount = compileArc4(AbstractedAccount)
+    pushint 30
     itxn_field GlobalNumByteSlice
-    uncover 6
+    pushint 12
     itxn_field GlobalNumUint
-    uncover 6
+    uncover 5
     itxn_field ExtraProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:352
-    // const clearProgram = compileArc4(AbstractedAccount).clearStateProgram
     bytec 11 // base64(DYEBQw==)
     itxn_field ClearStateProgramPages
     uncover 3
@@ -2390,13 +2502,13 @@ updateWallet_after_if_else@13:
     swap
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:364
+    // smart_contracts/arc58/account/factory.algo.ts:407
     // onCompletion: OnCompleteAction.UpdateApplication,
     pushint 4
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/factory.algo.ts:361-375
+    // smart_contracts/arc58/account/factory.algo.ts:404-418
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],
@@ -2422,14 +2534,14 @@ updateWallet_after_if_else@13:
     itxn_submit
 
 updateWallet_after_if_else@18:
-    // smart_contracts/arc58/account/factory.algo.ts:337
+    // smart_contracts/arc58/account/factory.algo.ts:376
     // updateWallet(wallet: Application): void {
     intc_1 // 1
     return
 
 updateWallet_else_body@16:
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:377-388
+    // smart_contracts/arc58/account/factory.algo.ts:420-431
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],
@@ -2443,13 +2555,13 @@ updateWallet_else_body@16:
     //   clearStateProgram: clearProgram,
     // })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:379
+    // smart_contracts/arc58/account/factory.algo.ts:422
     // args: [this.childContractVersion.value],
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:62
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/arc58/account/factory.algo.ts:379
+    // smart_contracts/arc58/account/factory.algo.ts:422
     // args: [this.childContractVersion.value],
     app_global_get_ex
     assert // check GlobalState exists
@@ -2459,24 +2571,24 @@ updateWallet_else_body@16:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:382
+    // smart_contracts/arc58/account/factory.algo.ts:425
     // this.childApprovalChunk(0),
     intc_0 // 0
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:383
+    // smart_contracts/arc58/account/factory.algo.ts:426
     // this.childApprovalChunk(1),
     intc_1 // 1
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:384
+    // smart_contracts/arc58/account/factory.algo.ts:427
     // this.childApprovalChunk(2),
     intc_2 // 2
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:385
+    // smart_contracts/arc58/account/factory.algo.ts:428
     // this.childApprovalChunk(3),
     pushint 3
     callsub childApprovalChunk
-    // smart_contracts/arc58/account/factory.algo.ts:352
-    // const clearProgram = compileArc4(AbstractedAccount).clearStateProgram
+    // smart_contracts/arc58/account/factory.algo.ts:391
+    // const abstractedAccount = compileArc4(AbstractedAccount)
     bytec 11 // base64(DYEBQw==)
     itxn_field ClearStateProgramPages
     uncover 3
@@ -2486,13 +2598,13 @@ updateWallet_else_body@16:
     swap
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:380
+    // smart_contracts/arc58/account/factory.algo.ts:423
     // onCompletion: OnCompleteAction.UpdateApplication,
     pushint 4
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/factory.algo.ts:377-388
+    // smart_contracts/arc58/account/factory.algo.ts:420-431
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],

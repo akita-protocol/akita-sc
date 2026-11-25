@@ -267,7 +267,7 @@ optOut:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 3
+    cover 4
     intc_2 // 8
     *
     intc_3 // 2
@@ -279,7 +279,7 @@ optOut:
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:26
     // const sender = getControlledSpendingAccount(wallet)
     callsub getControlledSpendingAccount
-    cover 3
+    cover 2
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:27
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_0 // 0
@@ -288,19 +288,19 @@ optOut_while_top@2:
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:27
     // for (let i: uint64 = 0; i < assets.length; i++) {
     dup
-    dig 2
+    dig 3
     <
     bz optOut_after_while@12
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:28
     // const [balance, optedIn] = op.AssetHolding.assetBalance(sender, Asset(assets[i]))
-    dig 2
+    dig 1
     extract 2 0
     dig 1
     intc_2 // 8
     *
     extract_uint64
     dup
-    dig 6
+    dig 5
     swap
     asset_holding_get AssetBalance
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:30
@@ -319,32 +319,30 @@ optOut_after_assert@5:
     err // ERR:errIaam
 
 optOut_after_assert@7:
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:33-42
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:34
+    // const [creator, exists] = op.AssetParams.assetCreator(Asset(assets[i]))
+    dup
+    asset_params_get AssetCreator
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:35
+    // const closeTo = exists ? creator : sender
+    dig 6
+    cover 2
+    select
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:37-46
     // itxn
     //   .assetTransfer({
     //     sender,
-    //     assetReceiver: Asset(assets[i]).creator,
+    //     assetReceiver: closeTo,
     //     assetAmount: 0,
     //     xferAsset: Asset(assets[i]),
-    //     assetCloseTo: Asset(assets[i]).creator,
+    //     assetCloseTo: closeTo,
     //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit();
     itxn_begin
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:36
-    // assetReceiver: Asset(assets[i]).creator,
-    dupn 2
-    asset_params_get AssetCreator
-    swap
-    cover 6
-    assert // asset exists
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:39
-    // assetCloseTo: Asset(assets[i]).creator,
-    asset_params_get AssetCreator
-    assert // asset exists
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:40
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:44
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    dig 3
+    dig 4
     intc_1 // 1
     -
     dig 3
@@ -354,38 +352,39 @@ optOut_after_assert@7:
 
 optOut_ternary_merge@10:
     itxn_field RekeyTo
+    dup
     itxn_field AssetCloseTo
+    swap
     itxn_field XferAsset
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:37
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:41
     // assetAmount: 0,
     intc_0 // 0
     itxn_field AssetAmount
-    uncover 3
     itxn_field AssetReceiver
-    dig 4
+    dig 3
     itxn_field Sender
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:33-41
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:37-45
     // itxn
     //   .assetTransfer({
     //     sender,
-    //     assetReceiver: Asset(assets[i]).creator,
+    //     assetReceiver: closeTo,
     //     assetAmount: 0,
     //     xferAsset: Asset(assets[i]),
-    //     assetCloseTo: Asset(assets[i]).creator,
+    //     assetCloseTo: closeTo,
     //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     //   })
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:33-42
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:37-46
     // itxn
     //   .assetTransfer({
     //     sender,
-    //     assetReceiver: Asset(assets[i]).creator,
+    //     assetReceiver: closeTo,
     //     assetAmount: 0,
     //     xferAsset: Asset(assets[i]),
-    //     assetCloseTo: Asset(assets[i]).creator,
+    //     assetCloseTo: closeTo,
     //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit();
@@ -397,10 +396,10 @@ optOut_ternary_merge@10:
     b optOut_while_top@2
 
 optOut_ternary_false@9:
-    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:40
+    // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:44
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     dig 6
-    dig 9
+    dig 8
     callsub rekeyAddress
     b optOut_ternary_merge@10
 

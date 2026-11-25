@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 8 2 400
+    intcblock 0 400 8 2
     bytecblock 0x151f7c75
     // smart_contracts/arc58/account/mbr.algo.ts:10
     // export class AbstractedAccountMBR extends Contract {
@@ -15,7 +15,7 @@ main:
     err
 
 main_mbr_route@3:
-    // smart_contracts/arc58/account/mbr.algo.ts:52
+    // smart_contracts/arc58/account/mbr.algo.ts:54
     // @abimethod({ readonly: true })
     txn OnCompletion
     !
@@ -37,12 +37,12 @@ main___algots__.defaultCreate@5:
 
 // smart_contracts/arc58/account/mbr.algo.ts::AbstractedAccountMBR.mbr[routing]() -> void:
 mbr:
-    // smart_contracts/arc58/account/mbr.algo.ts:52
+    // smart_contracts/arc58/account/mbr.algo.ts:54
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -50,7 +50,7 @@ mbr:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -60,7 +60,7 @@ mbr:
     txna ApplicationArgs 3
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -68,7 +68,7 @@ mbr:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -78,33 +78,33 @@ mbr:
     txna ApplicationArgs 5
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/account/mbr.algo.ts:26
+    // smart_contracts/arc58/account/mbr.algo.ts:27
     // return MinEscrowsMBR + MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length) * 2
     dig 3
     len
     // smart_contracts/arc58/account/mbr.algo.ts:13
     // return BoxCostPerByte * len
-    intc_3 // 400
+    intc_1 // 400
     dig 1
     *
-    // smart_contracts/arc58/account/mbr.algo.ts:26
+    // smart_contracts/arc58/account/mbr.algo.ts:27
     // return MinEscrowsMBR + MinEscrowRefsMBR + this._calcBCPB(Bytes(escrow).length) * 2
     dig 1
     pushint 800
     *
     pushint 25400
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:62-65
+    // smart_contracts/arc58/account/mbr.algo.ts:64-67
     // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
     //   appId,
     //   args: [[escrow]]
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/account/mbr.algo.ts:64
+    // smart_contracts/arc58/account/mbr.algo.ts:66
     // args: [[escrow]]
     dig 2
     itob
@@ -116,7 +116,7 @@ mbr:
     concat
     uncover 7
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/mbr.algo.ts:62-65
+    // smart_contracts/arc58/account/mbr.algo.ts:64-67
     // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
     //   appId,
     //   args: [[escrow]]
@@ -142,7 +142,7 @@ mbr:
     extract_uint16 // on error: invalid array length header
     pushint 41
     *
-    intc_2 // 2
+    intc_3 // 2
     +
     swap
     len
@@ -153,75 +153,81 @@ mbr:
     pushint 20
     uncover 7
     *
-    uncover 4
+    dig 4
     +
     // smart_contracts/arc58/account/mbr.algo.ts:13
     // return BoxCostPerByte * len
-    intc_3 // 400
+    intc_1 // 400
     *
     // smart_contracts/arc58/account/mbr.algo.ts:17
     // return MinPluginMBR + this._calcBCPB((MethodRestrictionByteLength * methodCount) + Bytes(escrow).length)
     pushint 38900
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:21
-    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
-    uncover 5
+    // smart_contracts/arc58/account/mbr.algo.ts:22
+    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length + Bytes(keyEscrow).length)
+    uncover 6
     len
+    dup
+    uncover 6
+    +
     // smart_contracts/arc58/account/mbr.algo.ts:13
     // return BoxCostPerByte * len
-    intc_3 // 400
+    intc_1 // 400
     *
-    // smart_contracts/arc58/account/mbr.algo.ts:21
-    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
+    // smart_contracts/arc58/account/mbr.algo.ts:22
+    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length + Bytes(keyEscrow).length)
     pushint 20500
-    dig 1
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:30
+    // smart_contracts/arc58/account/mbr.algo.ts:31
     // return MinAllowanceMBR + this._calcBCPB(Bytes(escrow).length)
     pushint 27700
     uncover 6
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:38
+    // smart_contracts/arc58/account/mbr.algo.ts:13
+    // return BoxCostPerByte * len
+    intc_1 // 400
+    uncover 3
+    *
+    // smart_contracts/arc58/account/mbr.algo.ts:39
     // return MinDomainKeysMBR + this._calcBCPB(Bytes(domain).length)
     pushint 15700
-    uncover 3
     +
     // smart_contracts/arc58/account/mbr.algo.ts:13
     // return BoxCostPerByte * len
     uncover 6
     pushint 12800
     *
-    // smart_contracts/arc58/account/mbr.algo.ts:34
+    // smart_contracts/arc58/account/mbr.algo.ts:35
     // return MinExecutionsMBR + this._calcBCPB(groups * 32)
     pushint 23700
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:74
+    // smart_contracts/arc58/account/mbr.algo.ts:76
     // escrowExists: escrowInfo[0].address !== Global.zeroAddress,
     uncover 5
     extract 6 41
     extract 8 32
     global ZeroAddress
     !=
-    // smart_contracts/arc58/account/mbr.algo.ts:77
+    // smart_contracts/arc58/account/mbr.algo.ts:79
     // Global.minBalance +
     global MinBalance
-    // smart_contracts/arc58/account/mbr.algo.ts:76-78
+    // smart_contracts/arc58/account/mbr.algo.ts:78-80
     // NewCostForARC58 +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
     pushint 162100
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:76-79
+    // smart_contracts/arc58/account/mbr.algo.ts:78-81
     // NewCostForARC58 +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
     // escrows
     dig 7
     +
-    // smart_contracts/arc58/account/mbr.algo.ts:67-81
+    // smart_contracts/arc58/account/mbr.algo.ts:69-83
     // return {
     //   plugins: this.pluginsMbr(escrow, methodCount),
-    //   namedPlugins: this.namedPluginsMbr(plugin),
+    //   namedPlugins: this.namedPluginsMbr(plugin, escrow),
     //   escrows,
     //   allowances: this.allowancesMbr(escrow),
     //   domainKeys: this.domainKeysMbr(plugin),
@@ -259,7 +265,7 @@ mbr:
     swap
     itob
     concat
-    // smart_contracts/arc58/account/mbr.algo.ts:52
+    // smart_contracts/arc58/account/mbr.algo.ts:54
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
     swap
