@@ -63,7 +63,7 @@ describe('HyperSwap plugin contract', () => {
     // `offers + participants + 2 * (mm.root + mm.data)` microAlgos (184_900)
     // to the base HyperSwap contract, so 500_000 is comfortable slack.
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 500_000n) });
-    await wallet.addPlugin({ client: hyperSwapPluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: hyperSwapPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -84,7 +84,7 @@ describe('HyperSwap plugin contract', () => {
       });
       await partner.client.appClient.fundAppAccount({ amount: algokit.microAlgo(5_000_000) });
       await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(5_000_000) });
-      await partner.addPlugin({ client: hyperSwapPluginSdk, callerType: CallerType.Global });
+      await partner.addPlugin({ client: hyperSwapPluginSdk, callerType: CallerType.Admin });
       const maker = wallet.client.appAddress.toString();
       const taker = partner.client.appAddress.toString();
       const participantList = [maker, taker];
@@ -100,7 +100,7 @@ describe('HyperSwap plugin contract', () => {
       const status = await algorand.client.algod.status().do();
       const block = await algorand.client.algod.block(status.lastRound).do();
       const execute = async (account: WalletSDK, call: ReturnType<HyperSwapPluginSDK['offer']>) => {
-        await account.usePlugin({ callerType: CallerType.Global, calls: [call] });
+        await account.usePlugin({ callerType: CallerType.Admin, calls: [call] });
         const address = account.client.appAddress.toString();
         const info = await algorand.account.getInformation(address);
         expect(info.authAddr?.toString() ?? address).toBe(address);
@@ -116,7 +116,7 @@ describe('HyperSwap plugin contract', () => {
         .toEqual(validateOffer({ id, offer: await swapSdk.getOffer({ id }), leaves: leafList, participants: participantList }));
       // A list that does not match the offer on chain (one leaf left out) is refused by the contract.
       await expect(partner.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [hyperSwapPluginSdk.accept({ id, proof: participants.getProof(1), leaves: [leafList[1]], participants: participantList, expiration })],
       })).rejects.toThrow(/errTmis|terms/i);
       await execute(partner, hyperSwapPluginSdk.accept({ id, proof: participants.getProof(1), leaves: leafList, participants: participantList, expiration }));
@@ -156,16 +156,16 @@ describe('HyperSwap plugin contract', () => {
       const id = (await swap.state.global.offerCursor())!;
       const status = await algorand.client.algod.status().do();
       const block = await algorand.client.algod.block(status.lastRound).do();
-      await wallet.usePlugin({ callerType: CallerType.Global, calls: [hyperSwapPluginSdk.offer({
+      await wallet.usePlugin({ callerType: CallerType.Admin, calls: [hyperSwapPluginSdk.offer({
         root: trades.root, leaves: 1, participantsRoot: participants.root, participantLeaves: 1,
         expiration: BigInt(block.block.header.timestamp) + 3600n,
       })] });
-      await wallet.usePlugin({ callerType: CallerType.Global, calls: [hyperSwapPluginSdk.escrow({
+      await wallet.usePlugin({ callerType: CallerType.Admin, calls: [hyperSwapPluginSdk.escrow({
         id, receiver, asset: assetId, amount: 10n, proof: [],
       })] });
       const account = await algorand.account.getInformation(maker);
       expect(account.authAddr?.toString() ?? maker).toBe(maker);
-      await wallet.usePlugin({ callerType: CallerType.Global, calls: [hyperSwapPluginSdk.disburse({
+      await wallet.usePlugin({ callerType: CallerType.Admin, calls: [hyperSwapPluginSdk.disburse({
         id, receiverWallet: 0n, receiver, asset: assetId, amount: 10n,
       })] });
       expect((await algorand.account.getInformation(receiver)).assets?.find(holding => holding.assetId === assetId)?.amount).toBe(10n);

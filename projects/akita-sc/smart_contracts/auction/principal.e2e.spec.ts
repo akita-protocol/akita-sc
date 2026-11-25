@@ -97,12 +97,12 @@ describe('Auction principal resolution (§6.6)', () => {
     return value && 'valueRaw' in value ? algosdk.encodeAddress(value.valueRaw) : undefined
   }
 
-  /** [wallet.arc58_rekeyToPlugin(pluginId, escrow), ...calls, wallet.arc58_verifyAuthAddress] (a global grant) */
+  /** [wallet.arc58_rekeyToPlugin(pluginId, escrow), ...calls, wallet.arc58_verifyAuthAddress] (the admin's own grant) */
   async function inWindow(wallet: WalletSDK, pluginId: bigint, calls: AppCallMethodCall[], escrow = ''): Promise<void> {
     const group = algorand.newGroup()
     group.addAppCallMethodCall(await wallet.client.params.arc58RekeyToPlugin({
       ...send(deployer),
-      args: { plugin: pluginId, type: CallerType.Global, escrow, methodOffsets: [], fundsRequest: [] },
+      args: { plugin: pluginId, type: CallerType.Admin, escrow, methodOffsets: [], fundsRequest: [] },
       extraFee: microAlgo(2_000),
     }))
     for (const call of calls) group.addAppCallMethodCall(call)
@@ -144,7 +144,7 @@ describe('Auction principal resolution (§6.6)', () => {
       : await newUnregisteredWallet({ walletFactory: universe.walletFactory, ...send(deployer), referrer, nickname })
     await algorand.send.payment({ ...send(deployer), receiver: w.client.appAddress, amount: (60).algo() })
     await w.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global })
-    await w.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Global })
+    await w.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Admin })
     return w
   }
 
@@ -194,7 +194,7 @@ describe('Auction principal resolution (§6.6)', () => {
       defaultSender: deployer.addr, defaultSigner: deployer.signer,
     }).send.create.bare()
     legacyCaller = appClient
-    await addRawPlugin(Wr, { plugin: legacyCaller.appId }, send(deployer))
+    await addRawPlugin(Wr, { plugin: legacyCaller.appId, ownerOnly: true }, send(deployer))
   })
 
   describe('creation: seller_referrer', () => {
@@ -205,7 +205,7 @@ describe('Auction principal resolution (§6.6)', () => {
       const now = await blockTimestamp()
       await Wd.usePlugin({
         ...send(deployer),
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [universe.auctionPlugin.new({
           prizeId: prize, prizeAmount: 1n, name: '', proof: [], bidAssetId: 0n, bidFee: 0n, startingBid: 1_000_000n,
@@ -366,7 +366,7 @@ describe('Auction principal resolution (§6.6)', () => {
 
     /** global grants of the auction and opt-in plugins on `w`'s escrow 'e'; funds and opts the escrow into `assets` */
     async function escrowE(w: WalletSDK, assets: bigint[]): Promise<string> {
-      await w.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Global, escrow: 'e' })
+      await w.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Admin, escrow: 'e' })
       await w.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global, escrow: 'e' })
       const E = await escrowOf(w, 'e')
       await algorand.send.payment({ ...send(deployer), receiver: E, amount: (30).algo() })
@@ -401,7 +401,7 @@ describe('Auction principal resolution (§6.6)', () => {
         walletFactory: universe.walletFactory, ...send(deployer), referrer: R1, nickname: 'auction-sc-x',
         controlledAddress: C, controlledSigner: c.signer, fund: (2).algo(),
       })
-      await Wx.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Global })
+      await Wx.addPlugin({ ...send(deployer), client: universe.auctionPlugin, callerType: CallerType.Admin })
       Ex = await escrowE(Wx, [])
 
       Wn = await walletWith(R1, false, 'auction-sc-n')
@@ -493,7 +493,7 @@ describe('Auction principal resolution (§6.6)', () => {
       const now = await blockTimestamp()
       await Wd.usePlugin({
         ...send(deployer),
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [universe.auctionPlugin.new({
           prizeId: prize, prizeAmount: 1n, name: '', proof: [], bidAssetId: 0n, bidFee: 0n, startingBid: 5_000_000n,
@@ -524,7 +524,7 @@ describe('Auction principal resolution (§6.6)', () => {
 
     beforeAll(async () => {
       deployedPlugin = await deployLegacyAuctionPlugin(algorand, universe.auctionFactory.appId, universe.dao.appId, send(deployer))
-      await addRawPlugin(Wr, { plugin: deployedPlugin.appId }, send(deployer))
+      await addRawPlugin(Wr, { plugin: deployedPlugin.appId, ownerOnly: true }, send(deployer))
     })
 
     test('the DEPLOYED AuctionPlugin bids on a new child through the legacy gatedBid shim (registry origin)', async () => {
@@ -548,7 +548,7 @@ describe('Auction principal resolution (§6.6)', () => {
       const { appClient: v3 } = await algorand.client.getTypedAppFactory(AuctionPluginFactory, {
         defaultSender: deployer.addr, defaultSigner: deployer.signer,
       }).send.create.create({ args: { version: 'v3', factory: legacyFactory.appId, akitaDao: universe.dao.appId }, extraProgramPages: 1 })
-      await addRawPlugin(Wr, { plugin: v3.appId }, send(deployer))
+      await addRawPlugin(Wr, { plugin: v3.appId, ownerOnly: true }, send(deployer))
 
       const prize = await prizeFor()
       const optInCost = await legacyFactory.optInCost({ args: { asset: prize } })

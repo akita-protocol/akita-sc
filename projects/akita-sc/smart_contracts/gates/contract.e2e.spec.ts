@@ -125,14 +125,14 @@ describe('Gate Contract', () => {
 
     await wallet.addPlugin({
       client: asaMintSdk,
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
     });
 
     walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
     expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
     const results = await wallet.usePlugin({
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       calls: [
         asaMintSdk.mint({
           assets: [
@@ -1001,7 +1001,7 @@ describe('Gate Contract', () => {
 
       // Create a second test asset for combination tests
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           asaMintSdk.mint({
             assets: [
@@ -1228,7 +1228,7 @@ describe('Gate Contract', () => {
 
       // Create a second test asset for combination tests
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           asaMintSdk.mint({
             assets: [
@@ -1436,7 +1436,7 @@ describe('Gate Contract', () => {
 
       // Create additional test assets for complex combination tests
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           asaMintSdk.mint({
             assets: [

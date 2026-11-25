@@ -57,7 +57,7 @@ describe('DAO plugin contract', () => {
     daoPluginSdk = akitaUniverse.daoPlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins) });
-    await wallet.addPlugin({ client: daoPluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: daoPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);

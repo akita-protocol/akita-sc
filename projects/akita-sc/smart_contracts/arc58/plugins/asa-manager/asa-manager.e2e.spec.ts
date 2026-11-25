@@ -78,14 +78,14 @@ describe('ASA Manager plugin contract', () => {
 
       await wallet.addPlugin({
         client: asaManagerSdk,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
       });
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
       expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           asaManagerSdk.mint({
             assets: [{
@@ -117,7 +117,7 @@ describe('ASA Manager plugin contract', () => {
       expect(walletInfo?.assets?.length).toBe(1);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           asaManagerSdk.delete({ assets: [takta] }),
         ]

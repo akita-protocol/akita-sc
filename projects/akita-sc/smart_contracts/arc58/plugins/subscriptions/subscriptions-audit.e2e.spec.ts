@@ -49,7 +49,7 @@ describe('Subscriptions plugin (audit SG-01)', () => {
 
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 10_000_000n) });
-    await wallet.addPlugin({ client: universe.subscriptionsPlugin, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: universe.subscriptionsPlugin, callerType: CallerType.Admin });
     await algorand.send.payment({
       sender: dispenser.addr,
       signer: dispenser.signer,
@@ -95,7 +95,7 @@ describe('Subscriptions plugin (audit SG-01)', () => {
     const before = await holding();
 
     await wallet.usePlugin({
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       calls: [
         ...universe.subscriptionsPlugin.newServiceWithDescription({
           interval: 60n,

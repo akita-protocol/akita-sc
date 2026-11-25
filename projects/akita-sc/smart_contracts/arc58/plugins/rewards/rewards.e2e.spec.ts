@@ -94,7 +94,7 @@ describe('Rewards plugin contract', () => {
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo((mbr.plugins * 2n) + 20_000_000n) });
     await wallet.addPlugin({
       client: rewardsPluginSdk,
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       methods: [
         { name: rewardsPluginSdk.createInstantDisbursement(), cooldown: 0n },
         { name: rewardsPluginSdk.createInstantAsaDisbursement(), cooldown: 0n },
@@ -117,7 +117,7 @@ describe('Rewards plugin contract', () => {
       const expiration = (await getBlockTimestamp(algorand)) + 86_400n;
 
       const result = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           rewardsPluginSdk.createInstantDisbursement({
             timeToUnlock: 0n,
@@ -161,9 +161,9 @@ describe('Rewards plugin contract', () => {
         signer: deployer.signer,
         asset: rewardAssetId,
       });
-      await wallet.addPlugin({ client: akitaUniverse.selfOptInPlugin, callerType: CallerType.Global });
+      await wallet.addPlugin({ client: akitaUniverse.selfOptInPlugin, callerType: CallerType.Admin });
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [rewardAssetId] })],
       });
       await algorand.send.assetTransfer({
@@ -175,7 +175,7 @@ describe('Rewards plugin contract', () => {
       });
 
       const result = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           rewardsPluginSdk.createInstantAsaDisbursement({
             assetId: rewardAssetId,
@@ -216,7 +216,7 @@ describe('Rewards plugin contract', () => {
         await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + mbr.newEscrowMintCost) });
         await wallet.addPlugin({
           client: rewardsPluginSdk,
-          callerType: CallerType.Global,
+          callerType: CallerType.Admin,
           escrow,
           methods: [
             { name: rewardsPluginSdk.createDisbursement(), cooldown: 0n },
@@ -232,7 +232,7 @@ describe('Rewards plugin contract', () => {
       });
 
       const use = (call: ReturnType<RewardsPluginSDK['createDisbursement']>) =>
-        wallet.usePlugin({ escrow, callerType: CallerType.Global, calls: [call] });
+        wallet.usePlugin({ escrow, callerType: CallerType.Admin, calls: [call] });
 
       /** create, allocate ALGO in two batches, finalize: the backend job's path */
       const multiStep = async (title: string, recipients: [string, bigint][][], reclaimTo?: string) => {
@@ -374,14 +374,14 @@ describe('Rewards plugin contract', () => {
       await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 5_000_000n) });
       await wallet.addPlugin({
         client: plugin,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         methods: [
           { name: plugin.createDisbursement(), cooldown: 0n },
           { name: plugin.withdrawMbrCredits(), cooldown: 0n },
           { name: plugin.closeDisbursement(), cooldown: 0n },
         ],
       });
-      const use = (call: ReturnType<RewardsPluginSDK['withdrawMbrCredits']>) => wallet.usePlugin({ callerType: CallerType.Global, calls: [call] });
+      const use = (call: ReturnType<RewardsPluginSDK['withdrawMbrCredits']>) => wallet.usePlugin({ callerType: CallerType.Admin, calls: [call] });
 
       const expiration = (await getBlockTimestamp(algorand)) + 86_400n;
       const create = async (mbrCredits: bigint) => getDisbursementId((await use(plugin.createDisbursement({
@@ -457,7 +457,7 @@ describe('Rewards plugin contract', () => {
       });
       await wallet.addPlugin({
         client: plugin,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         methods: [
           { name: plugin.createDisbursement(), cooldown: 0n },
           { name: createUserAllocations() as unknown as ReturnType<RewardsPluginSDK['createDisbursement']>, cooldown: 0n },
@@ -467,8 +467,8 @@ describe('Rewards plugin contract', () => {
           { name: plugin.reclaimLegacyRewards(), cooldown: 0n },
         ],
       });
-      await wallet.addPlugin({ client: noLegacy, callerType: CallerType.Global, methods: [{ name: noLegacy.claimLegacyRewards(), cooldown: 0n }] });
-      const use = (call: ReturnType<RewardsPluginSDK['claimLegacyRewards']>) => wallet.usePlugin({ callerType: CallerType.Global, calls: [call] });
+      await wallet.addPlugin({ client: noLegacy, callerType: CallerType.Admin, methods: [{ name: noLegacy.claimLegacyRewards(), cooldown: 0n }] });
+      const use = (call: ReturnType<RewardsPluginSDK['claimLegacyRewards']>) => wallet.usePlugin({ callerType: CallerType.Admin, calls: [call] });
 
       // while v1 is the registry's Rewards app: the wallet creates a v1 disbursement and is allocated on v1
       await proposeAndExecute(algorand, akitaUniverse.dao, [{ type: ProposalActionEnum.UpdateFields, field: 'aal', value: { rewards: v1 } }]);

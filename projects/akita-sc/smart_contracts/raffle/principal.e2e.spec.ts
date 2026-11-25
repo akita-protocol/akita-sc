@@ -80,12 +80,12 @@ describe('Raffle principal resolution (§6.8)', () => {
 
   const raffleSdk = (appId: bigint) => new RaffleSDK({ algorand, factoryParams: { appId, defaultSender: deployer.addr, defaultSigner: deployer.signer } })
 
-  /** [wallet.arc58_rekeyToPlugin(pluginId, escrow), ...calls, wallet.arc58_verifyAuthAddress] (a global grant) */
+  /** [wallet.arc58_rekeyToPlugin(pluginId, escrow), ...calls, wallet.arc58_verifyAuthAddress] (the admin's own grant) */
   async function inWindow(wallet: WalletSDK, pluginId: bigint, calls: AppCallMethodCall[], escrow = ''): Promise<void> {
     const group = algorand.newGroup()
     group.addAppCallMethodCall(await wallet.client.params.arc58RekeyToPlugin({
       ...send(deployer),
-      args: { plugin: pluginId, type: CallerType.Global, escrow, methodOffsets: [], fundsRequest: [] },
+      args: { plugin: pluginId, type: CallerType.Admin, escrow, methodOffsets: [], fundsRequest: [] },
       extraFee: microAlgo(2_000),
     }))
     for (const call of calls) group.addAppCallMethodCall(call)
@@ -138,7 +138,7 @@ describe('Raffle principal resolution (§6.8)', () => {
       : await newUnregisteredWallet({ walletFactory: universe.walletFactory, ...send(deployer), referrer, nickname })
     await algorand.send.payment({ ...send(deployer), receiver: w.client.appAddress, amount: (200).algo() })
     await w.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global })
-    await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Global })
+    await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Admin })
     return w
   }
 
@@ -195,7 +195,7 @@ describe('Raffle principal resolution (§6.8)', () => {
       const now = await blockTimestamp()
       await Wd.usePlugin({
         ...send(deployer),
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [universe.rafflePlugin.newRaffle({
           prizeId: prize, prizeAmount: 1n, ticketAssetId: 0n, startTimestamp: now, endTimestamp: now + ONE_DAY,
@@ -377,7 +377,7 @@ describe('Raffle principal resolution (§6.8)', () => {
 
     /** global grants of the raffle and opt-in plugins on `w`'s escrow 'e'; funds and opts the escrow into `assets` */
     async function escrowE(w: WalletSDK, assets: bigint[]): Promise<string> {
-      await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Global, escrow: 'e' })
+      await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Admin, escrow: 'e' })
       await w.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global, escrow: 'e' })
       const E = await escrowOf(w, 'e')
       await algorand.send.payment({ ...send(deployer), receiver: E, amount: (30).algo() })
@@ -412,7 +412,7 @@ describe('Raffle principal resolution (§6.8)', () => {
         walletFactory: universe.walletFactory, ...send(deployer), referrer: R1, nickname: 'raffle-sc-x',
         controlledAddress: C, controlledSigner: c.signer, fund: (2).algo(),
       })
-      await Wx.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Global })
+      await Wx.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Admin })
       Ex = await escrowE(Wx, [])
 
       Wn = await walletWith(R1, false, 'raffle-sc-n')
@@ -487,7 +487,7 @@ describe('Raffle principal resolution (§6.8)', () => {
       await w.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global })
       // the selector a pre-Phase-3 grant of MainNet RafflePlugin 3569561863 holds
       const deployedSelector = ABIMethod.fromSignature(RAFFLE_PLUGIN_NEW_RAFFLE).getSelector()
-      await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Global, methods: [{ name: [deployedSelector], cooldown: 0n }] })
+      await w.addPlugin({ ...send(deployer), client: universe.rafflePlugin, callerType: CallerType.Admin, methods: [{ name: [deployedSelector], cooldown: 0n }] })
       const prize = await prizeFor(w)
       const factory = universe.raffleFactory.client.appAddress.toString()
       const before = await createdApps(factory)
@@ -496,9 +496,9 @@ describe('Raffle principal resolution (§6.8)', () => {
         prizeId: prize, prizeAmount: 1n, ticketAssetId: 0n, startTimestamp: now, endTimestamp: now + ONE_DAY,
         minTickets: 1_000_000n, maxTickets: 100_000_000n, gateId: 0n, marketplace: deployer.addr.toString(), name: '', proof: [], weightsListCount: 4n,
       }
-      await expect(w.usePlugin({ ...send(deployer), callerType: CallerType.Global, consolidateFees: true, calls: [universe.rafflePlugin.newRaffle({ ...params, minEntries: 2n })] }))
+      await expect(w.usePlugin({ ...send(deployer), callerType: CallerType.Admin, consolidateFees: true, calls: [universe.rafflePlugin.newRaffle({ ...params, minEntries: 2n })] }))
         .rejects.toThrow(/selector does not match any allowed method/)
-      await w.usePlugin({ ...send(deployer), callerType: CallerType.Global, consolidateFees: true, calls: [universe.rafflePlugin.newRaffle(params)] })
+      await w.usePlugin({ ...send(deployer), callerType: CallerType.Admin, consolidateFees: true, calls: [universe.rafflePlugin.newRaffle(params)] })
       const appId = await newestApp(factory, before)
       expect(await sellerReferrerOf(appId)).toBe(R1)
       expect((await raffleSdk(appId).state()).minEntries).toBe(0n)
@@ -514,7 +514,7 @@ describe('Raffle principal resolution (§6.8)', () => {
       const now = await blockTimestamp()
       await Wd.usePlugin({
         ...send(deployer),
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [universe.rafflePlugin.newRaffle({
           prizeId: prize, prizeAmount: 1n, ticketAssetId: 0n, startTimestamp: now, endTimestamp: now + 3_600n,
@@ -552,7 +552,7 @@ describe('Raffle principal resolution (§6.8)', () => {
       const { appClient: v3 } = await algorand.client.getTypedAppFactory(RafflePluginFactory, {
         defaultSender: deployer.addr, defaultSigner: deployer.signer,
       }).send.create.create({ args: { version: 'v3', factory: legacy.appId } }) // pages from the program size (2 extra since the creation overloads)
-      await addRawPlugin(Wr, { plugin: v3.appId }, send(deployer))
+      await addRawPlugin(Wr, { plugin: v3.appId, ownerOnly: true }, send(deployer))
 
       // the DAO escrow already holds `prize` (prizeFor opts it in through the universe factory)
       const prize = await prizeFor()

@@ -96,7 +96,7 @@ describe('SunsetPlugin (via wallet)', () => {
     await wallet.client.appClient.fundAppAccount({
       amount: algokit.microAlgo(mbr.plugins + 10_000_000n),
     });
-    await wallet.addPlugin({ client: sunsetPluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: sunsetPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -125,7 +125,7 @@ describe('SunsetPlugin (via wallet)', () => {
       const recipientBalanceBefore = await algorand.account.getInformation(recipient.addr);
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.delete({
             sender: user.addr,
@@ -156,7 +156,7 @@ describe('SunsetPlugin (via wallet)', () => {
       // wallet's spending account, so the plugin call passes the gate.
       const target = await freshTarget();
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.deleteBoxes({
             sender: user.addr,
@@ -177,7 +177,7 @@ describe('SunsetPlugin (via wallet)', () => {
       const target = await freshTarget();
       const boxes = [new TextEncoder().encode('nope-one'), new TextEncoder().encode('nope-two')];
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.deleteBoxes({
             sender: user.addr,
@@ -195,7 +195,7 @@ describe('SunsetPlugin (via wallet)', () => {
     test('plugin forwards an empty closeOut batch', async () => {
       const target = await freshTarget();
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.closeOut({
             sender: user.addr,
@@ -213,7 +213,7 @@ describe('SunsetPlugin (via wallet)', () => {
     test('plugin forwards an empty deleteAssets batch', async () => {
       const target = await freshTarget();
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.deleteAssets({
             sender: user.addr,
@@ -246,7 +246,7 @@ describe('SunsetPlugin (via wallet)', () => {
       });
 
       const results = await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           sunsetPluginSdk.deleteAssets({
             sender: user.addr,

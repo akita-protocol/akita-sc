@@ -72,16 +72,16 @@ forge:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 5
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -200,16 +200,16 @@ noop:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_1 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)

@@ -1583,7 +1583,7 @@ describe('ARC58 DAO Voting', () => {
             const daoPlugin = new DAOPluginSDK({ algorand, factoryParams: { appId: pluginClient.appId, defaultSender: voter2, defaultSigner: voter2Signer } });
             const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
             await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + 1_000_000n) });
-            await wallet.addPlugin({ client: daoPlugin, callerType: CallerType.Global });
+            await wallet.addPlugin({ client: daoPlugin, callerType: CallerType.Admin });
             return { owner, wallet, daoPlugin };
         };
 
@@ -1596,7 +1596,7 @@ describe('ARC58 DAO Voting', () => {
 
             const ownerBefore = await balanceOf(owner.addr.toString());
             await wallet.usePlugin({
-                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Admin,
                 calls: [daoPlugin.newProposal({ sender: voter2, signer: voter2Signer, cid: EMPTY_CID, actions })],
             });
             const id = (await dao.client.state.global.proposalId())! - 1n;
@@ -1608,14 +1608,14 @@ describe('ARC58 DAO Voting', () => {
 
             // Editing a draft through the plugin works (it was always rejected before).
             await wallet.usePlugin({
-                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Admin,
                 calls: [daoPlugin.editProposal({ sender: voter2, signer: voter2Signer, id, cid: EMPTY_CID, actions: [[ProposalActionEnum.UpdateFields, encode(932)]] })],
             });
 
             // Deleting the draft returns the whole prepayment to the wallet's account.
             const beforeDelete = await balanceOf(owner.addr.toString());
             await wallet.usePlugin({
-                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Admin,
                 calls: [daoPlugin.deleteProposal({ sender: voter2, signer: voter2Signer, proposalId: id })],
             });
             expect(await balanceOf(owner.addr.toString()) - beforeDelete).toBe(cost.total);
@@ -1626,7 +1626,7 @@ describe('ARC58 DAO Voting', () => {
             const { owner, wallet, daoPlugin } = await pluginWallet();
             const ownerAddr = owner.addr.toString();
             const votes = (proposalId: bigint, vote: number) => wallet.usePlugin({
-                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Admin,
                 calls: [daoPlugin.voteProposal({ sender: voter2, signer: voter2Signer, proposalId, vote })],
             });
 
@@ -1690,7 +1690,7 @@ describe('ARC58 DAO Voting', () => {
 
             // The real wallet still votes through the same plugin instance.
             await wallet.usePlugin({
-                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Admin,
                 calls: [daoPlugin.voteProposal({ sender: voter2, signer: voter2Signer, proposalId: id, vote: VOTE_APPROVE })],
             });
             expect(await dao.getVoteReceipt({ proposalId: id, voter: owner.addr.toString() })).toMatchObject({ type: VOTE_APPROVE });

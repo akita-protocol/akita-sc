@@ -32,20 +32,20 @@ main___algots__.defaultCreate@9:
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -97,16 +97,16 @@ closeOutAlgo:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 4
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_0 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -215,16 +215,16 @@ closeOutAsset:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 4
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec_0 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)

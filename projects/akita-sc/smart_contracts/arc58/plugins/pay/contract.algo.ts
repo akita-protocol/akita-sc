@@ -5,7 +5,7 @@ import { GrantContext, grantInfo, GrantPolicyHeaderBytes, GrantPolicyPlugin, pol
 import { policyRecordKey, readMetaRecord } from "../../../meta/functions";
 import { errPolicyMissing, errPolicyStale } from "../../../utils/errors";
 import { errInvalidRegistry } from "../../../meta/errors";
-import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
+import { getOpenGrantSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 import { getRekeyIndex } from "../../../utils/functions";
 import { errPayAsset, errPayPolicyAssets, errPayPolicyEncoding, errPayPolicyRecipients, errPayRecipient } from "./errors";
 import { PayParams, PayPolicy } from "./types";
@@ -82,7 +82,9 @@ export class PayPlugin extends GrantPolicyPlugin {
 
   pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
     const { limited, policy } = this.limits(wallet)
-    const sender = getControlledSpendingAccount(wallet)
+    // limits() holds this plugin's own rule for a grant anyone may use: without an execution key it
+    // needs a policy, and the policy then names who may be paid and in which assets.
+    const sender = getOpenGrantSpendingAccount(wallet)
 
     for (let i: uint64 = 0; i < payments.length; i++) {
       const { receiver, asset, amount } = payments[i];

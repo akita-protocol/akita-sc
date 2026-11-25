@@ -67,16 +67,16 @@ describe('Deployed social plugin (3643581007) on the upgraded social targets', (
     })
     const mbr = await w.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await w.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins * 3n + 10_000_000n) })
-    await w.addPlugin({ client: legacyPlugin, callerType: CallerType.Global })
-    await w.addPlugin({ client: universe.selfOptInPlugin, callerType: CallerType.Global })
+    await w.addPlugin({ client: legacyPlugin, callerType: CallerType.Admin })
+    await w.addPlugin({ client: universe.selfOptInPlugin, callerType: CallerType.Admin })
     if (aktaAmount > 0n) {
-      await w.usePlugin({ callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [akta] })] })
+      await w.usePlugin({ callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [akta] })] })
       await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, receiver: w.client.appAddress, assetId: akta, amount: aktaAmount })
     }
     return w
   }
 
-  const use = (w: WalletSDK, call: ReturnType<SocialPluginSDK['post']>) => w.usePlugin({ callerType: CallerType.Global, calls: [call] })
+  const use = (w: WalletSDK, call: ReturnType<SocialPluginSDK['post']>) => w.usePlugin({ callerType: CallerType.Admin, calls: [call] })
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -149,7 +149,7 @@ describe('Deployed social plugin (3643581007) on the upgraded social targets', (
       await use(W, legacyPlugin.vote({ ref: posterPost, type: RefType.Post, isUp: true }))
 
       const nft = (await algorand.send.assetCreate({ sender: deployer.addr, signer: deployer.signer, total: 1n, decimals: 0, assetName: 'Compat NFT', unitName: 'CNFT' })).confirmation.assetIndex!
-      await W.usePlugin({ callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [nft] })] })
+      await W.usePlugin({ callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [nft] })] })
       await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, receiver: walletAddress, assetId: nft, amount: 1n })
       await use(W, legacyPlugin.react({ ref: posterPost, type: RefType.Post, nft }))
       expect(await universe.social.socialClient.getReactionExists({ args: { ref: posterPost, nft } })).toBe(true)
@@ -198,7 +198,7 @@ describe('Deployed social plugin (3643581007) on the upgraded social targets', (
       }
 
       const nft = (await algorand.send.assetCreate({ sender: deployer.addr, signer: deployer.signer, total: 1n, decimals: 0, assetName: 'Drain NFT', unitName: 'DNFT' })).confirmation.assetIndex!
-      await Wr.usePlugin({ callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [nft] })] })
+      await Wr.usePlugin({ callerType: CallerType.Admin, calls: [universe.selfOptInPlugin.optIn({ assets: [nft] })] })
       await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, receiver: voter, assetId: nft, amount: 1n })
       const before = await free()
       await use(Wr, legacyPlugin.react({ ref: postKey, type: RefType.Post, nft }))

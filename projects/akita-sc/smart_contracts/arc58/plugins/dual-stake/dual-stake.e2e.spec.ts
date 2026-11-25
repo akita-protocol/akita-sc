@@ -62,8 +62,8 @@ describe('DualStake plugin contract', () => {
     // Fund wallet and add both plugins once
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n) });
-    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
-    await wallet.addPlugin({ client: dualStakePluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: dualStakePluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -78,7 +78,7 @@ describe('DualStake plugin contract', () => {
 
     test('mint rejects apps that were not created by the configured dual-stake registry', async () => {
       await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           dualStakePluginSdk.mint({
             appId: wallet.client.appId,
@@ -90,7 +90,7 @@ describe('DualStake plugin contract', () => {
 
     test('redeem rejects apps that were not created by the configured dual-stake registry', async () => {
       await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           dualStakePluginSdk.redeem({
             appId: wallet.client.appId,

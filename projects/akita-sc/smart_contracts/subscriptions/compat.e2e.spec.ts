@@ -71,7 +71,7 @@ describe('Subscriptions: deployed May 2026 plugin against the upgraded singleton
   const addr = (w: WalletSDK) => w.client.appAddress.toString()
   const send = (a: TransactionSignerAccount) => ({ sender: a.addr, signer: a.signer })
   type PluginCalls = Parameters<WalletSDK['usePlugin']>[0]['calls']
-  const use = (calls: PluginCalls) => Wr.usePlugin({ ...send(user), callerType: CallerType.Global, calls })
+  const use = (calls: PluginCalls) => Wr.usePlugin({ ...send(user), callerType: CallerType.Admin, calls })
 
   const balance = async (address: string): Promise<bigint> => (await algorand.account.getInformation(address)).balance.microAlgos
 
@@ -162,8 +162,8 @@ describe('Subscriptions: deployed May 2026 plugin against the upgraded singleton
     })
     const mbr = await Wr.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     await Wr.client.appClient.fundAppAccount({ ...send(user), amount: microAlgo(mbr.plugins * 2n + 300_000_000n) })
-    await Wr.addPlugin({ ...send(user), client: oldPlugin, callerType: CallerType.Global })
-    await Wr.addPlugin({ ...send(user), client: universe.subscriptionsPlugin, callerType: CallerType.Global })
+    await Wr.addPlugin({ ...send(user), client: oldPlugin, callerType: CallerType.Admin })
+    await Wr.addPlugin({ ...send(user), client: universe.subscriptionsPlugin, callerType: CallerType.Admin })
   })
 
   afterEach(async () => {

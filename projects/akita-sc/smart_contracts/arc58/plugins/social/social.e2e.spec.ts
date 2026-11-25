@@ -71,11 +71,11 @@ describe('Social plugin contract', () => {
     });
     await wallet.addPlugin({
       client: socialPluginSdk,
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
     });
     await wallet.addPlugin({
       client: akitaUniverse.selfOptInPlugin,
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
     });
   });
 
@@ -96,7 +96,7 @@ describe('Social plugin contract', () => {
       const walletAddress = wallet.client.appAddress.toString();
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [asset] })],
       });
 
@@ -109,7 +109,7 @@ describe('Social plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.commitStakingImpact({
             amount: initialAmount,
@@ -119,7 +119,7 @@ describe('Social plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.commitStakingImpact({
             amount: additionalAmount,
@@ -156,7 +156,7 @@ describe('Social plugin contract', () => {
       // the wallet's app address as sender. So this creates meta for the
       // wallet app account itself.
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.initMeta({
             user: walletAppAddr,
@@ -189,7 +189,7 @@ describe('Social plugin contract', () => {
 
       // ---- (3) follow target via plugin ----
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.follow({
             address: target.addr.toString(),
@@ -224,13 +224,13 @@ describe('Social plugin contract', () => {
       await zeroCreatorWallet.client.appClient.fundAppAccount({
         amount: algokit.microAlgo(mbr.plugins * 2n + 5_000_000n),
       });
-      await zeroCreatorWallet.addPlugin({ client: socialPluginSdk, callerType: CallerType.Global });
+      await zeroCreatorWallet.addPlugin({ client: socialPluginSdk, callerType: CallerType.Admin });
       await zeroCreatorWallet.addPlugin({
         client: akitaUniverse.selfOptInPlugin,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
       });
       await zeroCreatorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [asset] })],
       });
       await algorand.send.assetTransfer({
@@ -241,7 +241,7 @@ describe('Social plugin contract', () => {
         amount: 50_000_000n,
       });
       await zeroCreatorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.initMeta({
             user: walletAddress,
@@ -262,7 +262,7 @@ describe('Social plugin contract', () => {
       const { reactFee } = await akitaUniverse.social.getSocialFees();
 
       await zeroCreatorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.vote({ ref, type: RefType.Address, isUp: true })],
       });
 
@@ -273,7 +273,7 @@ describe('Social plugin contract', () => {
       const status = await algorand.client.algod.status().do();
       const timestamp = (await algorand.client.algod.block(status.lastRound).do()).block.header.timestamp;
       await zeroCreatorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           socialPluginSdk.reply({
             timestamp,
@@ -290,7 +290,7 @@ describe('Social plugin contract', () => {
       });
 
       await zeroCreatorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.react({ ref, type: RefType.Address, nft: asset })],
       });
 
@@ -328,10 +328,10 @@ describe('Social plugin contract', () => {
       await editorWallet.client.appClient.fundAppAccount({
         amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n),
       });
-      await editorWallet.addPlugin({ client: socialPluginSdk, callerType: CallerType.Global });
-      await editorWallet.addPlugin({ client: akitaUniverse.selfOptInPlugin, callerType: CallerType.Global });
+      await editorWallet.addPlugin({ client: socialPluginSdk, callerType: CallerType.Admin });
+      await editorWallet.addPlugin({ client: akitaUniverse.selfOptInPlugin, callerType: CallerType.Admin });
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [asset] })],
       });
       await algorand.send.assetTransfer({
@@ -342,7 +342,7 @@ describe('Social plugin contract', () => {
         amount: postFee * 2n + reactFee * 2n,
       });
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.initMeta({ user: walletAddress, automated: false, subscriptionIndex: 0n, nfd: 0n, akitaNft: 0n })],
       });
 
@@ -356,7 +356,7 @@ describe('Social plugin contract', () => {
       const postCid = new Uint8Array(36).fill(3);
       const postTs = await chainTime();
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.post({ timestamp: postTs, nonce: postNonce, cid: postCid, gateId: 0n, usePayWall: false, payWallId: 0n, creatorFlags: 0n })],
       });
       const postKey = social.computePostKey(walletAddress, postTs, postNonce);
@@ -365,7 +365,7 @@ describe('Social plugin contract', () => {
       // edit the post
       const editCid = new Uint8Array(36).fill(4);
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.editPost({ cid: editCid, amendment: postKey, creatorFlags: 0n })],
       });
       const editKey = social.computeEditKey(walletAddress, postKey, editCid);
@@ -376,7 +376,7 @@ describe('Social plugin contract', () => {
       const replyCid = new Uint8Array(36).fill(5);
       const replyTs = await chainTime();
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.reply({
           timestamp: replyTs, nonce: replyNonce, cid: replyCid, ref: postKey, type: RefType.Post,
           gateId: 0n, usePayWall: false, payWallId: 0n, creatorFlags: 0n,
@@ -387,7 +387,7 @@ describe('Social plugin contract', () => {
       // edit the reply
       const replyEditCid = new Uint8Array(36).fill(6);
       await editorWallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [socialPluginSdk.editReply({ cid: replyEditCid, amendment: replyKey, creatorFlags: 0n })],
       });
       const replyEdit = await social.getPost({ ref: social.computeEditKey(walletAddress, replyKey, replyEditCid) });

@@ -169,7 +169,7 @@ async function main() {
     if (name !== 'bob' && name !== 'carol') throw new Error('--as is bob or carol')
     return name
   }
-  const member = (who: Voter) => ({ wallet: walletOf(who), guildPlugin: plugin, guild: BigInt(guild().app), callerType: CallerType.Global, ...sendAs })
+  const member = (who: Voter) => ({ wallet: walletOf(who), guildPlugin: plugin, guild: BigInt(guild().app), callerType: CallerType.Admin, ...sendAs })
   const client = () => new GuildClient({ algorand, appId: BigInt(guild().app), defaultSender: sender, defaultSigner: signer })
 
   const print = async (proposalId: bigint) => {
@@ -216,7 +216,7 @@ async function main() {
         })
         const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
         await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
-        await wallet.addPlugin({ client: plugin, callerType: CallerType.Global })
+        await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
         const address = (await wallet.client.state.global.controlledAddress())!
         wallets[name] = { app: wallet.appId.toString(), address }
         console.log(`   ${name}: wallet ${wallet.appId}, member address ${address}`)
@@ -229,7 +229,7 @@ async function main() {
       const vote = settings(votingSeconds)
       const created = await walletOf('bob').usePlugin({
         ...sendAs,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ ...sendAs, rekeyBack: false, nonce: BigInt(nonce) })),
@@ -267,7 +267,7 @@ async function main() {
         | undefined
       if (!ids) throw new Error('createGuild returned no app ids')
       const [guildApp, consensus, treasury] = Array.isArray(ids) ? ids : [ids.guild, ids.consensus, ids.wallet]
-      await walletOf('bob').usePlugin({ ...sendAs, callerType: CallerType.Global, consolidateFees: true, calls: [plugin.initialize({ ...sendAs, guild: guildApp })] })
+      await walletOf('bob').usePlugin({ ...sendAs, callerType: CallerType.Admin, consolidateFees: true, calls: [plugin.initialize({ ...sendAs, guild: guildApp })] })
       save({
         genesisHash: network,
         plugin: env.GUILD_PLUGIN_APP_ID,
@@ -311,7 +311,7 @@ async function main() {
       const proposalId = BigInt((await algorand.app.getGlobalState(BigInt(guild().app))).proposal_id?.value ?? 1n)
       await walletOf(voter()).usePlugin({
         ...sendAs,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ ...sendAs, rekeyBack: false, nonce: BigInt(nonce) })),
@@ -330,7 +330,7 @@ async function main() {
       const call = { ...sendAs, guild: BigInt(guild().app), proposalId }
       await walletOf(voter()).usePlugin({
         ...sendAs,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           ...Array.from({ length: 6 }, (_, nonce) => plugin.opUp({ ...sendAs, rekeyBack: false, nonce: BigInt(nonce) })),

@@ -71,8 +71,8 @@ describe('Auction plugin contract', () => {
     // Fund wallet and add both plugins once
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n) });
-    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
-    await wallet.addPlugin({ client: auctionPluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: auctionPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -131,7 +131,7 @@ describe('Auction plugin contract', () => {
       await wallet.usePlugin({
         sender: user.addr,
         signer: user.signer,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           auctionPluginSdk.bid({
@@ -188,7 +188,7 @@ describe('Auction plugin contract', () => {
 
       const now = await getBlockTimestamp(algorand);
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           auctionPluginSdk.new({
@@ -224,12 +224,12 @@ describe('Auction plugin contract', () => {
 
       // AR-04 + AR-14: the seller clears weights and cancels through the plugin before the start
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [auctionPluginSdk.clearWeightsBoxes({ auctionAppId: auctionId!, iterationAmount: 3n })],
       });
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [auctionPluginSdk.cancel({ appId: auctionId! })],
       });
@@ -335,7 +335,7 @@ describe('Auction plugin contract', () => {
       });
       const mbr = await settlerWallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
       await settlerWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n) });
-      await settlerWallet.addPlugin({ client: auctionPluginSdk, callerType: CallerType.Global });
+      await settlerWallet.addPlugin({ client: auctionPluginSdk, callerType: CallerType.Admin });
 
       const { assetId } = await algorand.send.assetCreate({
         sender: deployer.addr, signer: deployer.signer, total: 1n, decimals: 0, assetName: 'Referral Prize', unitName: 'RFP',
@@ -374,7 +374,7 @@ describe('Auction plugin contract', () => {
       await settlerWallet.usePlugin({
         sender: settler.addr,
         signer: settler.signer,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [auctionPluginSdk.claimPrize({ appId: auction.client.appId })],
       });

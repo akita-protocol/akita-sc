@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 8 1 2
+    intcblock 0 8 1 6
     bytecblock "akita_dao" "aal" 0x151f7c75 "legacy_rewards" "inbox_router" "ERR:errRwap" 0x3ec40aa4 0xbd3cd090
     // smart_contracts/arc58/plugins/rewards/contract.algo.ts:15
     // export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
@@ -34,19 +34,20 @@ main_create_NoOp@26:
 
 // @akita-protocol/plugin/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
 getControlledSpendingAccount:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:37
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:49
     // export function getControlledSpendingAccount(wallet: Application): Account {
     proto 1 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    intc_0 // 0
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     frame_dig -1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -54,39 +55,117 @@ getControlledSpendingAccount:
     app_global_get_ex
     pop
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:71
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
     global CurrentApplicationAddress
     ==
-    bnz getControlledSpendingAccount_after_assert@2
+    bnz getControlledSpendingAccount_after_assert@3
     pushbytes "ERR:errNath"
     log
     err // ERR:errNath
 
-getControlledSpendingAccount_after_assert@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:40
+getControlledSpendingAccount_after_assert@3:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:93
+    // const [key, open] = op.AppGlobal.getExBytes(wallet, Bytes(ARC58_CURRENT_PLUGIN_KEY))
+    frame_dig -1
+    pushbytes "current_plugin"
+    app_global_get_ex
+    swap
+    frame_bury 0
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:94
+    // if (!open) return
+    bz getControlledSpendingAccount_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@15
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:95
+    // if (op.extractUint64(key, 0) !== Global.currentApplicationId.id) return
+    frame_dig 0
+    intc_0 // 0
+    extract_uint64
+    global CurrentApplicationID
+    !=
+    bnz getControlledSpendingAccount_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@15
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:96
+    // if (op.extract(key, 8, 32) !== Global.zeroAddress.bytes) return
+    frame_dig 0
+    extract 8 32
+    global ZeroAddress
+    !=
+    bnz getControlledSpendingAccount_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@15
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-104
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    //   .submit().lastLog
+    itxn_begin
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:101
+    // appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    pushbytes 0x00010002
+    frame_dig 0
+    concat
+    pushbytes 0x89a76826 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    frame_dig -1
+    itxn_field ApplicationID
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-103
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    intc_3 // 6
+    itxn_field TypeEnum
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:102
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-104
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    //   .submit().lastLog
+    itxn_submit
+    itxn LastLog
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:105
+    // loggedAssert(op.getBit(grants, ARC58_GET_PLUGINS_USE_EXECUTION_KEY_BIT), ARC58_ERR_OPEN_GRANT)
+    pushint 282
+    getbit
+    bnz getControlledSpendingAccount_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@15
+    pushbytes "ERR:errOgnk"
+    log
+    err // ERR:errOgnk
+
+getControlledSpendingAccount_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@15:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:52
     // return sender
+    swap
     retsub
 
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -102,7 +181,7 @@ create:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -196,7 +275,7 @@ createDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -220,7 +299,7 @@ createDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -370,7 +449,7 @@ createDisbursement:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -430,7 +509,7 @@ legacyCreateDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -454,7 +533,7 @@ legacyCreateDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -593,7 +672,7 @@ legacyCreateDisbursement:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -658,7 +737,7 @@ editDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -680,7 +759,7 @@ editDisbursement:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -743,7 +822,7 @@ editDisbursement:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -799,7 +878,7 @@ createUserAllocations:
     extract_uint16 // on error: invalid array length header
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -915,7 +994,7 @@ createUserAllocations:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -977,7 +1056,7 @@ createAsaUserAllocations:
     extract_uint16 // on error: invalid array length header
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -1099,7 +1178,7 @@ createAsaUserAllocations:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1195,7 +1274,7 @@ finalizeDisbursement:
     pushbytes 0x5424a591 // method "finalizeDisbursement(uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1255,7 +1334,7 @@ createInstantDisbursement:
     dup
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 2
     len
@@ -1395,7 +1474,7 @@ createInstantDisbursement:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1483,7 +1562,7 @@ createInstantAsaDisbursement:
     dup
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 2
     len
@@ -1668,7 +1747,7 @@ createInstantAsaDisbursement:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1733,7 +1812,7 @@ claimRewards:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -1788,7 +1867,7 @@ claimRewards:
     bytec 6 // method "claimRewards((uint64,uint64)[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1839,7 +1918,7 @@ reclaimRewards:
     extract_uint16 // on error: invalid array length header
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -1896,7 +1975,7 @@ reclaimRewards:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1945,7 +2024,7 @@ claimLegacyRewards:
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
-    intc_3 // 2
+    pushint 2
     +
     swap
     len
@@ -2006,7 +2085,7 @@ claimLegacyRewards_after_assert@3:
     bytec 6 // method "claimRewards((uint64,uint64)[])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2062,7 +2141,7 @@ reclaimLegacyRewards:
     extract_uint16 // on error: invalid array length header
     pushint 40
     *
-    intc_3 // 2
+    pushint 2
     +
     swap
     len
@@ -2125,7 +2204,7 @@ reclaimLegacyRewards_after_assert@3:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2222,7 +2301,7 @@ withdrawMbrCredits:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2311,7 +2390,7 @@ closeDisbursement:
     pushbytes 0x087b4b65 // method "closeDisbursement(uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2449,7 +2528,7 @@ claimInbox_after_if_else@4:
     pushbytes 0xbf902e3c // method "arc59_claim(uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2525,7 +2604,7 @@ rejectInbox:
     pushbytes 0x89b3c9cd // method "arc59_reject(uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2594,7 +2673,7 @@ claimInboxAlgo:
     // })
     pushbytes 0x362dcad7 // method "arc59_claimAlgo()void"
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2664,7 +2743,7 @@ mbr:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len
@@ -2675,7 +2754,7 @@ mbr:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len

@@ -622,19 +622,21 @@ describe('MetaPlugin per-wallet grant policies (LocalNet)', () => {
       )
   })
 
-  test('unrestricted grants can register tree types with the existing fee and schema', async () => {
+  test('only an admin window registers tree types, with the existing fee and schema', async () => {
     await wallet.client.appClient.fundAppAccount({ amount: microAlgo(101_000_000) })
     await install({ client: unrestricted, callerType: CallerType.Global })
     const { typesId } = await metadata.getState()
-    await wallet.usePlugin({
-      callerType: CallerType.Global,
-      calls: [
-        unrestricted.addType({
-          description: 'Delegated tree type',
-          schemaList: [SchemaPart.Uint64, SchemaPart.Address],
-        }),
-      ],
+    const addType = () => unrestricted.addType({
+      description: 'Delegated tree type',
+      schemaList: [SchemaPart.Uint64, SchemaPart.Address],
     })
+    // POL-02: the 100 ALGO fee is not refundable, so no grant other than the admin's own may spend
+    // it, whatever its scope says
+    await expect(wallet.usePlugin({ callerType: CallerType.Global, calls: [addType()] })).rejects.toThrow(
+      new RegExp(errTypeScope),
+    )
+    expect((await metadata.getState()).typesId).toBe(typesId)
+    await wallet.usePlugin({ callerType: CallerType.Admin, calls: [addType()] })
     expect(await metadata.getType({ id: typesId })).toEqual({
       description: 'Delegated tree type',
       schema: '(uint64,address)',

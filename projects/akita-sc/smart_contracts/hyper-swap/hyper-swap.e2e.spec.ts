@@ -249,7 +249,7 @@ describe('HyperSwap', () => {
 
       await wallet.addPlugin({
         client: hyperSwapPluginSdk,
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
       });
 
       const plugins = await wallet.getPlugins();

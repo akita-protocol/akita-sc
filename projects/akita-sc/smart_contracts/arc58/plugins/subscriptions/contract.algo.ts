@@ -3,7 +3,7 @@ import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorand
 import { classes } from 'polytype'
 import { GateArgs } from "../../../gates/types"
 import { ServiceID, SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
-import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
+import { getControlledSpendingAccount, getOpenGrantSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
 import { GateMustCheckForAbiMethod, getAkitaAppList, pluginPrincipalOf } from "../../../utils/functions"
 import { gateCtx, windowHint } from "../../../utils/principal"
 import { CID } from "../../../utils/types/base"
@@ -607,7 +607,10 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     id: SubscriptionID
   ): void {
-    const sender = getControlledSpendingAccount(wallet)
+    // Safe under a grant anyone may use, which is how keepers run it: the caller picks only which of
+    // the account's own subscriptions to fund, and the top-up is the shortfall of one payment that
+    // is due under the terms the account subscribed to.
+    const sender = getOpenGrantSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     const key: SubscriptionKey = { address: sender, id }

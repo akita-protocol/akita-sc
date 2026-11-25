@@ -31,20 +31,20 @@ main_create_NoOp@6:
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -341,16 +341,16 @@ pay_after_inlined_smart_contracts/arc58/plugins/pay/contract.algo.ts::PayPlugin.
     intc_0 // 0
     getbit
     bury 9
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 7 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -359,7 +359,7 @@ pay_after_inlined_smart_contracts/arc58/plugins/pay/contract.algo.ts::PayPlugin.
     pop
     dup
     cover 5
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:71
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -371,19 +371,19 @@ pay_after_inlined_smart_contracts/arc58/plugins/pay/contract.algo.ts::PayPlugin.
     err // ERR:errNath
 
 pay_after_assert@93:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:89
     // for (let i: uint64 = 0; i < payments.length; i++) {
     intc_0 // 0
     swap
 
 pay_while_top@2:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:89
     // for (let i: uint64 = 0; i < payments.length; i++) {
     dig 1
     dig 3
     <
     bz pay_after_while@33
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:88
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:90
     // const { receiver, asset, amount } = payments[i];
     dig 6
     extract 2 0
@@ -402,15 +402,15 @@ pay_while_top@2:
     pushint 40
     extract_uint64
     cover 4
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:90
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:92
     // if (limited) {
     dig 13
     bz pay_after_if_else@21
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:91
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:93
     // let receiverAllowed = false
     intc_0 // 0
     bury 12
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:94
     // for (const recipient of clone(policy.recipients)) {
     dupn 2
     intc_1 // 1
@@ -438,7 +438,7 @@ pay_while_top@2:
     swap
 
 pay_for_header@5:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:94
     // for (const recipient of clone(policy.recipients)) {
     dig 1
     dig 6
@@ -451,7 +451,7 @@ pay_for_header@5:
     *
     pushint 32
     extract3 // on error: index access is out of bounds
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:93
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:95
     // if (recipient === receiver) receiverAllowed = true
     dig 13
     ==
@@ -472,7 +472,7 @@ pay_after_for@10:
     pop
     uncover 4
     pop
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:95
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:97
     // loggedAssert(receiverAllowed, errPayRecipient)
     dig 13
     bnz pay_after_assert@12
@@ -481,11 +481,11 @@ pay_after_for@10:
     err // ERR:errPpnr
 
 pay_after_assert@12:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:98
     // let assetAllowed = false
     intc_0 // 0
     bury 17
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:97
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:99
     // for (const allowed of clone(policy.assets)) {
     uncover 8
     dup
@@ -503,7 +503,7 @@ pay_after_assert@12:
     swap
 
 pay_for_header@13:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:97
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:99
     // for (const allowed of clone(policy.assets)) {
     dig 1
     dig 6
@@ -515,7 +515,7 @@ pay_for_header@13:
     intc_2 // 8
     *
     extract_uint64
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:98
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:100
     // if (allowed === asset) assetAllowed = true
     dig 9
     ==
@@ -536,7 +536,7 @@ pay_after_for@18:
     pop
     uncover 4
     pop
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:100
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:102
     // loggedAssert(assetAllowed, errPayAsset)
     dig 14
     bnz pay_after_if_else@21
@@ -545,13 +545,13 @@ pay_after_for@18:
     err // ERR:errPpna
 
 pay_after_if_else@21:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:103
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:105
     // if (asset === 0) {
     dig 5
     bnz pay_else_body@27
     uncover 5
     pop
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:104-111
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:106-113
     // itxn
     //   .payment({
     //     sender,
@@ -561,7 +561,7 @@ pay_after_if_else@21:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:109
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:111
     // rekeyTo: i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet),
     dig 2
     intc_1 // 1
@@ -579,7 +579,7 @@ pay_ternary_merge@25:
     itxn_field Receiver
     dig 5
     itxn_field Sender
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:104-110
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:106-112
     // itxn
     //   .payment({
     //     sender,
@@ -591,7 +591,7 @@ pay_ternary_merge@25:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:104-111
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:106-113
     // itxn
     //   .payment({
     //     sender,
@@ -603,7 +603,7 @@ pay_ternary_merge@25:
     itxn_submit
 
 pay_after_if_else@32:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:89
     // for (let i: uint64 = 0; i < payments.length; i++) {
     swap
     intc_1 // 1
@@ -612,7 +612,7 @@ pay_after_if_else@32:
     b pay_while_top@2
 
 pay_ternary_false@24:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:109
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:111
     // rekeyTo: i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet),
     dig 5
     dig 4
@@ -620,7 +620,7 @@ pay_ternary_false@24:
     b pay_ternary_merge@25
 
 pay_else_body@27:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:113-121
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:115-123
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -631,7 +631,7 @@ pay_else_body@27:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:119
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:121
     // rekeyTo: i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet),
     dig 2
     intc_1 // 1
@@ -651,7 +651,7 @@ pay_ternary_merge@30:
     itxn_field AssetReceiver
     dig 5
     itxn_field Sender
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:113-120
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:115-122
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -664,7 +664,7 @@ pay_ternary_merge@30:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:113-121
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:115-123
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -678,7 +678,7 @@ pay_ternary_merge@30:
     b pay_after_if_else@32
 
 pay_ternary_false@29:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:119
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:121
     // rekeyTo: i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet),
     dig 6
     dig 4
@@ -1002,16 +1002,16 @@ pay_after_assert@79:
     err // ERR:errGctx
 
 pay_after_assert@81:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
     // )
     dig 3
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     bytec 7 // "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -1317,7 +1317,7 @@ pay_bool_false@48:
 validatePolicy:
     intc_0 // 0
     dupn 2
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:127
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:129
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1331,7 +1331,7 @@ validatePolicy:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     dup
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:131
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:133
     // loggedAssert(body.length >= 8, errPayPolicyEncoding)
     len
     dup
@@ -1344,19 +1344,19 @@ validatePolicy:
     err // ERR:errPpen
 
 validatePolicy_after_assert@3:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:132
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:134
     // const recipientCount = op.extractUint16(body, 4)
     dupn 2
     pushint 4
     extract_uint16
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:133
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:135
     // const assetsAt: uint64 = 6 + recipientCount * 32
     pushint 32
     *
     pushint 6
     +
     cover 2
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:134
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:136
     // loggedAssert(op.extractUint16(body, 0) === 4 && op.extractUint16(body, 2) === assetsAt, errPayPolicyEncoding)
     intc_0 // 0
     extract_uint16
@@ -1374,7 +1374,7 @@ validatePolicy_after_assert@3:
     intc_1 // 1
 
 validatePolicy_bool_merge@7:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:134
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:136
     // loggedAssert(op.extractUint16(body, 0) === 4 && op.extractUint16(body, 2) === assetsAt, errPayPolicyEncoding)
     bnz validatePolicy_after_assert@9
     bytec_2 // "ERR:errPpen"
@@ -1382,7 +1382,7 @@ validatePolicy_bool_merge@7:
     err // ERR:errPpen
 
 validatePolicy_after_assert@9:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:135
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:137
     // loggedAssert(body.length >= assetsAt + 2, errPayPolicyEncoding)
     dig 2
     intc_3 // 2
@@ -1396,7 +1396,7 @@ validatePolicy_after_assert@9:
     err // ERR:errPpen
 
 validatePolicy_after_assert@11:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:136
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:138
     // loggedAssert(body.length === assetsAt + 2 + op.extractUint16(body, assetsAt) * 8, errPayPolicyEncoding)
     dig 1
     uncover 4
@@ -1412,7 +1412,7 @@ validatePolicy_after_assert@11:
     err // ERR:errPpen
 
 validatePolicy_after_assert@13:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:138
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:140
     // loggedAssert(policy.recipients.length > 0 && policy.recipients.length <= MaxPolicyEntries, errPayPolicyRecipients)
     dupn 2
     intc_3 // 2
@@ -1437,7 +1437,7 @@ validatePolicy_after_assert@13:
     intc_1 // 1
 
 validatePolicy_bool_merge@17:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:138
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:140
     // loggedAssert(policy.recipients.length > 0 && policy.recipients.length <= MaxPolicyEntries, errPayPolicyRecipients)
     bnz validatePolicy_after_assert@19
     bytec 11 // "ERR:errPprc"
@@ -1445,7 +1445,7 @@ validatePolicy_bool_merge@17:
     err // ERR:errPprc
 
 validatePolicy_after_assert@19:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:139
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:141
     // loggedAssert(policy.assets.length > 0 && policy.assets.length <= MaxPolicyEntries, errPayPolicyAssets)
     uncover 2
     uncover 3
@@ -1463,7 +1463,7 @@ validatePolicy_after_assert@19:
     intc_1 // 1
 
 validatePolicy_bool_merge@23:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:139
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:141
     // loggedAssert(policy.assets.length > 0 && policy.assets.length <= MaxPolicyEntries, errPayPolicyAssets)
     bnz validatePolicy_after_assert@25
     bytec 12 // "ERR:errPpas"
@@ -1471,11 +1471,11 @@ validatePolicy_bool_merge@23:
     err // ERR:errPpas
 
 validatePolicy_after_assert@25:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:140
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:142
     // let previous = BigUint(0)
     bytec_3 // 0x
     bury 3
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:141
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:143
     // let first = true
     intc_1 // 1
     cover 2
@@ -1483,7 +1483,7 @@ validatePolicy_after_assert@25:
     cover 2
 
 validatePolicy_for_header@26:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:142
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:144
     // for (const recipient of clone(policy.recipients)) {
     dig 2
     dig 2
@@ -1496,7 +1496,7 @@ validatePolicy_for_header@26:
     *
     pushint 32
     extract3 // on error: index access is out of bounds
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:144
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:146
     // loggedAssert(first || current > previous, errPayPolicyRecipients)
     uncover 4
     bnz validatePolicy_bool_true@29
@@ -1509,7 +1509,7 @@ validatePolicy_bool_true@29:
     intc_1 // 1
 
 validatePolicy_bool_merge@31:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:144
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:146
     // loggedAssert(first || current > previous, errPayPolicyRecipients)
     bnz validatePolicy_after_assert@33
     bytec 11 // "ERR:errPprc"
@@ -1517,7 +1517,7 @@ validatePolicy_bool_merge@31:
     err // ERR:errPprc
 
 validatePolicy_after_assert@33:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:146
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:148
     // first = false
     intc_0 // 0
     cover 4
@@ -1536,18 +1536,18 @@ validatePolicy_after_for@35:
     bury 1
     bury 1
     bury 1
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:148
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:150
     // for (let i: uint64 = 1; i < policy.assets.length; i++) {
     intc_1 // 1
 
 validatePolicy_while_top@36:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:148
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:150
     // for (let i: uint64 = 1; i < policy.assets.length; i++) {
     dup
     dig 2
     <
     bz validatePolicy_after_while@40
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:149
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:151
     // loggedAssert(policy.assets[i] > policy.assets[i - 1], errPayPolicyAssets)
     dig 3
     extract 2 0
@@ -1574,14 +1574,14 @@ validatePolicy_while_top@36:
     err // ERR:errPpas
 
 validatePolicy_after_assert@39:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:148
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:150
     // for (let i: uint64 = 1; i < policy.assets.length; i++) {
     intc_1 // 1
     +
     b validatePolicy_while_top@36
 
 validatePolicy_after_while@40:
-    // smart_contracts/arc58/plugins/pay/contract.algo.ts:127
+    // smart_contracts/arc58/plugins/pay/contract.algo.ts:129
     // @abimethod({ readonly: true })
     intc_1 // 1
     return

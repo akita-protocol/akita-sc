@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 8 4
+    intcblock 0 1 8 4
     bytecblock "ERR:errIhfd" "ERR:errIhrc" "router" "routerMethod" "referrer"
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:48
     // export class HaystackRouterPlugin extends Contract {
@@ -28,20 +28,20 @@ main_create_NoOp@5:
 
 // @akita-protocol/plugin/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:143
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:208
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -109,12 +109,13 @@ create:
     app_global_put
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:58
     // @abimethod({ onCreate: 'require' })
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts::HaystackRouterPlugin.swap[routing]() -> void:
 swap:
+    intc_0 // 0
     pushbytes ""
     dupn 4
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:197-204
@@ -137,10 +138,10 @@ swap:
     txna ApplicationArgs 2
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    intc_1 // 0
+    intc_0 // 0
     getbit
     swap
     txna ApplicationArgs 3
@@ -175,10 +176,10 @@ swap:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -186,7 +187,7 @@ swap:
     app_global_get_ex
     pop
     dup
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:71
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -198,15 +199,92 @@ swap:
     err // ERR:errNath
 
 swap_after_assert@3:
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:93
+    // const [key, open] = op.AppGlobal.getExBytes(wallet, Bytes(ARC58_CURRENT_PLUGIN_KEY))
+    dig 6
+    pushbytes "current_plugin"
+    app_global_get_ex
+    swap
+    bury 14
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:94
+    // if (!open) return
+    bz swap_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@8
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:95
+    // if (op.extractUint64(key, 0) !== Global.currentApplicationId.id) return
+    dig 12
+    intc_0 // 0
+    extract_uint64
+    global CurrentApplicationID
+    !=
+    bnz swap_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@8
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:96
+    // if (op.extract(key, 8, 32) !== Global.zeroAddress.bytes) return
+    dig 12
+    extract 8 32
+    global ZeroAddress
+    !=
+    bnz swap_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@8
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-104
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    //   .submit().lastLog
+    itxn_begin
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:101
+    // appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    pushbytes 0x00010002
+    dig 13
+    concat
+    pushbytes 0x89a76826 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    dig 6
+    itxn_field ApplicationID
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-103
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    pushint 6
+    itxn_field TypeEnum
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:102
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:98-104
+    // const grants = itxn
+    //   .applicationCall({
+    //     appId: wallet,
+    //     appArgs: [methodSelector(ARC58_GET_PLUGINS_SIGNATURE), Bytes.fromHex('00010002').concat(key)],
+    //     fee: 0,
+    //   })
+    //   .submit().lastLog
+    itxn_submit
+    itxn LastLog
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:105
+    // loggedAssert(op.getBit(grants, ARC58_GET_PLUGINS_USE_EXECUTION_KEY_BIT), ARC58_ERR_OPEN_GRANT)
+    pushint 282
+    getbit
+    bnz swap_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@8
+    pushbytes "ERR:errOgnk"
+    log
+    err // ERR:errOgnk
+
+swap_after_inlined_@akita-protocol/plugin/functions.ts::assertNotOpenGrant@8:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:158
     // loggedAssert(amount > 0, errInvalidFunding)
     dig 3
-    bnz swap_after_assert@7
+    bnz swap_after_assert@12
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@7:
+swap_after_assert@12:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:112
     // let fundingTxnIndex = Global.groupSize
     global GroupSize
@@ -214,17 +292,17 @@ swap_after_assert@7:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 11
 
-swap_while_top@8:
+swap_while_top@13:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     dig 10
     global GroupSize
     <
-    bz swap_block@35
+    bz swap_block@40
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:118
     // if (funding.type === TransactionType.ApplicationCall && funding.appId === Global.currentApplicationId) {
     dig 10
@@ -233,33 +311,33 @@ swap_while_top@8:
     bury 9
     pushint 6
     ==
-    bz swap_after_if_else@11
+    bz swap_after_if_else@16
     dig 10
     gtxns ApplicationID
     global CurrentApplicationID
     ==
-    bnz swap_block@35
+    bnz swap_block@40
 
-swap_after_if_else@11:
+swap_after_if_else@16:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:122
     // if (asset === 0 && funding.type === TransactionType.Payment) {
     dig 4
-    bnz swap_else_body@18
+    bnz swap_else_body@23
     dig 7
-    intc_0 // 1
+    intc_1 // 1
     ==
-    bz swap_else_body@18
+    bz swap_else_body@23
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:123
     // const payment = gtxn.PaymentTxn(i)
     dig 7
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:124
     // if (payment.receiver !== this.router.value.address || payment.amount !== amount) {
     dig 10
     gtxns Receiver
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
@@ -270,68 +348,68 @@ swap_after_if_else@11:
     app_params_get AppAddress
     assert // application exists
     !=
-    bnz swap_block@34
+    bnz swap_block@39
     dig 10
     gtxns Amount
     dig 4
     !=
-    bnz swap_block@34
+    bnz swap_block@39
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:127
     // loggedAssert(payment.closeRemainderTo === Global.zeroAddress, errInvalidFunding)
     dig 10
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    bnz swap_after_if_else@29
+    bnz swap_after_if_else@34
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_if_else@29:
+swap_after_if_else@34:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:139
     // loggedAssert(funding.rekeyTo === Global.zeroAddress, errInvalidFunding)
     dig 10
     gtxns RekeyTo
     global ZeroAddress
     ==
-    bnz swap_after_assert@31
+    bnz swap_after_assert@36
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@31:
+swap_after_assert@36:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:141
     // loggedAssert(fundingTxnIndex === Global.groupSize, errInvalidFunding)
     dig 11
     global GroupSize
     ==
-    bnz swap_after_assert@33
+    bnz swap_after_assert@38
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@33:
+swap_after_assert@38:
     dig 10
     bury 12
 
-swap_block@34:
+swap_block@39:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     dig 10
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 11
-    b swap_while_top@8
+    b swap_while_top@13
 
-swap_else_body@18:
+swap_else_body@23:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:128
     // } else if (asset !== 0 && funding.type === TransactionType.AssetTransfer) {
     dig 4
-    bz swap_block@34
+    bz swap_block@39
     dig 7
     intc_3 // 4
     ==
-    bz swap_block@34
+    bz swap_block@39
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:129
     // const transfer = gtxn.AssetTransferTxn(i)
     dig 7
@@ -342,7 +420,7 @@ swap_else_body@18:
     // if (transfer.assetReceiver !== this.router.value.address || transfer.xferAsset.id !== asset || transfer.assetAmount !== amount) {
     dig 10
     gtxns AssetReceiver
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
@@ -353,73 +431,73 @@ swap_else_body@18:
     app_params_get AppAddress
     assert // application exists
     !=
-    bnz swap_block@34
+    bnz swap_block@39
     dig 10
     gtxns XferAsset
     dig 5
     !=
-    bnz swap_block@34
+    bnz swap_block@39
     dig 10
     gtxns AssetAmount
     dig 4
     !=
-    bnz swap_block@34
+    bnz swap_block@39
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:133
     // loggedAssert(transfer.assetSender === Global.zeroAddress, errInvalidFunding)
     dig 10
     gtxns AssetSender
     global ZeroAddress
     ==
-    bnz swap_after_assert@26
+    bnz swap_after_assert@31
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@26:
+swap_after_assert@31:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:134
     // loggedAssert(transfer.assetCloseTo === Global.zeroAddress, errInvalidFunding)
     dig 10
     gtxns AssetCloseTo
     global ZeroAddress
     ==
-    bnz swap_after_if_else@29
+    bnz swap_after_if_else@34
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_block@35:
+swap_block@40:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:145
     // loggedAssert(fundingTxnIndex < Global.groupSize, errInvalidFunding)
     dig 11
     global GroupSize
     <
-    bnz swap_after_assert@37
+    bnz swap_after_assert@42
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@37:
+swap_after_assert@42:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:161
     // const fundingAccount = gtxn.Transaction(fundingTxnIndex).sender
     dig 11
     gtxns Sender
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:73
     // let foundRouterCall = false
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 13
 
-swap_while_top@38:
+swap_while_top@43:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     dig 12
     global GroupSize
     <
-    bz swap_after_while@72
+    bz swap_after_while@77
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:78
     // if (txn.type !== TransactionType.ApplicationCall || txn.appId !== this.router.value) {
     dig 12
@@ -428,10 +506,10 @@ swap_while_top@38:
     bury 12
     pushint 6
     !=
-    bnz swap_block@71
+    bnz swap_block@76
     dig 12
     gtxns ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
@@ -440,7 +518,7 @@ swap_while_top@38:
     app_global_get_ex
     assert // check GlobalState exists
     !=
-    bnz swap_block@71
+    bnz swap_block@76
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:82
     // const routerCall = gtxn.ApplicationCallTxn(i)
     dig 10
@@ -451,29 +529,29 @@ swap_while_top@38:
     // loggedAssert(routerCall.onCompletion === OnCompleteAction.NoOp, errInvalidRouterCall)
     dig 12
     gtxns OnCompletion
-    bz swap_after_assert@44
+    bz swap_after_assert@49
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@44:
+swap_after_assert@49:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:85
     // loggedAssert(routerCall.numAppArgs > 0, errInvalidRouterCall)
     dig 12
     gtxns NumAppArgs
     dup
     bury 13
-    bnz swap_after_assert@46
+    bnz swap_after_assert@51
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@46:
+swap_after_assert@51:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:87
     // if (routerCall.appArgs(0) !== this.routerMethod.value) {
     dig 12
     gtxnsa ApplicationArgs 0
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:52
     // routerMethod = GlobalState<bytes<4>>({ key: HaystackRouterPluginGlobalStateKeyRouterMethod })
     bytec_3 // "routerMethod"
@@ -482,30 +560,30 @@ swap_after_assert@46:
     app_global_get_ex
     assert // check GlobalState exists
     !=
-    bnz swap_block@71
+    bnz swap_block@76
     pop
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:91
     // loggedAssert(i > fundingTxnIndex, errInvalidFunding)
     dig 11
     dig 13
     >
-    bnz swap_after_assert@50
+    bnz swap_after_assert@55
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@50:
+swap_after_assert@55:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:92
     // loggedAssert(routerCall.numAppArgs > FINALIZE_TERMS_ARG_INDEX, errInvalidRouterCall)
     dig 10
     intc_3 // 4
     >
-    bnz swap_after_assert@52
+    bnz swap_after_assert@57
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@52:
+swap_after_assert@57:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:94
     // const assets = routerCall.appArgs(FINALIZE_ASSETS_ARG_INDEX)
     dig 11
@@ -516,24 +594,24 @@ swap_after_assert@52:
     len
     pushint 18
     >=
-    bz swap_bool_false@55
+    bz swap_bool_false@60
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     pushint 2
     >=
-    bz swap_bool_false@55
-    intc_0 // 1
+    bz swap_bool_false@60
+    intc_1 // 1
 
-swap_bool_merge@56:
+swap_bool_merge@61:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:95
     // loggedAssert(assets.length >= 18 && extractUint16(assets, 0) >= 2, errInvalidRouterCall)
-    bnz swap_after_assert@58
+    bnz swap_after_assert@63
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@58:
+swap_after_assert@63:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:96
     // loggedAssert(extractUint64(assets, 2) === asset, errInvalidFunding)
     dup
@@ -541,24 +619,24 @@ swap_after_assert@58:
     extract_uint64
     dig 7
     ==
-    bnz swap_after_assert@60
+    bnz swap_after_assert@65
     bytec_0 // "ERR:errIhfd"
     log
     err // ERR:errIhfd
 
-swap_after_assert@60:
+swap_after_assert@65:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:97
     // loggedAssert(extractUint64(assets, 10) === outputAsset, errInvalidOutputAsset)
     pushint 10
     extract_uint64
     dig 4
     ==
-    bnz swap_after_assert@62
+    bnz swap_after_assert@67
     pushbytes "ERR:errIhoa"
     log
     err // ERR:errIhoa
 
-swap_after_assert@62:
+swap_after_assert@67:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:99
     // const terms = routerCall.appArgs(FINALIZE_TERMS_ARG_INDEX)
     dig 11
@@ -569,12 +647,12 @@ swap_after_assert@62:
     len
     pushint 93
     ==
-    bnz swap_after_assert@64
+    bnz swap_after_assert@69
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@64:
+swap_after_assert@69:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:101
     // loggedAssert(extract(terms, FINALIZE_TERMS_MIN_OUTPUT_OFFSET, 8) === itob(minOutputAmount), errInvalidMinOutput)
     dup
@@ -582,28 +660,28 @@ swap_after_assert@64:
     dig 4
     itob
     ==
-    bnz swap_after_assert@66
+    bnz swap_after_assert@71
     pushbytes "ERR:errIhmo"
     log
     err // ERR:errIhmo
 
-swap_after_assert@66:
+swap_after_assert@71:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:102
     // loggedAssert(extract(terms, FINALIZE_TERMS_BENEFICIARY_OFFSET, 32) === sender.bytes, errInvalidReceiverArg)
     dup
     extract 29 32
     dig 3
     ==
-    bnz swap_after_assert@68
+    bnz swap_after_assert@73
     pushbytes "ERR:errIhra"
     log
     err // ERR:errIhra
 
-swap_after_assert@68:
+swap_after_assert@73:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:103
     // loggedAssert(extract(terms, FINALIZE_TERMS_REFERRER_OFFSET, 32) === this.referrer.value.bytes, errInvalidBeneficiary)
     extract 61 32
-    intc_1 // 0
+    intc_0 // 0
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:54
     // referrer = GlobalState<Account>({ key: HaystackRouterPluginGlobalStateKeyReferrer })
     bytec 4 // "referrer"
@@ -612,42 +690,42 @@ swap_after_assert@68:
     app_global_get_ex
     assert // check GlobalState exists
     ==
-    bnz swap_after_assert@70
+    bnz swap_after_assert@75
     pushbytes "ERR:errIhbi"
     log
     err // ERR:errIhbi
 
-swap_after_assert@70:
+swap_after_assert@75:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:105
     // foundRouterCall = true
-    intc_0 // 1
+    intc_1 // 1
 
-swap_block@71:
+swap_block@76:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     dig 12
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 13
-    b swap_while_top@38
+    b swap_while_top@43
 
-swap_bool_false@55:
-    intc_1 // 0
-    b swap_bool_merge@56
+swap_bool_false@60:
+    intc_0 // 0
+    b swap_bool_merge@61
 
-swap_after_while@72:
+swap_after_while@77:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:108
     // loggedAssert(foundRouterCall, errInvalidRouter)
-    bnz swap_after_assert@74
+    bnz swap_after_assert@79
     pushbytes "ERR:errIhtr"
     log
     err // ERR:errIhtr
 
-swap_after_assert@74:
+swap_after_assert@79:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:170
     // if (asset === 0) {
     dig 5
-    bnz swap_else_body@76
+    bnz swap_else_body@81
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:171-178
     // itxn
     //   .payment({
@@ -677,9 +755,9 @@ swap_after_assert@74:
     //     amount,
     //     rekeyTo: rekeyAddress(rekeyBack, wallet),
     //   })
-    intc_0 // 1
+    intc_1 // 1
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:171-178
     // itxn
@@ -692,7 +770,7 @@ swap_after_assert@74:
     //   .submit()
     itxn_submit
 
-swap_after_if_else@77:
+swap_after_if_else@82:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:197-204
     // swap(
     //   wallet: Application,
@@ -702,10 +780,10 @@ swap_after_if_else@77:
     //   outputAsset: uint64,
     //   minOutputAmount: uint64,
     // ): void {
-    intc_0 // 1
+    intc_1 // 1
     return
 
-swap_else_body@76:
+swap_else_body@81:
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:180-188
     // itxn
     //   .assetTransfer({
@@ -741,7 +819,7 @@ swap_else_body@76:
     //   })
     intc_3 // 4
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:180-188
     // itxn
@@ -754,4 +832,4 @@ swap_else_body@76:
     //   })
     //   .submit()
     itxn_submit
-    b swap_after_if_else@77
+    b swap_after_if_else@82

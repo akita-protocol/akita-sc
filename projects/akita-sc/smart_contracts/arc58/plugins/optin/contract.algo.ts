@@ -1,11 +1,13 @@
 import { Application, Asset, Global, gtxn, itxn, loggedAssert, uint64, Contract } from "@algorandfoundation/algorand-typescript";
 import { errAlreadyOptedIn, errInvalidPayment } from "./errors";
-import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
+import { getOpenGrantSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions";
 
 export class OptInPlugin extends Contract {
 
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
-    const sender = getControlledSpendingAccount(wallet)
+    // Safe under a grant anyone may use: the caller pays the exact opt-in minimum balance itself
+    // (checked below), and the account only gains empty holdings.
+    const sender = getOpenGrantSpendingAccount(wallet)
     loggedAssert(mbrPayment.receiver === sender, errInvalidPayment)
     loggedAssert(mbrPayment.amount === Global.assetOptInMinBalance * assets.length, errInvalidPayment)
 

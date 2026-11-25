@@ -15,7 +15,7 @@ main:
     err
 
 main_pay_route@4:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:12
     // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
     txn OnCompletion
     !
@@ -63,7 +63,7 @@ update:
 
 // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts::MockUnlimitedPayPlugin.pay[routing]() -> void:
 pay:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:12
     // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
     txna ApplicationArgs 1
     dup
@@ -98,10 +98,10 @@ pay:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/pay/types.ts::PayParams>
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:21
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:26
     // Bytes(ARC58_SPENDING_ADDRESS_KEY)
     pushbytes "spending_address"
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:19-22
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:24-27
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(ARC58_SPENDING_ADDRESS_KEY)
@@ -110,7 +110,7 @@ pay:
     pop
     dup
     cover 2
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:39
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:71
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, ARC58_ERR_PLUGIN_NOT_AUTH_ADDR)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -122,18 +122,18 @@ pay:
     err // ERR:errNath
 
 pay_after_assert@19:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:14
     // for (let i: uint64 = 0; i < payments.length; i++) {
     intc_1 // 0
 
 pay_while_top@2:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:14
     // for (let i: uint64 = 0; i < payments.length; i++) {
     dup
     dig 2
     <
     bz pay_after_while@12
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:14
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:15
     // const { receiver, asset, amount } = payments[i]
     dig 3
     extract 2 0
@@ -154,7 +154,7 @@ pay_while_top@2:
     pushint 40
     extract_uint64
     cover 3
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:15
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:16
     // const rekeyTo = i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     dig 4
     intc_0 // 1
@@ -164,13 +164,13 @@ pay_while_top@2:
     global ZeroAddress
 
 pay_ternary_merge@6:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:16
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:17
     // if (asset === 0) {
     dig 2
     bnz pay_else_body@9
     uncover 2
     pop
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:17
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:18
     // itxn.payment({ sender, receiver, amount, rekeyTo }).submit()
     itxn_begin
     itxn_field RekeyTo
@@ -187,14 +187,14 @@ pay_ternary_merge@6:
     itxn_submit
 
 pay_after_if_else@11:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:13
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:14
     // for (let i: uint64 = 0; i < payments.length; i++) {
     intc_0 // 1
     +
     b pay_while_top@2
 
 pay_else_body@9:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:19
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:20
     // itxn.assetTransfer({ sender, assetReceiver: receiver, assetAmount: amount, xferAsset: asset, rekeyTo }).submit()
     itxn_begin
     itxn_field RekeyTo
@@ -214,17 +214,17 @@ pay_else_body@9:
     b pay_after_if_else@11
 
 pay_ternary_false@5:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:144
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:209
     // if (!rekeyBack) {
     dig 7
     bnz pay_after_if_else@15
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:145
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:210
     // return Global.zeroAddress
     global ZeroAddress
     b pay_ternary_merge@6
 
 pay_after_if_else@15:
-    // ../../node_modules/@akita-protocol/plugin/functions.ts:147
+    // ../../node_modules/@akita-protocol/plugin/functions.ts:212
     // return wallet.address
     dig 8
     app_params_get AppAddress
@@ -232,7 +232,7 @@ pay_after_if_else@15:
     b pay_ternary_merge@6
 
 pay_after_while@12:
-    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:11
+    // smart_contracts/mocks/unlimited-pay-plugin/contract.algo.ts:12
     // pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
     intc_0 // 1
     return

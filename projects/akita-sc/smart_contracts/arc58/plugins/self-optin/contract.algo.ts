@@ -30,13 +30,17 @@ export class SelfOptInPlugin extends Contract {
       loggedAssert(optedIn, errNotOptedIn)
       loggedAssert(balance === 0, errInvalidAssetAmount)
 
+      // A destroyed asset has no creator to read, and its empty holding may be closed to any address.
+      const [creator, exists] = op.AssetParams.assetCreator(Asset(assets[i]))
+      const closeTo = exists ? creator : sender
+
       itxn
         .assetTransfer({
           sender,
-          assetReceiver: Asset(assets[i]).creator,
+          assetReceiver: closeTo,
           assetAmount: 0,
           xferAsset: Asset(assets[i]),
-          assetCloseTo: Asset(assets[i]).creator,
+          assetCloseTo: closeTo,
           rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
         })
         .submit();

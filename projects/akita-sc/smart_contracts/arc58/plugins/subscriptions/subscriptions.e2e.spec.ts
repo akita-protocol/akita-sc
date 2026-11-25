@@ -86,7 +86,7 @@ describe('Subscriptions plugin contract', () => {
     await fundWalletApp();
 
     await wallet.usePlugin({
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       calls: [
         ...subscriptionsPluginSdk.newServiceWithDescription({
           interval: BigInt(MIN_INTERVAL),
@@ -173,7 +173,16 @@ describe('Subscriptions plugin contract', () => {
     });
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 10_000_000n) });
-    await wallet.addPlugin({ client: subscriptionsPluginSdk, callerType: CallerType.Global });
+    // The owner's own grant, plus the one grant anyone may use: the keeper top-up, and only that.
+    await wallet.addPlugin({ client: subscriptionsPluginSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({
+      client: subscriptionsPluginSdk,
+      callerType: CallerType.Global,
+      methods: [{
+        name: [subscriptionsPluginClient.appClient.getABIMethod('fundTriggerPayment').getSelector()],
+        cooldown: 0n,
+      }],
+    });
   });
 
   beforeEach(fixture.newScope);
@@ -245,7 +254,7 @@ describe('Subscriptions plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: deployer.addr.toString(),
@@ -289,7 +298,7 @@ describe('Subscriptions plugin contract', () => {
       await fundWalletApp();
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: deployer.addr.toString(),
@@ -311,7 +320,7 @@ describe('Subscriptions plugin contract', () => {
       expect(initialSubscription.escrowed).toBe(0n);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.deposit({ asset: 0n, id: subscriptionId, amount: 50_000n })],
       });
       let subscription = await akitaUniverse.subscriptions.getSubscription({
@@ -321,7 +330,7 @@ describe('Subscriptions plugin contract', () => {
       expect(subscription.escrowed).toBe(50_000n);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.withdraw({ id: subscriptionId, amount: 25_000n })],
       });
       subscription = await akitaUniverse.subscriptions.getSubscription({
@@ -331,7 +340,7 @@ describe('Subscriptions plugin contract', () => {
       expect(subscription.escrowed).toBe(25_000n);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.unsubscribe({ id: subscriptionId })],
       });
       const removed = await akitaUniverse.subscriptions.client.getSubscription({
@@ -371,7 +380,7 @@ describe('Subscriptions plugin contract', () => {
       });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: subscriptionsPluginSdk.updateServiceMetadata({
           id: serviceId,
           title: 'Updated Plugin Title',
@@ -387,7 +396,7 @@ describe('Subscriptions plugin contract', () => {
       expect(service.description).toBe(activeDescription);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.pauseService({ id: serviceId, rekeyBack: false }),
           ...subscriptionsPluginSdk.updateServiceDescription({
@@ -405,7 +414,7 @@ describe('Subscriptions plugin contract', () => {
       expect(service.description).toBe('Paused plugin description');
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.shutdownService({ index: serviceId, rekeyBack: false }),
           ...subscriptionsPluginSdk.updateServiceMetadata({
@@ -427,7 +436,7 @@ describe('Subscriptions plugin contract', () => {
 
     test('loadDescription rejects without the required initDescription call order', async () => {
       await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.loadDescription({
             offset: 0n,
@@ -441,7 +450,7 @@ describe('Subscriptions plugin contract', () => {
       const paused = await createWalletService({ title: 'Pause Me' });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.pauseService({ id: paused.serviceId }),
         ],
@@ -456,7 +465,7 @@ describe('Subscriptions plugin contract', () => {
       const shutdown = await createWalletService({ title: 'Shutdown Me' });
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.shutdownService({ index: shutdown.serviceId }),
         ],
@@ -474,7 +483,7 @@ describe('Subscriptions plugin contract', () => {
 
       await fundWalletApp();
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.block({ address: blocked.addr.toString() }),
         ],
@@ -486,7 +495,7 @@ describe('Subscriptions plugin contract', () => {
       })).resolves.toBe(true);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.unblock({ address: blocked.addr.toString() }),
         ],
@@ -504,7 +513,7 @@ describe('Subscriptions plugin contract', () => {
       await fundWalletApp();
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.updateServiceHighlight({
             id: second.serviceId,
@@ -529,7 +538,7 @@ describe('Subscriptions plugin contract', () => {
 
       let before = await appBalance();
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.setFeaturedService({ id: second.serviceId })],
       });
       expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(second.serviceId);
@@ -537,14 +546,14 @@ describe('Subscriptions plugin contract', () => {
 
       before = await appBalance();
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.setFeaturedService({ id: first.serviceId })],
       });
       expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(first.serviceId);
       expect(await appBalance()).toBe(before);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [subscriptionsPluginSdk.clearFeaturedService({})],
       });
       expect(await akitaUniverse.subscriptions.getFeaturedService({ address: walletAddress() })).toBe(0n);
@@ -569,7 +578,7 @@ describe('Subscriptions plugin contract', () => {
 
       await fundWalletApp();
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: walletAddress(),
@@ -585,7 +594,7 @@ describe('Subscriptions plugin contract', () => {
       })) - 1n;
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.setPasses({
             id: subscriptionId,
@@ -613,7 +622,7 @@ describe('Subscriptions plugin contract', () => {
 
       await fundWalletApp();
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: recipient.addr.toString(),
@@ -635,7 +644,7 @@ describe('Subscriptions plugin contract', () => {
         ],
       });
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.triggerPayment({
             address: walletAddress(),
@@ -652,7 +661,7 @@ describe('Subscriptions plugin contract', () => {
 
       await timeWarp.timeWarp(BigInt(MIN_INTERVAL * 3));
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.streakCheck({
             key: {
@@ -672,7 +681,7 @@ describe('Subscriptions plugin contract', () => {
 
     test('streakCheck rejects a missing subscription key', async () => {
       await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.streakCheck({
             key: {
@@ -691,7 +700,7 @@ describe('Subscriptions plugin contract', () => {
       const amount = 100_000n;
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: recipient.addr.toString(),
@@ -735,7 +744,7 @@ describe('Subscriptions plugin contract', () => {
       expect(recipientAfterFund.balance.microAlgos).toBe(recipientBefore.balance.microAlgos);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.triggerPayment({
             address: wallet.client.appAddress.toString(),
@@ -760,7 +769,7 @@ describe('Subscriptions plugin contract', () => {
       const amount = 100_000n;
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: recipient.addr.toString(),
@@ -795,7 +804,7 @@ describe('Subscriptions plugin contract', () => {
       const amount = 100_000n;
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           subscriptionsPluginSdk.subscribe({
             recipient: recipient.addr.toString(),

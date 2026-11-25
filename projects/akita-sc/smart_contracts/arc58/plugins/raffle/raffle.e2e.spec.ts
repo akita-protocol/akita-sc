@@ -61,8 +61,8 @@ describe('Raffle plugin contract', () => {
     // Fund wallet and add both plugins once
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins * 2n + 10_000_000n) });
-    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Global });
-    await wallet.addPlugin({ client: rafflePluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: asaMintSdk, callerType: CallerType.Admin });
+    await wallet.addPlugin({ client: rafflePluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -103,7 +103,7 @@ describe('Raffle plugin contract', () => {
       const status = await algorand.client.algod.status().do();
       const now = BigInt((await algorand.client.algod.block(status.lastRound).do()).block.header.timestamp);
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           rafflePluginSdk.newRaffle({
@@ -132,7 +132,7 @@ describe('Raffle plugin contract', () => {
 
       // AR-14: ticket asset read correctly (uint64 global) and the entry pays tickets + child-quoted MBR
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           rafflePluginSdk.enter({

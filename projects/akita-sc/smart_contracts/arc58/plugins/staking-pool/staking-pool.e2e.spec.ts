@@ -138,7 +138,7 @@ describe('StakingPool plugin contract', () => {
     stakingPoolPluginSdk = akitaUniverse.stakingPoolPlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 500_000_000n) });
-    await wallet.addPlugin({ client: stakingPoolPluginSdk, callerType: CallerType.Global });
+    await wallet.addPlugin({ client: stakingPoolPluginSdk, callerType: CallerType.Admin });
   });
 
   beforeEach(fixture.newScope);
@@ -151,7 +151,7 @@ describe('StakingPool plugin contract', () => {
     const createdBefore = new Set(await getCreatedAppIds(algorand, factoryAddress));
 
     const result = await wallet.usePlugin({
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       calls: [
         stakingPoolPluginSdk.newPool({
           title,
@@ -184,7 +184,7 @@ describe('StakingPool plugin contract', () => {
     const endTimestamp = now + BigInt(ONE_DAY);
 
     await wallet.usePlugin({
-      callerType: CallerType.Global,
+      callerType: CallerType.Admin,
       calls: [
         stakingPoolPluginSdk.finalizePool({
           poolId: pool.appId,
@@ -220,7 +220,9 @@ describe('StakingPool plugin contract', () => {
       await proposeAndExecute(akitaUniverse.dao, [
         buildAddPluginAction({
           client: stakingPoolPluginSdk,
-          callerType: CallerType.Global,
+          // a grant anyone may use is refused by the plugin, so the DAO names the caller
+          callerType: CallerType.Other,
+          caller: deployer.addr.toString(),
           useExecutionKey: false,
         }),
       ]);
@@ -238,7 +240,6 @@ describe('StakingPool plugin contract', () => {
       const result = await daoWallet.usePlugin({
         sender: deployer.addr,
         signer: deployer.signer,
-        callerType: CallerType.Global,
         calls: [
           stakingPoolPluginSdk.newPool({
             title: 'DAO Fee Exempt Pool',
@@ -274,7 +275,7 @@ describe('StakingPool plugin contract', () => {
       const pool = await createPluginPool('Plugin Init Pool');
 
       await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.initPool({
             poolId: pool.appId,
@@ -292,7 +293,7 @@ describe('StakingPool plugin contract', () => {
       const before = await pool.getState();
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.addReward({
             appId: pool.appId,
@@ -318,7 +319,7 @@ describe('StakingPool plugin contract', () => {
         const freeBefore = await pool.getFreeFunds(0n);
 
         await wallet.usePlugin({
-          callerType: CallerType.Global,
+          callerType: CallerType.Admin,
           calls: [
             stakingPoolPluginSdk.addReward({
               appId: pool.appId,
@@ -359,7 +360,7 @@ describe('StakingPool plugin contract', () => {
 
       // The pool does not hold the asset yet: the plugin pays the opt-in the pool quotes, then the reward.
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           stakingPoolPluginSdk.addReward({
@@ -378,7 +379,7 @@ describe('StakingPool plugin contract', () => {
       // opt-in left for round operations is untouched.
       const freeBefore = await pool.getFreeFunds(0n);
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         consolidateFees: true,
         calls: [
           stakingPoolPluginSdk.addReward({
@@ -413,7 +414,7 @@ describe('StakingPool plugin contract', () => {
       const endTimestamp = now + BigInt(ONE_DAY);
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.finalizePool({
             poolId: pool.appId,
@@ -431,7 +432,7 @@ describe('StakingPool plugin contract', () => {
         amount: algokit.microAlgo(10_000_000n),
       });
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.enter({
             appId: pool.appId,
@@ -448,12 +449,12 @@ describe('StakingPool plugin contract', () => {
 
     test('enter funds and records an app-scoped SOFT stake commitment', async () => {
       const stakingPlugin = akitaUniverse.stakingPlugin;
-      await wallet.addPlugin({ client: stakingPlugin, callerType: CallerType.Global });
+      await wallet.addPlugin({ client: stakingPlugin, callerType: CallerType.Admin });
 
       const rootCommitment = 1_000_000n;
       const poolCommitment = 500_000n;
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPlugin.stake({
             assetId: 0n,
@@ -480,7 +481,7 @@ describe('StakingPool plugin contract', () => {
       });
       const now = await getBlockTimestamp(algorand);
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.finalizePool({
             poolId: pool.appId,
@@ -493,7 +494,7 @@ describe('StakingPool plugin contract', () => {
 
       const stakingBefore = await algorand.account.getInformation(akitaUniverse.staking.client.appAddress);
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.enter({
             appId: pool.appId,
@@ -520,7 +521,7 @@ describe('StakingPool plugin contract', () => {
       const pool = await createPluginPool('Plugin Delete Pool');
 
       await wallet.usePlugin({
-        callerType: CallerType.Global,
+        callerType: CallerType.Admin,
         calls: [
           stakingPoolPluginSdk.deletePool({
             appId: pool.appId,

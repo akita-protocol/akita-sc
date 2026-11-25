@@ -337,9 +337,10 @@ export class MetaPlugin extends GrantPolicyPlugin {
   }
 
   public addType(wallet: Application, rekeyBack: boolean, description: string, schemaList: SchemaList): void {
-    // Type registration is registry-wide and has no namespace to constrain.
-    const scope = this.scope(wallet)
-    loggedAssert(scope.namespace === '' && scope.keys.length === 0, errTypeScope)
+    // Type registration is registry-wide, has no namespace to constrain and costs a 100 ALGO fee that
+    // is not refundable: only an admin-approved execution may spend it.
+    const grant = this.grant(wallet)
+    loggedAssert(this.isAdminWindow(wallet, grant), errTypeScope)
     const sender = getSpendingAccount(wallet)
     abiCall<typeof Meta.prototype.addType>({
       sender,
