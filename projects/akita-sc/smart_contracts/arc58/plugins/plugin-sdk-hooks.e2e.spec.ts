@@ -22,7 +22,7 @@ type AbiMethod = { name?: string; args?: Array<{ name?: string }> };
 
 const clientOf = (sdk: object) => (sdk as unknown as Record<string, unknown>).client as {
   appSpec?: { methods?: AbiMethod[] };
-  appClient: { getABIMethod(name: string): { getSelector(): Uint8Array } };
+  appClient: { getABIMethod(name: string): { getSelector(): Uint8Array; getSignature(): string } };
 };
 
 const abiMethods = (sdk: object): AbiMethod[] => clientOf(sdk)?.appSpec?.methods ?? [];
@@ -47,16 +47,43 @@ const walletAbiMethods = (sdk: object) => abiMethods(sdk)
   .sort();
 
 /**
- * Plugin methods a wallet reaches under another name, with the reason. Every other method a wallet
- * calls must have a hook of its own name (audit 13, XSY-04).
+ * Plugin methods with no hook of their own name, and how a wallet reaches each one instead. Every other
+ * method a wallet calls must have a hook of its own name (audit 13, XSY-04). Each claim is checked:
+ *
+ * - `sentBy`: the named hook lists this method among the selectors it sends, when it is called with
+ *   `args` (or with none, the form a method-restricted grant is built from). A method a hook sends only
+ *   for some arguments is not in the no-arguments list, so a method-restricted Update grant has to name
+ *   `setClearProgram` and `updateAppWithSchema` itself; the DAO's Update grant has no method list.
+ * - `legacyNameOf`: an on-chain alias of a method that has a hook. The SDK never sends the alias, so
+ *   what is checked is that the method it stands for has a hook and takes the same arguments.
  */
-const HOOK_ALIASES: Record<string, Record<string, string>> = {
-  auctionPlugin: { deleteApplication: 'legacy ABI name of deleteAuction, kept for deployed grants' },
+type HookAlias =
+  | { sentBy: string; args?: Record<string, unknown>; why: string }
+  | { legacyNameOf: string; why: string };
+
+/** What `updateApp` needs besides the arguments that pick its steps. Nothing here is sent. */
+const UPDATE_APP_ARGS = { appId: 1n, version: '0', data: new Uint8Array(1) };
+
+const HOOK_ALIASES: Record<string, Record<string, HookAlias>> = {
+  auctionPlugin: {
+    deleteApplication: {
+      legacyNameOf: 'deleteAuctionApp',
+      why: 'the v1 ABI name, kept on chain for method lists made against it; it only forwards',
+    },
+  },
   updatePlugin: {
-    setClearProgram: 'a step of updateApp',
-    initBoxedContract: 'a step of updateApp and of updateFactoryChildContract',
-    loadBoxedContract: 'a step of updateApp and of updateFactoryChildContract',
-    updateAppWithSchema: 'updateApp sends it for a target whose schema grows',
+    initBoxedContract: { sentBy: 'updateApp', why: 'a step of updateApp and of updateFactoryChildContract' },
+    loadBoxedContract: { sentBy: 'updateApp', why: 'a step of updateApp and of updateFactoryChildContract' },
+    setClearProgram: {
+      sentBy: 'updateApp',
+      args: { ...UPDATE_APP_ARGS, clearProgram: new Uint8Array([0x0b]) },
+      why: 'the first step of updateApp when a clear program is passed',
+    },
+    updateAppWithSchema: {
+      sentBy: 'updateApp',
+      args: { ...UPDATE_APP_ARGS, globalNumUint: 1n },
+      why: 'the last step of updateApp, in place of updateApp, for a target whose schema grows',
+    },
   },
 };
 
@@ -176,24 +203,44 @@ describe('ARC58 plugin SDK hooks', () => {
   test('audit 13 XSY-04: every plugin method a wallet calls is reachable through the SDK', () => {
     // The test above drives from the SDK, so a plugin method with no hook cannot fail it, and a wallet
     // simply cannot reach that method. This one drives from the ABI.
+    const hex = (selector: Uint8Array) => Buffer.from(selector).toString('hex');
     const missing: string[] = [];
     for (const pluginCase of pluginCases) {
+      const sdk = pluginCase.sdk as unknown as Record<string, (args?: unknown) => () => { selectors: Uint8Array[] }>;
+      const abi = (method: string) => clientOf(pluginCase.sdk).appClient.getABIMethod(method);
       const methods = walletAbiMethods(pluginCase.sdk);
       expect(methods, `${pluginCase.name} should have methods a wallet calls`).not.toHaveLength(0);
       const aliases = HOOK_ALIASES[pluginCase.name] ?? {};
-      // the selectors the no-args hooks of this SDK restrict a grant to
-      const covered = new Set(getSdkMethods(pluginCase.sdk).flatMap((name) => {
-        const hook = ((pluginCase.sdk as unknown as Record<string, unknown>)[name] as () => () => { selectors: Uint8Array[] })();
-        return hook().selectors.map((selector) => Buffer.from(selector).toString('hex'));
-      }));
       for (const method of methods) {
-        if (typeof (pluginCase.sdk as unknown as Record<string, unknown>)[method] === 'function') continue;
-        // a method with no hook of its own is allowed only where a listed hook of another name sends it
-        const selector = Buffer.from(clientOf(pluginCase.sdk).appClient.getABIMethod(method).getSelector()).toString('hex');
-        if (!(method in aliases) || !covered.has(selector)) missing.push(`${pluginCase.name}.${method}`);
+        if (typeof sdk[method] === 'function') continue;
+        // a method with no hook of its own is allowed only where the alias table says how it is
+        // reached, and that claim holds
+        const alias = aliases[method];
+        let reached = false;
+        if (alias !== undefined && 'sentBy' in alias) {
+          const hook = alias.args === undefined
+            ? sdk[alias.sentBy]()
+            : sdk[alias.sentBy]({ sender: deployer.addr.toString(), signer: deployer.signer, ...alias.args });
+          reached = hook().selectors.map(hex).includes(hex(abi(method).getSelector()));
+        } else if (alias !== undefined) {
+          const argsOf = (name: string) => abi(name).getSignature().slice(name.length);
+          reached = typeof sdk[alias.legacyNameOf] === 'function' && argsOf(method) === argsOf(alias.legacyNameOf);
+        }
+        if (!reached) missing.push(`${pluginCase.name}.${method}`);
       }
     }
     expect(missing).toEqual([]);
+
+    // The alias table holds nothing stale: every entry names a method the plugin still has and the
+    // SDK still has no hook for.
+    for (const pluginCase of pluginCases) {
+      const methods = walletAbiMethods(pluginCase.sdk);
+      for (const method of Object.keys(HOOK_ALIASES[pluginCase.name] ?? {})) {
+        expect(methods, `${pluginCase.name}.${method} is in the alias table`).toContain(method);
+        expect(typeof (pluginCase.sdk as unknown as Record<string, unknown>)[method], `${pluginCase.name}.${method} has no hook of its own`).not.toBe('function');
+      }
+    }
+    expect(Object.keys(HOOK_ALIASES).every((name) => pluginCases.some((c) => c.name === name))).toBe(true);
   });
 
   test('subscriptions newServiceWithDescription helper returns the expected hook sequence', () => {
