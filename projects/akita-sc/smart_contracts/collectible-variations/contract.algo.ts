@@ -198,7 +198,8 @@ type MetaFlow = {
  * the registry's LocalNet suite is the guard.
  *
  * Size: a variation value is at most MaxValueBytes (4096) including its header, and the whole
- * value is sent in one call.
+ * value is sent in one call. The network caps each app argument at 4096 bytes and all of them at
+ * 16384, so the largest body argument (4084 bytes with its length prefix) fits.
  */
 @contract({ avmVersion: 13 })
 export class CollectibleVariations extends Contract {

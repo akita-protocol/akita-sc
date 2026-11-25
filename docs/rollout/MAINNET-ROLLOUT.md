@@ -1063,7 +1063,7 @@ npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta a
 
 #### H1a. Collectible Variations registry (TestNet only for 2.0.0)
 
-- **MainNet hold:** do not run this step on MainNet. The owner decided on 2026-11-24 that the registry ships to TestNet with 2.0.0 and waits for MainNet until its ARC has a number and the `arcTBD_*` methods are renamed. The app can never be updated, so those names would be permanent. The rename changes the program: it gets a new hash, a new audit pass and a fresh TestNet deploy before MainNet. The TestNet app deployed now is a throwaway. At I1 on MainNet, name `collectible-variations` in `--allow-pending`.
+- **MainNet hold:** do not run this step on MainNet. The owner decided on 2026-11-25 that the registry ships to TestNet with 2.0.0 and waits for MainNet until its ARC has a number and the `arcTBD_*` methods are renamed. The app can never be updated, so those names would be permanent. The rename changes the program: it gets a new hash, a new audit pass and a fresh TestNet deploy before MainNet. The TestNet app deployed now is a throwaway. At I1 on MainNet, name `collectible-variations` in `--allow-pending`.
 - **What:** Deploy the Collectible Variations registry bound to the Meta of H1, with a receipt, and record its id.
 - **Why here:** It is created with Meta's app id and the id of Meta's "collectible writer list" tree type, and neither can change afterwards.
 - **Requires:** H1 (Meta deployed and recorded as `meta`). Nothing else: no DAO proposal, no app-list slot, no plugin grant. **Script:** ready: `deploy:collectible-variations` writes a resumable receipt and `--register` records the `collectibleVariations` SDK key.
@@ -1175,7 +1175,7 @@ No script supports a voting DAO end to end, so everything above runs first.
 - **Tracked by rollout:status as** `power`, `initialize`.
 - Expired proposal #107 stays inert; 19 expired execution boxes hold ~420k µA.
 - `dao:rescale-power` rewrites each `*_ps` global whose power is still in whole tokens (x 1e6; see B2), keeps every other setting, and reads each back. It refuses a value neither unit explains (above 1,000 and below 1,000,000). The plugin settings were rescaled by the grant swaps; the tracker's `power` step names any that were not. The Update plugin's own settings are never read (the DAO drives it through UpgradeApp only) and are left as they are.
-- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19).
+- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19). They name `collectible-variations` because H1a is held on MainNet until its ARC has a number (owner, 2026-11-25).
 - `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, as `social-claim` is while H7 is left out. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
 
 ```bash
@@ -1184,8 +1184,8 @@ npm run dao:rescale-power -- -n mainnet --dry-run
 npm run dao:rescale-power -- -n mainnet --confirm-rescale
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --confirm-revoke
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --dry-run
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --confirm-initialize
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --dry-run
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --confirm-initialize
 ```
 
 #### I2. Push and tag the release
