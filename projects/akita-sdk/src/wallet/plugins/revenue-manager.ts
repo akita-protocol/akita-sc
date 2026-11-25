@@ -81,6 +81,12 @@ type SkipEscrowAllocationContractArgs = (
   & { ids: bigint[] }
 )
 
+type RemoveManagedAssetContractArgs = (
+  Omit<ContractArgs['removeManagedAsset(uint64,bool,string,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+)
+
 type UpdateSplitsContractArgs = (
   Omit<ContractArgs['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
@@ -391,6 +397,40 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
         const params = await this.client.params.skipEscrowAllocation({
           ...sendParams,
           args: { wallet, rekeyBack, escrow, ids }
+        })
+        return [{ type: 'methodCall', ...params }]
+      }
+    });
+  }
+
+  /**
+   * DAO-only: stop tracking `asset` on an idle receive escrow, for example a hostile or dead asset, so
+   * it is no longer processed in every cycle. The escrow keeps its holding. Must be called through
+   * the DAO wallet's main-account (execution-key) grant.
+   */
+  removeManagedAsset(): PluginSDKReturn
+  removeManagedAsset(args: RemoveManagedAssetContractArgs): PluginSDKReturn
+  removeManagedAsset(args?: RemoveManagedAssetContractArgs): PluginSDKReturn {
+    const methodName = 'removeManagedAsset';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, escrow, asset } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.removeManagedAsset({
+          ...sendParams,
+          args: { wallet, rekeyBack, escrow, asset }
         })
         return [{ type: 'methodCall', ...params }]
       }

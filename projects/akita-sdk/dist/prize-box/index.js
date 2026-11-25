@@ -4,7 +4,7 @@
 
 
 
-var _chunkBMAYHTF6js = require('../chunk-BMAYHTF6.js');
+var _chunkSXPEOF4Ojs = require('../chunk-SXPEOF4O.js');
 require('../chunk-ZGCVKZRL.js');
 require('../chunk-Z5W34YZI.js');
 require('../chunk-ZLCB7PYB.js');
@@ -16,5 +16,5 @@ require('../chunk-PZ5AY32C.js');
 
 
 
-exports.PRIZE_BOX_ERROR_MESSAGES = _chunkBMAYHTF6js.PRIZE_BOX_ERROR_MESSAGES; exports.PrizeBoxFactorySDK = _chunkBMAYHTF6js.PrizeBoxFactorySDK; exports.PrizeBoxSDK = _chunkBMAYHTF6js.PrizeBoxSDK; exports.newPrizeBox = _chunkBMAYHTF6js.newPrizeBox; exports.translatePrizeBoxError = _chunkBMAYHTF6js.translatePrizeBoxError;
+exports.PRIZE_BOX_ERROR_MESSAGES = _chunkSXPEOF4Ojs.PRIZE_BOX_ERROR_MESSAGES; exports.PrizeBoxFactorySDK = _chunkSXPEOF4Ojs.PrizeBoxFactorySDK; exports.PrizeBoxSDK = _chunkSXPEOF4Ojs.PrizeBoxSDK; exports.newPrizeBox = _chunkSXPEOF4Ojs.newPrizeBox; exports.translatePrizeBoxError = _chunkSXPEOF4Ojs.translatePrizeBoxError;
 //# sourceMappingURL=index.js.map

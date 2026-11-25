@@ -12,6 +12,7 @@ import {
   EMPTY_CID,
   LEGACY_DAO_ACTION_STRUCTS,
   MaxBootstrapKeyRounds,
+  PROPOSAL_EXECUTION_WINDOW,
   ProposalActionEnum,
   ProposalStatusEnum,
   SplitDistributionType,
@@ -25,9 +26,9 @@ import {
   usesLegacyEscrowActionShape,
   voteCost,
   voteReceiptBoxName
-} from "../chunk-QFLZULKR.mjs";
-import "../chunk-RWATY7TI.mjs";
-import "../chunk-CSUJXP3E.mjs";
+} from "../chunk-MIALITGD.mjs";
+import "../chunk-JGTO3CDP.mjs";
+import "../chunk-EIRWAWS3.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
@@ -56,6 +57,7 @@ export {
   EMPTY_CID,
   LEGACY_DAO_ACTION_STRUCTS,
   MaxBootstrapKeyRounds,
+  PROPOSAL_EXECUTION_WINDOW,
   ProposalActionEnum,
   ProposalStatusEnum,
   SplitDistributionType,

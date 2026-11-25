@@ -327,50 +327,9 @@ rewardsOptInCost_after_if_else@4:
     retsub
 
 
-// smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
-splitOptInCount:
-    // smart_contracts/utils/functions.ts:884
-    // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-    proto 3 1
-    // smart_contracts/utils/functions.ts:885
-    // let count: uint64 = 0
-    intc_0 // 0
-    // smart_contracts/utils/functions.ts:887
-    // if (!escrow.isOptedIn(asset)) {
-    frame_dig -2
-    frame_dig -1
-    asset_holding_get AssetBalance
-    bury 1
-    bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:265
-    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
-    frame_dig -3
-    pushbytes "revenue_splits"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:888
-    // count += 1
-    intc_1 // 1
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    +
-    frame_bury 0
-
-splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:894
-    // return count
-    frame_dig 0
-    swap
-    retsub
-
-
 // smart_contracts/utils/functions.ts::principalOf(akitaDAO: uint64, hint: uint64) -> bytes:
 principalOf:
-    // smart_contracts/utils/functions.ts:922
+    // smart_contracts/utils/functions.ts:919
     // export function principalOf(akitaDAO: Application, hint: uint64): Principal {
     proto 2 1
     intc_0 // 0
@@ -381,7 +340,7 @@ principalOf:
     bytec 4 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:923
+    // smart_contracts/utils/functions.ts:920
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -432,7 +391,7 @@ principalOf:
     concat
 
 principalOf_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@40:
-    // smart_contracts/utils/functions.ts:923
+    // smart_contracts/utils/functions.ts:920
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     frame_bury 0
     retsub
@@ -2166,14 +2125,21 @@ optIn:
     // smart_contracts/utils/base-contracts/base.ts:190
     // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
-    swap
     intc_3 // 2
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    uncover 2
-    callsub splitOptInCount
+    // smart_contracts/utils/functions.ts:891
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    swap
+    asset_holding_get AssetBalance
+    dup
+    cover 2
+    cover 3
+    pop
+    !
     swap
     // smart_contracts/utils/base-contracts/base.ts:192
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
@@ -2188,11 +2154,11 @@ optIn:
 optIn_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:193
     // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), errInvalidPaymentAmount)
-    swap
+    uncover 2
     gtxns Amount
     global AssetOptInMinBalance
     intc_1 // 1
-    dig 3
+    uncover 3
     +
     *
     ==
@@ -2243,7 +2209,7 @@ optIn_after_assert@5:
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:208
     // if (count > 0 && escrow.name !== '') {
-    bz optIn_after_if_else@9
+    bnz optIn_after_if_else@9
     dupn 2
     intc_0 // 0
     extract_uint16
@@ -2288,6 +2254,7 @@ optInCost:
     // smart_contracts/utils/base-contracts/base.ts:215
     // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
@@ -2301,8 +2268,12 @@ optInCost:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    uncover 2
-    callsub splitOptInCount
+    // smart_contracts/utils/functions.ts:891
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    swap
+    asset_holding_get AssetBalance
+    bury 1
+    !
     // smart_contracts/utils/base-contracts/base.ts:216
     // return Global.assetOptInMinBalance * (1 + count)
     global AssetOptInMinBalance
@@ -2617,6 +2588,7 @@ listingCost_ternary_false@11:
     // smart_contracts/marketplace/marketplace.algo.ts:70
     // : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, Asset(paymentAsset))
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
@@ -2630,8 +2602,14 @@ listingCost_ternary_false@11:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
+    // smart_contracts/utils/functions.ts:891
+    // return escrow.isOptedIn(asset) ? 0 : 1
     frame_dig -2
-    callsub splitOptInCount
+    asset_holding_get AssetBalance
+    bury 1
+    !
+    // smart_contracts/marketplace/marketplace.algo.ts:70
+    // : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, Asset(paymentAsset))
     *
     b listingCost_ternary_merge@12
 
@@ -2955,7 +2933,7 @@ assertGatePassed:
     swap
     concat
     swap
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:965
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     frame_dig -3
     gtxns ApplicationID
@@ -2965,67 +2943,67 @@ assertGatePassed:
     bytec 4 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:965
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:968-969
+    // smart_contracts/utils/functions.ts:965-966
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz assertGatePassed_bool_false@12
-    // smart_contracts/utils/functions.ts:969
+    // smart_contracts/utils/functions.ts:966
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     frame_dig -3
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:968-969
+    // smart_contracts/utils/functions.ts:965-966
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz assertGatePassed_bool_false@12
-    // smart_contracts/utils/functions.ts:970
+    // smart_contracts/utils/functions.ts:967
     // gateTxn.numAppArgs === 4 &&
     frame_dig -3
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:968-970
+    // smart_contracts/utils/functions.ts:965-967
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz assertGatePassed_bool_false@12
-    // smart_contracts/utils/functions.ts:971
+    // smart_contracts/utils/functions.ts:968
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     frame_dig -3
     gtxnsa ApplicationArgs 0
     pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:968-971
+    // smart_contracts/utils/functions.ts:965-968
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     bz assertGatePassed_bool_false@12
-    // smart_contracts/utils/functions.ts:972
+    // smart_contracts/utils/functions.ts:969
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     frame_dig -3
     gtxnsa ApplicationArgs 1
     frame_dig 1
     ==
-    // smart_contracts/utils/functions.ts:968-972
+    // smart_contracts/utils/functions.ts:965-969
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     bz assertGatePassed_bool_false@12
-    // smart_contracts/utils/functions.ts:973
+    // smart_contracts/utils/functions.ts:970
     // gateTxn.appArgs(2) === itob(id)
     frame_dig -3
     gtxnsa ApplicationArgs 2
     frame_dig 0
     itob
     ==
-    // smart_contracts/utils/functions.ts:968-973
+    // smart_contracts/utils/functions.ts:965-970
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -5634,22 +5612,20 @@ optAkitaEscrowInAndSend_after_assert@2:
     // smart_contracts/utils/base-contracts/base.ts:103
     // this.akitaDAO.value,
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:104
     // escrow.app.address,
     frame_dig 0
     dup
-    cover 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/base-contracts/base.ts:102-106
-    // const optInCount = splitOptInCount(
-    //   this.akitaDAO.value,
-    //   escrow.app.address,
-    //   asset
-    // )
+    // smart_contracts/utils/functions.ts:891
+    // return escrow.isOptedIn(asset) ? 0 : 1
     frame_dig -2
-    callsub splitOptInCount
+    asset_holding_get AssetBalance
+    bury 1
+    !
     // smart_contracts/utils/base-contracts/base.ts:108
     // const mbrAmount: uint64 = Global.assetOptInMinBalance * optInCount
     global AssetOptInMinBalance

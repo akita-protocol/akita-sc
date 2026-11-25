@@ -10,7 +10,7 @@ import {
   SubscriptionsSDK,
   directGateCtx,
   translateSubscriptionsError
-} from "../chunk-BIPBTB73.mjs";
+} from "../chunk-P7FHLAPV.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes,

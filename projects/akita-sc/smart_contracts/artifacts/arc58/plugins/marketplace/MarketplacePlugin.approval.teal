@@ -173,7 +173,7 @@ gateCtx:
 
 // smart_contracts/utils/functions.ts::pluginPrincipalOf(akitaDAO: uint64, wallet: uint64) -> bytes:
 pluginPrincipalOf:
-    // smart_contracts/utils/functions.ts:957
+    // smart_contracts/utils/functions.ts:954
     // export function pluginPrincipalOf(akitaDAO: Application, wallet: Application): Principal {
     proto 2 1
     intc_0 // 0
@@ -184,7 +184,7 @@ pluginPrincipalOf:
     bytec_3 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:955
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64
@@ -287,7 +287,7 @@ pluginPrincipalOf_after_assert@11:
     concat
 
 pluginPrincipalOf_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@42:
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:955
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     frame_bury 0
     retsub

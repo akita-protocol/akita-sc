@@ -1081,7 +1081,7 @@ checkFor_after_assert@5:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:953
+    // smart_contracts/utils/functions.ts:950
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     pushint 88
     extract_uint64
@@ -1184,13 +1184,13 @@ checkFor_after_inlined_smart_contracts/utils/principal.ts::ownsAtRest@26:
     // return ctx.wallet !== 0 && ownsAtRest(walletFactory, ctx.wallet, account)
     bz checkFor_bool_false@28
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:953
+    // smart_contracts/utils/functions.ts:950
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b checkFor_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@30
 
 checkFor_bool_false@28:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:953
+    // smart_contracts/utils/functions.ts:950
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b checkFor_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@30
 

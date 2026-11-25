@@ -140,6 +140,12 @@ export type RevenueManagerPluginArgs = {
             escrow: string;
             ids: bigint[] | number[];
         };
+        'removeManagedAsset(uint64,bool,string,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            escrow: string;
+            asset: bigint | number;
+        };
         'updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -168,6 +174,7 @@ export type RevenueManagerPluginArgs = {
         'startEscrowDisbursement(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
         'processEscrowAllocation(uint64,bool,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, ids: bigint[] | number[]];
         'skipEscrowAllocation(uint64,bool,string,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, ids: bigint[] | number[]];
+        'removeManagedAsset(uint64,bool,string,uint64)void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, asset: bigint | number];
         'updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, splits: [[bigint | number, string], bigint | number, bigint | number][]];
         'finalizeEscrowDisbursement(uint64,bool,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, ids: bigint[] | number[]];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
@@ -186,6 +193,7 @@ export type RevenueManagerPluginReturns = {
     'startEscrowDisbursement(uint64,bool)void': void;
     'processEscrowAllocation(uint64,bool,uint64[])void': void;
     'skipEscrowAllocation(uint64,bool,string,uint64[])void': void;
+    'removeManagedAsset(uint64,bool,string,uint64)void': void;
     'updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void': void;
     'finalizeEscrowDisbursement(uint64,bool,uint64[])void': void;
     'updateAkitaDAO(uint64)void': void;
@@ -230,6 +238,10 @@ export type RevenueManagerPluginTypes = {
         argsObj: RevenueManagerPluginArgs['obj']['skipEscrowAllocation(uint64,bool,string,uint64[])void'];
         argsTuple: RevenueManagerPluginArgs['tuple']['skipEscrowAllocation(uint64,bool,string,uint64[])void'];
         returns: RevenueManagerPluginReturns['skipEscrowAllocation(uint64,bool,string,uint64[])void'];
+    }> & Record<'removeManagedAsset(uint64,bool,string,uint64)void' | 'removeManagedAsset', {
+        argsObj: RevenueManagerPluginArgs['obj']['removeManagedAsset(uint64,bool,string,uint64)void'];
+        argsTuple: RevenueManagerPluginArgs['tuple']['removeManagedAsset(uint64,bool,string,uint64)void'];
+        returns: RevenueManagerPluginReturns['removeManagedAsset(uint64,bool,string,uint64)void'];
     }> & Record<'updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void' | 'updateSplits', {
         argsObj: RevenueManagerPluginArgs['obj']['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'];
         argsTuple: RevenueManagerPluginArgs['tuple']['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'];
@@ -456,6 +468,18 @@ export declare abstract class RevenueManagerPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static skipEscrowAllocation(params: CallParams<RevenueManagerPluginArgs['obj']['skipEscrowAllocation(uint64,bool,string,uint64[])void'] | RevenueManagerPluginArgs['tuple']['skipEscrowAllocation(uint64,bool,string,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the removeManagedAsset(uint64,bool,string,uint64)void ABI method
+     *
+    * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+    has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+    Reclaim. Only callable through the DAO wallet's main-account grant.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static removeManagedAsset(params: CallParams<RevenueManagerPluginArgs['obj']['removeManagedAsset(uint64,bool,string,uint64)void'] | RevenueManagerPluginArgs['tuple']['removeManagedAsset(uint64,bool,string,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void ABI method
      *
@@ -940,6 +964,20 @@ export declare class RevenueManagerPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `removeManagedAsset(uint64,bool,string,uint64)void` ABI method.
+         *
+        * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+        has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+        Reclaim. Only callable through the DAO wallet's main-account grant.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        removeManagedAsset: (params: CallParams<RevenueManagerPluginArgs["obj"]["removeManagedAsset(uint64,bool,string,uint64)void"] | RevenueManagerPluginArgs["tuple"]["removeManagedAsset(uint64,bool,string,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the RevenueManagerPlugin smart contract using the `updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void` ABI method.
          *
         * Replaces the split configuration of an idle DAO receive escrow (and drops
@@ -1104,6 +1142,24 @@ export declare class RevenueManagerPluginClient {
          * @returns The call transaction
          */
         skipEscrowAllocation: (params: CallParams<RevenueManagerPluginArgs["obj"]["skipEscrowAllocation(uint64,bool,string,uint64[])void"] | RevenueManagerPluginArgs["tuple"]["skipEscrowAllocation(uint64,bool,string,uint64[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `removeManagedAsset(uint64,bool,string,uint64)void` ABI method.
+         *
+        * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+        has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+        Reclaim. Only callable through the DAO wallet's main-account grant.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        removeManagedAsset: (params: CallParams<RevenueManagerPluginArgs["obj"]["removeManagedAsset(uint64,bool,string,uint64)void"] | RevenueManagerPluginArgs["tuple"]["removeManagedAsset(uint64,bool,string,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1324,6 +1380,29 @@ export declare class RevenueManagerPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | RevenueManagerPluginReturns["skipEscrowAllocation(uint64,bool,string,uint64[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `removeManagedAsset(uint64,bool,string,uint64)void` ABI method.
+         *
+        * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+        has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+        Reclaim. Only callable through the DAO wallet's main-account grant.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        removeManagedAsset: (params: CallParams<RevenueManagerPluginArgs["obj"]["removeManagedAsset(uint64,bool,string,uint64)void"] | RevenueManagerPluginArgs["tuple"]["removeManagedAsset(uint64,bool,string,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | RevenueManagerPluginReturns["removeManagedAsset(uint64,bool,string,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1599,6 +1678,19 @@ export type RevenueManagerPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     skipEscrowAllocation(params?: CallParams<RevenueManagerPluginArgs['obj']['skipEscrowAllocation(uint64,bool,string,uint64[])void'] | RevenueManagerPluginArgs['tuple']['skipEscrowAllocation(uint64,bool,string,uint64[])void']>): RevenueManagerPluginComposer<[...TReturns, RevenueManagerPluginReturns['skipEscrowAllocation(uint64,bool,string,uint64[])void'] | undefined]>;
+    /**
+     * Calls the removeManagedAsset(uint64,bool,string,uint64)void ABI method.
+     *
+    * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+    has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+    Reclaim. Only callable through the DAO wallet's main-account grant.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    removeManagedAsset(params?: CallParams<RevenueManagerPluginArgs['obj']['removeManagedAsset(uint64,bool,string,uint64)void'] | RevenueManagerPluginArgs['tuple']['removeManagedAsset(uint64,bool,string,uint64)void']>): RevenueManagerPluginComposer<[...TReturns, RevenueManagerPluginReturns['removeManagedAsset(uint64,bool,string,uint64)void'] | undefined]>;
     /**
      * Calls the updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void ABI method.
      *

@@ -173,9 +173,11 @@ describe('K6 (Kyle, 2026-10-04): the RaffleFactory has no legacy creation shims'
     // re-pinned 2026-10-05 for TRADE-2 (prize clawback/freeze reject), from a whole-tree compile
     // re-pinned 2026-10-11 for the referral reclaim target (reclaimTo in the Rewards v2 record; child funding uses the
     // 54,500 disbursement MBR), from a whole-tree compile
+    // re-pinned 2026-11-25 for the 2.0.0 audit batch (the revenue escrow opt-in charges for the escrow only,
+    // audit DAO-07), from a whole-tree compile
     const bytes = approval(raffleFactory)
-    expect(bytes.length).toBe(3_794)
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe('27a219fa54e228c8169b83de5e2df0829b8e96a8771977fff1d1f6c3251e6aea')
+    expect(bytes.length).toBe(3_760)
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe('7c71db29edc3091e001f483041429ca4e8238b9a5d39b5033576db0052c34346')
   })
 })
 

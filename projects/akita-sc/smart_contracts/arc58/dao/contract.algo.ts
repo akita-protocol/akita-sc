@@ -10,8 +10,8 @@ import { CID } from "../../utils/types/base";
 import { AbstractAccountBoxPrefixExecutions, AbstractAccountBoxPrefixPlugins } from "../account/constants";
 import { AddAllowanceInfo, EscrowInfo, EscrowReclaim, PluginKey } from "../account/types";
 import { Split } from "../plugins/revenue-manager/types";
-import { AkitaDAOBoxPrefixBootstrapGrants, AkitaDAOBoxPrefixParticipation, AkitaDAOBoxPrefixVoteReceipts, DAOLegacyProposalVotesMBR, DAOParticipationMBR, MaxGovernanceLockDays, AkitaDAOBoxPrefixUpgradeLeases, DAOUpgradeLeaseMBR, AkitaDAOBoxPrefixBootstrapKeys, AkitaDAOBoxPrefixProposals, AkitaDAOBoxPrefixTallies, AkitaDAOGlobalStateKeysBootstrapKeyCount, DAOProposalTallyMBR, MaxBootstrapKeyRounds, ProposalStatusInvalid, AkitaDAOBoxPrefixProposalVotes, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysGuildFees, AkitaDAOGlobalStateKeysInitialized, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysInferenceFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysProposalID, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees, AkitaDAONumGlobalBytes, AkitaDAONumGlobalUints, DAOExecutionMBR, DAOProposalVotesMBR, DaoStateDraft, DaoStateFullyInitialized, DaoStatePartiallyInitialized, MinDAOPluginMBR, MinDAOProposalActionMbr, MinDAOProposalMBR, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeChangeAdmin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeDeleteEscrow, ProposalActionTypeReclaim, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp, ProposalStatusApproved, ProposalStatusDraft, ProposalStatusExecuted, ProposalStatusRejected, ProposalStatusVoting, ProposalVoteTypeAbstain, ProposalVoteTypeApprove, ProposalVoteTypeReject } from "./constants";
-import { errBootstrapExpired, errBootstrapForbidden, errBootstrapKeyActive, errBootstrapKeysOutstanding, errExecutionKeyReused, errVotesOutstanding, errAlreadyInitialized, errDaoNotInitialized, errEmptyActionList, errExecutionKeyNotFound, errForbidden, errIncorrectSender, errInsufficientProposalThreshold, errInvalidPayment, errInvalidProposalAction, errInvalidProposalState, errInvalidUpgrade, errNoVotingPower, errNotAkitaDao, errPaymentNotRequired, errPaymentRequired, errProposalDoesNotExist, errProposalVoteNotFound, errTooManyActions, errVersionCannotBeEmpty, errVotingDurationNotMet, errWalletAlreadySetup } from "./errors";
+import { AkitaDAOBoxPrefixBootstrapGrants, AkitaDAOBoxPrefixParticipation, AkitaDAOBoxPrefixVoteReceipts, DAOLegacyProposalVotesMBR, DAOParticipationMBR, MaxGovernanceLockDays, ProposalExecutionWindow, AkitaDAOBoxPrefixUpgradeLeases, DAOUpgradeLeaseMBR, AkitaDAOBoxPrefixBootstrapKeys, AkitaDAOBoxPrefixProposals, AkitaDAOBoxPrefixTallies, AkitaDAOGlobalStateKeysBootstrapKeyCount, DAOProposalTallyMBR, MaxBootstrapKeyRounds, ProposalStatusInvalid, AkitaDAOBoxPrefixProposalVotes, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysGuildFees, AkitaDAOGlobalStateKeysInitialized, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysInferenceFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysProposalID, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees, AkitaDAONumGlobalBytes, AkitaDAONumGlobalUints, DAOExecutionMBR, DAOProposalVotesMBR, DaoStateDraft, DaoStateFullyInitialized, DaoStatePartiallyInitialized, MinDAOPluginMBR, MinDAOProposalActionMbr, MinDAOProposalMBR, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeChangeAdmin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeDeleteEscrow, ProposalActionTypeReclaim, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp, ProposalStatusApproved, ProposalStatusDraft, ProposalStatusExecuted, ProposalStatusRejected, ProposalStatusVoting, ProposalVoteTypeAbstain, ProposalVoteTypeApprove, ProposalVoteTypeReject } from "./constants";
+import { errBootstrapExpired, errGovernanceNotReady, errProposalExpired, errBootstrapForbidden, errBootstrapKeyActive, errBootstrapKeysOutstanding, errExecutionKeyReused, errVotesOutstanding, errAlreadyInitialized, errDaoNotInitialized, errEmptyActionList, errExecutionKeyNotFound, errForbidden, errIncorrectSender, errInsufficientProposalThreshold, errInvalidPayment, errInvalidProposalAction, errInvalidProposalState, errInvalidUpgrade, errNoVotingPower, errNotAkitaDao, errPaymentNotRequired, errPaymentRequired, errProposalDoesNotExist, errProposalVoteNotFound, errTooManyActions, errVersionCannotBeEmpty, errVotingDurationNotMet, errWalletAlreadySetup } from "./errors";
 import { AkitaAppList, AkitaAssets, AkitaDAOApps, AkitaDAOFees, AkitaSocialAppList, DAOPluginKey, DaoState, ExecutionMetadata, GovernanceParticipation, GovernanceWeight, GuildFees, InferenceFees, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalActionType, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalCostInfo, ProposalDeleteEscrow, ProposalDetails, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalTally, ProposalToggleEscrowLock, UpgradeLease, ProposalUpdateField, ProposalUpgradeApp, ProposalVoteInfo, ProposalVoteKey, ProposalVoteReceipt, ProposalVoteTotals, ProposalVoteType, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
 
 // CONTRACT IMPORTS
@@ -1034,6 +1034,10 @@ export class AkitaDAO extends Contract {
     // automation and survive on purpose; `bootstrapGrants` lists them. Keys created before this
     // tracking existed are not counted here.
     loggedAssert(this.bootstrapKeysOutstanding() === 0, errBootstrapKeysOutstanding)
+    // DAO-10: creator control ends here, and only a holder of locked AKTA and BONES can propose
+    // afterwards. Without both assets and a staking app, nobody ever could.
+    const { akta, bones } = this.akitaAssets.value
+    loggedAssert(akta !== 0 && bones !== 0 && this.akitaAppList.value.staking !== 0, errGovernanceNotReady)
     this.state.value = DaoStateFullyInitialized
   }
 
@@ -1329,9 +1333,13 @@ export class AkitaDAO extends Contract {
     // proposals have no tally: they compare their recorded power with the live locked total.
     let turnout: uint64 = weight
     let denominator: uint64 = locked
+    const live = this.lockedStake()
     if (!tallied) {
       turnout = approvals + rejections + abstains
-      denominator = this.lockedStake()
+      denominator = live
+    } else if (live > denominator) {
+      // Stake locked after submit votes with its full weight, so it counts in the denominator too.
+      denominator = live
     }
     const quorumAt: uint64 = calcPercent(denominator, participation)
     const passes = turnout >= quorumAt && this.approvalMet(approvals, rejections, approval)
@@ -1341,7 +1349,6 @@ export class AkitaDAO extends Contract {
       // the locked amount behind it, so that stake can add at most the live locked total less the amount
       // that voted. Resolving closes the vote, so votes cast so far count as they stand.
       loggedAssert(tallied, errVotingDurationNotMet)
-      const live = this.lockedStake()
       const remaining: uint64 = live > weight ? live - weight : 0
       const decided = passes
         ? this.approvalMet(approvals, rejections + remaining, approval)
@@ -1379,6 +1386,11 @@ export class AkitaDAO extends Contract {
     const bootstrap = votingTs === 0
     if (bootstrap) {
       loggedAssert(this.state.value !== DaoStateFullyInitialized, errBootstrapExpired)
+    } else {
+      // DAO-09: a voted proposal may execute until ProposalExecutionWindow after its voting period
+      // ends. Later its proposer can only cancel and delete it.
+      const { duration } = this.votingRules(proposalID, actions)
+      loggedAssert(Global.latestTimestamp <= votingTs + duration + ProposalExecutionWindow, errProposalExpired)
     }
 
     for (let i: uint64 = 0; i < actions.length; i++) {

@@ -4314,7 +4314,7 @@ claimRafflePrize_after_if_else@50:
     swap
     cover 6
     assert // application exists
-    // smart_contracts/utils/functions.ts:997
+    // smart_contracts/utils/functions.ts:994
     // if (amount > 0 && referrer !== Global.zeroAddress) {
     dup
     bz claimRafflePrize_after_if_else@24
@@ -4328,7 +4328,7 @@ claimRafflePrize_after_if_else@50:
     pushbytes "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:999
+    // smart_contracts/utils/functions.ts:996
     // const { referrerPercentage } = getWalletFees(akitaDAO)
     intc_2 // 8
     extract_uint64
@@ -4346,26 +4346,26 @@ claimRafflePrize_after_if_else@50:
     divw
     dup
     bury 11
-    // smart_contracts/utils/functions.ts:1002
+    // smart_contracts/utils/functions.ts:999
     // if (referralFee === 0 && amount > 0) {
     bnz claimRafflePrize_after_if_else@23
     dup
     bz claimRafflePrize_after_if_else@23
-    // smart_contracts/utils/functions.ts:1003
+    // smart_contracts/utils/functions.ts:1000
     // referralFee = 1
     intc_1 // 1
     bury 10
 
 claimRafflePrize_after_if_else@23:
-    // smart_contracts/utils/functions.ts:1009
+    // smart_contracts/utils/functions.ts:1006
     // Global.latestTimestamp,
     global LatestTimestamp
-    // smart_contracts/utils/functions.ts:1010
+    // smart_contracts/utils/functions.ts:1007
     // (Global.latestTimestamp + THIRTY_DAYS),
     dup
     pushint 2592000
     +
-    // smart_contracts/utils/functions.ts:1011
+    // smart_contracts/utils/functions.ts:1008
     // [{ address: referrer, amount: referralFee }],
     dig 11
     dup
@@ -4377,7 +4377,7 @@ claimRafflePrize_after_if_else@23:
     bytec 35 // 0x0001
     swap
     concat
-    // smart_contracts/utils/functions.ts:1006-1015
+    // smart_contracts/utils/functions.ts:1003-1012
     // const { cost: referralMbr } = createInstantDisbursement(
     //   akitaDAO,
     //   asset,
@@ -4394,10 +4394,10 @@ claimRafflePrize_after_if_else@23:
     uncover 4
     uncover 4
     dig 5
-    // smart_contracts/utils/functions.ts:1013
+    // smart_contracts/utils/functions.ts:1010
     // false,
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:1006-1015
+    // smart_contracts/utils/functions.ts:1003-1012
     // const { cost: referralMbr } = createInstantDisbursement(
     //   akitaDAO,
     //   asset,
@@ -4412,7 +4412,7 @@ claimRafflePrize_after_if_else@23:
     callsub createInstantDisbursement
     pop
     extract 8 8
-    // smart_contracts/utils/functions.ts:1017
+    // smart_contracts/utils/functions.ts:1014
     // return { leftover: (amount - referralFee), referralMbr }
     cover 2
     -
@@ -4611,7 +4611,7 @@ claimRafflePrize_after_if_else@24:
     pop
     uncover 3
     pop
-    // smart_contracts/utils/functions.ts:1020
+    // smart_contracts/utils/functions.ts:1017
     // return { leftover: amount, referralMbr: 0 }
     itob
     intc_0 // 0
@@ -5583,7 +5583,7 @@ assertGate_else_body@2:
     bytec 24 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:923
+    // smart_contracts/utils/functions.ts:920
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -5661,7 +5661,7 @@ assertGate_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx
     swap
     frame_bury 5
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:965
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     frame_dig -3
     gtxns ApplicationID
@@ -5671,67 +5671,67 @@ assertGate_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx
     bytec 24 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:965
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:968-969
+    // smart_contracts/utils/functions.ts:965-966
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz assertGate_bool_false@56
-    // smart_contracts/utils/functions.ts:969
+    // smart_contracts/utils/functions.ts:966
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     frame_dig -3
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:968-969
+    // smart_contracts/utils/functions.ts:965-966
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz assertGate_bool_false@56
-    // smart_contracts/utils/functions.ts:970
+    // smart_contracts/utils/functions.ts:967
     // gateTxn.numAppArgs === 4 &&
     frame_dig -3
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:968-970
+    // smart_contracts/utils/functions.ts:965-967
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz assertGate_bool_false@56
-    // smart_contracts/utils/functions.ts:971
+    // smart_contracts/utils/functions.ts:968
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     frame_dig -3
     gtxnsa ApplicationArgs 0
     pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:968-971
+    // smart_contracts/utils/functions.ts:965-968
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     bz assertGate_bool_false@56
-    // smart_contracts/utils/functions.ts:972
+    // smart_contracts/utils/functions.ts:969
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     frame_dig -3
     gtxnsa ApplicationArgs 1
     frame_dig 3
     ==
-    // smart_contracts/utils/functions.ts:968-972
+    // smart_contracts/utils/functions.ts:965-969
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     bz assertGate_bool_false@56
-    // smart_contracts/utils/functions.ts:973
+    // smart_contracts/utils/functions.ts:970
     // gateTxn.appArgs(2) === itob(id)
     frame_dig -3
     gtxnsa ApplicationArgs 2
     frame_dig 5
     itob
     ==
-    // smart_contracts/utils/functions.ts:968-973
+    // smart_contracts/utils/functions.ts:965-970
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -7607,7 +7607,6 @@ sendToAkitaEscrow:
     // protected sendToAkitaEscrow(asset: Asset, amount: uint64): uint64 {
     proto 2 1
     pushbytes ""
-    dupn 2
     // smart_contracts/utils/base-contracts/base.ts:147
     // if (amount === 0) {
     frame_dig -1
@@ -7615,7 +7614,7 @@ sendToAkitaEscrow:
     // smart_contracts/utils/base-contracts/base.ts:148
     // return 0
     intc_0 // 0
-    frame_bury 0
+    swap
     retsub
 
 sendToAkitaEscrow_after_if_else@2:
@@ -7651,7 +7650,7 @@ sendToAkitaEscrow_after_if_else@2:
     // smart_contracts/utils/base-contracts/base.ts:155
     // return 0
     intc_0 // 0
-    frame_bury 0
+    swap
     retsub
 
 sendToAkitaEscrow_after_if_else@5:
@@ -7678,7 +7677,7 @@ sendToAkitaEscrow_after_if_else@5:
     // smart_contracts/utils/base-contracts/base.ts:160
     // return 0
     intc_0 // 0
-    frame_bury 0
+    swap
     retsub
 
 sendToAkitaEscrow_after_if_else@8:
@@ -7708,7 +7707,7 @@ sendToAkitaEscrow_after_if_else@8:
     // const { revenueManager } = getPluginAppList(this.akitaDAO.value)
     dup
     extract 8 8
-    cover 3
+    cover 2
     intc_2 // 8
     extract_uint64
     cover 3
@@ -7816,7 +7815,7 @@ sendToAkitaEscrow_after_assert@11:
     pushint 2
     extract_uint64
     dup
-    frame_bury 2
+    frame_bury 0
     ==
     bnz sendToAkitaEscrow_after_assert@13
     pushbytes "ERR:errWesc"
@@ -7836,13 +7835,16 @@ sendToAkitaEscrow_after_assert@13:
     //   ],
     // })
     itxn_begin
-    dig 2
+    uncover 3
+    dup
     itxn_field ApplicationID
     pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     itxn_field ApplicationArgs
     uncover 3
     itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:97
     // [0], // all the akita escrows have method restrictions with optin being index 0
@@ -7876,49 +7878,26 @@ sendToAkitaEscrow_after_assert@13:
     // smart_contracts/utils/base-contracts/base.ts:103
     // this.akitaDAO.value,
     app_global_get_ex
-    swap
-    frame_bury 0
+    bury 1
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:104
     // escrow.app.address,
-    frame_dig 2
+    frame_dig 0
+    dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:885
-    // let count: uint64 = 0
-    intc_0 // 0
-    frame_bury 1
-    // smart_contracts/utils/functions.ts:887
-    // if (!escrow.isOptedIn(asset)) {
+    // smart_contracts/utils/functions.ts:891
+    // return escrow.isOptedIn(asset) ? 0 : 1
     frame_dig -2
     asset_holding_get AssetBalance
     bury 1
-    bnz sendToAkitaEscrow_after_if_else@15
-    // smart_contracts/utils/functions.ts:265
-    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
-    frame_dig 0
-    pushbytes "revenue_splits"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:888
-    // count += 1
-    intc_1 // 1
-    // smart_contracts/utils/functions.ts:891
-    // count += splits.length
-    +
-    frame_bury 1
-
-sendToAkitaEscrow_after_if_else@15:
+    !
     // smart_contracts/utils/base-contracts/base.ts:108
     // const mbrAmount: uint64 = Global.assetOptInMinBalance * optInCount
     global AssetOptInMinBalance
-    frame_dig 1
     *
     dup
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:110-121
     // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
     //   appId: revenueManager,
@@ -7935,7 +7914,7 @@ sendToAkitaEscrow_after_if_else@15:
     itxn_next
     // smart_contracts/utils/base-contracts/base.ts:117
     // receiver: escrow.app.address,
-    frame_dig 2
+    swap
     app_params_get AppAddress
     assert // application exists
     itxn_field Receiver
@@ -7965,7 +7944,6 @@ sendToAkitaEscrow_after_if_else@15:
     itxn_next
     // smart_contracts/utils/base-contracts/base.ts:113
     // wallet,
-    swap
     dup
     itob
     // smart_contracts/utils/base-contracts/base.ts:115
@@ -8029,7 +8007,7 @@ sendToAkitaEscrow_after_if_else@15:
     // smart_contracts/utils/base-contracts/base.ts:125
     // if (amount > 0) {
     frame_dig -1
-    bz sendToAkitaEscrow_after_if_else@17
+    bz sendToAkitaEscrow_after_if_else@15
     // smart_contracts/utils/base-contracts/base.ts:126-132
     // itxnCompose.next(
     //   itxn.assetTransfer({
@@ -8041,7 +8019,7 @@ sendToAkitaEscrow_after_if_else@15:
     itxn_next
     // smart_contracts/utils/base-contracts/base.ts:128
     // assetReceiver: escrow.app.address,
-    frame_dig 2
+    frame_dig 0
     app_params_get AppAddress
     assert // application exists
     frame_dig -2
@@ -8060,11 +8038,11 @@ sendToAkitaEscrow_after_if_else@15:
     intc_0 // 0
     itxn_field Fee
 
-sendToAkitaEscrow_after_if_else@17:
+sendToAkitaEscrow_after_if_else@15:
     // smart_contracts/utils/base-contracts/base.ts:135
     // itxnCompose.submit()
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:163
     // return this.optAkitaEscrowInAndSend(asset, amount)
-    frame_bury 0
+    swap
     retsub

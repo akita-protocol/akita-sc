@@ -47,6 +47,8 @@ describe('RevenueManager plugin contract', () => {
     disburse: 'rev_disburse',
     skip: 'rev_skip',
     rounding: 'rev_rounding',
+    flat: 'rev_flat',
+    frozen: 'rev_frozen',
   };
   const RECEIVER_OPTED = 'rcv_opt';
   const RECEIVER_NOT_OPTED = 'rcv_no';
@@ -407,15 +409,13 @@ describe('RevenueManager plugin contract', () => {
   });
 
   describe('F3: DAO-only escape hatches', () => {
-    test('skipEscrowAllocation unsticks a cycle; only the DAO main-account grant can call it', async () => {
+    test('skipEscrowAllocation rolls an asset over to the next cycle; only the DAO main-account grant can call it', async () => {
       const escrow = ESCROWS.skip;
-      // A flat share larger than any balance makes ALGO processing revert every time.
       await daoExecute([newEscrowCall(escrow, [userSplit('', FLAT, 10_000_000_000_000n), userSplit('', REMAINDER, 0n)])]);
       const escrowAddress = await escrowAddressOf(daoWallet, escrow);
       await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(1_000_000) });
 
       await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
-      await expectContractError(daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids: [0n] })]), 'errOval');
 
       // Not callable through the public escrow grant (method restriction), nor while not idle for updateSplits.
       await expect(daoEscrowCall(escrow, [rm.skipEscrowAllocation({ sender: user.addr, signer: user.signer, escrow, ids: [0n] })])).rejects.toThrow();
@@ -446,6 +446,99 @@ describe('RevenueManager plugin contract', () => {
       expect(await rm.client.state.box.splits.value({ wallet: daoWallet.appId, escrow: ESCROWS.ref }))
         .toEqual([[[userWallet.appId, RECEIVER_OPTED], 30, 0n]]);
       await expect(rm.client.state.box.splitRefs.value({ wallet: daoWallet.appId, escrow: ESCROWS.ref })).rejects.toThrow('box not found');
+    });
+  });
+
+  // Audit DAO-06: a flat share used to revert the asset when the balance was smaller than the share.
+  test('a flat share larger than the balance takes the balance, and the cycle goes on', async () => {
+    const escrow = ESCROWS.flat;
+    await daoExecute([newEscrowCall(escrow, [
+      userSplit('', FLAT, 10_000_000_000_000n),
+      userSplit(RECEIVER_OPTED, REMAINDER, 0n),
+    ], { optinAllowed: false })]);
+
+    const escrowAddress = await escrowAddressOf(daoWallet, escrow);
+    const mainAddress = userWallet.client.appAddress.toString();
+    const optedAddress = await escrowAddressOf(userWallet, RECEIVER_OPTED);
+    await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(1_000_000) });
+
+    await ensureDaoExecutionFunds();
+    const escrowBefore = await info(escrowAddress);
+    const [mainBefore, optedBefore] = await Promise.all([info(mainAddress), info(optedAddress)]);
+    const distributable = escrowBefore.balance.microAlgos - escrowBefore.minBalance.microAlgos;
+    expect(distributable).toBeGreaterThan(0n);
+
+    await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
+    await daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids: [0n] })]);
+
+    const [mainAfter, optedAfter] = await Promise.all([info(mainAddress), info(optedAddress)]);
+    expect(mainAfter.balance.microAlgos - mainBefore.balance.microAlgos).toBe(distributable);
+    expect(optedAfter.balance.microAlgos).toBe(optedBefore.balance.microAlgos);
+    expect((await getReceiveEscrow(escrow))?.phase).toBe(30);
+
+    await daoEscrowCall(escrow, [rm.finalizeEscrowDisbursement({ sender: user.addr, signer: user.signer, ids: [0n] })]);
+    expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n });
+  });
+
+  // Audit DAO-01: whoever holds an asset's freeze role could stop a revenue escrow's cycle for good.
+  describe('a frozen holding cannot stop the cycle', () => {
+    test('a frozen asset counts as processed and stays in the escrow, and the DAO can stop tracking it', async () => {
+      const escrow = ESCROWS.frozen;
+      const create = async (assetName: string) => BigInt((await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000n, decimals: 0,
+        assetName, unitName: 'FRZ', freeze: deployer.addr, manager: deployer.addr,
+      })).confirmation.assetIndex!);
+      const frozenInEscrow = await create('Frozen in the escrow');
+      const frozenAtReceiver = await create('Frozen at the receiver');
+
+      await daoExecute([newEscrowCall(escrow, [userSplit('', REMAINDER, 0n)])]);
+      await daoEscrowCall(escrow, [rm.optIn({ sender: user.addr, signer: user.signer, assets: [frozenInEscrow, frozenAtReceiver] })]);
+      // The receiver holds both assets, so nothing but the freeze keeps a share from being sent.
+      await userWallet.usePlugin({ callerType: CallerType.Global, calls: [akitaUniverse.optInPlugin.optIn({ assets: [frozenInEscrow, frozenAtReceiver] })] });
+
+      const escrowAddress = await escrowAddressOf(daoWallet, escrow);
+      const receiverAddress = userWallet.client.appAddress.toString();
+      for (const assetId of [frozenInEscrow, frozenAtReceiver]) {
+        await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, receiver: escrowAddress, assetId, amount: 10n });
+      }
+      await algorand.send.assetFreeze({ sender: deployer.addr, signer: deployer.signer, assetId: frozenInEscrow, account: escrowAddress, frozen: true });
+      await algorand.send.assetFreeze({ sender: deployer.addr, signer: deployer.signer, assetId: frozenAtReceiver, account: receiverAddress, frozen: true });
+      await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(1_000_000) });
+
+      await ensureDaoExecutionFunds();
+      const receiverBefore = await info(receiverAddress);
+      const escrowBefore = await info(escrowAddress);
+      const distributable = escrowBefore.balance.microAlgos - escrowBefore.minBalance.microAlgos;
+
+      await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
+      await daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids: [0n, frozenInEscrow, frozenAtReceiver] })]);
+
+      // ALGO is paid. Both frozen shares stay where they are, and all three count as processed.
+      const receiverAfter = await info(receiverAddress);
+      const escrowAfter = await info(escrowAddress);
+      expect(receiverAfter.balance.microAlgos - receiverBefore.balance.microAlgos).toBe(distributable);
+      for (const assetId of [frozenInEscrow, frozenAtReceiver]) {
+        expect(assetAmount(escrowAfter, assetId)).toBe(10n);
+        expect(assetAmount(receiverAfter, assetId)).toBe(0n);
+      }
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 30, allocationCounter: 3n });
+
+      await daoEscrowCall(escrow, [rm.finalizeEscrowDisbursement({ sender: user.addr, signer: user.signer, ids: [0n, frozenInEscrow, frozenAtReceiver] })]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n, optinCount: 2n });
+
+      // Only the DAO's main-account grant may stop tracking an asset, and only one that is tracked.
+      await expect(daoEscrowCall(escrow, [rm.removeManagedAsset({ sender: user.addr, signer: user.signer, escrow, asset: frozenInEscrow })])).rejects.toThrow();
+      await expect(daoBuild([rm.removeManagedAsset({ sender: deployer.addr, signer: deployer.signer, escrow, asset: unmanagedAssetId })])).rejects.toThrow();
+      await getBox(getManagedAssetBoxName(escrow, frozenInEscrow));
+
+      const pluginBefore = await info(rm.client.appAddress);
+      await daoExecute([rm.removeManagedAsset({ sender: deployer.addr, signer: deployer.signer, escrow, asset: frozenInEscrow })]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, optinCount: 1n });
+      await expect(getBox(getManagedAssetBoxName(escrow, frozenInEscrow))).rejects.toThrow();
+      const pluginAfter = await info(rm.client.appAddress);
+      expect(pluginBefore.minBalance.microAlgos - pluginAfter.minBalance.microAlgos).toBe(boxMbr(getManagedAssetBoxName(escrow, frozenInEscrow)));
+      // The escrow keeps the holding; the DAO closes it out with a reclaim if it wants to.
+      expect(assetAmount(await info(escrowAddress), frozenInEscrow)).toBe(10n);
     });
   });
 

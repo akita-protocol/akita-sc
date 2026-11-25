@@ -95,3 +95,9 @@ export const errVotesOutstanding = 'errVout'
 export const errChangeAdminNotLast = 'errCanl'
 /** a vote needs time-weighted power: a lock that outlasts the vote with at least a week of it left */
 export const errNoVotingPower = 'errNpow'
+/** an UpdateFields value does not have the exact encoding of its field (audit DAO-04) */
+export const errInvalidFieldValue = 'errIfvl'
+/** a voted proposal can no longer execute: its execution window after the voting period has passed */
+export const errProposalExpired = 'errPrex'
+/** `initialize` needs AKTA, BONES and a staking app to be set, or nobody could propose afterwards */
+export const errGovernanceNotReady = 'errGnrd'

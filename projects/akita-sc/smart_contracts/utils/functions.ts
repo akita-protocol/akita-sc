@@ -881,17 +881,14 @@ export function legacySendReferralPaymentFor(akitaDAO: Application, account: Acc
   return { leftover: amount, referralMbr: 0 }
 }
 
+/**
+ * How many opt-ins a fee generator pays for when it registers `asset` on its DAO revenue escrow: the
+ * escrow's own, or none once the escrow holds the asset. The RevenueManager opts in only the escrow
+ * and leaves a share whose receiver is not opted in for the next cycle, so nothing is charged for the
+ * split receivers (audit DAO-07).
+ */
 export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-  let count: uint64 = 0
-
-  if (!escrow.isOptedIn(asset)) {
-    count += 1
-    // split accounts are dedicated escrows, if the main escrow is not opted in, assume the others aren't either
-    const splits = getSplits(akitaDAO)
-    count += splits.length
-  }
-
-  return count
+  return escrow.isOptedIn(asset) ? 0 : 1
 }
 
 // PRINCIPAL RESOLUTION -----------------------------------------------------------------------------

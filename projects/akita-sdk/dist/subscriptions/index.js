@@ -10,7 +10,7 @@
 
 
 
-var _chunkJJRME56Qjs = require('../chunk-JJRME56Q.js');
+var _chunkBTXXBDQ2js = require('../chunk-BTXXBDQ2.js');
 
 
 
@@ -38,5 +38,5 @@ require('../chunk-PZ5AY32C.js');
 
 
 
-exports.FEATURED_SERVICE_MBR = _chunkJJRME56Qjs.FEATURED_SERVICE_MBR; exports.HighlightMessage = _chunkJJRME56Qjs.HighlightMessage; exports.MAX_DESCRIPTION_CHUNK_SIZE = _chunkJJRME56Qjs.MAX_DESCRIPTION_CHUNK_SIZE; exports.MAX_DESCRIPTION_LENGTH = _chunkJJRME56Qjs.MAX_DESCRIPTION_LENGTH; exports.MAX_LOAD_DESCRIPTION_CHUNK_SIZE = _chunkJJRME56Qjs.MAX_LOAD_DESCRIPTION_CHUNK_SIZE; exports.SUBSCRIPTIONS_ERROR_MESSAGES = _chunkJJRME56Qjs.SUBSCRIPTIONS_ERROR_MESSAGES; exports.SUBSCRIPTION_PRINCIPAL_MBR = _chunkJJRME56Qjs.SUBSCRIPTION_PRINCIPAL_MBR; exports.ServiceStatus = _chunkJJRME56Qjs.ServiceStatus; exports.SubscriptionsSDK = _chunkJJRME56Qjs.SubscriptionsSDK; exports.bytesToHexColor = _chunk6PXDU6U7js.bytesToHexColor; exports.directGateCtx = _chunkJJRME56Qjs.directGateCtx; exports.hexColorToBytes = _chunk6PXDU6U7js.hexColorToBytes; exports.translateSubscriptionsError = _chunkJJRME56Qjs.translateSubscriptionsError; exports.validateHexColor = _chunk6PXDU6U7js.validateHexColor;
+exports.FEATURED_SERVICE_MBR = _chunkBTXXBDQ2js.FEATURED_SERVICE_MBR; exports.HighlightMessage = _chunkBTXXBDQ2js.HighlightMessage; exports.MAX_DESCRIPTION_CHUNK_SIZE = _chunkBTXXBDQ2js.MAX_DESCRIPTION_CHUNK_SIZE; exports.MAX_DESCRIPTION_LENGTH = _chunkBTXXBDQ2js.MAX_DESCRIPTION_LENGTH; exports.MAX_LOAD_DESCRIPTION_CHUNK_SIZE = _chunkBTXXBDQ2js.MAX_LOAD_DESCRIPTION_CHUNK_SIZE; exports.SUBSCRIPTIONS_ERROR_MESSAGES = _chunkBTXXBDQ2js.SUBSCRIPTIONS_ERROR_MESSAGES; exports.SUBSCRIPTION_PRINCIPAL_MBR = _chunkBTXXBDQ2js.SUBSCRIPTION_PRINCIPAL_MBR; exports.ServiceStatus = _chunkBTXXBDQ2js.ServiceStatus; exports.SubscriptionsSDK = _chunkBTXXBDQ2js.SubscriptionsSDK; exports.bytesToHexColor = _chunk6PXDU6U7js.bytesToHexColor; exports.directGateCtx = _chunkBTXXBDQ2js.directGateCtx; exports.hexColorToBytes = _chunk6PXDU6U7js.hexColorToBytes; exports.translateSubscriptionsError = _chunkBTXXBDQ2js.translateSubscriptionsError; exports.validateHexColor = _chunk6PXDU6U7js.validateHexColor;
 //# sourceMappingURL=index.js.map

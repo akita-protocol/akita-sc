@@ -2039,7 +2039,7 @@ enter_after_if_else@13:
     bytec 4 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:955
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64

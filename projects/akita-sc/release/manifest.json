@@ -32,8 +32,8 @@
     "arc58/account/AbstractedAccountFactory": {
       "name": "AbstractedAccountFactory",
       "approval": {
-        "bytes": 3652,
-        "sha256": "8e596d1a5bd5a9b25a0e1c7f11885caea924162ad5aaac2901d24b456d724d35"
+        "bytes": 3618,
+        "sha256": "53f886a6eb117e7b2e4fa95a342352e1fdba3b6e085a53642a9827d3f125c53a"
       },
       "clear": {
         "bytes": 4,
@@ -82,8 +82,8 @@
     "arc58/dao/AkitaDAO": {
       "name": "AkitaDAO",
       "approval": {
-        "bytes": 10856,
-        "sha256": "61e983653fa6370e19b4b95ce0e9a7c3d3a3017a73005a6a7ee1717cd29211b9"
+        "bytes": 10866,
+        "sha256": "442ff53fab4c50038fa12491ec4e2a6eba94e4a0eafd07d875ad37b7d9fc00bb"
       },
       "clear": {
         "bytes": 4,
@@ -94,8 +94,8 @@
     "arc58/dao/AkitaDAOProposalValidator": {
       "name": "AkitaDAOProposalValidator",
       "approval": {
-        "bytes": 3704,
-        "sha256": "4484d338aeb0cadabb5684d41c00771d6138197c50e0a6e41ccab26b0cabd1bc"
+        "bytes": 4055,
+        "sha256": "0a2e1329169cc4ebd47756e9fcf7da019b3cb1da41556f21fd0d485a466ca50f"
       },
       "clear": {
         "bytes": 4,
@@ -487,8 +487,8 @@
     "arc58/plugins/revenue-manager/RevenueManagerPlugin": {
       "name": "RevenueManagerPlugin",
       "approval": {
-        "bytes": 4987,
-        "sha256": "7530973cfecab89aff1a0b61b70b8f4a064fc0a36fb9e281d576d21573cfa058"
+        "bytes": 5218,
+        "sha256": "5aa7f3efdf5e3a588fd7f521af2a52d5c632e9c6d3517e24a07d513791889362"
       },
       "clear": {
         "bytes": 4,
@@ -645,8 +645,8 @@
     "auction/Auction": {
       "name": "Auction",
       "approval": {
-        "bytes": 8522,
-        "sha256": "9f9eb2548abcc812952a2db599cd5775d14149635e322f08596f83b30d2976cf"
+        "bytes": 8486,
+        "sha256": "556c009b9459a0c89feb427e4182631aac89583b62a30f2ed1eaf4c9dbb3ba4b"
       },
       "clear": {
         "bytes": 4,
@@ -657,8 +657,8 @@
     "auction/AuctionFactory": {
       "name": "AuctionFactory",
       "approval": {
-        "bytes": 4890,
-        "sha256": "f50763fbcdefdf3e5ebf13f42d16d9b474b725bd28960c9223501e263e8cbab1"
+        "bytes": 4856,
+        "sha256": "27ae394003bcc533596bdb7354070cfe6d512a73eac8dee1e1ec7a4097b0fb53"
       },
       "clear": {
         "bytes": 4,
@@ -970,8 +970,8 @@
     "marketplace/Marketplace": {
       "name": "Marketplace",
       "approval": {
-        "bytes": 5665,
-        "sha256": "497401f36f2793fae687ab3693d2e9d534303772faf5aa4e4be4410a5c0f43b5"
+        "bytes": 5636,
+        "sha256": "978b2264ce930eff8188885dc225e4d40c06a0c4fbd873b63ecd611e09c221d5"
       },
       "clear": {
         "bytes": 4,
@@ -1320,8 +1320,8 @@
       "name": "MockLegacyVoteDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 11087,
-        "sha256": "f41a545e97a4bc0c92af7891a871309ac99f8819e8d033f100867ca6fc949000"
+        "bytes": 11097,
+        "sha256": "63d642f2a3abeb5f8e2319d8aac89cd8b012441a716cf6f68dae184f13a04aee"
       },
       "clear": {
         "bytes": 4,
@@ -1786,8 +1786,8 @@
     "poll/PollFactory": {
       "name": "PollFactory",
       "approval": {
-        "bytes": 4339,
-        "sha256": "e0be24b9f82738bd35f41e680814ba995c85d4f0aff22ca48596862e58466b08"
+        "bytes": 4305,
+        "sha256": "a6dbbbac35f1cf5b60faa454ce5cacc2ac97ad7ee9411cc12180715f70bff661"
       },
       "clear": {
         "bytes": 4,
@@ -1810,8 +1810,8 @@
     "prize-box/PrizeBoxFactory": {
       "name": "PrizeBoxFactory",
       "approval": {
-        "bytes": 2184,
-        "sha256": "05f1d0873ab958c29494b96ef4afdbc1fcad71010f73c9f0b3bd7764b42e026c"
+        "bytes": 2150,
+        "sha256": "b7097e6cfa0bcb8fcb048065c61834f8f749d9650d696f30b4d4535df220470f"
       },
       "clear": {
         "bytes": 4,
@@ -1822,8 +1822,8 @@
     "raffle/Raffle": {
       "name": "Raffle",
       "approval": {
-        "bytes": 8158,
-        "sha256": "db06cd5833878c146f533ee54c37a3eb70b85d9d507c61c2e3b13d73ca87e102"
+        "bytes": 8122,
+        "sha256": "4ad23334e5e2322a49d957f03b1f1d1e868cbef25bf03bdeabd992de9220946d"
       },
       "clear": {
         "bytes": 4,
@@ -1834,8 +1834,8 @@
     "raffle/RaffleFactory": {
       "name": "RaffleFactory",
       "approval": {
-        "bytes": 3794,
-        "sha256": "27a219fa54e228c8169b83de5e2df0829b8e96a8771977fff1d1f6c3251e6aea"
+        "bytes": 3760,
+        "sha256": "7c71db29edc3091e001f483041429ca4e8238b9a5d39b5033576db0052c34346"
       },
       "clear": {
         "bytes": 4,
@@ -1906,8 +1906,8 @@
     "staking-pool/StakingPool": {
       "name": "StakingPool",
       "approval": {
-        "bytes": 13272,
-        "sha256": "395424e5ead26b7e09bb6f893cc5e2a1d13b43cbef36b932ce46a6026f80ed56"
+        "bytes": 13235,
+        "sha256": "e30f4a82c83c6542be162755541cf601ed6fc7a0f50b55dbe5cd193e66e6ad63"
       },
       "clear": {
         "bytes": 4,
@@ -1918,8 +1918,8 @@
     "staking-pool/StakingPoolFactory": {
       "name": "StakingPoolFactory",
       "approval": {
-        "bytes": 4006,
-        "sha256": "a07ad926501a0f7581d82ed17e9918536c0a4b7c13b014e5cabe0283f9bbfbfd"
+        "bytes": 3972,
+        "sha256": "d93505273c3326ceebba0116a006cd223e0c70028268a3618de204014e3f1556"
       },
       "clear": {
         "bytes": 4,
@@ -1942,8 +1942,8 @@
     "subscriptions/Subscriptions": {
       "name": "Subscriptions",
       "approval": {
-        "bytes": 10801,
-        "sha256": "5dbf842425e80db46aa497ff314bc2fbe3fa702f7649bdafb15655017866381b"
+        "bytes": 10767,
+        "sha256": "9655452560c6c7798edf3a2010e4727c6b1e26c0112d016e9097b1d433c32f2f"
       },
       "clear": {
         "bytes": 4,

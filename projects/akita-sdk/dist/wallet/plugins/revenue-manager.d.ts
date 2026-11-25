@@ -39,6 +39,9 @@ type SkipEscrowAllocationContractArgs = (Omit<ContractArgs['skipEscrowAllocation
 } & {
     ids: bigint[];
 });
+type RemoveManagedAssetContractArgs = (Omit<ContractArgs['removeManagedAsset(uint64,bool,string,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
 type UpdateSplitsContractArgs = (Omit<ContractArgs['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -65,6 +68,13 @@ export declare class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPlugi
      */
     skipEscrowAllocation(): PluginSDKReturn;
     skipEscrowAllocation(args: SkipEscrowAllocationContractArgs): PluginSDKReturn;
+    /**
+     * DAO-only: stop tracking `asset` on an idle receive escrow, for example a hostile or dead asset, so
+     * it is no longer processed in every cycle. The escrow keeps its holding. Must be called through
+     * the DAO wallet's main-account (execution-key) grant.
+     */
+    removeManagedAsset(): PluginSDKReturn;
+    removeManagedAsset(args: RemoveManagedAssetContractArgs): PluginSDKReturn;
     /** DAO-wallet only: replace the splits of an idle receive escrow (drops any split reference). */
     updateSplits(): PluginSDKReturn;
     updateSplits(args: UpdateSplitsContractArgs): PluginSDKReturn;
