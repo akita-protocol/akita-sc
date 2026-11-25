@@ -4,9 +4,10 @@ import { Address } from 'algosdk';
 import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import algosdk from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest';
-import { SunsetPluginSDK } from 'akita-sdk/wallet';
+import { newMetaPlugin, SunsetPluginSDK, WelcomePluginSDK } from 'akita-sdk/wallet';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { SunsetPluginFactory } from '../../artifacts/arc58/plugins/sunset/SunsetPluginClient';
+import { WelcomePluginFactory } from '../../artifacts/arc58/plugins/welcome/WelcomePluginClient';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -17,20 +18,46 @@ type PluginCase = {
   sdk: object;
 };
 
+type AbiMethod = { name?: string; args?: Array<{ name?: string }> };
+
+const clientOf = (sdk: object) => (sdk as unknown as Record<string, unknown>).client as {
+  appSpec?: { methods?: AbiMethod[] };
+  appClient: { getABIMethod(name: string): { getSelector(): Uint8Array } };
+};
+
+const abiMethods = (sdk: object): AbiMethod[] => clientOf(sdk)?.appSpec?.methods ?? [];
+
 const getSdkMethods = (sdk: object) => {
   const sdkRecord = sdk as unknown as Record<string, unknown>;
-  const client = sdkRecord.client as {
-    appSpec?: { methods?: Array<{ name?: string }> };
-  } | undefined;
-  const abiMethodNames = new Set(
-    client?.appSpec?.methods?.flatMap(({ name }) => name === undefined ? [] : [name]) ?? [],
-  );
+  const abiMethodNames = new Set(abiMethods(sdk).flatMap(({ name }) => name === undefined ? [] : [name]));
 
   return Object.getOwnPropertyNames(Object.getPrototypeOf(sdk))
     .filter((name) => name !== 'constructor')
     .filter((name) => abiMethodNames.has(name))
     .filter((name) => typeof sdkRecord[name] === 'function')
     .sort();
+};
+
+/**
+ * The methods a wallet reaches through this plugin: the ones whose first argument is the wallet.
+ * A plugin's own `create` takes no wallet.
+ */
+const walletAbiMethods = (sdk: object) => abiMethods(sdk)
+  .flatMap(({ name, args }) => name !== undefined && args?.[0]?.name === 'wallet' ? [name] : [])
+  .sort();
+
+/**
+ * Plugin methods a wallet reaches under another name, with the reason. Every other method a wallet
+ * calls must have a hook of its own name (audit 13, XSY-04).
+ */
+const HOOK_ALIASES: Record<string, Record<string, string>> = {
+  auctionPlugin: { deleteApplication: 'legacy ABI name of deleteAuction, kept for deployed grants' },
+  updatePlugin: {
+    setClearProgram: 'a step of updateApp',
+    initBoxedContract: 'a step of updateApp and of updateFactoryChildContract',
+    loadBoxedContract: 'a step of updateApp and of updateFactoryChildContract',
+    updateAppWithSchema: 'updateApp sends it for a target whose schema grows',
+  },
 };
 
 describe('ARC58 plugin SDK hooks', () => {
@@ -67,6 +94,27 @@ describe('ARC58 plugin SDK hooks', () => {
       factoryParams: { appId: sunsetClient.appId },
     });
 
+    // The plugins the parity test used to leave out (audit 13, XSY-04). GuildPlugin needs a Guild and
+    // its factory, which this universe does not deploy; its hooks have their own unit test
+    // (akita-sdk/src/wallet/plugins/guild.test.ts).
+    const metaPlugin = await newMetaPlugin({
+      algorand,
+      sender: deployer.addr.toString(),
+      signer: deployer.signer,
+      registry: akitaUniverse.metaMerkles.appId,
+    });
+    const welcomeFactory = algorand.client.getTypedAppFactory(WelcomePluginFactory, {
+      defaultSender: deployer.addr,
+      defaultSigner: deployer.signer,
+    });
+    const { appClient: welcomeClient } = await welcomeFactory.send.create.create({
+      args: { factory: akitaUniverse.walletFactory.appId },
+    });
+    const welcomePlugin = new WelcomePluginSDK({
+      algorand,
+      factoryParams: { appId: welcomeClient.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+    });
+
     pluginCases = [
       { name: 'asaManagerPlugin', sdk: akitaUniverse.asaManagerPlugin },
       { name: 'auctionPlugin', sdk: akitaUniverse.auctionPlugin },
@@ -90,6 +138,8 @@ describe('ARC58 plugin SDK hooks', () => {
       { name: 'subscriptionsPlugin', sdk: akitaUniverse.subscriptionsPlugin },
       { name: 'sunsetPlugin', sdk: sunsetPlugin },
       { name: 'updatePlugin', sdk: akitaUniverse.updatePlugin },
+      { name: 'metaPlugin', sdk: metaPlugin },
+      { name: 'welcomePlugin', sdk: welcomePlugin },
     ];
   });
 
@@ -121,6 +171,29 @@ describe('ARC58 plugin SDK hooks', () => {
     }
 
     expect(assertions.length).toBeGreaterThanOrEqual(pluginCases.length);
+  });
+
+  test('audit 13 XSY-04: every plugin method a wallet calls is reachable through the SDK', () => {
+    // The test above drives from the SDK, so a plugin method with no hook cannot fail it, and a wallet
+    // simply cannot reach that method. This one drives from the ABI.
+    const missing: string[] = [];
+    for (const pluginCase of pluginCases) {
+      const methods = walletAbiMethods(pluginCase.sdk);
+      expect(methods, `${pluginCase.name} should have methods a wallet calls`).not.toHaveLength(0);
+      const aliases = HOOK_ALIASES[pluginCase.name] ?? {};
+      // the selectors the no-args hooks of this SDK restrict a grant to
+      const covered = new Set(getSdkMethods(pluginCase.sdk).flatMap((name) => {
+        const hook = ((pluginCase.sdk as unknown as Record<string, unknown>)[name] as () => () => { selectors: Uint8Array[] })();
+        return hook().selectors.map((selector) => Buffer.from(selector).toString('hex'));
+      }));
+      for (const method of methods) {
+        if (typeof (pluginCase.sdk as unknown as Record<string, unknown>)[method] === 'function') continue;
+        // a method with no hook of its own is allowed only where a listed hook of another name sends it
+        const selector = Buffer.from(clientOf(pluginCase.sdk).appClient.getABIMethod(method).getSelector()).toString('hex');
+        if (!(method in aliases) || !covered.has(selector)) missing.push(`${pluginCase.name}.${method}`);
+      }
+    }
+    expect(missing).toEqual([]);
   });
 
   test('subscriptions newServiceWithDescription helper returns the expected hook sequence', () => {

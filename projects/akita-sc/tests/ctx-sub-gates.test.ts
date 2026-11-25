@@ -13,6 +13,7 @@ import {
   ALLOWLIST_BOX_MBR_BOUND,
   abiSignatures,
   artifactApprovalHash,
+  checkLegacyCutoff,
   decodeAllowlistBox,
   gateSupportsCtxFlag,
   isCtxAwareSpec,
@@ -109,6 +110,14 @@ describe('ctx-sub-gates: planAllowlist', () => {
       .toThrow(/does not run the current/)
   })
 
+  test('a plain sub-gate that runs another program is refused too, whatever name it is given', () => {
+    expect(() => planAllowlist(gateWithFlag, [{ name: 'AssetGate', appId: 10n, onChainApprovalHash: 'ff', artifact: subscriptionGate }], new Map()))
+      .toThrow(/does not run the current AssetGate artifact/)
+    // the program of another sub-gate under this name
+    expect(() => planAllowlist(gateWithFlag, [{ name: 'AssetGate', appId: 10n, onChainApprovalHash: artifactApprovalHash(ctxSubGate), artifact: subscriptionGate }], new Map()))
+      .toThrow(/does not run the current AssetGate artifact/)
+  })
+
   test('a context-aware sub-gate cannot be allowlisted on a flag-less Gate', () => {
     expect(() => planAllowlist(gateFlagless, [{ name: 'SubscriptionGate', appId: 10n, onChainApprovalHash: artifactApprovalHash(ctxSubGate), artifact: ctxSubGate }], new Map()))
       .toThrow(/has no setSubGate\(uint64,bool,bool\)void/)
@@ -130,6 +139,23 @@ describe('ctx-sub-gates: planAllowlist', () => {
     const entry = { name: 'SubscriptionGate', appId: 10n, onChainApprovalHash: hash, artifact: subscriptionGate }
     expect(() => planAllowlist(gate, [entry, { ...entry, name: 'AssetGate' }], new Map())).toThrow(/listed twice/)
     expect(() => planAllowlist(gate, [{ ...entry, appId: 0n }], new Map())).toThrow(/invalid app id/)
+  })
+})
+
+describe('ctx-sub-gates: the legacy cutoff of a new Gate v2 (audit 13, XSY-05)', () => {
+  test('the cutoff has to be the cursor Gate v1 has when Gate v2 is created', () => {
+    expect(checkLegacyCutoff('1', 500n, 1n)).toMatch(/matches the gate_cursor of Gate v1 500/)
+    expect(checkLegacyCutoff('7', 500n, 7n)).toMatch(/matches/)
+    // a gate was registered on v1 after the runbook was written
+    expect(() => checkLegacyCutoff('1', 500n, 2n)).toThrow(/gate_cursor is 2 now\. Pass --legacy-cutoff 2/)
+    expect(() => checkLegacyCutoff('3', 500n, 2n)).toThrow(/does not match/)
+  })
+
+  test('an unreadable cursor or cutoff is refused, and a registered Gate v2 has nothing to import', () => {
+    expect(() => checkLegacyCutoff('1', 500n, undefined)).toThrow(/no gate_cursor/)
+    expect(() => checkLegacyCutoff('one', 500n, 1n)).toThrow(/is not a number/)
+    expect(checkLegacyCutoff('1', 500n, 2n ** 32n)).toMatch(/is a Gate v2/)
+    expect(checkLegacyCutoff('1', 500n, 2n ** 32n + 5n)).toMatch(/is a Gate v2/)
   })
 })
 

@@ -75,6 +75,13 @@ type UpdateAkitaDaoEscrowForAppArgs = (
   & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
 
+type UpdateRevocationArgs = (
+  Omit<ContractArgs['updateRevocation(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & { factoryAppId: bigint | number }
+  & MaybeSigner
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
+)
+
 type UpdateFactoryChildContractArgs = (
   { factoryAppId: bigint | number; version: string; data: Uint8Array; }
   & MaybeSigner
@@ -351,6 +358,54 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
             ...sendParams,
             ...(await this.upgradeReferences(appId, args.daoBinding)),
             args: { wallet, rekeyBack, appId, newEscrow },
+          })
+        )
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }]
+      }
+    });
+  }
+
+  /**
+   * Points the wallet factory at the revocation app (`AbstractedAccountFactory.updateRevocation`),
+   * the app every wallet asks whether a grant was revoked. Zero turns the check off.
+   *
+   * The plugin calls the factory the DAO's `aal.wallet` names, and the call is upgrade-class, so the
+   * execution key has to be recorded for that factory: pass it as `factoryAppId` (the SDK's
+   * `walletFactory` for the network, as `updateFactoryChildContract` takes it).
+   */
+  updateRevocation(): PluginSDKReturn
+  updateRevocation(args: UpdateRevocationArgs): PluginSDKReturn
+  updateRevocation(args?: UpdateRevocationArgs): PluginSDKReturn {
+    const methodName = 'updateRevocation';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, app, factoryAppId } = args;
+
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = (
+          await this.client.params.updateRevocation({
+            ...sendParams,
+            // the factory is the app this call changes, so its execution-key box is the one to reference
+            ...(await this.upgradeReferences(factoryAppId, args.daoBinding)),
+            args: { wallet, rekeyBack, app },
           })
         )
 

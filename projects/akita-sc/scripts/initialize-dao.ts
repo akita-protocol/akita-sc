@@ -33,6 +33,7 @@ runScript(async () => {
   console.log(`Launch plan on ${options.network} (DAO ${ctx.dao.appId}, state ${plan.daoState}, creator ${plan.daoCreator})`)
   if (plan.initialized) { console.log('  The DAO is already initialized. Nothing to do.'); return }
   for (const id of plan.allowed) console.log(`  Left for governance (--allow-pending): ${id}`)
+  for (const warning of plan.warnings) console.log(`  WARNING: ${warning}`)
   for (const problem of plan.problems) console.log(`  BLOCKED: ${problem}`)
   if (plan.problems.length > 0) throw new Error(`The DAO is not ready to launch: ${plan.problems.length} problem(s) above`)
   console.log('  Every rollout step is done and no bootstrap key is tracked.')

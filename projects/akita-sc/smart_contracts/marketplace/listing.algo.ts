@@ -1,6 +1,7 @@
-import { Account, Application, Asset, clone, Global, GlobalState, gtxn, itxn, loggedAssert, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
+import { Account, Application, Asset, Bytes, clone, Global, GlobalState, gtxn, itxn, loggedAssert, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abiCall, abimethod, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
+import { GlobalStateKeyAkitaEscrow } from '../constants'
 import { MAX_UINT64 } from '../utils/constants'
 import { calcPercent, canReceiveAlgo, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPaymentTo } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
@@ -54,7 +55,7 @@ export class Listing extends classes(
   marketplace = GlobalState<Account>({ key: ListingGlobalStateKeyMarketplace })
   /** the amount the marketplaces will get for the sale */
   marketplaceRoyalties = GlobalState<uint64>({ key: ListingGlobalStateKeyMarketplaceRoyalties })
-  /** the app ID for the akita DAO escrow */
+  /** the DAO escrow the factory named when this listing was created; a sale pays the one it names then (`feeEscrow`) */
   akitaDAOEscrow = GlobalState<EscrowConfig>({ key: ListingGlobalStateKeyAkitaDAOEscrow })
   /** the amount of the prize asset escrowed at listing time (0 for prize boxes) */
   prizeAmount = GlobalState<uint64>({ key: ListingGlobalStateKeyPrizeAmount })
@@ -121,6 +122,18 @@ export class Listing extends classes(
     }
   }
 
+  /**
+   * The DAO escrow a sale's fees go to: the one the factory names when the sale settles, not the
+   * copy this listing was created with. A listing cannot be updated, so its copy could never follow
+   * the DAO pointing the Marketplace at another escrow: a sale would keep paying an escrow the DAO
+   * no longer uses, and fail for good once that escrow is deleted (audit 13, XSY-03). Only reached
+   * from `purchase` and `purchaseAsa`, which only the factory can call.
+   */
+  private feeEscrow(): Account {
+    const [config, exists] = op.AppGlobal.getExBytes(Global.callerApplicationId, Bytes(GlobalStateKeyAkitaEscrow))
+    return exists ? decodeArc4<EscrowConfig>(config).app.address : this.akitaDAOEscrow.value.app.address
+  }
+
   /** purchases must land strictly after the cooldown that follows a price change */
   private assertPriceSettled(): void {
     const last = this.lastPriceRound.value
@@ -167,22 +180,22 @@ export class Listing extends classes(
     // get the royalty payment amounts
     const amounts = this.getAmounts(this.price.value)
 
+    // A fee below the minimum balance cannot be paid to an account that holds no ALGO. Such a fee
+    // goes to the DAO escrow, so a marketplace address that was never funded cannot revert the sale.
+    const escrow = this.feeEscrow()
+
     // pay akita fee (referral + escrow)
     let leftover: uint64 = amounts.akita
     if (amounts.akita > 0) {
-      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, 0, amounts.akita, this.akitaDAOEscrow.value.app.address))
+      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, 0, amounts.akita, escrow))
     }
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.app.address,
+        receiver: escrow,
         amount: leftover,
       })
       .submit()
-
-    // A fee below the minimum balance cannot be paid to an account that holds no ALGO. Such a fee
-    // goes to the DAO escrow, so a marketplace address that was never funded cannot revert the sale.
-    const escrow = this.akitaDAOEscrow.value.app.address
 
     // pay listing marketplace
     itxn
@@ -234,15 +247,17 @@ export class Listing extends classes(
     // get the royalty payment amounts
     const amounts = this.getAmounts(this.price.value)
 
+    const escrow = this.feeEscrow()
+
     // pay akita fee (referral + escrow)
     let leftover: uint64 = amounts.akita
     if (amounts.akita > 0) {
-      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, this.paymentAsset.value.id, amounts.akita, this.akitaDAOEscrow.value.app.address))
+      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, this.paymentAsset.value.id, amounts.akita, escrow))
     }
 
     itxn
       .assetTransfer({
-        assetReceiver: this.akitaDAOEscrow.value.app.address,
+        assetReceiver: escrow,
         assetAmount: leftover,
         xferAsset: this.paymentAsset.value,
       })

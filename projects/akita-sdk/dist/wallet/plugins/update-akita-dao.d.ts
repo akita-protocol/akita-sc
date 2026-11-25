@@ -65,6 +65,12 @@ type UpdateAkitaDaoEscrowForAppArgs = (Omit<ContractArgs['updateAkitaDaoEscrowFo
     rekeyBack?: boolean;
     daoBinding?: UpgradeDaoBinding;
 });
+type UpdateRevocationArgs = (Omit<ContractArgs['updateRevocation(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & {
+    factoryAppId: bigint | number;
+} & MaybeSigner & {
+    rekeyBack?: boolean;
+    daoBinding?: UpgradeDaoBinding;
+});
 type UpdateFactoryChildContractArgs = ({
     factoryAppId: bigint | number;
     version: string;
@@ -101,6 +107,16 @@ export declare class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPlugi
     updateAkitaDaoAppIDForApp(args: UpdateAkitaDaoAppIDForAppArgs): PluginSDKReturn;
     updateAkitaDaoEscrowForApp(): PluginSDKReturn;
     updateAkitaDaoEscrowForApp(args: UpdateAkitaDaoEscrowForAppArgs): PluginSDKReturn;
+    /**
+     * Points the wallet factory at the revocation app (`AbstractedAccountFactory.updateRevocation`),
+     * the app every wallet asks whether a grant was revoked. Zero turns the check off.
+     *
+     * The plugin calls the factory the DAO's `aal.wallet` names, and the call is upgrade-class, so the
+     * execution key has to be recorded for that factory: pass it as `factoryAppId` (the SDK's
+     * `walletFactory` for the network, as `updateFactoryChildContract` takes it).
+     */
+    updateRevocation(): PluginSDKReturn;
+    updateRevocation(args: UpdateRevocationArgs): PluginSDKReturn;
     /**
      * Updates a factory's child contract bytecode stored in its box.
      * This allows the factory to deploy new instances with the updated contract code.

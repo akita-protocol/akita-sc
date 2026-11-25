@@ -1,9 +1,12 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
+import { sendPrepared } from 'akita-sdk'
+import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { MetaSDK, MerkleTree, SchemaPart } from 'akita-sdk/meta'
+import { SDKClient } from 'akita-sdk/types'
 import { CallerType } from 'akita-sdk/wallet'
-import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { expectContractError } from '../../tests/utils/errors'
@@ -18,6 +21,9 @@ import { MarketplaceClient } from '../artifacts/marketplace/MarketplaceClient'
  * - MKT-05  a price whose shares cannot fit inside it is refused when it is set, not at the sale.
  * - MKT-06  a unit of the payment asset sent to a listing cannot block its delist.
  * - MKT-07  a marketplace fee that an unfunded address cannot receive goes to the DAO escrow.
+ *
+ * And for the cross-system audit (13): XSY-03, a sale pays the DAO escrow the Marketplace names when it
+ * settles, so a listing follows the DAO pointing the Marketplace at another escrow.
  *
  * The ids are the audit's own; the "Audit regressions" block of marketplace.e2e.spec.ts uses the ids
  * of an earlier review.
@@ -35,6 +41,15 @@ const royaltyValue = (value: bigint) => {
   const bytes = Array.from({ length: 8 }, (_, i) => Number((value >> BigInt(8 * (7 - i))) & 0xffn))
   if (bytes.some((b) => b >= 0x80)) throw new Error(`royalty ${value} does not survive UTF-8`)
   return String.fromCharCode(...bytes)
+}
+
+async function proposeAndExecute<TClient extends SDKClient>(dao: AkitaDaoSDK, actions: ProposalAction<TClient>[]): Promise<bigint> {
+  const info = await dao.proposalCost({ actions })
+  await dao.client.appClient.fundAppAccount({ amount: info.total.microAlgo() })
+  const { return: proposalId } = await dao.newProposal({ actions })
+  if (proposalId === undefined) throw new Error('Failed to create proposal')
+  await dao.executeProposal({ proposalId })
+  return proposalId
 }
 
 describe('Marketplace: audit 09 fixes', () => {
@@ -208,7 +223,7 @@ describe('Marketplace: audit 09 fixes', () => {
     expect((await balance(escrow)) - escrowBefore).toBeGreaterThan(fee)
   }, 480_000)
 
-  // Last: this test leaves the revenue escrow's payout cycle open.
+  // From here on the revenue escrow's payout cycle is left open.
   test('MKT-01: with the payout cycle open, a new NFT is still opted in and listed, for one opt-in', async () => {
     const attacker = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(50_000_000) })
     await universe.dao.wallet.usePlugin({
@@ -248,5 +263,57 @@ describe('Marketplace: audit 09 fixes', () => {
     const spent = sellerBefore - (await balance(seller.addr))
     expect(spent).toBeGreaterThanOrEqual(quoted + 100_000n)
     expect(spent).toBeLessThan(quoted + 200_000n)
+  }, 480_000)
+
+  // Last of all: this test points the Marketplace at another revenue escrow.
+  test('audit 13 XSY-03: a sale pays the escrow the Marketplace names when it settles, not the one of the listing\'s creation', async () => {
+    const sender = deployer.addr.toString()
+    const signer = deployer.signer
+    const dao = new AkitaDaoSDK({ algorand, factoryParams: { appId: universe.dao.appId, defaultSender: sender, defaultSigner: signer } })
+    await dao.getWallet()
+    const wallet = dao.wallet
+    await dao.client.appClient.fundAppAccount({ amount: algokit.microAlgos(1_000_000) })
+
+    // Listed while the Marketplace names `rev_marketplace`: that is the escrow the listing stores.
+    const nft = await mint(seller)
+    await algorand.send.assetOptIn({ sender: buyer.addr, signer: buyer.signer, assetId: nft })
+    const listing = await list(nft, 10_000_000n)
+
+    // The DAO creates another escrow ...
+    const NEXT = 'rev_market_next'
+    const escrowMbr = await wallet.getMbr({ escrow: NEXT, methodCount: 0n, plugin: '', groups: 0n })
+    await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgos(escrowMbr.newEscrowMintCost + 1_000_000n) })
+    await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: NEXT, address: ZERO_ADDRESS }])
+    const next = await wallet.getEscrow(NEXT)
+    const nextAddress = algosdk.getApplicationAddress(next.id).toString()
+    // (an escrow must hold its own minimum balance before it can be paid a fee smaller than that)
+    const short = 100_000n - (await balance(nextAddress))
+    if (short > 0n) await algorand.send.payment({ sender: deployer.addr, signer: deployer.signer, receiver: nextAddress, amount: algokit.microAlgos(short) })
+
+    // ... and points the Marketplace at it through the update plugin, approved by an UpgradeApp proposal.
+    const marketId = universe.marketplace.client.appId
+    const execution = await wallet.build.usePlugin({
+      sender, signer, lease: `mkt_escrow_${Date.now() % 1_000_000}`, windowSize: 2000n, callerType: CallerType.Global,
+      calls: [universe.updatePlugin.updateAkitaDaoEscrowForApp({ sender, signer, appId: marketId, newEscrow: { name: NEXT, app: next.id } })],
+    })
+    const walletMbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: BigInt(execution.windows.length) })
+    await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgos(walletMbr.plugins + walletMbr.executions + 2_000_000n) })
+    await proposeAndExecute(dao, [{
+      type: ProposalActionEnum.UpgradeApp, app: marketId,
+      executionKey: execution.lease, groups: execution.ids,
+      firstValid: execution.firstValid, lastValid: execution.lastValid,
+    }])
+    for (const window of execution.windows) await sendPrepared(window, algorand.client.algod)
+    const configured = await market.state.global.akitaDaoEscrow()
+    expect(configured?.name).toBe(NEXT)
+    expect(configured?.app).toBe(next.id)
+
+    // The sale of the listing made before the change pays the escrow the Marketplace names now.
+    const oldBefore = await balance(escrow)
+    const nextBefore = await balance(nextAddress)
+    await purchase(listing.client.appId)
+    expect((await holding(buyer.addr, nft))?.amount).toBe(1n)
+    expect(await balance(escrow)).toBe(oldBefore)
+    expect((await balance(nextAddress)) - nextBefore).toBeGreaterThan(0n)
   }, 480_000)
 })

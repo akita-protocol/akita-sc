@@ -88,6 +88,23 @@ describe('DAO wallet parity plan, TestNet to MainNet as read 2026-11-17', () => 
     expect(describePlan(second).join('\n')).toContain('Nothing to change')
   })
 
+  test('a grant anyone may use with no method list and no execution key is carried, with a note', () => {
+    // Today neither wallet holds one: every open grant names methods or needs a key (plan.notes is empty above).
+    const open = mainnet.grants.find((g) => g.caller === ALGORAND_ZERO_ADDRESS_STRING)
+    expect(open).toBeDefined()
+    const wide: SetupGrant = {
+      ...open!,
+      escrow: 'stickers',
+      policy: { ...open!.policy, methods: [], useExecutionKey: false },
+    }
+    const plan = planParity({ ...mainnet, grants: [...mainnet.grants, wide] }, testnet)
+    const notes = plan.notes.filter((n) => n.includes('may be used by anyone, names no method'))
+    expect(notes).toHaveLength(1)
+    expect(notes[0]).toContain('restrict it on testnet')
+    // it is still planned, as it is
+    expect(plan.add.some((g) => g.source === wide)).toBe(true)
+  })
+
   test('--keep-extra leaves TestNet\'s own grants and says so', () => {
     const plan = planParity(mainnet, testnet, { keepExtra: true })
     expect(plan.remove).toEqual([])

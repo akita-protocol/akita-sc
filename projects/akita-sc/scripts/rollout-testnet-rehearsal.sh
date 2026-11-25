@@ -3,9 +3,10 @@
 # TestNet rehearsal of the Akita contracts 2.0.0 rollout, steps A4a to G2.
 #
 # Every command below is copied from docs/rollout/MAINNET-ROLLOUT.md, with the runbook's own
-# TestNet differences applied: testnet for mainnet, TestNet's ids for the kept sub-gates in C2 and
-# C3, and no Haystack router plugin in G2. D1a is a manual MainNet step and has no command. When
-# the runbook's commands for these steps change, this file has to be made again from them.
+# TestNet differences applied: testnet for mainnet, and no Haystack router plugin in G2. D1a is a
+# manual MainNet step and has no command. Since 2026-11-25 stage C deploys Gate v2 and all 18
+# sub-gates again (DEC-4), so C2 and C3 name no live sub-gate. When the runbook's commands for
+# these steps change, this file has to be made again from them.
 #
 # Run it yourself, from inside the akita-sc checkout, and name the commit to deploy from. It
 # refuses any other commit:
@@ -40,8 +41,8 @@ set -uo pipefail
 REPO="${AKITA_SC_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 if [ -z "$REPO" ]; then echo "Run this from inside the akita-sc checkout. Nothing was run." >&2; exit 1; fi
 EXPECT_COMMIT="${REHEARSAL_COMMIT:-}"
-STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2"
-COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#2 E1#4 E2#2 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10"
+STEPS="A4a B1 B2 B3 B3a B3b C1 C2 C3 C4 D1 D2 E1 E2a E2 E3 E4 E5 E6 E6a E7 F0 F1 F2 G1 G2"
+COMMAND_IDS="A4a#2 A4a#3 B1#2 B1#3 B2#2 B2#3 B2#4 B3#2 B3a#2 B3b#2 C1#2 C2#2 C3#2 C4#1 C4#2 D1#2 D2#2 D2#4 D2#5 D2#6 E1#3 E1#5 E2a#2 E2#3 E3#2 E4#2 E5#2 E6#2 E6#4 E6#5 E6#7 E6a#2 E7#2 F0#2 F0#3 F1#2 F2#2 G1#2 G1#3 G2#1 G2#2 G2#3 G2#4 G2#5 G2#6 G2#7 G2#8 G2#10"
 
 MODE=run
 ONLY=""
@@ -290,23 +291,23 @@ run_cmd B3b 1 dry B3b#2 - 'npm run update:revenue-splits -- -n testnet --split r
 run_cmd B3b 2 send - - 'npm run update:revenue-splits -- -n testnet --split rec_krby=80,rec_mod=5,rec_gov=15 --confirm'
 end_step B3b
 
-begin_step C1 'Deploy Gate v2 and the changed sub-gates' 'C1#2'
-run_cmd C1 1 dry C1#2 - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --dry-run --sender "$CREATOR"'
-run_cmd C1 2 send - - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --manifest-dir receipts/gates'
+begin_step C1 'Deploy Gate v2 and every sub-gate' 'C1#2'
+run_cmd C1 1 dry C1#2 - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --dry-run --sender "$CREATOR"'
+run_cmd C1 2 send - - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates'
 end_step C1
 
 begin_step C2 'Allowlist every sub-gate' 'C2#2'
-run_cmd C2 1 dry C2#2 - 'npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897 --dry-run --sender "$CREATOR"'
-run_cmd C2 2 send - - 'npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897'
+run_cmd C2 1 dry C2#2 - 'npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"'
+run_cmd C2 2 send - - 'npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates'
 end_step C2
 
 begin_step C3 'Seal Gate imports' 'C3#2'
-run_cmd C3 1 dry C3#2 - 'npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897 --dry-run --sender "$CREATOR"'
-run_cmd C3 2 send - - 'npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897'
+run_cmd C3 1 dry C3#2 - 'npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"'
+run_cmd C3 2 send - - 'npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates'
 end_step C3
 
 begin_step C4 'Point aal.gate at Gate v2' 'C4#1 C4#2'
-run_cmd C4 1 send - - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --manifest-dir receipts/gates --register'
+run_cmd C4 1 send - - 'npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates --register'
 run_cmd C4 2 build - - '(cd ../akita-sdk && npm run build)'
 end_step C4
 
@@ -324,16 +325,23 @@ run_cmd D2 5 send - - 'npm run deploy:rewards -- -n testnet -v "$V" --manifest r
 run_cmd D2 6 build - - '(cd ../akita-sdk && npm run build)'
 end_step D2
 
-begin_step E1 'Social family' 'E1#2 E1#4'
-run_cmd E1 1 dry E1#2 - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --dry-run --sender "$CREATOR"'
-run_cmd E1 2 send - - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --confirm'
-run_cmd E1 3 dry E1#4 - 'npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration --dry-run --sender "$CREATOR"'
-run_cmd E1 4 send - - 'npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration'
+begin_step E1 'Social family' 'E1#3 E1#5'
+run_cmd E1 1 dry E1#3 - 'npm run check:social-legacy-prefixes -- -n testnet'
+run_cmd E1 2 dry E1#3 - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --dry-run --sender "$CREATOR"'
+run_cmd E1 3 send - - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --confirm'
+run_cmd E1 4 dry E1#5 - 'npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration --dry-run --sender "$CREATOR"'
+run_cmd E1 5 send - - 'npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration'
 end_step E1
 
-begin_step E2 Subscriptions 'E2#2'
-run_cmd E2 1 dry E2#2 - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --dry-run --sender "$CREATOR"'
-run_cmd E2 2 send - - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --confirm'
+begin_step E2a 'Top the Subscriptions app up to the service storage reserve (runs before E2)' 'E2a#2'
+run_cmd E2a 1 dry E2a#2 - 'npm run fund:subscription-reserve -- -n testnet --dry-run'
+run_cmd E2a 2 send - - 'npm run fund:subscription-reserve -- -n testnet --confirm'
+end_step E2a
+
+begin_step E2 Subscriptions 'E2#3'
+run_cmd E2 1 dry E2#3 - 'npm run fund:subscription-reserve -- -n testnet --dry-run'
+run_cmd E2 2 dry E2#3 - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --dry-run --sender "$CREATOR"'
+run_cmd E2 3 send - - 'npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --confirm'
 end_step E2
 
 begin_step E3 'Marketplace + Listing' 'E3#2'

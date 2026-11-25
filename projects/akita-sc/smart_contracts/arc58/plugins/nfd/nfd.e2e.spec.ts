@@ -242,6 +242,13 @@ describe('NFD plugin contract', () => {
 
     const use = (calls: PluginSDKReturn[]) => linkWallet.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Global, calls });
 
+    /**
+     * A plugin call built here rather than through the SDK hook, because these registry calls need
+     * costs the mock registry does not model. `maxFee` is the allowance the group needs to cover the
+     * call's inner transactions: a hand-built call carries no default.
+     */
+    const PLUGIN_MAX_FEE = algokit.microAlgo(20_000);
+
     /** linkNfdAddress with explicit costs (the SDK reads them from the NFD, which the mock does not model) */
     const link = (nfd: MockNfdClient, name: string, nfdMbrCost: bigint, registryMbrCost: bigint, rekeyBack = true): PluginSDKReturn => () => ({
       appId: nfdPlugin.appId,
@@ -249,8 +256,26 @@ describe('NFD plugin contract', () => {
       getTxns: async ({ wallet }) => [{
         type: 'methodCall' as const,
         ...(await nfdPlugin.client.params.linkNfdAddress({
-          sender: user.addr, signer: user.signer,
+          sender: user.addr, signer: user.signer, maxFee: PLUGIN_MAX_FEE,
           args: { wallet, rekeyBack, appId: nfd.appId, nfdName: name, nfdMbrCost, registryMbrCost },
+        })),
+      }],
+    });
+
+    /** setAddressPrimaryNfd or unlinkNfdAddress, with the same fee allowance */
+    const addressCall = (
+      method: 'setAddressPrimaryNfd' | 'unlinkNfdAddress',
+      nfd: MockNfdClient,
+      name: string,
+      rekeyBack = true,
+    ): PluginSDKReturn => () => ({
+      appId: nfdPlugin.appId,
+      selectors: [nfdPlugin.client.appClient.getABIMethod(method).getSelector()],
+      getTxns: async ({ wallet }) => [{
+        type: 'methodCall' as const,
+        ...(await nfdPlugin.client.params[method]({
+          sender: user.addr, signer: user.signer, maxFee: PLUGIN_MAX_FEE,
+          args: { wallet, rekeyBack, appId: nfd.appId, nfdName: name, address: walletAddress() },
         })),
       }],
     });
@@ -288,9 +313,9 @@ describe('NFD plugin contract', () => {
       // the apps' window: link, then set the primary NFD, the account handed back by the last call
       await use([
         link(owned, 'owned-link.algo', 0n, 0n, false),
-        nfdPlugin.setAddressPrimaryNfd({ sender: user.addr, signer: user.signer, appId: owned.appId, nfdName: 'owned-link.algo', address: walletAddress() }),
+        addressCall('setAddressPrimaryNfd', owned, 'owned-link.algo'),
       ]);
-      await use([nfdPlugin.unlinkNfdAddress({ sender: user.addr, signer: user.signer, appId: owned.appId, nfdName: 'owned-link.algo', address: walletAddress() })]);
+      await use([addressCall('unlinkNfdAddress', owned, 'owned-link.algo')]);
 
       const after = await counts();
       expect([after.mints - before.mints, after.links - before.links, after.primaries - before.primaries, after.unlinks - before.unlinks]).toEqual([1n, 2n, 1n, 1n]);
