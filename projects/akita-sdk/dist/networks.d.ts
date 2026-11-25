@@ -90,6 +90,8 @@ export interface NetworkAppIds {
     welcomePlugin?: bigint;
     /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
     socialClaim?: bigint;
+    /** Collectible Variations registry (immutable singleton; its writer lists live in Meta) */
+    collectibleVariations?: bigint;
     /** AbstractedAccountBalanceReader */
     walletBalanceReader?: bigint;
     /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */

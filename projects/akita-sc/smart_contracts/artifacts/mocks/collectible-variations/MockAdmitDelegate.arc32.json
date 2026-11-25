@@ -1,0 +1,91 @@
+{
+    "hints": {
+        "setAnswer(bool)void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        },
+        "arcTBD_admit(uint64,address,byte[],address)bool": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9hcmM0L2luZGV4LmQudHM6OkNvbnRyYWN0LmFwcHJvdmFsUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgMzIKICAgIGJ5dGVjYmxvY2sgInkiCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzctNzgKICAgIC8vIEBjb250cmFjdCh7IGF2bVZlcnNpb246IDEzIH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0FkbWl0RGVsZWdhdGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAMTEKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydAogICAgcHVzaGJ5dGVzcyAweGNiOGI0NDdkIDB4NzE3Mzc2ODEgLy8gbWV0aG9kICJzZXRBbnN3ZXIoYm9vbCl2b2lkIiwgbWV0aG9kICJhcmNUQkRfYWRtaXQodWludDY0LGFkZHJlc3MsYnl0ZVtdLGFkZHJlc3MpYm9vbCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIHNldEFuc3dlciBhZG1pdAogICAgZXJyCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUAxMToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6NzctNzgKICAgIC8vIEBjb250cmFjdCh7IGF2bVZlcnNpb246IDEzIH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja0FkbWl0RGVsZWdhdGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tBZG1pdERlbGVnYXRlLnNldEFuc3dlcltyb3V0aW5nXSgpIC0+IHZvaWQ6CnNldEFuc3dlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODEKICAgIC8vIHNldEFuc3dlcihhbnN3ZXI6IGJvb2xlYW4pOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzEgLy8gMQogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5ib29sCiAgICBpbnRjXzAgLy8gMAogICAgZ2V0Yml0CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4MgogICAgLy8gdGhpcy5hbnN3ZXIudmFsdWUgPSBhbnN3ZXIKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjgxCiAgICAvLyBzZXRBbnN3ZXIoYW5zd2VyOiBib29sZWFuKTogdm9pZCB7CiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo6TW9ja0FkbWl0RGVsZWdhdGUuYWRtaXRbcm91dGluZ10oKSAtPiB2b2lkOgphZG1pdDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9jb2xsZWN0aWJsZS12YXJpYXRpb25zL2NvbnRyYWN0LmFsZ28udHM6ODUKICAgIC8vIEBhYmltZXRob2QoeyBuYW1lOiAnYXJjVEJEX2FkbWl0JyB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBsZW4KICAgIGludGNfMiAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBkdXAKICAgIGludGNfMCAvLyAwCiAgICBleHRyYWN0X3VpbnQxNiAvLyBvbiBlcnJvcjogaW52YWxpZCBhcnJheSBsZW5ndGggaGVhZGVyCiAgICBwdXNoaW50IDIKICAgICsKICAgIHN3YXAKICAgIGxlbgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5keW5hbWljX2FycmF5PGFyYzQudWludDg+CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA0CiAgICBsZW4KICAgIGludGNfMiAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjg3CiAgICAvLyByZXR1cm4gdGhpcy5hbnN3ZXIudmFsdWUKICAgIGludGNfMCAvLyAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvY29sbGVjdGlibGUtdmFyaWF0aW9ucy9jb250cmFjdC5hbGdvLnRzOjc5CiAgICAvLyBhbnN3ZXIgPSBHbG9iYWxTdGF0ZTxib29sZWFuPih7IGtleTogJ3knLCBpbml0aWFsVmFsdWU6IGZhbHNlIH0pCiAgICBieXRlY18wIC8vICJ5IgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4NwogICAgLy8gcmV0dXJuIHRoaXMuYW5zd2VyLnZhbHVlCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIEdsb2JhbFN0YXRlIGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2NvbGxlY3RpYmxlLXZhcmlhdGlvbnMvY29udHJhY3QuYWxnby50czo4NQogICAgLy8gQGFiaW1ldGhvZCh7IG5hbWU6ICdhcmNUQkRfYWRtaXQnIH0pCiAgICBwdXNoYnl0ZXMgMHgwMAogICAgaW50Y18wIC8vIDAKICAgIHVuY292ZXIgMgogICAgc2V0Yml0CiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9iYXNlLWNvbnRyYWN0LmQudHM6OkJhc2VDb250cmFjdC5jbGVhclN0YXRlUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 1
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "answer": {
+                    "type": "uint64",
+                    "key": "y"
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockAdmitDelegate",
+        "desc": "LocalNet delegate for writer admission: answers arcTBD_admit with a settable boolean.",
+        "methods": [
+            {
+                "name": "setAnswer",
+                "args": [
+                    {
+                        "type": "bool",
+                        "name": "answer"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "arcTBD_admit",
+                "args": [
+                    {
+                        "type": "uint64",
+                        "name": "asset"
+                    },
+                    {
+                        "type": "address",
+                        "name": "writer"
+                    },
+                    {
+                        "type": "byte[]",
+                        "name": "slot"
+                    },
+                    {
+                        "type": "address",
+                        "name": "holder"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "bool"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

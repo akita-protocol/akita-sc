@@ -1,6 +1,6 @@
 {
   "name": "@akita-protocol/sdk",
-  "version": "1.5.0",
+  "version": "1.5.0-canary.2",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -49,6 +49,11 @@
       "types": "./dist/meta-merkles/index.d.ts",
       "require": "./dist/meta-merkles/index.js",
       "import": "./dist/meta-merkles/index.mjs"
+    },
+    "./collectible-variations": {
+      "types": "./dist/collectible-variations/index.d.ts",
+      "require": "./dist/collectible-variations/index.js",
+      "import": "./dist/collectible-variations/index.mjs"
     },
     "./meta": {
       "types": "./dist/meta/index.d.ts",
@@ -121,6 +126,9 @@
     "*": {
       "auction": [
         "./dist/auction/index.d.ts"
+      ],
+      "collectible-variations": [
+        "./dist/collectible-variations/index.d.ts"
       ],
       "dao": [
         "./dist/dao/index.d.ts"

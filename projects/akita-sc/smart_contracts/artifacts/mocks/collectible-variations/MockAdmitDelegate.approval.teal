@@ -1,0 +1,120 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 32
+    bytecblock "y"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:79
+    // answer = GlobalState<boolean>({ key: 'y', initialValue: false })
+    bytec_0 // "y"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:77-78
+    // @contract({ avmVersion: 13 })
+    // export class MockAdmitDelegate extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xcb8b447d 0x71737681 // method "setAnswer(bool)void", method "arcTBD_admit(uint64,address,byte[],address)bool"
+    txna ApplicationArgs 0
+    match setAnswer admit
+    err
+
+main___algots__.defaultCreate@11:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:77-78
+    // @contract({ avmVersion: 13 })
+    // export class MockAdmitDelegate extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockAdmitDelegate.setAnswer[routing]() -> void:
+setAnswer:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:81
+    // setAnswer(answer: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:79
+    // answer = GlobalState<boolean>({ key: 'y', initialValue: false })
+    bytec_0 // "y"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:82
+    // this.answer.value = answer
+    swap
+    app_global_put
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:81
+    // setAnswer(answer: boolean): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockAdmitDelegate.admit[routing]() -> void:
+admit:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:85
+    // @abimethod({ name: 'arcTBD_admit' })
+    txna ApplicationArgs 1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:87
+    // return this.answer.value
+    intc_0 // 0
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:79
+    // answer = GlobalState<boolean>({ key: 'y', initialValue: false })
+    bytec_0 // "y"
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:87
+    // return this.answer.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:85
+    // @abimethod({ name: 'arcTBD_admit' })
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

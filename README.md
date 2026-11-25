@@ -251,6 +251,7 @@ A dash means not deployed on that network yet. Each deployment script's receipt
 |----------|---------|---------|
 | `meta` | — | — |
 | `metaPlugin` | — | — |
+| `collectibleVariations` | — | — |
 | `guildFactory` | — | — |
 | `guildConsensusFactory` | — | — |
 | `guildPlugin` | — | — |
