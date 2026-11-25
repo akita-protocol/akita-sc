@@ -5,11 +5,14 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import {
   buildGuildExecution,
   CallerType,
+  finishGuildProposal,
   GuildPluginSDK,
   guildExecutionRecord,
   newWallet,
   PayPluginSDK,
+  proposeToGuild,
   sendGuildExecution,
+  voteOnGuildProposal,
   WalletSDK,
 } from 'akita-sdk/wallet'
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
@@ -391,8 +394,33 @@ describe('Guild sole signer: propose through execute in one group', () => {
     await proposeAndRunAlone(alice, guild, [grantToConsensus(consensus)])
     const receiver = environment.algorand.account.random().addr.toString()
     await useDirectly(alice, guild, [payArgs(treasuryId, receiver, 100_000n)])
+    const threshold = async () =>
+      (
+        await new FixedSignerGuildConsensusClient({
+          algorand: environment.algorand,
+          appId: consensus,
+          defaultSender: sendAs.sender,
+          defaultSigner: sendAs.signer,
+        }).state.global.getAll()
+      ).threshold
 
-    await proposeAndRunAlone(alice, guild, [fixedSignerConsensusAction.setThreshold(2n)])
+    // A raise needs the approvals it asks for (audit 05, GLD-01): alice's one approval cannot make the
+    // threshold two, or she could lock the Guild behind a threshold its ballots have never met.
+    const proposals = await nextProposalId(guild)
+    await expect(proposeAndRunAlone(alice, guild, [fixedSignerConsensusAction.setThreshold(2n)])).rejects.toThrow(/errGlko/)
+    expect(await threshold()).toBe(1n)
+    // the one group failed as a whole: no proposal was left behind
+    expect(await nextProposalId(guild)).toBe(proposals)
+
+    // Two signers approving the same raise demonstrate it.
+    const guildWallet = { wallet: alice, guildPlugin: plugin, guild, callerType: CallerType.Global, ...sendAs }
+    const proposalId = await proposeToGuild({ ...guildWallet, actions: [fixedSignerConsensusAction.setThreshold(2n)] })
+    await voteOnGuildProposal({ ...guildWallet, proposalId, vote: APPROVE })
+    await voteOnGuildProposal({ ...guildWallet, wallet: bob, proposalId, vote: APPROVE })
+    // two of three have approved and one approval is required, so the vote closes without waiting
+    await finishGuildProposal({ ...guildWallet, proposalId, execute: true })
+    expect(await statusOf(guild, proposalId)).toBe(PROPOSAL_EXECUTED)
+    expect(await threshold()).toBe(2n)
 
     await expect(useDirectly(alice, guild, [payArgs(treasuryId, receiver, 100_000n)])).rejects.toThrow(/errGpwr/)
     expect(await balanceOf(receiver)).toBe(100_000n)
