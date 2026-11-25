@@ -4,7 +4,7 @@ import { classes } from 'polytype'
 import { GateArgs } from '../../../gates/types'
 import { AmendmentMBR, EditBackRefMBR, ImpactMetaMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, ReplyParentRefMBR, SubscriptionStateModifierMBR } from '../../../social/constants'
 import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
-import { GateMustCheckForAbiMethod, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo, tipWallet } from '../../../utils/functions'
+import { GateMustCheckForAbiMethod, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getSocialFees, pluginPrincipalOf, quoteReferrerOf, referralFeeTo } from '../../../utils/functions'
 import { gateCtx, windowHint } from '../../../utils/principal'
 import { CID } from '../../../utils/types/base'
 
@@ -25,8 +25,9 @@ import { errInvalidApp } from './errors'
  * §6.11): every target that verifies a wallet hint is called with `windowHint(wallet)` as its LAST
  * argument (invariant 6: only the wallet whose window this call serves), gated targets receive a
  * `Gate.mustCheckFor` txn built from `pluginPrincipalOf(dao, wallet)` (the context the target
- * recomputes), referral quotes use the window wallet's referrer, and creator-tip quotes use
- * `tipWallet` and `tipRoute` exactly as the target does. Existing method ABIs are unchanged; `setMetaWallet` is new.
+ * recomputes), and referral quotes use the window wallet's referrer. A creator tip adds nothing to a
+ * quote: the hinted target never charges the tipper an opt-in for the creator (audit 08, SOC-01).
+ * Existing method ABIs are unchanged; `setMetaWallet` is new.
  */
 export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
@@ -75,11 +76,10 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     return refBytes
   }
 
-  private getCreatorDetails(type: uint64, sender: Account, ref: bytes<32>): { postExists: boolean, creator: Account, creatorWallet: uint64, gateID: uint64 } {
+  private getCreatorDetails(type: uint64, sender: Account, ref: bytes<32>): { postExists: boolean, creator: Account, gateID: uint64 } {
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     let creator = Global.zeroAddress
-    let creatorWallet: uint64 = 0
     let gateID: uint64 = 0
     // we can assume the post exists if the type is a post
     let postMustExist = type === RefTypePost
@@ -118,7 +118,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     }).returnValue
 
     if (!metaExists) {
-      return { postExists, creator, creatorWallet, gateID };
+      return { postExists, creator, gateID };
     }
 
     const meta = abiCall<typeof AkitaSocial.prototype.getMeta>({
@@ -126,15 +126,13 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       appId: social,
       args: [creator],
     }).returnValue
-    // the same routing wallet AkitaSocial's hinted tipCreator uses, so the tip MBR quote matches
-    creatorWallet = tipWallet(this.akitaDAO.value, creator, meta.wallet)
 
     // a box keyed by the creator's own address is their wall, gated by addressGateID
     if (postExists && ref === creator.bytes && meta.addressGateID !== 0) {
       gateID = meta.addressGateID
     }
 
-    return { postExists, creator, creatorWallet, gateID };
+    return { postExists, creator, gateID };
   }
 
   // Referral disbursement MBR that AkitaSocial charges for a fee paid in `wallet`'s window: the
@@ -273,7 +271,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
-    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
+    const { postExists, creator, gateID: postGateID } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     // replies fund the 32-byte parentRef and, through the creator tip, the sender's referral MBR
     let mbrAmount: uint64 = posts + votes + votelist + ReplyParentRefMBR + this.tipReferralQuote(wallet, creator)
     // a parent that isn't a post gets an empty posts box on its first reply
@@ -281,7 +279,6 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
     }
 
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,
@@ -350,7 +347,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
+    const { postExists, creator } = this.getCreatorDetails(type, sender, this.refKey(type, ref))
     // replies fund the 32-byte parentRef and, through the creator tip, the sender's referral MBR
     let mbrAmount: uint64 = posts + votes + votelist + ReplyParentRefMBR + this.tipReferralQuote(wallet, creator)
     // a parent that isn't a post gets an empty posts box on its first reply
@@ -358,7 +355,6 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
     }
 
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,
@@ -420,9 +416,8 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     // reply ref layout: CID(36) + parentRef(32) [+ originalKey(32)]
     const originalPostRef = postBeingAmended.ref.slice(36, 68).toFixed({ length: 32 })
 
-    const { creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
+    const { creator, gateID: postGateID } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
     mbrAmount += this.tipReferralQuote(wallet, creator)
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,
@@ -490,9 +485,8 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     // reply ref layout: CID(36) + parentRef(32) [+ originalKey(32)]
     const originalPostRef = postBeingAmended.ref.slice(36, 68).toFixed({ length: 32 })
 
-    const { creator, creatorWallet } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
+    const { creator } = this.getCreatorDetails(RefTypePost, sender, originalPostRef)
     mbrAmount += this.tipReferralQuote(wallet, creator)
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,
@@ -539,16 +533,28 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const refBytes = this.refKey(type, ref)
 
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
+    const { postExists, creator } = this.getCreatorDetails(type, sender, refBytes)
 
-    // materializing a ref creates both its posts box and its votes box
+    // materializing a ref creates its posts box
     if (!postExists) {
-      mbrAmount += posts + votes
+      mbrAmount += posts
+    }
+    // The votes box is charged whenever it is missing, which is not the same as "the posts box is
+    // missing": a reply, a reaction or `updateMeta` materializes a ref without a votes box, and the first
+    // vote on it pays for one (audit 08, SOC-04). A post always has its votes box.
+    if (type !== RefTypePost) {
+      const votesExist = abiCall<typeof AkitaSocial.prototype.getVotesExist>({
+        sender,
+        appId: social,
+        args: [refBytes]
+      }).returnValue
+      if (!votesExist) {
+        mbrAmount += votes
+      }
     }
 
     if (isUp) {
       mbrAmount += this.tipReferralQuote(wallet, creator)
-      mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
     }
 
     const mbrPayment = itxn.payment({
@@ -620,8 +626,8 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       // !wasUp means we are flipping from downvote to upvote
       if (!wasUp) {
         // this is kind of gross but internally RefTypePost just enforces a trust assumption that the post exists
-        const { creator, creatorWallet } = this.getCreatorDetails(RefTypePost, sender, ref.toFixed({ length: 32 }))
-        const flipMbr: uint64 = this.tipReferralQuote(wallet, creator) + this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
+        const { creator } = this.getCreatorDetails(RefTypePost, sender, ref.toFixed({ length: 32 }))
+        const flipMbr: uint64 = this.tipReferralQuote(wallet, creator)
         mbrPayment.set({ amount: flipMbr })
       }
     }
@@ -667,13 +673,12 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     // a target that isn't a post gets an empty posts box on its first reaction; the creator tip
     // carries the sender's referral MBR
-    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, refBytes)
+    const { postExists, creator, gateID: postGateID } = this.getCreatorDetails(type, sender, refBytes)
     if (!postExists) {
       mbrAmount += posts
     }
     mbrAmount += this.tipReferralQuote(wallet, creator)
 
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,
@@ -744,13 +749,12 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     // a target that isn't a post gets an empty posts box on its first reaction; the creator tip
     // carries the sender's referral MBR
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
+    const { postExists, creator } = this.getCreatorDetails(type, sender, refBytes)
     if (!postExists) {
       mbrAmount += posts
     }
     mbrAmount += this.tipReferralQuote(wallet, creator)
 
-    mbrAmount += this.tipRoute(this.akitaDAO.value, creator, Application(creatorWallet)).arc58
 
     const mbrPayment = itxn.payment({
       sender,

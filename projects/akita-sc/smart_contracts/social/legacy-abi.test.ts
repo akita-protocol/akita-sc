@@ -71,11 +71,13 @@ describe('social legacy shims keep every deployed selector (§7.2)', () => {
     }
   })
 
-  test('AkitaSocial: the only new methods besides the hinted overloads are setMetaWallet and the paying updateMeta', () => {
+  test('AkitaSocial: the only new methods besides the hinted overloads are setMetaWallet, the paying updateMeta and the votes read', () => {
     const before = new Set(deployed.contracts.AkitaSocial.methods)
     const added = signatures(social).filter((sig) => !before.has(sig))
     expect(added.sort()).toEqual([
       ...HINTED_SOCIAL.map((m) => withHint(deployed.contracts.AkitaSocial.methods.find((s) => s.startsWith(`${m}(`))!)),
+      // readonly: whether a ref has its votes box, which a vote quote needs (audit 08, SOC-04)
+      'getVotesExist(byte[32])bool',
       'setMetaWallet(uint64)void',
       // setting a wall gate pays for the wall's posts box; the deployed selector stays as a shim
       'updateMeta(pay,uint64,uint64,uint64,uint64,uint64,uint64)void',

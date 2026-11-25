@@ -126,6 +126,7 @@ function wiredSdk() {
       appAddress: "social-app",
       getReactionExists: vi.fn().mockResolvedValue(true),
       getPostExists: vi.fn().mockResolvedValue(true),
+      getVotesExist: vi.fn().mockResolvedValue(true),
       newGroup: () => group,
       send: socialSend,
     },
@@ -308,10 +309,38 @@ describe("SocialSDK on deployed (pre-Phase-2) social targets", () => {
     await legacy.sdk.vote({ ref, refType: RefType.Address, isUp: false });
     expect(paidAmounts(legacy.sdk)).toEqual([VOTELIST_MBR + LEGACY_MIN_POSTS_MBR]);
 
+    // the deployed contract has no votes read
+    expect((legacy.sdk as unknown as { socialClient: { getVotesExist: Recorder } }).socialClient.getVotesExist).not.toHaveBeenCalled();
+
     const hinted = wiredSdk();
-    (hinted.sdk as unknown as { socialClient: { getPostExists: Recorder } }).socialClient.getPostExists.mockResolvedValue(false);
+    const client = (hinted.sdk as unknown as { socialClient: { getPostExists: Recorder, getVotesExist: Recorder } }).socialClient;
+    client.getPostExists.mockResolvedValue(false);
+    client.getVotesExist.mockResolvedValue(false);
     await hinted.sdk.vote({ ref, refType: RefType.Address, isUp: false });
     expect(paidAmounts(hinted.sdk)).toEqual([VOTELIST_MBR + MIN_POSTS_MBR + VOTES_MBR]);
+  });
+
+  test("a vote pays for the votes box whenever it is missing, with or without the posts box (audit 08, SOC-04)", async () => {
+    const quote = async (postExists: boolean, votesExist: boolean, refType = RefType.Address) => {
+      const { sdk } = wiredSdk();
+      const client = (sdk as unknown as { socialClient: { getPostExists: Recorder, getVotesExist: Recorder } }).socialClient;
+      client.getPostExists.mockResolvedValue(postExists);
+      client.getVotesExist.mockResolvedValue(votesExist);
+      await sdk.vote({ ref, refType, isUp: true });
+      return paidAmounts(sdk);
+    };
+    // a reply, a reaction or a meta update created the posts box alone: the first vote adds the votes box
+    expect(await quote(true, false)).toEqual([VOTELIST_MBR + VOTES_MBR]);
+    expect(await quote(true, true)).toEqual([VOTELIST_MBR]);
+    expect(await quote(false, false)).toEqual([VOTELIST_MBR + MIN_POSTS_MBR + VOTES_MBR]);
+    // a post always has its votes box, so nothing is read for it
+    expect(await quote(false, false, RefType.Post)).toEqual([VOTELIST_MBR]);
+
+    const { sdk } = wiredSdk();
+    expect(sdk.calculateVoteMBR()).toBe(VOTELIST_MBR);
+    expect(sdk.calculateVoteMBR(true)).toBe(VOTELIST_MBR + MIN_POSTS_MBR + VOTES_MBR);
+    expect(sdk.calculateVoteMBR(false, true)).toBe(VOTELIST_MBR + VOTES_MBR);
+    expect(sdk.calculateVoteMBR(true, false)).toBe(VOTELIST_MBR + MIN_POSTS_MBR);
   });
 
   test("react quotes the deployed 18,900 reaction list; paywall the deployed 5,200 base", async () => {

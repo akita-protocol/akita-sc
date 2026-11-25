@@ -4,7 +4,7 @@ import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/upgradeabl
 import { getAkitaSocialAppList } from '../utils/functions'
 import { CID } from '../utils/types/base'
 import { AkitaSocialBoxPrefixActions, AkitaSocialBoxPrefixBanned, AkitaSocialBoxPrefixModeratorActivity, AkitaSocialBoxPrefixModerators, ModerationEffectForward, ModerationEffectNone, ModerationEffectReversal, ModeratorActivityEpoch } from './constants'
-import { errAlreadyAModerator, errAlreadyAnAction, errAlreadyBanned, errNotAModerator, errNotAkitaDao, errUserNotBanned } from './errors'
+import { errAlreadyAModerator, errAlreadyAnAction, errAlreadyBanned, errBanExpired, errCannotBanModerator, errNotAModerator, errNotAkitaDao, errUserNotBanned } from './errors'
 import { Action, ModeratorActivity, ModeratorActivityInfo } from './types'
 
 // CONTRACT IMPORTS
@@ -90,6 +90,11 @@ export class AkitaSocialModeration extends UpgradeableAkitaBaseContract {
   ban(address: Account, expiration: uint64): void {
     loggedAssert(this.moderators(Txn.sender).exists, errNotAModerator)
     loggedAssert(!this.banned(address).exists, errAlreadyBanned)
+    // A ban that is already over bans nobody, yet it counted as a moderation action and took a box from
+    // this app's balance; and a ban on a moderator never limited that moderator, whom only the DAO
+    // removes (audit 08, SOC-07).
+    loggedAssert(expiration > Global.latestTimestamp, errBanExpired)
+    loggedAssert(!this.moderators(address).exists, errCannotBanModerator)
     this.banned(address).value = expiration
     this.recordAction(ModerationEffectForward)
   }

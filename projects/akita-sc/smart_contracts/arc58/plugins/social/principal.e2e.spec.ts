@@ -283,7 +283,7 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
     })
   })
 
-  test('SOCIAL-1 tip route: an escrow creator is tipped at the wallet origin; only an origin without AKTA costs the tipper an opt-in', async () => {
+  test('SOCIAL-1 tip route: an escrow creator is tipped at the wallet origin, and a tipper never pays an opt-in for it (audit 08, SOC-01)', async () => {
     const admin = await fixture.context.generateAccount({ initialFunds: (50).algo() })
     const w = await newUnregisteredWallet({ walletFactory: universe.walletFactory, ...send(admin), nickname: 'tip-escrow', fund: (20).algo() })
     await addRawPlugin(w, { plugin: plugin.appId }, send(admin))
@@ -309,13 +309,22 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
       },
     })
 
-    // first tip: the origin is opted in through the wallet, and the tipper funds that opt-in
-    await hintedVote(poster, posterSdk.calculateVoteMBR(true) + 100_000n)
-    const firstTip = await aktaOf(origin)
-    expect(firstTip).toBeGreaterThan(0n)
+    // first tip: neither E nor the origin holds AKTA, so the DAO keeps the whole tip. The tipper is not
+    // charged an opt-in for the origin (the wallet allows the opt-in plugin, and the old route charged
+    // it on the origin's live opt-in state, which the creator controls): a payment that adds it is refused.
+    const daoBefore = await aktaOf(daoEscrow)
+    await expect(hintedVote(poster, posterSdk.calculateVoteMBR(true) + 100_000n)).rejects.toThrow(new RegExp(errInvalidPayment))
+    await hintedVote(poster, posterSdk.calculateVoteMBR(true))
+    expect(await aktaOrZero(origin)).toBe(0n)
+    expect((await aktaOf(daoEscrow)) - daoBefore).toBe(reactFee)
 
-    // second tip: the origin already holds AKTA, so it is tipped directly with no opt-in charge
-    // (the route used to be decided on E, so it re-ran the opt-in and reverted errAlreadyOptedIn)
+    // the origin opts into AKTA at its own cost
+    await addRawPlugin(w, { plugin: universe.selfOptInPlugin.appId }, send(admin))
+    await w.usePlugin({ ...send(admin), callerType: CallerType.Global, calls: [universe.selfOptInPlugin.optIn({ assets: [akta] })] })
+    expect(await aktaOf(origin)).toBe(0n)
+
+    // second tip: the origin holds AKTA, so it is tipped directly (the route is decided on the account
+    // that receives the remainder, the origin, not on E)
     const voter = await fixture.context.generateAccount({ initialFunds: (10).algo() })
     await algorand.send.assetOptIn({ ...send(voter), assetId: akta })
     await algorand.send.assetTransfer({ ...send(deployer), receiver: voter.addr, assetId: akta, amount: reactFee * 2n })
@@ -329,7 +338,7 @@ describe('Social plugin (principal-resolution version) in unregistered wallets',
     }).initMeta({})
     await expect(hintedVote(voter, posterSdk.calculateVoteMBR(false) + 100_000n)).rejects.toThrow(new RegExp(errInvalidPayment))
     await hintedVote(voter, posterSdk.calculateVoteMBR(false))
-    expect(await aktaOf(origin)).toBeGreaterThan(firstTip)
+    expect(await aktaOf(origin)).toBeGreaterThan(0n)
   })
 
   test("§6.2 tip route: a creator whose meta wallet lost it at rest is tipped directly (the legacy route reverts)", async () => {

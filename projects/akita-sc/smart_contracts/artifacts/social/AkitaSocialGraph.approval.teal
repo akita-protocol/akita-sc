@@ -1643,7 +1643,7 @@ payWallMbr:
 
 // smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements[routing]() -> void:
 checkTipMbrRequirements:
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     txna ApplicationArgs 1
     dup
@@ -1674,12 +1674,12 @@ checkTipMbrRequirements:
     pushbytes "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/social/base.ts:79
+    // smart_contracts/social/base.ts:76
     // const akta = Asset(getAkitaAssets(akitaDAO).akta)
     intc_0 // 0
     extract_uint64
     swap
-    // smart_contracts/social/base.ts:81
+    // smart_contracts/social/base.ts:78
     // if (wallet.id !== 0 && !creator.isOptedIn(akta)) {
     bz checkTipMbrRequirements_after_if_else@6
     dig 2
@@ -1774,22 +1774,22 @@ checkTipMbrRequirements:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/social/base.ts:83
+    // smart_contracts/social/base.ts:80
     // if (canCallArc58OptIn) {
     bz checkTipMbrRequirements_after_if_else@6
-    // smart_contracts/social/base.ts:86
+    // smart_contracts/social/base.ts:83
     // arc58: Global.assetOptInMinBalance
     global AssetOptInMinBalance
-    // smart_contracts/social/base.ts:84-87
+    // smart_contracts/social/base.ts:81-84
     // return {
     //   type: TipSendTypeARC58,
     //   arc58: Global.assetOptInMinBalance
     // }
     itob
-    // smart_contracts/social/base.ts:85
+    // smart_contracts/social/base.ts:82
     // type: TipSendTypeARC58,
     pushbytes 0x14
-    // smart_contracts/social/base.ts:84-87
+    // smart_contracts/social/base.ts:81-84
     // return {
     //   type: TipSendTypeARC58,
     //   arc58: Global.assetOptInMinBalance
@@ -1798,7 +1798,7 @@ checkTipMbrRequirements:
     concat
 
 checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7:
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     bytec_1 // 0x151f7c75
     swap
@@ -1808,13 +1808,13 @@ checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial
     return
 
 checkTipMbrRequirements_after_if_else@6:
-    // smart_contracts/social/base.ts:91-94
+    // smart_contracts/social/base.ts:88-91
     // return {
     //   type: TipSendTypeDirect,
     //   arc58: 0
     // }
     pushbytes 0x0a0000000000000000
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     b checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7
 

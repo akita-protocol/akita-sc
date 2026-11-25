@@ -439,6 +439,9 @@ export type AkitaSocialArgs = {
         'getPostExists(byte[32])bool': {
             ref: Uint8Array;
         };
+        'getVotesExist(byte[32])bool': {
+            ref: Uint8Array;
+        };
         'getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])': {
             ref: Uint8Array;
         };
@@ -517,6 +520,7 @@ export type AkitaSocialArgs = {
         'getMetaExists(address)bool': [user: string];
         'getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64)': [user: string];
         'getPostExists(byte[32])bool': [ref: Uint8Array];
+        'getVotesExist(byte[32])bool': [ref: Uint8Array];
         'getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])': [ref: Uint8Array];
         'getVote(address,byte[32])(uint64,bool)': [account: string, ref: Uint8Array];
         'getVotes((address,byte[32])[])(uint64,bool)[]': [keys: [string, Uint8Array][]];
@@ -570,6 +574,7 @@ export type AkitaSocialReturns = {
     'getMetaExists(address)bool': boolean;
     'getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64)': MetaValue;
     'getPostExists(byte[32])bool': boolean;
+    'getVotesExist(byte[32])bool': boolean;
     'getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])': PostValue;
     'getVote(address,byte[32])(uint64,bool)': VoteListValue;
     'getVotes((address,byte[32])[])(uint64,bool)[]': [bigint, boolean][];
@@ -733,6 +738,10 @@ export type AkitaSocialTypes = {
         argsObj: AkitaSocialArgs['obj']['getPostExists(byte[32])bool'];
         argsTuple: AkitaSocialArgs['tuple']['getPostExists(byte[32])bool'];
         returns: AkitaSocialReturns['getPostExists(byte[32])bool'];
+    }> & Record<'getVotesExist(byte[32])bool' | 'getVotesExist', {
+        argsObj: AkitaSocialArgs['obj']['getVotesExist(byte[32])bool'];
+        argsTuple: AkitaSocialArgs['tuple']['getVotesExist(byte[32])bool'];
+        returns: AkitaSocialReturns['getVotesExist(byte[32])bool'];
     }> & Record<'getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])' | 'getPost', {
         argsObj: AkitaSocialArgs['obj']['getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])'];
         argsTuple: AkitaSocialArgs['tuple']['getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])'];
@@ -1281,6 +1290,17 @@ export declare abstract class AkitaSocialParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static getPostExists(params: CallParams<AkitaSocialArgs['obj']['getPostExists(byte[32])bool'] | AkitaSocialArgs['tuple']['getPostExists(byte[32])bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getVotesExist(byte[32])bool ABI method
+     *
+    * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+    first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getVotesExist(params: CallParams<AkitaSocialArgs['obj']['getVotesExist(byte[32])bool'] | AkitaSocialArgs['tuple']['getVotesExist(byte[32])bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[]) ABI method
      *
@@ -2266,6 +2286,21 @@ export declare class AkitaSocialClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the AkitaSocial smart contract using the `getVotesExist(byte[32])bool` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+        first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getVotesExist: (params: CallParams<AkitaSocialArgs["obj"]["getVotesExist(byte[32])bool"] | AkitaSocialArgs["tuple"]["getVotesExist(byte[32])bool"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the AkitaSocial smart contract using the `getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2884,6 +2919,25 @@ export declare class AkitaSocialClient {
          * @returns The call transaction
          */
         getPostExists: (params: CallParams<AkitaSocialArgs["obj"]["getPostExists(byte[32])bool"] | AkitaSocialArgs["tuple"]["getPostExists(byte[32])bool"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocial smart contract using the `getVotesExist(byte[32])bool` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+        first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getVotesExist: (params: CallParams<AkitaSocialArgs["obj"]["getVotesExist(byte[32])bool"] | AkitaSocialArgs["tuple"]["getVotesExist(byte[32])bool"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3738,6 +3792,30 @@ export declare class AkitaSocialClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the AkitaSocial smart contract using the `getVotesExist(byte[32])bool` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+        first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getVotesExist: (params: CallParams<AkitaSocialArgs["obj"]["getVotesExist(byte[32])bool"] | AkitaSocialArgs["tuple"]["getVotesExist(byte[32])bool"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AkitaSocialReturns["getVotesExist(byte[32])bool"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the AkitaSocial smart contract using the `getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -3971,6 +4049,19 @@ export declare class AkitaSocialClient {
      * @returns The call result
      */
     getPostExists(params: CallParams<AkitaSocialArgs['obj']['getPostExists(byte[32])bool'] | AkitaSocialArgs['tuple']['getPostExists(byte[32])bool']>): Promise<boolean>;
+    /**
+     * Makes a readonly (simulated) call to the AkitaSocial smart contract using the `getVotesExist(byte[32])bool` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+    * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+    first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+  
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getVotesExist(params: CallParams<AkitaSocialArgs['obj']['getVotesExist(byte[32])bool'] | AkitaSocialArgs['tuple']['getVotesExist(byte[32])bool']>): Promise<boolean>;
     /**
      * Makes a readonly (simulated) call to the AkitaSocial smart contract using the `getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])` ABI method.
      *
@@ -4501,6 +4592,18 @@ export type AkitaSocialComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     getPostExists(params?: CallParams<AkitaSocialArgs['obj']['getPostExists(byte[32])bool'] | AkitaSocialArgs['tuple']['getPostExists(byte[32])bool']>): AkitaSocialComposer<[...TReturns, AkitaSocialReturns['getPostExists(byte[32])bool'] | undefined]>;
+    /**
+     * Calls the getVotesExist(byte[32])bool ABI method.
+     *
+    * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+    first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getVotesExist(params?: CallParams<AkitaSocialArgs['obj']['getVotesExist(byte[32])bool'] | AkitaSocialArgs['tuple']['getVotesExist(byte[32])bool']>): AkitaSocialComposer<[...TReturns, AkitaSocialReturns['getVotesExist(byte[32])bool'] | undefined]>;
     /**
      * Calls the getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[]) ABI method.
      *

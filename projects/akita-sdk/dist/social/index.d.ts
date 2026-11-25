@@ -153,7 +153,9 @@ export declare class SocialSDK {
         wallet?: bigint | number;
     }): Promise<TipMbrInfo>;
     /**
-     * Calculate the extra MBR needed for tip delivery based on recipient wallet type
+     * Calculate the extra MBR needed for tip delivery based on recipient wallet type.
+     * Only the deployed (pre-2.0.0) entry points charge it: the current ones never charge the tipper
+     * an opt-in for the creator, so nothing is added to their payments.
      * @param tipMbrInfo - The tip MBR info from checkTipMbrRequirements
      * @returns Extra MBR amount in microAlgos
      */
@@ -191,12 +193,16 @@ export declare class SocialSDK {
     private needsEmptyPost;
     /**
      * Calculate the MBR required for a vote
-     * Formula: votelist (+ extra if creating empty post for reference)
+     * Formula: votelist (+ the empty post and the votes box the vote creates for the reference)
+     *
+     * A reply, a reaction or a meta update creates the empty post of a reference without its votes
+     * box, so the first vote on such a reference pays for the votes box alone.
      *
      * @param needsEmptyPost - Whether an empty post needs to be created for the reference
+     * @param needsVotesBox - Whether the reference has no votes box yet (defaults to `needsEmptyPost`)
      * @returns MBR in microAlgos
      */
-    calculateVoteMBR(needsEmptyPost?: boolean): bigint;
+    calculateVoteMBR(needsEmptyPost?: boolean, needsVotesBox?: boolean): bigint;
     /**
      * Calculate the MBR required for a reaction
      * Formula: reactionlist (+ reactions if first reaction with this NFT)
