@@ -593,6 +593,10 @@ export type InferenceNetworkTypes = {
                 ticketCount: bigint;
                 poolCount: bigint;
                 /**
+                 * Ticket storage deposits that found no account to go back to; `sweepFees(0)` pays them out with the ALGO fees.
+                 */
+                unclaimedDeposits: bigint;
+                /**
                  * the named DAO escrow this contract routes fees to (name + app)
                  */
                 akitaDaoEscrow: EscrowConfig;
@@ -3755,6 +3759,10 @@ export declare class InferenceNetworkClient {
              * Get the current value of the poolCount key in global state
              */
             poolCount: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the unclaimedDeposits key in global state
+             */
+            unclaimedDeposits: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the akitaDAOEscrow key in global state
              */

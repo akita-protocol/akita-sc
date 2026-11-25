@@ -80,6 +80,8 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
   providerCount = GlobalState<uint64>({ key: 'providers' })
   ticketCount = GlobalState<uint64>({ key: 'tickets' })
   poolCount = GlobalState<uint64>({ key: 'pools' })
+  /** Ticket storage deposits that found no account to go back to; `sweepFees(0)` pays them out with the ALGO fees. */
+  unclaimedDeposits = GlobalState<uint64>({ key: 'deposits', initialValue: 0 })
 
   providers = BoxMap<uint64, Provider>({ keyPrefix: 'p' })
   metadata = BoxMap<uint64, string>({ keyPrefix: 'm' })
@@ -205,8 +207,12 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
   sweepFees(asset: uint64): uint64 {
     const escrow = this.akitaDAOEscrow.value.app
     loggedAssert(escrow.id !== 0 && (asset === 0 || escrow.address.isOptedIn(Asset(asset))), errInferenceNoEscrow)
-    const fees = this.assets(asset).value.fees
+    let fees = this.assets(asset).value.fees
     this.assets(asset).value.fees = 0
+    if (asset === 0) {
+      fees = fees + this.unclaimedDeposits.value
+      this.unclaimedDeposits.value = 0
+    }
     this.send(escrow.address, asset, fees)
     return fees
   }
@@ -718,9 +724,13 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
   private refund(info: Ticket, amount: uint64): void {
     if (info.depositor === Global.zeroAddress) {
       this.pools(info.pool).value.credit = this.pools(info.pool).value.credit + INFERENCE_TICKET_MBR
+    } else if (info.pool === 0 && this.canReceive(info.depositor, 0)) {
+      itxn.payment({ receiver: info.depositor, amount: INFERENCE_TICKET_MBR }).submit()
+    } else if (this.canReceive(info.principal, 0)) {
+      itxn.payment({ receiver: info.principal, amount: INFERENCE_TICKET_MBR }).submit()
     } else {
-      const depositor = info.pool === 0 && this.canReceive(info.depositor, 0) ? info.depositor : info.principal
-      itxn.payment({ receiver: depositor, amount: INFERENCE_TICKET_MBR }).submit()
+      // An account that cannot receive must never stop a settle: the deposit goes to the fees.
+      this.unclaimedDeposits.value = this.unclaimedDeposits.value + INFERENCE_TICKET_MBR
     }
     if (info.pool === 0) {
       if (this.canReceive(info.payer, info.asset)) {
@@ -740,13 +750,20 @@ export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
     }
   }
 
-  /** Whether `account` can receive `asset`: it exists, and holds the asset if it is an ASA. */
+  /**
+   * Whether `account` can receive `asset`: it exists, and if `asset` is an ASA it holds it unfrozen.
+   * A payment of less than the minimum balance to an account with none fails, so a closed account
+   * receives nothing.
+   */
   private canReceive(account: Account, asset: uint64): boolean {
     // A closed account has no balance record: `account.balance` would fail on it, so read the flag.
     const [balance, exists] = op.AcctParams.acctBalance(account)
     if (!exists || balance === 0) return false
-    return asset === 0 || account.isOptedIn(Asset(asset))
+    if (asset === 0) return true
+    const [frozen, holds] = op.AssetHolding.assetFrozen(account, Asset(asset))
+    return holds && !frozen
   }
+
 
   private mustGetPool(pool: uint64): Pool {
     loggedAssert(this.pools(pool).exists, errInferenceNoPool)

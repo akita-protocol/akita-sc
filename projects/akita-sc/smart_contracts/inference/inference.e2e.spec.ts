@@ -318,6 +318,58 @@ describe('InferenceNetwork', () => {
       expect((await client.state.box.assets.value(0n))!.fees).toBe(60_000n)
     })
 
+    /** A wallet whose controlled address is an outside account, which the test can later take back and close or freeze. */
+    const outsideMember = async (assets: bigint[] = []) => {
+      const c = await newAccount(5)
+      for (const asset of assets) await optInTo(c, asset)
+      const wallet = await newWallet({
+        algorand: fixture.algorand, readerAccount: admin.addr.toString(), nickname: `inference ${++wallets}`,
+        controlledAddress: c.addr.toString(), controlledSigner: c.signer,
+        factoryParams: { appId: walletFactory.appId, defaultSender: admin.addr.toString(), defaultSigner: admin.signer },
+      })
+      await wallet.addPlugin({ client: plugin, callerType: CallerType.Admin })
+      return { c, member: { wallet, address: c.addr.toString(), id: wallet.appId } as Member }
+    }
+    const fees = async (asset: bigint) => (await client.state.box.assets.value(asset))!.fees
+
+    test('a member who closes the account a ticket pays back into cannot stop the settle: the lock and deposit go to the fees', async () => {
+      const { c, member } = await outsideMember()
+      const t = await open(member, 0n, 50_000n, 20)
+      expect((await client.send.getTicket({ args: { ticket: t } })).return).toMatchObject({ payer: c.addr.toString(), principal: c.addr.toString(), depositor: c.addr.toString() })
+      // The wallet's admin hands the account back to its own key, which closes it.
+      await member.wallet.client.send.arc58RekeyTo({ args: { address: c.addr.toString(), flash: false }, extraFee: microAlgo(1_000) })
+      await fixture.algorand.send.payment({ ...as(c), receiver: admin.addr, amount: microAlgo(0), closeRemainderTo: admin.addr })
+      expect(await fixture.algorand.client.algod.accountInformation(c.addr).do().then((a) => a.amount)).toBe(0n)
+
+      const feesBefore = await fees(0n)
+      const depositsBefore = await client.state.global.unclaimedDeposits()
+      const payoutBefore = await balance(payout.addr, 0n)
+      await client.send.settle({ ...as(claimer), args: { ticket: t, cost: 20_000n }, ...settleFee })
+      expect(await balance(payout.addr, 0n) - payoutBefore).toBe(18_000n)
+      // the 10% fee, and the 30,000 the closed account cannot take
+      expect(await fees(0n) - feesBefore).toBe(2_000n + 30_000n)
+      expect(await client.state.global.unclaimedDeposits() - depositsBefore!).toBe(TICKET_MBR)
+    })
+
+    test('a frozen holding is paid nothing: the provider is paid and the rest goes to the fees', async () => {
+      const frz = (await fixture.algorand.send.assetCreate({ ...as(admin), total: 10n ** 12n, decimals: 6, assetName: 'FRZ', unitName: 'FRZ', freeze: admin.addr })).assetId
+      await client.send.optIn({ args: { payment: storage(admin, 100_000n), asset: frz }, extraFee: microAlgo(1_000) })
+      await client.send.setPaymentAsset({ args: { payment: storage(admin, ASSET_MBR), asset: frz, allowed: true } })
+      await optInTo(payout, frz)
+      const { c, member } = await outsideMember([frz])
+      await fund(c, frz, 100_000n)
+      const t = await open(member, frz, 60_000n, 21)
+      await fixture.algorand.send.assetFreeze({ ...as(admin), assetId: frz, account: c.addr, frozen: true })
+
+      const before = await balance(c.addr, 0n)
+      await client.send.settle({ ...as(claimer), args: { ticket: t, cost: 10_000n }, ...settleFee })
+      expect(await balance(payout.addr, frz)).toBe(9_000n)
+      expect(await fees(frz)).toBe(1_000n + 50_000n)
+      expect(await balance(c.addr, frz)).toBe(40_000n)
+      // the ALGO deposit still goes back: freezing stops only the asset
+      expect(await balance(c.addr, 0n) - before).toBe(TICKET_MBR)
+    })
+
     test('a ticket settles until its window ends, and not at its very end', async () => {
       const t = await open(buyer, 0n, 10_000n, 10)
       const { expiresAt } = (await client.send.getTicket({ args: { ticket: t } })).return!
