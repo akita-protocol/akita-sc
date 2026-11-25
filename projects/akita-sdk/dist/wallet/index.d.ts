@@ -215,7 +215,7 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     addExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void'] & MaybeSigner): Promise<TxnReturn<void>>;
     removeExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_removeExecutionKey(byte[32])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     readonly build: {
-        usePlugin: ({ firstValid, windowSize, consolidateFees, skipSignatures, adminRekeyMaxFee, ...args }: BuildWalletUsePluginParams) => Promise<ExecutionBuildGroup>;
+        usePlugin: ({ firstValid, windowSize, consolidateFees, skipSignatures, adminRekeyMaxFee, pendingBoxBytes, boxReadHeadroomRefs, ...args }: BuildWalletUsePluginParams) => Promise<ExecutionBuildGroup>;
     };
     getGlobalState(): Promise<WalletGlobalState>;
     getAdmin(): Promise<string>;

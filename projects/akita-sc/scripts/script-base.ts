@@ -16,11 +16,11 @@ import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { getNetworkAppIds, SDKClient, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, UpdateAkitaDAOPluginSDK, type UpgradeDaoBinding } from 'akita-sdk/wallet'
+import { CallerType, pendingUpgradeBoxBytes, UpdateAkitaDAOPluginSDK, type UpgradeDaoBinding } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { executeProposal, getAppFundingNeeded, proposeAndExecute } from './utils'
 import { recordedLease } from './lib/execution-lease'
-import { ALL_PHASE2_TARGETS, childPushProblems, createSignatures, daoBindingMode } from './lib/principal-rollout'
+import { ALL_PHASE2_TARGETS, childPushProblems, createSignatures, daoBindingMode, rebuildRecordedExecution } from './lib/principal-rollout'
 
 export type Network = AkitaNetwork
 
@@ -611,13 +611,18 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     const lease = updateExecutionLease(target.leasePrefix, resumed?.upgradeAction)
     const predictedId = !resumed && bindingMode === 'proposal' ? await ctx.dao.client.state.global.proposalId() : undefined
     if (!resumed && bindingMode === 'proposal' && predictedId === undefined) throw new Error('DAO proposal_id is not readable')
-    const build = (daoBinding?: UpgradeDaoBinding) => ctx.dao.wallet.build.usePlugin({
+    // The group is built before its proposal exists: it gets box read budget for the DAO boxes the
+    // proposal writes (2 group ids for the 2,000 round window). A rebuild may need another count.
+    const build = (daoBinding?: UpgradeDaoBinding, headroomRefs?: number) => ctx.dao.wallet.build.usePlugin({
       sender: ctx.sender,
       signer: ctx.signer,
       lease,
       windowSize: 2000n,
       callerType: CallerType.Global,
       calls: buildCalls(daoBinding),
+      ...(headroomRefs !== undefined
+        ? { boxReadHeadroomRefs: headroomRefs }
+        : { pendingBoxBytes: pendingUpgradeBoxBytes({ groups: 2, proposalRead: daoBinding !== undefined }) }),
     })
 
     console.log(`Building ${target.name} update execution...`)
@@ -631,10 +636,13 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       let matched: Awaited<ReturnType<typeof build>> | undefined
       let lastError: unknown
       for (const candidate of candidates) {
+        // A build that fails is final. Only a rebuilt group that does not match moves on: first to
+        // other box read headroom counts in the same binding, then to the other binding.
         const rebuilt = await build(candidate)
         try {
-          restampExecutionFromProposal(rebuilt, resumed.upgradeAction)
-          matched = rebuilt
+          matched = await rebuildRecordedExecution(
+            (headroomRefs) => headroomRefs === undefined ? Promise.resolve(rebuilt) : build(candidate, headroomRefs),
+            (execution) => restampExecutionFromProposal(execution, resumed.upgradeAction))
           break
         } catch (error) {
           lastError = error

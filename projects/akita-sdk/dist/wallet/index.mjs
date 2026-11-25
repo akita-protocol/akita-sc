@@ -87,6 +87,7 @@ import {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pendingUpgradeBoxBytes,
   pluginInstallCost,
   proposeToGuild,
   runDraftProposal,
@@ -97,19 +98,19 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-EIRWAWS3.mjs";
+} from "../chunk-N56WK7XK.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
-import "../chunk-6NGYO26O.mjs";
+import "../chunk-TW3FGASY.mjs";
 import "../chunk-RUHR54B7.mjs";
-import "../chunk-FPWRRZNQ.mjs";
+import "../chunk-W225WA4L.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-GOQ4H3PG.mjs";
 import "../chunk-LGBCH6R3.mjs";
-import "../chunk-KMNTDT7N.mjs";
-import "../chunk-XNLUW6YQ.mjs";
-import "../chunk-2CFXBUHF.mjs";
+import "../chunk-6V4OENI7.mjs";
+import "../chunk-TD7NNME7.mjs";
+import "../chunk-J2RLGP2X.mjs";
 import "../chunk-JZMSW77U.mjs";
 import "../chunk-J5LGTIGS.mjs";
 export {
@@ -202,6 +203,7 @@ export {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pendingUpgradeBoxBytes,
   pluginInstallCost,
   proposeToGuild,
   runDraftProposal,

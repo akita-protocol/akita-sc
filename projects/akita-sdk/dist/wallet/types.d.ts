@@ -133,6 +133,19 @@ export type BuildWalletUsePluginParams = (WalletUsePluginParams & {
      * holds little spare ALGO, e.g. a Guild, since a simulate charges each transaction's max fee to its sender.
      */
     adminRekeyMaxFee?: bigint;
+    /**
+     * Bytes of boxes the group reads that are created after it is built and before it is sent, on top of
+     * this wallet's execution key box, which is always counted. For example the boxes a DAO proposal
+     * writes for the key. The group is given box read budget for them (see `boxReadHeadroom`).
+     */
+    pendingBoxBytes?: bigint | number;
+    /**
+     * The exact number of box read headroom references to add, in place of the number worked out from
+     * the execution key box and `pendingBoxBytes`. Only for rebuilding a group whose id is already
+     * recorded: a box that exists by then is sized by the simulation itself, so the same group can need
+     * fewer of these. Try the built group's `boxReadHeadroomRefs` first and then count down.
+     */
+    boxReadHeadroomRefs?: number;
 });
 export type SendOptions = {
     signer?: algosdk.TransactionSigner;
@@ -143,6 +156,8 @@ export type ExecutionBuildGroup = {
     lastValid: bigint;
     useRounds: boolean;
     ids: Uint8Array[];
+    /** How many box read headroom references the build added after discovery (2,048 B each). */
+    boxReadHeadroomRefs: number;
     /**
      * Pre-populated, pre-grouped windows ready to submit. Each window's validity
      * range covers a portion of `[firstValid, lastValid]`. For the arc58

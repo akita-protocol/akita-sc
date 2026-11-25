@@ -9,7 +9,9 @@ import { createAlgorandClient, setupContext, type ScriptContext } from './script
 import { proposeAndExecute } from './utils'
 import { daoWalletSunsetSteps, sendDaoWalletSunset, simulateDaoWalletSunset, walletAssetCloses, walletFactorySunsetCalls } from './lib/sunset-steps'
 import { prepareGroup, type PreparedGroup } from '../../akita-sdk/src/simulate/prepare'
-import { executionBoxKey } from '../../akita-sdk/src/wallet/utils'
+import { boxReadHeadroom, seedAccessResources } from '../../akita-sdk/src/simulate/access-list'
+import { executionBoxKey, executionKeyBoxBytes } from '../../akita-sdk/src/wallet/utils'
+import { pendingUpgradeBoxBytes } from '../../akita-sdk/src/wallet/plugins/update-akita-dao'
 import {
   discoverDeployerInventory,
   getCriticalAppIds,
@@ -308,16 +310,22 @@ async function buildLegacyDaoWalletUsePlugin(
     }
   }
 
-  const prepared = await prepareGroup(composer, {
-    sender: admin as string,
-    signer: makeEmptyTransactionSigner(),
-  })
-
   const validityPeriod = 1000n
   const start = BigInt(suggestedParams.firstValid)
   const roundsNeeded = BigInt(Math.ceil(Number(windowSize) / 2.7))
   const endTarget = start + roundsNeeded
   const numGroupsToBuild = Math.ceil(Number(roundsNeeded) / Number(validityPeriod))
+
+  // As in WalletSDK.build.usePlugin: the wallet's execution key box and the DAO boxes of the proposal
+  // are written after this build, so the group gets box read budget for them after discovery.
+  seedAccessResources(composer, boxReadHeadroom(
+    executionKeyBoxBytes(numGroupsToBuild) + pendingUpgradeBoxBytes({ groups: numGroupsToBuild, proposalRead: true })))
+
+  const prepared = await prepareGroup(composer, {
+    sender: admin as string,
+    signer: makeEmptyTransactionSigner(),
+  })
+
   const baseTotalFees = prepared.transactions.reduce((sum, txn) => sum + BigInt(txn.fee ?? 0n), 0n)
   const encodedLease = encodeLease(lease)!
   const realSenderAddr = algosdk.Address.fromString(ctx.sender)

@@ -141,6 +141,14 @@ export function executionBoxKey(lease: string): Uint8Array {
   return result;
 }
 
+/**
+ * Size of the wallet's execution key box (`'x' + lease`) for a key with `groups` group ids: an
+ * `ExecutionInfo` of two rounds and a list of 32-byte ids, 20 B plus 32 B per group.
+ */
+export function executionKeyBoxBytes(groups: number): number {
+  return 20 + 32 * groups;
+}
+
 export function domainBoxKey(address: string | Address): Uint8Array {
   return new Uint8Array(
     Buffer.concat([

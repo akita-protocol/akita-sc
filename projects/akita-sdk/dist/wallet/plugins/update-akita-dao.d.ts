@@ -19,6 +19,24 @@ export type UpgradeDaoBinding = {
     lease: string | Uint8Array;
     proposalId: bigint | number;
 };
+/**
+ * Bytes of DAO boxes an execution-key upgrade group reads that exist only once its UpgradeApp proposal
+ * is created and executed, for `wallet.build.usePlugin({ pendingBoxBytes })`:
+ *
+ * - `'u' + itob(target)`, the upgrade leases recorded for the target: a 2-byte count and 40 B per
+ *   action that names the target (`actions`, 1 unless the target's factory and child go in two groups).
+ * - with `proposalRead` (a DAO without `isUpgradeLease`, see `UpgradeDaoBinding`): the execution box
+ *   `'x' + lease` (16 B) and the proposal box `'l' + itob(id)`, 121 B plus, for each of its
+ *   `proposalActions` UpgradeApp actions, 67 B and 32 B per group id.
+ *
+ * `groups` is the number of group ids one execution key carries (one per 1,000 rounds of its window).
+ */
+export declare function pendingUpgradeBoxBytes({ groups, actions, proposalRead, proposalActions }: {
+    groups: number;
+    actions?: number;
+    proposalRead?: boolean;
+    proposalActions?: number;
+}): number;
 type ContractArgs = UpdateAkitaDaoPluginArgs["obj"];
 type DeleteBoxedContractArgs = (Omit<ContractArgs['deleteBoxedContract(uint64,bool)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;

@@ -377,6 +377,43 @@ export function roundsForGroups(groups: number): number {
   return groups * EXECUTION_VALIDITY_PERIOD - EXECUTION_VALIDITY_PERIOD / 2
 }
 
+/** Group ids one execution key carries for a window of `windowRounds` rounds (one per validity period). */
+export function groupsForRounds(windowRounds: number): number {
+  return Math.max(1, Math.ceil(windowRounds / EXECUTION_VALIDITY_PERIOD))
+}
+
+/**
+ * Rebuild an execution until it reproduces the group ids its proposal recorded.
+ *
+ * A group is first built before its proposal exists, and is given box read headroom for the boxes the
+ * proposal writes (`build.usePlugin` `pendingBoxBytes`). Rebuilt later, the simulation sizes whichever
+ * of those boxes exist by then, and any staged program the Update plugin's box holds now, so the same
+ * group id can need a different number of headroom references. `build()` is the count a fresh build
+ * uses, then fewer down to none, then up to `extra` more. `restamp` throws when the ids do not match.
+ */
+export async function rebuildRecordedExecution<T extends { boxReadHeadroomRefs: number }>(
+  build: (headroomRefs?: number) => Promise<T>, restamp: (execution: T) => void, extra = 8): Promise<T> {
+  const first = await build()
+  const fresh = first.boxReadHeadroomRefs ?? 0
+  const counts = [
+    ...Array.from({ length: fresh }, (_, i) => fresh - 1 - i),
+    ...Array.from({ length: extra }, (_, i) => fresh + 1 + i),
+  ]
+  let execution = first
+  let firstError: unknown
+  for (let attempt = 0; ; attempt++) {
+    try {
+      restamp(execution)
+      return execution
+    } catch (error) {
+      firstError ??= error
+      // Only a different group id can be a different headroom count; anything else is final.
+      if (!/group id/.test(error instanceof Error ? error.message : '') || attempt >= counts.length) throw firstError
+      execution = await build(counts[attempt])
+    }
+  }
+}
+
 // ── ABI compatibility (spec §7.1 point 3: what rides along with Phase 2) ─────────────────────
 
 export type KnownAbi = { contract: string; source: string; signatures: string[] }

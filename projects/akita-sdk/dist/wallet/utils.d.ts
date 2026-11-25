@@ -27,6 +27,11 @@ export declare function SpendAllowanceTypeFromString(type: string): bigint;
 export declare function AllowancesToTuple(allowances: AddAllowanceArgs[]): [number | bigint, number | bigint, number | bigint, number | bigint, number | bigint, boolean][];
 export declare function AllowanceInfoTranslate(info: SubAllowanceInfo): AllowanceInfo;
 export declare function executionBoxKey(lease: string): Uint8Array;
+/**
+ * Size of the wallet's execution key box (`'x' + lease`) for a key with `groups` group ids: an
+ * `ExecutionInfo` of two rounds and a list of 32-byte ids, 20 B plus 32 B per group.
+ */
+export declare function executionKeyBoxBytes(groups: number): number;
 export declare function domainBoxKey(address: string | Address): Uint8Array;
 export declare class ValueMap<K extends object, V> {
     private map;

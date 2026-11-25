@@ -38,6 +38,8 @@ import {
   phase3Gaps,
   planExecutionWindow,
   proposalReturnSize,
+  groupsForRounds,
+  rebuildRecordedExecution,
   roundsForGroups,
   upgradeActionDataLength,
   windowSizeArg,
@@ -648,6 +650,57 @@ describe('resume: restampExecution', () => {
     const other = { lease: new Uint8Array(32), firstValid: 1n, lastValid: 100n, useRounds: true, ids: [], windows: [{ transactions: build(), signers: [], groupId: '', methodCalls: new Map() }] } as never
     expect(() => restampExecution(other, { executionKey: lease, groups: [new Uint8Array(32)], firstValid: 500n, lastValid: 1_500n })).toThrow('does not match')
     expect(() => restampExecution(other, { executionKey: lease, groups: [], firstValid: 500n, lastValid: 1_500n })).toThrow('expects 0')
+  })
+})
+
+describe('resume: rebuildRecordedExecution (box read headroom of a rebuilt group)', () => {
+  // A fake build: the group id depends only on how many box references the group ends up with, which is
+  // what the simulation asks for plus the headroom. `fresh` is the headroom of a first build.
+  const fake = (fresh: number, simulated: number) => {
+    const built: (number | undefined)[] = []
+    const build = async (headroomRefs?: number) => {
+      built.push(headroomRefs)
+      const refs = headroomRefs ?? fresh
+      return { boxReadHeadroomRefs: refs, total: simulated + refs }
+    }
+    const restamp = (recorded: number) => (execution: { total: number }) => {
+      if (execution.total !== recorded) throw new Error('rebuilt group 1 does not match the proposal\'s group id')
+    }
+    return { build, built, restamp }
+  }
+
+  test('groupsForRounds inverts roundsForGroups', () => {
+    for (const groups of [1, 2, 7, 30]) expect(groupsForRounds(roundsForGroups(groups))).toBe(groups)
+    expect(groupsForRounds(2_000)).toBe(2)
+    expect(groupsForRounds(1)).toBe(1)
+  })
+
+  test('a rebuild that matches at once builds once', async () => {
+    const { build, built, restamp } = fake(1, 10)
+    expect(await rebuildRecordedExecution(build, restamp(11))).toMatchObject({ boxReadHeadroomRefs: 1 })
+    expect(built).toEqual([undefined])
+  })
+
+  test('the proposal\'s boxes now exist and the simulation asks for one more reference: one fewer of headroom', async () => {
+    // first build: 10 simulated + 1 headroom = 11 recorded. Rebuilt: the simulation itself asks for 11.
+    const { build, built, restamp } = fake(1, 11)
+    expect(await rebuildRecordedExecution(build, restamp(11))).toMatchObject({ boxReadHeadroomRefs: 0 })
+    expect(built).toEqual([undefined, 0])
+  })
+
+  test('a smaller staged program since the first build: more headroom reproduces the group', async () => {
+    const { build, built, restamp } = fake(1, 8)
+    expect(await rebuildRecordedExecution(build, restamp(11))).toMatchObject({ boxReadHeadroomRefs: 3 })
+    expect(built).toEqual([undefined, 0, 2, 3])
+  })
+
+  test('no count matches: the first mismatch is reported; another error is not retried', async () => {
+    const { build, built, restamp } = fake(1, 30)
+    await expect(rebuildRecordedExecution(build, restamp(11))).rejects.toThrow('does not match')
+    expect(built).toHaveLength(1 + 1 + 8)
+    const other = fake(1, 10)
+    await expect(rebuildRecordedExecution(other.build, () => { throw new Error('proposal expects 2 group(s)') })).rejects.toThrow('expects 2')
+    expect(other.built).toEqual([undefined])
   })
 })
 

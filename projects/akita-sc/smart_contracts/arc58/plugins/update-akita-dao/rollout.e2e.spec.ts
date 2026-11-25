@@ -446,6 +446,14 @@ describe('P2-UPD-01: Phase 2a rehearsal from the deployed Update plugin and Akit
     // since AUD-C6; 4 chunks hold 8,104 B).
     // StakingPoolFactory + StakingPool plan to exactly 16 today (see the update-plugin section of
     // IMPLEMENTATION-LOG.md); --split-children is the fallback.
+    //
+    // This group also guards the box read budget of a group that is built before its proposal exists.
+    // It reads the Update plugin's staging box, which still holds the DAO program the test above
+    // pushed, and the factory's child box: with the 2026-11 audit fixes those came to 22,514 B at build
+    // time, 14 B under the 22,528 B the group's 11 box references gave it. The proposal then wrote the
+    // wallet's execution key box (52 B) and the DAO's upgrade lease box (42 B), and the send was refused
+    // with "read budget exceeded (22608 > 22528)". `build.usePlugin` now adds headroom for those boxes
+    // after discovery (`pendingBoxBytes`), so the send no longer depends on where the sizes land.
     ctx.appIds.raffleFactory = universe.raffleFactory.appId
     ctx.options.version = 'p2-combined'
     const base = await planTarget(ctx, raffleTarget)

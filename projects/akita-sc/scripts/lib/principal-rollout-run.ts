@@ -16,7 +16,7 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { PLUGIN_APP_ID_KEYS, type SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, type ExecutionBuildGroup } from 'akita-sdk/wallet'
+import { CallerType, pendingUpgradeBoxBytes, type ExecutionBuildGroup } from 'akita-sdk/wallet'
 import algosdk from 'algosdk'
 import fs from 'node:fs'
 import type { ScriptContext } from '../script-base'
@@ -32,6 +32,7 @@ import {
   childPushProblems,
   createSignatures,
   dependencyGaps,
+  groupsForRounds,
   loadAcceptedAbiRemovals,
   lockstepPlugins,
   daoBindingMode,
@@ -49,6 +50,7 @@ import {
   programHash,
   programHasSelector,
   proposalReturnSize,
+  rebuildRecordedExecution,
   restampExecution,
   roundsForGroups,
   splitLockstep,
@@ -583,10 +585,16 @@ export type ProposalBinding = { proposalId: bigint; leases?: readonly Uint8Array
 /** Build the execution groups of one target, in send order (the factory before its child). */
 export async function buildTargetExecutions(ctx: ScriptContext, p: TargetPlan, lease: (index: number) => string,
   window: Pick<ExecutionWindow, 'firstValid' | 'windowRounds'> = { firstValid: 0n, windowRounds: 2_000 },
-  binding?: ProposalBinding): Promise<ExecutionBuildGroup[]> {
+  binding?: ProposalBinding, recorded?: { actions: number; headroomRefs?: number }): Promise<ExecutionBuildGroup[]> {
   if (!p.groups) return []
   const version = ctx.options.version
   const windowSize = windowSizeArg(window.windowRounds, await updateGrantUsesRounds(ctx))
+  // The groups are built before their proposal exists. The DAO boxes the proposal then writes are read
+  // by the Update plugin when a group is sent, so each group gets box read budget for them up front.
+  const actions = recorded?.actions ?? p.groups.groups.length
+  const headroom = recorded?.headroomRefs !== undefined
+    ? { boxReadHeadroomRefs: recorded.headroomRefs }
+    : { pendingBoxBytes: pendingUpgradeBoxBytes({ groups: groupsForRounds(window.windowRounds), actions, proposalRead: binding !== undefined }) }
   const executions: ExecutionBuildGroup[] = []
   for (let i = 0; i < p.groups.groups.length; i++) {
     const group = p.groups.groups[i]
@@ -625,6 +633,7 @@ export async function buildTargetExecutions(ctx: ScriptContext, p: TargetPlan, l
       windowSize,
       callerType: CallerType.Global,
       calls,
+      ...headroom,
     }))
   }
   return executions
@@ -703,11 +712,13 @@ export async function executeTargetPlan(ctx: ScriptContext, p: TargetPlan,
       // The wallet's execution box reference ('x' + lease) is part of the hashed group, so the rebuild
       // must use the recorded lease, not a fresh stamp (`restampExecution` only fixes txn[0].lease).
       const recorded = recordedLease(upgrades[i].executionKey)
-      const [execution] = await buildTargetExecutions(ctx, { ...p, groups: { ...p.groups, groups: [p.groups.groups[i]] } }, () => recorded,
-        { firstValid: upgrades[i].firstValid, windowRounds: roundsForGroups(upgrades[i].groups.length) },
-        proposalRead ? { proposalId, leases: [upgrades[i].executionKey] } : undefined)
-      restampExecution(execution, upgrades[i])
-      executions.push(execution)
+      const one = { ...p, groups: { ...p.groups, groups: [p.groups.groups[i]] } }
+      const boundTo = proposalRead ? { proposalId: proposalId!, leases: [upgrades[i].executionKey] } : undefined
+      executions.push(await rebuildRecordedExecution(
+        async (headroomRefs) => (await buildTargetExecutions(ctx, one, () => recorded,
+          { firstValid: upgrades[i].firstValid, windowRounds: roundsForGroups(upgrades[i].groups.length) },
+          boundTo, { actions: upgrades.length, headroomRefs }))[0],
+        (execution) => restampExecution(execution, upgrades[i])))
     }
     if (proposal.status !== PROPOSAL_STATUS_EXECUTED) {
       await executeProposal(ctx.dao, proposalId)

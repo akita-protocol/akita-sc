@@ -1,8 +1,7 @@
 import { Account, Application, bytes, Bytes, clone, contract, Contract, loggedAssert, loggedErr, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typescript/arc4";
-import { btoi, Global } from "@algorandfoundation/algorand-typescript/op";
+import { btoi, extract, Global } from "@algorandfoundation/algorand-typescript/op";
 import { PluginInfo, PluginKey } from "../account/types";
-import { Split } from "../plugins/revenue-manager/types";
 import { AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, MaxProposalPower, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysGuildFees, AkitaDAOGlobalStateKeysInferenceFees, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWalletFees, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeChangeAdmin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeDeleteEscrow, ProposalActionTypeReclaim, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp } from "./constants";
 import { errChangeAdminNotLast, errActionLimitMustBeGreaterThanZero,errAllowanceAlreadyExists, errAllowanceDoesNotExist, errAllowanceListEmpty, errEmptyActionList, errEscrowAlreadyExists, errEscrowDoesNotExist, errExecutionKeyNotFound, errInvalidAdmin, errInvalidCid, errInvalidDuration, errInvalidFirstValid, errInvalidLastValid, errInvalidMaxApproval, errInvalidMaxParticipation, errInvalidMaxPower, errInvalidMinApproval, errInvalidMinParticipation, errInvalidMinPower, errInvalidMinimumRewardsImpact, errInvalidProposalAction, errInvalidProposalActionLimit, errMinRewardsImpactMustBeGreaterThanZero, errMinRewardsImpactMustBeLessThanOrEqualTo1000s, errNotExecutablePlugin, errPluginAlreadyExists, errPluginDoesNotExist, errPluginExpired, errReclaimListEmpty, errUnknownField, errUpgradeNoGroups, errInvalidFieldValue } from "./errors";
 import { AkitaAppList, AkitaAssets, AkitaSocialAppList, GuildFees, InferenceFees, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalDeleteEscrow, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
@@ -244,18 +243,27 @@ export class AkitaDAOProposalValidator extends Contract {
               break
             }
             case AkitaDAOGlobalStateKeysRevenueSplits: {
-              // Walk every entry so a truncated or over-long table cannot be stored. The percentages and
-              // receivers are still checked by the RevenueManager at each allocation.
-              const splits = decodeArc4<Split[]>(value)
-              loggedAssert(splits.length > 0 && splits.length <= 10, errInvalidFieldValue)
-              let size: uint64 = 2 + splits.length * 2
-              for (let s: uint64 = 0; s < splits.length; s++) {
-                const { receiver, type } = clone(splits[s])
-                loggedAssert(type.asUint64() === 10 || type.asUint64() === 20 || type.asUint64() === 30, errInvalidFieldValue)
-                // Entry head (2-byte offset, uint8, uint64) = 11, receiver (uint64, 2-byte offset, 2-byte length) = 12, then the name.
-                size += 23 + Bytes(receiver.escrow).length
+              // Walk the raw ARC-4 bytes of `((uint64,string),uint8,uint64)[]` entry by entry, so a
+              // truncated or over-long table cannot be stored. Decoding is not a check: it compiles to
+              // nothing for a value nobody reads, and it reads the last entry's name up to the end of
+              // the value. The percentages and receivers are still checked by the RevenueManager at
+              // each allocation.
+              loggedAssert(value.length >= 2, errInvalidFieldValue)
+              const count = btoi(extract(value, 0, 2))
+              loggedAssert(count > 0 && count <= 10, errInvalidFieldValue)
+              let cursor: uint64 = 2 + count * 2
+              for (let s: uint64 = 0; s < count; s++) {
+                // entry head, 11 bytes: offset of the receiver, uint8 type, uint64 value.
+                // receiver head, 10 bytes: uint64 wallet, offset of the name. Then the name's 2-byte length.
+                loggedAssert(cursor + 23 <= value.length, errInvalidFieldValue)
+                loggedAssert(btoi(extract(value, 2 + s * 2, 2)) === cursor - 2, errInvalidFieldValue)
+                loggedAssert(btoi(extract(value, cursor, 2)) === 11, errInvalidFieldValue)
+                const type = btoi(extract(value, cursor + 2, 1))
+                loggedAssert(type === 10 || type === 20 || type === 30, errInvalidFieldValue)
+                loggedAssert(btoi(extract(value, cursor + 19, 2)) === 10, errInvalidFieldValue)
+                cursor += 23 + btoi(extract(value, cursor + 21, 2))
               }
-              loggedAssert(value.length === size, errInvalidFieldValue)
+              loggedAssert(cursor === value.length, errInvalidFieldValue)
               break
             }
             default: {
