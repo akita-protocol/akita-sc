@@ -23,12 +23,12 @@ import {
   EntryWithTickets,
   SetMinEntriesParams,
 } from "./types";
+import { ticketsInSlot, weightLocation } from "./weights";
+
+export * from "./weights";
 
 /** rounds between the commit round and the round its beacon value can be read */
 export const RAFFLE_BEACON_LAG_ROUNDS = 4n;
-
-/** The number of entries stored in each weights box */
-const CHUNK_SIZE = 4096n;
 
 /** Global key whose existence marks a raffle child with the principal ABI (spec §6.8). */
 export const RAFFLE_SELLER_REFERRER_KEY = 'seller_referrer';
@@ -201,17 +201,24 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
    * @returns The ticket count for the entry
    */
   async getTicketCount({ entryId }: GetEntryWithTicketsParams): Promise<bigint> {
-    const id = BigInt(entryId);
-    const boxIndex = id / CHUNK_SIZE;
-    const slotIndex = Number(id % CHUNK_SIZE);
+    const { box, slot } = weightLocation(entryId);
 
-    const weightsBox = await this.client.state.box.weights.value(boxIndex);
+    const weightsBox = await this.client.state.box.weights.value(box);
 
     if (weightsBox === undefined) {
-      throw new Error(`Weights box ${boxIndex} not found`);
+      throw new Error(`Weights box ${box} not found`);
     }
 
-    return weightsBox[slotIndex];
+    return this.ticketsOf(weightsBox, entryId, slot);
+  }
+
+  /** the ticket count of `entryId`, read from its weights box */
+  private ticketsOf(weightsBox: Uint8Array, entryId: bigint | number, slot: number): bigint {
+    const tickets = ticketsInSlot(weightsBox, slot);
+    if (tickets === undefined) {
+      throw new Error(`No ticket count stored for entry ${entryId}`);
+    }
+    return tickets;
   }
 
   /**
@@ -221,12 +228,11 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
    */
   async getEntryWithTickets({ entryId }: GetEntryWithTicketsParams): Promise<EntryWithTickets> {
     const id = BigInt(entryId);
-    const boxIndex = id / CHUNK_SIZE;
-    const slotIndex = Number(id % CHUNK_SIZE);
+    const { box, slot } = weightLocation(id);
 
     const [entry, weightsBox] = await Promise.all([
       this.client.state.box.entries.value(id),
-      this.client.state.box.weights.value(boxIndex),
+      this.client.state.box.weights.value(box),
     ]);
 
     if (entry === undefined) {
@@ -234,13 +240,13 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     }
 
     if (weightsBox === undefined) {
-      throw new Error(`Weights box ${boxIndex} not found`);
+      throw new Error(`Weights box ${box} not found`);
     }
 
     return {
       ...entry,
       entryId: id,
-      ticketCount: weightsBox[slotIndex],
+      ticketCount: this.ticketsOf(weightsBox, id, slot),
     };
   }
 
@@ -274,36 +280,29 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
    * Note: For large raffles, this may require multiple reads.
    */
   async getAllEntriesWithTickets(): Promise<EntryWithTickets[]> {
-    const [entriesMap, state] = await Promise.all([
-      this.client.state.box.entries.getMap(),
-      this.state(),
-    ]);
+    const entriesMap = await this.client.state.box.entries.getMap();
 
-    const entryCount = state.entryCount;
-    const boxCount = (entryCount + CHUNK_SIZE - 1n) / CHUNK_SIZE;
-
-    // Fetch all weights boxes in parallel
-    const weightsPromises: Promise<bigint[] | undefined>[] = [];
-    for (let i = 0n; i < boxCount; i++) {
-      weightsPromises.push(this.client.state.box.weights.value(i));
-    }
-    const weightsBoxes = await Promise.all(weightsPromises);
+    // Fetch, in parallel, the weights boxes of the entries that exist. A refunded entry has
+    // neither an entry box nor a slot, and a box whose entries are all refunded is gone.
+    const boxes = [...new Set([...entriesMap.keys()].map((entryId) => weightLocation(entryId).box))];
+    const weightsBoxes = new Map<bigint, Uint8Array | undefined>(
+      await Promise.all(boxes.map(async (box) => [box, await this.client.state.box.weights.value(box)] as const)),
+    );
 
     const result: EntryWithTickets[] = [];
 
     for (const [entryId, entry] of entriesMap) {
-      const boxIndex = Number(entryId / CHUNK_SIZE);
-      const slotIndex = Number(entryId % CHUNK_SIZE);
-      const weightsBox = weightsBoxes[boxIndex];
+      const { box, slot } = weightLocation(entryId);
+      const weightsBox = weightsBoxes.get(box);
 
       if (weightsBox === undefined) {
-        throw new Error(`Weights box ${boxIndex} not found`);
+        throw new Error(`Weights box ${box} not found`);
       }
 
       result.push({
         ...entry,
         entryId,
-        ticketCount: weightsBox[slotIndex],
+        ticketCount: this.ticketsOf(weightsBox, entryId, slot),
       });
     }
 
@@ -539,7 +538,9 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
 
   /**
    * Refunds MBR to raffle participants after the winner is found.
-   * May need to be called multiple times for large raffles.
+   * May need to be called multiple times for large raffles. A raffle created from 2.0.0 on
+   * refunds from the last entry down (each refund frees the entry's slot in its weights box), so
+   * `refundMbrCursor` counts the entries refunded so far in both layouts.
    */
   async refundMBR({ sender, signer, iterationAmount }: RefundMBRParams): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
@@ -551,8 +552,9 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
   }
 
   /**
-   * Clears the weights boxes after the prize has been claimed.
-   * Returns the MBR for the weights boxes to the factory.
+   * Clears the weights storage once the prize is claimed and every entry is refunded, and returns
+   * its MBR to whoever funded the raffle. From 2.0.0 on the refunds free the weights boxes
+   * themselves and this call frees the totals box that is left.
    */
   async clearWeightsBoxes(params?: MaybeSigner): Promise<bigint> {
     const sendParams = this.getSendParams(params);

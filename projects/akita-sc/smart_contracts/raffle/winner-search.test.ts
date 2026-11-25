@@ -74,6 +74,42 @@ const legacyRaffleSearch = (weights: number[], ticket: number, chunk: number, bo
   return -1
 }
 
+/**
+ * 2.0.0 search: a raffle has as many weights boxes as its entries need (thousands, for a large one),
+ * so one call skips at most `maxSkips` whole boxes. A call that reaches the limit only saves its
+ * place, and the next call goes on from there.
+ */
+const boundedSearch = (weights: number[], ticket: number, chunk: number, maxSkips: number, iterations: number[]): number => {
+  const boxes = Math.ceil(weights.length / chunk)
+  const totals = boxTotals(weights, chunk, boxes)
+  let cursor: Cursor = { index: 0, rangeStart: 1 }
+  for (const requested of iterations) {
+    let startingIndex = cursor.index
+    let rangeStart = cursor.rangeStart
+    let skipped = 0
+    while (skipped < maxSkips && startingIndex % chunk === 0 && Math.floor(startingIndex / chunk) < boxes) {
+      const stake = totals[Math.floor(startingIndex / chunk)]
+      if (ticket < rangeStart + stake) break
+      startingIndex += chunk
+      rangeStart += stake
+      skipped += 1
+    }
+    if (skipped === maxSkips) {
+      cursor = { index: startingIndex, rangeStart }
+      continue
+    }
+    if (startingIndex >= weights.length) throw new Error('search exhausted')
+    const n = Math.min(requested, weights.length - startingIndex, chunk - (startingIndex % chunk))
+    for (let i = 0; i < n; i++) {
+      const end = rangeStart + weights[startingIndex + i]
+      if (ticket >= rangeStart && ticket < end) return startingIndex + i
+      rangeStart = end
+    }
+    cursor = { index: startingIndex + n, rangeStart }
+  }
+  return -1
+}
+
 const rng = (seed: number) => () => {
   seed = (seed * 1103515245 + 12345) % 2 ** 31
   return seed / 2 ** 31
@@ -101,6 +137,36 @@ describe('AR-08 chunked winner search model', () => {
         const iterations = Array.from({ length: count + 2 }, () => 1 + Math.floor(random() * (chunk + 1)))
         expect(fixedSearch(weights, ticket, chunk, boxes, iterations)).toBe(linearWinner(weights, ticket))
       }
+    }
+  })
+
+  test('a search that skips a bounded number of boxes per call matches a linear scan, however many boxes there are', () => {
+    const random = rng(7)
+    for (let trial = 0; trial < 200; trial++) {
+      const chunk = 2 + Math.floor(random() * 4)
+      const count = 1 + Math.floor(random() * chunk * 40)
+      const maxSkips = 1 + Math.floor(random() * 5)
+      const weights = Array.from({ length: count }, () => Math.floor(random() * 20)) // zero weights allowed
+      const total = weights.reduce((a, w) => a + w, 0)
+      if (total === 0) continue
+      const boxes = Math.ceil(count / chunk)
+      // every call either skips `maxSkips` boxes or walks at least one entry, so this many calls always suffice
+      const calls = count + Math.ceil(boxes / maxSkips) + 2
+      for (let ticket = 1; ticket <= total; ticket += 1 + Math.floor(random() * 3)) {
+        const iterations = Array.from({ length: calls }, () => 1 + Math.floor(random() * (chunk + 1)))
+        expect(boundedSearch(weights, ticket, chunk, maxSkips, iterations)).toBe(linearWinner(weights, ticket))
+      }
+    }
+  })
+
+  test('the last ticket is found when the last weights box is full and the skip limit lands on it', () => {
+    const chunk = 4
+    const weights = Array.from({ length: chunk * 6 }, () => 3)
+    const total = weights.reduce((a, w) => a + w, 0)
+    for (const maxSkips of [1, 2, 3, 5, 6, 7]) {
+      const iterations = Array.from({ length: 40 }, () => chunk)
+      expect(boundedSearch(weights, total, chunk, maxSkips, iterations)).toBe(weights.length - 1)
+      expect(boundedSearch(weights, 1, chunk, maxSkips, iterations)).toBe(0)
     }
   })
 })

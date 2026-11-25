@@ -25,7 +25,7 @@ const signatures = (spec: { methods: Spec['methods'] }) => spec.methods.map((m) 
 const selector = (signature: string) => Buffer.from(ABIMethod.fromSignature(signature).getSelector()).toString('hex')
 const approval = (spec: Spec) => Buffer.from(spec.byteCode.approval, 'base64')
 const calls = (spec: Spec, signature: string) => approval(spec).toString('hex').includes(selector(signature))
-const keyNames = (spec: Spec) => Object.values(spec.state.keys.global).map((k) => Buffer.from(k.key, 'base64').toString())
+const keyNames = (spec: { state: { keys: { global: Record<string, { key: string }> } } }) => Object.values(spec.state.keys.global).map((k) => Buffer.from(k.key, 'base64').toString())
 
 const auction = load('auction/Auction.arc56.json')
 const auctionFactory = load('auction/AuctionFactory.arc56.json')
@@ -86,8 +86,12 @@ describe('§6.6 / §6.8: seller_referrer marker', () => {
     expect(keyNames(auction)).toContain('seller_referrer')
     expect(keyNames(raffle)).toContain('seller_referrer')
     expect(auction.state.schema.global.bytes).toBe(DEPLOYED_AUCTION.child.spec.state.schema.global.bytes + 1)
-    // the deployed raffle child predates min_entries / failed / raffle_round too (ride-along uints)
-    expect(raffle.state.schema.global.bytes).toBe(DEPLOYED_RAFFLE.child.spec.state.schema.global.bytes + 1)
+    // the deployed raffle child predates min_entries / failed / raffle_round too (ride-along uints).
+    // 2.0.0 moved its weight totals out of the `w_totals` global into a box (no fixed number of
+    // weights boxes), so the raffle child gains seller_referrer and loses w_totals.
+    expect(keyNames(DEPLOYED_RAFFLE.child.spec)).toContain('w_totals')
+    expect(keyNames(raffle)).not.toContain('w_totals')
+    expect(raffle.state.schema.global.bytes).toBe(DEPLOYED_RAFFLE.child.spec.state.schema.global.bytes)
   })
 
   test('child create takes the forwarded sellerReferrer as its last argument', () => {
@@ -153,14 +157,17 @@ describe('K6 (Kyle, 2026-10-04): the RaffleFactory has no legacy creation shims'
     }
   })
 
-  test('why no shim: the HEAD SDK direct quote hard-codes 21 uints / 9 byte slices, 107,000 µA below the new child', () => {
-    // HEAD (e7f174ee) RaffleFactorySDK.cost(): 400,000 + 28,500 * 21 + 50,000 * 9 = 1,448,500 (+ child funding + fee).
-    // The deployed RafflePlugins never matched the deployed factory's payment at all (audit AR-14), so their
-    // creation path is already dead on MainNet; the shortfall is what breaks HEAD-SDK direct creation.
+  test('why no shim: the HEAD SDK direct quote hard-codes 21 uints / 9 byte slices and whole weights boxes, never the new child\'s price', () => {
+    // HEAD (e7f174ee) RaffleFactorySDK.cost(): 400,000 + 28,500 * 21 + 50,000 * 9 = 1,448,500 (+ child funding + fee),
+    // plus 13,113,300 for each weights box it reserved. The deployed RafflePlugins never matched the deployed
+    // factory's payment at all (audit AR-14), so their creation path is already dead on MainNet; the mismatch is
+    // what breaks HEAD-SDK direct creation. The new child declares two more uints (57,000 µA) and the same number
+    // of byte slices (seller_referrer in, w_totals out), and the factory asks 2,900 µA for its totals box where
+    // the old quote paid for at least four weights boxes: the factory wants the exact amount, so neither fits.
     const deployed = DEPLOYED_RAFFLE.child.spec.state.schema.global
     expect([deployed.ints, deployed.bytes]).toEqual([21, 9])
     const now = raffle.state.schema.global
-    expect((now.ints - deployed.ints) * 28_500 + (now.bytes - deployed.bytes) * 50_000).toBe(107_000)
+    expect((now.ints - deployed.ints) * 28_500 + (now.bytes - deployed.bytes) * 50_000).toBe(57_000)
     // the deployed factory has no cost method an old caller could have used to re-quote
     expect(DEPLOYED_RAFFLE.factory.spec.methods.map((m) => m.name)).not.toContain('newRaffleCost')
   })
@@ -175,9 +182,12 @@ describe('K6 (Kyle, 2026-10-04): the RaffleFactory has no legacy creation shims'
     // 54,500 disbursement MBR), from a whole-tree compile
     // re-pinned 2026-11-25 for the 2.0.0 audit batch (the revenue escrow opt-in charges for the escrow only,
     // audit DAO-07), from a whole-tree compile
+    // re-pinned 2026-11-25 for the entrant cap removal (a raffle reserves no weights boxes: creation funds only the
+    // child's totals box, and the child declares one global byte slice less), from a whole-tree compile. The size and
+    // hash of every program of a release are in release/manifest.json.
     const bytes = approval(raffleFactory)
-    expect(bytes.length).toBe(3_760)
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe('7c71db29edc3091e001f483041429ca4e8238b9a5d39b5033576db0052c34346')
+    expect(bytes.length).toBe(3_751)
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe('56c5f5a9cfe20ce792f28fa7b16f117335df02a7321e5ed6e743544f4020a4be')
   })
 })
 

@@ -476,7 +476,7 @@
       "name": "RafflePlugin",
       "approval": {
         "bytes": 4300,
-        "sha256": "ea97db6f2e5834239276c8a836509d72c34e3d8ae6d2ad884d03269c6fe78043"
+        "sha256": "9dae55b57cf006144efc61612d7c3a2b0be46caca4a2340a0cd1c6d08c774806"
       },
       "clear": {
         "bytes": 4,
@@ -1822,8 +1822,8 @@
     "raffle/Raffle": {
       "name": "Raffle",
       "approval": {
-        "bytes": 8122,
-        "sha256": "4ad23334e5e2322a49d957f03b1f1d1e868cbef25bf03bdeabd992de9220946d"
+        "bytes": 8149,
+        "sha256": "9f7d6d923c8094e7a9312915a9cd364fdf0ea9c8d5c53fc01822dde01d9246ac"
       },
       "clear": {
         "bytes": 4,
@@ -1834,8 +1834,8 @@
     "raffle/RaffleFactory": {
       "name": "RaffleFactory",
       "approval": {
-        "bytes": 3760,
-        "sha256": "7c71db29edc3091e001f483041429ca4e8238b9a5d39b5033576db0052c34346"
+        "bytes": 3751,
+        "sha256": "56c5f5a9cfe20ce792f28fa7b16f117335df02a7321e5ed6e743544f4020a4be"
       },
       "clear": {
         "bytes": 4,

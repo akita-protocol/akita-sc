@@ -150,7 +150,7 @@ describe('Raffle SDK', () => {
           isPrizeBox: false,
           prizeId: testAssetId,
           ticketAsset: 0n,
-          weightsListCount: 4n, // Minimum required by contract
+          weightsListCount: 4n, // ignored: weights storage grows with the entries
         })
         expect(cost).toBeGreaterThan(0n)
       })
@@ -181,7 +181,7 @@ describe('Raffle SDK', () => {
           marketplace: creator.addr.toString(),
           name: 'Test Raffle',
           proof: [],
-          weightsListCount: 4n, // Minimum required by contract
+          weightsListCount: 4n, // ignored: weights storage grows with the entries
         })
 
         expect(newRaffleSDK).toBeInstanceOf(RaffleSDK)
@@ -211,7 +211,7 @@ describe('Raffle SDK', () => {
           marketplace: creator.addr.toString(),
           name: 'Test Raffle for get()',
           proof: [],
-          weightsListCount: 4n, // Minimum required by contract
+          weightsListCount: 4n, // ignored: weights storage grows with the entries
         })
 
         const existingRaffle = akitaUniverse.raffleFactory.get({ appId: testRaffleSDK.client.appId })
@@ -240,7 +240,7 @@ describe('Raffle SDK', () => {
           marketplace: creator.addr.toString(),
           name: 'Test Raffle',
           proof: [],
-          weightsListCount: 4n, // Minimum required by contract
+          weightsListCount: 4n, // ignored: weights storage grows with the entries
         })
       }
     })
@@ -470,8 +470,8 @@ describe('Raffle SDK', () => {
 
     const createRaffle = async (
       owner: TransactionSignerAccount,
-      { minTickets = 1_000_000n, maxTickets = 100_000_000n, minEntries = 0n, ticketAsset = 0n, startIn = 60n, duration = 3_600n, prizeAsset = testAssetId }: {
-        minTickets?: bigint, maxTickets?: bigint, minEntries?: bigint, ticketAsset?: bigint, startIn?: bigint, duration?: bigint, prizeAsset?: bigint
+      { minTickets = 1_000_000n, maxTickets = 100_000_000n, minEntries = 0n, ticketAsset = 0n, startIn = 60n, duration = 3_600n, prizeAsset = testAssetId, weightsListCount = 4n }: {
+        minTickets?: bigint, maxTickets?: bigint, minEntries?: bigint, ticketAsset?: bigint, startIn?: bigint, duration?: bigint, prizeAsset?: bigint, weightsListCount?: bigint
       } = {},
     ) => {
       const now = await getBlockTimestamp(algorand)
@@ -490,7 +490,7 @@ describe('Raffle SDK', () => {
         marketplace: owner.addr.toString(),
         name: 'Regression Raffle',
         proof: [],
-        weightsListCount: 4n,
+        weightsListCount,
       })
     }
 
@@ -653,6 +653,90 @@ describe('Raffle SDK', () => {
       expect((await raffle.state()).refundMbrCursor).toBe(8n)
       expect(await getAccountBalance(algorand, sponsor.addr.toString()) - sponsorHeld).toBe(8n * (entryMbr + PAYER_RECORD_MBR))
       await cleanupAndDelete(raffle)
+    })
+
+    test('no entrant cap: a raffle reserves no weights boxes, each entry funds its own slot, and refunds from the last entry down free them', async () => {
+      const ENTRY_BOX = 31_700n
+      const BY_ADDRESS = 18_900n
+      const SLOT = 3_200n // 8 bytes
+      const NEW_WEIGHTS_BOX = 6_100n // 2,500 + 400 * ('w' + uint64)
+      const TOTALS_BOX = 2_900n // 2,500 + 400 * 't'
+      const owner = await newSeller()
+      const entrants = [await newEntrant(), await newEntrant(), await newEntrant()]
+      const tickets = [2_000_000n, 3_000_000n, 4_000_000n]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      // the creation price no longer buys a number of weights boxes, and no number is refused
+      const quotes = await Promise.all([0n, 4n, 15n, 1_000n].map((weightsListCount) =>
+        akitaUniverse.raffleFactory.cost({ prizeId: testAssetId, ticketAsset: 0n, weightsListCount })))
+      expect(new Set(quotes).size).toBe(1)
+
+      const raffle = await createRaffle(owner, { weightsListCount: 0n })
+      const appId = raffle.client.appId
+      const boxNames = async () => (await algorand.app.getBoxNames(appId)).map((box) => Buffer.from(box.nameRaw).toString('latin1')).sort()
+      const weightsBox = (index: bigint) => new Uint8Array([0x77, ...algosdk.encodeUint64(index)])
+      const totalsBox = new Uint8Array([0x74])
+      const minBalance = async () => BigInt((await algorand.account.getInformation(raffle.client.appAddress)).minBalance.microAlgos)
+
+      // at creation the raffle holds only the empty totals box, funded by the seller
+      expect(await boxNames()).toEqual(['t'])
+      const costs = await raffle.mbr()
+      expect(costs).toEqual({ entries: ENTRY_BOX + SLOT + NEW_WEIGHTS_BOX + SLOT, weights: TOTALS_BOX, entriesByAddress: BY_ADDRESS })
+      const entryMbr = costs.entries + costs.entriesByAddress
+
+      await timeWarp.timeWarp(70n)
+      const minBefore = await minBalance()
+      for (const [i, entrant] of entrants.entries()) await enter(raffle, entrant, tickets[i])
+
+      // three entries: their entry boxes, three slots, and one weights box with its total
+      expect(await minBalance() - minBefore).toBe(3n * (ENTRY_BOX + BY_ADDRESS + SLOT) + NEW_WEIGHTS_BOX + SLOT)
+      expect((await algorand.app.getBoxValue(appId, weightsBox(0n))).length).toBe(3 * 8)
+      expect(algosdk.decodeUint64(await algorand.app.getBoxValue(appId, totalsBox), 'bigint')).toBe(9_000_000n)
+      const listed = (await raffle.getAllEntriesWithTickets()).sort((a, b) => Number(a.entryId - b.entryId))
+      expect(listed.map((entry) => entry.ticketCount)).toEqual(tickets)
+      expect(listed.map((entry) => entry.account)).toEqual(entrants.map((entrant) => entrant.addr.toString()))
+
+      // more tickets go into the entry's own slot and its box's total
+      await raffle.add({ sender: entrants[0].addr, signer: entrants[0].signer, amount: 1_000_000n })
+      expect(await raffle.getTicketCount({ entryId: 0n })).toBe(3_000_000n)
+      expect(await raffle.getTicketCount({ entryId: 2n })).toBe(4_000_000n)
+      expect(algosdk.decodeUint64(await algorand.app.getBoxValue(appId, totalsBox), 'bigint')).toBe(10_000_000n)
+      expect((await raffle.state()).ticketCount).toBe(10_000_000n)
+      expect((await algorand.app.getBoxValue(appId, weightsBox(0n))).length).toBe(3 * 8)
+
+      await timeWarp.timeWarp(3_700n)
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await timeWarp.roundWarp(await raffle.drawReadyRound())
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      expect(entrants.map((entrant) => entrant.addr.toString())).toContain(await findWinner(raffle))
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      // the first refund goes to the last entry and takes its slot off the end of the weights box
+      const held = await Promise.all(entrants.map((entrant) => getAccountBalance(algorand, entrant.addr.toString())))
+      const gained = async (i: number) => await getAccountBalance(algorand, entrants[i].addr.toString()) - held[i]
+      await raffle.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 1n })
+      expect((await raffle.state()).refundMbrCursor).toBe(1n)
+      expect([await gained(0), await gained(1), await gained(2)]).toEqual([0n, 0n, entryMbr])
+      expect((await algorand.app.getBoxValue(appId, weightsBox(0n))).length).toBe(2 * 8)
+      const left = (await raffle.getAllEntriesWithTickets()).sort((a, b) => Number(a.entryId - b.entryId))
+      expect(left.map((entry) => [entry.entryId, entry.ticketCount])).toEqual([[0n, 3_000_000n], [1n, 3_000_000n]])
+      await expect(raffle.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer })).rejects.toThrow()
+
+      // the rest: every deposit is back, the weights box is gone and only the totals box is left
+      await raffle.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 5n })
+      expect((await raffle.state()).refundMbrCursor).toBe(3n)
+      expect([await gained(0), await gained(1), await gained(2)]).toEqual([entryMbr, entryMbr, entryMbr])
+      expect(await boxNames()).toEqual(['t'])
+
+      // the totals box returns to the seller who funded it; a second call has nothing left to release
+      const ownerHeld = await getAccountBalance(algorand, owner.addr.toString())
+      expect(await raffle.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer })).toBe(TOTALS_BOX)
+      expect(await getAccountBalance(algorand, owner.addr.toString()) - ownerHeld).toBe(TOTALS_BOX)
+      expect(await boxNames()).toEqual([])
+      expect(await raffle.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer })).toBe(0n)
+
+      await cleanupAndDelete(raffle)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
     })
 
     test('AR-07: a raffle with no entries returns the prize to the seller and can be deleted', async () => {

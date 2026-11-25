@@ -433,8 +433,9 @@ export declare abstract class RaffleFactoryParamsFactory {
     the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
   
     The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-    (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-    107,000 µA short of the new child, so legacy shims could never succeed for them.
+    (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+    global uints, and whole weights boxes paid up front), so their payment never equals the quote
+    and legacy shims could never succeed for them.
   
      *
      * @param params Parameters for the call
@@ -1108,8 +1109,9 @@ export declare class RaffleFactoryClient {
         the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
     
         The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-        107,000 µA short of the new child, so legacy shims could never succeed for them.
+        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+        global uints, and whole weights boxes paid up front), so their payment never equals the quote
+        and legacy shims could never succeed for them.
     
          *
          * @param params The params for the smart contract call
@@ -1288,8 +1290,9 @@ export declare class RaffleFactoryClient {
         the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
     
         The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-        107,000 µA short of the new child, so legacy shims could never succeed for them.
+        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+        global uints, and whole weights boxes paid up front), so their payment never equals the quote
+        and legacy shims could never succeed for them.
     
          *
          * @param params The params for the smart contract call
@@ -1527,8 +1530,9 @@ export declare class RaffleFactoryClient {
         the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
     
         The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-        107,000 µA short of the new child, so legacy shims could never succeed for them.
+        (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+        global uints, and whole weights boxes paid up front), so their payment never equals the quote
+        and legacy shims could never succeed for them.
     
          *
          * @param params The params for the smart contract call
@@ -1879,8 +1883,9 @@ export type RaffleFactoryComposer<TReturns extends [...any[]] = []> = {
     the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
   
     The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-    (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-    107,000 µA short of the new child, so legacy shims could never succeed for them.
+    (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+    global uints, and whole weights boxes paid up front), so their payment never equals the quote
+    and legacy shims could never succeed for them.
   
      *
      * @param args The arguments for the contract call

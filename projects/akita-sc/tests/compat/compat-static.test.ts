@@ -221,8 +221,8 @@ describe('CMP-S5 P2-CMP-01 (static): every call an old plugin makes still lands 
    * Accepted breaks, asserted (not skipped): K6 (Kyle, 2026-10-04) deleted the RaffleFactory legacy creation
    * shims, so the May RafflePlugin's raffle creation has no route on the upgraded factory. It could not have
    * succeeded anyway: its local cost formula never matched even the deployed factory (audit AR-14), so creation
-   * through deployed raffle plugins already fails today and nothing changes for them. The 107,000 µA shortfall is
-   * the HEAD SDK's direct quote, which is what stops at the RaffleFactory upgrade (new SDK in lockstep). Wallet
+   * through deployed raffle plugins already fails today and nothing changes for them. The HEAD SDK's direct quote
+   * (the old child's schema and whole weights boxes) is what stops at the RaffleFactory upgrade (new SDK in lockstep). Wallet
    * users get raffle creation back with the Phase 3 v3 RafflePlugin.
    */
   const ACCEPTED_GAPS: Record<string, string[]> = {
@@ -385,10 +385,19 @@ describe('CMP-S8 exact payment terms: what the shims accept is what the deployed
     expect(artifactRoutes('staking-pool/StakingPool.arc56.json').has(legacyEnterCost)).toBe(true)
   })
 
-  test('raffle: the deployed plugin pays entries 31,700 + entriesByAddress 18,900 = 50,600, unchanged in the new child', () => {
-    const sum = sourceConst('raffle/constants.ts', 'EntriesMBR') + sourceConst('raffle/constants.ts', 'EntriesByAddressMBR')
-    expect(sum).toBe(50_600n)
-    expect(hasInt('RafflePlugin.may', sum)).toBe(true)
+  test('raffle: the deployed plugin hard-codes entry box 31,700 + entriesByAddress 18,900 = 50,600; the new child adds 12,500 of weights storage per entry', () => {
+    const byAddress = sourceConst('raffle/constants.ts', 'EntriesByAddressMBR')
+    const deployed = sourceConst('raffle/constants.ts', 'EntryBoxMBR') + byAddress
+    expect(deployed).toBe(50_600n)
+    expect(hasInt('RafflePlugin.may', deployed)).toBe(true)
+    // 2.0.0: a raffle reserves no weights boxes, so each entry also funds its own slot (refunded with
+    // the rest). The deployed plugin never reaches the payment on any child (its `enter` panics on the
+    // uint64 `ticket_asset`, e2e B5), so the new price breaks nothing that worked. The new plugin
+    // reads the price from the child's `mbr()`.
+    const entry = sourceConst('raffle/constants.ts', 'EntriesMBR') + byAddress
+    expect(entry).toBe(deployed + sourceConst('raffle/constants.ts', 'EntryWeightMBR'))
+    expect(entry).toBe(63_100n)
+    expect(hasInt('RafflePlugin.may', entry)).toBe(false)
   })
 
   test('auction: the deployed plugin under-quotes the new child bid MBR by exactly 800 µA (documented: auction track finding 5)', () => {
