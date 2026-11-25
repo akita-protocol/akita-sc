@@ -214,9 +214,10 @@ describe('StakingPool principal resolution (§6.5)', () => {
       const pool = await livePool(0n)
       expect(await pool.client.state.global.principalVersion()).toBe(1n)
       expect(await pool.isHintedPool()).toBe(true)
-      // algokit-utils reports the schema as a JS number
+      // algokit-utils reports the schema as a JS number. 14 since `live_entries`, the count
+      // `maxEntries` caps (audit 06, STK-04); the artifact's schema is pinned in compat.test.ts
       const schema = (await algorand.app.getById(pool.appId)).globalInts
-      expect(Number(schema)).toBe(13)
+      expect(Number(schema)).toBe(14)
     })
   })
 
