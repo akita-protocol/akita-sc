@@ -1,0 +1,198 @@
+
+=== A4a. Give TestNet's DAO wallet MainNet's escrows and grants (TestNet only, before B1)
+  A4a#1  npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"
+  A4a#2  npm run rollout:testnet-parity -- -n testnet --confirm
+  A4a#3  npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"
+
+=== B1. Phase 2a: install the new UpdateAkitaDAOPlugin
+  B1#1  npx ts-node --transpile-only scripts/principal-phase2a-update-plugin.ts -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  B1#2  npx ts-node --transpile-only scripts/principal-phase2a-update-plugin.ts -n testnet -v "$V" --manifest receipts/phase2a.json --fund-sponsor --register --confirm
+  B1#3  (cd ../akita-sdk && npm run build)
+
+=== B2. Deploy the validator and upgrade the DAO
+  B2#1  npm run update:dao -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  B2#2  npm run update:dao -- -n testnet -v "$V"
+  B2#3  npm run deploy:dao-plugin -- -n testnet -v "$V" --manifest receipts/dao-plugin.json --register
+  B2#4  (cd ../akita-sdk && npm run build)
+
+=== B3. Set guild_fees
+  B3#1  npm run update:guild-creation-cost -- -n testnet --cost 200000000 --dry-run --sender "$CREATOR"
+  B3#2  npm run update:guild-creation-cost -- -n testnet --cost 200000000
+
+=== B3a. Set the staking pool, auction and raffle creation fees
+  B3a#1  npm run update:creation-fees -- -n testnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --dry-run --sender "$CREATOR"
+  B3a#2  npm run update:creation-fees -- -n testnet --staking-pool 100000000 --auction 50000000 --raffle 50000000 --confirm
+
+=== B3b. Set the revenue split to 80/5/15
+  B3b#1  npm run update:revenue-splits -- -n testnet --split rec_krby=80,rec_mod=5,rec_gov=15 --dry-run --sender "$CREATOR"
+  B3b#2  npm run update:revenue-splits -- -n testnet --split rec_krby=80,rec_mod=5,rec_gov=15 --confirm
+
+=== C1. Deploy Gate v2 and every sub-gate
+  C1#1  npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --dry-run --sender "$CREATOR"
+  C1#2  npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates
+
+=== C2. Allowlist every sub-gate
+  C2#1  npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"
+  C2#2  npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n testnet --manifest-dir receipts/gates
+
+=== C3. Seal Gate imports
+  C3#1  npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"
+  C3#2  npm run seal:gate-imports -- -n testnet --manifest-dir receipts/gates
+
+=== C4. Point aal.gate at Gate v2
+  C4#1  npm run deploy:gates -- -n testnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates --register
+  C4#2  (cd ../akita-sdk && npm run build)
+
+=== D1. Upgrade Staking in place
+  D1#1  npm run update:staking -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  D1#2  npm run update:staking -- -n testnet -v "$V"
+
+=== D2. Deploy Rewards v2 and repoint aal.rewards
+  D2#1  npm run deploy:rewards -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  D2#2  npm run deploy:rewards -- -n testnet -v "$V" --manifest receipts/rewards.json
+  D2#3  npm run rewards:opt-in -- -n testnet --manifest receipts/rewards.json --dry-run
+  D2#4  npm run rewards:opt-in -- -n testnet --manifest receipts/rewards.json
+  D2#5  npm run deploy:rewards -- -n testnet -v "$V" --manifest receipts/rewards.json --register
+  D2#6  (cd ../akita-sdk && npm run build)
+
+=== E1. Social family
+  E1#1  npm run check:social-legacy-prefixes -- -n testnet
+  E1#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --dry-run --sender "$CREATOR"
+  E1#3  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AkitaSocial,AkitaSocialGraph --confirm
+  E1#4  npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration --dry-run --sender "$CREATOR"
+  E1#5  npm run update:social -- -n testnet -v "$V" --contracts socialImpact,socialModeration
+
+=== E2a. Top the Subscriptions app up to the service storage reserve (runs before E2)
+  E2a#1  npm run fund:subscription-reserve -- -n testnet --dry-run
+  E2a#2  npm run fund:subscription-reserve -- -n testnet --confirm
+
+=== E2. Subscriptions
+  E2#1  npm run fund:subscription-reserve -- -n testnet --dry-run
+  E2#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --dry-run --sender "$CREATOR"
+  E2#3  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Subscriptions --confirm
+
+=== E3. Marketplace + Listing
+  E3#1  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Marketplace --dry-run --sender "$CREATOR"
+  E3#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target Marketplace --confirm
+
+=== E4. Auction and Raffle factories
+  E4#1  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AuctionFactory,RaffleFactory --dry-run --sender "$CREATOR"
+  E4#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AuctionFactory,RaffleFactory --confirm
+
+=== E5. StakingPoolFactory + StakingPool
+  E5#1  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target StakingPoolFactory --dry-run --sender "$CREATOR"
+  E5#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target StakingPoolFactory --confirm
+
+=== E6. Poll, PrizeBox, HyperSwap
+  E6#1  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target PollFactory --dry-run --sender "$CREATOR"
+  E6#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target PollFactory --manifest-dir receipts/phase2 --register --confirm
+  E6#3  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target HyperSwap --dry-run --sender "$CREATOR"
+  E6#4  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target HyperSwap --manifest-dir receipts/phase2 --register --confirm
+  E6#5  (cd ../akita-sdk && npm run build)
+  E6#6  npm run update:prize-box -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  E6#7  npm run update:prize-box -- -n testnet -v "$V"
+
+=== E6a. Give the empty service accounts their minimum balance
+  E6a#1  npm run fund:service-accounts -- -n testnet --dry-run --sender "$CREATOR"
+  E6a#2  npm run fund:service-accounts -- -n testnet --confirm
+
+=== E7. Wallet factory + wallet child (atomic) (one-way)
+  E7#1  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AbstractedAccountFactory --dry-run --sender "$CREATOR"
+  E7#2  npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n testnet -v "$V" --target AbstractedAccountFactory --confirm
+
+=== F0. New storage quote helper for wallets
+  F0#1  npm run deploy:wallet-mbr -- -n testnet --dry-run --sender "$CREATOR"
+  F0#2  npm run deploy:wallet-mbr -- -n testnet --register
+  F0#3  (cd ../akita-sdk && npm run build)
+
+=== F1. Upgrade the DAO wallet (one-way)
+  F1#1  npm run update:dao-wallet -- -n testnet --dry-run --sender "$CREATOR"
+  F1#2  npm run update:dao-wallet -- -n testnet
+
+=== F2. Sweep the 72 user wallets
+  F2#1  npm run update:automatic-wallets -- -n testnet --dry-run
+  F2#2  npm run update:automatic-wallets -- -n testnet --skip-current
+
+=== G1. Phase 3 plugins
+  G1#1  npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n testnet -v "$V" --swap --add-new-methods --dry-run --sender "$CREATOR"
+  G1#2  npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n testnet -v "$V" --manifest-dir receipts/phase3 --swap --add-new-methods --register --confirm
+  G1#3  (cd ../akita-sdk && npm run build)
+
+=== G2. Every other live plugin
+  G2#1  npm run deploy:gate-plugin -- -n testnet -v "$V" --manifest receipts/gate-plugin.json --register
+  G2#2  npm run deploy:staking-plugin -- -n testnet -v "$V"
+  G2#3  npm run deploy:rewards-plugin -- -n testnet -v "$V"
+  G2#4  npm run deploy:optin-plugin -- -n testnet
+  G2#5  npm run deploy:self-optin-plugin -- -n testnet
+  G2#6  npm run deploy:asa-manager-plugin -- -n testnet
+  G2#7  npm run deploy:nfd-plugin -- -n testnet
+  G2#8  (cd ../akita-sdk && npm run build)
+  G2#9  npm run update:dao-wallet-plugins -- -n testnet --add-method rewardsPlugin:reclaimRewards,claimLegacyRewards,reclaimLegacyRewards --dry-run --sender "$CREATOR"
+  G2#10  npm run update:dao-wallet-plugins -- -n testnet --add-method rewardsPlugin:reclaimRewards,claimLegacyRewards,reclaimLegacyRewards --confirm-update
+
+=== G2a. Set the heartbeat manager
+  G2a#1  npm run staking:set-heartbeat-manager -- -n testnet --manager "$HEARTBEAT_MANAGER" --dry-run
+  G2a#2  npm run staking:set-heartbeat-manager -- -n testnet --manager "$HEARTBEAT_MANAGER"
+
+=== G3. RevenueManagerPlugin
+  G3#1  npm run deploy:revenue-manager-plugin -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  G3#2  npm run deploy:revenue-manager-plugin -- -n testnet -v "$V"
+  G3#3  (cd ../akita-sdk && npm run build)
+
+=== G3a. Register rev_nfd with the RevenueManager
+  G3a#1  npm run register:revenue-escrow -- -n testnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --dry-run
+  G3a#2  npm run register:revenue-escrow -- -n testnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --confirm
+
+=== G3b. Opt the split receivers in to the assets the revenue escrows pay out
+  G3b#1  npm run opt-in:revenue-receivers -- -n testnet --asset 10458941,752884771 --dry-run --sender "$CREATOR"
+  G3b#2  npm run opt-in:revenue-receivers -- -n testnet --asset 10458941,752884771 --confirm
+
+=== H1. Meta, MetaPlugin, PayPlugin and the rev_meta escrow
+  H1#1  npm run deploy:meta -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  H1#2  npm run deploy:meta -- -n testnet -v "$V" --manifest receipts/meta.json --register
+  H1#3  (cd ../akita-sdk && npm run build)
+  [read] export META=$(npm run -s rollout:id -- -n testnet --app meta)
+  [read] export META_ADDRESS=$(npm run -s rollout:id -- -n testnet --app meta --address)
+  H1#6  npm run deploy:meta-plugin -- -n testnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/meta-plugin.json --register
+  H1#7  (cd ../akita-sdk && npm run build)
+  H1#8  npm run set:policy-writer -- -n testnet --dry-run --sender "$CREATOR"
+  H1#9  npm run set:policy-writer -- -n testnet --confirm
+  H1#10  npm run install:policy-writer-grant -- -n testnet --dry-run
+  H1#11  npm run install:policy-writer-grant -- -n testnet --confirm
+  H1#12  npm run deploy:pay-plugin -- -n testnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/pay-plugin.json --register
+  H1#13  (cd ../akita-sdk && npm run build)
+  H1#14  npm run update:dao-wallet-plugins -- -n testnet --dry-run --sender "$CREATOR"
+  H1#15  npm run update:dao-wallet-plugins -- -n testnet --confirm-update
+  H1#16  npm run create:dao-escrow -- -n testnet --escrow rev_meta --execute
+  H1#17  npm run update:app-dao-escrow -- -n testnet --app meta --escrow rev_meta --dry-run
+  H1#18  npm run update:app-dao-escrow -- -n testnet --app meta --escrow rev_meta --confirm
+  H1#19  npm run register:revenue-escrow -- -n testnet --escrow rev_meta --source "$META_ADDRESS" --dry-run
+  H1#20  npm run register:revenue-escrow -- -n testnet --escrow rev_meta --source "$META_ADDRESS" --confirm
+  H1#21  (cd ../akita-sdk && npm run build)
+
+=== H1a. Collectible Variations registry
+  H1a#1  npm run deploy:collectible-variations -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  H1a#2  npm run deploy:collectible-variations -- -n testnet -v "$V" --manifest receipts/collectible-variations.json --reserve-type-zero --register
+  H1a#3  (cd ../akita-sdk && npm run build)
+
+=== H2. Guilds
+  H2#1  npm run create:dao-escrow -- -n testnet --escrow rev_guilds --execute
+  [read] export REV_GUILDS_APP=$(npm run -s rollout:id -- -n testnet --escrow rev_guilds)
+  H2#3  npm run deploy:guild-factory -- -n testnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"
+  H2#4  npm run deploy:guild-factory -- -n testnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet
+  H2#5  (cd ../akita-sdk && npm run build)
+  [read] export GUILD_FACTORY=$(npm run -s rollout:id -- -n testnet --app guildFactory)
+  [read] export GUILD_FACTORY_ADDRESS=$(npm run -s rollout:id -- -n testnet --app guildFactory --address)
+  H2#8  npm run deploy:guild-plugin -- -n testnet -v "$V" --config "{\"factory\":\"$GUILD_FACTORY\",\"guild\":\"0\"}" --manifest receipts/guild-plugin.json --register
+  H2#9  npm run register:revenue-escrow -- -n testnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --dry-run
+  H2#10  npm run register:revenue-escrow -- -n testnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --confirm
+  H2#11  (cd ../akita-sdk && npm run build)
+
+=== H5. Wallet balance reader
+  H5#1  npm run deploy:wallet-balance-reader -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
+  H5#2  npm run deploy:wallet-balance-reader -- -n testnet -v "$V" --manifest receipts/wallet-balance-reader.json --register
+  H5#3  (cd ../akita-sdk && npm run build)
+
+=== H6. Labs revenue payout (rec_krby)
+  H6#1  npm run install:pay-policy-grant -- -n testnet --escrow rec_krby --recipient "$LABS_ADDRESS" --dry-run
+  H6#2  npm run install:pay-policy-grant -- -n testnet --escrow rec_krby --recipient "$LABS_ADDRESS" --confirm

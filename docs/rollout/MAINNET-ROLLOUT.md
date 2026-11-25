@@ -297,6 +297,7 @@ Thirteen independent audits were read over the release tree, one per system, and
 
 - **Test-only programs.** MockBigWallet 11,169 → 11,337, MockHyperSwap 4,008 → 4,078, MockLegacyVoteDAO 11,087 → 11,097, MockNfdRegistry 130 → 635 (it now refuses a RekeyTo and quotes a link cost, like the live registry), MockHaystackRouter 350 → 363 (the live router's terms layout), and MockWindowReclaim is new. None is deployed by this rollout. On LocalNet and TestNet, redeploy the mock Haystack router (`deploy:mock-haystack`) before rehearsing a swap: the plugin now reads the route terms in the live router's layout and the old mock emits the old one.
 - **Two new checks before a step, both read-only.** `check:social-legacy-prefixes` before E1 (SOC-13) and `fund:subscription-reserve` before E2 (SUB-02, step E2a). `rollout:status` gains the step `subscription-reserve`, and `p2:Subscriptions` requires it.
+- **One command for MainNet (2026-11-25).** The owner asked for the MainNet rollout as one script, like the rehearsal. The rehearsal's runner became `scripts/rollout-run.sh`, which holds the runbook's MainNet lines as written, and two files start it for a network: `rollout-mainnet.sh` and `rollout-testnet-rehearsal.sh`. The TestNet commands are made from the MainNet lines by the five differences of A4, and a fixture holds them to the commands the rehearsal ran: the new file lists, sends and prints for TestNet exactly what the file the rehearsal used did. A MainNet run adds what TestNet has no use for: G2b and the Haystack router plugin, and five checks before its first command (the commit, the tree, the receipts, the node key, the release manifest). D1a, G4 and I2 stay by hand. `tests/rollout-runner.test.ts` runs both networks end to end against stub commands: the order sent, picking up after a stop, the deploys that keep no receipt, the three addresses, each refusal, and that neither key is printed or written.
 - **A gate import cutoff is checked against the chain** (XSY-05). `deploy-gates.ts` reads the registered gate's `gate_cursor` and refuses a `--legacy-cutoff` that is not it, naming the value to pass, so a new Gate v2 cannot be sealed with a cutoff that would leave legacy standing readable or unreachable. `allowlist-sub-gates.ts` now also refuses any app whose program is not the current artifact of the sub-gate it names, and `seal-gate-imports.ts` refuses to seal while a sub-gate of the tree has no receipt.
 - **A listing pays the escrow its Marketplace names** (XSY-03), read at settlement instead of at creation, so repointing the Marketplace with `update:app-dao-escrow` moves the next sale's fee and no live listing has to be touched. The same step's warning about deleting a revenue escrow now covers the fee generators.
 - **Every plugin method a wallet calls is reachable through the SDK** (XSY-04): `RewardsPlugin.editDisbursement` and `UpdateAkitaDAOPlugin.updateRevocation` were callable on chain and had no SDK hook. `updateRevocation` takes the factory app id. A test walks every plugin's ABI against the SDK's hooks, so a method added later cannot be missed. Three methods have no hook of their own name and are reached another way, each checked by that test: `AuctionPlugin.deleteApplication` is the v1 name of `deleteAuctionApp` and only forwards to it, and `UpdateAkitaDAOPlugin.setClearProgram` and `updateAppWithSchema` are steps `updateApp` sends when it is given a clear program or a larger schema.
@@ -394,6 +395,18 @@ What this order needs, because nothing is on GitHub while the rollout runs:
 
 Every command below is complete: run it as written, from `projects/akita-sc`, in the shell that step A0 sets up. A value in `<angle brackets>` is the only thing to fill in. `tests/rollout-runbook.test.ts` reads these blocks and fails when a command names a script, a flag, a contract, a target or a tracker step that does not exist.
 
+**One command runs B1 to H6.** `scripts/rollout-mainnet.sh` runs every step below that has commands, in order, each line as it is written here. `scripts/rollout-testnet-rehearsal.sh` runs the same steps for the rehearsal (A4). Both start `scripts/rollout-run.sh`, which holds the lines, and `tests/rollout-runner.test.ts` fails when a line there differs from its block here. The steps can still be run by hand, one block at a time.
+
+```bash
+HEARTBEAT_MANAGER=<address> REV_NFD_SOURCE=<address> LABS_ADDRESS=<address> \
+  ROLLOUT_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-mainnet.sh
+```
+
+- **By hand before it:** rename the rehearsal's `receipts` folder (A4), fund the DAO creator (A5), ask the two Listing sellers (D1a), and put the node key in the shell (A0). It takes the DAO creator's key from the shell, or asks for it without showing it.
+- **What it checks before its first command,** refusing to start otherwise: the checkout is at the commit named; the contracts, the scripts and the SDK source are that commit's (`networks.ts` aside, which `--register` writes); `receipts` holds no rehearsal; `NODELY_API_KEY` is set (`--public-node` goes without it); and the built programs are the ones `release/manifest.json` pins (DEC-5). It then asks for the word `mainnet`.
+- **How it runs:** each send has its dry run first. It stops at the first command that fails and runs nothing after it; the next start carries on from there, because finished commands are listed in `receipts/mainnet-done.txt`. A plugin deploy that keeps no receipt (G2, G3) is not run a second time until you say whether the first created its app. `--until <step>` stops after a step, to go stage by stage; `--list` shows what is done.
+- **By hand after it:** G4 and I2. I1 is not part of this rollout.
+
 Rules that hold for every step:
 
 - **One version label.** `$V` is set once in A0 and passed to every command. A receipt records the label, so a rerun with another label is refused. The label must differ from the live wallet version 1.0.1, or F2 skips every wallet.
@@ -477,7 +490,7 @@ git bundle create akita-release.bundle --all
 - **What:** Run every stage on TestNet with the same scripts, checking progress with rollout:status --network testnet after each step. Start with A4a, which gives TestNet's DAO wallet the escrows and grants MainNet's has.
 - **Why here:** TestNet runs the same programs as MainNet for every target (re-read 2026-11-17; the two plugins that differ are replaced by G2), so the ABI guard and the K1 binding run against real deployed bytes. LocalNet runs the tree, so its ABI diff is empty.
 - **Requires:** A2. **Script:** new: rollout-status.ts written today.
-- **The commands differ from the MainNet ones in five places only.**
+- **The commands differ from the MainNet ones in five places only.** `scripts/rollout-testnet-rehearsal.sh` applies them to the MainNet lines, so the rehearsal runs what MainNet will.
   - `-n testnet` for `-n mainnet`, and `--network testnet` for the tracker.
   - C2 and C3 no longer name live sub-gates by app id on either network: DEC-4 deploys all 18 again, so their receipts are the whole set (changed 2026-11-25; the TestNet ids the rehearsal used to pass are in the history of this file).
   - `deploy:haystack-router-plugin` stops on TestNet, for want of a router id. Skip it there and add `plugin:haystackRouterPlugin` to `--allow-pending` at I1.
@@ -491,7 +504,7 @@ git bundle create akita-release.bundle --all
   - There is no Haystack router and no Akita NFD app, so the swap path and the Akita NFD reads are not exercised.
 - **State to make first** (suggested 2026-11-17; the owner decides). TestNet runs the old programs today, so records made on it now are of the kind MainNet holds. Before B1: two or three wallets through the factory, one with automatic updates off; an open Listing; a Poll; a few posts and a follow; a subscription; a staking lock; and one Rewards v1 disbursement with an unclaimed allocation.
 - TestNet PollFactory holds 0 ALGO. Its upgrade plans without funding (dry run 2026-11-17). E6a funds it.
-- **Keep the rehearsal's receipts apart.** The steps write their receipts under `receipts`, and a step that finds a receipt resumes from it. After the rehearsal, rename the folder to `receipts-testnet` before MainNet's A0 makes a new one.
+- **Keep the rehearsal's receipts apart.** The steps write their receipts under `receipts`, and a step that finds a receipt resumes from it. After the rehearsal, rename the folder to `receipts-testnet` before MainNet's A0 makes a new one. `rollout-mainnet.sh` refuses to start while the rehearsal's files are there.
 - **Measure the cost.** Note the DAO creator's balance before B1 and after I1. The difference sizes the MainNet top-up in A5.
 - I1 on TestNet ends the creator's control of the TestNet DAO as it does on MainNet, and every later change there needs a vote. Stop before I1 to keep the TestNet DAO in Draft.
 
