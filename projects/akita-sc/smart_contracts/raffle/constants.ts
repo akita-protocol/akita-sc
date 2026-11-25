@@ -61,6 +61,14 @@ export const EntriesByAddressMBR: uint64 = 18_900
 /** the empty totals box the seller funds at creation: 2_500 + 400 * 1 */
 export const WeightsMBR: uint64 = 2_900
 
+/**
+ * One Rewards disbursement with a single allocation (`disbursementCost(1)`): what refunding the
+ * tickets of a failed raffle costs when the entrant has left the ticket asset. Every entry of an
+ * ASA raffle holds this much in refundable storage and deposit (audit 10, AUC-02), so such a refund
+ * is paid for by the entry it belongs to.
+ */
+export const RaffleRefundDisbursementMBR: uint64 = 79_800
+
 /** whole weights boxes one `findWinner` call skips before it saves its place and returns */
 export const MaxBoxSkipsPerCall: uint64 = 64
 

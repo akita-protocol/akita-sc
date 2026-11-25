@@ -21,7 +21,7 @@ main:
 main_mbr_route@20:
     // smart_contracts/auction/base.ts:7
     // @abimethod({ readonly: true })
-    pushbytes 0x151f7c7500000000000089e40000000000c817d400000000000049d400000000000049d4
+    pushbytes 0x151f7c7500000000000089e40000000000000b5400000000000049d40000000000007aa8
     log
     intc_2 // 1
     return

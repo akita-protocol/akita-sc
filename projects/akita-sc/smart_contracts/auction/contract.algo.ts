@@ -1,5 +1,5 @@
-import { Account, Asset, BoxMap, bytes, clone, ensureBudget, Global, GlobalState, gtxn, itxn, loggedAssert, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, abimethod, StaticArray, Uint128, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
+import { Account, Asset, Box, BoxMap, bytes, clone, ensureBudget, Global, GlobalState, gtxn, itxn, loggedAssert, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abiCall, abimethod, Uint128 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { errHasGate } from '../social/errors'
 import { MAX_UINT64 } from '../utils/constants'
@@ -8,9 +8,9 @@ import { gateCtx } from '../utils/principal'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
-import { AuctionBoxPrefixBids, AuctionBoxPrefixBidsByAddress, AuctionBoxPrefixLocations, AuctionBoxPrefixWeights, AuctionGlobalStateKeyBidAsset, AuctionGlobalStateKeyBidFee, AuctionGlobalStateKeyBidID, AuctionGlobalStateKeyBidMinimumIncrease, AuctionGlobalStateKeyBidTotal, AuctionGlobalStateKeyCreatorRoyalty, AuctionGlobalStateKeyEndTimestamp, AuctionGlobalStateKeyFindWinnerCursors, AuctionGlobalStateKeyGateID, AuctionGlobalStateKeyHighestBid, AuctionGlobalStateKeyIsPrizeBox, AuctionGlobalStateKeyMarketplace, AuctionGlobalStateKeyMarketplaceRoyalties, AuctionGlobalStateKeyPrize, AuctionGlobalStateKeyPrizeClaimed, AuctionGlobalStateKeyRaffleAmount, AuctionGlobalStateKeyRafflePrizeClaimed, AuctionGlobalStateKeyRaffleRound, AuctionGlobalStateKeyRaffleWinner, AuctionGlobalStateKeyRefundCount, AuctionGlobalStateKeyRefundMBRCursor, AuctionGlobalStateKeySalt, AuctionGlobalStateKeySeller, AuctionGlobalStateKeySellerReferrer, AuctionGlobalStateKeyStartingBid, AuctionGlobalStateKeyStartTimestamp, AuctionGlobalStateKeyUniqueAddressCount, AuctionGlobalStateKeyVRFFailureCount, AuctionGlobalStateKeyWeightedBidTotal, AuctionGlobalStateKeyWeightsBoxCount, AuctionGlobalStateKeyWeightTotals, AuctionGlobalStateKeyWinningTicket, BEACON_LAG_ROUNDS, BEACON_MAX_WAIT_ROUNDS, BEACON_ROUND_INTERVAL, ChunkSize, DRAW_DELAY_ROUNDS, MaxWeightsBoxes, SNIPE_EXTENSION, SNIPE_RANGE } from './constants'
-import { errAllRefundsComplete, errAuctionAlreadyStarted, errBeaconNotReady, errCannotOutbidSelf, errTooManyWeightsBoxes, errAuctionHasNotEnded, errAuctionNotLive, errBidAlreadyRefunded, errBidNotFound, errCannotRefundMostRecentBid, errFailedGate, errInvalidApp, errInvalidAsset, errInvalidPayment, errInvalidTransfer, errMustAllocateAtLeastThreeHighestBidsChunks, errMustBeCalledFromFactory, errNotAllRefundsComplete, errNotApplicableToThisAuction, errNotEnoughTime, errPrizeAlreadyClaimed, errPrizeNotClaimed, errRaffleAlreadyPrizeClaimed, errRaffleNotPrizeClaimed, errRaffleWinnerHasNotClaimed, errStillHasHighestBidsBoxes, errTooManyParticipants, errWinnerAlreadyDrawn, errWinnerAlreadyFound, errWinnerNotFound, errWinningNumberNotFound } from './errors'
-import { BidInfo, FindWinnerCursors, WeightLocation, WeightsList } from './types'
+import { AuctionBoxKeyWeightTotals, AuctionBoxPrefixBids, AuctionBoxPrefixBidsByAddress, AuctionBoxPrefixLocations, AuctionBoxPrefixWeights, AuctionGlobalStateKeyBidAsset, AuctionGlobalStateKeyBidFee, AuctionGlobalStateKeyBidID, AuctionGlobalStateKeyBidMinimumIncrease, AuctionGlobalStateKeyBidTotal, AuctionGlobalStateKeyCreatorRoyalty, AuctionGlobalStateKeyEndTimestamp, AuctionGlobalStateKeyFindWinnerCursors, AuctionGlobalStateKeyGateID, AuctionGlobalStateKeyHighestBid, AuctionGlobalStateKeyIsPrizeBox, AuctionGlobalStateKeyMarketplace, AuctionGlobalStateKeyMarketplaceRoyalties, AuctionGlobalStateKeyPrize, AuctionGlobalStateKeyPrizeClaimed, AuctionGlobalStateKeyRaffleAmount, AuctionGlobalStateKeyRafflePrizeClaimed, AuctionGlobalStateKeyRaffleRound, AuctionGlobalStateKeyRaffleWinner, AuctionGlobalStateKeyRefundCount, AuctionGlobalStateKeyRefundMBRCursor, AuctionGlobalStateKeySalt, AuctionGlobalStateKeySeller, AuctionGlobalStateKeySellerReferrer, AuctionGlobalStateKeyStartingBid, AuctionGlobalStateKeyStartTimestamp, AuctionGlobalStateKeyUniqueAddressCount, AuctionGlobalStateKeyVRFFailureCount, AuctionGlobalStateKeyWeightedBidTotal, AuctionGlobalStateKeyWeightsBoxCount, AuctionGlobalStateKeyWinningTicket, AuctionMBRBids, AuctionMBRBidsByAddress, AuctionMBRLocations, AuctionMBRWeights, AuctionRefundDisbursementMBR, BEACON_LAG_ROUNDS, BEACON_MAX_WAIT_ROUNDS, BEACON_ROUND_INTERVAL, ChunkSize, DRAW_DELAY_ROUNDS, MaxBoxSkipsPerCall, MaxWeightsBoxes, SNIPE_EXTENSION, SNIPE_RANGE } from './constants'
+import { errAllRefundsComplete, errAuctionAlreadyStarted, errBeaconNotReady, errCannotOutbidSelf, errAuctionHasNotEnded, errAuctionNotLive, errBidAlreadyRefunded, errBidNotFound, errCannotRefundMostRecentBid, errFailedGate, errInvalidApp, errInvalidAsset, errInvalidPayment, errInvalidTransfer, errMustBeCalledFromFactory, errNotAllRefundsComplete, errNotApplicableToThisAuction, errNotEnoughTime, errPrizeAlreadyClaimed, errPrizeNotClaimed, errRaffleAlreadyPrizeClaimed, errRaffleNotPrizeClaimed, errRaffleWinnerHasNotClaimed, errStillHasHighestBidsBoxes, errTooManyParticipants, errWinnerAlreadyDrawn, errWinnerAlreadyFound, errWinnerNotFound, errWinningNumberNotFound } from './errors'
+import { AuctionMBRData, BidInfo, FindWinnerCursors, WeightLocation } from './types'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
@@ -87,10 +87,8 @@ export class Auction extends classes(
    * properly get each bids % of the total bid amount
    */
   uniqueAddressCount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyUniqueAddressCount })
-  /** the number of boxes allocated to tracking weights */
+  /** the number of weights boxes that exist */
   weightsBoxCount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyWeightsBoxCount })
-  /** totals for each box of weights for our skip list */
-  weightTotals = GlobalState<StaticArray<Uint64, 15>>({ key: AuctionGlobalStateKeyWeightTotals })
   /**
    * cursors to track iteration of finding winner
    * index being for the bid iteration
@@ -125,8 +123,15 @@ export class Auction extends classes(
 
   /** the list of bids in the auction */
   bids = BoxMap<uint64, BidInfo>({ keyPrefix: AuctionBoxPrefixBids })
-  /** weights set for bidders */
-  weights = BoxMap<uint64, WeightsList>({ keyPrefix: AuctionBoxPrefixWeights })
+  /**
+   * Loser-raffle weights of a fee auction: unique bidder `loc` owns the 8-byte slot
+   * `loc % ChunkSize` of box `loc / ChunkSize`. A box is as long as the bidders it holds: it is
+   * created by its first bidder, grows one slot per new bidder and shrinks again as `refundMBR`
+   * returns each bidder's storage.
+   */
+  weights = BoxMap<uint64, bytes>({ keyPrefix: AuctionBoxPrefixWeights })
+  /** the weight total of every weights box, 8 bytes each: the skip list of the winner search */
+  weightTotals = Box<bytes>({ key: AuctionBoxKeyWeightTotals })
   /**
    * when we run our raffle we need to transform
    * our list of bids into an address based box
@@ -155,25 +160,15 @@ export class Auction extends classes(
 
     if (this.bidFee.value > 0) {
       if (this.bidsByAddress(Txn.sender).exists) {
-        const loc = this.bidsByAddress(Txn.sender).value
-        const lastBid = this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64()
-        const difference: uint64 = bidAmount - lastBid
-        const lastWeightedTotal = this.weightTotals.value[loc / ChunkSize].asUint64()
-
-        this.weightedBidTotal.value += difference
-        this.weights(loc / ChunkSize).value[loc % ChunkSize] = new Uint64(bidAmount)
-        this.weightTotals.value[loc / ChunkSize] = new Uint64(lastWeightedTotal + difference)
+        // a bidder's weight is its highest bid
+        this.setWeight(this.bidsByAddress(Txn.sender).value, bidAmount)
       } else {
         const loc = this.uniqueAddressCount.value
-        loggedAssert(loc < ChunkSize * this.weightsBoxCount.value, errTooManyParticipants)
-        const lastWeightedTotal = this.weightTotals.value[loc / ChunkSize].asUint64()
-
-        this.weightedBidTotal.value += bidAmount
+        this.allocateWeight(loc)
         this.bidsByAddress(Txn.sender).value = loc
-        this.weights(loc / ChunkSize).value[loc % ChunkSize] = new Uint64(bidAmount)
-        this.weightTotals.value[loc / ChunkSize] = new Uint64(lastWeightedTotal + bidAmount)
         this.locations(loc).value = Txn.sender
         this.uniqueAddressCount.value += 1
+        this.setWeight(loc, bidAmount)
       }
     } else if (!this.bidsByAddress(Txn.sender).exists) {
       // Track participation even without bid fee (for hasBid read method)
@@ -385,26 +380,104 @@ export class Auction extends classes(
    * AR-08: skip whole weights boxes only while the cursor sits on a box boundary,
    * using the totals of the box the cursor is actually in.
    */
-  private getWinnerWeightBoxInfo(): [uint64, uint64] {
+  private getWinnerWeightBoxInfo(): [uint64, uint64, uint64] {
     let startingIndex = this.findWinnerCursors.value.startingIndex
     let currentRangeStart = this.findWinnerCursors.value.currentRangeStart
+    const boxCount = this.weightsBoxCount.value
+    const winningTicket = this.winningTicket.value
+    let skipped: uint64 = 0
 
-    while (startingIndex % ChunkSize === 0 && startingIndex / ChunkSize < this.weightsBoxCount.value) {
-      const boxStake = this.weightTotals.value[startingIndex / ChunkSize].asUint64()
-      if (this.winningTicket.value < currentRangeStart + boxStake) {
+    // an auction can hold thousands of weights boxes: one call skips a bounded number of them, and
+    // a call with more than a few ahead of it asks for the budget to do so
+    const ahead: uint64 = boxCount - startingIndex / ChunkSize
+    if (startingIndex % ChunkSize === 0 && ahead > 4) {
+      ensureBudget((ahead < MaxBoxSkipsPerCall ? ahead : MaxBoxSkipsPerCall) * 60 + 300)
+    }
+
+    while (skipped < MaxBoxSkipsPerCall && startingIndex % ChunkSize === 0 && startingIndex / ChunkSize < boxCount) {
+      const boxStake = this.boxTotal(startingIndex / ChunkSize)
+      if (winningTicket < currentRangeStart + boxStake) {
         break
       }
 
       startingIndex += ChunkSize
       currentRangeStart += boxStake
+      skipped += 1
     }
 
-    return [startingIndex, currentRangeStart]
+    return [startingIndex, currentRangeStart, skipped]
   }
 
-  /** weights boxes allocated; legacy zero-fee children never stored the key (init never ran) */
-  private weightsBoxes(): uint64 {
-    return this.weightsBoxCount.hasValue ? this.weightsBoxCount.value : 0
+  /** the loser-raffle weight of unique bidder `loc` */
+  private weightOf(loc: uint64): uint64 {
+    return op.btoi(this.weights(loc / ChunkSize).extract((loc % ChunkSize) * 8, 8))
+  }
+
+  /** the weight held by the bidders of weights box `box` */
+  private boxTotal(box: uint64): uint64 {
+    return op.btoi(this.weightTotals.extract(box * 8, 8))
+  }
+
+  /** sets the weight of unique bidder `loc`, in its slot, in its box's total and in the grand total */
+  private setWeight(loc: uint64, weight: uint64): void {
+    const box: uint64 = loc / ChunkSize
+    const last = this.weightOf(loc)
+    this.weights(box).replace((loc % ChunkSize) * 8, op.itob(weight))
+    this.weightTotals.replace(box * 8, op.itob(this.boxTotal(box) - last + weight))
+    this.weightedBidTotal.value = this.weightedBidTotal.value - last + weight
+  }
+
+  /**
+   * Makes room for the weight of the newest unique bidder `loc`: one more slot in its weights box.
+   * The first bidder of a box creates the box and its total. `AuctionMBRWeightSlot` covers either.
+   */
+  private allocateWeight(loc: uint64): void {
+    const box: uint64 = loc / ChunkSize
+    const slot: uint64 = loc % ChunkSize
+
+    if (slot !== 0) {
+      this.weights(box).resize((slot + 1) * 8)
+      return
+    }
+
+    // 4,096 boxes of 4,096 bidders: the size of the totals box is the only limit left
+    loggedAssert(box < MaxWeightsBoxes, errTooManyParticipants)
+    this.weights(box).create({ size: 8 })
+    this.weightTotals.resize((box + 1) * 8)
+    this.weightsBoxCount.value = box + 1
+  }
+
+  /**
+   * Gives back one weight slot, always the last one. `refundMBR` calls it once per unique bidder,
+   * and it only runs when the loser raffle is settled, so the weights are no longer read and it
+   * does not matter whose slot goes: the storage released is what one bidder paid for.
+   */
+  private releaseWeightSlot(): void {
+    const count = this.weightsBoxCount.value
+    if (count === 0) {
+      return
+    }
+    const box: uint64 = count - 1
+    const length = this.weights(box).length
+
+    if (length > 8) {
+      this.weights(box).resize(length - 8)
+      return
+    }
+
+    this.weights(box).delete()
+    this.weightTotals.resize(box * 8)
+    this.weightsBoxCount.value = box
+  }
+
+  /**
+   * AUC-02: a bid whose bidder has left the bid asset is refunded through a Rewards disbursement,
+   * which costs more than a bid box releases. Every ASA bid therefore carries the difference as a
+   * deposit, returned with its storage by `refundMBR`, so that refund never draws on the seller's
+   * settlement reserve.
+   */
+  private refundDeposit(): uint64 {
+    return this.bidAsset.value.id === 0 ? 0 : AuctionRefundDisbursementMBR - AuctionMBRBids
   }
 
   /** AR-03: the winning bid's fee is never retained (the winner pays the full bid as proceeds) */
@@ -426,12 +499,7 @@ export class Auction extends classes(
       return
     }
 
-    const loc = this.bidsByAddress(account).value
-    const box: uint64 = loc / ChunkSize
-    const w = this.weights(box).value[loc % ChunkSize].asUint64()
-    this.weights(box).value[loc % ChunkSize] = new Uint64(0)
-    this.weightTotals.value[box] = new Uint64(this.weightTotals.value[box].asUint64() - w)
-    this.weightedBidTotal.value -= w
+    this.setWeight(this.bidsByAddress(account).value, 0)
   }
 
   /** AR-02: no eligible losing weight → no raffle; any orphan pool goes to the DAO escrow */
@@ -609,29 +677,27 @@ export class Auction extends classes(
     this.version.value = version
 
     // internal variables
-    this.weightTotals.value = new StaticArray<Uint64, 15>()
     this.findWinnerCursors.value = { startingIndex: 0, currentRangeStart: 1 }
     this.raffleWinner.value = Global.zeroAddress
     this.salt.value = Txn.txId
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).auctionComposablePercentage
   }
 
+  /**
+   * Sets a fee auction up for its loser raffle. `weightListLength` is ignored: it used to reserve
+   * that many full weights boxes, which capped the auction at `weightListLength * ChunkSize`
+   * bidders and locked their storage up front. Weights storage now grows with the bidders, each
+   * paying for its own (`AuctionMBRWeightSlot`). The argument stays so the ABI is unchanged.
+   */
   init(payment: gtxn.PaymentTxn, weightListLength: uint64) {
     loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
     loggedAssert(this.bidFee.value > 0, errNotApplicableToThisAuction)
-    loggedAssert(weightListLength >= 3, errMustAllocateAtLeastThreeHighestBidsChunks)
-    loggedAssert(weightListLength <= MaxWeightsBoxes, errTooManyWeightsBoxes)
 
-    // Only weights MBR is expected - base MBR and optIn MBR were sent during optin call
-    const weightsMBR: uint64 = weightListLength * this.mbr().weights
-
+    // base MBR and optIn MBR were sent during the optin call: only the (empty) totals box is funded here
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === weightsMBR, errInvalidPayment)
+    loggedAssert(payment.amount === this.mbr().weights, errInvalidPayment)
 
-    for (let i: uint64 = 0; i < weightListLength; i += 1) {
-      this.weights(i).create()
-    }
-    this.weightsBoxCount.value = weightListLength
+    this.weightTotals.create({ size: 0 })
   }
 
   @abimethod({ allowActions: 'DeleteApplication' })
@@ -645,7 +711,10 @@ export class Auction extends classes(
     loggedAssert(this.bidFee.value === 0 || this.rafflePrizeClaimed.value, errRaffleWinnerHasNotClaimed)
     const refundsComplete = this.bidID.value === this.refundMBRCursor.value
     loggedAssert(refundsComplete, errNotAllRefundsComplete)
-    loggedAssert(this.weightsBoxes() === 0, errStillHasHighestBidsBoxes)
+    // the storage refunds removed every weights box; a totals box nobody cleared goes now, and its
+    // storage reaches the funder with the rest of what this deletion releases
+    loggedAssert(this.weightsBoxCount.value === 0, errStillHasHighestBidsBoxes)
+    this.weightTotals.delete()
 
     // AR-05: the prize holding was already closed out when the prize was claimed
     if (!this.isPrizeBox.value && Global.currentApplicationAddress.isOptedIn(Asset(this.prize.value))) {
@@ -681,7 +750,10 @@ export class Auction extends classes(
   cancel(): void {
     loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
     loggedAssert(Global.latestTimestamp < this.startTimestamp.value, errAuctionAlreadyStarted)
-    loggedAssert(this.weightsBoxes() === 0, errStillHasHighestBidsBoxes)
+    // nobody can have bid before the start, so there is no weights box; a totals box the seller did
+    // not clear goes now, and its storage reaches the funder with the rest of what the cancel releases
+    loggedAssert(this.weightsBoxCount.value === 0, errStillHasHighestBidsBoxes)
+    this.weightTotals.delete()
 
     this.returnPrizeToSeller()
 
@@ -882,6 +954,12 @@ export class Auction extends classes(
     let currentRangeStart = winningBoxInfo[1]
     let currentRangeEnd: uint64 = 0
 
+    // the skip limit was reached with boxes still ahead: keep the place, the next call goes on
+    if (winningBoxInfo[2] === MaxBoxSkipsPerCall) {
+      this.findWinnerCursors.value = { startingIndex, currentRangeStart }
+      return
+    }
+
     // only reachable for children drawn under legacy code (ticket inside the winner's weight)
     if (startingIndex >= this.uniqueAddressCount.value) {
       this.resetDraw()
@@ -897,15 +975,14 @@ export class Auction extends classes(
       iterationAmount = remainingInChunk
     }
 
-    const weight = clone(this.weights(startingIndex / ChunkSize).value)
-
     ensureBudget((iterationAmount * 60))
 
+    const winningTicket = this.winningTicket.value
+    const box = this.weights(startingIndex / ChunkSize)
     for (let i: uint64 = 0; i < iterationAmount; i += 1) {
       // the auction winner's weight was zeroed at commit (AR-02)
-      const amount = weight[chunkOffset + i].asUint64()
-      currentRangeEnd = currentRangeStart + amount
-      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value < currentRangeEnd) {
+      currentRangeEnd = currentRangeStart + op.btoi(box.extract((chunkOffset + i) * 8, 8))
+      if (winningTicket >= currentRangeStart && winningTicket < currentRangeEnd) {
         this.raffleWinner.value = this.locations(startingIndex + i).value
       }
       currentRangeStart = currentRangeEnd
@@ -931,7 +1008,7 @@ export class Auction extends classes(
     const remainder: uint64 = this.bidID.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
-    ensureBudget((iterationAmount * 160))
+    ensureBudget((iterationAmount * 220))
 
     const { bids, bidsByAddress, locations } = this.mbr()
 
@@ -946,16 +1023,17 @@ export class Auction extends classes(
         disbursementCost = this.sendBidAssetOrDisburse(receiver, returnAmount)
       }
 
-      // free up the MBR
+      // free up the MBR (for an ASA bid `bids` includes its refund deposit, AUC-02)
       let refundAmount = bids
       this.bids(i).delete()
       if (this.bidsByAddress(account).exists) {
         const loc = this.bidsByAddress(account).value
         this.bidsByAddress(account).delete()
         refundAmount += bidsByAddress
-        // locations box only exists when there's a bid fee
+        // a location box, and the weight slot paid for with it, only exist when there's a bid fee
         if (this.locations(loc).exists) {
           this.locations(loc).delete()
+          this.releaseWeightSlot()
           refundAmount += locations
         }
       }
@@ -1021,6 +1099,14 @@ export class Auction extends classes(
     this.rafflePrizeClaimed.value = true
   }
 
+  /**
+   * Removes the totals box of a fee auction and returns its storage to whoever funded the auction;
+   * returns the amount released (0 when it is already gone). The weights boxes themselves are
+   * removed by the storage refunds, so it runs once every bid's storage is refunded, or before the
+   * start for a seller who cancels. Calling it is optional: deleting or cancelling the auction
+   * removes a totals box that is still there. `iterationAmount` is ignored (it used to count the
+   * reserved weights boxes to delete) and stays so the ABI is unchanged.
+   */
   clearWeightsBoxes(iterationAmount: uint64): uint64 {
     // AR-04: the seller may clear weights before start (no bids yet) so a fee auction can be cancelled
     const preStartCancel: boolean = (
@@ -1032,32 +1118,50 @@ export class Auction extends classes(
     if (!preStartCancel) {
       loggedAssert(Global.latestTimestamp > this.endTimestamp.value, errAuctionHasNotEnded)
       loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
-      loggedAssert(this.rafflePrizeClaimed.value, errRaffleNotPrizeClaimed)
+      // AR-05: zero-fee auctions have no loser raffle to settle (and no totals box: this returns 0)
+      loggedAssert(this.bidFee.value === 0 || this.rafflePrizeClaimed.value, errRaffleNotPrizeClaimed)
+      // the storage refunds shrink the totals box as they empty each weights box
+      loggedAssert(this.bidID.value === this.refundMBRCursor.value, errNotAllRefundsComplete)
     }
 
-    ensureBudget((iterationAmount * 30))
-
-    for (let i: uint64 = 0; i < iterationAmount; i += 1) {
-      const ri: uint64 = (this.weightsBoxCount.value - 1) - i
-      this.weights(ri).delete()
+    if (!this.weightTotals.exists) {
+      return 0
     }
+    this.weightTotals.delete()
 
-    this.weightsBoxCount.value -= iterationAmount
+    const returnAmount: uint64 = this.mbr().weights
 
-    const returnAmount: uint64 = iterationAmount * this.mbr().weights
-
-    // AR-13: the weights MBR goes straight back to whoever funded the auction
-    itxn
-      .payment({
-        receiver: this.funder.value.account,
-        amount: returnAmount,
-      })
-      .submit()
+    // AR-13: the weights MBR goes straight back to whoever funded the auction. A funder whose
+    // account has closed cannot take an amount this small: it then leaves with the rest at deletion.
+    if (this.canReceiveAlgo(this.funder.value.account, returnAmount)) {
+      itxn
+        .payment({
+          receiver: this.funder.value.account,
+          amount: returnAmount,
+        })
+        .submit()
+    }
 
     return returnAmount
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  /**
+   * What a bid on THIS auction must add for storage: `bids` for every bid (with the refund deposit
+   * of an ASA bid, AUC-02), `bidsByAddress` for an address's first bid, and in a fee auction
+   * `locations` with it (location box and weight slot). `weights` is the totals box the seller
+   * funds. All of it is returned by `refundMBR` and `clearWeightsBoxes`.
+   */
+  @abimethod({ readonly: true })
+  override mbr(): AuctionMBRData {
+    return {
+      bids: AuctionMBRBids + this.refundDeposit(),
+      weights: AuctionMBRWeights,
+      bidsByAddress: AuctionMBRBidsByAddress,
+      locations: AuctionMBRLocations,
+    }
+  }
 
   /** @returns a boolean of whether the auction is live */
   @abimethod({ readonly: true })

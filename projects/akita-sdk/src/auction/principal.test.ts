@@ -104,6 +104,28 @@ describe("Auction principal ABI (SDK)", () => {
     expect(created.appId).toBe(555n);
     expect(hinted.mock.calls[0][0].args.wallet).toBe(42n);
   });
+
+  test("factory.newAuction: weightsListCount is optional, and the same value prices and creates the auction", async () => {
+    vi.stubEnv("ALGORAND_NETWORK", "localnet");
+    const factory = new AuctionFactorySDK({ algorand: AlgorandClient.defaultLocalNet(), factoryParams: { appId: 99n, defaultSender: SENDER } });
+    const client = factory.client as unknown as Record<string, any>;
+    const cost = vi.spyOn(client, "newAuctionCost").mockResolvedValue(1_000n);
+    vi.spyOn(client.algorand.createTransaction, "payment").mockResolvedValue(PAYMENT);
+    vi.spyOn(client.algorand.createTransaction, "assetTransfer").mockResolvedValue(PAYMENT);
+    const hinted = vi.spyOn(client.send, "newAuctionPayAxferStringByte_32Uint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64")
+      .mockResolvedValue({ return: 555n } as never);
+    const base = {
+      sender: SENDER, signer: (async () => []) as never, isPrizeBox: false as const, prizeAsset: 1n, prizeAmount: 1n, name: "", proof: [],
+      bidAssetId: 0n, startingBid: 1n, bidMinimumIncrease: 1n, startTimestamp: 0n, endTimestamp: 1n, gateId: 0n, marketplace: MARKETPLACE,
+    };
+    // [bid fee, count passed, count sent]: left out, a fee auction sends 3 (valid before and after 2.0.0), a zero-fee one 0
+    const cases: [bigint, bigint | number | undefined, bigint][] = [[1_000n, undefined, 3n], [0n, undefined, 0n], [1_000n, 1n, 1n], [1_000n, 15, 15n], [0n, 0n, 0n]];
+    for (const [i, [bidFee, passed, sent]] of cases.entries()) {
+      await factory.newAuction({ ...base, bidFee, ...(passed === undefined ? {} : { weightsListCount: passed }) });
+      expect(cost.mock.calls[i][0].args.weightsListCount).toBe(sent);
+      expect(hinted.mock.calls[i][0].args.weightsListCount).toBe(sent);
+    }
+  });
 });
 
 describe("AuctionSDK.state", () => {

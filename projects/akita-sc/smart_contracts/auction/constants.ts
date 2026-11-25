@@ -38,7 +38,6 @@ export const AuctionGlobalStateKeyRaffleAmount = 'raffle_amount'
 export const AuctionGlobalStateKeyRafflePrizeClaimed = 'raffle_prize_claimed'
 export const AuctionGlobalStateKeyUniqueAddressCount = 'unique_address_count'
 export const AuctionGlobalStateKeyWeightsBoxCount = 'weights_box_count'
-export const AuctionGlobalStateKeyWeightTotals = 'w_totals'
 export const AuctionGlobalStateKeyFindWinnerCursors = 'find_winner_cursors'
 export const AuctionGlobalStateKeyRefundMBRCursor = 'refund_mbr_cursor'
 export const AuctionGlobalStateKeyWinningTicket = 'winning_ticket'
@@ -55,12 +54,14 @@ export const AuctionBoxPrefixBids = 'b'
 export const AuctionBoxPrefixWeights = 'w'
 export const AuctionBoxPrefixBidsByAddress = 'a'
 export const AuctionBoxPrefixLocations = 'l'
+/** the weight total of every weights box, 8 bytes each (a child before 2.0.0 kept 15 of them in the `w_totals` global) */
+export const AuctionBoxKeyWeightTotals = 't'
 
 // sniping is defined as bidding in the last 45 rounds (~2 minutes at 2.7s blocktime)
 export const SNIPE_RANGE: uint64 = 120
 // if a snipe bid takes place, extend the auction by an additional 120 (~5 minutes at 2.7s blocktime)
 export const SNIPE_EXTENSION: uint64 = 300
-// 4096*8 bytes = 32KB
+// a full weights box holds 4096 weights of 8 bytes = 32KB
 export const ChunkSize: uint64 = 4096
 export const MaxChunksPerGroup: uint64 = 4
 // 4 accounts per txn * 16 group size = 64
@@ -69,14 +70,37 @@ export const MaxRefundIterationsPerGroup: uint64 = 64
 // MBR (Minimum Balance Requirement) values for auction boxes
 // bids: 2500 + 400 * (key 'b' + uint64 = 9, BidInfo 32 + 8 + 32 + 1 = 73) = 35_300
 export const AuctionMBRBids: uint64 = 35_300
-export const AuctionMBRWeights: uint64 = 13_113_300
 // bidsByAddress: 2500 + 400 * (key 'a' + address = 33, uint64 = 8) = 18_900
 export const AuctionMBRBidsByAddress: uint64 = 18_900
-export const AuctionMBRLocations: uint64 = 18_900
+// the location box alone: 2500 + 400 * (key 'l' + uint64 = 9, address = 32) = 18_900
+export const AuctionMBRLocationBox: uint64 = 18_900
+/**
+ * What every unique bidder of a fee auction pays for its weight: 3_200 for its 8-byte slot, plus
+ * what the first bidder of a weights box needs on top to open the box (2500 + 400 * (key 'w' +
+ * uint64 = 9) = 6_100) and its 8-byte total (3_200). Charging everyone the same keeps the price of
+ * a bid independent of the order bids land in; the surplus stays with the auction until the
+ * refunds, which return it in full.
+ */
+export const AuctionMBRWeightSlot: uint64 = 12_500
+/** `mbr().locations`: what a first bid in a fee auction adds (location box + weight slot) */
+export const AuctionMBRLocations: uint64 = 31_400
+/**
+ * `mbr().weights`: the empty totals box (2500 + 400 * key 't'), the only weights storage the
+ * seller funds. Before 2.0.0 this was a full weights box (13_113_300) reserved 3 to 15 times.
+ */
+export const AuctionMBRWeights: uint64 = 2_900
 
+/**
+ * One Rewards disbursement with a single allocation (`disbursementCost(1)`): what refunding a bid
+ * costs when its bidder has left the bid asset. Every ASA bid holds this much in refundable
+ * storage and deposit (audit 10, AUC-02), so such a refund is paid for by the bid it belongs to.
+ */
+export const AuctionRefundDisbursementMBR: uint64 = 79_800
 
-// weightTotals is a StaticArray<Uint64, 15>: at most 15 weights boxes
-export const MaxWeightsBoxes: uint64 = 15
+// the totals box holds one 8-byte total per weights box and is itself at most 32KB
+export const MaxWeightsBoxes: uint64 = 4096
+// whole weights boxes the winner search skips in one call before it saves its place
+export const MaxBoxSkipsPerCall: uint64 = 64
 
 // VRF draw (commit-reveal). The MainNet beacon (1615566206) stores one value per multiple of
 // BEACON_ROUND_INTERVAL rounds and submits it about 2 rounds later. The first post-end raffle()

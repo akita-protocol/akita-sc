@@ -117,8 +117,8 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
   }
 
   /**
-   * Gets the MBR (Minimum Balance Requirement) data for auction operations.
-   * These are constant values defined in the auction contract.
+   * Gets the MBR (Minimum Balance Requirement) data for bids on this auction (see `AuctionMbrData`).
+   * Always read it from the auction: it depends on the auction's bid asset.
    */
   async mbr(): Promise<AuctionMbrData> {
     return this.client.mbr();
@@ -337,8 +337,12 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
   }
 
   /**
-   * Clears the weights boxes after all prizes have been claimed.
-   * Returns the MBR for the weights boxes to the factory.
+   * Removes a fee auction's totals box and returns its storage to whoever funded the auction;
+   * resolves to the amount returned (0 when there is nothing to remove). From 2.0.0 on the weights
+   * boxes themselves are freed by `refundMBR`, so this runs after every bid's storage is refunded
+   * (or before the start, for a seller who cancels), `iterationAmount` is ignored, and the call is
+   * optional: deleting or cancelling the auction removes a totals box that is still there.
+   * On an auction created before 2.0.0 it deletes `iterationAmount` reserved weights boxes.
    */
   async clearWeightsBoxes({ sender, signer, iterationAmount }: ClearWeightsBoxesParams): Promise<bigint> {
     const sendParams = this.getSendParams({ sender, signer });

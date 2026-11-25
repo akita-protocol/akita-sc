@@ -32,6 +32,7 @@ export const errNotAnAuction = 'errNauc'
 // --- Auction setup ---------------------------------------------------------
 
 export const errNotApplicableToThisAuction = 'errNapp'
+/** no longer raised: weights storage grows with the bidders (2.0.0) */
 export const errMustAllocateAtLeastThreeHighestBidsChunks = 'errM3hb'
 
 // --- Auction lifecycle -----------------------------------------------------
@@ -57,6 +58,7 @@ export const errCannotRefundMostRecentBid = 'errCrmr'
 export const errBidNotFound = 'errBnfd'
 export const errBidAlreadyExists = 'errBexs'
 export const errBidAlreadyRefunded = 'errBarf'
+/** only at 4,096 weights boxes of 4,096 bidders (the size of the totals box) */
 export const errTooManyParticipants = 'errTmpt'
 
 // --- Raffle winner ---------------------------------------------------------
@@ -80,11 +82,14 @@ export const errStillHasHighestBidsBoxes = 'errShbb'
 
 export const errCannotOutbidSelf = 'errCobs'
 export const errStartingBidRequired = 'errSbrq'
+/** no longer raised: weights storage grows with the bidders (2.0.0) */
 export const errTooManyWeightsBoxes = 'errTmwb'
 export const errPrizeIsBidAsset = 'errPiba'
 /** prize ASAs with a clawback or freeze address could be seized or frozen after bids arrive */
 export const errPrizeSeizable = 'errPszb'
 /** weights boxes only exist for fee auctions (they hold the loser-raffle weights) */
 export const errWeightsNeedBidFee = 'errWnbf'
+/** a fee auction is created with `weightsListCount` above 0: it marks the totals box the seller funds */
+export const errFeeAuctionNeedsWeights = 'errFanw'
 /** the committed beacon round has no value yet; the commitment stands until BEACON_MAX_WAIT_ROUNDS */
 export const errBeaconNotReady = 'errBnrd'

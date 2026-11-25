@@ -198,6 +198,7 @@ export type RaffleArgs = {
             iterationAmount: bigint | number;
         };
         'claimRafflePrize()void': Record<string, never>;
+        'mbr()(uint64,uint64,uint64)': Record<string, never>;
         'isLive()bool': Record<string, never>;
         'getState()(uint64,uint64,uint64,address,uint64,uint64,uint64,uint64,uint64,address,uint64,bool,uint64,uint64,uint64,uint64,uint64,bool,uint64)': Record<string, never>;
         'updateAkitaDAOEscrow((string,uint64))void': {
@@ -210,7 +211,6 @@ export type RaffleArgs = {
             akitaDao: bigint | number;
         };
         'opUp()void': Record<string, never>;
-        'mbr()(uint64,uint64,uint64)': Record<string, never>;
         'optin(pay,uint64)void': {
             /**
              * The payment transaction
@@ -247,13 +247,13 @@ export type RaffleArgs = {
         'raffle()void': [];
         'findWinner(uint64)void': [iterationAmount: bigint | number];
         'claimRafflePrize()void': [];
+        'mbr()(uint64,uint64,uint64)': [];
         'isLive()bool': [];
         'getState()(uint64,uint64,uint64,address,uint64,uint64,uint64,uint64,uint64,address,uint64,bool,uint64,uint64,uint64,uint64,uint64,bool,uint64)': [];
         'updateAkitaDAOEscrow((string,uint64))void': [config: EscrowConfig];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
-        'mbr()(uint64,uint64,uint64)': [];
         'optin(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
     };
 };
@@ -282,13 +282,13 @@ export type RaffleReturns = {
     'raffle()void': void;
     'findWinner(uint64)void': void;
     'claimRafflePrize()void': void;
+    'mbr()(uint64,uint64,uint64)': RaffleMbrData;
     'isLive()bool': boolean;
     'getState()(uint64,uint64,uint64,address,uint64,uint64,uint64,uint64,uint64,address,uint64,bool,uint64,uint64,uint64,uint64,uint64,bool,uint64)': RaffleState;
     'updateAkitaDAOEscrow((string,uint64))void': void;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
-    'mbr()(uint64,uint64,uint64)': RaffleMbrData;
     'optin(pay,uint64)void': void;
 };
 /**
@@ -382,6 +382,10 @@ export type RaffleTypes = {
         argsObj: RaffleArgs['obj']['claimRafflePrize()void'];
         argsTuple: RaffleArgs['tuple']['claimRafflePrize()void'];
         returns: RaffleReturns['claimRafflePrize()void'];
+    }> & Record<'mbr()(uint64,uint64,uint64)' | 'mbr', {
+        argsObj: RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'];
+        argsTuple: RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)'];
+        returns: RaffleReturns['mbr()(uint64,uint64,uint64)'];
     }> & Record<'isLive()bool' | 'isLive', {
         argsObj: RaffleArgs['obj']['isLive()bool'];
         argsTuple: RaffleArgs['tuple']['isLive()bool'];
@@ -409,10 +413,6 @@ export type RaffleTypes = {
         argsObj: RaffleArgs['obj']['opUp()void'];
         argsTuple: RaffleArgs['tuple']['opUp()void'];
         returns: RaffleReturns['opUp()void'];
-    }> & Record<'mbr()(uint64,uint64,uint64)' | 'mbr', {
-        argsObj: RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'];
-        argsTuple: RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)'];
-        returns: RaffleReturns['mbr()(uint64,uint64,uint64)'];
     }> & Record<'optin(pay,uint64)void' | 'optin', {
         argsObj: RaffleArgs['obj']['optin(pay,uint64)void'];
         argsTuple: RaffleArgs['tuple']['optin(pay,uint64)void'];
@@ -818,6 +818,7 @@ export declare abstract class RaffleParamsFactory {
      *
     * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
     themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+    Calling it is optional: deleting the raffle removes a totals box that is still there.
   
      *
      * @param params Parameters for the call
@@ -957,6 +958,17 @@ export declare abstract class RaffleParamsFactory {
      */
     static claimRafflePrize(params: CallParams<RaffleArgs['obj']['claimRafflePrize()void'] | RaffleArgs['tuple']['claimRafflePrize()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the mbr()(uint64,uint64,uint64) ABI method
+     *
+    * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+    `refundMBR`), and `weights`, the totals box the seller funds.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static mbr(params: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the isLive()bool ABI method
      *
      * @param params Parameters for the call
@@ -991,13 +1003,6 @@ export declare abstract class RaffleParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static opUp(params: CallParams<RaffleArgs['obj']['opUp()void'] | RaffleArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the mbr()(uint64,uint64,uint64) ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static mbr(params: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the optin(pay,uint64)void ABI method
      *
@@ -1708,6 +1713,7 @@ export declare class RaffleClient {
          *
         * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
         themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+        Calling it is optional: deleting the raffle removes a totals box that is still there.
     
          *
          * @param params The params for the smart contract call
@@ -1879,6 +1885,21 @@ export declare class RaffleClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+        `refundMBR`), and `weights`, the totals box the seller funds.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the Raffle smart contract using the `isLive()bool` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1923,17 +1944,6 @@ export declare class RaffleClient {
          * @returns The call params
          */
         opUp: (params?: CallParams<RaffleArgs["obj"]["opUp()void"] | RaffleArgs["tuple"]["opUp()void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
-         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -2046,6 +2056,7 @@ export declare class RaffleClient {
          *
         * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
         themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+        Calling it is optional: deleting the raffle removes a totals box that is still there.
     
          *
          * @param params The params for the smart contract call
@@ -2281,6 +2292,25 @@ export declare class RaffleClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+        `refundMBR`), and `weights`, the totals box the seller funds.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Raffle smart contract using the `isLive()bool` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2341,21 +2371,6 @@ export declare class RaffleClient {
          * @returns The call transaction
          */
         opUp: (params?: CallParams<RaffleArgs["obj"]["opUp()void"] | RaffleArgs["tuple"]["opUp()void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -2503,6 +2518,7 @@ export declare class RaffleClient {
          *
         * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
         themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+        Calling it is optional: deleting the raffle removes a totals box that is still there.
     
          *
          * @param params The params for the smart contract call
@@ -2818,6 +2834,30 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+        * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+        `refundMBR`), and `weights`, the totals box the seller funds.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | RaffleReturns["mbr()(uint64,uint64,uint64)"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Raffle smart contract using the `isLive()bool` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2910,26 +2950,6 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
-         *
-         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        mbr: (params?: CallParams<RaffleArgs["obj"]["mbr()(uint64,uint64,uint64)"] | RaffleArgs["tuple"]["mbr()(uint64,uint64,uint64)"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | RaffleReturns["mbr()(uint64,uint64,uint64)"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
          * Makes a call to the Raffle smart contract using the `optin(pay,uint64)void` ABI method.
          *
          * optin tells the contract to opt into an asa
@@ -2958,6 +2978,19 @@ export declare class RaffleClient {
      */
     clone(params: CloneAppClientParams): RaffleClient;
     /**
+     * Makes a readonly (simulated) call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+    * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+    `refundMBR`), and `weights`, the totals box the seller funds.
+  
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    mbr(params?: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']>): Promise<RaffleMbrData>;
+    /**
      * Makes a readonly (simulated) call to the Raffle smart contract using the `isLive()bool` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2966,15 +2999,6 @@ export declare class RaffleClient {
      * @returns The call result: a boolean of whether the auction is live
      */
     isLive(params?: CallParams<RaffleArgs['obj']['isLive()bool'] | RaffleArgs['tuple']['isLive()bool']>): Promise<boolean>;
-    /**
-     * Makes a readonly (simulated) call to the Raffle smart contract using the `mbr()(uint64,uint64,uint64)` ABI method.
-     *
-     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
-     *
-     * @param params The params for the smart contract call
-     * @returns The call result
-     */
-    mbr(params?: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']>): Promise<RaffleMbrData>;
     /**
      * Methods to access state for the current Raffle app
      */
@@ -3212,6 +3236,7 @@ export type RaffleComposer<TReturns extends [...any[]] = []> = {
      *
     * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
     themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+    Calling it is optional: deleting the raffle removes a totals box that is still there.
   
      *
      * @param args The arguments for the contract call
@@ -3367,6 +3392,18 @@ export type RaffleComposer<TReturns extends [...any[]] = []> = {
      */
     claimRafflePrize(params?: CallParams<RaffleArgs['obj']['claimRafflePrize()void'] | RaffleArgs['tuple']['claimRafflePrize()void']>): RaffleComposer<[...TReturns, RaffleReturns['claimRafflePrize()void'] | undefined]>;
     /**
+     * Calls the mbr()(uint64,uint64,uint64) ABI method.
+     *
+    * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+    `refundMBR`), and `weights`, the totals box the seller funds.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    mbr(params?: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']>): RaffleComposer<[...TReturns, RaffleReturns['mbr()(uint64,uint64,uint64)'] | undefined]>;
+    /**
      * Calls the isLive()bool ABI method.
      *
      * @param args The arguments for the contract call
@@ -3406,14 +3443,6 @@ export type RaffleComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     opUp(params?: CallParams<RaffleArgs['obj']['opUp()void'] | RaffleArgs['tuple']['opUp()void']>): RaffleComposer<[...TReturns, RaffleReturns['opUp()void'] | undefined]>;
-    /**
-     * Calls the mbr()(uint64,uint64,uint64) ABI method.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    mbr(params?: CallParams<RaffleArgs['obj']['mbr()(uint64,uint64,uint64)'] | RaffleArgs['tuple']['mbr()(uint64,uint64,uint64)']>): RaffleComposer<[...TReturns, RaffleReturns['mbr()(uint64,uint64,uint64)'] | undefined]>;
     /**
      * Calls the optin(pay,uint64)void ABI method.
      *

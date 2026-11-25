@@ -32,8 +32,12 @@ import {
   BEACON_ROUND_INTERVAL,
   ChunkSize,
   DRAW_DELAY_ROUNDS,
+  EntriesByAddressMBR,
+  EntriesMBR,
   MaxBoxSkipsPerCall,
   MaxWeightsBoxes,
+  RaffleRefundDisbursementMBR,
+  WeightsMBR,
   RaffleBoxKeyWeightTotals,
   RaffleBoxPrefixEntries,
   RaffleBoxPrefixEntriesByAddress,
@@ -97,7 +101,7 @@ import {
   errBeaconNotReady,
   errRaffleFull,
 } from './errors'
-import { EntryData, FindWinnerCursors, RaffleState } from './types'
+import { EntryData, FindWinnerCursors, RaffleMBRData, RaffleState } from './types'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
@@ -251,6 +255,16 @@ export class Raffle extends classes(
       passed = gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(principalOf(this.akitaDAO.value, wallet)), this.gateID.value)
     }
     loggedAssert(passed, errFailedGate)
+  }
+
+  /**
+   * What one entry holds here until `refundMBR`: its two boxes and its weight slot. AUC-02: a failed
+   * raffle refunds the tickets of an entrant who has left the ticket asset through a Rewards
+   * disbursement, which costs more than that storage releases, so an entry of an ASA raffle is
+   * topped up to the cost of one disbursement and that refund never draws on the seller's reserve.
+   */
+  private entryDeposit(): uint64 {
+    return this.ticketAsset.value.id === 0 ? EntriesMBR + EntriesByAddressMBR : RaffleRefundDisbursementMBR
   }
 
   /** tickets held by entry `loc` */
@@ -514,7 +528,7 @@ export class Raffle extends classes(
     // Base MBR and asset opt-in MBR are handled by factory before this call
     // This init only expects the storage of the (empty) totals box
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === this.mbr().weights, errInvalidPayment)
+    loggedAssert(payment.amount === WeightsMBR, errInvalidPayment)
 
     this.weightTotals.create({ size: 0 })
   }
@@ -545,8 +559,7 @@ export class Raffle extends classes(
     const remainder: uint64 = this.entryCount.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
-    const costs = this.mbr()
-    const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
+    const entryTotalMBR = this.entryDeposit()
 
     const opUpIterationAmount: uint64 = iterationAmount * 260
     ensureBudget(opUpIterationAmount)
@@ -581,6 +594,7 @@ export class Raffle extends classes(
   /**
    * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
    * themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+   * Calling it is optional: deleting the raffle removes a totals box that is still there.
    */
   clearWeightsBoxes(): uint64 {
     loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
@@ -592,7 +606,7 @@ export class Raffle extends classes(
     }
     this.weightTotals.delete()
 
-    const returnAmount: uint64 = this.mbr().weights
+    const returnAmount: uint64 = WeightsMBR
 
     // AR-09: the weights MBR goes straight back to whoever funded the raffle
     // (the factory refunds only what the deletion itself releases). A funder whose account has
@@ -614,7 +628,10 @@ export class Raffle extends classes(
     loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
     loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
     loggedAssert(this.entryCount.value === this.refundMBRCursor.value, errRefundsNotComplete)
-    loggedAssert(this.weightsBoxCount.value === 0 && !this.weightTotals.exists, errStillHasWeightsBoxes)
+    // the storage refunds removed every weights box; a totals box nobody cleared goes now, and its
+    // storage reaches the funder with the rest of what this deletion releases
+    loggedAssert(this.weightsBoxCount.value === 0, errStillHasWeightsBoxes)
+    this.weightTotals.delete()
 
     // AR-09: close every holding back to the factory so nothing is stranded in the deleted app
     if (this.ticketAsset.value.id !== 0 && Global.currentApplicationAddress.isOptedIn(this.ticketAsset.value)) {
@@ -709,8 +726,7 @@ export class Raffle extends classes(
     assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
 
-    const costs = this.mbr()
-    return costs.entries + costs.entriesByAddress + sponsorCost(payment.sender, Txn.sender)
+    return this.entryDeposit() + sponsorCost(payment.sender, Txn.sender)
   }
 
   /** stores the caller's validated entry of `amount` tickets, and who paid for its storage */
@@ -1005,6 +1021,19 @@ export class Raffle extends classes(
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  /**
+   * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+   * `refundMBR`), and `weights`, the totals box the seller funds.
+   */
+  @abimethod({ readonly: true })
+  override mbr(): RaffleMBRData {
+    return {
+      entries: this.entryDeposit() - EntriesByAddressMBR,
+      weights: WeightsMBR,
+      entriesByAddress: EntriesByAddressMBR,
+    }
+  }
 
   /** @returns a boolean of whether the auction is live */
   @abimethod({ readonly: true })

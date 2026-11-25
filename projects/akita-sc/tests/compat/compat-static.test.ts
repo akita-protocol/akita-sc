@@ -406,6 +406,15 @@ describe('CMP-S8 exact payment terms: what the shims accept is what the deployed
     expect(hasInt('AuctionPlugin.may', 34_900n)).toBe(true)
     expect(hasInt('AuctionPlugin.may', 53_400n)).toBe(true)
     expect(child - 53_400n).toBe(800n)
+    // 2.0.0: that holds for ALGO bids on an auction without a bid fee (e2e B4). A fee auction reserves
+    // no weights boxes, so a first bid there also funds the bidder's weight slot, and an ASA bid holds
+    // a deposit that pays for its own refund; the new plugin and the SDK read both from the child's
+    // `mbr()`. The deployed plugin knows neither price and is replaced with the release.
+    const locations = sourceConst('auction/constants.ts', 'AuctionMBRLocations')
+    expect(locations).toBe(sourceConst('auction/constants.ts', 'AuctionMBRLocationBox') + sourceConst('auction/constants.ts', 'AuctionMBRWeightSlot'))
+    expect(child + locations).toBe(85_600n)
+    expect(hasInt('AuctionPlugin.may', child + locations)).toBe(false)
+    expect(hasInt('AuctionPlugin.may', sourceConst('auction/constants.ts', 'AuctionRefundDisbursementMBR'))).toBe(false)
   })
 
   test('subscriptions: the deployed plugin quotes on chain through the legacy cost selectors, which the upgraded singleton keeps', () => {

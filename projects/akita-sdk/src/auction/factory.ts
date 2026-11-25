@@ -46,7 +46,7 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     endTimestamp,
     gateId,
     marketplace,
-    weightsListCount,
+    weightsListCount: requestedWeightsListCount,
     wallet = 0n,
     ...rest
   }: NewAuctionParams): Promise<AuctionSDK> {
@@ -54,6 +54,9 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     const prizeAsset = isPrizeBox ? 0n : (rest as Exclude<NewAuctionParams, { isPrizeBox: true }>).prizeAsset;
+
+    // only whether it is above 0 matters to a 2.0.0 factory (see `WeightsListCount`)
+    const weightsListCount = BigInt(requestedWeightsListCount ?? (BigInt(bidFee) > 0n ? 3n : 0n));
 
     // Get the cost for creating a new auction
     const cost = await this.cost({ isPrizeBox, bidAssetId, prizeAssetId: BigInt(prizeAsset), weightsListCount });

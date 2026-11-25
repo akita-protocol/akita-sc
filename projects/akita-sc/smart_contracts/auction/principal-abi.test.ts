@@ -82,16 +82,17 @@ function prefix<T extends Record<string, unknown>>(p: string, o: T): Record<stri
 }
 
 describe('§6.6 / §6.8: seller_referrer marker', () => {
-  test('children declare seller_referrer as one more global byte slice than the deployed child', () => {
+  test('children declare seller_referrer; with w_totals gone they hold as many global byte slices as the deployed child', () => {
     expect(keyNames(auction)).toContain('seller_referrer')
     expect(keyNames(raffle)).toContain('seller_referrer')
-    expect(auction.state.schema.global.bytes).toBe(DEPLOYED_AUCTION.child.spec.state.schema.global.bytes + 1)
     // the deployed raffle child predates min_entries / failed / raffle_round too (ride-along uints).
-    // 2.0.0 moved its weight totals out of the `w_totals` global into a box (no fixed number of
-    // weights boxes), so the raffle child gains seller_referrer and loses w_totals.
-    expect(keyNames(DEPLOYED_RAFFLE.child.spec)).toContain('w_totals')
-    expect(keyNames(raffle)).not.toContain('w_totals')
-    expect(raffle.state.schema.global.bytes).toBe(DEPLOYED_RAFFLE.child.spec.state.schema.global.bytes)
+    // 2.0.0 moved the weight totals of both children out of the `w_totals` global into a box (no
+    // fixed number of weights boxes), so each child gains seller_referrer and loses w_totals.
+    for (const [child, deployed] of [[auction, DEPLOYED_AUCTION.child.spec], [raffle, DEPLOYED_RAFFLE.child.spec]] as const) {
+      expect(keyNames(deployed)).toContain('w_totals')
+      expect(keyNames(child)).not.toContain('w_totals')
+      expect(child.state.schema.global.bytes).toBe(deployed.state.schema.global.bytes)
+    }
   })
 
   test('child create takes the forwarded sellerReferrer as its last argument', () => {

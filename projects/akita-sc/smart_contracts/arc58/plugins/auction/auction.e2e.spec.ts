@@ -214,7 +214,8 @@ describe('Auction plugin contract', () => {
       const auction = akitaUniverse.auctionFactory.get({ appId: auctionId! });
       const state = await auction.state();
       expect(state.seller).toBe(wallet.client.appAddress.toString());
-      expect(state.weightsBoxCount).toBe(3n);
+      // weights storage grows with the bidders: nothing is reserved at creation
+      expect(state.weightsBoxCount).toBe(0n);
       // C33: the fee reached the DAO escrow, and the wallet's recorded deposit is the storage cost alone
       expect(await escrowBalance() - escrowBefore).toBe(auctionFee + escrowOptIn);
       const quoted = await akitaUniverse.auctionFactory.cost({ isPrizeBox: false, bidAssetId: 0n, prizeAssetId, weightsListCount: 3n });

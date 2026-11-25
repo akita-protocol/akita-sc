@@ -294,7 +294,7 @@
       "name": "AuctionPlugin",
       "approval": {
         "bytes": 3809,
-        "sha256": "3cf44ff4b1946f11f714fb036628eede80c2c1e739ca114496eaae6f68e70072"
+        "sha256": "b6d77c4dcd3de064782dd4f2025c5447735b16a5e449985f9730af299ad21e8c"
       },
       "clear": {
         "bytes": 4,
@@ -645,8 +645,8 @@
     "auction/Auction": {
       "name": "Auction",
       "approval": {
-        "bytes": 8486,
-        "sha256": "556c009b9459a0c89feb427e4182631aac89583b62a30f2ed1eaf4c9dbb3ba4b"
+        "bytes": 8521,
+        "sha256": "bbe3696c54500e3ef5ab6708cf1a922fdc61e32032a6d7e70cd579bc72500470"
       },
       "clear": {
         "bytes": 4,
@@ -657,8 +657,8 @@
     "auction/AuctionFactory": {
       "name": "AuctionFactory",
       "approval": {
-        "bytes": 4856,
-        "sha256": "27ae394003bcc533596bdb7354070cfe6d512a73eac8dee1e1ec7a4097b0fb53"
+        "bytes": 4867,
+        "sha256": "8816b2cf74018ced26a5ac30e902e0662a7e23e9b14ec0f6055162e3c898b155"
       },
       "clear": {
         "bytes": 4,
@@ -1822,8 +1822,8 @@
     "raffle/Raffle": {
       "name": "Raffle",
       "approval": {
-        "bytes": 8149,
-        "sha256": "9f7d6d923c8094e7a9312915a9cd364fdf0ea9c8d5c53fc01822dde01d9246ac"
+        "bytes": 8151,
+        "sha256": "6ee9ae3e300812da8739e20f48524528862b8fc4193f333b0d71257ba5a35d79"
       },
       "clear": {
         "bytes": 4,

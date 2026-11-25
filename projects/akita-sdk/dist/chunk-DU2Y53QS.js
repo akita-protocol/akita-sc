@@ -6,7 +6,7 @@ var _chunk6LOR4H2Njs = require('./chunk-6LOR4H2N.js');
 
 
 
-var _chunkT5J47X7Gjs = require('./chunk-T5J47X7G.js');
+var _chunkDGDU53GBjs = require('./chunk-DGDU53GB.js');
 
 
 
@@ -1493,7 +1493,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
     if (!walletAppId) {
       throw new Error("Could not read wallet app ID from DAO global state. Has the DAO been set up?");
     }
-    this._wallet = new (0, _chunkT5J47X7Gjs.WalletSDK)({
+    this._wallet = new (0, _chunkDGDU53GBjs.WalletSDK)({
       ...this._constructorParams,
       factoryParams: {
         ...this._constructorParams.factoryParams,
@@ -1548,7 +1548,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
             name = "",
             client,
             caller,
-            callerType: pluginCallerType = _chunkT5J47X7Gjs.CallerType.Other,
+            callerType: pluginCallerType = _chunkDGDU53GBjs.CallerType.Other,
             methods = [],
             escrow = "",
             delegationType = 0n,
@@ -1577,9 +1577,9 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
             }
           }
           const plugin = client.appId;
-          if (pluginCallerType === _chunkT5J47X7Gjs.CallerType.Global) {
+          if (pluginCallerType === _chunkDGDU53GBjs.CallerType.Global) {
             caller = _algosdk.ALGORAND_ZERO_ADDRESS_STRING;
-          } else if (pluginCallerType === _chunkT5J47X7Gjs.CallerType.Admin) {
+          } else if (pluginCallerType === _chunkDGDU53GBjs.CallerType.Admin) {
             caller = _algosdk2.default.getApplicationAddress((await this.getWallet()).appId).toString();
           }
           let transformedMethods = [];
@@ -2002,7 +2002,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
     if (result.returns === void 0) {
       throw new Error("Failed to setup Akita DAO");
     }
-    this._wallet = new (0, _chunkT5J47X7Gjs.WalletSDK)({
+    this._wallet = new (0, _chunkDGDU53GBjs.WalletSDK)({
       algorand: this.algorand,
       factoryParams: {
         appId: result.returns[0],
@@ -2041,11 +2041,11 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
       },
       maxFee: _algokitutils.microAlgo.call(void 0, 257000n)
     });
-    const prepared = await _chunkT5J47X7Gjs.prepareGroup.call(void 0, 
+    const prepared = await _chunkDGDU53GBjs.prepareGroup.call(void 0, 
       await group.composer(),
       consolidateFees ? { consolidateFees: true } : {}
     );
-    const { groupId, txIds, confirmedRound, returns } = await _chunkT5J47X7Gjs.sendPrepared.call(void 0, 
+    const { groupId, txIds, confirmedRound, returns } = await _chunkDGDU53GBjs.sendPrepared.call(void 0, 
       prepared,
       this.client.algorand.client.algod
     );
@@ -2459,4 +2459,4 @@ var AkitaDaoSDK = (_class2 = class extends _chunkN5J2GB5Wjs.BaseSDK {
 
 
 exports.SplitDistributionType = SplitDistributionType; exports.SplitsToTuples = SplitsToTuples; exports.ProposalActionEnum = ProposalActionEnum; exports.EMPTY_CID = EMPTY_CID; exports.PROPOSAL_EXECUTION_WINDOW = PROPOSAL_EXECUTION_WINDOW; exports.DAOProposalVotesMBR = DAOProposalVotesMBR; exports.DAOLegacyProposalVotesMBR = DAOLegacyProposalVotesMBR; exports.DAOParticipationMBR = DAOParticipationMBR; exports.DAOVoteReceiptBoxPrefix = DAOVoteReceiptBoxPrefix; exports.DAOLegacyVoteReceiptBoxPrefix = DAOLegacyVoteReceiptBoxPrefix; exports.DAOParticipationBoxPrefix = DAOParticipationBoxPrefix; exports.ProposalStatusEnum = ProposalStatusEnum; exports.DAOProposalTallyMBR = DAOProposalTallyMBR; exports.MaxBootstrapKeyRounds = MaxBootstrapKeyRounds; exports.DAOBootstrapKeyBoxPrefix = DAOBootstrapKeyBoxPrefix; exports.voteReceiptBoxName = voteReceiptBoxName; exports.participationBoxName = participationBoxName; exports.decodeVoteReceipt = decodeVoteReceipt; exports.decodeGovernanceParticipation = decodeGovernanceParticipation; exports.voteCost = voteCost; exports.LEGACY_DAO_ACTION_STRUCTS = LEGACY_DAO_ACTION_STRUCTS; exports.decodeLegacyProposalNewEscrow = decodeLegacyProposalNewEscrow; exports.usesLegacyEscrowActionShape = usesLegacyEscrowActionShape; exports.DAO_ERROR_MESSAGES = DAO_ERROR_MESSAGES; exports.parseDaoErrorCode = parseDaoErrorCode; exports.translateDaoError = translateDaoError; exports.AkitaDaoSDK = AkitaDaoSDK;
-//# sourceMappingURL=chunk-BDRFP2QW.js.map
+//# sourceMappingURL=chunk-DU2Y53QS.js.map
