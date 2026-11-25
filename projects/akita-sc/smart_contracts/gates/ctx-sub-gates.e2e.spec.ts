@@ -9,6 +9,7 @@ import { SubscriptionsSDK } from 'akita-sdk/subscriptions'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { assertUnregistered, newUnregisteredWallet, rekeyToWallet } from '../../tests/fixtures/unregistered-wallet'
 import type { GateCtx } from '../artifacts/gates/GateClient'
+import { APP_SPEC as ForgedWalletSpec, MockForgedWalletClient } from '../artifacts/mocks/forged-wallet/MockForgedWalletClient'
 
 /**
  * Context-aware sub-gates (principal-resolution spec §3.5, §6.9, Q12).
@@ -291,6 +292,58 @@ describe('Context-aware sub-gates (Q12)', () => {
         extraFee: microAlgo(12_000),
       })
       expect(passed).toBe(true)
+    })
+
+    test('audit 11 GAT-02: a `referrer` that is not an address reads as no referrer instead of failing the check', async () => {
+      const { algorand } = localnet
+      const forger = await localnet.context.generateAccount({ initialFunds: (20).algos() })
+      const Wf = await newWallet({
+        algorand,
+        factoryParams: { appId: universe.walletFactory.appId, defaultSender: forger.addr, defaultSigner: forger.signer },
+        sender: forger.addr,
+        signer: forger.signer,
+        nickname: 'ctx-wf',
+        referrer: referrer1,
+        register: true,
+      })
+      const ctx = walletCtx(Wf)
+      // checkFor ignores its args, so a counter keeps otherwise identical calls apart
+      let calls = 0
+      const passes = (gateId: bigint) => checkFor(gateId, ctx, Uint8Array.from([++calls]))
+      expect(await passes(gateR1)).toBe(true)
+
+      // The wallet's admin installs its own program (the app stays factory-created) and stores a uint64
+      // where an address is expected. Reading its length used to fail the sub-gate, and with it every
+      // re-check of a gate with a referrer filter by a third party (StakingPool.gateCheck).
+      await algorand.send.appUpdateMethodCall({
+        sender: forger.addr,
+        signer: forger.signer,
+        appId: Wf.client.appId,
+        method: Wf.client.appClient.getABIMethod('update'),
+        args: ['forged'],
+        approvalProgram: Buffer.from(ForgedWalletSpec.byteCode!.approval, 'base64'),
+        clearStateProgram: Buffer.from(ForgedWalletSpec.byteCode!.clear, 'base64'),
+      })
+      const forged = algorand.client.getTypedAppClientById(MockForgedWalletClient, {
+        appId: Wf.client.appId, defaultSender: forger.addr, defaultSigner: forger.signer,
+      })
+      const key = Buffer.from('referrer')
+      await forged.send.setUint({ args: { key, value: 7n } })
+      expect(await passes(gateR1)).toBe(false)
+      expect(await passes(gateR2)).toBe(false)
+      // the legacy check reads the same global through the registry
+      expect(await check(gateR1, Wf.client.appAddress.toString(), walletIdArg(Wf))).toBe(false)
+
+      // byte strings that are not an address read the same way, whatever their length
+      for (const value of [new Uint8Array(0), new Uint8Array(8).fill(255), new Uint8Array(31).fill(1), new Uint8Array(33).fill(1)]) {
+        await forged.send.setBytes({ args: { key, value } })
+        expect(await passes(gateR1)).toBe(false)
+      }
+
+      // and a full address is still read as the referrer
+      await forged.send.setBytes({ args: { key, value: algosdk.decodeAddress(referrer2).publicKey } })
+      expect(await passes(gateR2)).toBe(true)
+      expect(await passes(gateR1)).toBe(false)
     })
   })
 })

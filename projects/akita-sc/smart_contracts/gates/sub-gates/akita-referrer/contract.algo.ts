@@ -1,8 +1,8 @@
-import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, Bytes, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { btoi, Global } from '@algorandfoundation/algorand-typescript/op'
+import { AppGlobal, bitLength, btoi, Global } from '@algorandfoundation/algorand-typescript/op'
 import { getAkitaAppList, getOtherAppList } from '../../../utils/functions'
-import { GateCtx, isGenuineWallet, quoteReferrer } from '../../../utils/principal'
+import { GateCtx, isGenuineWallet, PRINCIPAL_KEY_REFERRER } from '../../../utils/principal'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
 import { errInvalidArgCount, errInvalidPayment, errInvalidRegistryArg } from '../../errors'
 import { AkitaReferrerGateRegistryMBR } from './constants'
@@ -53,7 +53,17 @@ export class AkitaReferrerGate extends AkitaBaseContract {
   /** `wallet` is a genuine Akita wallet (creator == the DAO's wallet factory) whose referrer is `referrer`. */
   private referrerGate(wallet: uint64, referrer: Account): boolean {
     const factory = getAkitaAppList(this.akitaDAO.value).wallet
-    return wallet !== 0 && isGenuineWallet(wallet, factory) && quoteReferrer(factory, wallet) === referrer
+    if (wallet === 0 || !isGenuineWallet(wallet, factory)) {
+      return false
+    }
+    // Third-party paths (StakingPool.gateCheck) reach this read, so it must not fail for any wallet
+    // program. `len` fails on a uint64; `bitlen` accepts both stack types. A value of at most 64 bits
+    // is a uint64 or an (all but) zero byte string: it reads as "no referrer", like a missing key.
+    const [raw, exists] = AppGlobal.getExBytes(wallet, Bytes(PRINCIPAL_KEY_REFERRER))
+    if (!exists || bitLength(raw) <= 64) {
+      return referrer === Global.zeroAddress
+    }
+    return (raw.length === 32 ? Account(raw) : Global.zeroAddress) === referrer
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------  

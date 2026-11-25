@@ -193,7 +193,10 @@ describe('MOCK Haystack Router (LocalNet)', () => {
     expect([algosdk.decodeUint64(assets.slice(2, 10), 'bigint'), algosdk.decodeUint64(assets.slice(10, 18), 'bigint')]).toEqual([tka, 0n])
     const terms = finalize.appArgs[4]
     expect(terms).toHaveLength(93)
-    expect(algosdk.decodeUint64(terms.slice(2, 10), 'bigint')).toBe((BigInt(quote.quote) * 9_900n) / 10_000n)
+    // input index 0, output index 1, fixed-input mode; then the minimum and the quoted output
+    expect(Array.from(terms.slice(0, 3))).toEqual([0, 1, 0])
+    expect(algosdk.decodeUint64(terms.slice(3, 11), 'bigint')).toBe((BigInt(quote.quote) * 9_900n) / 10_000n)
+    expect(algosdk.decodeUint64(terms.slice(11, 19), 'bigint')).toBe(BigInt(quote.quote))
     expect(algosdk.encodeAddress(terms.slice(29, 61))).toBe(user.addr.toString())
     // the user signs only the input, which carries every fee; the per-swap account sends the rest with its own key
     expect(txns.map((t) => t.signature === false)).toEqual(decoded.map((_, i) => i === decoded.length - 2))

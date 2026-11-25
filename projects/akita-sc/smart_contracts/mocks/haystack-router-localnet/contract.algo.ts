@@ -31,7 +31,8 @@ import { tmHolding, tmPoolAddress, tmSwapAs } from './tinyman-v2'
  *            `itob(amountIn) ‖ itob(hopCount) ‖ hops`; each hop is `itob(venue) ‖ itob(app) ‖ itob(pool) ‖
  *            itob(escrow) ‖ itob(assetOut)`; the only venue is 1 = Tinyman v2 (app = AMM app; the pool address
  *            is derived from the pair; pool and escrow are 0 and unused)
- *     arg 4  93 bytes: minAmountOut at 2, expected output at 10, beneficiary at 29, referrer at 61
+ *     arg 4  93 bytes: byte input index into arg 1 (0), byte output index into arg 1 (1), byte mode (0 = fixed
+ *            input), minAmountOut at 3, expected output at 11, beneficiary at 29, referrer at 61
  *     arg 5  39 bytes (unused here)        arg 6  uint16 length, tag (unused here)
  *
  * Like the real router, finalize takes its input from the transaction right before it: a pay/axfer of the input
@@ -58,6 +59,7 @@ export class MockHaystackRouterLocalNet extends BaseContract {
 
 const FinalizeSelector = Bytes.fromHex('871a0354')
 const OptInSelector = Bytes('opt_in')
+const TermsHeader = Bytes.fromHex('000100')
 const VenueTinyman: uint64 = 1
 const HopSize: uint64 = 40
 
@@ -74,7 +76,9 @@ function finalize(): void {
   const route = op.extract(routeArg, 2, op.extractUint16(routeArg, 0))
   const terms = Txn.applicationArgs(4)
   loggedAssert(terms.length === 93, 'mockHsArgs')
-  const minAmountOut = word(terms, 2)
+  // the only route the mock runs: from entry 0 of arg 1 to entry 1, fixed input
+  loggedAssert(op.extract(terms, 0, 3) === TermsHeader, 'mockHsArgs')
+  const minAmountOut = word(terms, 3)
   const beneficiary = Account(op.extract(terms, 29, 32))
   const self = Global.currentApplicationAddress
   loggedAssert(assetIn !== assetOut, 'mockHsArgs')

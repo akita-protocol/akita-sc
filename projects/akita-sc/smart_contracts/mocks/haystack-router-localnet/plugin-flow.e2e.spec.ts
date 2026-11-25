@@ -126,7 +126,7 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     const finalize = txns
       .map((t) => algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64')))
       .find((t) => Buffer.from(t.applicationCall?.appArgs[0] ?? []).equals(FINALIZE_SELECTOR))!
-    const minOutputAmount = algosdk.decodeUint64(finalize.applicationCall!.appArgs[4].slice(2, 10), 'bigint')
+    const minOutputAmount = algosdk.decodeUint64(finalize.applicationCall!.appArgs[4].slice(3, 11), 'bigint')
     const before = await holding(wallet.client.appAddress.toString(), to)
     const { temp } = await sendWindowWithRoute(txns, { asset: from, amount, outputAsset: to, minOutputAmount })
     // temp ends closed: no ALGO, no assets

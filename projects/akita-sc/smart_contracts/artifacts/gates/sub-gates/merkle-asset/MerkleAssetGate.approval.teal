@@ -251,7 +251,7 @@ check:
     // loggedAssert(args.length >= MinCheckArgsLength, errInvalidArgCount)
     len
     dup
-    pushint 74
+    pushint 12
     >=
     bnz check_after_assert@3
     bytec_3 // "ERR:errIarg"

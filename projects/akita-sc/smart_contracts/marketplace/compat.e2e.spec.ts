@@ -244,6 +244,15 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
       expiration: (await now()) + ONE_DAY, reservedFor: ZERO, gateId: 0n, marketplace: user.addr.toString(),
     })
     await marketplace().delist({ sender: user.addr, signer: user.signer, appId: warm.client.appId })
+    // The deployed generation opts the DAO's revenue escrow into a prize through the factory's `optIn`, which
+    // the revenue manager allows only from that escrow's registered source. On MainNet that source is the one
+    // deployed factory. The second, old-generation factory created further down is not the source in this
+    // universe, so the escrow is opted in here, by the factory that is. (A listing on the current factory no
+    // longer does that as a side effect: audit 09, MKT-01.)
+    await marketplace().optIn({ sender: deployer.addr, signer: deployer.signer, asset })
+    // the escrow holds the asset now (an account that is not opted in has no holding to read)
+    const revenueEscrow = algosdk.getApplicationAddress((await marketplace().client.state.global.akitaDaoEscrow())!.app)
+    expect((await algorand.asset.getAccountInformation(revenueEscrow, asset)).balance).toBe(0n)
 
     oldPlugin = await deployOldPlugin(marketplace().appId)
 

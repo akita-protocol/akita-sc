@@ -11,16 +11,30 @@ import { deployOptInPlugin } from '../../../../tests/fixtures/plugins/optin'
 import { expectContractError } from '../../../../tests/utils/errors'
 import { AbstractedAccountMbrFactory } from '../../../artifacts/arc58/account/AbstractedAccountMBRClient'
 import { MockHaystackRouterClient, MockHaystackRouterFactory } from '../../../artifacts/mocks/haystack-router/MockHaystackRouterClient'
-import { errInvalidBeneficiary, errInvalidFunding, errInvalidMinOutput, errInvalidOutputAsset, errInvalidReceiverArg, errInvalidRouter } from './errors'
+import { errInvalidBeneficiary, errInvalidFunding, errInvalidMinOutput, errInvalidOutputAsset, errInvalidReceiverArg, errInvalidRouter, errInvalidRouterCall } from './errors'
+
+type RouteTerms = {
+  minAmountOut: bigint
+  beneficiary: string
+  referrer: string
+  /** which entry of the asset ids the router takes in and pays out, and its mode (0 = fixed input) */
+  inputIndex?: number
+  outputIndex?: number
+  mode?: number
+  /** where the minimum is written; the live router reads it at 3 */
+  minOffset?: number
+}
 
 /**
- * The 93-byte terms of Haystack's ORDER_ROUTER v4 route call (finalize arg 4): uint16, uint64 minAmountOut,
- * uint64 expected output, uint16 fee bps, uint64, byte, beneficiary, referrer.
+ * The 93-byte terms of Haystack's ORDER_ROUTER v4 route call (finalize arg 4), as the live router's routes carry
+ * them: byte input index, byte output index, byte mode, uint64 minAmountOut (at 3), uint64 expected output (at 11),
+ * uint16 fee bps, uint64, beneficiary (at 29), referrer (at 61).
  */
-function routeTerms({ minAmountOut, beneficiary, referrer }: { minAmountOut: bigint; beneficiary: string; referrer: string }) {
+function routeTerms({ minAmountOut, beneficiary, referrer, inputIndex = 0, outputIndex = 1, mode = 0, minOffset = 3 }: RouteTerms) {
   const terms = new Uint8Array(93)
-  terms.set(algosdk.encodeUint64(minAmountOut), 2)
-  terms.set(algosdk.encodeUint64(minAmountOut), 10)
+  terms.set([inputIndex, outputIndex, mode], 0)
+  terms.set(algosdk.encodeUint64(minAmountOut), minOffset + 8)
+  terms.set(algosdk.encodeUint64(minAmountOut), minOffset)
   terms.set(algosdk.decodeAddress(beneficiary).publicKey, 29)
   terms.set(algosdk.decodeAddress(referrer).publicKey, 61)
   return terms
@@ -120,9 +134,21 @@ describe('Haystack temporary-account funding', () => {
     routeOutputAsset?: bigint
     routeMinOutput?: bigint
     routeReferrer?: string
+    /** the asset ids of the route call, when not [input, output] */
+    routeAssets?: bigint[]
+    /** overrides for the first bytes of the terms and for where the minimum is written */
+    routeTerms?: Pick<RouteTerms, 'inputIndex' | 'outputIndex' | 'mode' | 'minOffset'>
+    /** the minimum the plugin call declares, when not `minOutputAmount` */
+    declaredMinOutput?: bigint
     omitFinalize?: boolean
     finalizeFirst?: boolean
     duplicateInput?: boolean
+    /** another router method between the input and the route call */
+    prefixAfterInput?: boolean
+    /** a second, smaller payment to the router between the input and the route call */
+    inputBeforeRoute?: bigint
+    /** a second input and route call after the first */
+    secondRoute?: boolean
     windows?: number[]
   }
 
@@ -159,27 +185,36 @@ describe('Haystack temporary-account funding', () => {
     const payment = await makePayment()
     const route = algorand.newGroup()
     if (options.prefix) route.addAppCallMethodCall(await router.params.prefix({ sender: relay.addr, signer: relay.signer, args: {}, maxFee: microAlgo(10_000) }))
-    const finalize = async () => route.addAppCallMethodCall(await router.params.finalize({ sender: relay.addr, signer: relay.signer, args: {
-      assets: [options.routeInputAsset ?? (options.asa ? inputAsset : 0n), options.routeOutputAsset ?? outputAsset],
+    const finalize = async (note?: string) => route.addAppCallMethodCall(await router.params.finalize({ sender: relay.addr, signer: relay.signer, note, args: {
+      assets: options.routeAssets ?? [options.routeInputAsset ?? (options.asa ? inputAsset : 0n), options.routeOutputAsset ?? outputAsset],
       addresses: new Uint8Array(), legs: new Uint8Array(),
       terms: routeTerms({
         minAmountOut: options.routeMinOutput ?? minOutputAmount,
         beneficiary: options.beneficiary ?? wallet.client.appAddress.toString(),
         referrer: options.routeReferrer ?? referrer,
+        ...options.routeTerms,
       }),
       flags: new Uint8Array(39), tag: 'hayrouter/v1:{"tag":"akita"}',
     }, staticFee: microAlgo(10_000), maxFee: microAlgo(10_000) }))
+    const smallInput = (value: bigint, note: string) => algorand.createTransaction.payment({
+      sender: relay.addr.toString(), receiver: router.appAddress.toString(), amount: microAlgo(value), note })
     if (options.finalizeFirst) await finalize()
     route.addTransaction(payment, relay.signer)
     if (options.duplicateInput) {
       const duplicate = await makePayment('duplicate input')
       route.addTransaction(duplicate, relay.signer)
     }
+    if (options.prefixAfterInput) route.addAppCallMethodCall(await router.params.prefix({ sender: relay.addr, signer: relay.signer, args: {}, note: 'after the input', maxFee: microAlgo(10_000) }))
+    if (options.inputBeforeRoute !== undefined) route.addTransaction(await smallInput(options.inputBeforeRoute, 'input before the route call'), relay.signer)
     if (!options.omitFinalize && !options.finalizeFirst) await finalize()
+    if (options.secondRoute) {
+      route.addTransaction(await smallInput(1_000n, 'second input'), relay.signer)
+      await finalize('second route call')
+    }
     // End the wallet's protected plugin segment before the intact router route.
     const group = options.windows ? await swapWindows(options.windows, options.asa ?? false)
       : (await wallet.prepareUsePlugin({ callerType: CallerType.Global,
-        calls: [plugin.swap({ asset: options.asa ? inputAsset : 0n, amount, outputAsset, minOutputAmount })] })).group
+        calls: [plugin.swap({ asset: options.asa ? inputAsset : 0n, amount, outputAsset, minOutputAmount: options.declaredMinOutput ?? minOutputAmount })] })).group
     const composer = await group.composer()
     composer.addAtc((await route.build()).atc.clone())
     return group.send()
@@ -274,5 +309,44 @@ describe('Haystack temporary-account funding', () => {
     await expectContractError(swap({ routeReferrer: relay.addr.toString() }), errInvalidBeneficiary)
     await expectContractError(swap({ routeInputAsset: outputAsset }), errInvalidFunding)
     await expectContractError(swap({ omitFinalize: true }), errInvalidRouter)
+  })
+
+  const outputHeld = async () => (await fixture.algorand.account.getInformation(wallet.client.appAddress))
+    .assets?.find(({ assetId }) => assetId === outputAsset)?.amount ?? 0n
+
+  test('audit 12 EXT-02: the declared minimum is the one the router enforces (offset 3 of the terms)', async () => {
+    // Terms with the minimum written one byte early, where this plugin used to read it: the router enforces 256
+    // times that amount, so the declared minimum no longer matches.
+    await expectContractError(swap({ routeTerms: { minOffset: 2 } }), errInvalidMinOutput)
+    // The same terms pass for the minimum the router reads, and that is what the wallet receives.
+    const before = await outputHeld()
+    await swap({ routeTerms: { minOffset: 2 }, declaredMinOutput: minOutputAmount * 256n })
+    expect((await outputHeld()) - before).toBe(minOutputAmount * 256n)
+  })
+
+  test('audit 12 EXT-02: refuses a route between other entries of the asset ids, and the fixed-output mode', async () => {
+    // output index 2: the router would pay out the third asset id while entry 1 names the declared output
+    await expectContractError(swap({ routeAssets: [0n, outputAsset, inputAsset], routeTerms: { outputIndex: 2 } }), errInvalidRouterCall)
+    // input index 2: the router would take a different asset in than the one the wallet funds
+    await expectContractError(swap({ routeAssets: [0n, outputAsset, inputAsset], routeTerms: { inputIndex: 2 } }), errInvalidRouterCall)
+    // mode 1: the amount at offset 3 would no longer bound the output from below
+    await expectContractError(swap({ routeTerms: { mode: 1 } }), errInvalidRouterCall)
+    expect((await fixture.algorand.account.getInformation(wallet.client.appAddress)).authAddr).toBeUndefined()
+  })
+
+  test('audit 12 EXT-03: the route call is the one transaction right after the funded input', async () => {
+    for (const asa of [false, true]) {
+      const before = await fixture.algorand.account.getInformation(wallet.client.appAddress)
+      // another router method after the input could hand the input back before the route call
+      await expectContractError(swap({ asa, prefixAfterInput: true }), errInvalidRouterCall)
+      // the router swaps the transaction right before the route call, which here is not the funded input
+      await expectContractError(swap({ asa, inputBeforeRoute: 1_000n }), errInvalidFunding)
+      // a second route call in the group
+      await expectContractError(swap({ asa, secondRoute: true }), errInvalidFunding)
+      const after = await fixture.algorand.account.getInformation(wallet.client.appAddress)
+      expect(after.balance.microAlgos).toBe(before.balance.microAlgos)
+      expect(after.assets).toEqual(before.assets)
+      expect(after.authAddr).toBeUndefined()
+    }
   })
 })

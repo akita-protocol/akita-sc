@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 8 1 6
-    bytecblock "ERR:errNnfd" "nfd_registry" 0x151f7c75 "ERR:errNarn" "ERR:errNpmx" 0x50f490c2 0x77fd5b74 "ERR:errNnow"
+    bytecblock "ERR:errNnfd" "nfd_registry" 0x151f7c75 "ERR:errNpmx" "ERR:errNarn" 0x50f490c2 0x77fd5b74 "ERR:errNnow"
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:13
     // export class NFDPlugin extends Contract {
     txn OnCompletion
@@ -90,7 +90,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:32
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:48
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -102,11 +102,11 @@ create:
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:34
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:50
     // this.registry.value = Application(registry)
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:32
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:48
     // @abimethod({ onCreate: 'require' })
     intc_2 // 1
     return
@@ -114,7 +114,7 @@ create:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.mint[routing]() -> void:
 mint:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:39-46
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:55-62
     // mint(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -167,22 +167,22 @@ mint:
     intc_2 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:47
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:63
     // const sender = getControlledSpendingAccount(wallet)
     dig 5
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:64
     // const appId = this.registry.value
     intc_0 // 0
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:64
     // const appId = this.registry.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:50-64
-    // return abiCall<typeof NFDRegistry.prototype.mintNfd>({
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:66-79
+    // const minted = abiCall<typeof NFDRegistry.prototype.mintNfd>({
     //   sender,
     //   appId,
     //   args: [
@@ -195,10 +195,9 @@ mint:
     //     reservedFor,
     //     linkOnMint
     //   ],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:56
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:72
     // receiver: appId.address,
     dup
     app_params_get AppAddress
@@ -208,7 +207,7 @@ mint:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:54-58
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:70-74
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -218,8 +217,8 @@ mint:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:50-64
-    // return abiCall<typeof NFDRegistry.prototype.mintNfd>({
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:66-79
+    // const minted = abiCall<typeof NFDRegistry.prototype.mintNfd>({
     //   sender,
     //   appId,
     //   args: [
@@ -232,39 +231,18 @@ mint:
     //     reservedFor,
     //     linkOnMint
     //   ],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:63
-    // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    uncover 5
-    uncover 6
-    callsub rekeyAddress
-    itxn_field RekeyTo
     itxn_field ApplicationID
+    dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:50-64
-    // return abiCall<typeof NFDRegistry.prototype.mintNfd>({
-    //   sender,
-    //   appId,
-    //   args: [
-    //     itxn.payment({
-    //       sender,
-    //       receiver: appId.address,
-    //       amount
-    //     }),
-    //     nfdName,
-    //     reservedFor,
-    //     linkOnMint
-    //   ],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
-    // }).returnValue
     pushbytes 0x3e8e4b76 // method "mintNfd(pay,string,address,bool)uint64"
+    itxn_field ApplicationArgs
+    uncover 3
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
-    itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -284,7 +262,13 @@ mint:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:39-46
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:80
+    // this.handBack(sender, rekeyBack, wallet)
+    swap
+    uncover 2
+    uncover 3
+    callsub handBack
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:55-62
     // mint(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -303,7 +287,7 @@ mint:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.deleteFields[routing]() -> void:
 deleteFields:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:67-72
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:84-89
     // deleteFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -351,7 +335,7 @@ deleteFields:
     intc_0 // 0
 
 deleteFields_for_header@1:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:67-72
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:84-89
     // deleteFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -392,7 +376,7 @@ deleteFields_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:67-72
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:84-89
     // deleteFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -403,11 +387,11 @@ deleteFields_after_for@4:
     +
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:73
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:90
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:75
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:92
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     dig 2
     callsub isNFD
@@ -417,7 +401,7 @@ deleteFields_after_for@4:
     err // ERR:errNnfd
 
 deleteFields_after_assert@7:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:77-82
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:94-99
     // abiCall<typeof NFD.prototype.deleteFields>({
     //   sender,
     //   appId,
@@ -425,7 +409,7 @@ deleteFields_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:81
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:98
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 3
@@ -433,7 +417,7 @@ deleteFields_after_assert@7:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:77-82
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:94-99
     // abiCall<typeof NFD.prototype.deleteFields>({
     //   sender,
     //   appId,
@@ -448,7 +432,7 @@ deleteFields_after_assert@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:67-72
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:84-89
     // deleteFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -462,7 +446,7 @@ deleteFields_after_assert@7:
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.updateFields[routing]() -> void:
 updateFields:
     pushbytes ""
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:85-91
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:102-108
     // updateFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -510,7 +494,7 @@ updateFields:
     intc_0 // 0
 
 updateFields_for_header@1:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:85-91
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:102-108
     // updateFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -552,7 +536,7 @@ updateFields_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:85-91
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:102-108
     // updateFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -572,11 +556,11 @@ updateFields_after_for@4:
     assert // invalid number of bytes for arc4.uint64
     btoi
     bury 5
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:93
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:110
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:95
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:112
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     dig 1
     callsub isNFD
@@ -586,18 +570,18 @@ updateFields_after_for@4:
     err // ERR:errNnfd
 
 updateFields_after_assert@7:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:97
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:114
     // if (mbrCost > 0) {
     dig 5
     bz updateFields_after_if_else@10
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:98-102
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:115-119
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
     //   amount: mbrCost,
     // }).submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:100
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:117
     // receiver: appId.address,
     dig 1
     app_params_get AppAddress
@@ -607,7 +591,7 @@ updateFields_after_assert@7:
     itxn_field Receiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:98-102
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:115-119
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -620,7 +604,7 @@ updateFields_after_assert@7:
     itxn_submit
 
 updateFields_after_if_else@10:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:105-110
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:122-127
     // abiCall<typeof NFD.prototype.updateFields>({
     //   sender,
     //   appId,
@@ -628,7 +612,7 @@ updateFields_after_if_else@10:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:109
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:126
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 3
@@ -636,7 +620,7 @@ updateFields_after_if_else@10:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:105-110
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:122-127
     // abiCall<typeof NFD.prototype.updateFields>({
     //   sender,
     //   appId,
@@ -651,7 +635,7 @@ updateFields_after_if_else@10:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:85-91
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:102-108
     // updateFields(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -665,7 +649,7 @@ updateFields_after_if_else@10:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.linkNfdAddress[routing]() -> void:
 linkNfdAddress:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:113-120
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:130-137
     // linkNfdAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -693,7 +677,7 @@ linkNfdAddress:
     swap
     txna ApplicationArgs 3
     dup
-    cover 4
+    cover 2
     dup
     len
     intc_1 // 8
@@ -704,7 +688,7 @@ linkNfdAddress:
     cover 2
     txna ApplicationArgs 4
     dup
-    cover 5
+    cover 4
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -730,12 +714,12 @@ linkNfdAddress:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 7
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:121
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:138
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:123
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:140
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz linkNfdAddress_after_assert@3
@@ -744,18 +728,78 @@ linkNfdAddress:
     err // ERR:errNnfd
 
 linkNfdAddress_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:125
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:145
+    // if (nfdMbrCost > NFDPluginMaxForeignLinkMbr) {
+    dig 7
+    pushint 100000
+    >
+    bz linkNfdAddress_after_if_else@5
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:146
+    // this.assertOwnedBy(appId, sender)
+    dup2
+    callsub assertOwnedBy
+
+linkNfdAddress_after_if_else@5:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:149
+    // registryMbrCost <= abiCall<typeof NFDRegistry.prototype.costToAddToAddress>({ appId: this.registry.value, args: [sender] }).returnValue,
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
+    // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
+    bytec_1 // "nfd_registry"
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:149
+    // registryMbrCost <= abiCall<typeof NFDRegistry.prototype.costToAddToAddress>({ appId: this.registry.value, args: [sender] }).returnValue,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    pushbytes 0x4f63fff6 // method "costToAddToAddress(address)uint64"
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    dig 7
+    >=
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:148-151
+    // loggedAssert(
+    //   registryMbrCost <= abiCall<typeof NFDRegistry.prototype.costToAddToAddress>({ appId: this.registry.value, args: [sender] }).returnValue,
+    //   errPriceAboveMax,
+    // )
+    bnz linkNfdAddress_after_assert@8
+    bytec_3 // "ERR:errNpmx"
+    log
+    err // ERR:errNpmx
+
+linkNfdAddress_after_assert@8:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:153
     // if (nfdMbrCost > 0) {
     dig 7
-    bz linkNfdAddress_after_if_else@6
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:126-130
+    bz linkNfdAddress_after_if_else@11
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:154-158
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
     //   amount: nfdMbrCost,
     // }).submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:128
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:156
     // receiver: appId.address,
     dig 1
     app_params_get AppAddress
@@ -765,7 +809,7 @@ linkNfdAddress_after_assert@3:
     itxn_field Receiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:126-130
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:154-158
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -777,25 +821,25 @@ linkNfdAddress_after_assert@3:
     itxn_field Fee
     itxn_submit
 
-linkNfdAddress_after_if_else@6:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:133
+linkNfdAddress_after_if_else@11:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:161
     // if (registryMbrCost > 0) {
     dig 6
-    bz linkNfdAddress_after_if_else@9
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:134-138
+    bz linkNfdAddress_after_if_else@14
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:162-166
     // itxn.payment({
     //   sender,
     //   receiver: this.registry.value.address,
     //   amount: registryMbrCost,
     // }).submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:136
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:164
     // receiver: this.registry.value.address,
     intc_0 // 0
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:136
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:164
     // receiver: this.registry.value.address,
     app_global_get_ex
     assert // check GlobalState exists
@@ -806,7 +850,7 @@ linkNfdAddress_after_if_else@6:
     itxn_field Receiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:134-138
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:162-166
     // itxn.payment({
     //   sender,
     //   receiver: this.registry.value.address,
@@ -818,44 +862,36 @@ linkNfdAddress_after_if_else@6:
     itxn_field Fee
     itxn_submit
 
-linkNfdAddress_after_if_else@9:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:141-147
+linkNfdAddress_after_if_else@14:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:169-174
     // abiCall<typeof NFDRegistry.prototype.linkNfdAddress>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, sender],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:171
     // appId: this.registry.value,
     intc_0 // 0
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:143
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:171
     // appId: this.registry.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:146
-    // rekeyTo: rekeyAddress(rekeyBack, wallet),
-    uncover 3
-    uncover 5
-    callsub rekeyAddress
-    itxn_field RekeyTo
     uncover 2
     itxn_field Applications
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:141-147
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:169-174
     // abiCall<typeof NFDRegistry.prototype.linkNfdAddress>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, sender],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     pushbytes 0x940fa471 // method "linkNfdAddress(string,uint64,address)void"
     itxn_field ApplicationArgs
@@ -863,13 +899,19 @@ linkNfdAddress_after_if_else@9:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
+    dup
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:113-120
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:175
+    // this.handBack(sender, rekeyBack, wallet)
+    swap
+    uncover 2
+    callsub handBack
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:130-137
     // linkNfdAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -884,7 +926,7 @@ linkNfdAddress_after_if_else@9:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.unlinkNfdAddress[routing]() -> void:
 unlinkNfdAddress:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:150-156
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:178-184
     // unlinkNfdAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -911,7 +953,7 @@ unlinkNfdAddress:
     swap
     txna ApplicationArgs 3
     dup
-    cover 4
+    cover 2
     dup
     len
     intc_1 // 8
@@ -922,7 +964,7 @@ unlinkNfdAddress:
     cover 2
     txna ApplicationArgs 4
     dup
-    cover 5
+    cover 4
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -934,17 +976,17 @@ unlinkNfdAddress:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 5
     dup
-    cover 6
+    cover 5
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:157
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:185
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:159
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:187
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz unlinkNfdAddress_after_assert@3
@@ -953,55 +995,55 @@ unlinkNfdAddress:
     err // ERR:errNnfd
 
 unlinkNfdAddress_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:161-167
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:189-194
     // abiCall<typeof NFDRegistry.prototype.unlinkNfdAddress>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, address],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:163
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:191
     // appId: this.registry.value,
     intc_0 // 0
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:163
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:191
     // appId: this.registry.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:166
-    // rekeyTo: rekeyAddress(rekeyBack, wallet),
-    uncover 3
-    uncover 6
-    callsub rekeyAddress
-    itxn_field RekeyTo
     uncover 2
     itxn_field Applications
     itxn_field ApplicationID
+    dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:161-167
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:189-194
     // abiCall<typeof NFDRegistry.prototype.unlinkNfdAddress>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, address],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     pushbytes 0x95d8f5cc // method "unlinkNfdAddress(string,uint64,address)void"
     itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:150-156
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:195
+    // this.handBack(sender, rekeyBack, wallet)
+    swap
+    uncover 2
+    callsub handBack
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:178-184
     // unlinkNfdAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1015,7 +1057,7 @@ unlinkNfdAddress_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.setAddressPrimaryNfd[routing]() -> void:
 setAddressPrimaryNfd:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:170-176
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:198-204
     // setAddressPrimaryNfd(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1042,7 +1084,7 @@ setAddressPrimaryNfd:
     swap
     txna ApplicationArgs 3
     dup
-    cover 4
+    cover 2
     dup
     len
     intc_1 // 8
@@ -1053,7 +1095,7 @@ setAddressPrimaryNfd:
     cover 2
     txna ApplicationArgs 4
     dup
-    cover 5
+    cover 4
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1065,17 +1107,17 @@ setAddressPrimaryNfd:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 5
     dup
-    cover 6
+    cover 5
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:177
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:205
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:179
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:207
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz setAddressPrimaryNfd_after_assert@3
@@ -1084,55 +1126,55 @@ setAddressPrimaryNfd:
     err // ERR:errNnfd
 
 setAddressPrimaryNfd_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:181-187
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:209-214
     // abiCall<typeof NFDRegistry.prototype.setAddressPrimaryNfd>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, address],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:183
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:211
     // appId: this.registry.value,
     intc_0 // 0
     // smart_contracts/arc58/plugins/nfd/contract.algo.ts:17
     // registry = GlobalState<Application>({ key: NFDPluginGlobalStateKeyRegistry })
     bytec_1 // "nfd_registry"
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:183
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:211
     // appId: this.registry.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:186
-    // rekeyTo: rekeyAddress(rekeyBack, wallet),
-    uncover 3
-    uncover 6
-    callsub rekeyAddress
-    itxn_field RekeyTo
     uncover 2
     itxn_field Applications
     itxn_field ApplicationID
+    dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:181-187
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:209-214
     // abiCall<typeof NFDRegistry.prototype.setAddressPrimaryNfd>({
     //   sender,
     //   appId: this.registry.value,
     //   args: [nfdName, appId.id, address],
     //   apps: [appId],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     pushbytes 0xd671155b // method "setAddressPrimaryNfd(string,uint64,address)void"
     itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:170-176
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:215
+    // this.handBack(sender, rekeyBack, wallet)
+    swap
+    uncover 2
+    callsub handBack
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:198-204
     // setAddressPrimaryNfd(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1146,7 +1188,7 @@ setAddressPrimaryNfd_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.offerForSale[routing]() -> void:
 offerForSale:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:190-196
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:218-224
     // offerForSale(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1194,12 +1236,12 @@ offerForSale:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:198
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:226
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:200
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:228
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz offerForSale_after_assert@3
@@ -1208,7 +1250,7 @@ offerForSale:
     err // ERR:errNnfd
 
 offerForSale_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:202-207
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:230-235
     // abiCall<typeof NFD.prototype.offerForSale>({
     //   sender,
     //   appId,
@@ -1216,7 +1258,7 @@ offerForSale_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:206
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:234
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 5
@@ -1224,7 +1266,7 @@ offerForSale_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:202-207
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:230-235
     // abiCall<typeof NFD.prototype.offerForSale>({
     //   sender,
     //   appId,
@@ -1241,7 +1283,7 @@ offerForSale_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:190-196
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:218-224
     // offerForSale(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1255,7 +1297,7 @@ offerForSale_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.cancelSale[routing]() -> void:
 cancelSale:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:210-214
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:238-242
     // cancelSale(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1287,12 +1329,12 @@ cancelSale:
     btoi
     dup
     cover 3
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:216
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:244
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:218
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:246
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz cancelSale_after_assert@3
@@ -1301,7 +1343,7 @@ cancelSale:
     err // ERR:errNnfd
 
 cancelSale_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:220-225
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:248-253
     // abiCall<typeof NFD.prototype.cancelSale>({
     //   sender,
     //   appId,
@@ -1309,7 +1351,7 @@ cancelSale_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:224
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:252
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 3
@@ -1317,7 +1359,7 @@ cancelSale_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:220-225
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:248-253
     // abiCall<typeof NFD.prototype.cancelSale>({
     //   sender,
     //   appId,
@@ -1331,7 +1373,7 @@ cancelSale_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:210-214
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:238-242
     // cancelSale(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1343,7 +1385,7 @@ cancelSale_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.postOffer[routing]() -> void:
 postOffer:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:228-234
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:256-262
     // postOffer(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1396,12 +1438,12 @@ postOffer:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:236
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:264
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:238
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:266
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz postOffer_after_assert@3
@@ -1410,7 +1452,7 @@ postOffer:
     err // ERR:errNnfd
 
 postOffer_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:240-245
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:268-273
     // abiCall<typeof NFD.prototype.postOffer>({
     //   sender,
     //   appId,
@@ -1418,7 +1460,7 @@ postOffer_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:244
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:272
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 5
@@ -1426,7 +1468,7 @@ postOffer_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:240-245
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:268-273
     // abiCall<typeof NFD.prototype.postOffer>({
     //   sender,
     //   appId,
@@ -1443,7 +1485,7 @@ postOffer_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:228-234
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:256-262
     // postOffer(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1457,7 +1499,7 @@ postOffer_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.purchase[routing]() -> void:
 purchase:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:248-253
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:276-281
     // purchase(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1498,12 +1540,12 @@ purchase:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:255
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:283
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     cover 2
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:257
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:285
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz purchase_after_assert@3
@@ -1512,12 +1554,12 @@ purchase:
     err // ERR:errNnfd
 
 purchase_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:259
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:287
     // const [saleAmountBytes, saleAmountBytesExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeySaleAmountKey))
     dup
     pushbytes "i.sellamt"
     app_global_get_ex
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:260
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:288
     // loggedAssert(saleAmountBytesExists, errNoSaleAmount)
     bnz purchase_after_assert@5
     pushbytes "ERR:errNsla"
@@ -1525,21 +1567,21 @@ purchase_after_assert@3:
     err // ERR:errNsla
 
 purchase_after_assert@5:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:261
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:289
     // const saleAmount = btoi(saleAmountBytes)
     btoi
     dup
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:262
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:290
     // loggedAssert(saleAmount <= maxPrice, errPriceAboveMax)
     uncover 4
     <=
     bnz purchase_after_assert@7
-    bytec 4 // "ERR:errNpmx"
+    bytec_3 // "ERR:errNpmx"
     log
     err // ERR:errNpmx
 
 purchase_after_assert@7:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:264-275
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:292-303
     // abiCall<typeof NFD.prototype.purchase>({
     //   sender,
     //   appId,
@@ -1553,7 +1595,7 @@ purchase_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:270
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:298
     // receiver: appId.address,
     swap
     dup
@@ -1565,7 +1607,7 @@ purchase_after_assert@7:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:268-272
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:296-300
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -1575,7 +1617,7 @@ purchase_after_assert@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:264-275
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:292-303
     // abiCall<typeof NFD.prototype.purchase>({
     //   sender,
     //   appId,
@@ -1589,7 +1631,7 @@ purchase_after_assert@7:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:274
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:302
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 3
@@ -1597,7 +1639,7 @@ purchase_after_assert@7:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:264-275
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:292-303
     // abiCall<typeof NFD.prototype.purchase>({
     //   sender,
     //   appId,
@@ -1617,7 +1659,7 @@ purchase_after_assert@7:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:248-253
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:276-281
     // purchase(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1630,7 +1672,7 @@ purchase_after_assert@7:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.updateHash[routing]() -> void:
 updateHash:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:278-283
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:306-311
     // updateHash(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1675,12 +1717,12 @@ updateHash:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:285
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:313
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:287
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:315
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz updateHash_after_assert@3
@@ -1689,7 +1731,7 @@ updateHash:
     err // ERR:errNnfd
 
 updateHash_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:289-294
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:317-322
     // abiCall<typeof NFD.prototype.updateHash>({
     //   sender,
     //   appId,
@@ -1697,7 +1739,7 @@ updateHash_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:293
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:321
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 4
@@ -1705,7 +1747,7 @@ updateHash_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:289-294
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:317-322
     // abiCall<typeof NFD.prototype.updateHash>({
     //   sender,
     //   appId,
@@ -1720,7 +1762,7 @@ updateHash_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:278-283
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:306-311
     // updateHash(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1733,7 +1775,7 @@ updateHash_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.contractLock[routing]() -> void:
 contractLock:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:297-302
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:325-330
     // contractLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1773,12 +1815,12 @@ contractLock:
     intc_2 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:304
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:332
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:306
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:334
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz contractLock_after_assert@3
@@ -1787,7 +1829,7 @@ contractLock:
     err // ERR:errNnfd
 
 contractLock_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:308-313
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:336-341
     // abiCall<typeof NFD.prototype.contractLock>({
     //   sender,
     //   appId,
@@ -1795,7 +1837,7 @@ contractLock_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:312
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:340
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 4
@@ -1803,7 +1845,7 @@ contractLock_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:308-313
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:336-341
     // abiCall<typeof NFD.prototype.contractLock>({
     //   sender,
     //   appId,
@@ -1818,7 +1860,7 @@ contractLock_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:297-302
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:325-330
     // contractLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1831,7 +1873,7 @@ contractLock_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.segmentLock[routing]() -> void:
 segmentLock:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:316-322
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:344-350
     // segmentLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1879,12 +1921,12 @@ segmentLock:
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:324
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:352
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:326
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:354
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz segmentLock_after_assert@3
@@ -1893,7 +1935,7 @@ segmentLock:
     err // ERR:errNnfd
 
 segmentLock_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:328-333
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:356-361
     // abiCall<typeof NFD.prototype.segmentLock>({
     //   sender,
     //   appId,
@@ -1901,7 +1943,7 @@ segmentLock_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:332
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:360
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 5
@@ -1909,7 +1951,7 @@ segmentLock_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:328-333
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:356-361
     // abiCall<typeof NFD.prototype.segmentLock>({
     //   sender,
     //   appId,
@@ -1926,7 +1968,7 @@ segmentLock_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:316-322
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:344-350
     // segmentLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1940,7 +1982,7 @@ segmentLock_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.vaultOptInLock[routing]() -> void:
 vaultOptInLock:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:336-341
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:364-369
     // vaultOptInLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1980,12 +2022,12 @@ vaultOptInLock:
     intc_2 // 1
     ==
     assert // invalid number of bytes for arc4.bool
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:343
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:371
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:345
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:373
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz vaultOptInLock_after_assert@3
@@ -1994,7 +2036,7 @@ vaultOptInLock:
     err // ERR:errNnfd
 
 vaultOptInLock_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:347-352
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:375-380
     // abiCall<typeof NFD.prototype.vaultOptInLock>({
     //   sender,
     //   appId,
@@ -2002,7 +2044,7 @@ vaultOptInLock_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:351
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:379
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 4
@@ -2010,7 +2052,7 @@ vaultOptInLock_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:347-352
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:375-380
     // abiCall<typeof NFD.prototype.vaultOptInLock>({
     //   sender,
     //   appId,
@@ -2025,7 +2067,7 @@ vaultOptInLock_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:336-341
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:364-369
     // vaultOptInLock(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2038,7 +2080,7 @@ vaultOptInLock_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.vaultOptIn[routing]() -> void:
 vaultOptIn:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:355-360
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:383-388
     // vaultOptIn(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2085,12 +2127,12 @@ vaultOptIn:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:362
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:390
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:364
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:392
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz vaultOptIn_after_assert@3
@@ -2099,7 +2141,7 @@ vaultOptIn:
     err // ERR:errNnfd
 
 vaultOptIn_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:366-371
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:394-399
     // abiCall<typeof NFD.prototype.vaultOptIn>({
     //   sender,
     //   appId,
@@ -2107,7 +2149,7 @@ vaultOptIn_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:370
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:398
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 4
@@ -2115,7 +2157,7 @@ vaultOptIn_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:366-371
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:394-399
     // abiCall<typeof NFD.prototype.vaultOptIn>({
     //   sender,
     //   appId,
@@ -2130,7 +2172,7 @@ vaultOptIn_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:355-360
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:383-388
     // vaultOptIn(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2143,7 +2185,7 @@ vaultOptIn_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.vaultSend[routing]() -> void:
 vaultSend:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:374-383
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:402-411
     // vaultSend(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2227,12 +2269,12 @@ vaultSend:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:385
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:413
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:387
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:415
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz vaultSend_after_assert@3
@@ -2241,7 +2283,7 @@ vaultSend:
     err // ERR:errNnfd
 
 vaultSend_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:389-394
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:417-422
     // abiCall<typeof NFD.prototype.vaultSend>({
     //   sender,
     //   appId,
@@ -2249,7 +2291,7 @@ vaultSend_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:393
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:421
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 8
@@ -2257,7 +2299,7 @@ vaultSend_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:389-394
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:417-422
     // abiCall<typeof NFD.prototype.vaultSend>({
     //   sender,
     //   appId,
@@ -2280,7 +2322,7 @@ vaultSend_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:374-383
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:402-411
     // vaultSend(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2297,7 +2339,7 @@ vaultSend_after_assert@3:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.renew[routing]() -> void:
 renew:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:397-403
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:425-431
     // renew(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2347,12 +2389,12 @@ renew:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:405
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:433
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:407
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:435
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz renew_after_assert@3
@@ -2361,7 +2403,7 @@ renew:
     err // ERR:errNnfd
 
 renew_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:409-413
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:437-441
     // const price = abiCall<typeof NFD.prototype.getRenewPrice>({
     //   sender,
     //   appId,
@@ -2393,22 +2435,22 @@ renew_after_assert@3:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:414
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:442
     // const total: uint64 = price * years
     uncover 4
     *
     dup
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:415
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:443
     // loggedAssert(total <= maxPrice, errPriceAboveMax)
     uncover 4
     <=
     bnz renew_after_assert@6
-    bytec 4 // "ERR:errNpmx"
+    bytec_3 // "ERR:errNpmx"
     log
     err // ERR:errNpmx
 
 renew_after_assert@6:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:417-428
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:445-456
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2422,7 +2464,7 @@ renew_after_assert@6:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:423
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:451
     // receiver: appId.address,
     uncover 2
     dup
@@ -2434,7 +2476,7 @@ renew_after_assert@6:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:421-425
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:449-453
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -2444,7 +2486,7 @@ renew_after_assert@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:417-428
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:445-456
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2458,7 +2500,7 @@ renew_after_assert@6:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:427
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:455
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 3
@@ -2466,7 +2508,7 @@ renew_after_assert@6:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:417-428
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:445-456
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2486,7 +2528,7 @@ renew_after_assert@6:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:397-403
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:425-431
     // renew(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2500,7 +2542,7 @@ renew_after_assert@6:
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.autoRenew[routing]() -> void:
 autoRenew:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:431-436
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:459-464
     // autoRenew(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2541,12 +2583,12 @@ autoRenew:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:438
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:466
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     cover 2
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:440
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:468
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz autoRenew_after_assert@3
@@ -2555,89 +2597,59 @@ autoRenew:
     err // ERR:errNnfd
 
 autoRenew_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:444
-    // const [ownerBytes, ownerExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyOwner))
-    dup
-    pushbytes "i.owner.a"
-    app_global_get_ex
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:445
-    // loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
-    bz autoRenew_bool_false@6
-    dup
-    len
-    pushint 32
-    ==
-    bz autoRenew_bool_false@6
-    intc_2 // 1
-
-autoRenew_bool_merge@7:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:445
-    // loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
-    bnz autoRenew_after_assert@9
-    bytec 7 // "ERR:errNnow"
-    log
-    err // ERR:errNnow
-
-autoRenew_after_assert@9:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:446
-    // loggedAssert(Account(ownerBytes) === sender, errNotNfdOwner)
-    dig 2
-    ==
-    bnz autoRenew_after_assert@11
-    bytec 7 // "ERR:errNnow"
-    log
-    err // ERR:errNnow
-
-autoRenew_after_assert@11:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:448
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:472
+    // this.assertOwnedBy(appId, sender)
+    dupn 2
+    dig 3
+    callsub assertOwnedBy
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:474
     // const [expirationBytes, expirationExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyExpirationTime))
-    dup
     pushbytes "i.expirationTime"
     app_global_get_ex
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:449
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:475
     // loggedAssert(expirationExists, errCannotAutoRenew)
-    bnz autoRenew_after_assert@13
-    bytec_3 // "ERR:errNarn"
+    bnz autoRenew_after_assert@5
+    bytec 4 // "ERR:errNarn"
     log
     err // ERR:errNarn
 
-autoRenew_after_assert@13:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:451
+autoRenew_after_assert@5:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:477
     // const expiration = btoi(expirationBytes)
     btoi
     dup
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:452
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:478
     // loggedAssert(expiration > 0, errCannotAutoRenew)
-    bnz autoRenew_after_assert@15
-    bytec_3 // "ERR:errNarn"
+    bnz autoRenew_after_assert@7
+    bytec 4 // "ERR:errNarn"
     log
     err // ERR:errNarn
 
-autoRenew_after_assert@15:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:454
+autoRenew_after_assert@7:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:480
     // loggedAssert(expiration >= Global.latestTimestamp, errCannotAutoRenew)
     dup
     global LatestTimestamp
     >=
-    bnz autoRenew_after_assert@17
-    bytec_3 // "ERR:errNarn"
+    bnz autoRenew_after_assert@9
+    bytec 4 // "ERR:errNarn"
     log
     err // ERR:errNarn
 
-autoRenew_after_assert@17:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:455
+autoRenew_after_assert@9:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:481
     // loggedAssert(expiration <= Global.latestTimestamp + NFDPluginAutoRenewWindow, errCannotAutoRenew)
     global LatestTimestamp
     pushint 2592000
     +
     <=
-    bnz autoRenew_after_assert@19
-    bytec_3 // "ERR:errNarn"
+    bnz autoRenew_after_assert@11
+    bytec 4 // "ERR:errNarn"
     log
     err // ERR:errNarn
 
-autoRenew_after_assert@19:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:457-461
+autoRenew_after_assert@11:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:483-487
     // const price = abiCall<typeof NFD.prototype.getRenewPrice>({
     //   sender,
     //   appId,
@@ -2670,17 +2682,17 @@ autoRenew_after_assert@19:
     assert // invalid number of bytes for uint64
     btoi
     dup
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:464
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:490
     // loggedAssert(price <= maxPrice, errPriceAboveMax)
     uncover 4
     <=
-    bnz autoRenew_after_assert@22
-    bytec 4 // "ERR:errNpmx"
+    bnz autoRenew_after_assert@14
+    bytec_3 // "ERR:errNpmx"
     log
     err // ERR:errNpmx
 
-autoRenew_after_assert@22:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:466-477
+autoRenew_after_assert@14:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:492-503
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2694,7 +2706,7 @@ autoRenew_after_assert@22:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:472
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:498
     // receiver: appId.address,
     swap
     dup
@@ -2706,7 +2718,7 @@ autoRenew_after_assert@22:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:470-474
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:496-500
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -2716,7 +2728,7 @@ autoRenew_after_assert@22:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:466-477
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:492-503
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2730,7 +2742,7 @@ autoRenew_after_assert@22:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:476
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:502
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 2
     uncover 3
@@ -2738,7 +2750,7 @@ autoRenew_after_assert@22:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:466-477
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:492-503
     // abiCall<typeof NFD.prototype.renew>({
     //   sender,
     //   appId,
@@ -2758,7 +2770,7 @@ autoRenew_after_assert@22:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:431-436
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:459-464
     // autoRenew(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2768,14 +2780,10 @@ autoRenew_after_assert@22:
     intc_2 // 1
     return
 
-autoRenew_bool_false@6:
-    intc_0 // 0
-    b autoRenew_bool_merge@7
-
 
 // smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.setPrimaryAddress[routing]() -> void:
 setPrimaryAddress:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:480-486
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:506-512
     // setPrimaryAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2828,12 +2836,12 @@ setPrimaryAddress:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:487
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:513
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:489
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:515
     // loggedAssert(this.isNFD(appId), errNotAnNfd)
     callsub isNFD
     bnz setPrimaryAddress_after_assert@3
@@ -2842,7 +2850,7 @@ setPrimaryAddress:
     err // ERR:errNnfd
 
 setPrimaryAddress_after_assert@3:
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:491-496
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:517-522
     // abiCall<typeof NFD.prototype.setPrimaryAddress>({
     //   sender,
     //   appId,
@@ -2850,7 +2858,7 @@ setPrimaryAddress_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:495
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:521
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     swap
     uncover 5
@@ -2858,7 +2866,7 @@ setPrimaryAddress_after_assert@3:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:491-496
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:517-522
     // abiCall<typeof NFD.prototype.setPrimaryAddress>({
     //   sender,
     //   appId,
@@ -2875,7 +2883,7 @@ setPrimaryAddress_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:480-486
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:506-512
     // setPrimaryAddress(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2956,3 +2964,81 @@ isNFD:
     intc_0 // 0
     getbit
     retsub
+
+
+// smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.handBack(sender: bytes, rekeyBack: uint64, wallet: uint64) -> void:
+handBack:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:34
+    // private handBack(sender: Account, rekeyBack: boolean, wallet: Application): void {
+    proto 3 0
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:35
+    // if (rekeyBack) {
+    frame_dig -2
+    bz handBack_after_if_else@3
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:36
+    // itxn.payment({ sender, receiver: sender, amount: 0, rekeyTo: rekeyAddress(true, wallet) }).submit()
+    itxn_begin
+    intc_2 // 1
+    frame_dig -1
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    intc_0 // 0
+    itxn_field Amount
+    frame_dig -3
+    itxn_field Receiver
+    frame_dig -3
+    itxn_field Sender
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+handBack_after_if_else@3:
+    retsub
+
+
+// smart_contracts/arc58/plugins/nfd/contract.algo.ts::NFDPlugin.assertOwnedBy(appId: uint64, sender: bytes) -> void:
+assertOwnedBy:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:40
+    // private assertOwnedBy(appId: Application, sender: Account): void {
+    proto 2 0
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:41
+    // const [ownerBytes, ownerExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyOwner))
+    frame_dig -2
+    pushbytes "i.owner.a"
+    app_global_get_ex
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:42
+    // loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
+    bz assertOwnedBy_bool_false@3
+    dup
+    len
+    pushint 32
+    ==
+    bz assertOwnedBy_bool_false@3
+    intc_2 // 1
+
+assertOwnedBy_bool_merge@4:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:42
+    // loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
+    bnz assertOwnedBy_after_assert@6
+    bytec 7 // "ERR:errNnow"
+    log
+    err // ERR:errNnow
+
+assertOwnedBy_after_assert@6:
+    // smart_contracts/arc58/plugins/nfd/contract.algo.ts:43
+    // loggedAssert(Account(ownerBytes) === sender, errNotNfdOwner)
+    frame_dig -1
+    ==
+    bnz assertOwnedBy_after_assert@8
+    bytec 7 // "ERR:errNnow"
+    log
+    err // ERR:errNnow
+
+assertOwnedBy_after_assert@8:
+    retsub
+
+assertOwnedBy_bool_false@3:
+    intc_0 // 0
+    b assertOwnedBy_bool_merge@4

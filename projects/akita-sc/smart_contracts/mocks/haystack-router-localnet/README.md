@@ -10,7 +10,8 @@ uses:
   returns them: prefix calls (selector `a83187ea`) and a finalize call (selector `871a0354`) sent by a fresh
   per-swap account whose key goes out as a `secret_key` signature, with the user's input (a pay/axfer to the router)
   right before finalize and carrying every fee of the group. Finalize arg 1 holds the input and output asset ids
-  (after a uint16 length), arg 4 is 93 bytes of terms (minAmountOut at 2, beneficiary at 29, referrer at 61).
+  (after a uint16 length), arg 4 is 93 bytes of terms (input index, output index and mode in the first three
+  bytes, minAmountOut at 3, expected output at 11, beneficiary at 29, referrer at 61).
 
 The router's own route encoding (arg 3) and the plain-JSON `txnPayload` (iv `"mock"`) are mock inventions.
 

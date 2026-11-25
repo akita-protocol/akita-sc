@@ -19,8 +19,8 @@ type MerkleAddressGateRegistryInfo = {
 
 /** [creator: 32][name: 2+2+length] */
 const MinRegisterArgsLength: uint64 = 35
-/** [proof: 2+(32*length)] */
-const MinCheckArgsLength: uint64 = 66
+/** [proof: 2+(32*length)]; an empty proof (single-leaf tree) and a one-node proof are valid */
+const MinCheckArgsLength: uint64 = 2
 
 export class MerkleAddressGate extends AkitaBaseContract {
 

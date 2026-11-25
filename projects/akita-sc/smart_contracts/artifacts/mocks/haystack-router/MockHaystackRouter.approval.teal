@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 2 4
+    intcblock 1 0 2 8
     bytecblock "ERR:mockInputReceiver"
     // smart_contracts/mocks/haystack-router/contract.algo.ts:16
     // export class MockHaystackRouter extends Contract {
@@ -45,7 +45,7 @@ optIn:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -57,7 +57,7 @@ optIn:
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
-    intc_3 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -70,13 +70,13 @@ optIn:
 
 // smart_contracts/mocks/haystack-router/contract.algo.ts::MockHaystackRouter.finalize[routing]() -> void:
 finalize:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:32
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:33
     // finalize(assets: uint64[], addresses: bytes, legs: bytes, terms: bytes<93>, flags: bytes<39>, tag: string): void {
     txna ApplicationArgs 1
     dupn 2
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 8
+    intc_3 // 8
     *
     intc_2 // 2
     +
@@ -125,25 +125,25 @@ finalize:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:33
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:34
     // const inputIndex: uint64 = Txn.groupIndex - 1
     txn GroupIndex
     intc_0 // 1
     -
     dup
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:35
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:36
     // if (input.type === TransactionType.Payment) {
     gtxns TypeEnum
     dup
     intc_0 // 1
     ==
     bz finalize_else_body@9
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:36
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:37
     // const pay = gtxn.PaymentTxn(inputIndex)
     intc_0 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:37
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:38
     // loggedAssert(pay.receiver === Global.currentApplicationAddress && pay.closeRemainderTo === Global.zeroAddress, 'mockInputReceiver')
     dup
     gtxns Receiver
@@ -158,7 +158,7 @@ finalize:
     intc_0 // 1
 
 finalize_bool_merge@6:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:37
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:38
     // loggedAssert(pay.receiver === Global.currentApplicationAddress && pay.closeRemainderTo === Global.zeroAddress, 'mockInputReceiver')
     bnz finalize_after_if_else@18
     bytec_0 // "ERR:mockInputReceiver"
@@ -166,24 +166,32 @@ finalize_bool_merge@6:
     err // ERR:mockInputReceiver
 
 finalize_after_if_else@18:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:43
-    // const assetOut = assets[1]
-    dig 2
-    pushint 10
-    extract_uint64
-    dup
     // smart_contracts/mocks/haystack-router/contract.algo.ts:44
-    // const minAmountOut = extractUint64(terms, 2)
-    dig 3
+    // const assetOut = assets[btoi(extract(terms, 1, 1))]
+    dig 1
     dup
-    intc_2 // 2
+    intc_0 // 1
+    getbyte
+    dig 4
+    extract 2 0
+    swap
+    intc_3 // 8
+    *
     extract_uint64
+    dup
     cover 2
     // smart_contracts/mocks/haystack-router/contract.algo.ts:45
+    // const minAmountOut = extractUint64(terms, 3)
+    dig 1
+    pushint 3
+    extract_uint64
+    cover 2
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:46
     // const beneficiary = Account(extract(terms, 29, 32))
+    swap
     extract 29 32
     swap
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:46
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:47
     // if (assetOut === 0) itxn.payment({ receiver: beneficiary, amount: minAmountOut }).submit()
     bnz finalize_else_body@21
     uncover 2
@@ -198,19 +206,19 @@ finalize_after_if_else@18:
     itxn_submit
 
 finalize_after_if_else@23:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:32
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:33
     // finalize(assets: uint64[], addresses: bytes, legs: bytes, terms: bytes<93>, flags: bytes<39>, tag: string): void {
     intc_0 // 1
     return
 
 finalize_else_body@21:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:47
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:48
     // else itxn.assetTransfer({ xferAsset: assetOut, assetReceiver: beneficiary, assetAmount: minAmountOut }).submit()
     itxn_begin
     itxn_field AssetReceiver
     itxn_field AssetAmount
     itxn_field XferAsset
-    intc_3 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -222,12 +230,12 @@ finalize_bool_false@5:
     b finalize_bool_merge@6
 
 finalize_else_body@9:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:39
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:40
     // const axfer = gtxn.AssetTransferTxn(inputIndex)
-    intc_3 // axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:40
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:41
     // loggedAssert(axfer.assetReceiver === Global.currentApplicationAddress && axfer.assetCloseTo === Global.zeroAddress, 'mockInputReceiver')
     dup
     gtxns AssetReceiver
@@ -242,7 +250,7 @@ finalize_else_body@9:
     intc_0 // 1
 
 finalize_bool_merge@13:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:40
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:41
     // loggedAssert(axfer.assetReceiver === Global.currentApplicationAddress && axfer.assetCloseTo === Global.zeroAddress, 'mockInputReceiver')
     bnz finalize_after_assert@15
     bytec_0 // "ERR:mockInputReceiver"
@@ -250,7 +258,7 @@ finalize_bool_merge@13:
     err // ERR:mockInputReceiver
 
 finalize_after_assert@15:
-    // smart_contracts/mocks/haystack-router/contract.algo.ts:41
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:42
     // loggedAssert(axfer.assetSender === Global.zeroAddress, 'mockInputClawback')
     dup
     gtxns AssetSender

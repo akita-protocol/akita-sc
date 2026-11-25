@@ -23,8 +23,8 @@ type MerkleAssetGateCheckParams = {
 }
 
 const MinRegisterArgsLength: uint64 = 35
-/** [asset: 8][proof: 2+(32*length)] */
-const MinCheckArgsLength: uint64 = 74
+/** [asset: 8][offset: 2][proof: 2+(32*length)]; an empty proof and a one-node proof are valid */
+const MinCheckArgsLength: uint64 = 12
 
 export class MerkleAssetGate extends AkitaBaseContract {
 
