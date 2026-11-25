@@ -102,18 +102,18 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
   private userImpact(account: Account, includeSocial: boolean): uint64 {
     const socialImpact: uint64 = includeSocial ? this.getSocialImpactScore(account) : 0 // Social Activity | up to 250
-    return this.userImpactWithSocial(account, socialImpact, true)
+    return this.userImpactWithSocial(account, socialImpact)
   }
 
   // Sums all impact components given a pre-computed social impact. Used by both
   // `userImpact` (which fetches social from main) and `getUserImpactWithInputs`
   // (which takes inputs from main directly to avoid an extra inner txn hop).
   //
-  // `includeSpot` controls the held-AKTA and Akita-NFT components. Both read the
-  // account's balance at call time, so they can be flash-moved between accounts
-  // inside one group; the social protocol's own path (vote weights, tip tax)
-  // excludes them (S-06). Gates and fee discounts keep the full score.
-  private userImpactWithSocial(account: Account, socialImpact: uint64, includeSpot: boolean): uint64 {
+  // The held-AKTA and Akita-NFT components read the account's balance at call time, so a
+  // balance passed between accounts counts for each account that holds it when it is read.
+  // That is accepted (S-06, the owner's decision of 2026-11-25): holding counts everywhere
+  // the score is read, vote weights and tip tax included, as on the deployed contract.
+  private userImpactWithSocial(account: Account, socialImpact: uint64): uint64 {
     // Check if meta box exists for the account, use defaults if not registered
     let subscriptionIndex: uint64 = 0
     let NFD: uint64 = 0
@@ -129,8 +129,8 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     const stakedAktaImpact = this.getStakingImpactScore(account) // Staked AKTA | up to 250
     const subscriberImpact = this.getSubscriberImpactScore(account, subscriptionIndex) // Akita Subscriber | up to 250
     const nfdScore: uint64 = NFD !== 0 ? this.getNFDImpactScore(account) : 0 // NFD | up to 150
-    const heldAkitaImpact: uint64 = includeSpot ? this.getHeldAktaImpactScore(account) : 0 // Held AKTA | up to 50
-    const nftImpact: uint64 = (includeSpot && akitaNFT !== 0) ? this.getNFTImpactScore(account, Asset(akitaNFT)) : 0 // Holds AKC/Omnigem | 50
+    const heldAkitaImpact = this.getHeldAktaImpactScore(account) // Held AKTA | up to 50
+    const nftImpact: uint64 = akitaNFT !== 0 ? this.getNFTImpactScore(account, Asset(akitaNFT)) : 0 // Holds AKC/Omnigem | 50
 
     const total: uint64 = stakedAktaImpact + subscriberImpact + socialImpact + nfdScore + heldAkitaImpact + nftImpact
     if (total === 0) {
@@ -506,7 +506,7 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     )
 
     const socialImpact = this.calculateSocialImpact(inputs)
-    return this.userImpactWithSocial(address, socialImpact, false)
+    return this.userImpactWithSocial(address, socialImpact)
   }
 
   // Pure helper exposed for the main social contract to compute the social

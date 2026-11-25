@@ -1,6 +1,6 @@
 import {
   SocialSDK
-} from "./chunk-GCZ7EQOQ.mjs";
+} from "./chunk-BRONB3VN.mjs";
 import {
   StakingSDK
 } from "./chunk-DTE2PKGY.mjs";

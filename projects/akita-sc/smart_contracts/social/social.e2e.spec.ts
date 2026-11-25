@@ -2225,7 +2225,7 @@ describe('Full DAO Integration Tests', () => {
       expect(await balance(user2.addr.toString())).toBeLessThan(voterBefore)
     })
 
-    test("S-06: a vote records the voter's impact without spot AKTA holdings", async () => {
+    test("S-06 (accepted): a vote records the voter's whole impact, held AKTA included", async () => {
       const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(61) })
       await user2Sdk.vote({ ref: postKey, refType: RefType.Post, isUp: true })
 
@@ -2233,9 +2233,11 @@ describe('Full DAO Integration Tests', () => {
       const full = await daoSdk.getUserImpact({ address: user2.addr.toString() })
       const held = heldAktaScore(await aktaBalance(user2.addr.toString()))
 
-      // user2 holds ~100,000 AKTA, so the public score includes a held-AKTA component
+      // user2 holds ~100,000 AKTA, so the score has a held-AKTA component, and the vote's weight
+      // is the same score every other reader gets (the owner's decision of 2026-11-25)
       expect(held).toBeGreaterThan(0n)
-      expect(full - recorded).toBe(held)
+      expect(recorded).toBe(full)
+      expect(recorded).toBeGreaterThanOrEqual(held)
     })
 
     test('S-10h: the DAO cannot set a zero subscription modifier', async () => {
