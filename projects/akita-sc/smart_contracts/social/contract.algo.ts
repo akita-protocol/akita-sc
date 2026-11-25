@@ -183,7 +183,9 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
         // 24 zero bytes. An "address" of that shape would materialize the asset's or app's ref with a
         // creator nobody controls, and every later tip on it would miss its real creator (audit 08,
         // SOC-02). No account address has that shape, so walls of real addresses are unaffected.
-        loggedAssert(ref.slice(8) !== op.bzero(24), errReservedRef)
+        // The zero address stays a valid ref (no creator, the whole fee goes to the DAO): an ID is
+        // never zero, so it is the key of no asset or app a client references.
+        loggedAssert(ref.slice(8) !== op.bzero(24) || ref.slice(0, 8) === op.bzero(8), errReservedRef)
         // the wall's addressGateID is enforced by the callers (see wallGateID)
         break
       case RefTypeApp:
