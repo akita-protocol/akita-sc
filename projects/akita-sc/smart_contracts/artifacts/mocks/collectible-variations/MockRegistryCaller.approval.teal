@@ -1,0 +1,213 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 6 8
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:118-119
+    // @contract({ avmVersion: 13 })
+    // export class MockRegistryCaller extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x02571464 // method "payAndCall(uint64,uint64,byte[4],bool,byte[])void"
+    txna ApplicationArgs 0
+    match main_payAndCall_route@3
+    err
+
+main_payAndCall_route@3:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:120
+    // payAndCall(registry: Application, deposit: uint64, selector: bytes<4>, hasArg: boolean, arg: bytes): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b payAndCall
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:118-119
+    // @contract({ avmVersion: 13 })
+    // export class MockRegistryCaller extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockRegistryCaller.payAndCall[routing]() -> void:
+payAndCall:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:120
+    // payAndCall(registry: Application, deposit: uint64, selector: bytes<4>, hasArg: boolean, arg: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    cover 2
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    len
+    pushint 4
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 4>
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    swap
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:121
+    // const encoded = op.itob(arg.length).slice(6, 8).concat(arg)
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    cover 3
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:122
+    // if (deposit > 0) {
+    bz payAndCall_else_body@10
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:123
+    // if (hasArg) {
+    bz payAndCall_else_body@6
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:124-127
+    // itxn.submitGroup(
+    //   itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    //   itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }),
+    // )
+    itxn_begin
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:125
+    // itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    uncover 2
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 4
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:126
+    // itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }),
+    itxn_next
+    itxn_field ApplicationID
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_2 // 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:124-127
+    // itxn.submitGroup(
+    //   itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    //   itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }),
+    // )
+    itxn_submit
+
+payAndCall_after_if_else@16:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:120
+    // payAndCall(registry: Application, deposit: uint64, selector: bytes<4>, hasArg: boolean, arg: bytes): void {
+    intc_1 // 1
+    return
+
+payAndCall_else_body@6:
+    bury 1
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:129-132
+    // itxn.submitGroup(
+    //   itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    //   itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }),
+    // )
+    itxn_begin
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:130
+    // itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    swap
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 3
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:131
+    // itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }),
+    itxn_next
+    itxn_field ApplicationID
+    itxn_field ApplicationArgs
+    intc_2 // 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:129-132
+    // itxn.submitGroup(
+    //   itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+    //   itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }),
+    // )
+    itxn_submit
+    b payAndCall_after_if_else@16
+
+payAndCall_else_body@10:
+    uncover 4
+    pop
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:134
+    // } else if (hasArg) {
+    bz payAndCall_else_body@13
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:135
+    // itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }).submit()
+    itxn_begin
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationID
+    intc_2 // 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b payAndCall_after_if_else@16
+
+payAndCall_else_body@13:
+    bury 1
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:137
+    // itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }).submit()
+    itxn_begin
+    itxn_field ApplicationArgs
+    itxn_field ApplicationID
+    intc_2 // 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b payAndCall_after_if_else@16

@@ -1,4 +1,20 @@
-import { Account, Asset, bytes, Contract, contract, Global, GlobalState, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import {
+  Account,
+  Application,
+  Asset,
+  BaseContract,
+  Bytes,
+  bytes,
+  Contract,
+  contract,
+  Global,
+  GlobalState,
+  itxn,
+  log,
+  op,
+  Txn,
+  uint64,
+} from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 
 /**
@@ -69,5 +85,56 @@ export class MockAdmitDelegate extends Contract {
   @abimethod({ name: 'arcTBD_admit' })
   admit(asset: uint64, writer: Account, slot: bytes, holder: Account): boolean {
     return this.answer.value
+  }
+}
+
+/**
+ * LocalNet delegate that misbehaves: mode 1 fails the call, any other mode answers with a
+ * malformed ARC-4 bool (0x01 instead of 0x80). Set the mode with app args ["mode", itob(n)].
+ */
+@contract({ avmVersion: 13, stateTotals: { globalUints: 1 } })
+export class MockOddDelegate extends BaseContract {
+  approvalProgram(): boolean {
+    if (Txn.applicationId.id === 0) return true
+    if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === Bytes('mode')) {
+      op.AppGlobal.put(Bytes('m'), op.btoi(Txn.applicationArgs(1)))
+      return true
+    }
+    if (op.AppGlobal.getUint64(Bytes('m')) === 1) return false
+    log(Bytes.fromHex('151f7c7501'))
+    return true
+  }
+
+  clearStateProgram(): boolean {
+    return true
+  }
+}
+
+/**
+ * LocalNet contract caller: pays a registry deposit and makes the registry call in one inner
+ * group, the way a wallet plugin would. `arg` is one ABI byte[] argument (sent length-prefixed);
+ * with `hasArg` false the call carries the selector only.
+ */
+@contract({ avmVersion: 13 })
+export class MockRegistryCaller extends Contract {
+  payAndCall(registry: Application, deposit: uint64, selector: bytes<4>, hasArg: boolean, arg: bytes): void {
+    const encoded = op.itob(arg.length).slice(6, 8).concat(arg)
+    if (deposit > 0) {
+      if (hasArg) {
+        itxn.submitGroup(
+          itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+          itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }),
+        )
+      } else {
+        itxn.submitGroup(
+          itxn.payment({ receiver: registry.address, amount: deposit, fee: 0 }),
+          itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }),
+        )
+      }
+    } else if (hasArg) {
+      itxn.applicationCall({ appId: registry, appArgs: [selector, encoded], fee: 0 }).submit()
+    } else {
+      itxn.applicationCall({ appId: registry, appArgs: [selector], fee: 0 }).submit()
+    }
   }
 }

@@ -5,7 +5,7 @@ import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/type
 import { createAddressTree, MetaSDK, SchemaPart } from 'akita-sdk/meta'
 import algosdk from 'algosdk'
 import { createHash } from 'node:crypto'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { afterEach, beforeAll, describe, expect, test } from 'vitest'
 import { CollectibleVariationsSDK } from '../../../akita-sdk/src/collectible-variations'
 import { installAccessListResourcePopulator } from '../../../akita-sdk/src/simulate/access-list'
 import {
@@ -14,6 +14,7 @@ import {
 } from '../artifacts/collectible-variations/CollectibleVariationsClient'
 import { MetaFactory } from '../artifacts/meta/MetaClient'
 import { MockAdmitDelegateFactory } from '../artifacts/mocks/collectible-variations/MockAdmitDelegateClient'
+import { MockRegistryCallerFactory } from '../artifacts/mocks/collectible-variations/MockRegistryCallerClient'
 import { MockSmartAsaFactory } from '../artifacts/mocks/collectible-variations/MockSmartAsaClient'
 import {
   errAssetExists,
@@ -137,7 +138,7 @@ describe('Collectible Variations registry', () => {
 
   /** Send one registry call, preceded by the deposit it needs (or `pay`, to test mismatches). */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function call<T = any>(account: Account, method: Method, args: unknown, pay?: bigint): Promise<{ ret: T; paid: bigint }> {
+  async function call<T = any>(account: Account, method: Method, args: unknown, pay?: bigint): Promise<{ ret: T; paid: bigint; fees: bigint }> {
     const paid = pay ?? (await depositFor(account, method, args))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const group = clientFor(account).newGroup() as any
@@ -149,7 +150,9 @@ describe('Collectible Variations registry', () => {
     }
     group[method]({ args, extraFee: EXTRA_FEE })
     const result = await group.send(SEND)
-    return { ret: result.returns.at(-1) as T, paid }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fees = (result.transactions as any[]).reduce((n: bigint, t) => n + BigInt(t.fee), 0n)
+    return { ret: result.returns.at(-1) as T, paid, fees }
   }
 
   const box = async (name: Uint8Array) => {
@@ -243,6 +246,24 @@ describe('Collectible Variations registry', () => {
     holder = await newAccount()
     holder2 = await newAccount()
   })
+
+  // Solvency: whatever a test did, the registry holds exactly its minimum balance.
+  afterEach(async () => {
+    const info = await algorand.account.getInformation(registry.appAddress)
+    expect(info.balance.microAlgo).toBe(info.minBalance.microAlgo)
+  })
+
+  /** Close an account that holds nothing, so a later refund to it must be redirected. */
+  async function closeAccount(account: Account) {
+    await algorand.send.payment({
+      sender: account.addr,
+      signer: account.signer,
+      receiver: dispenser.addr,
+      amount: microAlgo(0),
+      closeRemainderTo: dispenser.addr,
+    })
+    expect(await balance(account)).toBe(0n)
+  }
 
   describe('create', () => {
     test('rejects a zero Meta app or tree type', async () => {
@@ -619,6 +640,46 @@ describe('Collectible Variations registry', () => {
       await mock.appClient.send.setAnswer({ args: { answer: true } })
       await call(alice, 'arcTbdWriteVariation', writeArgs(asset))
     })
+
+    test('a delegate on a grant admits holder-scope writers', async () => {
+      const mock = await algorand.client
+        .getTypedAppFactory(MockAdmitDelegateFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
+        .send.create.bare()
+      const asset = await mintAsset(creator)
+      const owner = await newAccount()
+      await give(asset, creator, owner)
+      await call(owner, 'arcTbdSetGrant', { writers: delegate(mock.appClient.appId) })
+      const bound = writeArgs(asset, { holder: owner.addr.toString() })
+      await expect(call(alice, 'arcTbdWriteVariation', bound)).rejects.toThrow(errNotAuthorized)
+      await mock.appClient.send.setAnswer({ args: { answer: true } })
+      await call(alice, 'arcTbdWriteVariation', bound)
+      await call(alice, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('thumb') })
+      await call(owner, 'arcTbdDeleteGrant', {})
+    })
+
+    test('a malformed answer does not admit, and a failing delegate fails the write', async () => {
+      const dir = new URL('../artifacts/mocks/collectible-variations/', import.meta.url)
+      const { readFile } = await import('node:fs/promises')
+      const created = await algorand.send.appCreate({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        approvalProgram: await readFile(new URL('MockOddDelegate.approval.teal', dir), 'utf8'),
+        clearStateProgram: await readFile(new URL('MockOddDelegate.clear.teal', dir), 'utf8'),
+        schema: { globalInts: 1, globalByteSlices: 0, localInts: 0, localByteSlices: 0 },
+      })
+      const odd = created.appId
+      const setMode = (mode: bigint) =>
+        algorand.send.appCall({ sender: deployer.addr, signer: deployer.signer, appId: odd, args: [enc('mode'), be64(mode)] })
+      await setMode(0n)
+      const asset = await mintAsset(creator)
+      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: delegate(odd), managerWrites: false }))
+      // Mode 0 logs 0x151f7c75 || 0x01, which is not an ARC-4 true.
+      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset))).rejects.toThrow(errNotAuthorized)
+      await setMode(1n)
+      await expect(call(alice, 'arcTbdWriteVariation', writeArgs(asset), 0n)).rejects.toThrow()
+      expect(await box(variationName(asset, alice.addr.toString(), 'thumb'))).toBeUndefined()
+      await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+    })
   })
 
   describe('main image', () => {
@@ -680,6 +741,40 @@ describe('Collectible Variations registry', () => {
       expect(await box(mainName(asset))).toBeUndefined()
       expect(last.ret.refund + cleared.ret.refund).toBe(pinned.paid + replaced.paid)
       expect((await registry.send.arcTbdGetMain({ args: { asset } })).return!.role).toBe(0)
+    })
+
+    test('the creator unpins first while a holder section remains, then the holder', async () => {
+      const asset = await mintAsset(creator)
+      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const pinned = await call(creator, 'arcTbdPinMainCreator', {
+        asset,
+        controllingApp: 0n,
+        writer: creator.addr.toString(),
+        slot: enc('thumb'),
+        sourceRevision: written.ret.revision,
+        lock: false,
+      })
+      const owner = await newAccount()
+      await give(asset, creator, owner)
+      const hp = await call(owner, 'arcTbdPinMainHolder', {
+        asset,
+        writer: creator.addr.toString(),
+        slot: enc('thumb'),
+        sourceRevision: written.ret.revision,
+      })
+
+      const first = await call(creator, 'arcTbdUnpinMainCreator', { asset, controllingApp: 0n })
+      expect(first.ret.removed).toBe(true)
+      expect(await box(mainName(asset))).toBeDefined()
+      expect((await registry.send.arcTbdGetMain({ args: { asset } })).return!.role).toBe(2)
+
+      const ownerBefore = await balance(owner)
+      const second = await call(owner, 'arcTbdUnpinMainHolder', { asset })
+      expect(second.ret.removed).toBe(true)
+      expect(await box(mainName(asset))).toBeUndefined()
+      expect((await balance(owner)) - ownerBefore + second.fees).toBe(second.ret.refund)
+      expect(first.ret.refund + second.ret.refund).toBe(pinned.paid + hp.paid)
+      await call(creator, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: creator.addr.toString(), slot: enc('thumb') })
     })
 
     test('a locked creator pin cannot be changed or cleared', async () => {
@@ -750,6 +845,124 @@ describe('Collectible Variations registry', () => {
 
       expect((await call(bob, 'arcTbdPurge', { name: assetPolicyName(asset) })).ret).toEqual({ removed: false, reason: 0, refund: 0n })
     })
+
+    test('purging an m box with both sections refunds the holder deposit to the holder and the rest to the caller', async () => {
+      const asset = await mintAsset(creator)
+      const written = await call(creator, 'arcTbdWriteVariation', writeArgs(asset))
+      const source = { asset, writer: creator.addr.toString(), slot: enc('thumb'), sourceRevision: written.ret.revision }
+      const pinned = await call(creator, 'arcTbdPinMainCreator', { ...source, controllingApp: 0n, lock: false })
+      const owner = await newAccount()
+      await give(asset, creator, owner)
+      const hp = await call(owner, 'arcTbdPinMainHolder', source)
+      await give(asset, owner, creator)
+      await algorand.send.assetDestroy({ sender: creator.addr, signer: creator.signer, assetId: asset })
+
+      const ownerBefore = await balance(owner)
+      const purger = await newAccount()
+      const purgerBefore = await balance(purger)
+      const m = await call(purger, 'arcTbdPurge', { name: mainName(asset) })
+      expect(m.ret.refund).toBe(pinned.paid + hp.paid)
+      expect((await balance(owner)) - ownerBefore).toBe(hp.paid)
+      expect((await balance(purger)) - purgerBefore + m.fees).toBe(pinned.paid)
+      await call(purger, 'arcTbdPurge', { name: variationName(asset, creator.addr.toString(), 'thumb') })
+    })
+  })
+
+  describe('refunds to a closed account', () => {
+    test('deleting a void entry whose writer has closed pays the refund to the caller', async () => {
+      const asset = await mintAsset(creator)
+      const owner = await newAccount()
+      const writer = await newAccount()
+      await give(asset, creator, owner)
+      await call(owner, 'arcTbdSetGrant', { writers: allow(writer.addr.toString()) })
+      const written = await call(writer, 'arcTbdWriteVariation', writeArgs(asset, { holder: owner.addr.toString() }))
+      await closeAccount(writer)
+      await give(asset, owner, creator)
+
+      const before = await balance(bob)
+      const { ret, fees } = await call(bob, 'arcTbdDeleteVariation', {
+        asset,
+        controllingApp: 0n,
+        writer: writer.addr.toString(),
+        slot: enc('thumb'),
+      })
+      expect(ret).toEqual({ removed: true, reason: 3, refund: written.paid })
+      expect((await balance(bob)) - before + fees).toBe(written.paid)
+      expect(await balance(writer)).toBe(0n)
+      await call(owner, 'arcTbdDeleteGrant', {})
+    })
+
+    test('purging an entry whose writer has closed pays the refund to the caller', async () => {
+      const asset = await mintAsset(creator)
+      const writer = await newAccount()
+      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: OPEN }))
+      const written = await call(writer, 'arcTbdWriteVariation', writeArgs(asset))
+      await closeAccount(writer)
+      await algorand.send.assetDestroy({ sender: creator.addr, signer: creator.signer, assetId: asset })
+
+      const before = await balance(bob)
+      const { ret, fees } = await call(bob, 'arcTbdPurge', { name: variationName(asset, writer.addr.toString(), 'thumb') })
+      expect(ret.refund).toBe(written.paid)
+      expect((await balance(bob)) - before + fees).toBe(written.paid)
+      expect(await balance(writer)).toBe(0n)
+      await call(bob, 'arcTbdPurge', { name: assetPolicyName(asset) })
+    })
+  })
+
+  describe('contract callers', () => {
+    test('an app pays the deposit and calls the registry in one inner group', async () => {
+      const { appClient: caller } = await algorand.client
+        .getTypedAppFactory(MockRegistryCallerFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
+        .send.create.bare()
+      await algorand.send.payment({ sender: deployer.addr, receiver: caller.appAddress, amount: algokit.algos(1) })
+      const setGrant = registry.appClient.getABIMethod('arcTBD_set_grant').getSelector()
+      const deleteGrant = registry.appClient.getABIMethod('arcTBD_delete_grant').getSelector()
+      const writers = allow(alice.addr.toString())
+      const deposit = mbr(33, 9 + writers.length)
+      const forward = (amount: bigint, selector: Uint8Array, hasArg: boolean) =>
+        caller.send.payAndCall({
+          args: { registry: registry.appId, deposit: amount, selector, hasArg, arg: hasArg ? writers : new Uint8Array() },
+          extraFee: EXTRA_FEE,
+          populateAppCallResources: true,
+        })
+
+      await expect(forward(deposit - 1n, setGrant, true)).rejects.toThrow(errDepositMismatch)
+      const before = await balance(caller.appAddress.toString())
+      await forward(deposit, setGrant, true)
+      expect(before - (await balance(caller.appAddress.toString()))).toBe(deposit)
+      expect(await box(grantName(caller.appAddress.toString()))).toBeDefined()
+
+      await forward(0n, deleteGrant, false)
+      expect(await box(grantName(caller.appAddress.toString()))).toBeUndefined()
+      expect(await balance(caller.appAddress.toString())).toBe(before)
+    })
+  })
+
+  describe('largest write', () => {
+    test('the largest value, written with a 24-level Meta proof, stays within budget and references', async () => {
+      // A root over alice's leaf and 24 arbitrary siblings, hashed the way Meta does (sorted pairs).
+      const leaf = sha256(sha256(pk(alice.addr.toString())))
+      const proof = Array.from({ length: 24 }, (_, i) => sha256(enc(`sibling ${i}`)))
+      const root = proof.reduce(
+        (hash, sibling) => (Buffer.compare(Buffer.from(hash), Buffer.from(sibling)) > 0 ? sha256(concat(sibling, hash)) : sha256(concat(hash, sibling))),
+        leaf,
+      )
+      const asset = await mintAsset(creator)
+      await call(creator, 'arcTbdSetAssetPolicy', policyArgs(asset, { collectible: metaSet(root), managerWrites: false }))
+
+      // The value cap binds, not the app-args limit: header 14 + flat 9 + body 4073 = MaxValueBytes
+      // (4096), sent with a 24-level proof in one call (about 4.9 KB of app args).
+      const args = (n: number) => writeArgs(asset, { slot: enc('x'), body: new Uint8Array(n).fill(7), proof })
+      const written = await call(alice, 'arcTbdWriteVariation', args(4073))
+      expect(written.ret.changed).toBe(true)
+      expect(written.paid).toBe(mbr(41 + 1, 4096))
+      const stored = await box(variationName(asset, alice.addr.toString(), 'x'))
+      expect(stored!.length).toBe(4096)
+      await expect(call(alice, 'arcTbdWriteVariation', args(4074), 400n)).rejects.toThrow(errTooLarge)
+
+      await call(alice, 'arcTbdDeleteVariation', { asset, controllingApp: 0n, writer: alice.addr.toString(), slot: enc('x') })
+      await call(creator, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: 0n })
+    })
   })
 
   describe('ARC-20 Smart ASA creator', () => {
@@ -774,6 +987,32 @@ describe('Collectible Variations registry', () => {
       await smart.send.setCreator({ args: { creator: bob.addr.toString() } })
       await call(bob, 'arcTbdSetAssetPolicy', policyArgs(asset, { controllingApp: smart.appId, collectible: CLOSED }))
       await call(bob, 'arcTbdDeleteAssetPolicy', { asset, controllingApp: smart.appId })
+    })
+
+    test('the app must be both clawback and manager, so an asset has one creator', async () => {
+      const factory = algorand.client.getTypedAppFactory(MockSmartAsaFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer })
+      const { appClient: smart } = await factory.send.create.bare()
+      await smart.send.setCreator({ args: { creator: alice.addr.toString() } })
+      const app = smart.appAddress.toString()
+      const owner = await newAccount()
+      const mint = async (manager: string | undefined) =>
+        (await algorand.send.assetCreate({ sender: owner.addr, signer: owner.signer, total: 1n, decimals: 0, manager, clawback: app })).assetId
+
+      // Manager zero: the app path is refused, and the plain path resolves no creator.
+      const unmanaged = await mint(undefined)
+      await expect(
+        call(alice, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { controllingApp: smart.appId, collectible: OPEN })),
+      ).rejects.toThrow(errBadSmartAsa)
+      await expect(call(owner, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
+      await expect(call(alice, 'arcTbdSetAssetPolicy', policyArgs(unmanaged, { collectible: OPEN }))).rejects.toThrow(errNotCreator)
+
+      // Manager neither the app nor zero: the app path is refused, and the manager is the creator.
+      const managed = await mint(owner.addr.toString())
+      await expect(
+        call(alice, 'arcTbdSetAssetPolicy', policyArgs(managed, { controllingApp: smart.appId, collectible: OPEN })),
+      ).rejects.toThrow(errBadSmartAsa)
+      await call(owner, 'arcTbdSetAssetPolicy', policyArgs(managed, { collectible: OPEN }))
+      await call(owner, 'arcTbdDeleteAssetPolicy', { asset: managed, controllingApp: 0n })
     })
   })
 

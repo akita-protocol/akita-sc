@@ -165,7 +165,12 @@ type MetaFlow = {
  * accepts UpdateApplication or DeleteApplication.
  *
  * Invariants, each enforced in one place:
- *  I1  Every box has one owner who funded it and gets its refund (`refund` sends every Algo out).
+ *  I1  Every box deposit has one owner who gets its refund (`refund` sends every Algo out). The
+ *      owner is a role, not the payer: the sender of the write (a separate payer is never
+ *      refunded); for a `p` box and the creator section of `m`, whoever is creator when it is
+ *      removed (the purger after destroy, the AssetCreator under I12); the `m` base goes to the
+ *      section cleared last. A refund to a closed account below the minimum balance goes to the
+ *      sender instead.
  *  I2  Deposits are measured from the registry's own minimum balance, never computed from a rate
  *      (`settle`). A positive deposit is a payment to the registry immediately before the call; a
  *      zero deposit allows no such payment.
@@ -181,6 +186,19 @@ type MetaFlow = {
  *  I12 With no creator, the original AssetCreator may delete unlocked creator-side boxes.
  *  I13 Admission: local rules, then meta sets, then delegates (`admitsCollectible`, `admitsHolder`).
  *  I14 The registry is the only owner of every Meta root it checks (`syncMetaRoot`).
+ *
+ * Pins are snapshots: a pin keeps its copy of the source's flat image after the source changes or
+ * is evicted, and policy flags are not retroactive (holderPinsCollectibleOnly does not void an
+ * existing holder pin). The creator cannot clear a holder pin. Clients that care compare the
+ * PinCore source with the live variation.
+ *
+ * Meta dependency: changing or leaving a `meta` writer set, deleting such a policy or grant, and
+ * purging a `p` box call Meta's addRoot, updateRoot, deleteRoot, rootCosts and verify. Meta is
+ * DAO-upgradable while this app is not, so those five methods must keep their ABI and behaviour;
+ * the registry's LocalNet suite is the guard.
+ *
+ * Size: a variation value is at most MaxValueBytes (4096) including its header, and the whole
+ * value is sent in one call.
  */
 @contract({ avmVersion: 13 })
 export class CollectibleVariations extends Contract {
@@ -645,14 +663,16 @@ export class CollectibleVariations extends Contract {
 
   /**
    * The creator of an asset (I9). A plain ASA: its manager field. An ARC-20 Smart ASA: the app
-   * must be the clawback, the manager must be the app or zero, and the app's get_asset_config
+   * must be the clawback and the manager, and the app's get_asset_config
    * names the creator (manager_addr). Never cached. Zero means the asset has no creator.
    */
   private resolveCreator(asset: uint64, controllingApp: uint64, facts: AssetFacts): Account {
     if (controllingApp === PlainAsa) return facts.manager
     const appAddress = Application(controllingApp).address
     loggedAssert(facts.clawback === appAddress, errBadSmartAsa)
-    loggedAssert(facts.manager === appAddress || facts.manager === Global.zeroAddress, errBadSmartAsa)
+    // ARC-20: the underlying ASA's manager is the app. Allowing zero here would give an asset two
+    // creators, one through the app and none through the plain path (I9).
+    loggedAssert(facts.manager === appAddress, errBadSmartAsa)
     const call = itxn
       .applicationCall({
         appId: controllingApp,

@@ -1,0 +1,56 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// smart_contracts/mocks/collectible-variations/contract.algo.ts::MockOddDelegate.approvalProgram() -> uint64:
+main:
+    intcblock 1
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:98
+    // if (Txn.applicationId.id === 0) return true
+    txn ApplicationID
+    bnz main_after_if_else@2
+    intc_0 // 1
+    return
+
+main_after_if_else@2:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:99
+    // if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === Bytes('mode')) {
+    txn NumAppArgs
+    pushint 2
+    ==
+    bz main_after_if_else@5
+    txna ApplicationArgs 0
+    pushbytes "mode"
+    ==
+    bz main_after_if_else@5
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:100
+    // op.AppGlobal.put(Bytes('m'), op.btoi(Txn.applicationArgs(1)))
+    txna ApplicationArgs 1
+    btoi
+    pushbytes "m"
+    swap
+    app_global_put
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:101
+    // return true
+    intc_0 // 1
+    return
+
+main_after_if_else@5:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:103
+    // if (op.AppGlobal.getUint64(Bytes('m')) === 1) return false
+    pushbytes "m"
+    app_global_get
+    intc_0 // 1
+    ==
+    bz main_after_if_else@7
+    err
+
+main_after_if_else@7:
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:104
+    // log(Bytes.fromHex('151f7c7501'))
+    pushbytes 0x151f7c7501
+    log
+    // smart_contracts/mocks/collectible-variations/contract.algo.ts:105
+    // return true
+    intc_0 // 1
+    return
