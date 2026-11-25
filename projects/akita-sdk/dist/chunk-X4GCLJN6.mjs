@@ -3,7 +3,7 @@ import {
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-BOP7M3BE.mjs";
+} from "./chunk-Z34FYCHY.mjs";
 import {
   AkitaDaoFactory
 } from "./chunk-KMAEX5MB.mjs";
@@ -2453,4 +2453,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-NF4F7UKW.mjs.map
+//# sourceMappingURL=chunk-X4GCLJN6.mjs.map

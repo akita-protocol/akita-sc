@@ -13,6 +13,7 @@ import {
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
   InferencePluginSDK,
+  InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,
@@ -102,7 +103,7 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-BOP7M3BE.mjs";
+} from "../chunk-Z34FYCHY.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-4XKSJAPH.mjs";
@@ -133,6 +134,7 @@ export {
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
   InferencePluginSDK,
+  InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,

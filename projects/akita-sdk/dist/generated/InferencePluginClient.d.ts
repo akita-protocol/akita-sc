@@ -32,6 +32,15 @@ export interface BinaryState {
 export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expand<A>) => Expand<R> : T extends infer O ? {
     [K in keyof O]: O[K];
 } : never;
+export type InferenceSettings = {
+    unbondDelay: bigint;
+    settleWindow: bigint;
+    openRegistration: boolean;
+};
+/**
+ * Converts the ABI tuple representation of a InferenceSettings to the struct representation
+ */
+export declare function InferenceSettingsFromTuple(abiTuple: [bigint, bigint, boolean]): InferenceSettings;
 export type SubscriptionKey = {
     address: string;
     id: bigint;
@@ -70,6 +79,41 @@ export type InferencePluginArgs = {
             request: Uint8Array;
             subscription: SubscriptionKey;
         };
+        'setSettings(uint64,bool,uint64,(uint64,uint64,bool))void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            network: bigint | number;
+            settings: InferenceSettings;
+        };
+        'setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            network: bigint | number;
+            asset: bigint | number;
+            allowed: boolean;
+            newBox: boolean;
+        };
+        'setProviderStatus(uint64,bool,uint64,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            network: bigint | number;
+            provider: bigint | number;
+            status: bigint | number;
+        };
+        'slash(uint64,bool,uint64,uint64,uint64,address)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            network: bigint | number;
+            provider: bigint | number;
+            amount: bigint | number;
+            receiver: string;
+        };
+        'setAdmin(uint64,bool,uint64,address)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            network: bigint | number;
+            admin: string;
+        };
         'validatePolicy(byte[])void': {
             body: Uint8Array;
         };
@@ -81,6 +125,11 @@ export type InferencePluginArgs = {
         'create(uint64)void': [registry: bigint | number];
         'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, asset: bigint | number, maxPrice: bigint | number, request: Uint8Array];
         'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, pool: bigint | number, provider: bigint | number, maxPrice: bigint | number, request: Uint8Array, subscription: SubscriptionKey];
+        'setSettings(uint64,bool,uint64,(uint64,uint64,bool))void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, settings: InferenceSettings];
+        'setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, asset: bigint | number, allowed: boolean, newBox: boolean];
+        'setProviderStatus(uint64,bool,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, status: bigint | number];
+        'slash(uint64,bool,uint64,uint64,uint64,address)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, provider: bigint | number, amount: bigint | number, receiver: string];
+        'setAdmin(uint64,bool,uint64,address)void': [wallet: bigint | number, rekeyBack: boolean, network: bigint | number, admin: string];
         'validatePolicy(byte[])void': [body: Uint8Array];
     };
 };
@@ -91,6 +140,11 @@ export type InferencePluginReturns = {
     'create(uint64)void': void;
     'open(uint64,bool,uint64,uint64,uint64,uint64,byte[32])byte[32]': Uint8Array;
     'openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]': Uint8Array;
+    'setSettings(uint64,bool,uint64,(uint64,uint64,bool))void': void;
+    'setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void': void;
+    'setProviderStatus(uint64,bool,uint64,uint64,uint64)void': void;
+    'slash(uint64,bool,uint64,uint64,uint64,address)void': void;
+    'setAdmin(uint64,bool,uint64,address)void': void;
     'validatePolicy(byte[])void': void;
 };
 /**
@@ -112,6 +166,26 @@ export type InferencePluginTypes = {
         argsObj: InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
         argsTuple: InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
         returns: InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'];
+    }> & Record<'setSettings(uint64,bool,uint64,(uint64,uint64,bool))void' | 'setSettings', {
+        argsObj: InferencePluginArgs['obj']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'];
+        argsTuple: InferencePluginArgs['tuple']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'];
+        returns: InferencePluginReturns['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'];
+    }> & Record<'setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void' | 'setPaymentAsset', {
+        argsObj: InferencePluginArgs['obj']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'];
+        argsTuple: InferencePluginArgs['tuple']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'];
+        returns: InferencePluginReturns['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'];
+    }> & Record<'setProviderStatus(uint64,bool,uint64,uint64,uint64)void' | 'setProviderStatus', {
+        argsObj: InferencePluginArgs['obj']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'];
+        argsTuple: InferencePluginArgs['tuple']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'];
+        returns: InferencePluginReturns['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'];
+    }> & Record<'slash(uint64,bool,uint64,uint64,uint64,address)void' | 'slash', {
+        argsObj: InferencePluginArgs['obj']['slash(uint64,bool,uint64,uint64,uint64,address)void'];
+        argsTuple: InferencePluginArgs['tuple']['slash(uint64,bool,uint64,uint64,uint64,address)void'];
+        returns: InferencePluginReturns['slash(uint64,bool,uint64,uint64,uint64,address)void'];
+    }> & Record<'setAdmin(uint64,bool,uint64,address)void' | 'setAdmin', {
+        argsObj: InferencePluginArgs['obj']['setAdmin(uint64,bool,uint64,address)void'];
+        argsTuple: InferencePluginArgs['tuple']['setAdmin(uint64,bool,uint64,address)void'];
+        returns: InferencePluginReturns['setAdmin(uint64,bool,uint64,address)void'];
     }> & Record<'validatePolicy(byte[])void' | 'validatePolicy', {
         argsObj: InferencePluginArgs['obj']['validatePolicy(byte[])void'];
         argsTuple: InferencePluginArgs['tuple']['validatePolicy(byte[])void'];
@@ -242,8 +316,8 @@ export declare abstract class InferencePluginParamsFactory {
      * Constructs a no op call for the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method
      *
     * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-    pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-    the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+    pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+    ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
     whichever key sends the call. Under a delegated grant the policy must name the network and the
     provider; the per-ticket cap still applies. Returns the ticket id.
   
@@ -252,6 +326,53 @@ export declare abstract class InferencePluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static openPooled(params: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setSettings(uint64,bool,uint64,(uint64,uint64,bool))void ABI method
+     *
+     * InferenceNetwork.setSettings, sent from the wallet's spending account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setSettings(params: CallParams<InferencePluginArgs['obj']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'] | InferencePluginArgs['tuple']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void ABI method
+     *
+    * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+    box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setPaymentAsset(params: CallParams<InferencePluginArgs['obj']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'] | InferencePluginArgs['tuple']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setProviderStatus(uint64,bool,uint64,uint64,uint64)void ABI method
+     *
+     * InferenceNetwork.setProviderStatus, sent from the wallet's spending account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setProviderStatus(params: CallParams<InferencePluginArgs['obj']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'] | InferencePluginArgs['tuple']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the slash(uint64,bool,uint64,uint64,uint64,address)void ABI method
+     *
+     * InferenceNetwork.slash, sent from the wallet's spending account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static slash(params: CallParams<InferencePluginArgs['obj']['slash(uint64,bool,uint64,uint64,uint64,address)void'] | InferencePluginArgs['tuple']['slash(uint64,bool,uint64,uint64,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setAdmin(uint64,bool,uint64,address)void ABI method
+     *
+     * InferenceNetwork.setAdmin, sent from the wallet's spending account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setAdmin(params: CallParams<InferencePluginArgs['obj']['setAdmin(uint64,bool,uint64,address)void'] | InferencePluginArgs['tuple']['setAdmin(uint64,bool,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the validatePolicy(byte[])void ABI method
      *
@@ -646,8 +767,8 @@ export declare class InferencePluginClient {
          * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-        pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-        the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+        pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+        ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
         whichever key sends the call. Under a delegated grant the policy must name the network and the
         provider; the per-ticket cap still applies. Returns the ticket id.
     
@@ -656,6 +777,63 @@ export declare class InferencePluginClient {
          * @returns The call params
          */
         openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setSettings(uint64,bool,uint64,(uint64,uint64,bool))void` ABI method.
+         *
+         * InferenceNetwork.setSettings, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setSettings: (params: CallParams<InferencePluginArgs["obj"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"] | InferencePluginArgs["tuple"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void` ABI method.
+         *
+        * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+        box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setPaymentAsset: (params: CallParams<InferencePluginArgs["obj"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"] | InferencePluginArgs["tuple"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setProviderStatus(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * InferenceNetwork.setProviderStatus, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setProviderStatus: (params: CallParams<InferencePluginArgs["obj"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `slash(uint64,bool,uint64,uint64,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.slash, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        slash: (params: CallParams<InferencePluginArgs["obj"]["slash(uint64,bool,uint64,uint64,uint64,address)void"] | InferencePluginArgs["tuple"]["slash(uint64,bool,uint64,uint64,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setAdmin(uint64,bool,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.setAdmin, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setAdmin: (params: CallParams<InferencePluginArgs["obj"]["setAdmin(uint64,bool,uint64,address)void"] | InferencePluginArgs["tuple"]["setAdmin(uint64,bool,uint64,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -707,8 +885,8 @@ export declare class InferencePluginClient {
          * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-        pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-        the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+        pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+        ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
         whichever key sends the call. Under a delegated grant the policy must name the network and the
         provider; the per-ticket cap still applies. Returns the ticket id.
     
@@ -717,6 +895,83 @@ export declare class InferencePluginClient {
          * @returns The call transaction
          */
         openPooled: (params: CallParams<InferencePluginArgs["obj"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"] | InferencePluginArgs["tuple"]["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setSettings(uint64,bool,uint64,(uint64,uint64,bool))void` ABI method.
+         *
+         * InferenceNetwork.setSettings, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setSettings: (params: CallParams<InferencePluginArgs["obj"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"] | InferencePluginArgs["tuple"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void` ABI method.
+         *
+        * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+        box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setPaymentAsset: (params: CallParams<InferencePluginArgs["obj"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"] | InferencePluginArgs["tuple"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setProviderStatus(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * InferenceNetwork.setProviderStatus, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setProviderStatus: (params: CallParams<InferencePluginArgs["obj"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `slash(uint64,bool,uint64,uint64,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.slash, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        slash: (params: CallParams<InferencePluginArgs["obj"]["slash(uint64,bool,uint64,uint64,uint64,address)void"] | InferencePluginArgs["tuple"]["slash(uint64,bool,uint64,uint64,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setAdmin(uint64,bool,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.setAdmin, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setAdmin: (params: CallParams<InferencePluginArgs["obj"]["setAdmin(uint64,bool,uint64,address)void"] | InferencePluginArgs["tuple"]["setAdmin(uint64,bool,uint64,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -781,8 +1036,8 @@ export declare class InferencePluginClient {
          * Makes a call to the InferencePlugin smart contract using the `openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]` ABI method.
          *
         * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-        pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-        the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+        pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+        ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
         whichever key sends the call. Under a delegated grant the policy must name the network and the
         provider; the per-ticket cap still applies. Returns the ticket id.
     
@@ -794,6 +1049,108 @@ export declare class InferencePluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | InferencePluginReturns["openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setSettings(uint64,bool,uint64,(uint64,uint64,bool))void` ABI method.
+         *
+         * InferenceNetwork.setSettings, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setSettings: (params: CallParams<InferencePluginArgs["obj"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"] | InferencePluginArgs["tuple"]["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferencePluginReturns["setSettings(uint64,bool,uint64,(uint64,uint64,bool))void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void` ABI method.
+         *
+        * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+        box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setPaymentAsset: (params: CallParams<InferencePluginArgs["obj"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"] | InferencePluginArgs["tuple"]["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferencePluginReturns["setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setProviderStatus(uint64,bool,uint64,uint64,uint64)void` ABI method.
+         *
+         * InferenceNetwork.setProviderStatus, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setProviderStatus: (params: CallParams<InferencePluginArgs["obj"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"] | InferencePluginArgs["tuple"]["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferencePluginReturns["setProviderStatus(uint64,bool,uint64,uint64,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `slash(uint64,bool,uint64,uint64,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.slash, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        slash: (params: CallParams<InferencePluginArgs["obj"]["slash(uint64,bool,uint64,uint64,uint64,address)void"] | InferencePluginArgs["tuple"]["slash(uint64,bool,uint64,uint64,uint64,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferencePluginReturns["slash(uint64,bool,uint64,uint64,uint64,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the InferencePlugin smart contract using the `setAdmin(uint64,bool,uint64,address)void` ABI method.
+         *
+         * InferenceNetwork.setAdmin, sent from the wallet's spending account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setAdmin: (params: CallParams<InferencePluginArgs["obj"]["setAdmin(uint64,bool,uint64,address)void"] | InferencePluginArgs["tuple"]["setAdmin(uint64,bool,uint64,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | InferencePluginReturns["setAdmin(uint64,bool,uint64,address)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -885,8 +1242,8 @@ export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
      * Calls the openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32] ABI method.
      *
     * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-    pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-    the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+    pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+    ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
     whichever key sends the call. Under a delegated grant the policy must name the network and the
     provider; the per-ticket cap still applies. Returns the ticket id.
   
@@ -896,6 +1253,58 @@ export type InferencePluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     openPooled(params?: CallParams<InferencePluginArgs['obj']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | InferencePluginArgs['tuple']['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['openPooled(uint64,bool,uint64,uint64,uint64,uint64,byte[32],(address,uint64))byte[32]'] | undefined]>;
+    /**
+     * Calls the setSettings(uint64,bool,uint64,(uint64,uint64,bool))void ABI method.
+     *
+     * InferenceNetwork.setSettings, sent from the wallet's spending account.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setSettings(params?: CallParams<InferencePluginArgs['obj']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'] | InferencePluginArgs['tuple']['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['setSettings(uint64,bool,uint64,(uint64,uint64,bool))void'] | undefined]>;
+    /**
+     * Calls the setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void ABI method.
+     *
+    * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+    box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setPaymentAsset(params?: CallParams<InferencePluginArgs['obj']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'] | InferencePluginArgs['tuple']['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['setPaymentAsset(uint64,bool,uint64,uint64,bool,bool)void'] | undefined]>;
+    /**
+     * Calls the setProviderStatus(uint64,bool,uint64,uint64,uint64)void ABI method.
+     *
+     * InferenceNetwork.setProviderStatus, sent from the wallet's spending account.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setProviderStatus(params?: CallParams<InferencePluginArgs['obj']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'] | InferencePluginArgs['tuple']['setProviderStatus(uint64,bool,uint64,uint64,uint64)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['setProviderStatus(uint64,bool,uint64,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the slash(uint64,bool,uint64,uint64,uint64,address)void ABI method.
+     *
+     * InferenceNetwork.slash, sent from the wallet's spending account.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    slash(params?: CallParams<InferencePluginArgs['obj']['slash(uint64,bool,uint64,uint64,uint64,address)void'] | InferencePluginArgs['tuple']['slash(uint64,bool,uint64,uint64,uint64,address)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['slash(uint64,bool,uint64,uint64,uint64,address)void'] | undefined]>;
+    /**
+     * Calls the setAdmin(uint64,bool,uint64,address)void ABI method.
+     *
+     * InferenceNetwork.setAdmin, sent from the wallet's spending account.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setAdmin(params?: CallParams<InferencePluginArgs['obj']['setAdmin(uint64,bool,uint64,address)void'] | InferencePluginArgs['tuple']['setAdmin(uint64,bool,uint64,address)void']>): InferencePluginComposer<[...TReturns, InferencePluginReturns['setAdmin(uint64,bool,uint64,address)void'] | undefined]>;
     /**
      * Calls the validatePolicy(byte[])void ABI method.
      *

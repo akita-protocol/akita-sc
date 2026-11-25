@@ -7,24 +7,34 @@
  * `inference_fees` field, which an UpdateFields proposal sets once the DAO is upgraded to a version
  * that has it. Until then the fee and the bond are zero. The bond asset is the DAO's AKTA.
  *
+ * The Akita DAO runs the network. Its wallet is always an admin, and administers it through
+ * InferencePlugin (an execution-key grant, `install:inference-admin-grant`, then one ExecutePlugin
+ * proposal per change). The sender is a bootstrap admin until --hand-to-dao gives that up. The DAO's
+ * share of each charge goes to the DAO revenue escrow the DAO names for the network (`rev_inference`,
+ * see the runbook): until then fees stay in the app.
+ *
  * What it does, in order. Every step after the creates reads the chain first and is skipped when it is
  * already done, and the creates are recorded in the --manifest receipt, so a rerun with the same
  * receipt resumes where a failed run stopped instead of creating a second app:
- *   1. create InferenceNetwork (admin = the sender for now, treasury = --treasury)
+ *   1. create InferenceNetwork (bootstrap admin = the sender)
  *   2. fund the app, opt it in to AKTA (the bond asset) and USDC
  *   3. setSettings: 30-day unbonding, --settle-window seconds (default 3600), registration closed
  *   4. accept ALGO and USDC for tickets
  *   5. register Akita as provider 1 (--claimer, --payout, --metadata) with a zero bond, and activate it
  *   6. create InferencePlugin, reading grant policies from Meta (--registry, default the SDK's meta id)
- *   7. hand the network's admin to --admin, when given
- *   8. with --register, record inferenceNetwork and inferencePlugin in the SDK's networks.ts
+ *   7. once the DAO has named the network's revenue escrow, opt that escrow (and the DAO's split
+ *      receivers) in to USDC through the RevenueManager, so sweepFees can pay it
+ *   8. with --hand-to-dao, give up the bootstrap admin: only the DAO's wallet administers it after that
+ *   9. with --register, record inferenceNetwork and inferencePlugin in the SDK's networks.ts
  *
  * Before sending anything it checks that Meta exists and takes policies from the SDK's MetaPlugin, and
- * outside LocalNet that --payout and --treasury are opted in to USDC (settle and sweepFees pay them).
+ * outside LocalNet that --payout is opted in to USDC (settle pays it), and that the DAO's wallet holds
+ * its InferencePlugin grant before --hand-to-dao.
  *
  * Usage (from projects/akita-sc):
- *   npm run deploy:inference -- -n testnet --treasury "$TREASURY" --claimer "$CLAIMER" --payout "$PAYOUT" \
+ *   npm run deploy:inference -- -n testnet --claimer "$CLAIMER" --payout "$PAYOUT" \
  *     --metadata https://inference.akita.community/provider.json --manifest receipts/inference.json --register --confirm
+ *   (then the DAO steps in the runbook, and the same command again with --hand-to-dao)
  */
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
@@ -40,6 +50,7 @@ const metadataMbr = (uri: string) => 2_500n + 400n * (9n + BigInt(Buffer.byteLen
 const ProviderPending = 0n
 const ProviderActive = 1n
 const ProviderPaused = 2n
+const ZERO = algosdk.ALGORAND_ZERO_ADDRESS_STRING
 
 async function globalUint(ctx: ScriptContext, appId: bigint, key: string): Promise<bigint | undefined> {
   const app = await ctx.algorand.client.algod.getApplicationByID(appId).do().catch(() => undefined)
@@ -64,11 +75,10 @@ runScript(async () => {
     return v
   }
   const options = parseBaseArgs('deploy-inference.ts', `
-  --treasury <address>   Receives swept fees (required outside LocalNet)
   --claimer <address>    Akita's claim account (required outside LocalNet)
   --payout <address>     Akita's payout address (required outside LocalNet)
   --metadata <uri>       Akita's provider metadata URI
-  --admin <address>      Hand the network's admin to this address at the end. Without it the sender stays admin
+  --hand-to-dao          Give up the sender's bootstrap admin at the end, leaving only the DAO's wallet
   --registry <app id>    Meta app for InferencePlugin policies. Default: the SDK's meta id
   --settle-window <s>    Seconds a provider has to settle a ticket before it can be refunded. Default: 3600
   --manifest <json>      Durable receipt (required with --confirm); rerun with it to resume
@@ -77,10 +87,10 @@ runScript(async () => {
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
   const local = options.network === 'localnet'
   const sender = ctx.sender
-  const treasury = address('--treasury', local ? sender : undefined)
   const claimer = address('--claimer', local ? sender : undefined)
   const payout = address('--payout', local ? sender : undefined)
-  const admin = value('--admin') ? address('--admin') : undefined
+  const handToDao = args.includes('--hand-to-dao')
+  if (value('--admin') || value('--treasury')) throw new Error('--admin and --treasury are gone: the DAO is the admin (--hand-to-dao), and fees go to its revenue escrow')
   const metadata = value('--metadata') ?? 'https://inference.akita.community/provider.json'
   const registry = BigInt(value('--registry') ?? ctx.appIds.meta ?? 0n)
   const settleWindow = BigInt(value('--settle-window') ?? 3_600)
@@ -91,7 +101,7 @@ runScript(async () => {
   if (!local && (akta === 0n || usdc === 0n)) throw new Error('The SDK records no AKTA or USDC id for this network')
 
   // Pre-flight: InferencePlugin's registry can never change, so Meta must already take policies from
-  // MetaPlugin; and settle and sweepFees revert if the payout or the treasury can't receive USDC.
+  // MetaPlugin; and settle reverts if the payout can't receive USDC.
   const problems: string[] = []
   const writer = await globalUint(ctx, registry, 'policy_writer')
   if (writer === undefined) problems.push(`Meta ${registry} does not exist`)
@@ -99,14 +109,22 @@ runScript(async () => {
     problems.push(`Meta ${registry} takes policies from app ${writer}, not the SDK's MetaPlugin ${ctx.appIds.metaPlugin ?? 0n}`)
   }
   if (!local) {
-    for (const [name, account] of [['--payout', payout], ['--treasury', treasury]] as const) {
-      if (!(await optedIn(ctx, account, usdc))) problems.push(`${name} ${account} is not opted in to USDC ${usdc}`)
+    if (!(await optedIn(ctx, payout, usdc))) problems.push(`--payout ${payout} is not opted in to USDC ${usdc}`)
+  }
+  const pluginRecorded = ctx.appIds.inferencePlugin ?? 0n
+  if (handToDao && !local) {
+    // Without the DAO wallet's grant nothing could administer the network after the hand-over.
+    const wallet = await ctx.dao.getWallet()
+    const grants = [...await wallet.client.state.box.plugins.getMap()]
+    const grant = grants.find(([key]) => key.plugin === pluginRecorded && key.caller === ZERO && key.escrow === '')?.[1]
+    if (!pluginRecorded || !grant?.useExecutionKey) {
+      problems.push(`The DAO's wallet holds no execution-key grant of InferencePlugin ${pluginRecorded || '(not recorded)'}: run install:inference-admin-grant before --hand-to-dao`)
     }
   }
 
   const settings = { unbondDelay: 30n * 86_400n, settleWindow, openRegistration: false }
   console.log(`InferenceNetwork on ${options.network}
-  sender ${sender}, treasury ${treasury}, admin afterwards ${admin ?? `${sender} (no --admin: the sender's key stays admin)`}
+  sender ${sender}; admin afterwards: the DAO's wallet${handToDao ? ' only' : `, and ${sender} as bootstrap admin until a run with --hand-to-dao`}
   settings ${JSON.stringify(settings, (_, v) => typeof v === 'bigint' ? v.toString() : v)}
   ticket assets: ALGO${usdc ? `, USDC ${usdc}` : ''}
   provider 1 (Akita): claimer ${claimer}, payout ${payout}, metadata ${metadata}
@@ -119,13 +137,13 @@ runScript(async () => {
   const networkCompiled = await networkFactory.appFactory.compile()
   const pluginCompiled = await pluginFactory.appFactory.compile()
   const receipt = await openReceipt(ctx, manifest, {
-    contract: 'InferenceNetwork', treasury, claimer, payout, metadata, registry, settleWindow,
+    contract: 'InferenceNetwork', claimer, payout, metadata, registry, settleWindow,
     network: sha256(networkCompiled.approvalProgram), plugin: sha256(pluginCompiled.approvalProgram),
   })
 
   const networkId = await receipt.createApp('InferenceNetwork', networkCompiled, async (note) => {
     const { appClient, result } = await networkFactory.send.create.create({
-      note, args: { version: options.version, akitaDao: ctx.appIds.dao, admin: sender, treasury },
+      note, args: { version: options.version, akitaDao: ctx.appIds.dao, admin: sender },
     })
     return { appId: appClient.appId, txId: result.txIds[0] }
   })
@@ -170,9 +188,25 @@ runScript(async () => {
   })
   console.log(`InferencePlugin: ${pluginId}`)
 
-  if (admin && (await orUndefined(network.state.global.admin())) !== admin) {
-    await network.send.setAdmin({ args: { admin } })
-    console.log(`Admin handed to ${admin}`)
+  // The DAO names the network's revenue escrow by proposal (runbook); once it has, opt it in to USDC.
+  const escrow = await orUndefined(network.state.global.akitaDaoEscrow())
+  if (escrow && escrow.app > 0n && usdc !== 0n) {
+    const cost = (await network.send.escrowOptInCost({ args: { asset: usdc } })).return ?? 0n
+    if (cost > 0n) {
+      await network.send.optInDaoEscrow({ args: { payment: pay(cost), asset: usdc }, extraFee: microAlgo(10_000) })
+      console.log(`Opted "${escrow.name}" (escrow app ${escrow.app}) and the DAO's split receivers in to USDC ${usdc}`)
+    }
+    console.log(`Fees go to "${escrow.name}" (escrow app ${escrow.app})`)
+  } else {
+    console.log('The DAO has not named the revenue escrow for the network yet: fees stay in the app until it does (runbook)')
+  }
+
+  const currentAdmin = await orUndefined(network.state.global.admin())
+  if (handToDao && currentAdmin !== ZERO) {
+    await network.send.setAdmin({ args: { admin: ZERO } })
+    console.log('Bootstrap admin given up: only the DAO\'s wallet administers the network now')
+  } else if (!handToDao) {
+    console.log(`${currentAdmin} is still the bootstrap admin: rerun with --hand-to-dao once the DAO holds its InferencePlugin grant`)
   }
   if (args.includes('--register')) {
     await recordNetworkAppDeployment(options.network, 'inferenceNetwork', networkId)

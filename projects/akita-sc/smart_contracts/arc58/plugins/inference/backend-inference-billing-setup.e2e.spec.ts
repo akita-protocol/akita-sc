@@ -96,9 +96,9 @@ describe.skipIf(!OUTPUT)('setup for the backend inference billing test (LocalNet
       await inferenceDao.send.setApps({ args: { subscriptions: subscriptions.appId, wallet: factory.appId } })
       const { appClient: network } = await algorand.client
         .getTypedAppFactory(InferenceNetworkFactory, { defaultSender: owner, defaultSigner: signer })
-        .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner, treasury: owner } })
+        .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner } })
       await network.appClient.fundAppAccount({ amount: microAlgo(100_000) })
-      await network.send.setSettings({ args: { settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: true } } })
+      await network.send.setSettings({ args: { settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: false } } })
       const pay = (amount: bigint) => algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(amount) })
       await network.send.setPaymentAsset({ args: { payment: pay(ASSET_MBR), asset: 0n, allowed: true } })
 
@@ -113,6 +113,7 @@ describe.skipIf(!OUTPUT)('setup for the backend inference billing test (LocalNet
           claimer: claimer.addr.toString(), payout: payout.addr.toString(), metadata: uri,
         },
       })).return!
+      await network.send.setProviderStatus({ args: { provider, status: 1n } })
 
       const wallet = await newWallet({
         algorand, readerAccount: owner,

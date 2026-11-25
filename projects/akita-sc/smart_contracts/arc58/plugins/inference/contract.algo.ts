@@ -1,8 +1,9 @@
-import { Application, bytes, clone, contract, itxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, bytes, clone, contract, itxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { INFERENCE_TICKET_MBR } from '../../../inference/constants'
+import { INFERENCE_ASSET_MBR, INFERENCE_TICKET_MBR } from '../../../inference/constants'
 import { getControlledSpendingAccount, rekeyAddress } from '@akita-protocol/plugin/functions'
 import type { InferenceNetwork } from '../../../inference/contract.algo'
+import { InferenceSettings } from '../../../inference/types'
 import { errInvalidRegistry } from '../../../meta/errors'
 import { SubscriptionKey } from '../../../subscriptions/types'
 import { GrantPolicyPlugin } from '../../../utils/base-contracts/grant-policy'
@@ -26,6 +27,11 @@ const MaxPolicyEntries: uint64 = 8
  * allowance, which caps what its tickets lock over time. Under a delegated grant the policy in Meta
  * (see GrantPolicyPlugin) must name the network, the provider and the asset, and no ticket may lock
  * more than the policy's cap. An admin execution is not limited by a policy.
+ *
+ * It is also how the Akita DAO administers InferenceNetwork: the DAO's wallet holds a grant of this
+ * plugin that needs an execution key, and each admin call below is one ExecutePlugin proposal. The
+ * calls are sent from the wallet's spending account, and the network accepts them only from the DAO's
+ * wallet (or its bootstrap admin), so the same calls from any other wallet are refused there.
  */
 @contract({ avmVersion: 13 })
 export class InferencePlugin extends GrantPolicyPlugin {
@@ -89,8 +95,8 @@ export class InferencePlugin extends GrantPolicyPlugin {
 
   /**
    * Opens a ticket paid from sponsor pool `pool`, against the wallet's paid-up `subscription` to the
-   * pool's service, for the request `request`. Nothing leaves the wallet: the pool pays the lock and
-   * the storage deposit. The ticket and the pool's allowance are counted for the wallet's account,
+   * pool's service, for the request `request`. The pool pays the lock; the spending account pays the
+   * ticket's storage deposit, which comes back when the ticket closes. The ticket and the pool's allowance are counted for the wallet's account,
    * whichever key sends the call. Under a delegated grant the policy must name the network and the
    * provider; the per-ticket cap still applies. Returns the ticket id.
    */
@@ -111,12 +117,73 @@ export class InferencePlugin extends GrantPolicyPlugin {
       loggedAssert(this.listed(clone(policy.providers), provider), errInferencePolicyDenied)
       loggedAssert(maxPrice <= policy.maxPrice, errInferencePolicyCap)
     }
+    const sender = getControlledSpendingAccount(wallet)
     return abiCall<typeof InferenceNetwork.prototype.openPooled>({
-      sender: getControlledSpendingAccount(wallet),
+      sender,
       appId: network,
-      args: [pool, provider, maxPrice, request, subscription, windowHint(wallet)],
+      args: [
+        itxn.payment({ sender, receiver: network.address, amount: INFERENCE_TICKET_MBR }),
+        pool, provider, maxPrice, request, subscription, windowHint(wallet),
+      ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     }).returnValue
+  }
+
+  // DAO ADMINISTRATION -----------------------------------------------------------------------------
+
+  /** InferenceNetwork.setSettings, sent from the wallet's spending account. */
+  setSettings(wallet: Application, rekeyBack: boolean, network: Application, settings: InferenceSettings): void {
+    abiCall<typeof InferenceNetwork.prototype.setSettings>({
+      sender: getControlledSpendingAccount(wallet),
+      appId: network,
+      args: [clone(settings)],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /**
+   * InferenceNetwork.setPaymentAsset, sent from the wallet's spending account, which pays the asset's
+   * box (INFERENCE_ASSET_MBR) when `newBox` is true: the first call for an asset.
+   */
+  setPaymentAsset(wallet: Application, rekeyBack: boolean, network: Application, asset: uint64, allowed: boolean, newBox: boolean): void {
+    const sender = getControlledSpendingAccount(wallet)
+    const deposit: uint64 = newBox ? INFERENCE_ASSET_MBR : 0
+    abiCall<typeof InferenceNetwork.prototype.setPaymentAsset>({
+      sender,
+      appId: network,
+      args: [itxn.payment({ sender, receiver: network.address, amount: deposit }), asset, allowed],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** InferenceNetwork.setProviderStatus, sent from the wallet's spending account. */
+  setProviderStatus(wallet: Application, rekeyBack: boolean, network: Application, provider: uint64, status: uint64): void {
+    abiCall<typeof InferenceNetwork.prototype.setProviderStatus>({
+      sender: getControlledSpendingAccount(wallet),
+      appId: network,
+      args: [provider, status],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** InferenceNetwork.slash, sent from the wallet's spending account. */
+  slash(wallet: Application, rekeyBack: boolean, network: Application, provider: uint64, amount: uint64, receiver: Account): void {
+    abiCall<typeof InferenceNetwork.prototype.slash>({
+      sender: getControlledSpendingAccount(wallet),
+      appId: network,
+      args: [provider, amount, receiver],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** InferenceNetwork.setAdmin, sent from the wallet's spending account. */
+  setAdmin(wallet: Application, rekeyBack: boolean, network: Application, admin: Account): void {
+    abiCall<typeof InferenceNetwork.prototype.setAdmin>({
+      sender: getControlledSpendingAccount(wallet),
+      appId: network,
+      args: [admin],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
   }
 
   private listed(list: uint64[], value: uint64): boolean {

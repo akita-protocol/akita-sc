@@ -3,7 +3,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { ABIType, decodeAddress, encodeUint64 } from "algosdk";
 import { BaseSDK } from "../../base";
 import { InferencePluginClient, InferencePluginFactory } from "../../generated/InferencePluginClient";
-import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
+import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn, PluginTxn } from "../../types";
 import { getTxns } from "../utils";
 
 /** InferenceNetwork box key prefixes, for naming references explicitly. */
@@ -138,6 +138,22 @@ type OpenPooledArgs = MaybeSigner & {
   subscription: { address: ReadableAddress; id: bigint | number };
 };
 
+/** InferenceNetwork settings, as `setSettings` takes them. */
+export type InferenceSettings = { unbondDelay: bigint | number; settleWindow: bigint | number; openRegistration: boolean };
+
+/** InferenceNetwork provider status. A Frozen provider can neither take nor settle tickets. */
+export const InferenceProviderStatus = { Pending: 0n, Active: 1n, Paused: 2n, Unbonding: 3n, Exited: 4n, Frozen: 5n } as const;
+
+type AdminArgs = {
+  setSettings: { settings: InferenceSettings };
+  /** `newBox` on the first call for an asset: the spending account then pays the asset's box. */
+  setPaymentAsset: { asset: bigint | number; allowed: boolean; newBox: boolean };
+  setProviderStatus: { provider: bigint | number; status: bigint | number };
+  slash: { provider: bigint | number; amount: bigint | number; receiver: ReadableAddress };
+  /** The zero address hands the network to the DAO's wallet alone. */
+  setAdmin: { admin: ReadableAddress };
+};
+
 /** Builds InferencePlugin calls for `WalletSDK.usePlugin`. */
 export class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
 
@@ -208,6 +224,70 @@ export class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
           },
         });
         return [{ type: "methodCall", ...params }];
+      },
+    });
+  }
+
+  // DAO administration. The network accepts these only from the DAO's wallet (or its bootstrap
+  // admin): the DAO holds an execution-key grant of this plugin and runs each one by ExecutePlugin.
+
+  /** InferenceNetwork.setSettings through the wallet. */
+  setSettings(): PluginSDKReturn;
+  setSettings(args: Common & AdminArgs["setSettings"]): PluginSDKReturn;
+  setSettings(args?: Common & AdminArgs["setSettings"]): PluginSDKReturn {
+    return this.adminCall("setSettings", args, (a) => ({
+      settings: { unbondDelay: BigInt(a.settings.unbondDelay), settleWindow: BigInt(a.settings.settleWindow), openRegistration: a.settings.openRegistration },
+    }));
+  }
+
+  /** InferenceNetwork.setPaymentAsset through the wallet. */
+  setPaymentAsset(): PluginSDKReturn;
+  setPaymentAsset(args: Common & AdminArgs["setPaymentAsset"]): PluginSDKReturn;
+  setPaymentAsset(args?: Common & AdminArgs["setPaymentAsset"]): PluginSDKReturn {
+    return this.adminCall("setPaymentAsset", args, (a) => ({ asset: BigInt(a.asset), allowed: a.allowed, newBox: a.newBox }));
+  }
+
+  /** InferenceNetwork.setProviderStatus through the wallet; see `InferenceProviderStatus`. */
+  setProviderStatus(): PluginSDKReturn;
+  setProviderStatus(args: Common & AdminArgs["setProviderStatus"]): PluginSDKReturn;
+  setProviderStatus(args?: Common & AdminArgs["setProviderStatus"]): PluginSDKReturn {
+    return this.adminCall("setProviderStatus", args, (a) => ({ provider: BigInt(a.provider), status: BigInt(a.status) }));
+  }
+
+  /** InferenceNetwork.slash through the wallet: sends up to the provider's whole bond to `receiver`. */
+  slash(): PluginSDKReturn;
+  slash(args: Common & AdminArgs["slash"]): PluginSDKReturn;
+  slash(args?: Common & AdminArgs["slash"]): PluginSDKReturn {
+    return this.adminCall("slash", args, (a) => ({ provider: BigInt(a.provider), amount: BigInt(a.amount), receiver: a.receiver.toString() }));
+  }
+
+  /** InferenceNetwork.setAdmin through the wallet. */
+  setAdmin(): PluginSDKReturn;
+  setAdmin(args: Common & AdminArgs["setAdmin"]): PluginSDKReturn;
+  setAdmin(args?: Common & AdminArgs["setAdmin"]): PluginSDKReturn {
+    return this.adminCall("setAdmin", args, (a) => ({ admin: a.admin.toString() }));
+  }
+
+  /** One admin pass-through. */
+  private adminCall<K extends keyof AdminArgs>(
+    name: K,
+    args: (Common & AdminArgs[K]) | undefined,
+    toArgs: (args: Common & AdminArgs[K]) => Record<string, unknown>,
+  ): PluginSDKReturn {
+    if (args === undefined) {
+      return (_?: ReadableAddress) => ({ appId: this.client.appId, selectors: this.selector(name), getTxns });
+    }
+    const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
+    return (_?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: this.selector(name),
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const build = this.client.params[name] as unknown as (params: unknown) => Promise<Record<string, unknown>>;
+        const params = await build({
+          ...sendParams,
+          args: { wallet, rekeyBack: args.rekeyBack ?? true, network: BigInt(args.network), ...toArgs(args) },
+        });
+        return [{ type: "methodCall", ...params } as unknown as PluginTxn];
       },
     });
   }

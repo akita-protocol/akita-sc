@@ -25,7 +25,7 @@ export type Provider = {
   bond: uint64
   /** The asset of the bond (AKTA when it registered). */
   bondAsset: uint64
-  /** ProviderPending, ProviderActive, ProviderPaused, ProviderUnbonding or ProviderExited. */
+  /** ProviderPending, ProviderActive, ProviderPaused, ProviderUnbonding, ProviderExited or ProviderFrozen. */
   status: uint64
   /** While unbonding, the time the bond can be withdrawn. */
   unbondAt: uint64
@@ -47,12 +47,17 @@ export type Attestation = {
 /** One request's locked max price. Box key: 't' + ticket id, sha256(principal, request). */
 export type Ticket = {
   /**
-   * Paid the lock and the storage deposit and gets the rest back. For a pool ticket the pool paid, and
-   * this is the address of the subscription it counts against.
+   * Paid the lock and gets the rest back (or, if it can no longer receive, the principal does). For a
+   * pool ticket the pool paid, and this is the address of the subscription it counts against.
    */
   payer: Account
   /** The Akita account the request is attributed to: its wallet's controlled address. */
   principal: Account
+  /**
+   * Paid the storage deposit and gets it back (or, if it can no longer receive, the principal does).
+   * The zero address when the pool's credit paid it, as for a ticket the pool's allocator opened.
+   */
+  depositor: Account
   /** The principal's Akita wallet. */
   wallet: uint64
   provider: uint64
@@ -94,6 +99,9 @@ export type Pool = {
   /** ALGO the sponsor set aside for ticket and usage boxes. */
   credit: uint64
 }
+
+/** A provider a pool pays. Box key: 'q' + this. */
+export type PoolProviderKey = { pool: uint64; provider: uint64 }
 
 /** A subscription's use of a pool. Box key: 'u' + this. */
 export type UsageKey = { pool: uint64; subscriber: Account; subscription: uint64 }

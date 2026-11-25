@@ -377,8 +377,8 @@
     "arc58/plugins/inference/InferencePlugin": {
       "name": "InferencePlugin",
       "approval": {
-        "bytes": 2107,
-        "sha256": "59958d7f32c203c7ee8256ce8c30af7ac72677e89a7c24aa59747ccdc9dce2f4"
+        "bytes": 2627,
+        "sha256": "a160f47b9bdaee80a0d22744a25ce76d5ba2b17ec1c648b302a1ca62058f2668"
       },
       "clear": {
         "bytes": 4,
@@ -958,14 +958,14 @@
     "inference/InferenceNetwork": {
       "name": "InferenceNetwork",
       "approval": {
-        "bytes": 5715,
-        "sha256": "2aa41627ddf6641b00717f7b0305bc42631995e2a05ec2e8794482b33cf7e2e2"
+        "bytes": 6797,
+        "sha256": "9d1273867dbef05fea2216f69120a462477b898f9e167247b4c570e9cc51e707"
       },
       "clear": {
         "bytes": 4,
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
-      "extraPages": 2
+      "extraPages": 3
     },
     "inference/tests/MockInferenceDAO": {
       "name": "MockInferenceDAO",

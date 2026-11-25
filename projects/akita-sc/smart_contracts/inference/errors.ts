@@ -2,7 +2,7 @@
  * ARC-65 codes for InferenceNetwork. Keep in sync with akita-sdk/src/errors.ts.
  */
 
-/** Only the network admin may do this. */
+/** Only the Akita DAO's wallet, or the network's bootstrap admin while it has one, may do this. */
 export const errInferenceNotAdmin = 'errInad'
 /** Only the provider's owner may do this. */
 export const errInferenceNotOwner = 'errInow'
@@ -60,3 +60,11 @@ export const errInferenceNotSubscribed = 'errInns'
 export const errInferenceNoWallet = 'errInwl'
 /** A ticket for this principal and request id already exists. */
 export const errInferenceTicketExists = 'errInte'
+/** The Akita DAO has not named the revenue escrow the network's fees go to, or it is not opted in to the asset. */
+export const errInferenceNoEscrow = 'errInne'
+/** Open registration needs a provider bond floor: the DAO's `providerBond` is zero. */
+export const errInferenceNoBondFloor = 'errInnb'
+/** The provider is frozen: it cannot settle, and its open tickets are refunded when their windows end. */
+export const errInferenceProviderFrozen = 'errInfz'
+/** The pool does not pay this provider. */
+export const errInferenceProviderNotListed = 'errInpl'

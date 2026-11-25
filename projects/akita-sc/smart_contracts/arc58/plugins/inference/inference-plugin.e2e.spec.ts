@@ -5,6 +5,7 @@
  * the wallet's, whichever key opened it, and a sponsor pool counts every key's use against the
  * wallet's subscription.
  */
+import { TimeWarp } from '../../../../tests/utils/time'
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import algosdk, { ABIType } from 'algosdk'
@@ -30,7 +31,8 @@ import { errAllowanceExceeded } from '../../account/errors'
 import { errInferencePolicyCap, errInferencePolicyDenied, errInferencePolicyFields } from './errors'
 
 const ESCROW = 'inference'
-const TICKET_MBR = 2_500n + 400n * (33n + 32n * 2n + 8n * 9n)
+const TICKET_MBR = 2_500n + 400n * (33n + 32n * 3n + 8n * 9n)
+const POOL_PROVIDER_MBR = 2_500n + 400n * (1n + 8n + 8n + 8n)
 const POOL_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 5n)
 const PROVIDER_MBR = 2_500n + 400n * (9n + 32n * 3n + 8n * 4n)
 const ASSET_MBR = 2_500n + 400n * (9n + 8n + 8n)
@@ -102,10 +104,10 @@ describe('InferencePlugin (LocalNet)', () => {
     await subscriptions.appClient.fundAppAccount({ amount: microAlgo(1_000_000) })
     await inferenceDao.send.setApps({ args: { subscriptions: subscriptions.appId, wallet: factory.appId } })
     const { appClient } = await algorand.client.getTypedAppFactory(InferenceNetworkFactory, { defaultSender: owner, defaultSigner: signer })
-      .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner, treasury: owner } })
+      .send.create.create({ args: { version: 'test', akitaDao: inferenceDao.appId, admin: owner } })
     network = appClient
     await network.appClient.fundAppAccount({ amount: microAlgo(100_000) })
-    await network.send.setSettings({ args: { settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: true } } })
+    await network.send.setSettings({ args: { settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: false } } })
     const pay = (amount: bigint) => algorand.createTransaction.payment({ sender: owner, receiver: network.appAddress, amount: microAlgo(amount) })
     await network.send.setPaymentAsset({ args: { payment: pay(ASSET_MBR), asset: 0n, allowed: true } })
     claimer = algorand.account.random()
@@ -118,6 +120,7 @@ describe('InferencePlugin (LocalNet)', () => {
     })).return!
     akita = await register('ipfs://akita')
     other = await register('ipfs://other')
+    for (const provider of [akita, other]) await network.send.setProviderStatus({ args: { provider, status: 1n } })
 
     agent = algorand.account.random()
     await algorand.account.ensureFunded(agent.addr, owner, microAlgo(5_000_000))
@@ -220,6 +223,7 @@ describe('InferencePlugin (LocalNet)', () => {
       args: { payment: pay(POOL_MBR + 1_000_000n), asset: 0n, allocator: owner, merchant: merchant.addr.toString(), serviceId: SERVICE, perPayment: 1_000_000n },
     })).return!
     await network.send.fundPool({ args: { pool, transfer: pay(5_000_000n) } })
+    await network.send.setPoolProvider({ args: { payment: pay(POOL_PROVIDER_MBR), pool, provider: akita, allowed: true } })
 
     const openPooled = (maxPrice: bigint, id: number, admin = false) => wallet.usePlugin({
       ...(admin ? { callerType: CallerType.Admin } : { sender: agent.addr.toString(), signer: agent.signer, escrow: ESCROW }),
@@ -230,7 +234,8 @@ describe('InferencePlugin (LocalNet)', () => {
     })
     const before = await balance(escrow)
     await openPooled(400_000n, 40)
-    expect(await balance(escrow)).toBe(before)
+    // the escrow pays only the ticket's storage deposit, which comes back when the ticket closes
+    expect(before - await balance(escrow)).toBe(TICKET_MBR)
     const ticket = ticketOf(40)
     expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({
       payer: walletAddress, principal: walletAddress, wallet: wallet.appId, pool, subscription: 1n, amount: 400_000n,
@@ -245,5 +250,42 @@ describe('InferencePlugin (LocalNet)', () => {
       boxReferences: [inferenceUsageKey(pool, walletAddress, 1n)],
     })
     expect((await network.send.poolUsage({ args: { pool, subscription } })).return!.used).toBe(700_000n)
+    expect(await balance(escrow)).toBe(before)
+  })
+
+  test('a payer that can no longer receive is refunded through the wallet\'s own account', async () => {
+    // The allowance test left tickets open that the escrow paid. The wallet deletes the escrow, which
+    // closes its account: the rest of the lock and the deposit then go to the controlled address.
+    const ticket = ticketOf(10)
+    expect((await network.send.getTicket({ args: { ticket } })).return).toMatchObject({ payer: escrow, depositor: escrow, principal: walletAddress })
+    const fees = { coverAppCallInnerTransactionFees: true, maxFee: microAlgo(20_000n), populateAppCallResources: true }
+    await wallet.client.send.arc58RemovePlugin({ args: { plugin: plugin.appId, caller: agent.addr.toString(), escrow: ESCROW }, ...fees })
+    await wallet.client.send.arc58RemoveAllowances({ args: { escrow: ESCROW, assets: [0n] }, ...fees })
+    await wallet.client.send.arc58DeleteEscrow({ args: { escrow: ESCROW }, ...fees })
+    expect(await balance(escrow)).toBe(0n)
+    const before = await balance(walletAddress)
+    await network.send.settle({ sender: claimer.addr, signer: claimer.signer, args: { ticket, cost: 400_000n }, extraFee: microAlgo(3_000) })
+    expect(await balance(walletAddress) - before).toBe(600_000n + TICKET_MBR)
+    expect(await balance(escrow)).toBe(0n)
+    // and an expired one the same way
+    const late = ticketOf(11)
+    await new TimeWarp(fixture.algorand).timeWarp(3_600n + 10n)
+    const lateBefore = await balance(walletAddress)
+    await network.send.refundExpired({ sender: claimer.addr, signer: claimer.signer, args: { ticket: late }, extraFee: microAlgo(3_000) })
+    expect(await balance(walletAddress) - lateBefore).toBe(1_000_000n + TICKET_MBR)
+  })
+
+  test('the admin pass-throughs reach the network only from the DAO\'s wallet', async () => {
+    // This wallet is not the DAO's (inference-dao.e2e.spec.ts runs them through DAO proposals), so the
+    // network refuses each call it sends, from its admin key as from anyone.
+    for (const call of [
+      plugin.setProviderStatus({ network: network.appId, provider: akita, status: 2n }),
+      plugin.slash({ network: network.appId, provider: akita, amount: 0n, receiver: owner }),
+      plugin.setSettings({ network: network.appId, settings: { unbondDelay: 30n * 86_400n, settleWindow: 3_600n, openRegistration: false } }),
+      plugin.setPaymentAsset({ network: network.appId, asset: 0n, allowed: false, newBox: false }),
+      plugin.setAdmin({ network: network.appId, admin: owner }),
+    ]) {
+      await expect(wallet.usePlugin({ callerType: CallerType.Admin, calls: [call] })).rejects.toThrow(/errInad/)
+    }
   })
 })

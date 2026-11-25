@@ -3,18 +3,18 @@ import {
   loggedAssert, op, Txn, uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/upgradeable'
+import { AkitaBaseFeeGeneratorContract } from '../utils/base-contracts/base'
 import { subscriptionPaidUp } from '../gates/sub-gates/subscription/utils'
 import type { Subscriptions } from '../subscriptions/contract.algo'
 import { SubscriptionKey } from '../subscriptions/types'
-import { ctxOwnsOf, getAkitaAppList, getAkitaAssets, getInferenceFees, ownsAtRestOf, principalOf } from '../utils/functions'
+import { ctxOwnsOf, getAkitaAppList, getAkitaAssets, getInferenceFees, ownsAtRestOf, principalOf, splitOptInCount } from '../utils/functions'
 import { GateCtx, Principal } from '../utils/principal'
 import {
   INFERENCE_ASSET_MBR, INFERENCE_ATTESTATION_MBR, INFERENCE_FEE_DIVISOR, INFERENCE_MAX_FEE_PERCENTAGE,
   INFERENCE_MAX_SETTLE_WINDOW, INFERENCE_MAX_UNBOND_DELAY, INFERENCE_METADATA_BASE_MBR, INFERENCE_METADATA_MAX_BYTES,
-  INFERENCE_MIN_SETTLE_WINDOW, INFERENCE_MIN_UNBOND_DELAY, INFERENCE_POOL_MBR, INFERENCE_PROVIDER_MBR, INFERENCE_TICKET_MBR,
-  INFERENCE_USAGE_MBR,
-  ProviderActive, ProviderExited, ProviderPaused, ProviderPending, ProviderUnbonding,
+  INFERENCE_MIN_SETTLE_WINDOW, INFERENCE_MIN_UNBOND_DELAY, INFERENCE_POOL_MBR, INFERENCE_POOL_PROVIDER_MBR, INFERENCE_PROVIDER_MBR,
+  INFERENCE_TICKET_MBR, INFERENCE_USAGE_MBR,
+  ProviderActive, ProviderExited, ProviderFrozen, ProviderPaused, ProviderPending, ProviderUnbonding,
 } from './constants'
 import {
   errInferenceAssetNotAllowed, errInferenceBadMetadata, errInferenceBadStatus, errInferenceBadStoragePayment,
@@ -22,16 +22,23 @@ import {
   errInferenceNoProvider, errInferenceNotAdmin, errInferenceNotOptedIn, errInferenceNotOwner,
   errInferenceProviderInactive, errInferenceSlashTooHigh, errInferenceUnbonding, errInferenceZeroAddress, errInferenceExpired, errInferenceNoTicket, errInferenceNotClaimer, errInferenceNotExpired, errInferenceOverLock,
   errInferenceZeroLock, errInferenceBadService, errInferenceNoPool, errInferenceNoWallet, errInferenceTicketExists, errInferenceNotSubscribed, errInferenceNotSponsor, errInferencePoolDenied,
-  errInferencePoolExhausted,
+  errInferencePoolExhausted, errInferenceNoEscrow, errInferenceNoBondFloor, errInferenceProviderFrozen, errInferenceProviderNotListed,
 } from './errors'
 import {
   Attestation, InferenceProviderRegistered, InferenceProviderStatus, InferenceSettings, InferenceSlashed,
-  InferenceTicketOpened, InferenceTicketSettled, PaymentAsset, Pool, Provider, Ticket, Usage,
+  InferenceTicketOpened, InferenceTicketSettled, PaymentAsset, Pool, PoolProviderKey, Provider, Ticket, Usage,
   UsageKey,
 } from './types'
 
 /**
  * Akita's inference network: a registry of inference providers, and the ledger of what wallets pay them.
+ *
+ * The Akita DAO administers the network: its wallet sets the settings, the payment assets and provider
+ * status, and slashes, through InferencePlugin, one ExecutePlugin proposal per change. A bootstrap
+ * admin set at create can do the same until it hands over (`setAdmin` to the zero address), so the
+ * deployer can configure the network before the DAO takes it. The DAO's share of each charge goes to
+ * the DAO revenue escrow it names (`updateAkitaDAOEscrow`, as for every Akita fee generator), where
+ * the DAO's revenue split applies.
  *
  * Providers register with an AKTA bond of at least the DAO's `providerBond` and, while registration is
  * closed, wait as Pending until the admin activates them. A provider's box names its owner, the claim
@@ -55,18 +62,20 @@ import {
  * payment of a subscription to the pool's service gives its subscriber the pool's `perPayment` until
  * the next payment. The subscriber opens tickets paid from the pool, or the pool's allocator opens them
  * on the subscriber's behalf; what a ticket does not spend goes back to the pool and to the
- * subscriber's allowance.
+ * subscriber's allowance. A pool pays only the providers its sponsor lists, and a subscriber opening a
+ * pool ticket pays the ticket's storage deposit, which comes back to them.
  *
  * The provider never opens tickets and can never take more than a ticket locked. A provider that
- * settles for usage it did not serve is paused, its bond slashed to whoever the admin names (such as
- * the members it overcharged), and it is banned.
+ * settles for usage it did not serve is frozen, so its open tickets are refunded, and its bond is
+ * slashed to whoever the admin names (such as the members it overcharged).
  */
-export class InferenceNetwork extends UpgradeableAkitaBaseContract {
+export class InferenceNetwork extends AkitaBaseFeeGeneratorContract {
 
-  /** Sets the network's settings, payment assets and provider status, and slashes. Meant to be the DAO wallet. */
+  /**
+   * The bootstrap admin, which may do what the DAO's wallet does until it hands over; the zero address
+   * once it has. The DAO's wallet is always an admin.
+   */
   admin = GlobalState<Account>({ key: 'admin' })
-  /** Receives swept fees. */
-  treasury = GlobalState<Account>({ key: 'treasury' })
   settings = GlobalState<InferenceSettings>({ key: 'settings' })
   providerCount = GlobalState<uint64>({ key: 'providers' })
   ticketCount = GlobalState<uint64>({ key: 'tickets' })
@@ -77,18 +86,18 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   attestations = BoxMap<uint64, Attestation>({ keyPrefix: 'a' })
   tickets = BoxMap<bytes<32>, Ticket>({ keyPrefix: 't' })
   pools = BoxMap<uint64, Pool>({ keyPrefix: 'o' })
+  poolProviders = BoxMap<PoolProviderKey, uint64>({ keyPrefix: 'q' })
   usage = BoxMap<UsageKey, Usage>({ keyPrefix: 'u' })
   assets = BoxMap<uint64, PaymentAsset>({ keyPrefix: 'x' })
 
   // LIFE CYCLE -----------------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, akitaDAO: Application, admin: Account, treasury: Account): void {
-    loggedAssert(admin !== Global.zeroAddress && treasury !== Global.zeroAddress, errInferenceZeroAddress)
+  create(version: string, akitaDAO: Application, admin: Account): void {
     this.version.value = version
     this.akitaDAO.value = akitaDAO
     this.admin.value = admin
-    this.treasury.value = treasury
+    this.akitaDAOEscrow.value = { name: '', app: Application(0) }
     this.settings.value = {
       unbondDelay: INFERENCE_MIN_UNBOND_DELAY * 2,
       settleWindow: 3_600,
@@ -101,25 +110,21 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
 
   // ADMIN ----------------------------------------------------------------------------------------
 
+  /** Replaces the bootstrap admin; the zero address hands the network to the DAO's wallet alone. */
   setAdmin(admin: Account): void {
     this.requireAdmin()
-    loggedAssert(admin !== Global.zeroAddress, errInferenceZeroAddress)
     this.admin.value = admin
-  }
-
-  setTreasury(treasury: Account): void {
-    this.requireAdmin()
-    loggedAssert(treasury !== Global.zeroAddress, errInferenceZeroAddress)
-    this.treasury.value = treasury
   }
 
   /**
    * Replaces the settings. The settle window stays between 5 minutes and 7 days, and the unbonding
    * delay between 14 days and a year, so a provider that overcharged and then leaves can still be
-   * slashed once it is caught. Open tickets keep the expiry they opened with.
+   * slashed once it is caught. Open tickets keep the expiry they opened with. Registration opens only
+   * while the DAO's `providerBond` is above zero.
    */
   setSettings(settings: InferenceSettings): void {
     this.requireAdmin()
+    loggedAssert(!settings.openRegistration || getInferenceFees(this.akitaDAO.value).providerBond > 0, errInferenceNoBondFloor)
     loggedAssert(
       settings.settleWindow >= INFERENCE_MIN_SETTLE_WINDOW && settings.settleWindow <= INFERENCE_MAX_SETTLE_WINDOW,
       errInferenceBadWindow,
@@ -148,14 +153,18 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   /**
-   * Activates a Pending or Paused provider, or pauses a Pending or Active one. A paused provider takes no new tickets but can settle open ones.
+   * Activates a Pending or Paused provider, pauses a Pending, Active or Frozen one, or freezes any
+   * provider that has not exited. A paused provider takes no new tickets but can settle open ones. A
+   * frozen one cannot settle either, so its open tickets are refunded when their windows end, and it
+   * cannot unbond, so its bond stays to be slashed; unfreezing it makes it Paused.
    */
   setProviderStatus(provider: uint64, status: uint64): void {
     this.requireAdmin()
     const current = this.mustGetProvider(provider).status
     loggedAssert(
       (status === ProviderActive && (current === ProviderPending || current === ProviderPaused)) ||
-      (status === ProviderPaused && (current === ProviderPending || current === ProviderActive)),
+      (status === ProviderPaused && (current === ProviderPending || current === ProviderActive || current === ProviderFrozen)) ||
+      (status === ProviderFrozen && current !== ProviderFrozen && current !== ProviderExited),
       errInferenceBadStatus,
     )
     this.providers(provider).value.status = status
@@ -180,11 +189,25 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     itxn.assetTransfer({ assetReceiver: Global.currentApplicationAddress, xferAsset: asset, assetAmount: 0 }).submit()
   }
 
-  /** Sends the fees accrued in `asset` to the treasury. */
+  /**
+   * Opts the DAO's revenue escrow for this network, and the receivers of the DAO's revenue split, in to
+   * `asset` through the RevenueManager, which must list this app as the escrow's source. `payment` pays
+   * their opt-in minimum balances (see `escrowOptInCost`); zero once the escrow holds the asset.
+   */
+  optInDaoEscrow(payment: gtxn.PaymentTxn, asset: Asset): void {
+    loggedAssert(this.akitaDAOEscrow.value.app.id !== 0, errInferenceNoEscrow)
+    const cost = this.escrowOptInCost(asset)
+    this.requireStoragePayment(payment, cost)
+    if (cost > 0) this.optAkitaEscrowInAndSend(asset, 0)
+  }
+
+  /** Sends the fees accrued in `asset` to the DAO's revenue escrow for this network. Anyone may call it. */
   sweepFees(asset: uint64): uint64 {
+    const escrow = this.akitaDAOEscrow.value.app
+    loggedAssert(escrow.id !== 0 && (asset === 0 || escrow.address.isOptedIn(Asset(asset))), errInferenceNoEscrow)
     const fees = this.assets(asset).value.fees
     this.assets(asset).value.fees = 0
-    this.send(this.treasury.value, asset, fees)
+    this.send(escrow.address, asset, fees)
     return fees
   }
 
@@ -193,7 +216,8 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   /**
    * Registers the sender as a provider's owner. `payment` pays for the provider and metadata boxes
    * (providerCost); `bond` transfers at least the DAO's provider bond in AKTA. While registration is
-   * closed the provider starts Pending until the admin activates it.
+   * closed the provider starts Pending until the admin activates it. Registration is open only while
+   * the bond floor is above zero.
    */
   registerProvider(
     payment: gtxn.PaymentTxn,
@@ -207,7 +231,9 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     loggedAssert(claimer !== Global.zeroAddress && payout !== Global.zeroAddress, errInferenceZeroAddress)
     this.requireStoragePayment(payment, INFERENCE_PROVIDER_MBR + this.metadataCost(metadata))
     const amount = this.receive(bond, bondAsset)
-    loggedAssert(amount >= getInferenceFees(this.akitaDAO.value).providerBond, errInferenceBondTooLow)
+    const floor = getInferenceFees(this.akitaDAO.value).providerBond
+    loggedAssert(amount >= floor, errInferenceBondTooLow)
+    loggedAssert(!settings.openRegistration || floor > 0, errInferenceNoBondFloor)
 
     const id: uint64 = this.providerCount.value + 1
     this.providerCount.value = id
@@ -268,6 +294,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     this.requireOwner(provider)
     const status = this.providers(provider).value.status
     loggedAssert(status !== ProviderUnbonding && status !== ProviderExited, errInferenceUnbonding)
+    loggedAssert(status !== ProviderFrozen, errInferenceProviderFrozen)
     this.providers(provider).value.status = ProviderUnbonding
     this.providers(provider).value.unbondAt = Global.latestTimestamp + this.settings.value.unbondDelay
     emit<InferenceProviderStatus>({ provider, status: ProviderUnbonding })
@@ -306,7 +333,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     const who = this.walletPrincipal(wallet)
     this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
     const amount = this.receive(lock, asset)
-    return this.newTicket(Txn.sender, who.principal, who.wallet, provider, asset, amount, request, 0, 0, 0)
+    return this.newTicket(Txn.sender, who.principal, who.wallet, Txn.sender, provider, asset, amount, request, 0, 0, 0)
   }
 
   // SPONSOR POOLS --------------------------------------------------------------------------------
@@ -315,7 +342,8 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * Creates a sponsor pool in `asset` for subscribers of `merchant`'s subscription service
    * `serviceID`, owned by the sender. Each subscription payment gives its subscriber `perPayment` to
    * use until the next payment. `payment` pays the pool box (INFERENCE_POOL_MBR) and anything above it
-   * becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`. Returns the pool id.
+   * becomes the pool's credit for ticket and usage boxes. Fund it with `fundPool`, and list the providers
+   * it pays with `setPoolProvider`. Returns the pool id.
    */
   createPool(
     payment: gtxn.PaymentTxn, asset: uint64, allocator: Account, merchant: Account, serviceID: uint64, perPayment: uint64,
@@ -363,6 +391,28 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     this.pools(pool).value.perPayment = perPayment
   }
 
+  /**
+   * The sponsor lists `provider` as one the pool pays, paying its box (INFERENCE_POOL_PROVIDER_MBR) with
+   * `payment`, or takes it off the list (a zero payment), getting the deposit back. Open tickets to a
+   * provider taken off the list can still be settled.
+   */
+  setPoolProvider(payment: gtxn.PaymentTxn, pool: uint64, provider: uint64, allowed: boolean): void {
+    const info = this.requireSponsor(pool)
+    const key: PoolProviderKey = { pool, provider }
+    const listed = this.poolProviders(key).exists
+    if (allowed && !listed) {
+      this.mustGetProvider(provider)
+      this.requireStoragePayment(payment, INFERENCE_POOL_PROVIDER_MBR)
+      this.poolProviders(key).value = 1
+      return
+    }
+    this.requireStoragePayment(payment, 0)
+    if (!allowed && listed) {
+      this.poolProviders(key).delete()
+      itxn.payment({ receiver: info.sponsor, amount: INFERENCE_POOL_PROVIDER_MBR }).submit()
+    }
+  }
+
   /** The sponsor takes back up to the pool's unlocked balance and unused credit. */
   withdrawPool(pool: uint64, amount: uint64, credit: uint64): void {
     const info = this.requireSponsor(pool)
@@ -377,21 +427,27 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
    * A subscriber opens a ticket paid from the pool, within what their latest subscription payment
    * gives. `subscription` must be a paid-up subscription to the pool's service, owned by the caller's
    * principal (`wallet` is the principal-resolution hint, as for `open`), whichever delegated key sends
-   * the call. The allowance is counted per subscription and starts over with each payment; the ticket
-   * is attributed to the principal. Returns the ticket id.
+   * the call. `payment` pays the ticket's storage deposit (INFERENCE_TICKET_MBR), which comes back to
+   * the sender when the ticket closes, so opening many small tickets ties up the subscriber's ALGO,
+   * not the pool's. The allowance is counted per subscription and starts over with each payment; the
+   * ticket is attributed to the principal. Returns the ticket id.
    */
-  openPooled(pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey, wallet: uint64): bytes<32> {
+  openPooled(
+    payment: gtxn.PaymentTxn, pool: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>, subscription: SubscriptionKey,
+    wallet: uint64,
+  ): bytes<32> {
     const info = this.mustGetPool(pool)
     const who = this.walletPrincipal(wallet)
     const ctx: GateCtx = { principal: who.principal, wallet: who.wallet, spender: who.spender }
     loggedAssert(ctxOwnsOf(this.akitaDAO.value, ctx, subscription.address), errInferencePoolDenied)
-    return this.poolTicket(pool, info, who.principal, who.wallet, subscription, provider, maxPrice, request)
+    this.requireStoragePayment(payment, INFERENCE_TICKET_MBR)
+    return this.poolTicket(pool, info, who.principal, who.wallet, Txn.sender, subscription, provider, maxPrice, request)
   }
 
   /**
    * The pool's allocator (such as Akita's backend) opens a pool ticket for `member`, the controlled
    * address of Akita wallet `memberWallet`, against a paid-up subscription that `member` or another
-   * account of that wallet holds. Returns the ticket id.
+   * account of that wallet holds. The pool's credit pays the storage deposit. Returns the ticket id.
    */
   openSponsored(
     pool: uint64, member: Account, memberWallet: uint64, provider: uint64, maxPrice: uint64, request: bytes<32>,
@@ -399,23 +455,28 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   ): bytes<32> {
     const info = this.mustGetPool(pool)
     loggedAssert(info.allocator !== Global.zeroAddress && Txn.sender === info.allocator, errInferencePoolDenied)
-    loggedAssert(memberWallet !== 0 && ownsAtRestOf(this.akitaDAO.value, memberWallet, member), errInferenceNoWallet)
+    loggedAssert(
+      memberWallet !== 0 && member === Application(memberWallet).address && ownsAtRestOf(this.akitaDAO.value, memberWallet, member),
+      errInferenceNoWallet,
+    )
     loggedAssert(
       subscription.address === member || ownsAtRestOf(this.akitaDAO.value, memberWallet, subscription.address),
       errInferencePoolDenied,
     )
-    return this.poolTicket(pool, info, member, memberWallet, subscription, provider, maxPrice, request)
+    return this.poolTicket(pool, info, member, memberWallet, Global.zeroAddress, subscription, provider, maxPrice, request)
   }
 
   /**
    * The provider's claim account settles a ticket at the request's actual `cost`, at most what was
    * locked: the cost less the DAO fee (taken at the rate when the ticket opened) goes to the provider,
-   * and the rest of the lock and the storage deposit go back to the payer. Returns what the provider got.
+   * and the rest of the lock and the storage deposit go back (see `refund`). A frozen provider cannot
+   * settle. Returns what the provider got.
    */
   settle(ticket: bytes<32>, cost: uint64): uint64 {
     const info = this.mustGetTicket(ticket)
     const provider = this.mustGetProvider(info.provider)
     loggedAssert(Txn.sender === provider.claimer, errInferenceNotClaimer)
+    loggedAssert(provider.status !== ProviderFrozen, errInferenceProviderFrozen)
     loggedAssert(Global.latestTimestamp < info.expiresAt, errInferenceExpired)
     loggedAssert(cost <= info.amount, errInferenceOverLock)
 
@@ -431,7 +492,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     return paid
   }
 
-  /** After a ticket's settle window, anyone may return the whole lock and the storage deposit to the payer. */
+  /** After a ticket's settle window, anyone may return the whole lock and the storage deposit (see `refund`). */
   refundExpired(ticket: bytes<32>): void {
     const info = this.mustGetTicket(ticket)
     loggedAssert(Global.latestTimestamp >= info.expiresAt, errInferenceNotExpired)
@@ -469,6 +530,18 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     const key: UsageKey = { pool, subscriber: subscription.address, subscription: subscription.id }
     if (!this.usage(key).exists) return { lastPayment: 0, used: 0 }
     return clone(this.usage(key).value)
+  }
+
+  /** Whether `pool` pays `provider`. */
+  @abimethod({ readonly: true })
+  poolPays(pool: uint64, provider: uint64): boolean {
+    return this.poolProviders({ pool, provider }).exists
+  }
+
+  /** What `optInDaoEscrow` charges to opt the DAO's revenue escrow for this network and its split's receivers in to `asset`. */
+  @abimethod({ readonly: true })
+  escrowOptInCost(asset: Asset): uint64 {
+    return Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
   }
 
   /** What `registerProvider` charges for storage with this metadata URI. */
@@ -523,8 +596,13 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     return INFERENCE_METADATA_BASE_MBR + 400 * length
   }
 
+  /** The DAO's wallet, or the bootstrap admin until it hands over. */
   private requireAdmin(): void {
-    loggedAssert(Txn.sender === this.admin.value, errInferenceNotAdmin)
+    const admin = this.admin.value
+    loggedAssert(
+      Txn.sender === this.getAkitaDAOWallet().address || (admin !== Global.zeroAddress && Txn.sender === admin),
+      errInferenceNotAdmin,
+    )
   }
 
   /** The provider's owner, after checking it sent this call. */
@@ -560,8 +638,8 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   private newTicket(
-    payer: Account, principal: Account, wallet: uint64, provider: uint64, asset: uint64, amount: uint64, request: bytes<32>,
-    pool: uint64, subscription: uint64, lastPayment: uint64,
+    payer: Account, principal: Account, wallet: uint64, depositor: Account, provider: uint64, asset: uint64, amount: uint64,
+    request: bytes<32>, pool: uint64, subscription: uint64, lastPayment: uint64,
   ): bytes<32> {
     loggedAssert(this.mustGetProvider(provider).status === ProviderActive, errInferenceProviderInactive)
     loggedAssert(this.assets(asset).exists && this.assets(asset).value.allowed === 1, errInferenceAssetNotAllowed)
@@ -573,7 +651,7 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
     this.ticketCount.value = this.ticketCount.value + 1
     const expiresAt: uint64 = Global.latestTimestamp + this.settings.value.settleWindow
     this.tickets(id).value = {
-      payer, principal, wallet, provider, asset, amount, feePercentage: percentage, expiresAt, pool, subscription, lastPayment,
+      payer, principal, depositor, wallet, provider, asset, amount, feePercentage: percentage, expiresAt, pool, subscription, lastPayment,
     }
     emit<InferenceTicketOpened>({ ticket: id, payer, principal, wallet, provider, asset, amount, request, expiresAt, pool })
     return id
@@ -581,12 +659,15 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
 
   /**
    * Locks `maxPrice` from a pool for `member`, against what `subscription`'s latest payment gives.
-   * The subscription must be to the pool's service, not shut down, and paid up.
+   * The subscription must be to the pool's service, not shut down, and paid up, and the pool must pay
+   * `provider`. `depositor` paid the ticket's storage deposit; the zero address when the pool's credit
+   * pays it.
    */
   private poolTicket(
-    pool: uint64, info: Pool, member: Account, wallet: uint64, subscription: SubscriptionKey, provider: uint64,
-    maxPrice: uint64, request: bytes<32>,
+    pool: uint64, info: Pool, member: Account, wallet: uint64, depositor: Account, subscription: SubscriptionKey,
+    provider: uint64, maxPrice: uint64, request: bytes<32>,
   ): bytes<32> {
+    loggedAssert(this.poolProviders({ pool, provider }).exists, errInferenceProviderNotListed)
     const lastPayment = this.paidSubscription(info, subscription)
     const key: UsageKey = { pool, subscriber: subscription.address, subscription: subscription.id }
     let credit = info.credit
@@ -597,13 +678,16 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
       loggedAssert(credit >= INFERENCE_USAGE_MBR, errInferencePoolExhausted)
       credit = credit - INFERENCE_USAGE_MBR
     }
-    loggedAssert(credit >= INFERENCE_TICKET_MBR, errInferencePoolExhausted)
+    if (depositor === Global.zeroAddress) {
+      loggedAssert(credit >= INFERENCE_TICKET_MBR, errInferencePoolExhausted)
+      credit = credit - INFERENCE_TICKET_MBR
+    }
     loggedAssert(maxPrice <= info.balance && used + maxPrice <= info.perPayment, errInferencePoolExhausted)
     this.usage(key).value = { lastPayment, used: used + maxPrice }
-    this.pools(pool).value.credit = credit - INFERENCE_TICKET_MBR
+    this.pools(pool).value.credit = credit
     this.pools(pool).value.balance = info.balance - maxPrice
     return this.newTicket(
-      subscription.address, member, wallet, provider, info.asset, maxPrice, request, pool, subscription.id, lastPayment,
+      subscription.address, member, wallet, depositor, provider, info.asset, maxPrice, request, pool, subscription.id, lastPayment,
     )
   }
 
@@ -622,22 +706,38 @@ export class InferenceNetwork extends UpgradeableAkitaBaseContract {
   }
 
   /**
-   * Returns what a ticket did not spend, and its storage deposit, to whoever paid them: the payer, or
-   * the pool (which also gives the subscription back that part of its use, if no payment came since).
+   * Returns what a ticket did not spend, and its storage deposit, to whoever paid them. The lock goes
+   * back to the payer, or to the pool (which also gives the subscription back that part of its use, if
+   * no payment came since). The deposit goes back to the depositor, or to the pool's credit when the
+   * pool paid it. A payer or depositor that can no longer receive (an account closed since, such as a
+   * deleted escrow, or one that opted out of the asset) is replaced by the ticket's principal, so a
+   * settle or refund never fails for it.
    */
   private refund(info: Ticket, amount: uint64): void {
+    if (info.depositor === Global.zeroAddress) {
+      this.pools(info.pool).value.credit = this.pools(info.pool).value.credit + INFERENCE_TICKET_MBR
+    } else {
+      itxn.payment({ receiver: this.receiverOf(info.depositor, info.principal, 0), amount: INFERENCE_TICKET_MBR }).submit()
+    }
     if (info.pool === 0) {
-      this.send(info.payer, info.asset, amount)
-      itxn.payment({ receiver: info.payer, amount: INFERENCE_TICKET_MBR }).submit()
+      this.send(this.receiverOf(info.payer, info.principal, info.asset), info.asset, amount)
       return
     }
     this.pools(info.pool).value.balance = this.pools(info.pool).value.balance + amount
-    this.pools(info.pool).value.credit = this.pools(info.pool).value.credit + INFERENCE_TICKET_MBR
     const key: UsageKey = { pool: info.pool, subscriber: info.payer, subscription: info.subscription }
     if (this.usage(key).value.lastPayment === info.lastPayment) {
       const used = this.usage(key).value.used
       this.usage(key).value.used = used > amount ? used - amount : 0
     }
+  }
+
+  /** `account` if it can receive `asset` (it exists, and holds an ASA), else `fallback`. */
+  private receiverOf(account: Account, fallback: Account, asset: uint64): Account {
+    // A closed account has no balance record: `account.balance` would fail on it, so read the flag.
+    const [balance, exists] = op.AcctParams.acctBalance(account)
+    if (!exists || balance === 0) return fallback
+    if (asset !== 0 && !account.isOptedIn(Asset(asset))) return fallback
+    return account
   }
 
   private mustGetPool(pool: uint64): Pool {

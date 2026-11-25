@@ -50,6 +50,10 @@ export declare function encodeInferencePolicy(policy: {
     maxPrice: bigint | number;
 }): Uint8Array;
 export declare function decodeInferencePolicy(body: Uint8Array): InferencePolicy;
+type Common = MaybeSigner & {
+    rekeyBack?: boolean;
+    network: bigint | number;
+};
 type OpenArgs = MaybeSigner & {
     rekeyBack?: boolean;
     network: bigint | number;
@@ -76,6 +80,45 @@ type OpenPooledArgs = MaybeSigner & {
         id: bigint | number;
     };
 };
+/** InferenceNetwork settings, as `setSettings` takes them. */
+export type InferenceSettings = {
+    unbondDelay: bigint | number;
+    settleWindow: bigint | number;
+    openRegistration: boolean;
+};
+/** InferenceNetwork provider status. A Frozen provider can neither take nor settle tickets. */
+export declare const InferenceProviderStatus: {
+    readonly Pending: 0n;
+    readonly Active: 1n;
+    readonly Paused: 2n;
+    readonly Unbonding: 3n;
+    readonly Exited: 4n;
+    readonly Frozen: 5n;
+};
+type AdminArgs = {
+    setSettings: {
+        settings: InferenceSettings;
+    };
+    /** `newBox` on the first call for an asset: the spending account then pays the asset's box. */
+    setPaymentAsset: {
+        asset: bigint | number;
+        allowed: boolean;
+        newBox: boolean;
+    };
+    setProviderStatus: {
+        provider: bigint | number;
+        status: bigint | number;
+    };
+    slash: {
+        provider: bigint | number;
+        amount: bigint | number;
+        receiver: ReadableAddress;
+    };
+    /** The zero address hands the network to the DAO's wallet alone. */
+    setAdmin: {
+        admin: ReadableAddress;
+    };
+};
 /** Builds InferencePlugin calls for `WalletSDK.usePlugin`. */
 export declare class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
     constructor(params: NewContractSDKParams);
@@ -90,5 +133,22 @@ export declare class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
      */
     openPooled(): PluginSDKReturn;
     openPooled(args: OpenPooledArgs): PluginSDKReturn;
+    /** InferenceNetwork.setSettings through the wallet. */
+    setSettings(): PluginSDKReturn;
+    setSettings(args: Common & AdminArgs["setSettings"]): PluginSDKReturn;
+    /** InferenceNetwork.setPaymentAsset through the wallet. */
+    setPaymentAsset(): PluginSDKReturn;
+    setPaymentAsset(args: Common & AdminArgs["setPaymentAsset"]): PluginSDKReturn;
+    /** InferenceNetwork.setProviderStatus through the wallet; see `InferenceProviderStatus`. */
+    setProviderStatus(): PluginSDKReturn;
+    setProviderStatus(args: Common & AdminArgs["setProviderStatus"]): PluginSDKReturn;
+    /** InferenceNetwork.slash through the wallet: sends up to the provider's whole bond to `receiver`. */
+    slash(): PluginSDKReturn;
+    slash(args: Common & AdminArgs["slash"]): PluginSDKReturn;
+    /** InferenceNetwork.setAdmin through the wallet. */
+    setAdmin(): PluginSDKReturn;
+    setAdmin(args: Common & AdminArgs["setAdmin"]): PluginSDKReturn;
+    /** One admin pass-through. */
+    private adminCall;
 }
 export {};
