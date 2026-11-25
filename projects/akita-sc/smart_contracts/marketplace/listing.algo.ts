@@ -2,7 +2,7 @@ import { Account, Application, Asset, clone, Global, GlobalState, gtxn, itxn, lo
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
-import { calcPercent, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPaymentTo } from '../utils/functions'
+import { calcPercent, canReceiveAlgo, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPaymentTo } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
 import { ListingGlobalStateKeyAkitaDAOEscrow, ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyFactoryFloat, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyPriceRound, ListingGlobalStateKeyPrizeAmount, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeyRevision, ListingGlobalStateKeySeller, ListingGlobalStateKeySellerReferrer, ListingMinimumPrice, ListingPriceChangeCooldownRounds, ListingRevision } from './constants'
@@ -78,14 +78,26 @@ export class Listing extends classes(
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
   private getAmounts(amount: uint64): RoyaltyAmounts {
+    const { marketplaceSalePercentageMin: min, marketplaceSalePercentageMax: max } = getNFTFees(this.akitaDAO.value)
+    const impact = getUserImpact(this.akitaDAO.value, this.seller.value)
+    return this.amountsAt(amount, impactRange(impact, min, max))
+  }
+
+  /**
+   * A price must settle: every share of it is floored at one unit, so a price of a few units can owe
+   * more than it brings in. Checked at the highest protocol rate, so a price accepted here settles
+   * whatever the seller's impact is at the sale.
+   */
+  private assertPriceSettles(price: uint64): void {
+    this.amountsAt(price, getNFTFees(this.akitaDAO.value).marketplaceSalePercentageMax)
+  }
+
+  /** The split of `amount` at protocol rate `akitaTaxRate`; refuses an amount the shares exceed (errPrlo). */
+  private amountsAt(amount: uint64, akitaTaxRate: uint64): RoyaltyAmounts {
     let creatorAmount = calcPercent(amount, this.creatorRoyalty.value)
     if (creatorAmount === 0 && this.creatorRoyalty.value > 0 && amount > 0) {
       creatorAmount = 1
     }
-
-    const { marketplaceSalePercentageMin: min, marketplaceSalePercentageMax: max } = getNFTFees(this.akitaDAO.value)
-    const impact = getUserImpact(this.akitaDAO.value, this.seller.value)
-    const akitaTaxRate = impactRange(impact, min, max)
 
     let akitaAmount = calcPercent(amount, akitaTaxRate)
     if (akitaAmount === 0 && amount > 0) {
@@ -97,7 +109,9 @@ export class Listing extends classes(
       marketplaceAmount = 1
     }
 
-    const sellerAmount: uint64 = amount - (creatorAmount + akitaAmount + (2 * marketplaceAmount))
+    const fees: uint64 = creatorAmount + akitaAmount + (2 * marketplaceAmount)
+    loggedAssert(amount >= fees, errPriceTooLow)
+    const sellerAmount: uint64 = amount - fees
 
     return {
       creator: creatorAmount,
@@ -166,11 +180,15 @@ export class Listing extends classes(
       })
       .submit()
 
+    // A fee below the minimum balance cannot be paid to an account that holds no ALGO. Such a fee
+    // goes to the DAO escrow, so a marketplace address that was never funded cannot revert the sale.
+    const escrow = this.akitaDAOEscrow.value.app.address
+
     // pay listing marketplace
     itxn
       .payment({
         amount: amounts.marketplace,
-        receiver: this.marketplace.value,
+        receiver: canReceiveAlgo(this.marketplace.value, amounts.marketplace) ? this.marketplace.value : escrow,
       })
       .submit()
 
@@ -178,7 +196,7 @@ export class Listing extends classes(
     itxn
       .payment({
         amount: amounts.marketplace,
-        receiver: marketplace,
+        receiver: canReceiveAlgo(marketplace, amounts.marketplace) ? marketplace : escrow,
       })
       .submit()
 
@@ -372,6 +390,8 @@ export class Listing extends classes(
 
     // internal variables
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).marketplaceComposablePercentage
+    // refuse a price that could not settle at this royalty
+    this.assertPriceSettles(price)
   }
 
   /**
@@ -460,9 +480,11 @@ export class Listing extends classes(
     })
 
     if (!(this.paymentAsset.value.id === 0)) {
-      // opt out of payment asset
+      // Opt out of the payment asset. The listing holds none of it unless someone sent it some, and a
+      // seller that is not opted in could not take that balance: it goes to the asset's creator, who
+      // always can, so a donation cannot block the delist.
       const paymentAssetTransfer = itxn.assetTransfer({
-        assetCloseTo: this.seller.value,
+        assetCloseTo: this.seller.value.isOptedIn(this.paymentAsset.value) ? this.seller.value : this.paymentAsset.value.creator,
         xferAsset: this.paymentAsset.value,
       })
 
@@ -491,6 +513,7 @@ export class Listing extends classes(
   changePrice(price: uint64): void {
     loggedAssert(Txn.sender === this.seller.value, errMustBeSeller)
     loggedAssert(price >= ListingMinimumPrice, errPriceTooLow)
+    this.assertPriceSettles(price)
     this.price.value = price
     this.lastPriceRound.value = Global.round
   }

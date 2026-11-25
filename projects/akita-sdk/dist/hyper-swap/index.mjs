@@ -5,7 +5,7 @@ import {
   hyperSwapRootBoxName,
   hyperSwapRootName,
   translateHyperSwapError
-} from "../chunk-7TDWMORM.mjs";
+} from "../chunk-3MN4ORZZ.mjs";
 import {
   HYPER_SWAP_MAX_OFFER_DURATION,
   HYPER_SWAP_PARTICIPANT_SCHEMA,

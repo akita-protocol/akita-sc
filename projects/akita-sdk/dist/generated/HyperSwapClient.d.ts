@@ -270,6 +270,28 @@ export type HyperSwapArgs = {
              */
             proof: Uint8Array[];
         };
+        'withdrawFor(uint64,address,address,uint64,uint64)void': {
+            /**
+             * the id of the cancelled offer
+             */
+            id: bigint | number;
+            /**
+             * the funder (sender) in the leaf
+             */
+            from: string;
+            /**
+             * the receiver of the leaf's swap
+             */
+            receiver: string;
+            /**
+             * the asset of the leaf's swap
+             */
+            asset: bigint | number;
+            /**
+             * the amount of the leaf's swap
+             */
+            amount: bigint | number;
+        };
         'cleanupParticipant(uint64,address)void': {
             /**
              * the id of the offer
@@ -321,6 +343,7 @@ export type HyperSwapArgs = {
         'disburseFrom(uint64,address,uint64,address,uint64,uint64)void': [id: bigint | number, from: string, receiverWallet: bigint | number, receiver: string, asset: bigint | number, amount: bigint | number];
         'cancel(uint64,byte[32][])void': [id: bigint | number, proof: Uint8Array[]];
         'withdraw(uint64,address,uint64,uint64,byte[32][])void': [id: bigint | number, receiver: string, asset: bigint | number, amount: bigint | number, proof: Uint8Array[]];
+        'withdrawFor(uint64,address,address,uint64,uint64)void': [id: bigint | number, from: string, receiver: string, asset: bigint | number, amount: bigint | number];
         'cleanupParticipant(uint64,address)void': [id: bigint | number, participant: string];
         'cleanupOffer(uint64)void': [id: bigint | number];
         'offerTerms(uint64)byte[32]': [id: bigint | number];
@@ -344,6 +367,7 @@ export type HyperSwapReturns = {
     'disburseFrom(uint64,address,uint64,address,uint64,uint64)void': void;
     'cancel(uint64,byte[32][])void': void;
     'withdraw(uint64,address,uint64,uint64,byte[32][])void': void;
+    'withdrawFor(uint64,address,address,uint64,uint64)void': void;
     'cleanupParticipant(uint64,address)void': void;
     'cleanupOffer(uint64)void': void;
     'offerTerms(uint64)byte[32]': Uint8Array;
@@ -396,6 +420,10 @@ export type HyperSwapTypes = {
         argsObj: HyperSwapArgs['obj']['withdraw(uint64,address,uint64,uint64,byte[32][])void'];
         argsTuple: HyperSwapArgs['tuple']['withdraw(uint64,address,uint64,uint64,byte[32][])void'];
         returns: HyperSwapReturns['withdraw(uint64,address,uint64,uint64,byte[32][])void'];
+    }> & Record<'withdrawFor(uint64,address,address,uint64,uint64)void' | 'withdrawFor', {
+        argsObj: HyperSwapArgs['obj']['withdrawFor(uint64,address,address,uint64,uint64)void'];
+        argsTuple: HyperSwapArgs['tuple']['withdrawFor(uint64,address,address,uint64,uint64)void'];
+        returns: HyperSwapReturns['withdrawFor(uint64,address,address,uint64,uint64)void'];
     }> & Record<'cleanupParticipant(uint64,address)void' | 'cleanupParticipant', {
         argsObj: HyperSwapArgs['obj']['cleanupParticipant(uint64,address)void'];
         argsTuple: HyperSwapArgs['tuple']['cleanupParticipant(uint64,address)void'];
@@ -705,10 +733,24 @@ export declare abstract class HyperSwapParamsFactory {
      */
     static withdraw(params: CallParams<HyperSwapArgs['obj']['withdraw(uint64,address,uint64,uint64,byte[32][])void'] | HyperSwapArgs['tuple']['withdraw(uint64,address,uint64,uint64,byte[32][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the withdrawFor(uint64,address,address,uint64,uint64)void ABI method
+     *
+    * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+    Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+    so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+    hold the offer's storage deposit.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static withdrawFor(params: CallParams<HyperSwapArgs['obj']['withdrawFor(uint64,address,address,uint64,uint64)void'] | HyperSwapArgs['tuple']['withdrawFor(uint64,address,address,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the cleanupParticipant(uint64,address)void ABI method
      *
     * Cleans up participant box and refunds MBR
-    Can only be called when offer is completed, cancelled+completed, or expired
+    Can only be called when offer is completed, cancelled (with or without leaves still to be
+    returned: a participant's deposit backs no escrow), or expired
   
      *
      * @param params Parameters for the call
@@ -1418,10 +1460,26 @@ export declare class HyperSwapClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `withdrawFor(uint64,address,address,uint64,uint64)void` ABI method.
+         *
+        * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+        Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+        so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+        hold the offer's storage deposit.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        withdrawFor: (params: CallParams<HyperSwapArgs["obj"]["withdrawFor(uint64,address,address,uint64,uint64)void"] | HyperSwapArgs["tuple"]["withdrawFor(uint64,address,address,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `cleanupParticipant(uint64,address)void` ABI method.
          *
         * Cleans up participant box and refunds MBR
-        Can only be called when offer is completed, cancelled+completed, or expired
+        Can only be called when offer is completed, cancelled (with or without leaves still to be
+        returned: a participant's deposit backs no escrow), or expired
     
          *
          * @param params The params for the smart contract call
@@ -1654,10 +1712,30 @@ export declare class HyperSwapClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `withdrawFor(uint64,address,address,uint64,uint64)void` ABI method.
+         *
+        * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+        Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+        so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+        hold the offer's storage deposit.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        withdrawFor: (params: CallParams<HyperSwapArgs["obj"]["withdrawFor(uint64,address,address,uint64,uint64)void"] | HyperSwapArgs["tuple"]["withdrawFor(uint64,address,address,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `cleanupParticipant(uint64,address)void` ABI method.
          *
         * Cleans up participant box and refunds MBR
-        Can only be called when offer is completed, cancelled+completed, or expired
+        Can only be called when offer is completed, cancelled (with or without leaves still to be
+        returned: a participant's deposit backs no escrow), or expired
     
          *
          * @param params The params for the smart contract call
@@ -1965,10 +2043,35 @@ export declare class HyperSwapClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `withdrawFor(uint64,address,address,uint64,uint64)void` ABI method.
+         *
+        * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+        Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+        so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+        hold the offer's storage deposit.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        withdrawFor: (params: CallParams<HyperSwapArgs["obj"]["withdrawFor(uint64,address,address,uint64,uint64)void"] | HyperSwapArgs["tuple"]["withdrawFor(uint64,address,address,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | HyperSwapReturns["withdrawFor(uint64,address,address,uint64,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `cleanupParticipant(uint64,address)void` ABI method.
          *
         * Cleans up participant box and refunds MBR
-        Can only be called when offer is completed, cancelled+completed, or expired
+        Can only be called when offer is completed, cancelled (with or without leaves still to be
+        returned: a participant's deposit backs no escrow), or expired
     
          *
          * @param params The params for the smart contract call
@@ -2329,10 +2432,25 @@ export type HyperSwapComposer<TReturns extends [...any[]] = []> = {
      */
     withdraw(params?: CallParams<HyperSwapArgs['obj']['withdraw(uint64,address,uint64,uint64,byte[32][])void'] | HyperSwapArgs['tuple']['withdraw(uint64,address,uint64,uint64,byte[32][])void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['withdraw(uint64,address,uint64,uint64,byte[32][])void'] | undefined]>;
     /**
+     * Calls the withdrawFor(uint64,address,address,uint64,uint64)void ABI method.
+     *
+    * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+    Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+    so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+    hold the offer's storage deposit.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    withdrawFor(params?: CallParams<HyperSwapArgs['obj']['withdrawFor(uint64,address,address,uint64,uint64)void'] | HyperSwapArgs['tuple']['withdrawFor(uint64,address,address,uint64,uint64)void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['withdrawFor(uint64,address,address,uint64,uint64)void'] | undefined]>;
+    /**
      * Calls the cleanupParticipant(uint64,address)void ABI method.
      *
     * Cleans up participant box and refunds MBR
-    Can only be called when offer is completed, cancelled+completed, or expired
+    Can only be called when offer is completed, cancelled (with or without leaves still to be
+    returned: a participant's deposit backs no escrow), or expired
   
      *
      * @param args The arguments for the contract call

@@ -77,6 +77,9 @@ export type CancelParams = MaybeSigner & ContractArgs['cancel(uint64,byte[32][])
 
 export type WithdrawParams = MaybeSigner & ContractArgs['withdraw(uint64,address,uint64,uint64,byte[32][])void'];
 
+/** Permissionless return of any escrowed leaf of a cancelled offer to its funder (`from`). */
+export type WithdrawForParams = MaybeSigner & ContractArgs['withdrawFor(uint64,address,address,uint64,uint64)void'];
+
 export type OptInParams = MaybeSigner & Omit<
   ContractArgs['optIn(pay,uint64)void'],
   'payment'

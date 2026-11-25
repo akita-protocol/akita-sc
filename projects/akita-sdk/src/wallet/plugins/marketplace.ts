@@ -5,6 +5,7 @@ import { MarketplacePluginArgs, MarketplacePluginClient, MarketplacePluginFactor
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { getTxns } from "../utils";
+import { resolveMaxCreatorRoyalty } from "../../marketplace/royalty";
 
 type ContractArgs = MarketplacePluginArgs["obj"];
 
@@ -28,10 +29,18 @@ export const MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS: ReadonlySet<bigint> = n
   3569561455n, // MainNet, May 2026
 ]);
 
+/**
+ * `list` of every MarketplacePlugin deployed before the seller's royalty bound (`maxCreatorRoyalty`) was
+ * added. The ids in `MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS` route this form and no other.
+ */
+export const MARKETPLACE_PLUGIN_LEGACY_LIST = ABIMethod.fromSignature('list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64');
+
 type ListArgs = (
-  Omit<ContractArgs['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'], 'wallet' | 'rekeyBack'>
+  // `maxCreatorRoyalty`: the highest creator royalty the seller accepts (50_000 = 50%). Required when a
+  // royalty `proof` is supplied: pass the royalty the seller was shown (see `resolveMaxCreatorRoyalty`).
+  Omit<ContractArgs['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'], 'wallet' | 'rekeyBack' | 'maxCreatorRoyalty'>
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & { rekeyBack?: boolean; maxCreatorRoyalty?: bigint | number }
 );
 
 type ListPrizeBoxArgs = (
@@ -79,6 +88,12 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     return this.legacyPurchaseAbi ?? MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS.has(BigInt(this.client.appId));
   }
 
+  private listSelector(): Uint8Array {
+    return this.usesLegacyPurchaseAbi()
+      ? MARKETPLACE_PLUGIN_LEGACY_LIST.getSelector()
+      : this.client.appClient.getABIMethod('list').getSelector();
+  }
+
   private purchaseSelector(): Uint8Array {
     return this.usesLegacyPurchaseAbi()
       ? MARKETPLACE_PLUGIN_LEGACY_PURCHASE.getSelector()
@@ -104,11 +119,10 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
   list(): PluginSDKReturn;
   list(args: ListArgs): PluginSDKReturn;
   list(args?: ListArgs): PluginSDKReturn {
-    const methodName = 'list';
     if (args === undefined) {
       return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        selectors: [this.listSelector()],
         getTxns
       });
     }
@@ -118,13 +132,27 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      selectors: [this.listSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
 
+        if (this.usesLegacyPurchaseAbi()) {
+          // deployed plugin ABI: no maxCreatorRoyalty argument, so the royalty is not bounded on chain
+          return [{
+            type: 'methodCall',
+            ...sendParams,
+            appId: this.client.appId,
+            method: MARKETPLACE_PLUGIN_LEGACY_LIST,
+            args: [
+              wallet, rekeyBack, args.asset, args.assetAmount, args.price, args.paymentAsset, args.expiration,
+              args.reservedFor, args.gateId, args.marketplace, args.name, args.proof,
+            ],
+          }];
+        }
+
         const params = await this.client.params.list({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...args, maxCreatorRoyalty: resolveMaxCreatorRoyalty(args.maxCreatorRoyalty, args.proof as Uint8Array[]) },
         });
 
         return [{

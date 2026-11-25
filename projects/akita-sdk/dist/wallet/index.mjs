@@ -12,6 +12,7 @@ import {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,
@@ -98,10 +99,11 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-UQMJMXPT.mjs";
+} from "../chunk-USKOEGQA.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
+import "../chunk-VXHF5AKC.mjs";
 import "../chunk-EV6A7OVO.mjs";
 import "../chunk-RUHR54B7.mjs";
 import "../chunk-NQI43ZT4.mjs";
@@ -128,6 +130,7 @@ export {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,

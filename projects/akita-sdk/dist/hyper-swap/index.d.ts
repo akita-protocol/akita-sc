@@ -1,7 +1,7 @@
 import { BaseSDK } from "../base";
 import { HyperSwapClient, HyperSwapArgs } from '../generated/HyperSwapClient';
 import { NewContractSDKParams } from "../types";
-import { OfferParams, AcceptParams, EscrowParams, DisburseParams, DisburseFromParams, DisburseAllParams, CancelParams, WithdrawParams, OptInParams, GetOfferParams, OfferValue, HyperSwapMbrData } from "./types";
+import { OfferParams, AcceptParams, EscrowParams, DisburseParams, DisburseFromParams, DisburseAllParams, CancelParams, WithdrawParams, WithdrawForParams, OptInParams, GetOfferParams, OfferValue, HyperSwapMbrData } from "./types";
 export * from "./errors";
 export * from "./types";
 export * from "./roots";
@@ -71,4 +71,10 @@ export declare class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
      * Withdraws escrowed assets from a cancelled offer.
      */
     withdraw({ sender, signer, id, receiver, asset, amount, proof }: WithdrawParams): Promise<void>;
+    /**
+     * Returns an escrowed leaf of a cancelled offer to its funder (`from`). Anyone may call this, and the
+     * leaf can only go back to the account that funded it. Once every leaf is returned the offer is
+     * complete and its storage can be cleaned up, so no funder has to come back for the others to finish.
+     */
+    withdrawFor({ sender, signer, id, from, receiver, asset, amount }: WithdrawForParams): Promise<void>;
 }

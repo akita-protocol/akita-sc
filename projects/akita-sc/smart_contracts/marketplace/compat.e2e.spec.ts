@@ -193,7 +193,7 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
     return wallet
   }
 
-  /** `list` through `plugin` (old or new: same ABI); returns the new listing id */
+  /** `list` through `plugin` (the SDK builds the deployed ABI for the old one, the current ABI otherwise); returns the new listing id */
   const listVia = async (plugin: MarketplacePluginSDK, wallet: WalletSDK, owner: TransactionSignerAccount, factory: string | Address, price: bigint, gateId = 0n, prize = asset) => {
     const before = new Set(await createdBy(factory))
     await wallet.usePlugin({
@@ -236,7 +236,7 @@ describe('Marketplace compatibility with the deployed generation (P2-CMP-01, P2-
 
     // legacy-payment float (runbook: DAO top-up of the factory's free balance)
     await algorand.account.ensureFunded(marketplace().client.appAddress, dispenser.addr, (20).algo())
-    // opt the universe factory and the DAO revenue escrow into the prize once (SDK list + delist)
+    // opt the universe factory into the prize once (SDK list + delist)
     await algorand.send.assetOptIn({ sender: user.addr, signer: user.signer, assetId: asset })
     await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, assetId: asset, amount: 5n, receiver: user.addr })
     const warm = await marketplace().list({

@@ -11,7 +11,7 @@ import { MerkleAssetGateFactory } from '../smart_contracts/artifacts/gates/sub-g
 import { deployMerkleAddressGate } from './fixtures/gates/sub-gates/merkle-address'
 import { deployAkitaDAO } from './fixtures/dao'
 import { deployHyperSwap } from './fixtures/hyper-swap'
-import { errInvalidState, errParticipantsNotCleaned, errCantVerifyLeaf, errNotAParticipant, errOfferTooLong, errTermsMismatch } from '../smart_contracts/hyper-swap/errors'
+import { errInvalidState, errLeafNotEscrowed, errParticipantsNotCleaned, errCantVerifyLeaf, errNotAParticipant, errOfferTooLong, errTermsMismatch } from '../smart_contracts/hyper-swap/errors'
 import { errClawbackForbidden } from '../smart_contracts/utils/errors'
 import { errFailedToVerifyInclusion } from '../smart_contracts/meta/errors'
 import { TimeWarp } from './utils/time'
@@ -368,6 +368,73 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     await swap.withdraw({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, asset: 0n, amount: 20_000n, proof: [] })
     expect((await swap.getOffer({ id: 0n })).state).toBe(60)
     await cleanup(swap, [owner, to])
+  })
+
+  test('audit 09 MKT-02: a cancelled offer is finished without the funder that walked away', async () => {
+    const { algorand } = fixture.context
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap()
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
+    // The partner funds its leaf, cancels, and never comes back for it.
+    await swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) })
+    await swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(50)
+    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(1n)
+
+    // A participant's deposit backs no escrow: the owner takes its own back at once.
+    const ownerBefore = await balanceOf(owner)
+    await swap.client.send.cleanupParticipant({ args: { id: 0n, participant: owner }, extraFee: microAlgo(10_000) })
+    expect(await balanceOf(owner)).toBeGreaterThan(ownerBefore)
+    // The offer itself still waits for the leaf.
+    await expect(swap.client.send.cleanupOffer({ args: { id: 0n }, extraFee: microAlgo(10_000) }))
+      .rejects.toThrow(new RegExp(errInvalidState))
+
+    // Anyone returns the leaf, and only to the account that funded it.
+    const keeper = algorand.account.random()
+    await algorand.account.ensureFunded(keeper.addr, owner, microAlgo(1_000_000))
+    const asKeeper = { sender: keeper.addr, signer: keeper.signer }
+    const keeperAddress = keeper.addr.toString()
+    // a leaf the keeper names itself the funder of was never escrowed
+    await expect(swap.withdrawFor({ ...asKeeper, id: 0n, from: keeperAddress, receiver: owner, asset: 0n, amount: 20_000n }))
+      .rejects.toThrow(new RegExp(errLeafNotEscrowed))
+    const partnerBefore = await balanceOf(to)
+    const keeperBefore = await balanceOf(keeperAddress)
+    await swap.withdrawFor({ ...asKeeper, id: 0n, from: to, receiver: owner, asset: 0n, amount: 20_000n })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
+    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(0n)
+    // the funder has its principal and its leaf's storage deposit; the keeper only paid fees
+    expect(await balanceOf(to) - partnerBefore).toBeGreaterThan(20_000n)
+    expect(await balanceOf(keeperAddress)).toBeLessThan(keeperBefore)
+
+    // A leaf is returned once.
+    await expect(swap.client.send.withdrawFor({
+      ...asKeeper, args: { id: 0n, from: to, receiver: owner, asset: 0n, amount: 20_000n }, extraFee: microAlgo(10_000), note: 'again',
+    })).rejects.toThrow(new RegExp(errInvalidState))
+    // Every remaining deposit is released: the app is back to its base balance.
+    await cleanup(swap, [to])
+  })
+
+  test('audit 09 MKT-02: the funder still withdraws its own leaf, and a participant cleans up before or after', async () => {
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap()
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
+    await swap.escrow({ id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
+    await swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) })
+    // fully funded and not expired: nobody can cancel a swap that is ready to settle
+    await expect(swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })).rejects.toThrow(new RegExp(errInvalidState))
+    await new TimeWarp(fixture.context.algorand).timeWarp(3601n)
+    await swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })
+
+    // the partner cleans its participant record up first, then still withdraws its own leaf
+    await swap.client.send.cleanupParticipant({ args: { id: 0n, participant: to }, extraFee: microAlgo(10_000) })
+    await swap.withdraw({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, asset: 0n, amount: 20_000n, proof: [] })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(50)
+    // the owner's leaf goes back to the owner whoever sends the call
+    const ownerBefore = await balanceOf(owner)
+    await swap.withdrawFor({ sender: partner.addr, signer: partner.signer, id: 0n, from: owner, receiver: to, asset: 0n, amount: 10_000n })
+    expect(await balanceOf(owner) - ownerBefore).toBeGreaterThan(10_000n)
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
+    await cleanup(swap, [owner])
   })
 
   test('HS-02: an offer that under-declares its leaves cannot be accepted', async () => {

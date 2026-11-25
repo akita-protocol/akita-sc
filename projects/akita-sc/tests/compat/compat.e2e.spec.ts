@@ -664,7 +664,7 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       const factory = marketplace.client.appAddress
       await algorand.account.ensureFunded(factory, dispenser.addr, (20).algo())
       const asset = BigInt((await algorand.send.assetCreate({ ...send(deployer), total: 1_000n, decimals: 0, assetName: 'CMPcompat', unitName: 'CMPC' })).confirmation.assetIndex!)
-      // warm-up (SDK list + delist) opts the factory and the DAO revenue escrow into the asset
+      // warm-up (SDK list + delist) opts the factory into the asset
       await algorand.send.assetOptIn({ ...send(user), assetId: asset })
       await algorand.send.assetTransfer({ ...send(deployer), assetId: asset, amount: 5n, receiver: user.addr })
       const warm = await marketplace.list({
@@ -674,7 +674,7 @@ describe('Compatibility suite: deployed MainNet programs against the Phase 2/3 t
       await marketplace.delist({ ...send(user), appId: warm.client.appId })
 
       const pluginId = await installDeployed(algorand, 'MarketplacePlugin.may', send(deployer), pluginCreateArgs('MarketplacePlugin.may', { dao: dao(), factory: marketplace.appId }))
-      // the deployed program routes only the pre-MKT-02 purchase; its LocalNet id is not in the SDK's legacy id list
+      // the deployed program routes only the pre-MKT-02 purchase and the list without a royalty bound; its LocalNet id is not in the SDK's legacy id list
       const plugin = new MarketplacePluginSDK({ algorand, factoryParams: { appId: pluginId, defaultSender: deployer.addr, defaultSigner: deployer.signer }, legacyPurchaseAbi: true })
       const W = await registeredWallet('compat-market')
       await W.addPlugin({ ...send(deployer), client: universe.optInPlugin, callerType: CallerType.Global })

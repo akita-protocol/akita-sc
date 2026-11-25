@@ -4,6 +4,8 @@ import { describe, expect, test, vi } from "vitest";
 import { APP_SPEC as ListingAppSpec } from "../generated/ListingClient";
 import { APP_SPEC as MarketplaceAppSpec } from "../generated/MarketplaceClient";
 import {
+  CREATOR_ROYALTY_DEFAULT,
+  CREATOR_ROYALTY_MAXIMUM,
   directGateCtx,
   isLegacyGateTxn,
   LEGACY_LISTING_CREATE_MBR,
@@ -11,6 +13,8 @@ import {
   MARKETPLACE_HINTED_METHODS,
   MARKETPLACE_LEGACY_METHODS,
   MarketplaceSDK,
+  resolveMaxCreatorRoyalty,
+  translateMarketplaceError,
 } from "./index";
 import { ListingSDK } from "./listing";
 
@@ -73,9 +77,14 @@ describe("Marketplace principal resolution (§6.7)", () => {
       const legacy = MARKETPLACE_LEGACY_METHODS[name];
       expect(sigs).toContain(hinted);
       expect(sigs).toContain(legacy);
-      // the hint is the trailing uint64 of the legacy argument list (PHASE-0-SPEC §2, "Wallet hint")
-      expect(hinted).toBe(legacy.replace(/\)([a-z0-9]+)$/, ",uint64)$1"));
+      // the hint is the trailing uint64 of the legacy argument list (PHASE-0-SPEC §2, "Wallet hint");
+      // the hinted `list` then takes the seller's royalty bound (audit 09, MKT-03)
+      const added = name === "list" ? ",uint64,uint64" : ",uint64";
+      expect(hinted).toBe(legacy.replace(/\)([a-z0-9]+)$/, `${added})$1`));
     }
+    // a prize is opted in by the factory alone (audit 09, MKT-01); `optIn` stays for payment assets
+    expect(sigs).toContain("optInPrize(pay,uint64)void");
+    expect(sigs).toContain("optIn(pay,uint64)void");
     // unchanged entry points keep a single selector
     for (const kept of ["purchase(pay,uint64,address)void", "purchaseAsa(axfer,uint64,address)void", "delist(uint64)void", "listCost(uint64,uint64,bool)uint64"]) {
       expect(sigs.filter((s) => s === kept)).toHaveLength(1);
@@ -146,6 +155,82 @@ describe("Marketplace principal resolution (§6.7)", () => {
 
     expect(calls.map((c) => c.method)).toEqual(["legacy gatedPurchaseAsa", "purchaseAsa"]);
     expect("wallet" in calls[0].args).toBe(false);
+  });
+});
+
+describe("Marketplace audit 09 fixes (SDK side)", () => {
+  /** Records the calls `list` adds to its group, with the factory opted into nothing. */
+  function stubListGroup(market: MarketplaceSDK, optInCost: bigint) {
+    const calls: { method: string; args: Record<string, unknown> }[] = [];
+    const payments: bigint[] = [];
+    const record = (method: string) => (params: { args: Record<string, unknown> }) => {
+      calls.push({ method, args: params.args });
+      return group;
+    };
+    const group = {
+      optIn: record("optIn"),
+      optInPrize: record("optInPrize"),
+      listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64: record("list"),
+      send: vi.fn().mockResolvedValue({ returns: [undefined, 4321n] }),
+    };
+    Object.assign(market.client, { newGroup: () => group, optInCost: vi.fn().mockResolvedValue(optInCost) });
+    vi.spyOn(market.client.algorand.createTransaction, "payment").mockImplementation((async (params: { amount: { microAlgo: bigint } }) => {
+      payments.push(params.amount.microAlgo);
+      return {};
+    }) as never);
+    vi.spyOn(market.client.algorand.createTransaction, "assetTransfer").mockResolvedValue({} as never);
+    const internals = market as unknown as { isMarketplaceOptedInToAsset: () => Promise<boolean>; getRewardsOptInCost: () => Promise<bigint> };
+    internals.isMarketplaceOptedInToAsset = async () => false;
+    internals.getRewardsOptInCost = async () => 0n;
+    return { calls, payments };
+  }
+
+  const LISTING_PARAMS = {
+    sender: BUYER, signer: (() => {}) as never, price: 1_000_000n, expiration: 0n, reservedFor: BUYER, gateId: 0n, marketplace: BUYER, asset: 5n, amount: 1n,
+  };
+
+  test("MKT-01: the asset being sold is opted in with optInPrize for one opt-in; the payment asset still uses optIn", async () => {
+    const market = sdk();
+    const { calls, payments } = stubListGroup(market, 500_000n);
+
+    await market.list({ ...LISTING_PARAMS, paymentAsset: 7n, name: "", proof: [] });
+
+    expect(calls.map((c) => c.method)).toEqual(["optInPrize", "optIn", "list"]);
+    expect(calls[0].args.asset).toBe(5n);
+    expect(calls[1].args.asset).toBe(7n);
+    // listing payment first, then one opt-in (0.1 ALGO) for the prize and the quoted cost for the payment asset
+    expect(payments.slice(1)).toEqual([100_000n, 500_000n]);
+  });
+
+  test("MKT-03: list sends the seller's royalty bound; it is required with a proof and open without one", async () => {
+    const market = sdk();
+    const { calls } = stubListGroup(market, 500_000n);
+    const proof = [new Uint8Array(32)];
+
+    await market.list({ ...LISTING_PARAMS, paymentAsset: 0n, name: "", proof: [] });
+    expect(calls.at(-1)).toMatchObject({ method: "list", args: { wallet: 0n, maxCreatorRoyalty: CREATOR_ROYALTY_MAXIMUM } });
+
+    await market.list({ ...LISTING_PARAMS, paymentAsset: 0n, name: "collection", proof, maxCreatorRoyalty: 10_000n });
+    expect(calls.at(-1)).toMatchObject({ method: "list", args: { name: "collection", proof, maxCreatorRoyalty: 10_000n } });
+
+    const before = calls.length;
+    await expect(market.list({ ...LISTING_PARAMS, paymentAsset: 0n, name: "collection", proof })).rejects.toThrow(/maxCreatorRoyalty is required/);
+    expect(calls.filter((c) => c.method === "list")).toHaveLength(2);
+    expect(calls.length).toBeGreaterThanOrEqual(before);
+  });
+
+  test("resolveMaxCreatorRoyalty: a given bound is kept, no proof means no bound, a proof needs one", () => {
+    expect(CREATOR_ROYALTY_DEFAULT).toBe(5_000n);
+    expect(CREATOR_ROYALTY_MAXIMUM).toBe(50_000n);
+    expect(resolveMaxCreatorRoyalty(undefined, [])).toBe(50_000n);
+    expect(resolveMaxCreatorRoyalty(0, [])).toBe(0n);
+    expect(resolveMaxCreatorRoyalty(7_500n, [new Uint8Array(32)])).toBe(7_500n);
+    expect(() => resolveMaxCreatorRoyalty(undefined, [new Uint8Array(32)])).toThrow(/maxCreatorRoyalty is required/);
+  });
+
+  test("the new error codes translate", () => {
+    expect(translateMarketplaceError("ERR:errRamx")).toMatch(/royalty/i);
+    expect(translateMarketplaceError("ERR:errPrlo")).toMatch(/too low/i);
   });
 });
 

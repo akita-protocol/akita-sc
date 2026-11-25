@@ -19,7 +19,8 @@ import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
  */
 export const MARKETPLACE_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Listing validation -------------------------------------------------
-  PRLO: 'Lowest price is 4 units for divisibility',
+  PRLO: 'Price is too low: the lowest is 4 units, and the fee and royalty shares must fit inside it',
+  RAMX: 'The creator royalty is above the highest royalty the seller accepted',
   MNOP: 'Marketplace must be opted into payment asset',
   NALS: 'Not a listing contract',
   IEXP: 'Invalid expiration',

@@ -54,6 +54,13 @@ export type ListParams = BaseListParams & (
       name: string;
       /** Merkle proof for royalties */
       proof: Uint8Array[];
+      /**
+       * The highest creator royalty the seller accepts (50_000 = 50%). The royalty is read from the
+       * creator's record when the listing lands, and a higher one reverts the listing (errRamx).
+       * Required when `proof` is supplied: pass the royalty the seller was shown. Without a proof the
+       * listing pays the protocol default and the bound may be left out.
+       */
+      maxCreatorRoyalty?: bigint | number;
     }
 );
 

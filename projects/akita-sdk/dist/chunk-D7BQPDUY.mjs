@@ -6,7 +6,7 @@ import {
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-UQMJMXPT.mjs";
+} from "./chunk-USKOEGQA.mjs";
 import {
   assertByteArrayLength,
   decodeABIValue,
@@ -2459,4 +2459,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-SB2N7WEA.mjs.map
+//# sourceMappingURL=chunk-D7BQPDUY.mjs.map

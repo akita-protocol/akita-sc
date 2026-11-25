@@ -48,26 +48,23 @@ export class MarketplacePlugin extends AkitaBaseContract {
     marketplace: Account,
     name: string,
     proof: Proof,
+    maxCreatorRoyalty: uint64,
   ): uint64 {
     const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, errNotEnoughAsset)
 
+    // The prize needs the factory alone to hold it: one opt-in, and nothing that depends on the DAO
+    // revenue escrow (which only ever receives the payment asset).
     if (!this.factory.value.address.isOptedIn(Asset(asset))) {
-      const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
-        sender,
-        appId: this.factory.value,
-        args: [Asset(asset)]
-      }).returnValue
-
-      abiCall<typeof Marketplace.prototype.optIn>({
+      abiCall<typeof Marketplace.prototype.optInPrize>({
         sender,
         appId: this.factory.value,
         args: [
           itxn.payment({
             sender,
             receiver: this.factory.value.address,
-            amount: optinMBR
+            amount: Global.assetOptInMinBalance
           }),
           Asset(asset),
         ]
@@ -127,6 +124,8 @@ export class MarketplacePlugin extends AkitaBaseContract {
         proof,
         // principal resolution invariant 6: hint exactly the wallet whose window this call serves
         windowHint(wallet),
+        // the seller's bound on the royalty, which the factory resolves when this call runs
+        maxCreatorRoyalty,
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
       fee: 0,

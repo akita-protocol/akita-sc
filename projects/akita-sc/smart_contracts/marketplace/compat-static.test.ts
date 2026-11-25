@@ -3,8 +3,9 @@
  * no LocalNet needed. They pin the bytecode reading behind the 2026-10-04 marketplace review fixes
  * (docs/principal-resolution/IMPLEMENTATION-LOG.md):
  * - the deployed Listing never pays a seller referral (P2-REF-01/02 re-derived);
- * - the deployed MarketplacePlugin routes the pre-MKT-02 `purchase` selector, which the working-tree
- *   plugin no longer routes (the SDK picks the ABI by plugin id).
+ * - the deployed MarketplacePlugin routes the pre-MKT-02 `purchase` selector and the `list` selector
+ *   without the seller's royalty bound, which the working-tree plugin no longer routes (the SDK picks
+ *   the ABI by plugin id).
  */
 import algosdk from 'algosdk'
 import { readFileSync } from 'node:fs'
@@ -50,8 +51,24 @@ describe('deployed Marketplace generation (static)', () => {
     expect(count(plugin, selector(current))).toBe(0)
     expect(newPluginSignatures).toContain(current)
     expect(newPluginSignatures).not.toContain(legacy)
-    // every other deployed plugin method keeps its selector
-    for (const signature of newPluginSignatures.filter((s) => !s.startsWith('purchase(') && !s.startsWith('createApplication('))) {
+  })
+
+  test('the deployed plugin routes list without the royalty bound; the working-tree plugin routes only the bounded form', () => {
+    const plugin = program(deployed.marketplacePlugin.approval)
+    const legacy = 'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'
+    const current = 'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'
+    expect(count(plugin, selector(legacy))).toBe(1)
+    expect(count(plugin, selector(current))).toBe(0)
+    expect(newPluginSignatures).toContain(current)
+    expect(newPluginSignatures).not.toContain(legacy)
+  })
+
+  test('every other deployed plugin method keeps its selector', () => {
+    const plugin = program(deployed.marketplacePlugin.approval)
+    const changed = ['purchase(', 'list(', 'createApplication(']
+    const kept = newPluginSignatures.filter((s) => !changed.some((prefix) => s.startsWith(prefix)))
+    expect(kept.map((s) => s.slice(0, s.indexOf('('))).sort()).toEqual(['changePrice', 'delist', 'listPrizeBox', 'opUp', 'updateAkitaDAO'])
+    for (const signature of kept) {
       expect(count(plugin, selector(signature))).toBe(1)
     }
   })

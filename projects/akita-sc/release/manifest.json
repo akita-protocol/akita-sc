@@ -377,8 +377,8 @@
     "arc58/plugins/marketplace/MarketplacePlugin": {
       "name": "MarketplacePlugin",
       "approval": {
-        "bytes": 2677,
-        "sha256": "294f38d9b83212546e249d8841f9e862ab3f7656966f382babf93a67b3905d69"
+        "bytes": 2650,
+        "sha256": "05933ec069e7d845af564c0751dcd72d934cd454c968c35371641c8dcd6ea2f9"
       },
       "clear": {
         "bytes": 4,
@@ -946,8 +946,8 @@
     "hyper-swap/HyperSwap": {
       "name": "HyperSwap",
       "approval": {
-        "bytes": 3986,
-        "sha256": "56cd68d18bac2b15c29ee755d68c85800976f1389bb14464fd9551b10e9cfc71"
+        "bytes": 4056,
+        "sha256": "ca8942acba64d41156214c06a96a990de8143f48e18bc00b785999534a68229a"
       },
       "clear": {
         "bytes": 4,
@@ -958,8 +958,8 @@
     "marketplace/Listing": {
       "name": "Listing",
       "approval": {
-        "bytes": 3203,
-        "sha256": "945d2362ce5f353bf457c7012b1d4a88f2542514fda506afd69e79b87ae98e78"
+        "bytes": 3338,
+        "sha256": "7710dd599c2247a660217410a9eef0316e477180151d805150041cf79a592045"
       },
       "clear": {
         "bytes": 4,
@@ -970,8 +970,8 @@
     "marketplace/Marketplace": {
       "name": "Marketplace",
       "approval": {
-        "bytes": 5636,
-        "sha256": "978b2264ce930eff8188885dc225e4d40c06a0c4fbd873b63ecd611e09c221d5"
+        "bytes": 5753,
+        "sha256": "6ccd3ee6ebee42da155cb0b8907aff201309d2370827e9d5fd7db46d1f49c03c"
       },
       "clear": {
         "bytes": 4,
@@ -1268,8 +1268,8 @@
       "name": "MockHyperSwap",
       "testOnly": true,
       "approval": {
-        "bytes": 4008,
-        "sha256": "b685aeee491aa3f44bf19042d3a86bd0cbc1618558922ef261b59163776b663c"
+        "bytes": 4078,
+        "sha256": "786a71362e4e9c0b98f953779fe3df053f89e2ce88b99aabeb68f0cd2e78e568"
       },
       "clear": {
         "bytes": 4,
