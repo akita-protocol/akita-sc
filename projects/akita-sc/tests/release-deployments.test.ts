@@ -130,7 +130,9 @@ describe('SDK keys for the 2026-10 release', () => {
       expect(readme.split('\n').some(line => line.startsWith(`| \`${key}\` |`) && /lora\.algokit\.io\/|\| — \|/.test(line)), key).toBe(true)
     }
     expect(MAINNET_APP_IDS.rewardsV1).toBe(3569556095n)
-    expect(MAINNET_APP_IDS.guildFactory).toBe(0n)
+    // Release 2.0.0 deployed the Guild factory: TestNet on 2026-11-25, MainNet on 2026-11-26.
+    expect(MAINNET_APP_IDS.guildFactory).toBe(3783381069n)
+    expect(TESTNET_APP_IDS.guildFactory).toBe(777361835n)
   })
 
   test('routes each key to its recorder and records only the shared GuildPlugin (guild = 0)', async () => {

@@ -184,37 +184,45 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 763128627n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
     { appId: 766094477n, version: '0.0.2', deployedAt: '2026-07-11T03:02:23.533Z' },
     { appId: 767111831n, version: '0.0.4', deployedAt: '2026-07-19T01:06:45.498Z' },
+    { appId: 777361196n, version: '2.0.0', deployedAt: '2026-11-25T23:02:50.181Z' },
   ],
   updatePlugin: [
     { appId: 751972139n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128671n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777354566n, version: '2.0.0', deployedAt: '2026-11-25T20:41:18.924Z' },
   ],
   optinPlugin: [
     { appId: 751968346n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128795n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358640n, deployedAt: '2026-11-25T21:38:09.125Z' },
   ],
-  selfOptinPlugin: [{ appId: 763128796n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 767318626n, deployedAt: '2026-07-20T15:37:41.090Z' }],
-  asaManagerPlugin: [{ appId: 751968373n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT }, { appId: 763128820n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 764705920n }],
+  selfOptinPlugin: [{ appId: 763128796n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 767318626n, deployedAt: '2026-07-20T15:37:41.090Z' }, { appId: 777358644n, deployedAt: '2026-11-25T21:38:22.677Z' }],
+  asaManagerPlugin: [{ appId: 751968373n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT }, { appId: 763128820n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 764705920n }, { appId: 777358657n, deployedAt: '2026-11-25T21:38:36.309Z' }],
   payPlugin: [
     { appId: 751968379n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128821n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777361642n, version: '2.0.0', deployedAt: '2026-11-25T23:05:58.488Z' },
   ],
   haystackRouterPlugin: [{ appId: 763128851n, deployedAt: TESTNET_MAY_DEPLOYED_AT }],
   hyperSwapPlugin: [
     { appId: 751972295n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128858n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358238n, version: '2.0.0', deployedAt: '2026-11-25T21:31:52.744Z' },
   ],
   subscriptionsPlugin: [
     { appId: 751968395n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128859n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358494n, version: '2.0.0', deployedAt: '2026-11-25T21:35:42.624Z' },
   ],
   auctionPlugin: [
     { appId: 751972301n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128866n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358513n, version: '2.0.0', deployedAt: '2026-11-25T21:36:04.344Z' },
   ],
   daoPlugin: [
     { appId: 751972311n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128876n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777356844n, version: '2.0.0', deployedAt: '2026-11-25T21:15:24.906Z' },
   ],
   dualStakePlugin: [
     { appId: 751972317n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
@@ -223,26 +231,32 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
   gatePlugin: [
     { appId: 751972318n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128884n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358603n, version: '2.0.0', deployedAt: '2026-11-25T21:37:36.557Z' },
   ],
   marketplacePlugin: [
     { appId: 751968424n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128885n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358517n, version: '2.0.0', deployedAt: '2026-11-25T21:36:15.356Z' },
   ],
   nfdPlugin: [
     { appId: 751972324n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128895n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358660n, deployedAt: '2026-11-25T21:38:41.734Z' },
   ],
   pollPlugin: [
     { appId: 751972340n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128906n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358184n, version: '2.0.0', deployedAt: '2026-11-25T21:31:20.740Z' },
   ],
   rafflePlugin: [
     { appId: 751972341n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128922n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358531n, version: '2.0.0', deployedAt: '2026-11-25T21:36:25.947Z' },
   ],
   rewardsPlugin: [
     { appId: 751972347n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128923n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
+    { appId: 777358621n, version: '2.0.0', deployedAt: '2026-11-25T21:37:47.386Z' },
   ],
   socialPlugin: [
     { appId: 751972357n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
@@ -250,16 +264,19 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 766098156n, version: '0.0.2', deployedAt: '2026-07-11T03:28:28.988Z' },
     { appId: 767297986n, version: '0.0.3', deployedAt: '2026-07-20T05:13:21.978Z' },
     { appId: 767298319n, version: '0.0.3', deployedAt: '2026-07-20T05:24:01.357Z' },
+    { appId: 777358481n, version: '2.0.0', deployedAt: '2026-11-25T21:35:32.049Z' },
   ],
   stakingPlugin: [
     { appId: 751972363n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128931n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
     { appId: 767116005n, version: '0.0.3', deployedAt: '2026-07-19T02:52:28.886Z' },
+    { appId: 777358609n, version: '2.0.0', deployedAt: '2026-11-25T21:37:42.048Z' },
   ],
   stakingPoolPlugin: [
     { appId: 751972365n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128941n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
     { appId: 767118261n, version: '0.0.2', deployedAt: '2026-07-19T03:49:46.516Z' },
+    { appId: 777358499n, version: '2.0.0', deployedAt: '2026-11-25T21:35:53.440Z' },
   ],
 };
 
@@ -270,37 +287,45 @@ export const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 3569559335n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
     { appId: 3633281195n, version: '0.0.2', deployedAt: '2026-07-11T03:10:16.625Z' },
     { appId: 3642325118n, version: '0.0.4', deployedAt: '2026-07-19T01:27:57.837Z' },
+    { appId: 3783372465n, version: '2.0.0', deployedAt: '2026-11-26T02:19:25.568Z' },
   ],
   updatePlugin: [
     { appId: 3368396455n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569559689n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783316013n, version: '2.0.0', deployedAt: '2026-11-26T00:36:04.052Z' },
   ],
   optinPlugin: [
     { appId: 3368398585n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569560490n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783368803n, deployedAt: '2026-11-26T02:10:34.892Z' },
   ],
-  selfOptinPlugin: [{ appId: 3569560545n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3644027143n, deployedAt: '2026-07-20T15:38:03.447Z' }],
-  asaManagerPlugin: [{ appId: 3368398964n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569560791n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3605315701n }],
+  selfOptinPlugin: [{ appId: 3569560545n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3644027143n, deployedAt: '2026-07-20T15:38:03.447Z' }, { appId: 3783368862n, deployedAt: '2026-11-26T02:10:40.432Z' }],
+  asaManagerPlugin: [{ appId: 3368398964n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569560791n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3605315701n }, { appId: 3783368908n, deployedAt: '2026-11-26T02:10:46.043Z' }],
   payPlugin: [
     { appId: 3368399056n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569560828n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783377516n, version: '2.0.0', deployedAt: '2026-11-26T02:22:00.103Z' },
   ],
-  haystackRouterPlugin: [{ appId: 3569561003n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3579545659n }],
+  haystackRouterPlugin: [{ appId: 3569561003n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3579545659n }, { appId: 3783369023n, version: '2.0.0', deployedAt: '2026-11-26T02:10:51.550Z' }],
   hyperSwapPlugin: [
     { appId: 3368399121n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561068n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783361853n, version: '2.0.0', deployedAt: '2026-11-26T01:58:36.768Z' },
   ],
   subscriptionsPlugin: [
     { appId: 3368399152n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561107n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783367783n, version: '2.0.0', deployedAt: '2026-11-26T02:08:31.668Z' },
   ],
   auctionPlugin: [
     { appId: 3368399217n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561141n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783367996n, version: '2.0.0', deployedAt: '2026-11-26T02:08:53.393Z' },
   ],
   daoPlugin: [
     { appId: 3368399317n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561215n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783316919n, version: '2.0.0', deployedAt: '2026-11-26T00:37:27.051Z' },
   ],
   dualStakePlugin: [
     { appId: 3368399386n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
@@ -309,35 +334,42 @@ export const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
   gatePlugin: [
     { appId: 3368399411n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561367n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783368632n, version: '2.0.0', deployedAt: '2026-11-26T02:10:15.460Z' },
   ],
   marketplacePlugin: [
     { appId: 3368399474n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561455n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783368085n, version: '2.0.0', deployedAt: '2026-11-26T02:09:04.254Z' },
   ],
-  nfdPlugin: [{ appId: 3368399559n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3570637728n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944055n }],
+  nfdPlugin: [{ appId: 3368399559n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3570637728n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944055n }, { appId: 3783369090n, deployedAt: '2026-11-26T02:10:57.170Z' }],
   pollPlugin: [
     { appId: 3368399770n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561749n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783361614n, version: '2.0.0', deployedAt: '2026-11-26T01:58:06.412Z' },
   ],
   rafflePlugin: [
     { appId: 3368399868n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561863n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783368172n, version: '2.0.0', deployedAt: '2026-11-26T02:09:15.144Z' },
   ],
   rewardsPlugin: [
     { appId: 3368399956n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569561963n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
+    { appId: 3783368772n, version: '2.0.0', deployedAt: '2026-11-26T02:10:26.532Z' },
   ],
   socialPlugin: [
     { appId: 3368400007n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569562087n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
     { appId: 3633295088n, version: '0.0.2', deployedAt: '2026-07-11T03:29:13.775Z' },
     { appId: 3643581007n, version: '0.0.3', deployedAt: '2026-07-20T05:28:54.584Z' },
+    { appId: 3783367682n, version: '2.0.0', deployedAt: '2026-11-26T02:08:20.963Z' },
   ],
-  stakingPlugin: [{ appId: 3368400044n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569562153n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944799n }, { appId: 3642392585n, version: '0.0.3', deployedAt: '2026-07-19T02:57:54.499Z' }],
+  stakingPlugin: [{ appId: 3368400044n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569562153n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944799n }, { appId: 3642392585n, version: '0.0.3', deployedAt: '2026-07-19T02:57:54.499Z' }, { appId: 3783368727n, version: '2.0.0', deployedAt: '2026-11-26T02:10:20.981Z' }],
   stakingPoolPlugin: [
     { appId: 3368400148n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569562283n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
     { appId: 3642438287n, version: '0.0.2', deployedAt: '2026-07-19T03:57:33.158Z' },
+    { appId: 3783367889n, version: '2.0.0', deployedAt: '2026-11-26T02:08:42.553Z' },
   ],
 };
 
@@ -361,15 +393,15 @@ function latestPluginAppId(deployments: NetworkPluginDeployments, key: PluginApp
 export const TESTNET_APP_IDS: NetworkAppIds = {
   // Core Contracts
   dao: 763128236n,
-  daoProposalValidator: 767109617n,
+  daoProposalValidator: 777354623n,
   wallet: 763128598n,
-  walletMbr: 767110471n,
+  walletMbr: 777358423n,
   escrowFactory: 763128227n,
   walletFactory: 763128255n,
   subscriptions: 763128278n,
   stakingPoolFactory: 763128285n,
   staking: 767114174n,
-  rewards: 763128244n,
+  rewards: 777357495n,
 
   // Social System
   social: 763128333n,
@@ -408,27 +440,27 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   stakingPoolPlugin: latestPluginAppId(TESTNET_PLUGIN_DEPLOYMENTS, 'stakingPoolPlugin'),
 
   // Gate & Other
-  gate: 763128492n,
+  gate: 777356970n,
   hyperSwap: 763128499n,
   metaMerkles: 763128435n,
 
   // Subgates
-  akitaReferrerGate: 763128503n,
-  assetGate: 763128508n,
-  merkleAddressGate: 763128509n,
-  merkleAssetGate: 763128506n,
-  nfdGate: 763128504n,
-  nfdRootGate: 763128511n,
-  pollGate: 763128514n,
-  socialActivityGate: 763128517n,
-  socialFollowerCountGate: 763128518n,
-  socialFollowerIndexGate: 763128516n,
-  socialImpactGate: 763128505n,
-  socialModeratorGate: 763128512n,
-  stakingAmountGate: 767128670n,
-  stakingPowerGate: 767241897n,
-  subscriptionGate: 763128507n,
-  subscriptionStreakGate: 763128515n,
+  akitaReferrerGate: 777356990n,
+  assetGate: 777356996n,
+  merkleAddressGate: 777357012n,
+  merkleAssetGate: 777357020n,
+  nfdGate: 777357035n,
+  nfdRootGate: 777357044n,
+  pollGate: 777357065n,
+  socialActivityGate: 777357077n,
+  socialFollowerCountGate: 777357096n,
+  socialFollowerIndexGate: 777357102n,
+  socialImpactGate: 777357117n,
+  socialModeratorGate: 777357126n,
+  stakingAmountGate: 777357165n,
+  stakingPowerGate: 777357173n,
+  subscriptionGate: 777357191n,
+  subscriptionStreakGate: 777357200n,
 
   // Assets
   akta: 752884771n,
@@ -442,18 +474,18 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   akitaNfd: 0n,
 
   // 2026-10 release: 0n until a receipt --register records the deployment
-  meta: 0n,
-  metaPlugin: 0n,
-  guildFactory: 0n,
-  guildConsensusFactory: 0n,
-  guildPlugin: 0n,
-  welcomePlugin: 0n,
+  meta: 777361599n,
+  metaPlugin: 777361610n,
+  guildFactory: 777361835n,
+  guildConsensusFactory: 777361808n,
+  guildPlugin: 777361866n,
+  welcomePlugin: 777358536n,
   socialClaim: 0n,
-  collectibleVariations: 0n,
-  walletBalanceReader: 0n,
+  collectibleVariations: 777361775n,
+  walletBalanceReader: 777361926n,
   rewardsV1: 763128244n,
-  governanceParticipationGate: 0n,
-  moderatorActivityGate: 0n,
+  governanceParticipationGate: 777357149n,
+  moderatorActivityGate: 777357141n,
 };
 
 /**
@@ -464,15 +496,15 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
 export const MAINNET_APP_IDS: NetworkAppIds = {
   // Core Contracts
   dao: 3569556034n,
-  daoProposalValidator: 3642264629n,
+  daoProposalValidator: 3783316415n,
   wallet: 3569559153n,
-  walletMbr: 3642282698n,
+  walletMbr: 3783363221n,
   escrowFactory: 3569555755n,
   walletFactory: 3569556257n,
   subscriptions: 3569556497n,
   stakingPoolFactory: 3569556570n,
   staking: 3642366153n,
-  rewards: 3569556095n,
+  rewards: 3783355325n,
 
   // Social System
   social: 3569557130n,
@@ -511,27 +543,27 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   stakingPoolPlugin: latestPluginAppId(MAINNET_PLUGIN_DEPLOYMENTS, 'stakingPoolPlugin'),
 
   // Gate & Other
-  gate: 3569558504n,
+  gate: 3783317627n,
   hyperSwap: 3569558555n,
   metaMerkles: 3569558010n,
 
   // Subgates
-  akitaReferrerGate: 3569558604n,
-  assetGate: 3569558602n,
-  merkleAddressGate: 3569558615n,
-  merkleAssetGate: 3569558603n,
-  nfdGate: 3569558608n,
-  nfdRootGate: 3569558606n,
-  pollGate: 3569558607n,
-  socialActivityGate: 3569558616n,
-  socialFollowerCountGate: 3569558612n,
-  socialFollowerIndexGate: 3569558605n,
-  socialImpactGate: 3569558618n,
-  socialModeratorGate: 3569558617n,
-  stakingAmountGate: 3642526856n,
-  stakingPowerGate: 3642975628n,
-  subscriptionGate: 3569558609n,
-  subscriptionStreakGate: 3569558614n,
+  akitaReferrerGate: 3783317698n,
+  assetGate: 3783317850n,
+  merkleAddressGate: 3783317913n,
+  merkleAssetGate: 3783318002n,
+  nfdGate: 3783318085n,
+  nfdRootGate: 3783318161n,
+  pollGate: 3783318261n,
+  socialActivityGate: 3783318333n,
+  socialFollowerCountGate: 3783318428n,
+  socialFollowerIndexGate: 3783318519n,
+  socialImpactGate: 3783318597n,
+  socialModeratorGate: 3783318742n,
+  stakingAmountGate: 3783319031n,
+  stakingPowerGate: 3783319125n,
+  subscriptionGate: 3783319272n,
+  subscriptionStreakGate: 3783319383n,
 
   // Assets
   akta: 523683256n,
@@ -545,18 +577,18 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   akitaNfd: 765902356n,
 
   // 2026-10 release: 0n until a receipt --register records the deployment
-  meta: 0n,
-  metaPlugin: 0n,
-  guildFactory: 0n,
-  guildConsensusFactory: 0n,
-  guildPlugin: 0n,
-  welcomePlugin: 0n,
+  meta: 3783375524n,
+  metaPlugin: 3783376389n,
+  guildFactory: 3783381069n,
+  guildConsensusFactory: 3783380842n,
+  guildPlugin: 3783381241n,
+  welcomePlugin: 3783368260n,
   socialClaim: 0n,
-  collectibleVariations: 0n,
-  walletBalanceReader: 0n,
+  collectibleVariations: 3783380494n,
+  walletBalanceReader: 3783381916n,
   rewardsV1: 3569556095n,
-  governanceParticipationGate: 0n,
-  moderatorActivityGate: 0n,
+  governanceParticipationGate: 3783318970n,
+  moderatorActivityGate: 3783318837n,
 };
 
 /**
@@ -584,8 +616,8 @@ export interface DaoEscrowActionV2Cutover {
 }
 
 export const DAO_ESCROW_ACTION_V2_ROUNDS: Partial<Record<AkitaNetwork, DaoEscrowActionV2Cutover>> = {
-  testnet: { round: 65453461n, timestamp: 1784419143n },
-  mainnet: { round: 63229331n, timestamp: 1784419391n },
+  testnet: { round: 69612758n, timestamp: 1795641311n },
+  mainnet: { round: 67304551n, timestamp: 1795653432n },
 };
 
 export function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoEscrowActionV2Cutover | undefined {
@@ -607,11 +639,13 @@ export function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoEscrowAct
  * Flip testnet/mainnet to `true` in the same release that records the executed Phase 3 proposal.
  *
  * LocalNet is `true`: every LocalNet universe is deployed from the current tree (Phases 0-3 applied).
+ * TestNet and MainNet are `true` since release 2.0.0: the Phase 2 upgrades and the Phase 3 plugin
+ * proposal executed on TestNet on 2026-11-25 and on MainNet on 2026-11-26.
  */
 export const REGISTRY_WRITES_STOPPED: Record<AkitaNetwork, boolean> = {
   localnet: true,
-  testnet: false,
-  mainnet: false,
+  testnet: true,
+  mainnet: true,
 };
 
 /** Whether the SDK's default is to skip EscrowFactory registry writes on `network` (see REGISTRY_WRITES_STOPPED). */
@@ -642,11 +676,13 @@ export function shouldWriteRegistry(network: AkitaNetwork, explicit?: boolean): 
  * selectors, and after it a top-level call of an old selector must pay the corrected MBR.
  *
  * LocalNet is `true`: every LocalNet universe is deployed from the current tree.
+ * TestNet and MainNet are `true` since release 2.0.0: the Phase 2 AkitaSocial and AkitaSocialGraph
+ * upgrade executed on TestNet on 2026-11-25 and on MainNet on 2026-11-26.
  */
 export const SOCIAL_HINTED_TARGETS: Record<AkitaNetwork, boolean> = {
   localnet: true,
-  testnet: false,
-  mainnet: false,
+  testnet: true,
+  mainnet: true,
 };
 
 /** Whether `SocialSDK` targets the upgraded (hinted) social programs on `network`; an explicit choice wins. */

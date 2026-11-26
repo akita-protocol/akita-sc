@@ -201,6 +201,8 @@ describe("SocialSDK wallet hint (principal resolution)", () => {
 // Review fix (2026-10-04): per-network target switch (networks.ts SOCIAL_HINTED_TARGETS). Until the
 // Phase 2 AkitaSocial/AkitaSocialGraph upgrade has executed on a network, the deployed programs have no
 // hinted selectors, so SocialSDK must call the legacy selectors with the deployed MBR terms there.
+// Release 2.0.0 (TestNet 2026-11-25, MainNet 2026-11-26) executed that upgrade on both networks, so every
+// network's default is the hinted targets now. The legacy terms stay reachable with `hintedTargets: false`.
 // ---------------------------------------------------------------------------------------------
 
 const LEGACY = {
@@ -217,16 +219,29 @@ const LEGACY = {
 } as const;
 
 describe("SOCIAL_HINTED_TARGETS (principal resolution Phase 2 switch)", () => {
-  test("LocalNet targets the upgraded contracts; TestNet and MainNet stay on the deployed ones until Phase 2 executes", () => {
-    expect(SOCIAL_HINTED_TARGETS).toEqual({ localnet: true, testnet: false, mainnet: false });
+  test("every network targets the upgraded contracts since release 2.0.0 (Phase 2 executed on TestNet and MainNet)", () => {
+    expect(SOCIAL_HINTED_TARGETS).toEqual({ localnet: true, testnet: true, mainnet: true });
     expect(socialHintedTargets("localnet")).toBe(true);
-    expect(socialHintedTargets("testnet")).toBe(false);
-    expect(socialHintedTargets("mainnet")).toBe(false);
+    expect(socialHintedTargets("testnet")).toBe(true);
+    expect(socialHintedTargets("mainnet")).toBe(true);
   });
 
   test("an explicit choice wins over the network default", () => {
     expect(socialHintedTargets("mainnet", true)).toBe(true);
+    expect(socialHintedTargets("mainnet", false)).toBe(false);
+    expect(socialHintedTargets("testnet", false)).toBe(false);
     expect(socialHintedTargets("localnet", false)).toBe(false);
+  });
+
+  test("the switch is honoured both ways (a network whose social programs are not upgraded)", () => {
+    const saved = { ...SOCIAL_HINTED_TARGETS };
+    try {
+      SOCIAL_HINTED_TARGETS.mainnet = false;
+      expect(socialHintedTargets("mainnet")).toBe(false);
+      expect(socialHintedTargets("mainnet", true)).toBe(true);
+    } finally {
+      Object.assign(SOCIAL_HINTED_TARGETS, saved);
+    }
   });
 });
 
@@ -365,7 +380,8 @@ describe("SocialSDK on deployed (pre-Phase-2) social targets", () => {
       moderationFactoryParams: { appId: 14n },
     };
     setCurrentNetwork("mainnet");
-    expect(new SocialSDK(params).hintedTargets).toBe(false);
+    expect(new SocialSDK(params).hintedTargets).toBe(true);
+    expect(new SocialSDK({ ...params, hintedTargets: false }).hintedTargets).toBe(false);
     expect(new SocialSDK({ ...params, hintedTargets: true }).hintedTargets).toBe(true);
     setCurrentNetwork("localnet");
     expect(new SocialSDK(params).hintedTargets).toBe(true);
