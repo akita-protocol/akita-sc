@@ -16,14 +16,14 @@ Use Node.js 24 or newer (`nvm use` reads `.nvmrc`) and npm; the lockfile is
 `package-lock.json`. PuyaTs and Algorand TypeScript are pinned together to
 `1.3.1` (puya 5.10.1) for the AVM 13 contracts in this project. The application SDK
 uses AlgoKit Utils 9.2.2 and algosdk 3.7.0; PuyaTs retains its own nested
-AlgoKit Utils 10 dependency. `@akta/plugin` depends on the contract type
+AlgoKit Utils 10 dependency. `@akita-protocol/plugin` depends on the contract type
 definitions directly; it does not install its own compiler.
 
 ```bash
 npm ci
 vibekit localnet start
 npm run build --workspace smart_contracts
-npm run build --workspace @akta/sdk
+npm run build --workspace @akita-protocol/sdk
 npm run release:manifest:check --workspace smart_contracts
 npm run check-types --workspace smart_contracts
 npm test --workspaces --if-present
@@ -370,29 +370,29 @@ The `akita-sdk` package provides modular TypeScript bindings — import only wha
 
 | Package | Import |
 |---------|--------|
-| Auction | `akita-sdk/auction` |
-| DAO | `akita-sdk/dao` |
-| Escrow | `akita-sdk/escrow` |
-| Gates | `akita-sdk/gates` |
-| HyperSwap | `akita-sdk/hyper-swap` |
-| Marketplace | `akita-sdk/marketplace` |
-| Meta | `akita-sdk/meta` |
-| MetaMerkles (legacy deployments) | `akita-sdk/meta-merkles` |
-| Poll | `akita-sdk/poll` |
-| Prize Box | `akita-sdk/prize-box` |
-| Raffle | `akita-sdk/raffle` |
-| Rewards | `akita-sdk/rewards` |
-| Social | `akita-sdk/social` |
-| Staking | `akita-sdk/staking` |
-| Staking Pool | `akita-sdk/staking-pool` |
-| Subscriptions | `akita-sdk/subscriptions` |
-| Wallet | `akita-sdk/wallet` |
+| Auction | `@akita-protocol/sdk/auction` |
+| DAO | `@akita-protocol/sdk/dao` |
+| Escrow | `@akita-protocol/sdk/escrow` |
+| Gates | `@akita-protocol/sdk/gates` |
+| HyperSwap | `@akita-protocol/sdk/hyper-swap` |
+| Marketplace | `@akita-protocol/sdk/marketplace` |
+| Meta | `@akita-protocol/sdk/meta` |
+| MetaMerkles (legacy deployments) | `@akita-protocol/sdk/meta-merkles` |
+| Poll | `@akita-protocol/sdk/poll` |
+| Prize Box | `@akita-protocol/sdk/prize-box` |
+| Raffle | `@akita-protocol/sdk/raffle` |
+| Rewards | `@akita-protocol/sdk/rewards` |
+| Social | `@akita-protocol/sdk/social` |
+| Staking | `@akita-protocol/sdk/staking` |
+| Staking Pool | `@akita-protocol/sdk/staking-pool` |
+| Subscriptions | `@akita-protocol/sdk/subscriptions` |
+| Wallet | `@akita-protocol/sdk/wallet` |
 
 ```typescript
 // Import specific modules
-import { WalletSDK } from 'akita-sdk/wallet';
-import { StakingSDK } from 'akita-sdk/staking';
-import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
+import { WalletSDK } from '@akita-protocol/sdk/wallet';
+import { StakingSDK } from '@akita-protocol/sdk/staking';
+import { SubscriptionsSDK } from '@akita-protocol/sdk/subscriptions';
 ```
 
 See [`projects/akita-sdk`](./projects/akita-sdk) for full documentation.

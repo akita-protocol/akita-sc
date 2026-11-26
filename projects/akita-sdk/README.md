@@ -33,7 +33,7 @@ pnpm add algosdk @algorandfoundation/algokit-utils
 
 **Peers:** `algosdk` ^3.7.0, `@algorandfoundation/algokit-utils` ^9.2.2
 
-Local SDK 1.5.0 is unpublished.
+SDK 2.0.0 matches the release 2.0.0 contracts on MainNet and TestNet.
 It adds passkey helpers and /guild; the ARC-59 inbox methods live on RewardsPluginSDK.
 Connect v3 and the use-wallet adapter are unpublished; this repo file-links the local SDK.
 
