@@ -508,9 +508,11 @@ describe('grant replacement', () => {
     expect(social?.current.appId).toBe(3643581007n)
     expect(social?.latest.appId).toBe(999n)
     expect(resolveGrantUpdate('mainnet', 3569562087n, [{ key: 'socialPlugin', to: 999n }])?.latest.appId).toBe(999n)
-    // Without a replacement the registry's latest applies; the latest itself is current.
-    expect(resolveGrantUpdate('mainnet', 3569562087n)?.latest.appId).toBe(3643581007n)
-    expect(resolveGrantUpdate('mainnet', 3643581007n)).toBeUndefined()
+    // Without a replacement the registry's latest applies; the latest itself is current. Since release
+    // 2.0.0 (MainNet, 2026-11-26) the latest social plugin is 3783367682, so 3643581007 has an update too.
+    expect(resolveGrantUpdate('mainnet', 3569562087n)?.latest.appId).toBe(3783367682n)
+    expect(resolveGrantUpdate('mainnet', 3643581007n)?.latest.appId).toBe(3783367682n)
+    expect(resolveGrantUpdate('mainnet', 3783367682n)).toBeUndefined()
     // A key:from:to that contradicts the registry is refused; unknown keys are refused.
     expect(() => resolveGrantUpdate('mainnet', 3643581007n, [{ key: 'updatePlugin', from: 3643581007n, to: 5n }])).toThrow('lists')
     expect(() => resolveGrantUpdate('mainnet', 1n, [{ key: 'nope', to: 5n }])).toThrow('unknown plugin key')

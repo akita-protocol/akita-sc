@@ -143,10 +143,16 @@ describe('legacy payment terms are pinned to the deployed MainNet social plugins
   const teal = readFileSync(path.join(root, 'artifacts/social/AkitaSocial.approval.teal'), 'utf8')
   const source = readFileSync(path.join(root, 'social/constants.ts'), 'utf8')
 
-  test('the four pinned ids are exactly every MainNet social plugin the SDK records', () => {
-    const recorded = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.map((d) => Number(d.appId)).sort()
-    expect(pins.map(socialConstant).sort()).toEqual(recorded)
-    expect(recorded).toEqual([3_368_400_007, 3_569_562_087, 3_633_295_088, 3_643_581_007])
+  test('the four pinned ids are exactly every MainNet social plugin the SDK records from before release 2.0.0', () => {
+    // Release 2.0.0 deployed a fifth social plugin on MainNet on 2026-11-26. It is built from the current
+    // constants, so the amounts it quotes are the corrected terms: it is not pinned, and legacyTerms is
+    // false for it on MainNet. Every older deployment quotes the deployed terms and has to be pinned.
+    const released = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.filter((d) => d.version === '2.0.0').map((d) => Number(d.appId))
+    const older = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.filter((d) => d.version !== '2.0.0').map((d) => Number(d.appId)).sort()
+    expect(released).toEqual([3_783_367_682])
+    expect(pins.map(socialConstant).sort()).toEqual(older)
+    expect(older).toEqual([3_368_400_007, 3_569_562_087, 3_633_295_088, 3_643_581_007])
+    expect(pins.map(socialConstant)).not.toContain(released[0])
   })
 
   test('the MainNet genesis hash constant is the 32-byte mainnet-v1.0 hash', () => {
