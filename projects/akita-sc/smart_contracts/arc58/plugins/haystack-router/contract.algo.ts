@@ -1,6 +1,7 @@
 import {
   Account,
   Application,
+  Bytes,
   bytes,
   Contract,
   Global,
@@ -34,14 +35,19 @@ import {
 /**
  * Haystack's route call (ORDER_ROUTER v4, MainNet app 3757715482, method 871a0354), decoded from the live API's
  * routes and the router's program:
- *   arg 1  uint16 length, then uint64 asset ids: [0] the input asset, [1] the output asset (ALGO = 0)
- *   arg 4  93 bytes: uint16, uint64 minAmountOut (at 2), uint64 expected output (at 10), uint16 fee bps,
- *          uint64, byte, beneficiary address (at 29), referrer address (at 61)
+ *   arg 1  uint16 length, then uint64 asset ids (ALGO = 0); a route with more hops lists more than two
+ *   arg 4  93 bytes: byte input index into arg 1, byte output index into arg 1, byte mode (0 = fixed input,
+ *          1 = fixed output), uint64 minAmountOut (at 3), uint64 expected output (at 11), uint16 fee bps (at 19),
+ *          uint64, beneficiary address (at 29), referrer address (at 61)
+ * The router takes its input from the transaction right before the call. Any `a83187ea` calls of the same
+ * route come before that input.
  */
 const FINALIZE_ASSETS_ARG_INDEX: uint64 = 1
 const FINALIZE_TERMS_ARG_INDEX: uint64 = 4
 const FINALIZE_TERMS_LENGTH: uint64 = 93
-const FINALIZE_TERMS_MIN_OUTPUT_OFFSET: uint64 = 2
+/** input index 0, output index 1, fixed-input mode: the only route this plugin's arguments describe */
+const FINALIZE_TERMS_HEADER = '000100'
+const FINALIZE_TERMS_MIN_OUTPUT_OFFSET: uint64 = 3
 const FINALIZE_TERMS_BENEFICIARY_OFFSET: uint64 = 29
 const FINALIZE_TERMS_REFERRER_OFFSET: uint64 = 61
 
@@ -85,10 +91,13 @@ export class HaystackRouterPlugin extends Contract {
       loggedAssert(routerCall.numAppArgs > 0, errInvalidRouterCall)
 
       if (routerCall.appArgs(0) !== this.routerMethod.value) {
+        // Any other router method has to come before the input: after it, it could hand the input back.
+        loggedAssert(i < fundingTxnIndex, errInvalidRouterCall)
         continue
       }
 
-      loggedAssert(i > fundingTxnIndex, errInvalidFunding)
+      // One route call, right after the input: that is the transaction the router swaps.
+      loggedAssert(!foundRouterCall && i === fundingTxnIndex + 1, errInvalidFunding)
       loggedAssert(routerCall.numAppArgs > FINALIZE_TERMS_ARG_INDEX, errInvalidRouterCall)
 
       const assets = routerCall.appArgs(FINALIZE_ASSETS_ARG_INDEX)
@@ -98,6 +107,8 @@ export class HaystackRouterPlugin extends Contract {
 
       const terms = routerCall.appArgs(FINALIZE_TERMS_ARG_INDEX)
       loggedAssert(terms.length === FINALIZE_TERMS_LENGTH, errInvalidRouterCall)
+      // the indexes say which entries of arg 1 the router swaps between, and the mode what the minimum bounds
+      loggedAssert(extract(terms, 0, 3) === Bytes.fromHex(FINALIZE_TERMS_HEADER), errInvalidRouterCall)
       loggedAssert(extract(terms, FINALIZE_TERMS_MIN_OUTPUT_OFFSET, 8) === itob(minOutputAmount), errInvalidMinOutput)
       loggedAssert(extract(terms, FINALIZE_TERMS_BENEFICIARY_OFFSET, 32) === sender.bytes, errInvalidReceiverArg)
       loggedAssert(extract(terms, FINALIZE_TERMS_REFERRER_OFFSET, 32) === this.referrer.value.bytes, errInvalidBeneficiary)

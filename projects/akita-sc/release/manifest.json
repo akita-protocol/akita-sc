@@ -8,8 +8,8 @@
     "arc58/account/AbstractedAccount": {
       "name": "AbstractedAccount",
       "approval": {
-        "bytes": 8750,
-        "sha256": "0eea4894fc8863938238c3ca4e59304259d8874c619fbc854ed6b059e117e552"
+        "bytes": 8918,
+        "sha256": "fbfe767457c0b2c1b28a3080650c48b1ce0f19822c98f7fa51ef78bed113ec08"
       },
       "clear": {
         "bytes": 4,
@@ -32,8 +32,8 @@
     "arc58/account/AbstractedAccountFactory": {
       "name": "AbstractedAccountFactory",
       "approval": {
-        "bytes": 3536,
-        "sha256": "6ebd8972d9b0c9c209e3d54b806b179d3e431b85b535e5d7bed8a47e311350bb"
+        "bytes": 3618,
+        "sha256": "53f886a6eb117e7b2e4fa95a342352e1fdba3b6e085a53642a9827d3f125c53a"
       },
       "clear": {
         "bytes": 4,
@@ -44,8 +44,8 @@
     "arc58/account/AbstractedAccountMBR": {
       "name": "AbstractedAccountMBR",
       "approval": {
-        "bytes": 308,
-        "sha256": "9a7cc405dea458e0db28ef4b158689f877272ae372ccc72bdd13ba2ed157d95e"
+        "bytes": 312,
+        "sha256": "379dbe968d45f06241416bfb3be92a8e5944387458e2efa0fca84359af0f9051"
       },
       "clear": {
         "bytes": 4,
@@ -82,8 +82,8 @@
     "arc58/dao/AkitaDAO": {
       "name": "AkitaDAO",
       "approval": {
-        "bytes": 10856,
-        "sha256": "61e983653fa6370e19b4b95ce0e9a7c3d3a3017a73005a6a7ee1717cd29211b9"
+        "bytes": 10866,
+        "sha256": "442ff53fab4c50038fa12491ec4e2a6eba94e4a0eafd07d875ad37b7d9fc00bb"
       },
       "clear": {
         "bytes": 4,
@@ -94,8 +94,8 @@
     "arc58/dao/AkitaDAOProposalValidator": {
       "name": "AkitaDAOProposalValidator",
       "approval": {
-        "bytes": 3704,
-        "sha256": "4484d338aeb0cadabb5684d41c00771d6138197c50e0a6e41ccab26b0cabd1bc"
+        "bytes": 4073,
+        "sha256": "55c769b5e09413a264db2c18f2d4c571ec562344ac079570aba572339e6b199c"
       },
       "clear": {
         "bytes": 4,
@@ -130,8 +130,8 @@
     "arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus": {
       "name": "FixedSignerGuildConsensus",
       "approval": {
-        "bytes": 5424,
-        "sha256": "6b25ecbb869183f464c95a39a394b0b25fc7454e414491bf1f5d420ee9e8f1de"
+        "bytes": 5523,
+        "sha256": "629543cfbd26857f49f7b523b2784115be8575f30972301932bb7c59300cd205"
       },
       "clear": {
         "bytes": 4,
@@ -166,8 +166,8 @@
     "arc58/guilds/core/Guild": {
       "name": "Guild",
       "approval": {
-        "bytes": 12586,
-        "sha256": "aa664b4a610250855a1286ae00bb042b6d363130b786ace01709d8277f3643c1"
+        "bytes": 12943,
+        "sha256": "7c7b5e430c4b06f1af4fbddff41800bae006f52678dfb0438f65b545c962b15d"
       },
       "clear": {
         "bytes": 4,
@@ -294,7 +294,7 @@
       "name": "AuctionPlugin",
       "approval": {
         "bytes": 3809,
-        "sha256": "3cf44ff4b1946f11f714fb036628eede80c2c1e739ca114496eaae6f68e70072"
+        "sha256": "b6d77c4dcd3de064782dd4f2025c5447735b16a5e449985f9730af299ad21e8c"
       },
       "clear": {
         "bytes": 4,
@@ -353,8 +353,8 @@
     "arc58/plugins/haystack-router/HaystackRouterPlugin": {
       "name": "HaystackRouterPlugin",
       "approval": {
-        "bytes": 892,
-        "sha256": "949b210d491b8fc0e81e2d58254fbc08cbf41d117bf4fc722f05f15ed036984c"
+        "bytes": 932,
+        "sha256": "8b4d42ba9069a28b9d44d4956764a1027a33ae8e367859195dbd746caf25a280"
       },
       "clear": {
         "bytes": 4,
@@ -389,8 +389,8 @@
     "arc58/plugins/marketplace/MarketplacePlugin": {
       "name": "MarketplacePlugin",
       "approval": {
-        "bytes": 2677,
-        "sha256": "294f38d9b83212546e249d8841f9e862ab3f7656966f382babf93a67b3905d69"
+        "bytes": 2650,
+        "sha256": "05933ec069e7d845af564c0751dcd72d934cd454c968c35371641c8dcd6ea2f9"
       },
       "clear": {
         "bytes": 4,
@@ -439,8 +439,8 @@
     "arc58/plugins/nfd/NFDPlugin": {
       "name": "NFDPlugin",
       "approval": {
-        "bytes": 2956,
-        "sha256": "e7a1c0a0e22d0c393a94620d98fa632982556df7d8284f0c195dfe3e748cc8b2"
+        "bytes": 3073,
+        "sha256": "5eabbd849c670b74e0e9c1e4dd9fdd2f72ea9b515af956f7f82e9d3bd63d6f01"
       },
       "clear": {
         "bytes": 4,
@@ -488,7 +488,7 @@
       "name": "RafflePlugin",
       "approval": {
         "bytes": 4300,
-        "sha256": "ea97db6f2e5834239276c8a836509d72c34e3d8ae6d2ad884d03269c6fe78043"
+        "sha256": "9dae55b57cf006144efc61612d7c3a2b0be46caca4a2340a0cd1c6d08c774806"
       },
       "clear": {
         "bytes": 4,
@@ -499,8 +499,8 @@
     "arc58/plugins/revenue-manager/RevenueManagerPlugin": {
       "name": "RevenueManagerPlugin",
       "approval": {
-        "bytes": 4987,
-        "sha256": "7530973cfecab89aff1a0b61b70b8f4a064fc0a36fb9e281d576d21573cfa058"
+        "bytes": 5218,
+        "sha256": "5aa7f3efdf5e3a588fd7f521af2a52d5c632e9c6d3517e24a07d513791889362"
       },
       "clear": {
         "bytes": 4,
@@ -523,8 +523,8 @@
     "arc58/plugins/self-optin/SelfOptInPlugin": {
       "name": "SelfOptInPlugin",
       "approval": {
-        "bytes": 431,
-        "sha256": "ca5cc75f1c3483b736f2f1cb8e27361244de7513cd93932bc5a303b352086237"
+        "bytes": 428,
+        "sha256": "1979d170374db00178a443b898401ec099c2ffae4276ac2ee6bbfcc898c64496"
       },
       "clear": {
         "bytes": 4,
@@ -535,8 +535,8 @@
     "arc58/plugins/social/AkitaSocialPlugin": {
       "name": "AkitaSocialPlugin",
       "approval": {
-        "bytes": 8174,
-        "sha256": "66c41c5ec0f365d3364fa0477675320059895b791e9f02e2aa7159d81decee97"
+        "bytes": 7821,
+        "sha256": "a49e14969471f5a8be6106ce6b8b048a215360f5353caae5da7da4b32890dcc4"
       },
       "clear": {
         "bytes": 4,
@@ -657,8 +657,8 @@
     "auction/Auction": {
       "name": "Auction",
       "approval": {
-        "bytes": 8522,
-        "sha256": "9f9eb2548abcc812952a2db599cd5775d14149635e322f08596f83b30d2976cf"
+        "bytes": 8521,
+        "sha256": "bbe3696c54500e3ef5ab6708cf1a922fdc61e32032a6d7e70cd579bc72500470"
       },
       "clear": {
         "bytes": 4,
@@ -669,8 +669,8 @@
     "auction/AuctionFactory": {
       "name": "AuctionFactory",
       "approval": {
-        "bytes": 4890,
-        "sha256": "f50763fbcdefdf3e5ebf13f42d16d9b474b725bd28960c9223501e263e8cbab1"
+        "bytes": 4867,
+        "sha256": "8816b2cf74018ced26a5ac30e902e0662a7e23e9b14ec0f6055162e3c898b155"
       },
       "clear": {
         "bytes": 4,
@@ -695,7 +695,7 @@
       "name": "CollectibleVariations",
       "approval": {
         "bytes": 8022,
-        "sha256": "8ef27bb22776613a7afca099111b4e2e86c05ce65c29642b7ba29ad64b0d8da0"
+        "sha256": "f4da33f11f515d10dcd718e52b51702d41b38e71af84bbb175f3950c4daad075"
       },
       "clear": {
         "bytes": 4,
@@ -742,8 +742,8 @@
     "gates/sub-gates/akita-referrer/AkitaReferrerGate": {
       "name": "AkitaReferrerGate",
       "approval": {
-        "bytes": 816,
-        "sha256": "646a2ed9ebd5a83fd81aa709e2563b746a448459c2a46f7b2ea816ce4cc47d34"
+        "bytes": 803,
+        "sha256": "8d953c4212f48574f0fd3d586785e9fb485e5afd5e7f2d12c07f956ddfdc7c5a"
       },
       "clear": {
         "bytes": 4,
@@ -778,8 +778,8 @@
     "gates/sub-gates/merkle-address/MerkleAddressGate": {
       "name": "MerkleAddressGate",
       "approval": {
-        "bytes": 697,
-        "sha256": "aaf2bddd8f27baa25a1d09a1e6d58c9180376a05c4ba2e8154fbc8ecb63b4546"
+        "bytes": 696,
+        "sha256": "2542b34c306887ad417f1e50dc1f041cc1cf8fe59fe904b0a157bef933467725"
       },
       "clear": {
         "bytes": 4,
@@ -791,7 +791,7 @@
       "name": "MerkleAssetGate",
       "approval": {
         "bytes": 769,
-        "sha256": "1c2eebfffbd7e70e28be1878720e4e245cd7c427af44e462c6e58f95f572c072"
+        "sha256": "4518d6b3236de3c4cba0712809eee04c2088a8991d6ab42ddaf7df738737c5f0"
       },
       "clear": {
         "bytes": 4,
@@ -958,8 +958,8 @@
     "hyper-swap/HyperSwap": {
       "name": "HyperSwap",
       "approval": {
-        "bytes": 3986,
-        "sha256": "56cd68d18bac2b15c29ee755d68c85800976f1389bb14464fd9551b10e9cfc71"
+        "bytes": 4056,
+        "sha256": "ca8942acba64d41156214c06a96a990de8143f48e18bc00b785999534a68229a"
       },
       "clear": {
         "bytes": 4,
@@ -970,8 +970,8 @@
     "inference/InferenceNetwork": {
       "name": "InferenceNetwork",
       "approval": {
-        "bytes": 6934,
-        "sha256": "8847eae2dcfa885f55e7ba623dbc785a2af98d36d1a0b6a680a8418e23450066"
+        "bytes": 6894,
+        "sha256": "9d68ed775b9a7c0e624a6e76c9080ab18a4592f02952ccb2b56316967a3bff94"
       },
       "clear": {
         "bytes": 4,
@@ -1008,8 +1008,8 @@
     "marketplace/Listing": {
       "name": "Listing",
       "approval": {
-        "bytes": 3203,
-        "sha256": "945d2362ce5f353bf457c7012b1d4a88f2542514fda506afd69e79b87ae98e78"
+        "bytes": 3326,
+        "sha256": "a8ccdaf1091b4b903aeabb713c6826fd9c3e8cdd8ef9fb32dd478257f1fdf2f9"
       },
       "clear": {
         "bytes": 4,
@@ -1020,8 +1020,8 @@
     "marketplace/Marketplace": {
       "name": "Marketplace",
       "approval": {
-        "bytes": 5665,
-        "sha256": "497401f36f2793fae687ab3693d2e9d534303772faf5aa4e4be4410a5c0f43b5"
+        "bytes": 5753,
+        "sha256": "6ccd3ee6ebee42da155cb0b8907aff201309d2370827e9d5fd7db46d1f49c03c"
       },
       "clear": {
         "bytes": 4,
@@ -1110,8 +1110,8 @@
       "name": "MockBigWallet",
       "testOnly": true,
       "approval": {
-        "bytes": 11169,
-        "sha256": "eaad45377d145c12ede9115532acb4ab8dc03dcaf03171be7fd7d66e74d7a837"
+        "bytes": 11337,
+        "sha256": "ac24d654dc49e466805a1bfd90ae3af666f5fd87b721c86d842f00336495bdea"
       },
       "clear": {
         "bytes": 4,
@@ -1124,7 +1124,7 @@
       "testOnly": true,
       "approval": {
         "bytes": 130,
-        "sha256": "536aec943d979c1105a35971cf7b4ecd8dd298d715383b293ed3296e58d7e9e1"
+        "sha256": "cf7abd1490ad4311c18b0f8419d3c9487315bf851fb5ae59fd3368f8dc91bd21"
       },
       "clear": {
         "bytes": 4,
@@ -1305,8 +1305,8 @@
       "name": "MockHaystackRouter",
       "testOnly": true,
       "approval": {
-        "bytes": 350,
-        "sha256": "0753a1a091cea33e8872e767a351edfb125e4605da5916e8b022af6467e85be4"
+        "bytes": 363,
+        "sha256": "4349fc9eff17317821dfb8a26b67c6a02c16e0c7bdf06d3f604bcb54d611f358"
       },
       "clear": {
         "bytes": 4,
@@ -1318,8 +1318,8 @@
       "name": "MockHyperSwap",
       "testOnly": true,
       "approval": {
-        "bytes": 4008,
-        "sha256": "b685aeee491aa3f44bf19042d3a86bd0cbc1618558922ef261b59163776b663c"
+        "bytes": 4078,
+        "sha256": "786a71362e4e9c0b98f953779fe3df053f89e2ce88b99aabeb68f0cd2e78e568"
       },
       "clear": {
         "bytes": 4,
@@ -1370,8 +1370,8 @@
       "name": "MockLegacyVoteDAO",
       "testOnly": true,
       "approval": {
-        "bytes": 11087,
-        "sha256": "f41a545e97a4bc0c92af7891a871309ac99f8819e8d033f100867ca6fc949000"
+        "bytes": 11097,
+        "sha256": "63d642f2a3abeb5f8e2319d8aac89cd8b012441a716cf6f68dae184f13a04aee"
       },
       "clear": {
         "bytes": 4,
@@ -1435,8 +1435,8 @@
       "name": "MockNfdRegistry",
       "testOnly": true,
       "approval": {
-        "bytes": 130,
-        "sha256": "0e2e780480d89b05648ec918486465ad94c653c8d8af34f03d2599cabd133eff"
+        "bytes": 635,
+        "sha256": "40af33d2a29a6009a84826cb8002eea937b31995470b66c9be2761e44f5a5311"
       },
       "clear": {
         "bytes": 4,
@@ -1808,6 +1808,19 @@
       },
       "extraPages": 0
     },
+    "mocks/window-reclaim/MockWindowReclaim": {
+      "name": "MockWindowReclaim",
+      "testOnly": true,
+      "approval": {
+        "bytes": 231,
+        "sha256": "8f0c094889bbfe79c4d37d87bf0f1f9597c71d8a9db5d63be3c9c1cd3b389ae6"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
     "poll/Poll": {
       "name": "Poll",
       "approval": {
@@ -1823,8 +1836,8 @@
     "poll/PollFactory": {
       "name": "PollFactory",
       "approval": {
-        "bytes": 4339,
-        "sha256": "e0be24b9f82738bd35f41e680814ba995c85d4f0aff22ca48596862e58466b08"
+        "bytes": 4305,
+        "sha256": "a6dbbbac35f1cf5b60faa454ce5cacc2ac97ad7ee9411cc12180715f70bff661"
       },
       "clear": {
         "bytes": 4,
@@ -1847,8 +1860,8 @@
     "prize-box/PrizeBoxFactory": {
       "name": "PrizeBoxFactory",
       "approval": {
-        "bytes": 2184,
-        "sha256": "05f1d0873ab958c29494b96ef4afdbc1fcad71010f73c9f0b3bd7764b42e026c"
+        "bytes": 2150,
+        "sha256": "b7097e6cfa0bcb8fcb048065c61834f8f749d9650d696f30b4d4535df220470f"
       },
       "clear": {
         "bytes": 4,
@@ -1859,8 +1872,8 @@
     "raffle/Raffle": {
       "name": "Raffle",
       "approval": {
-        "bytes": 8158,
-        "sha256": "db06cd5833878c146f533ee54c37a3eb70b85d9d507c61c2e3b13d73ca87e102"
+        "bytes": 8151,
+        "sha256": "6ee9ae3e300812da8739e20f48524528862b8fc4193f333b0d71257ba5a35d79"
       },
       "clear": {
         "bytes": 4,
@@ -1871,8 +1884,8 @@
     "raffle/RaffleFactory": {
       "name": "RaffleFactory",
       "approval": {
-        "bytes": 3794,
-        "sha256": "27a219fa54e228c8169b83de5e2df0829b8e96a8771977fff1d1f6c3251e6aea"
+        "bytes": 3751,
+        "sha256": "56c5f5a9cfe20ce792f28fa7b16f117335df02a7321e5ed6e743544f4020a4be"
       },
       "clear": {
         "bytes": 4,
@@ -1895,8 +1908,8 @@
     "social/AkitaSocial": {
       "name": "AkitaSocial",
       "approval": {
-        "bytes": 11499,
-        "sha256": "a09895463a5408747bc5883c11247c74a5001a13c4d841ada5806a7981588359"
+        "bytes": 11693,
+        "sha256": "a4210ca1cc0ded446ddf12f1a1ac2d751ac5e5f0071ed261f5b8b7b695f2b760"
       },
       "clear": {
         "bytes": 4,
@@ -1919,8 +1932,8 @@
     "social/AkitaSocialImpact": {
       "name": "AkitaSocialImpact",
       "approval": {
-        "bytes": 3160,
-        "sha256": "e1742df18bfeb9db897e9adfe984cd295439aa498562e157ac97ddacac04a7ff"
+        "bytes": 3146,
+        "sha256": "6d3965b5094f8380ed48b25e481831a784631dc009ad3e0156abd0ae7e903806"
       },
       "clear": {
         "bytes": 4,
@@ -1931,8 +1944,8 @@
     "social/AkitaSocialModeration": {
       "name": "AkitaSocialModeration",
       "approval": {
-        "bytes": 1477,
-        "sha256": "e55b51d4563d77660dfad07eb56f2e593357d19e99c8b5f8cd36db9d231fd75d"
+        "bytes": 1525,
+        "sha256": "5ca4a7692c2af3094eebb4ea230382479afd9db290cf1d32dd0a591cecfc707f"
       },
       "clear": {
         "bytes": 4,
@@ -1943,8 +1956,8 @@
     "staking-pool/StakingPool": {
       "name": "StakingPool",
       "approval": {
-        "bytes": 13272,
-        "sha256": "395424e5ead26b7e09bb6f893cc5e2a1d13b43cbef36b932ce46a6026f80ed56"
+        "bytes": 13472,
+        "sha256": "a0374a58d827bea6548660316804048e205c5cc3f2241d75f96e20b1cc8c25c2"
       },
       "clear": {
         "bytes": 4,
@@ -1955,8 +1968,8 @@
     "staking-pool/StakingPoolFactory": {
       "name": "StakingPoolFactory",
       "approval": {
-        "bytes": 4006,
-        "sha256": "a07ad926501a0f7581d82ed17e9918536c0a4b7c13b014e5cabe0283f9bbfbfd"
+        "bytes": 3972,
+        "sha256": "99a9c66c60937c097cf9052dd635a8d38b9cb017ece9be5599c9e7520e46cfd8"
       },
       "clear": {
         "bytes": 4,
@@ -1979,8 +1992,8 @@
     "subscriptions/Subscriptions": {
       "name": "Subscriptions",
       "approval": {
-        "bytes": 10801,
-        "sha256": "5dbf842425e80db46aa497ff314bc2fbe3fa702f7649bdafb15655017866381b"
+        "bytes": 10818,
+        "sha256": "4319429450dbb9095346bc25398ba128822f7457337cc0eb4b7c02427d93df0d"
       },
       "clear": {
         "bytes": 4,

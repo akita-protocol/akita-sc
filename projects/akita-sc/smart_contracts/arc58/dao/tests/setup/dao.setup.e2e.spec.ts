@@ -17,6 +17,7 @@ import { deploySubscriptions } from '../../../../../tests/fixtures/subscriptions
 import { logger } from '../../../../../tests/utils/logger';
 import { AbstractedAccountMbrFactory } from '../../../../artifacts/arc58/account/AbstractedAccountMBRClient';
 import { EscrowFactoryClient } from '../../../../artifacts/escrow/EscrowFactoryClient';
+import { MockGovernanceStakingFactory } from '../../../../artifacts/mocks/governance-staking/MockGovernanceStakingClient';
 import {
   DEFAULT_CREATION,
   DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
@@ -464,6 +465,16 @@ describe('ARC58 DAO Setup', () => {
 
       await dao.clearBootstrapKeys();
       expect(await dao.getBootstrapKeys()).toHaveLength(0);
+
+      // Audit DAO-10: creator control cannot end while nobody could ever propose. That needs both
+      // governance assets and a staking app.
+      await expect(dao.initialize()).rejects.toThrow(/errGnrd/);
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.UpdateFields, field: 'akita_assets', value: { akta: 9_001n, bones: 9_002n } }]);
+      await expect(dao.initialize()).rejects.toThrow(/errGnrd/);
+      const { appClient: staking } = await fixture.context.algorand.client
+        .getTypedAppFactory(MockGovernanceStakingFactory, { defaultSender: sender, defaultSigner: signer })
+        .send.create.bare();
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.UpdateFields, field: 'aal', value: { staking: staking.appId } }]);
 
       await dao.initialize();
       const { state } = await dao.getGlobalState();

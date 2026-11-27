@@ -2,8 +2,8 @@ import {
   abimethod,
   Account,
   Application,
-  arc4,
   Asset,
+  Box,
   BoxMap,
   bytes,
   clone,
@@ -17,7 +17,7 @@ import {
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
 import { assertPlainPayment, assertSafeAssetTransfer, assertSafePayment, calcPercent, createInstantDisbursement, recordPayer, releaseDeposit, sponsorCost, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
@@ -32,6 +32,13 @@ import {
   BEACON_ROUND_INTERVAL,
   ChunkSize,
   DRAW_DELAY_ROUNDS,
+  EntriesByAddressMBR,
+  EntriesMBR,
+  MaxBoxSkipsPerCall,
+  MaxWeightsBoxes,
+  RaffleRefundDisbursementMBR,
+  WeightsMBR,
+  RaffleBoxKeyWeightTotals,
   RaffleBoxPrefixEntries,
   RaffleBoxPrefixEntriesByAddress,
   RaffleBoxPrefixWeights,
@@ -61,7 +68,6 @@ import {
   RaffleGlobalStateKeyTicketCount,
   RaffleGlobalStateKeyVRFFailureCount,
   RaffleGlobalStateKeyWeightsBoxCount,
-  RaffleGlobalStateKeyWeightTotals,
   RaffleGlobalStateKeyWinner,
   RaffleGlobalStateKeyWinningTicket,
 } from './constants'
@@ -74,8 +80,6 @@ import {
   errInvalidEndingRound,
   errInvalidPayment,
   errInvalidTransfer,
-  errMustAllocateAtLeastFourHighestBidsChunks,
-  errMustAllocateAtMostFifteenHighestBidsChunks,
   errMustBeCalledFromFactory,
   errNoWinningTicketYet,
   errNotEnoughTime,
@@ -95,11 +99,11 @@ import {
   errPrizeIsTicketAsset,
   errNotSeller,
   errBeaconNotReady,
+  errRaffleFull,
 } from './errors'
-import { EntryData, FindWinnerCursors, RaffleState } from './types'
+import { EntryData, FindWinnerCursors, RaffleMBRData, RaffleState } from './types'
 
 // CONTRACT IMPORTS
-import { WeightsList } from '../auction/types'
 import type { PrizeBox } from '../prize-box/contract.algo'
 import { AkitaBaseFeeGeneratorContract, EscrowConfig } from '../utils/base-contracts/base'
 import { ChildContract } from '../utils/base-contracts/child'
@@ -156,12 +160,8 @@ export class Raffle extends classes(
   vrfFailureCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyVRFFailureCount })
   /** The id's of the raffle entries */
   entryID = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyEntryID })
-  /** the number of boxes allocated to tracking weights */
+  /** the number of weights boxes that exist: one per `ChunkSize` entries not refunded yet */
   weightsBoxCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyWeightsBoxCount })
-  /** totals for each box of weights for our skip list */
-  weightTotals = GlobalState<arc4.StaticArray<arc4.Uint64, 15>>({
-    key: RaffleGlobalStateKeyWeightTotals,
-  })
   /**
    * cursors to track iteration of finding winner
    * index being for the bid iteration
@@ -192,8 +192,14 @@ export class Raffle extends classes(
 
   /** The entries for the raffle */
   entries = BoxMap<uint64, EntryData>({ keyPrefix: RaffleBoxPrefixEntries })
-  /** weights set for bidders */
-  weights = BoxMap<uint64, WeightsList>({ keyPrefix: RaffleBoxPrefixWeights })
+  /**
+   * Ticket counts: entry `loc` owns the 8-byte slot `loc % ChunkSize` of box `loc / ChunkSize`. A
+   * box is as long as the entries it holds: it is created by its first entry, grows one slot per
+   * entry and shrinks again as `refundMBR` returns each entry's storage.
+   */
+  weights = BoxMap<uint64, bytes>({ keyPrefix: RaffleBoxPrefixWeights })
+  /** the ticket total of every weights box, 8 bytes each: the skip list of the winner search */
+  weightTotals = Box<bytes>({ key: RaffleBoxKeyWeightTotals })
   /** The address map of entries for the raffle */
   entriesByAddress = BoxMap<Account, uint64>({ keyPrefix: RaffleBoxPrefixEntriesByAddress })
 
@@ -203,21 +209,32 @@ export class Raffle extends classes(
    * AR-08: skip whole weights boxes only while the cursor sits on a box boundary,
    * using the totals of the box the cursor is actually in.
    */
-  private getWinnerWeightBoxInfo(): [uint64, uint64] {
+  private getWinnerWeightBoxInfo(): [uint64, uint64, uint64] {
     let startingIndex = this.findWinnerCursors.value.index
     let currentRangeStart = this.findWinnerCursors.value.amountIndex
+    const boxCount = this.weightsBoxCount.value
+    const winningTicket = this.winningTicket.value
+    let skipped: uint64 = 0
 
-    while (startingIndex % ChunkSize === 0 && startingIndex / ChunkSize < this.weightsBoxCount.value) {
-      const boxStake = this.weightTotals.value[startingIndex / ChunkSize].asUint64()
-      if (this.winningTicket.value < currentRangeStart + boxStake) {
+    // a raffle can hold thousands of weights boxes: one call skips a bounded number of them, and a
+    // call with more than a few ahead of it asks for the budget to do so
+    const ahead: uint64 = boxCount - startingIndex / ChunkSize
+    if (startingIndex % ChunkSize === 0 && ahead > 4) {
+      ensureBudget((ahead < MaxBoxSkipsPerCall ? ahead : MaxBoxSkipsPerCall) * 60 + 300)
+    }
+
+    while (skipped < MaxBoxSkipsPerCall && startingIndex % ChunkSize === 0 && startingIndex / ChunkSize < boxCount) {
+      const boxStake = this.boxTotal(startingIndex / ChunkSize)
+      if (winningTicket < currentRangeStart + boxStake) {
         break
       }
 
       startingIndex += ChunkSize
       currentRangeStart += boxStake
+      skipped += 1
     }
 
-    return [startingIndex, currentRangeStart]
+    return [startingIndex, currentRangeStart, skipped]
   }
 
   /** LEGACY shims only: origin of a (DAO-authenticated) registry wallet sender, else the sender itself (AR-E) */
@@ -240,9 +257,69 @@ export class Raffle extends classes(
     loggedAssert(passed, errFailedGate)
   }
 
+  /**
+   * What one entry holds here until `refundMBR`: its two boxes and its weight slot. AUC-02: a failed
+   * raffle refunds the tickets of an entrant who has left the ticket asset through a Rewards
+   * disbursement, which costs more than that storage releases, so an entry of an ASA raffle is
+   * topped up to the cost of one disbursement and that refund never draws on the seller's reserve.
+   */
+  private entryDeposit(): uint64 {
+    return this.ticketAsset.value.id === 0 ? EntriesMBR + EntriesByAddressMBR : RaffleRefundDisbursementMBR
+  }
+
   /** tickets held by entry `loc` */
   private ticketsOf(loc: uint64): uint64 {
-    return this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64()
+    return op.btoi(this.weights(loc / ChunkSize).extract((loc % ChunkSize) * 8, 8))
+  }
+
+  /** tickets held by the entries of weights box `box` */
+  private boxTotal(box: uint64): uint64 {
+    return op.btoi(this.weightTotals.extract(box * 8, 8))
+  }
+
+  /** gives entry `loc` `amount` more tickets, in its slot and in its box's total */
+  private addTickets(loc: uint64, amount: uint64): void {
+    const box: uint64 = loc / ChunkSize
+    this.weights(box).replace((loc % ChunkSize) * 8, op.itob(this.ticketsOf(loc) + amount))
+    this.weightTotals.replace(box * 8, op.itob(this.boxTotal(box) + amount))
+    this.ticketCount.value += amount
+  }
+
+  /**
+   * Makes room for the ticket count of the newest entry `loc`: one more slot in its weights box.
+   * The first entry of a box creates the box and its total. `EntryWeightMBR` covers either case.
+   */
+  private allocateWeight(loc: uint64): void {
+    const box: uint64 = loc / ChunkSize
+    const slot: uint64 = loc % ChunkSize
+
+    if (slot !== 0) {
+      this.weights(box).resize((slot + 1) * 8)
+      return
+    }
+
+    loggedAssert(box < MaxWeightsBoxes, errRaffleFull)
+    this.weights(box).create({ size: 8 })
+    this.weightTotals.resize((box + 1) * 8)
+    this.weightsBoxCount.value = box + 1
+  }
+
+  /**
+   * Gives back the slot of the newest remaining entry `loc`, so its storage can be refunded. Refunds
+   * run from the last entry down, which keeps every weights box exactly as long as its entries.
+   */
+  private releaseWeight(loc: uint64): void {
+    const box: uint64 = loc / ChunkSize
+    const slot: uint64 = loc % ChunkSize
+
+    if (slot !== 0) {
+      this.weights(box).resize(slot * 8)
+      return
+    }
+
+    this.weights(box).delete()
+    this.weightTotals.resize(box * 8)
+    this.weightsBoxCount.value = box
   }
 
   /**
@@ -435,27 +512,25 @@ export class Raffle extends classes(
     const impact = getUserImpact(this.akitaDAO.value, this.seller.value)
     this.akitaRoyalty.value = impactRange(impact, fees.raffleSaleImpactTaxMin, fees.raffleSaleImpactTaxMax)
 
-    this.weightTotals.value = new arc4.StaticArray<Uint64, 15>()
     this.salt.value = Txn.txId
     this.findWinnerCursors.value = { index: 0, amountIndex: 1 }
   }
 
+  /**
+   * `weightListLength` is ignored. It used to reserve that many full weights boxes, which capped the
+   * raffle at `weightListLength * ChunkSize` entrants and locked their storage up front. Weights
+   * storage now grows with the entries, each entry paying for its own (`EntryWeightMBR`). The
+   * argument stays so callers of the earlier ABI keep working.
+   */
   init(payment: gtxn.PaymentTxn, weightListLength: uint64) {
     loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
-    loggedAssert(weightListLength >= 4, errMustAllocateAtLeastFourHighestBidsChunks)
-    loggedAssert(weightListLength < 16, errMustAllocateAtMostFifteenHighestBidsChunks)
 
     // Base MBR and asset opt-in MBR are handled by factory before this call
-    // This init only expects the weights MBR
-    const weightsMBR: uint64 = (weightListLength * this.mbr().weights)
-
+    // This init only expects the storage of the (empty) totals box
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount === weightsMBR, errInvalidPayment)
+    loggedAssert(payment.amount === WeightsMBR, errInvalidPayment)
 
-    this.weightsBoxCount.value = weightListLength
-    for (let i: uint64 = 0; i < weightListLength; i += 1) {
-      this.weights(i).create()
-    }
+    this.weightTotals.create({ size: 0 })
   }
 
   /**
@@ -478,17 +553,19 @@ export class Raffle extends classes(
     /** make sure we haven't already refunded all MBR */
     loggedAssert(this.entryCount.value !== this.refundMBRCursor.value, errAllRefundsComplete)
 
-    const startingIndex = this.refundMBRCursor.value
+    // Refunds run from the last entry down: each one frees its own slot at the end of its weights
+    // box, so the storage it paid for is released before it is paid back. `refundMBRCursor` counts
+    // the entries refunded so far.
     const remainder: uint64 = this.entryCount.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
-    const costs = this.mbr()
-    const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
+    const entryTotalMBR = this.entryDeposit()
 
-    const opUpIterationAmount: uint64 = iterationAmount * 200
+    const opUpIterationAmount: uint64 = iterationAmount * 260
     ensureBudget(opUpIterationAmount)
 
-    for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
+    for (let n: uint64 = 0; n < iterationAmount; n += 1) {
+      const i: uint64 = remainder - 1 - n
       const { account } = this.entries(i).value
       // AR-C: a failed raffle refunds every entrant's tickets with their MBR
       let disbursementCost: uint64 = 0
@@ -497,6 +574,7 @@ export class Raffle extends classes(
       }
       this.entries(i).delete()
       this.entriesByAddress(account).delete()
+      this.releaseWeight(i)
       // the entry storage goes back to whoever paid for it (the entrant, unless someone else did)
       const [receiver, refund] = releaseDeposit(this.entriesByAddress(account).key, account, entryTotalMBR)
       // TRADE-5: an entrant who left the ticket asset pays its refund disbursement out of the released MBR
@@ -513,28 +591,35 @@ export class Raffle extends classes(
     this.refundMBRCursor.value += iterationAmount
   }
 
+  /**
+   * Removes the totals box once every entry is refunded (the refunds remove the weights boxes
+   * themselves) and returns its storage to whoever funded the raffle. Returns the amount released.
+   * Calling it is optional: deleting the raffle removes a totals box that is still there.
+   */
   clearWeightsBoxes(): uint64 {
     loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
     // ticket refunds of a failed raffle read the weights boxes
     loggedAssert(this.entryCount.value === this.refundMBRCursor.value, errRefundsNotComplete)
 
-    for (let i: uint64 = 0; i < this.weightsBoxCount.value; i += 1) {
-      const ri: uint64 = (this.weightsBoxCount.value - 1) - i
-      this.weights(ri).delete()
+    if (!this.weightTotals.exists) {
+      return 0
     }
+    this.weightTotals.delete()
 
-    const returnAmount: uint64 = this.weightsBoxCount.value * this.mbr().weights
+    const returnAmount: uint64 = WeightsMBR
 
     // AR-09: the weights MBR goes straight back to whoever funded the raffle
-    // (the factory refunds only what the deletion itself releases)
-    itxn
-      .payment({
-        receiver: this.funder.value.account,
-        amount: returnAmount,
-      })
-      .submit()
+    // (the factory refunds only what the deletion itself releases). A funder whose account has
+    // closed cannot take an amount this small: it then leaves with the rest at deletion.
+    if (this.canReceiveAlgo(this.funder.value.account, returnAmount)) {
+      itxn
+        .payment({
+          receiver: this.funder.value.account,
+          amount: returnAmount,
+        })
+        .submit()
+    }
 
-    this.weightsBoxCount.value = 0
     return returnAmount
   }
 
@@ -543,7 +628,10 @@ export class Raffle extends classes(
     loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
     loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
     loggedAssert(this.entryCount.value === this.refundMBRCursor.value, errRefundsNotComplete)
+    // the storage refunds removed every weights box; a totals box nobody cleared goes now, and its
+    // storage reaches the funder with the rest of what this deletion releases
     loggedAssert(this.weightsBoxCount.value === 0, errStillHasWeightsBoxes)
+    this.weightTotals.delete()
 
     // AR-09: close every holding back to the factory so nothing is stranded in the deleted app
     if (this.ticketAsset.value.id !== 0 && Global.currentApplicationAddress.isOptedIn(this.ticketAsset.value)) {
@@ -638,8 +726,7 @@ export class Raffle extends classes(
     assertPlainPayment(payment)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
 
-    const costs = this.mbr()
-    return costs.entries + costs.entriesByAddress + sponsorCost(payment.sender, Txn.sender)
+    return this.entryDeposit() + sponsorCost(payment.sender, Txn.sender)
   }
 
   /** stores the caller's validated entry of `amount` tickets, and who paid for its storage */
@@ -652,12 +739,9 @@ export class Raffle extends classes(
     this.entriesByAddress(Txn.sender).value = loc
     recordPayer(this.entriesByAddress(Txn.sender).key, payment.sender, Txn.sender)
 
-    this.weights(loc / ChunkSize).value[loc % ChunkSize] = new Uint64(amount)
-    const newWeight = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + amount)
-    this.weightTotals.value[loc / ChunkSize] = newWeight
-
+    this.allocateWeight(loc)
     this.entryCount.value += 1
-    this.ticketCount.value += amount
+    this.addTickets(loc, amount)
   }
 
   /** ASA twin of `gatedEnter` (principal ABI, spec §6.8). */
@@ -734,19 +818,12 @@ export class Raffle extends classes(
     loggedAssert(this.entriesByAddress(Txn.sender).exists, errEntryDoesNotExist)
 
     const loc = this.entriesByAddress(Txn.sender).value
-    const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
     assertSafePayment(payment, Txn.sender)
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
-    loggedAssert(payment.amount <= (this.maxTickets.value - amount.asUint64()), errInvalidPayment)
+    loggedAssert(payment.amount <= (this.maxTickets.value - this.ticketsOf(loc)), errInvalidPayment)
 
-    const newWeights = new Uint64(
-      this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + payment.amount
-    )
-    this.weights(loc / ChunkSize).value[loc % ChunkSize] = newWeights
-    const boxAmount = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + payment.amount)
-    this.weightTotals.value[loc / ChunkSize] = boxAmount
-    this.ticketCount.value += payment.amount
+    this.addTickets(loc, payment.amount)
   }
 
   /** ASA twin of `gatedAdd` (principal ABI, spec §6.8). */
@@ -779,20 +856,13 @@ export class Raffle extends classes(
     loggedAssert(this.entriesByAddress(Txn.sender).exists, errEntryDoesNotExist)
 
     const loc = this.entriesByAddress(Txn.sender).value
-    const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
     assertSafeAssetTransfer(assetXfer, Txn.sender)
     loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
     loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, errInvalidTransfer)
-    loggedAssert(assetXfer.assetAmount <= (this.maxTickets.value - amount.asUint64()), errInvalidTransfer)
+    loggedAssert(assetXfer.assetAmount <= (this.maxTickets.value - this.ticketsOf(loc)), errInvalidTransfer)
 
-    const newWeights = new Uint64(
-      this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + assetXfer.assetAmount
-    )
-    this.weights(loc / ChunkSize).value[loc % ChunkSize] = newWeights
-    const boxAmount = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + assetXfer.assetAmount)
-    this.weightTotals.value[loc / ChunkSize] = boxAmount
-    this.ticketCount.value += assetXfer.assetAmount
+    this.addTickets(loc, assetXfer.assetAmount)
   }
 
   /** commits the draw to the first beacon-stored round at least DRAW_DELAY_ROUNDS ahead */
@@ -870,6 +940,12 @@ export class Raffle extends classes(
     let currentRangeStart = winningBoxInfo[1]
     let currentRangeEnd: uint64 = 0
 
+    // the skip limit was reached with boxes still ahead: keep the place, the next call goes on
+    if (winningBoxInfo[2] === MaxBoxSkipsPerCall) {
+      this.findWinnerCursors.value = { index: startingIndex, amountIndex: currentRangeStart }
+      return
+    }
+
     loggedAssert(startingIndex < this.entryCount.value, errWinnerNotFound)
     const remainder: uint64 = this.entryCount.value - startingIndex
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
@@ -880,14 +956,14 @@ export class Raffle extends classes(
       iterationAmount = remainingInChunk
     }
 
-    const weight = clone(this.weights(startingIndex / ChunkSize).value)
-
     const opUpIterationAmount: uint64 = iterationAmount * 40
     ensureBudget(opUpIterationAmount)
 
+    const winningTicket = this.winningTicket.value
+    const box = this.weights(startingIndex / ChunkSize)
     for (let i: uint64 = 0; i < iterationAmount; i += 1) {
-      currentRangeEnd = currentRangeStart + weight[chunkOffset + i].asUint64()
-      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value < currentRangeEnd) {
+      currentRangeEnd = currentRangeStart + op.btoi(box.extract((chunkOffset + i) * 8, 8))
+      if (winningTicket >= currentRangeStart && winningTicket < currentRangeEnd) {
         this.winner.value = this.entries(startingIndex + i).value.account
       }
       currentRangeStart = currentRangeEnd
@@ -945,6 +1021,19 @@ export class Raffle extends classes(
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  /**
+   * What an entry into THIS raffle must add (`entries` + `entriesByAddress`, all of it returned by
+   * `refundMBR`), and `weights`, the totals box the seller funds.
+   */
+  @abimethod({ readonly: true })
+  override mbr(): RaffleMBRData {
+    return {
+      entries: this.entryDeposit() - EntriesByAddressMBR,
+      weights: WeightsMBR,
+      entriesByAddress: EntriesByAddressMBR,
+    }
+  }
 
   /** @returns a boolean of whether the auction is live */
   @abimethod({ readonly: true })

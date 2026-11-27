@@ -17,8 +17,14 @@ export declare const MARKETPLACE_PLUGIN_LEGACY_PURCHASE: ABIMethod;
  * can still buy through the live plugin until Phase 3.
  */
 export declare const MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS: ReadonlySet<bigint>;
-type ListArgs = (Omit<ContractArgs['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+/**
+ * `list` of every MarketplacePlugin deployed before the seller's royalty bound (`maxCreatorRoyalty`) was
+ * added. The ids in `MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS` route this form and no other.
+ */
+export declare const MARKETPLACE_PLUGIN_LEGACY_LIST: ABIMethod;
+type ListArgs = (Omit<ContractArgs['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'], 'wallet' | 'rekeyBack' | 'maxCreatorRoyalty'> & MaybeSigner & {
     rekeyBack?: boolean;
+    maxCreatorRoyalty?: bigint | number;
 });
 type ListPrizeBoxArgs = (Omit<ContractArgs['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
@@ -44,6 +50,7 @@ export declare class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClien
     });
     /** Whether this plugin app routes only the legacy `purchase(uint64,bool,uint64,address,byte[][])void`. */
     usesLegacyPurchaseAbi(): boolean;
+    private listSelector;
     private purchaseSelector;
     /**
      * The legacy plugin has no on-chain price bound, so refuse here when the listing already costs more

@@ -1,7 +1,7 @@
 import { Bytes, uint64, Uint64 } from '@algorandfoundation/algorand-typescript'
 
 /*
- * Collectible Variations registry (ARC draft). Box layouts are raw bytes, not ARC-4
+ * Collectible Variations registry. Box layouts are raw bytes, not ARC-4
  * encodings, so every field has a constant offset that a browser or a contract doing a
  * foreign box read can slice. All integers are big-endian.
  *
@@ -114,7 +114,7 @@ export const RoleHolder: uint64 = 2
 //   closed   00
 //   open     01
 //   allow    02 n(1, 1..8) writer(32) * n
-//   delegate 03 app(8)       the app answers arcTBD_admit(uint64,address,byte[],address)bool
+//   delegate 03 app(8)       the app answers admit(uint64,address,byte[],address)bool
 //   meta     04 root(32)     the same root, owned by the registry, is stored in the Meta app
 
 export const PFlags: uint64 = 1
@@ -150,7 +150,7 @@ export const Arc20GetAssetConfig =
   'get_asset_config(asset)(uint64,uint32,bool,string,string,string,byte[],address,address,address,address)'
 /** `manager_addr` in the returned tuple head: 8 + 4 + 1 + 4 * 2 = 21, after the 4-byte return prefix. */
 export const Arc20ManagerOffset: uint64 = 25
-export const DelegateAdmit = 'arcTBD_admit(uint64,address,byte[],address)bool'
+export const DelegateAdmit = 'admit(uint64,address,byte[],address)bool'
 export const Arc4ReturnPrefix = Bytes.fromHex('151f7c75')
 /** Logged before a deposit mismatch fails: prefix || required amount (8 bytes). */
 export const DepositLogPrefix = Bytes('cv:deposit:')

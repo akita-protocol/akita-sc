@@ -47,6 +47,9 @@ type CreateInstantAsaDisbursementArgs = Omit<ContractArgs["createInstantAsaDisbu
 type WithdrawMbrCreditsArgs = Omit<ContractArgs["withdrawMbrCredits(uint64,bool,uint64,uint64,uint64)void"], "wallet" | "rekeyBack"> & MaybeSigner & {
     rekeyBack?: boolean;
 };
+type EditDisbursementArgs = Omit<ContractArgs["editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void"], "wallet" | "rekeyBack"> & MaybeSigner & {
+    rekeyBack?: boolean;
+};
 type CloseDisbursementArgs = Omit<ContractArgs["closeDisbursement(uint64,bool,uint64,uint64)void"], "wallet" | "rekeyBack"> & MaybeSigner & {
     rekeyBack?: boolean;
 };
@@ -90,6 +93,12 @@ export declare class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
      */
     withdrawMbrCredits(): PluginSDKReturn;
     withdrawMbrCredits(args: WithdrawMbrCreditsArgs): PluginSDKReturn;
+    /**
+     * Changes the title, unlock time, expiration and note of a disbursement the wallet created. It
+     * never changes the allocations, the asset or the reclaim target.
+     */
+    editDisbursement(): PluginSDKReturn;
+    editDisbursement(args: EditDisbursementArgs): PluginSDKReturn;
     /**
      * Deletes an empty disbursement the wallet created and refunds its box MBR and credits. The legacy
      * (v1) Rewards app has no `closeDisbursement`; use `withdrawMbrCredits` there.

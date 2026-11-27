@@ -1,9 +1,36 @@
 import { describe, expect, test, vi } from 'vitest'
 import type { UpdateAkitaDaoPluginClient } from '../../generated/UpdateAkitaDAOPluginClient'
 import { encodeLease } from '@algorandfoundation/algokit-utils'
-import { UPGRADE_BINDING_NOTE_PROPOSAL, UpdateAkitaDAOPluginSDK } from './update-akita-dao'
+import algosdk from 'algosdk'
+import { pendingUpgradeBoxBytes, UPGRADE_BINDING_NOTE_PROPOSAL, UpdateAkitaDAOPluginSDK } from './update-akita-dao'
 
 const SENDER = 'B4NOFTMLUTGTTPBY5NHLW3EHQPB5XCW3BHYDQFMX5XDT2A6Q24Z2HK2WRQ'
+
+describe('pendingUpgradeBoxBytes (boxes an UpgradeApp proposal writes after the group is built)', () => {
+  const lease = algosdk.ABIType.from('(byte[32],uint64)[]')
+  const upgradeApp = algosdk.ABIType.from('(uint64,byte[32],byte[32][],uint64,uint64)')
+  // ProposalDetails: status, cid, votes, creator, votingTs, created, feesPaid, actions (type, data)
+  const proposal = algosdk.ABIType.from('(uint8,byte[36],(uint64,uint64,uint64),address,uint64,uint64,uint64,(uint8,byte[])[])')
+  const proposalBytes = (actions: number, groups: number) => {
+    const data = upgradeApp.encode([1n, new Uint8Array(32), Array.from({ length: groups }, () => new Uint8Array(32)), 1n, 2n])
+    return proposal.encode([0, new Uint8Array(36), [0n, 0n, 0n], algosdk.ALGORAND_ZERO_ADDRESS_STRING, 0n, 0n, 0n,
+      Array.from({ length: actions }, () => [60, data])]).length
+  }
+
+  test('lease read: the upgrade lease box of the target', () => {
+    expect(pendingUpgradeBoxBytes({ groups: 1 })).toBe(lease.encode([[new Uint8Array(32), 1n]]).length)
+    expect(pendingUpgradeBoxBytes({ groups: 2, actions: 2 })).toBe(lease.encode([[new Uint8Array(32), 1n], [new Uint8Array(32), 2n]]).length)
+    // the box the rollout rehearsal ran 80 B over its budget for: 42 B here and the wallet's 52 B key box
+    expect(pendingUpgradeBoxBytes({ groups: 1 })).toBe(42)
+  })
+
+  test('proposal read: also the DAO execution box and the proposal box', () => {
+    for (const [actions, groups] of [[1, 1], [1, 2], [2, 3]] as const) {
+      expect(pendingUpgradeBoxBytes({ groups, actions, proposalRead: true }))
+        .toBe(lease.encode(Array.from({ length: actions }, () => [new Uint8Array(32), 1n])).length + 16 + proposalBytes(actions, groups))
+    }
+  })
+})
 
 describe('DAO update program pairs', () => {
   test.each([false, true])('keeps the upload contiguous when a clear program is supplied: %s', async (includeClear) => {

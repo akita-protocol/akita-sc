@@ -45,7 +45,7 @@ export type MarketplacePluginArgs = {
             factory: bigint | number;
             akitaDao: bigint | number;
         };
-        'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': {
+        'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
             asset: bigint | number;
@@ -58,6 +58,7 @@ export type MarketplacePluginArgs = {
             marketplace: string;
             name: string;
             proof: Uint8Array[];
+            maxCreatorRoyalty: bigint | number;
         };
         'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64': {
             wallet: bigint | number;
@@ -99,7 +100,7 @@ export type MarketplacePluginArgs = {
      */
     tuple: {
         'createApplication(string,uint64,uint64)void': [version: string, factory: bigint | number, akitaDao: bigint | number];
-        'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, assetAmount: bigint | number, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[]];
+        'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, assetAmount: bigint | number, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[], maxCreatorRoyalty: bigint | number];
         'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64': [wallet: bigint | number, rekeyBack: boolean, prizeBox: bigint | number, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string];
         'purchase(uint64,bool,uint64,address,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, marketplace: string, maxPrice: bigint | number, args: Uint8Array[]];
         'changePrice(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, price: bigint | number];
@@ -113,7 +114,7 @@ export type MarketplacePluginArgs = {
  */
 export type MarketplacePluginReturns = {
     'createApplication(string,uint64,uint64)void': void;
-    'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': bigint;
+    'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': bigint;
     'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64': bigint;
     'purchase(uint64,bool,uint64,address,uint64,byte[][])void': void;
     'changePrice(uint64,bool,uint64,uint64)void': void;
@@ -132,10 +133,10 @@ export type MarketplacePluginTypes = {
         argsObj: MarketplacePluginArgs['obj']['createApplication(string,uint64,uint64)void'];
         argsTuple: MarketplacePluginArgs['tuple']['createApplication(string,uint64,uint64)void'];
         returns: MarketplacePluginReturns['createApplication(string,uint64,uint64)void'];
-    }> & Record<'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64' | 'list', {
-        argsObj: MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
-        argsTuple: MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
-        returns: MarketplacePluginReturns['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
+    }> & Record<'list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64' | 'list', {
+        argsObj: MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
+        argsTuple: MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
+        returns: MarketplacePluginReturns['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
     }> & Record<'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64' | 'listPrizeBox', {
         argsObj: MarketplacePluginArgs['obj']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64'];
         argsTuple: MarketplacePluginArgs['tuple']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64'];
@@ -276,12 +277,12 @@ export declare abstract class MarketplacePluginParamsFactory {
         };
     };
     /**
-     * Constructs a no op call for the list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64 ABI method
+     * Constructs a no op call for the list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static list(params: CallParams<MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static list(params: CallParams<MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64 ABI method
      *
@@ -690,12 +691,12 @@ export declare class MarketplacePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64` ABI method.
+         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"]> & {
+        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -765,12 +766,12 @@ export declare class MarketplacePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64` ABI method.
+         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"]> & {
+        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -868,15 +869,15 @@ export declare class MarketplacePluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64` ABI method.
+         * Makes a call to the MarketplacePlugin smart contract using the `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"]> & SendParams & {
+        list: (params: CallParams<MarketplacePluginArgs["obj"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplacePluginArgs["tuple"]["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MarketplacePluginReturns["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64"]);
+            return: (undefined | MarketplacePluginReturns["list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1031,13 +1032,13 @@ export declare class MarketplacePluginClient {
 }
 export type MarketplacePluginComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64 ABI method.
+     * Calls the list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    list(params?: CallParams<MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64']>): MarketplacePluginComposer<[...TReturns, MarketplacePluginReturns['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | undefined]>;
+    list(params?: CallParams<MarketplacePluginArgs['obj']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | MarketplacePluginArgs['tuple']['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64']>): MarketplacePluginComposer<[...TReturns, MarketplacePluginReturns['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | undefined]>;
     /**
      * Calls the listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64 ABI method.
      *

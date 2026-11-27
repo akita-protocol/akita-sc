@@ -41,8 +41,9 @@ export type GuildCreated = {
 /**
  * ARC-58 adapter for creating, configuring, and participating in Guilds.
  *
- * Each participating adapter is bound to one Guild and its factory. A separate
- * creation-only adapter can mint Guilds but cannot participate in them.
+ * An adapter created for one Guild is bound to that Guild and its factory. The adapter created with
+ * Guild ID zero is shared: it mints Guilds and also acts in any Guild its factory created, so a grant
+ * for it is a grant to act in all of them.
  *
  * Every method that pays takes `maxCost`: the most the wallet may pay the factory or the Guild in that
  * call, quoted when the call was built. The amounts themselves are read at execution from apps the wallet
@@ -52,7 +53,7 @@ export type GuildCreated = {
  */
 export class GuildPlugin extends Contract {
   factory = GlobalState<Application>({ key: 'factory' })
-  /** A zero target is a creation-only adapter; every other instance is permanently scoped to one Guild. */
+  /** A zero target is the shared adapter (any Guild of the factory); every other instance is permanently scoped to one Guild. */
   guild = GlobalState<Application>({ key: 'guild' })
 
   @abimethod({ onCreate: 'require' })

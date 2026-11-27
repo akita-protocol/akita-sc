@@ -97,17 +97,18 @@ describe('Phase 3: SDK registry writes stop (spec §6.10)', () => {
   })
 
   // Review fix (rollout order §7.1): registry writes stop per network, only once Phase 3 has executed there.
-  test('registry writes continue on TestNet/MainNet until the Phase 3 proposal executes', () => {
-    expect(REGISTRY_WRITES_STOPPED).toEqual({ localnet: true, testnet: false, mainnet: false })
+  // Release 2.0.0 executed Phase 3 on TestNet (2026-11-25) and MainNet (2026-11-26), so the switch is on everywhere.
+  test('registry writes are stopped on every network since release 2.0.0 (the Phase 3 proposal executed)', () => {
+    expect(REGISTRY_WRITES_STOPPED).toEqual({ localnet: true, testnet: true, mainnet: true })
     expect(registryWritesStopped('localnet')).toBe(true)
-    expect(registryWritesStopped('testnet')).toBe(false)
-    expect(registryWritesStopped('mainnet')).toBe(false)
+    expect(registryWritesStopped('testnet')).toBe(true)
+    expect(registryWritesStopped('mainnet')).toBe(true)
   })
 
   test('shouldWriteRegistry: an explicit flag wins, otherwise the network switch decides', () => {
     expect(shouldWriteRegistry('localnet')).toBe(false)
-    expect(shouldWriteRegistry('testnet')).toBe(true)
-    expect(shouldWriteRegistry('mainnet')).toBe(true)
+    expect(shouldWriteRegistry('testnet')).toBe(false)
+    expect(shouldWriteRegistry('mainnet')).toBe(false)
     for (const network of ['localnet', 'testnet', 'mainnet'] as const) {
       expect(shouldWriteRegistry(network, true)).toBe(true)
       expect(shouldWriteRegistry(network, false)).toBe(false)
@@ -117,9 +118,11 @@ describe('Phase 3: SDK registry writes stop (spec §6.10)', () => {
   test('the network switch is honoured both ways (stopped and not stopped)', () => {
     const saved = { ...REGISTRY_WRITES_STOPPED }
     try {
-      REGISTRY_WRITES_STOPPED.mainnet = true
       expect(shouldWriteRegistry('mainnet')).toBe(false)
       expect(shouldWriteRegistry('mainnet', true)).toBe(true)
+      REGISTRY_WRITES_STOPPED.mainnet = false
+      expect(shouldWriteRegistry('mainnet')).toBe(true)
+      expect(shouldWriteRegistry('mainnet', false)).toBe(false)
       REGISTRY_WRITES_STOPPED.localnet = false
       expect(shouldWriteRegistry('localnet')).toBe(true)
       expect(shouldWriteRegistry('localnet', false)).toBe(false)
@@ -129,7 +132,7 @@ describe('Phase 3: SDK registry writes stop (spec §6.10)', () => {
   })
 
   for (const network of ['mainnet', 'testnet'] as const) {
-    test(`newWallet still registers by default on ${network} before Phase 3 executes`, async () => {
+    test(`newWallet does not register by default on ${network} (Phase 3 executed there)`, async () => {
       const register = vi.fn().mockResolvedValue(undefined)
       vi.spyOn(WalletFactorySDK.prototype, 'new').mockResolvedValue({ register } as unknown as WalletSDK)
       // The SDK pins the first resolved network module-wide (resolveAppIdWithClient), so set it explicitly.
@@ -139,7 +142,49 @@ describe('Phase 3: SDK registry writes stop (spec §6.10)', () => {
         await newWallet({
           algorand: AlgorandClient.defaultLocalNet(),
           factoryParams: { appId: FACTORY_ID, defaultSender: OWNER },
+          nickname: 'post-phase-3',
+        })
+      } finally {
+        setCurrentNetwork('localnet')
+      }
+
+      expect(register).not.toHaveBeenCalled()
+    })
+
+    test(`newWallet registers by default on ${network} while its switch is off (before Phase 3 executes)`, async () => {
+      const register = vi.fn().mockResolvedValue(undefined)
+      vi.spyOn(WalletFactorySDK.prototype, 'new').mockResolvedValue({ register } as unknown as WalletSDK)
+      const saved = { ...REGISTRY_WRITES_STOPPED }
+      REGISTRY_WRITES_STOPPED[network] = false
+      // The SDK pins the first resolved network module-wide (resolveAppIdWithClient), so set it explicitly.
+      setCurrentNetwork(network)
+
+      try {
+        await newWallet({
+          algorand: AlgorandClient.defaultLocalNet(),
+          factoryParams: { appId: FACTORY_ID, defaultSender: OWNER },
           nickname: 'pre-phase-3',
+        })
+      } finally {
+        setCurrentNetwork('localnet')
+        Object.assign(REGISTRY_WRITES_STOPPED, saved)
+      }
+
+      expect(register).toHaveBeenCalledTimes(1)
+      expect(register).toHaveBeenCalledWith({ escrow: '' })
+    })
+
+    test(`newWallet({ register: true }) still writes the registry on ${network}`, async () => {
+      const register = vi.fn().mockResolvedValue(undefined)
+      vi.spyOn(WalletFactorySDK.prototype, 'new').mockResolvedValue({ register } as unknown as WalletSDK)
+      setCurrentNetwork(network)
+
+      try {
+        await newWallet({
+          algorand: AlgorandClient.defaultLocalNet(),
+          factoryParams: { appId: FACTORY_ID, defaultSender: OWNER },
+          nickname: 'forced-on',
+          register: true,
         })
       } finally {
         setCurrentNetwork('localnet')

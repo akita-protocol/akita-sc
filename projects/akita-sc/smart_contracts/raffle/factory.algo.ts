@@ -75,7 +75,8 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     }
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR
-    const weightsMBR: uint64 = (weightsListCount * this.mbr().weights)
+    // `weightsListCount` is ignored: weights storage grows with the entries (see `Raffle.init`)
+    const weightsMBR: uint64 = this.mbr().weights
     const fees = getNFTFees(this.akitaDAO.value)
 
     const raffle = compileArc4(Raffle)
@@ -224,8 +225,9 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
    * the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
    *
    * The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
-   * (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
-   * 107,000 µA short of the new child, so legacy shims could never succeed for them.
+   * (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost (two fewer
+   * global uints, and whole weights boxes paid up front), so their payment never equals the quote
+   * and legacy shims could never succeed for them.
    */
   newRaffle(
     payment: gtxn.PaymentTxn,

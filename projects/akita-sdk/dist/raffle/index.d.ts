@@ -3,6 +3,7 @@ import { RaffleClient, RaffleState, EntryData } from '../generated/RaffleClient'
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import type { GateCtx } from "../principal";
 import { EnterParams, AddParams, RefundMBRParams, FindWinnerParams, GetEntryParams, IsEnteredParams, GetEntryByAddressParams, GetEntryWithTicketsParams, GetEntryWithTicketsByAddressParams, RaffleMbrData, EntryWithTickets, SetMinEntriesParams } from "./types";
+export * from "./weights";
 /** rounds between the commit round and the round its beacon value can be read */
 export declare const RAFFLE_BEACON_LAG_ROUNDS = 4n;
 /** Global key whose existence marks a raffle child with the principal ABI (spec §6.8). */
@@ -77,6 +78,8 @@ export declare class RaffleSDK extends BaseSDK<RaffleClient> {
      * @returns The ticket count for the entry
      */
     getTicketCount({ entryId }: GetEntryWithTicketsParams): Promise<bigint>;
+    /** the ticket count of `entryId`, read from its weights box */
+    private ticketsOf;
     /**
      * Gets an entry with its ticket count combined.
      * This is a convenience method that fetches both entry data and the ticket count
@@ -133,12 +136,15 @@ export declare class RaffleSDK extends BaseSDK<RaffleClient> {
     claimPrize(params?: MaybeSigner): Promise<void>;
     /**
      * Refunds MBR to raffle participants after the winner is found.
-     * May need to be called multiple times for large raffles.
+     * May need to be called multiple times for large raffles. A raffle created from 2.0.0 on
+     * refunds from the last entry down (each refund frees the entry's slot in its weights box), so
+     * `refundMbrCursor` counts the entries refunded so far in both layouts.
      */
     refundMBR({ sender, signer, iterationAmount }: RefundMBRParams): Promise<void>;
     /**
-     * Clears the weights boxes after the prize has been claimed.
-     * Returns the MBR for the weights boxes to the factory.
+     * Clears the weights storage once the prize is claimed and every entry is refunded, and returns
+     * its MBR to whoever funded the raffle. From 2.0.0 on the refunds free the weights boxes
+     * themselves and this call frees the totals box that is left.
      */
     clearWeightsBoxes(params?: MaybeSigner): Promise<bigint>;
 }

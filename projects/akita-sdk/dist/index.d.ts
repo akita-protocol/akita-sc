@@ -25,5 +25,5 @@ export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type S
 export { WalletSDK, WalletFactorySDK } from './wallet';
 export * from './connect';
 export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';
-export { installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
+export { boxReadHeadroom, BYTES_PER_BOX_REFERENCE, installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
 export * as principal from './principal';

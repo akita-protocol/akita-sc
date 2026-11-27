@@ -1,7 +1,7 @@
 import { Account, Application, Asset, Bytes, clone, contract, Global, gtxn, itxn, loggedAssert, OnCompleteAction, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { errHasGate } from '../social/errors'
-import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
+import { CreatorRoyaltyMaximumSingle, FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
 import { MinDisbursementsMBR } from '../rewards/constants'
 import { programPagesMbr } from '../utils/programs'
 import { errBadMethodPrizeBoxTransferNeeded, errContractNotSet, errNotPrizeBoxOwner } from '../utils/errors'
@@ -9,7 +9,7 @@ import { assertSafeAssetTransfer, assertSafePayment, disbursementCost, gateCheck
 import { gateCtx } from '../utils/principal'
 import { Proof } from '../utils/types/merkles'
 import { LegacyFloatReserve, LegacyListingCreateMbr, LegacyMinDisbursementsMBR, ListingGlobalStateKeyFactoryFloat, ListingGlobalStateKeyGateID, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyRevision, ListingMinimumPrice } from './constants'
-import { errFailedGate, errInvalidPayment, errInvalidTransfer, errLegacyFloatReserve, errLegacyListing, errNotAListing, errPriceTooLow, errPrizeIsPaymentAsset } from './errors'
+import { errFailedGate, errInvalidPayment, errInvalidTransfer, errLegacyFloatReserve, errLegacyListing, errNotAListing, errPriceTooLow, errPrizeIsPaymentAsset, errRoyaltyAboveMax } from './errors'
 import { ListingCostInfo } from './types'
 import type { PrizeBox } from '../prize-box/contract.algo'
 
@@ -278,7 +278,8 @@ export class Marketplace extends FactoryContract {
     name: string,
     proof: Proof,
     sellerReferrer: Account,
-    legacyPayment: boolean
+    legacyPayment: boolean,
+    maxCreatorRoyalty: uint64
   ): uint64 {
     /** lowest split is 4 */
     loggedAssert(price >= ListingMinimumPrice, errPriceTooLow)
@@ -298,6 +299,8 @@ export class Marketplace extends FactoryContract {
     const float = this.assertListingPayment(payment, cost, isAlgoPayment, false, legacyPayment)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
+    // the royalty is read now, not when the seller signed: the seller bounds what it agreed to
+    loggedAssert(creatorRoyalty <= maxCreatorRoyalty, errRoyaltyAboveMax)
 
     const listing = compileArc4(Listing)
 
@@ -493,9 +496,35 @@ export class Marketplace extends FactoryContract {
   // MARKETPLACE METHODS --------------------------------------------------------------------------
 
   /**
+   * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+   * escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+   * not depend on the escrow's payout phase, and the payer is charged one opt-in.
+   *
+   * `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+   * asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+   * `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
+   */
+  optInPrize(payment: gtxn.PaymentTxn, asset: Asset): void {
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance, errInvalidPayment)
+
+    itxn
+      .assetTransfer({
+        assetReceiver: Global.currentApplicationAddress,
+        assetAmount: 0,
+        xferAsset: asset,
+      })
+      .submit()
+  }
+
+  /**
    * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
    * the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
    * the spender (`Txn.sender`).
+   *
+   * `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+   * listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+   * when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
    */
   list(
     payment: gtxn.PaymentTxn,
@@ -508,16 +537,18 @@ export class Marketplace extends FactoryContract {
     marketplace: Account,
     name: string,
     proof: Proof,
-    wallet: uint64
+    wallet: uint64,
+    maxCreatorRoyalty: uint64
   ): uint64 {
     const { referrer } = principalOf(this.akitaDAO.value, wallet)
-    return this.listImpl(payment, assetXfer, price, paymentAsset, expiration, reservedFor, gateID, marketplace, name, proof, referrer, false)
+    return this.listImpl(payment, assetXfer, price, paymentAsset, expiration, reservedFor, gateID, marketplace, name, proof, referrer, false, maxCreatorRoyalty)
   }
 
   /**
    * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
    * Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
    * (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+   * The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
    */
   @abimethod({ name: 'list' })
   legacyList(
@@ -532,7 +563,7 @@ export class Marketplace extends FactoryContract {
     name: string,
     proof: Proof
   ): uint64 {
-    return this.listImpl(payment, assetXfer, price, paymentAsset, expiration, reservedFor, gateID, marketplace, name, proof, this.legacySellerReferrer(), true)
+    return this.listImpl(payment, assetXfer, price, paymentAsset, expiration, reservedFor, gateID, marketplace, name, proof, this.legacySellerReferrer(), true, CreatorRoyaltyMaximumSingle)
   }
 
   /** List a prize box; `wallet` as in `list`. */

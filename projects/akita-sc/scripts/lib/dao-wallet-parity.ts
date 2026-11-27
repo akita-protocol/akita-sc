@@ -297,6 +297,14 @@ export function planParity(source: Setup, target: Setup, options: ParityOptions 
     if (s.allowances > 0) notes.push(`${s.network}'s DAO wallet holds ${s.allowances} allowance(s). Asset ids differ per network, so allowances are not carried; compare them by hand.`)
     if (s.named.length > 0) notes.push(`${s.network}'s DAO wallet holds the named plugin(s) ${s.named.join(', ')}. Named plugins are not carried.`)
   }
+  // A grant anyone may use is the point of several plugins, but one that also names no method and needs
+  // no execution key hands every method of that plugin to every passer-by. The run carries such a grant
+  // as it is (it is what the source wallet holds); the operator should see which ones they are.
+  for (const g of [...add.map((a) => a.source), ...replace.map((r) => r.source)]) {
+    if (g.caller !== ALGORAND_ZERO_ADDRESS_STRING || g.policy.methods.length > 0 || g.policy.useExecutionKey) continue
+    notes.push(`${describeGrant(g)} may be used by anyone, names no method and needs no execution key, so every method of that plugin `
+      + `is open to every account. Carried as it is; restrict it on ${target.network} if that is not meant.`)
+  }
   return { source: source.network, target: target.network, escrows, add, replace, remove, notes }
 }
 

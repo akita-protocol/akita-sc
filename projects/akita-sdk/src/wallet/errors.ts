@@ -95,6 +95,7 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   NESC: 'Escrow does not exist',
   WESC: 'Wrong escrow for this operation',
   ERSD: 'Escrow must be set if defaultToEscrow is true',
+  NFRZ: 'The escrow\'s holding of this asset is not frozen: reclaim it instead',
 
   // --- Allowances ---------------------------------------------------------
   EALW: 'Allowance already exists',

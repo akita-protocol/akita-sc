@@ -201,10 +201,11 @@ export declare abstract class MockHaystackRouterParamsFactory {
     /**
      * Constructs a no op call for the finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void ABI method
      *
-    * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids ([0] in, [1] out),
-    arg 4 = 93-byte terms (minAmountOut at 2, beneficiary at 29, referrer at 61). Like the real router it reads
-    the input right before it (a pay/axfer to this app, no close-out or clawback) and does not care who sent it.
-    It pays the beneficiary exactly minAmountOut of the output asset.
+    * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids, arg 4 = 93-byte
+    terms (byte input index into arg 1, byte output index into arg 1, byte mode, minAmountOut at 3, beneficiary
+    at 29, referrer at 61). Like the real router it reads the input right before it (a pay/axfer to this app, no
+    close-out or clawback), does not care who sent it, and pays out the asset its output index names. It pays
+    the beneficiary exactly minAmountOut of that asset.
   
      *
      * @param params Parameters for the call
@@ -592,10 +593,11 @@ export declare class MockHaystackRouterClient {
         /**
          * Makes a call to the MockHaystackRouter smart contract using the `finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void` ABI method.
          *
-        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids ([0] in, [1] out),
-        arg 4 = 93-byte terms (minAmountOut at 2, beneficiary at 29, referrer at 61). Like the real router it reads
-        the input right before it (a pay/axfer to this app, no close-out or clawback) and does not care who sent it.
-        It pays the beneficiary exactly minAmountOut of the output asset.
+        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids, arg 4 = 93-byte
+        terms (byte input index into arg 1, byte output index into arg 1, byte mode, minAmountOut at 3, beneficiary
+        at 29, referrer at 61). Like the real router it reads the input right before it (a pay/axfer to this app, no
+        close-out or clawback), does not care who sent it, and pays out the asset its output index names. It pays
+        the beneficiary exactly minAmountOut of that asset.
     
          *
          * @param params The params for the smart contract call
@@ -645,10 +647,11 @@ export declare class MockHaystackRouterClient {
         /**
          * Makes a call to the MockHaystackRouter smart contract using the `finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void` ABI method.
          *
-        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids ([0] in, [1] out),
-        arg 4 = 93-byte terms (minAmountOut at 2, beneficiary at 29, referrer at 61). Like the real router it reads
-        the input right before it (a pay/axfer to this app, no close-out or clawback) and does not care who sent it.
-        It pays the beneficiary exactly minAmountOut of the output asset.
+        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids, arg 4 = 93-byte
+        terms (byte input index into arg 1, byte output index into arg 1, byte mode, minAmountOut at 3, beneficiary
+        at 29, referrer at 61). Like the real router it reads the input right before it (a pay/axfer to this app, no
+        close-out or clawback), does not care who sent it, and pays out the asset its output index names. It pays
+        the beneficiary exactly minAmountOut of that asset.
     
          *
          * @param params The params for the smart contract call
@@ -712,10 +715,11 @@ export declare class MockHaystackRouterClient {
         /**
          * Makes a call to the MockHaystackRouter smart contract using the `finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void` ABI method.
          *
-        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids ([0] in, [1] out),
-        arg 4 = 93-byte terms (minAmountOut at 2, beneficiary at 29, referrer at 61). Like the real router it reads
-        the input right before it (a pay/axfer to this app, no close-out or clawback) and does not care who sent it.
-        It pays the beneficiary exactly minAmountOut of the output asset.
+        * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids, arg 4 = 93-byte
+        terms (byte input index into arg 1, byte output index into arg 1, byte mode, minAmountOut at 3, beneficiary
+        at 29, referrer at 61). Like the real router it reads the input right before it (a pay/axfer to this app, no
+        close-out or clawback), does not care who sent it, and pays out the asset its output index names. It pays
+        the beneficiary exactly minAmountOut of that asset.
     
          *
          * @param params The params for the smart contract call
@@ -767,10 +771,11 @@ export type MockHaystackRouterComposer<TReturns extends [...any[]] = []> = {
     /**
      * Calls the finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void ABI method.
      *
-    * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids ([0] in, [1] out),
-    arg 4 = 93-byte terms (minAmountOut at 2, beneficiary at 29, referrer at 61). Like the real router it reads
-    the input right before it (a pay/axfer to this app, no close-out or clawback) and does not care who sent it.
-    It pays the beneficiary exactly minAmountOut of the output asset.
+    * Haystack's ORDER_ROUTER v4 route call layout (MainNet app 3757715482): arg 1 = asset ids, arg 4 = 93-byte
+    terms (byte input index into arg 1, byte output index into arg 1, byte mode, minAmountOut at 3, beneficiary
+    at 29, referrer at 61). Like the real router it reads the input right before it (a pay/axfer to this app, no
+    close-out or clawback), does not care who sent it, and pays out the asset its output index names. It pays
+    the beneficiary exactly minAmountOut of that asset.
   
      *
      * @param args The arguments for the contract call

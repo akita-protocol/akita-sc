@@ -23,7 +23,7 @@ main_after_if_else@2:
     assert
     txn ApplicationID
     bz main_create_NoOp@20
-    pushbytess 0xb18c3f9b 0xe6e23bce 0x5cec462a 0xd2e7fc1b 0x57bb54f4 0xcfd6c266 0x4700c774 0x996dfe12 0x610a9a36 0x5455a392 0xa45742aa 0x3e3831b3 0x485b6bc2 0x3cc921fa // method "arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))", method "arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)", method "arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))", method "arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))", method "arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)", method "arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)", method "arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))", method "arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))", method "arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)", method "arcTBD_delete_manager_policy()(bool,uint8,uint64)", method "arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))", method "arcTBD_delete_grant()(bool,uint8,uint64)", method "arcTBD_purge(byte[])(bool,uint8,uint64)", method "arcTBD_get_main(uint64)(uint8,byte[])"
+    pushbytess 0x0b02018b 0x1b39ba4b 0x3235266b 0xaa38b4be 0xf730503b 0x75969a59 0xb22ea29b 0xdd53b5cf 0xc6a20549 0x65dc9a68 0xb3c02958 0x28ff5b74 0xd92fbcf6 0x9508cb61 // method "writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))", method "deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)", method "pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))", method "pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))", method "unpinMainCreator(uint64,uint64)(bool,uint8,uint64)", method "unpinMainHolder(uint64)(bool,uint8,uint64)", method "setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))", method "setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))", method "deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)", method "deleteManagerPolicy()(bool,uint8,uint64)", method "setGrant(byte[])(uint64,bool,(uint8,uint64))", method "deleteGrant()(bool,uint8,uint64)", method "purge(byte[])(bool,uint8,uint64)", method "getMain(uint64)(uint8,byte[])"
     txna ApplicationArgs 0
     match writeVariation deleteVariation pinMainCreator pinMainHolder unpinMainCreator unpinMainHolder setAssetPolicy setManagerPolicy deleteAssetPolicy deleteManagerPolicy setGrant deleteGrant purge getMain
     err
@@ -109,7 +109,7 @@ writeVariation:
     bytec_0 // ""
     dupn 8
     // smart_contracts/collectible-variations/contract.algo.ts:230
-    // @abimethod({ name: 'arcTBD_write_variation' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -446,7 +446,7 @@ writeVariation_ternary_merge@28:
 
 writeVariation_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.writeVariation@67:
     // smart_contracts/collectible-variations/contract.algo.ts:230
-    // @abimethod({ name: 'arcTBD_write_variation' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -689,7 +689,7 @@ writeVariation_after_assert@66:
     swap
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:230
-    // @abimethod({ name: 'arcTBD_write_variation' })
+    // @abimethod()
     b writeVariation_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.writeVariation@67
 
 writeVariation_bool_false@63:
@@ -1044,7 +1044,7 @@ deleteVariation:
     bytec_0 // ""
     dup
     // smart_contracts/collectible-variations/contract.algo.ts:318
-    // @abimethod({ name: 'arcTBD_delete_variation' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -1125,7 +1125,7 @@ deleteVariation_after_assert@3:
 
 deleteVariation_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.deleteVariation@25:
     // smart_contracts/collectible-variations/contract.algo.ts:318
-    // @abimethod({ name: 'arcTBD_delete_variation' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -1231,7 +1231,7 @@ deleteVariation_after_assert@24:
     itob
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:318
-    // @abimethod({ name: 'arcTBD_delete_variation' })
+    // @abimethod()
     b deleteVariation_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.deleteVariation@25
 
 deleteVariation_else_body@8:
@@ -1322,7 +1322,7 @@ deleteVariation_else_body@15:
 pinMainCreator:
     intc_0 // 0
     // smart_contracts/collectible-variations/contract.algo.ts:363
-    // @abimethod({ name: 'arcTBD_pin_main_creator' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -1529,7 +1529,7 @@ pinMainCreator_ternary_merge@17:
 
 pinMainCreator_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.pinMainCreator@24:
     // smart_contracts/collectible-variations/contract.algo.ts:363
-    // @abimethod({ name: 'arcTBD_pin_main_creator' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -1561,7 +1561,7 @@ pinMainCreator_after_assert@23:
     cover 5
     callsub writeSection
     // smart_contracts/collectible-variations/contract.algo.ts:363
-    // @abimethod({ name: 'arcTBD_pin_main_creator' })
+    // @abimethod()
     b pinMainCreator_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.pinMainCreator@24
 
 pinMainCreator_ternary_false@16:
@@ -1584,7 +1584,7 @@ pinMainCreator_bool_false@6:
 // smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.pinMainHolder[routing]() -> void:
 pinMainHolder:
     // smart_contracts/collectible-variations/contract.algo.ts:394
-    // @abimethod({ name: 'arcTBD_pin_main_holder' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -1805,7 +1805,7 @@ pinMainHolder_after_if_else@17:
 
 pinMainHolder_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.pinMainHolder@24:
     // smart_contracts/collectible-variations/contract.algo.ts:394
-    // @abimethod({ name: 'arcTBD_pin_main_holder' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -1833,7 +1833,7 @@ pinMainHolder_ternary_merge@23:
     uncover 5
     callsub writeSection
     // smart_contracts/collectible-variations/contract.algo.ts:394
-    // @abimethod({ name: 'arcTBD_pin_main_holder' })
+    // @abimethod()
     b pinMainHolder_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.pinMainHolder@24
 
 pinMainHolder_ternary_false@22:
@@ -1851,7 +1851,7 @@ pinMainHolder_bool_false@6:
 // smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.unpinMainCreator[routing]() -> void:
 unpinMainCreator:
     // smart_contracts/collectible-variations/contract.algo.ts:419
-    // @abimethod({ name: 'arcTBD_unpin_main_creator' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -1919,7 +1919,7 @@ unpinMainCreator_if_body@5:
 
 unpinMainCreator_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.unpinMainCreator@9:
     // smart_contracts/collectible-variations/contract.algo.ts:419
-    // @abimethod({ name: 'arcTBD_unpin_main_creator' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -1965,7 +1965,7 @@ unpinMainCreator_after_assert@8:
     itob
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:419
-    // @abimethod({ name: 'arcTBD_unpin_main_creator' })
+    // @abimethod()
     b unpinMainCreator_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.unpinMainCreator@9
 
 
@@ -1973,7 +1973,7 @@ unpinMainCreator_after_assert@8:
 unpinMainHolder:
     bytec_0 // ""
     // smart_contracts/collectible-variations/contract.algo.ts:435
-    // @abimethod({ name: 'arcTBD_unpin_main_holder' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -2024,7 +2024,7 @@ unpinMainHolder_if_body@5:
 
 unpinMainHolder_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.unpinMainHolder@12:
     // smart_contracts/collectible-variations/contract.algo.ts:435
-    // @abimethod({ name: 'arcTBD_unpin_main_holder' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2098,7 +2098,7 @@ unpinMainHolder_after_if_else@11:
     itob
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:435
-    // @abimethod({ name: 'arcTBD_unpin_main_holder' })
+    // @abimethod()
     b unpinMainHolder_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.unpinMainHolder@12
 
 unpinMainHolder_else_body@8:
@@ -2118,7 +2118,7 @@ setAssetPolicy:
     intc_0 // 0
     bytec_0 // ""
     // smart_contracts/collectible-variations/contract.algo.ts:458
-    // @abimethod({ name: 'arcTBD_set_asset_policy' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -2272,7 +2272,7 @@ setAssetPolicy_after_if_else@11:
 
 setAssetPolicy_after_if_else@13:
     // smart_contracts/collectible-variations/contract.algo.ts:458
-    // @abimethod({ name: 'arcTBD_set_asset_policy' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2288,7 +2288,7 @@ setAssetPolicy_bool_false@6:
 // smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.setManagerPolicy[routing]() -> void:
 setManagerPolicy:
     // smart_contracts/collectible-variations/contract.algo.ts:480
-    // @abimethod({ name: 'arcTBD_set_manager_policy' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -2357,7 +2357,7 @@ setManagerPolicy:
 
 setManagerPolicy_after_if_else@3:
     // smart_contracts/collectible-variations/contract.algo.ts:480
-    // @abimethod({ name: 'arcTBD_set_manager_policy' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2369,7 +2369,7 @@ setManagerPolicy_after_if_else@3:
 // smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.deleteAssetPolicy[routing]() -> void:
 deleteAssetPolicy:
     // smart_contracts/collectible-variations/contract.algo.ts:494
-    // @abimethod({ name: 'arcTBD_delete_asset_policy' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     len
@@ -2434,7 +2434,7 @@ deleteAssetPolicy_after_assert@3:
 
 deleteAssetPolicy_after_if_else@5:
     // smart_contracts/collectible-variations/contract.algo.ts:494
-    // @abimethod({ name: 'arcTBD_delete_asset_policy' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2469,7 +2469,7 @@ deleteManagerPolicy:
 
 deleteManagerPolicy_after_if_else@3:
     // smart_contracts/collectible-variations/contract.algo.ts:505
-    // @abimethod({ name: 'arcTBD_delete_manager_policy' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2483,7 +2483,7 @@ setGrant:
     bytec_0 // ""
     dup
     // smart_contracts/collectible-variations/contract.algo.ts:515
-    // @abimethod({ name: 'arcTBD_set_grant' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -2558,7 +2558,7 @@ setGrant:
 
 setGrant_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.setGrant@8:
     // smart_contracts/collectible-variations/contract.algo.ts:515
-    // @abimethod({ name: 'arcTBD_set_grant' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2651,7 +2651,7 @@ setGrant_ternary_merge@7:
     swap
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:515
-    // @abimethod({ name: 'arcTBD_set_grant' })
+    // @abimethod()
     b setGrant_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.setGrant@8
 
 setGrant_ternary_false@6:
@@ -2686,7 +2686,7 @@ deleteGrant:
 
 deleteGrant_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.deleteGrant@4:
     // smart_contracts/collectible-variations/contract.algo.ts:534
-    // @abimethod({ name: 'arcTBD_delete_grant' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2760,7 +2760,7 @@ deleteGrant_after_if_else@3:
     swap
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:534
-    // @abimethod({ name: 'arcTBD_delete_grant' })
+    // @abimethod()
     b deleteGrant_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.deleteGrant@4
 
 
@@ -2770,7 +2770,7 @@ purge:
     bytec_0 // ""
     dupn 2
     // smart_contracts/collectible-variations/contract.algo.ts:557
-    // @abimethod({ name: 'arcTBD_purge' })
+    // @abimethod()
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -2893,7 +2893,7 @@ purge_after_assert@21:
 
 purge_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.purge@33:
     // smart_contracts/collectible-variations/contract.algo.ts:557
-    // @abimethod({ name: 'arcTBD_purge' })
+    // @abimethod()
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -2971,7 +2971,7 @@ purge_after_if_else@32:
     swap
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:557
-    // @abimethod({ name: 'arcTBD_purge' })
+    // @abimethod()
     b purge_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.purge@33
 
 purge_else_body@25:
@@ -3165,7 +3165,7 @@ getMain:
     bytec_0 // ""
     dup
     // smart_contracts/collectible-variations/contract.algo.ts:610
-    // @abimethod({ name: 'arcTBD_get_main', readonly: true })
+    // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
     len
@@ -3248,7 +3248,7 @@ getMain:
 
 getMain_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.getMain@10:
     // smart_contracts/collectible-variations/contract.algo.ts:610
-    // @abimethod({ name: 'arcTBD_get_main', readonly: true })
+    // @abimethod({ readonly: true })
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -3277,7 +3277,7 @@ getMain_after_if_else@6:
     swap
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:610
-    // @abimethod({ name: 'arcTBD_get_main', readonly: true })
+    // @abimethod({ readonly: true })
     b getMain_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.getMain@10
 
 getMain_after_if_else@9:
@@ -3286,7 +3286,7 @@ getMain_after_if_else@9:
     // return { role: new Uint8(RoleNone), pin: Bytes('') }
     pushbytes 0x0000030000
     // smart_contracts/collectible-variations/contract.algo.ts:610
-    // @abimethod({ name: 'arcTBD_get_main', readonly: true })
+    // @abimethod({ readonly: true })
     b getMain_after_inlined_smart_contracts/collectible-variations/contract.algo.ts::CollectibleVariations.getMain@10
 
 
@@ -4207,7 +4207,7 @@ admitsByDelegate_after_if_else@2:
     concat
     // smart_contracts/collectible-variations/contract.algo.ts:761
     // methodSelector(DelegateAdmit),
-    pushbytes 0x71737681 // method "arcTBD_admit(uint64,address,byte[],address)bool"
+    pushbytes 0x20c54fc9 // method "admit(uint64,address,byte[],address)bool"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs

@@ -21,7 +21,6 @@ export const RaffleGlobalStateKeyAkitaRoyalty = 'akita_royalty'
 export const RaffleGlobalStateKeyVRFFailureCount = 'vrf_failure_count'
 export const RaffleGlobalStateKeyEntryID = 'entry_id'
 export const RaffleGlobalStateKeyWeightsBoxCount = 'weights_box_count'
-export const RaffleGlobalStateKeyWeightTotals = 'w_totals'
 export const RaffleGlobalStateKeyFindWinnersCursor = 'find_winner_cursors'
 export const RaffleGlobalStateKeyRefundMBRCursor = 'refund_mbr_cursor'
 export const RaffleGlobalStateKeySalt = 'salt'
@@ -37,15 +36,41 @@ export const RaffleGlobalStateKeySellerReferrer = 'seller_referrer'
 export const RaffleBoxPrefixEntries = 'e'
 export const RaffleBoxPrefixWeights = 'w'
 export const RaffleBoxPrefixEntriesByAddress = 'a'
+/** one box: the ticket total of every weights box, 8 bytes each (the winner search's skip list) */
+export const RaffleBoxKeyWeightTotals = 't'
 
-export const EntriesMBR: uint64 = 31_700
-export const WeightsMBR: uint64 = 13_113_300
-export const EntriesByAddressMBR: uint64 = 18_900
-
-export const BoxWeightTotalsSize: uint64 = 15
-
-// 4096*8 bytes = 32KB
+// Ticket counts live in weights boxes of up to `ChunkSize` 8-byte slots (4096*8 bytes = 32KB, the
+// largest box). A box is created by the first entry that needs it and grows one slot per entry, so
+// a raffle has no fixed number of entrants and locks no storage for entrants who never come.
 export const ChunkSize: uint64 = 4096
+/** weights boxes the totals box can describe (its own size limit): 4096 * 4096 entries */
+export const MaxWeightsBoxes: uint64 = 4096
+
+/** the entry's own box: 2_500 + 400 * (9 + 64) */
+export const EntryBoxMBR: uint64 = 31_700
+/**
+ * An entry's share of the weights storage. Its slot costs 400 * 8 = 3_200. The first entry of a
+ * weights box also opens the box, 2_500 + 400 * 9 = 6_100, and adds the box's total to the totals
+ * box, 3_200. Every entry pays for both, 3_200 + 9_300, so the price never depends on which slot an
+ * entry lands in, and all of it comes back in `refundMBR`.
+ */
+export const EntryWeightMBR: uint64 = 12_500
+/** what an entry adds to the raffle's minimum balance, besides its address record */
+export const EntriesMBR: uint64 = 44_200
+export const EntriesByAddressMBR: uint64 = 18_900
+/** the empty totals box the seller funds at creation: 2_500 + 400 * 1 */
+export const WeightsMBR: uint64 = 2_900
+
+/**
+ * One Rewards disbursement with a single allocation (`disbursementCost(1)`): what refunding the
+ * tickets of a failed raffle costs when the entrant has left the ticket asset. Every entry of an
+ * ASA raffle holds this much in refundable storage and deposit (audit 10, AUC-02), so such a refund
+ * is paid for by the entry it belongs to.
+ */
+export const RaffleRefundDisbursementMBR: uint64 = 79_800
+
+/** whole weights boxes one `findWinner` call skips before it saves its place and returns */
+export const MaxBoxSkipsPerCall: uint64 = 64
 
 // VRF draw (commit-reveal). The MainNet beacon (1615566206) stores one value per multiple of
 // BEACON_ROUND_INTERVAL rounds and submits it about 2 rounds later. The first post-end raffle()

@@ -3819,9 +3819,10 @@ describe('Staking Pool Contract', () => {
       }
     })
 
-    test('TRADE-3: after BEACON_MAX_WAIT_ROUNDS an empty read re-commits forward instead of reverting', async () => {
+    test('STK-07: after BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid; there is no second draw', async () => {
+      const rate = 2_000_000n
       const pool = await newPool()
-      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate: 2_000_000n, interval: 60n, winnerCount: 1n }), 2_000_000n)
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate, interval: 60n, winnerCount: 1n }), 2n * rate)
       await fundOps(pool)
       await goLive(pool)
       for (let i = 0; i < 3; i++) {
@@ -3832,6 +3833,8 @@ describe('Staking Pool Contract', () => {
       await pool.startDisbursement({ rewardId: 1n })
       await disburse(pool, 1n)
       const committed = await pool.getReward(1)
+      expect(committed.phase).toBe(DisbursementPhase.Allocation)
+      expect(committed.royaltyAmount).toBeGreaterThan(0n)
 
       await mockBeacon.send.setEmpty({ args: { empty: true } })
       try {
@@ -3840,17 +3843,23 @@ describe('Staking Pool Contract', () => {
       } finally {
         await mockBeacon.send.setEmpty({ args: { empty: false } })
       }
-      const moved = await pool.getReward(1)
-      expect(moved.vrfFailureCount).toBe(1n)
-      expect(moved.activeDisbursementRoundStart).toBeGreaterThan(committed.activeDisbursementRoundStart + 1_000n)
-      expect(moved.activeDisbursementRoundStart % 8n).toBe(0n)
-      expect(moved.winningTickets).toHaveLength(0)
+      // nobody drew while the committed value could be read: the round is over, not re-committed
+      const closed = await pool.getReward(1)
+      expect(closed.phase).toBe(DisbursementPhase.Idle)
+      expect(closed.activeDisbursementRoundStart).toBe(0n)
+      expect(closed.winningTickets).toHaveLength(0)
+      expect(await pool.getOpenRounds()).toBe(0n)
+      // nothing was allocated, and the round's Rewards disbursement is gone (its storage came back)
+      const gone = await akitaUniverse.rewards.client.state.box.disbursements.value(committed.activeDisbursementId)
+        .then((value) => value === undefined, () => true)
+      expect(gone).toBe(true)
+      // the prize is still in the reward's budget: only the round's royalty was spent
+      expect(await pool.getRewardBudget(1n)).toBe(2n * rate - committed.royaltyAmount)
 
-      await waitForDraw(pool, 1n)
-      await disburse(pool, 1n)
-      const drawn = await pool.getReward(1)
-      expect(drawn.winningTickets).toHaveLength(1)
-      expect(drawn.vrfFailureCount).toBe(0n)
+      // the next round draws as usual
+      const { tickets, after } = await runRound(pool, 1n)
+      expect(tickets).toHaveLength(1)
+      expect(after.phase).toBe(DisbursementPhase.Idle)
     // Warping 1,000 rounds is about 1,000 payments sent one after another: 42 s on an idle LocalNet,
     // and past the default 120 s on a CI runner whose LocalNet other test files share.
     }, 300_000)
@@ -3903,6 +3912,193 @@ describe('Staking Pool Contract', () => {
       await pool.abortRound({ sender: creator.addr, signer: creator.signer, rewardId: 1n, mode: 0 })
       expect((await pool.getReward(1)).phase).toBe(DisbursementPhase.Idle)
       expect(await pool.getOpenRounds()).toBe(0n)
+    })
+
+    describe('2026-11 audit 06 fixes (STK-02, 03, 04, 08, 10)', () => {
+      /** Finishes a round that is already open. */
+      const finishRound = async (pool: StakingPoolSDK, rewardId: bigint) => {
+        for (let i = 0; i < 200; i++) {
+          const reward = await pool.getReward(Number(rewardId))
+          if (reward.phase === DisbursementPhase.Idle) break
+          if (reward.phase === DisbursementPhase.Finalization) {
+            await pool.finalizeDistribution({ sender: creator.addr, signer: creator.signer, rewardId })
+            break
+          }
+          if (reward.phase === DisbursementPhase.Allocation) await waitForDraw(pool, rewardId)
+          await disburse(pool, rewardId)
+        }
+        return pool.getReward(Number(rewardId))
+      }
+
+      test('STK-02: a LOCK created or changed after the round started is held out of that round', async () => {
+        const STAKE = 10_000_000n
+        const RATE = 4_000_000n
+        const pool = await newPool({ type: POOL_STAKING_TYPE_LOCK, stakeKey: poolStakeKey })
+        await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_PERCENTAGE, rate: RATE, interval: 60n }), 2n * RATE)
+        await fundOps(pool)
+        await goLive(pool)
+
+        const lock = async (who: AddressWithTransactionSigner, amount: bigint, expiration: bigint) => akitaUniverse.staking.stake({
+          sender: who.addr, signer: who.signer, type: StakingType.Lock, asset: 0n, amount, expiration,
+        })
+        const honest = await fundedUser(STAKE + 5_000_000n)
+        const late = await fundedUser((2n * STAKE) + 5_000_000n)
+        const until = (await getBlockTimestamp(algorand)) + BigInt(30 * ONE_DAY)
+        await lock(honest, STAKE, until)
+        await lock(late, STAKE, until)
+        await pool.enter({ sender: honest.addr, signer: honest.signer, entries: [{ asset: 0n, amount: STAKE, proofs: proofsFor(0n) }] })
+        await pool.enter({ sender: late.addr, signer: late.signer, entries: [{ asset: 0n, amount: STAKE, proofs: proofsFor(0n) }] })
+
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ rewardId: 1n })
+        await disburse(pool, 1n, 1n) // entry 1: the honest locker
+        // the second locker's lock changes between the two batches (stands for "the lock arrived just now")
+        await lock(late, STAKE, until)
+        await disburse(pool, 1n, 1n)
+
+        const allocating = await pool.getReward(1)
+        expect(allocating.phase).toBe(DisbursementPhase.Allocation)
+        expect(allocating.qualifiedStakers).toBe(1n)
+        expect(allocating.qualifiedStake).toBe(STAKE)
+        expect(await pool.client.state.box.entries.value(2n)).toMatchObject({ disqualified: false, heldOut: true })
+        expect((await finishRound(pool, 1n)).phase).toBe(DisbursementPhase.Idle)
+
+        // held out, not disqualified: it counts again in the next round (an entry weighs its entered quantity)
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ rewardId: 1n })
+        await disburse(pool, 1n)
+        const next = await pool.getReward(1)
+        expect(next.qualifiedStakers).toBe(2n)
+        expect(next.qualifiedStake).toBe(2n * STAKE)
+        expect((await finishRound(pool, 1n)).phase).toBe(DisbursementPhase.Idle)
+      })
+
+      test('STK-03: a round its reward cannot pay closes unpaid, and the pool keeps working', async () => {
+        const RATE = 1_000_000n
+        const pool = await newPool()
+        // two entrants at a flat 1 ALGO each need 2 ALGO; the reward holds 1.5
+        await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, rate: RATE, interval: 60n }), 1_500_000n)
+        await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_EVEN, rate: RATE, interval: 60n }), 10n * RATE)
+        await fundOps(pool)
+        await goLive(pool)
+
+        const alice = await fundedUser(5_000_000n)
+        const bob = await fundedUser(5_000_000n)
+        const anyone = await fundedUser(5_000_000n)
+        await pool.enter({ sender: alice.addr, signer: alice.signer, entries: [{ asset: 0n, amount: 1n }] })
+        await pool.enter({ sender: bob.addr, signer: bob.signer, entries: [{ asset: 0n, amount: 1n }] })
+
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ sender: anyone.addr, signer: anyone.signer, rewardId: 1n })
+        // preparation completes and closes the round without paying anything
+        await pool.disburseRewards({ sender: anyone.addr, signer: anyone.signer, rewardId: 1n, iterationAmount: 100n })
+        const closed = await pool.getReward(1)
+        expect(closed.phase).toBe(DisbursementPhase.Idle)
+        expect(closed.activeDisbursementId).toBe(0n)
+        expect(await pool.getOpenRounds()).toBe(0n)
+        expect(await pool.getRewardBudget(1n)).toBe(1_500_000n)
+
+        // the other reward runs, and an entrant can leave
+        await pool.startDisbursement({ sender: creator.addr, signer: creator.signer, rewardId: 2n })
+        expect((await finishRound(pool, 2n)).phase).toBe(DisbursementPhase.Idle)
+        expect(await pool.getRewardBudget(2n)).toBe(9n * RATE)
+        await pool.removeEntry({ sender: alice.addr, signer: alice.signer, address: alice.addr.toString(), asset: 0n })
+        expect(await pool.isEntered({ address: alice.addr.toString() })).toBe(false)
+      })
+
+      test('STK-04: maxEntries caps the entries that exist; a removed entry gives its slot back', async () => {
+        const MAX = 3n
+        const pool = await newPool({ maxEntries: MAX })
+        await goLive(pool)
+
+        const leaver = await fundedUser(5_000_000n)
+        for (let i = 0n; i < MAX; i++) {
+          await pool.enter({ sender: leaver.addr, signer: leaver.signer, entries: [{ asset: 0n, amount: 1n }] })
+          await pool.removeEntry({ sender: leaver.addr, signer: leaver.signer, address: leaver.addr.toString(), asset: 0n })
+        }
+        expect(await pool.getLiveEntries()).toBe(0n)
+
+        // the pool is still open: three entrants get in, the fourth is refused
+        for (let i = 0n; i < MAX; i++) {
+          const user = await fundedUser(5_000_000n)
+          await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 1n }] })
+        }
+        expect(await pool.getLiveEntries()).toBe(MAX)
+        // entryCount still reports the ids issued, which is what a scan needs
+        expect((await pool.getState()).entryCount).toBe(2n * MAX)
+        const fourth = await fundedUser(5_000_000n)
+        await expect(pool.enter({ sender: fourth.addr, signer: fourth.signer, entries: [{ asset: 0n, amount: 1n }] }))
+          .rejects.toThrow('ERR:errPmer')
+      })
+
+      test('STK-08: the creator cannot abort a shuffle round once its draw can be read', async () => {
+        const rate = 2_000_000n
+        const pool = await newPool()
+        await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate, interval: 60n, winnerCount: 1n }), 3n * rate)
+        await fundOps(pool)
+        await goLive(pool)
+        for (let i = 0; i < 2; i++) {
+          const u = await fundedUser(5_000_000n)
+          await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+        }
+
+        // before the committed beacon round nobody can know the draw: the creator may still abort
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ rewardId: 1n })
+        await disburse(pool, 1n)
+        const first = await pool.getReward(1)
+        expect(first.phase).toBe(DisbursementPhase.Allocation)
+        const { lastRound } = await algorand.client.algod.status().do()
+        expect(first.activeDisbursementRoundStart).toBeGreaterThan(lastRound + 1n)
+        await pool.abortRound({ sender: creator.addr, signer: creator.signer, rewardId: 1n, mode: 2 })
+        expect((await pool.getReward(1)).phase).toBe(DisbursementPhase.Idle)
+
+        // once that round is reached the draw can be simulated, so the creator's abort is refused
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ rewardId: 1n })
+        await disburse(pool, 1n)
+        await waitForDraw(pool, 1n)
+        for (const mode of [0, 1, 2]) {
+          await expect(pool.abortRound({ sender: creator.addr, signer: creator.signer, rewardId: 1n, mode }))
+            .rejects.toThrow(errAbortForbidden)
+        }
+        // the round runs to its end
+        await disburse(pool, 1n)
+        expect((await pool.getReward(1)).winningTickets).toHaveLength(1)
+        expect((await finishRound(pool, 1n)).phase).toBe(DisbursementPhase.Idle)
+      })
+
+      test('STK-10: an entrant whose account has closed does not block clean-up or deletion', async () => {
+        const pool = await newPool()
+        await goLive(pool, 300n)
+        const entrant = await fundedUser(5_000_000n)
+        await pool.enter({ sender: entrant.addr, signer: entrant.signer, entries: [{ asset: 0n, amount: 1n }] })
+        await algorand.send.payment({
+          sender: entrant.addr,
+          signer: entrant.signer,
+          receiver: deployer.addr,
+          amount: algokit.microAlgos(0),
+          closeRemainderTo: deployer.addr,
+        })
+        expect(await getAccountBalance(algorand, entrant.addr.toString())).toBe(0n)
+
+        // after the end anyone may clean up; the refund (below the base minimum balance) is skipped
+        await timeWarp.timeWarp(400n)
+        const freeBefore = await pool.getFreeFunds(0n)
+        await pool.removeEntry({ sender: creator.addr, signer: creator.signer, address: entrant.addr.toString(), asset: 0n })
+        expect(await pool.isEntered({ address: entrant.addr.toString() })).toBe(false)
+        expect(await getAccountBalance(algorand, entrant.addr.toString())).toBe(0n)
+        // the deposit stays in the pool as free ALGO
+        expect((await pool.getFreeFunds(0n)) - freeBefore).toBe(POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR)
+
+        await factorySDK.client.send.deletePool({
+          sender: creator.addr,
+          signer: creator.signer,
+          args: { appId: pool.appId },
+          extraFee: algokit.microAlgos(4_000),
+        })
+        await expect(pool.getState()).rejects.toThrow()
+      })
     })
 
     describe('sponsored storage (2026-11-15)', () => {

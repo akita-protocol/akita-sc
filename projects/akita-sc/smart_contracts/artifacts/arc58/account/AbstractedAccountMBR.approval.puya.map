@@ -3,7 +3,7 @@
   "sources": [
     "../../../arc58/account/mbr.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;AASA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AA0CG;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AA1CH;;AAAA;AAAA;;AAAA;AAAA;AAAA;AA0CG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA1B0D;;AAAA;AAblD;AAAA;;AAAA;AAamC;;AAAA;;;AAAA;AAAnC;;;;AAAA;AAoCY;AAEV;;AAAA;AAAA;;;AAAA;;AAAA;AAAA;;;;;;AAAA;AAAA;;;;;AAFU;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA7CmB;;AAAA;;AAAA;AAAD;;AAAA;AAJ9B;AAAA;AAIA;;;;AAAA;AAImC;;AAAA;AARnC;AAAA;AAQA;;;;AAAA;;AAAA;AASA;;;;AAAA;;AAAA;AAQA;;;AAAA;;AAAA;AAzBA;;AAAA;;;AAAA;AAqBA;;;;AAAA;AAwCS;;AAAA;;;AAAA;;;AAA0B;;AAA1B;AAGZ;;AADA;;;;AAAA;AAAA;;AAAA;AATG;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAfR;AAAA;AAAA;AAAA;AAAA;;AAAA",
+  "mappings": ";;;;;;;;;;;;;;;AASA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AA4CG;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AA5CH;;AAAA;AAAA;;AAAA;AAAA;AAAA;AA4CG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA3B0D;;AAAA;AAdlD;AAAA;;AAAA;AAcmC;;AAAA;;;AAAA;AAAnC;;;;AAAA;AAqCY;AAEV;;AAAA;AAAA;;;AAAA;;AAAA;AAAA;;;;;;AAAA;AAAA;;;;;AAFU;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA/CmB;;AAAA;;AAAA;AAAD;;AAAA;AAJ9B;AAAA;AAIA;;;;AAAA;AAKmC;;AAAA;AAAA;AAAA;;AAAA;AATnC;AAAA;AASA;;;;AAAA;AASA;;;;AAAA;;AAAA;AAlBA;AAAA;;AAAA;AA0BA;;;AAAA;AA1BA;;AAAA;;;AAAA;AAsBA;;;;AAAA;AAyCS;;AAAA;;;AAAA;;;AAA0B;;AAA1B;AAGZ;;AADA;;;;AAAA;AAAA;;AAAA;AATG;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAfR;AAAA;AAAA;AAAA;AAAA;;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,7 +11,7 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 8 2 400"
+      "op": "intcblock 0 400 8 2"
     },
     "8": {
       "op": "bytecblock 0x151f7c75"
@@ -195,7 +195,7 @@
       ]
     },
     "57": {
-      "op": "intc_1 // 8",
+      "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "len%0#0",
@@ -288,7 +288,7 @@
       ]
     },
     "67": {
-      "op": "intc_2 // 2",
+      "op": "intc_3 // 2",
       "defined_out": [
         "2",
         "aggregate%array_length%0#0",
@@ -415,7 +415,7 @@
       ]
     },
     "82": {
-      "op": "intc_1 // 8",
+      "op": "intc_2 // 8",
       "stack_out": [
         "appId#0",
         "escrow#0",
@@ -523,7 +523,7 @@
       ]
     },
     "92": {
-      "op": "intc_2 // 2",
+      "op": "intc_3 // 2",
       "stack_out": [
         "appId#0",
         "escrow#0",
@@ -678,7 +678,7 @@
       ]
     },
     "107": {
-      "op": "intc_1 // 8",
+      "op": "intc_2 // 8",
       "stack_out": [
         "appId#0",
         "escrow#0",
@@ -775,7 +775,7 @@
       ]
     },
     "114": {
-      "op": "intc_3 // 400",
+      "op": "intc_1 // 400",
       "defined_out": [
         "400",
         "appId#0",
@@ -1523,7 +1523,7 @@
       ]
     },
     "189": {
-      "op": "intc_2 // 2",
+      "op": "intc_3 // 2",
       "stack_out": [
         "methodCount#0",
         "plugin#0",
@@ -1663,37 +1663,49 @@
       ]
     },
     "200": {
-      "op": "uncover 4",
+      "op": "dig 4",
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%0#2",
-        "len#0"
+        "len#0 (copy)"
       ]
     },
     "202": {
       "op": "+",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "escrows#0",
+        "groups#0",
+        "len#0",
+        "len#1",
+        "plugin#0",
+        "tmp%0#7"
+      ],
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
-        "len#0"
+        "len#1"
       ]
     },
     "203": {
-      "op": "intc_3 // 400",
+      "op": "intc_1 // 400",
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
-        "len#0",
+        "len#1",
         "400"
       ]
     },
@@ -1702,6 +1714,7 @@
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
@@ -1715,6 +1728,7 @@
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
+        "len#0",
         "plugin#0",
         "tmp%0#2",
         "tmp%0#7"
@@ -1722,6 +1736,7 @@
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
@@ -1735,6 +1750,7 @@
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
+        "len#0",
         "plugin#0",
         "tmp%0#7",
         "tmp%4#2"
@@ -1742,6 +1758,7 @@
       "stack_out": [
         "plugin#0",
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
@@ -1749,9 +1766,10 @@
       ]
     },
     "210": {
-      "op": "uncover 5",
+      "op": "uncover 6",
       "stack_out": [
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
@@ -1763,26 +1781,76 @@
       "op": "len",
       "stack_out": [
         "groups#0",
+        "len#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "len#0"
+        "len#1"
       ]
     },
     "213": {
-      "op": "intc_3 // 400",
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "escrows#0",
+        "groups#0",
+        "len#0",
+        "len#1",
+        "len#1 (copy)",
+        "tmp%0#7",
+        "tmp%4#2"
+      ],
+      "stack_out": [
+        "groups#0",
+        "len#0",
+        "tmp%0#7",
+        "escrows#0",
+        "awst_tmp%0#0",
+        "tmp%4#2",
+        "len#1",
+        "len#1 (copy)"
+      ]
+    },
+    "214": {
+      "op": "uncover 6",
       "stack_out": [
         "groups#0",
         "tmp%0#7",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "len#1",
+        "len#1 (copy)",
+        "len#0"
+      ]
+    },
+    "216": {
+      "op": "+",
+      "stack_out": [
+        "groups#0",
+        "tmp%0#7",
+        "escrows#0",
+        "awst_tmp%0#0",
+        "tmp%4#2",
+        "len#1",
+        "len#0"
+      ]
+    },
+    "217": {
+      "op": "intc_1 // 400",
+      "stack_out": [
+        "groups#0",
+        "tmp%0#7",
+        "escrows#0",
+        "awst_tmp%0#0",
+        "tmp%4#2",
+        "len#1",
         "len#0",
         "400"
       ]
     },
-    "214": {
+    "218": {
       "op": "*",
       "stack_out": [
         "groups#0",
@@ -1790,16 +1858,18 @@
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "len#1",
         "tmp%0#2"
       ]
     },
-    "215": {
+    "219": {
       "op": "pushint 20500",
       "defined_out": [
         "20500",
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
+        "len#1",
         "tmp%0#2",
         "tmp%0#7",
         "tmp%4#2"
@@ -1810,21 +1880,21 @@
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "len#1",
         "tmp%0#2",
         "20500"
       ]
     },
-    "219": {
-      "op": "dig 1",
+    "223": {
+      "op": "+",
       "defined_out": [
-        "20500",
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
-        "tmp%0#2",
-        "tmp%0#2 (copy)",
+        "len#1",
         "tmp%0#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "groups#0",
@@ -1832,34 +1902,21 @@
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "tmp%0#2",
-        "20500",
-        "tmp%0#2 (copy)"
+        "len#1",
+        "tmp%4#3"
       ]
     },
-    "221": {
-      "op": "+",
-      "stack_out": [
-        "groups#0",
-        "tmp%0#7",
-        "escrows#0",
-        "awst_tmp%0#0",
-        "tmp%4#2",
-        "tmp%0#2",
-        "tmp%2#2"
-      ]
-    },
-    "222": {
+    "224": {
       "op": "pushint 27700",
       "defined_out": [
         "27700",
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
-        "tmp%0#2",
+        "len#1",
         "tmp%0#7",
-        "tmp%2#2",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "groups#0",
@@ -1867,66 +1924,47 @@
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "tmp%0#2",
-        "tmp%2#2",
+        "len#1",
+        "tmp%4#3",
         "27700"
       ]
     },
-    "226": {
+    "228": {
       "op": "uncover 6",
       "stack_out": [
         "groups#0",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "tmp%0#2",
-        "tmp%2#2",
+        "len#1",
+        "tmp%4#3",
         "27700",
         "tmp%0#7"
       ]
     },
-    "228": {
+    "230": {
       "op": "+",
-      "defined_out": [
-        "awst_tmp%0#0",
-        "escrows#0",
-        "groups#0",
-        "tmp%0#2",
-        "tmp%2#2",
-        "tmp%2#5",
-        "tmp%4#2"
-      ],
       "stack_out": [
         "groups#0",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "tmp%0#2",
-        "tmp%2#2",
-        "tmp%2#5"
+        "len#1",
+        "tmp%4#3",
+        "tmp%2#2"
       ]
     },
-    "229": {
-      "op": "pushint 15700",
-      "defined_out": [
-        "15700",
-        "awst_tmp%0#0",
-        "escrows#0",
-        "groups#0",
-        "tmp%0#2",
-        "tmp%2#2",
-        "tmp%2#5",
-        "tmp%4#2"
-      ],
+    "231": {
+      "op": "intc_1 // 400",
       "stack_out": [
         "groups#0",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
-        "tmp%0#2",
+        "len#1",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
-        "15700"
+        "400"
       ]
     },
     "232": {
@@ -1936,46 +1974,81 @@
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
-        "15700",
-        "tmp%0#2"
+        "400",
+        "len#1"
       ]
     },
     "234": {
-      "op": "+",
+      "op": "*",
+      "stack_out": [
+        "groups#0",
+        "escrows#0",
+        "awst_tmp%0#0",
+        "tmp%4#2",
+        "tmp%4#3",
+        "tmp%2#2",
+        "tmp%0#7"
+      ]
+    },
+    "235": {
+      "op": "pushint 15700",
       "defined_out": [
+        "15700",
         "awst_tmp%0#0",
         "escrows#0",
         "groups#0",
+        "tmp%0#7",
         "tmp%2#2",
-        "tmp%2#5",
-        "tmp%2#6",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "groups#0",
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
+        "tmp%0#7",
+        "15700"
+      ]
+    },
+    "238": {
+      "op": "+",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "escrows#0",
+        "groups#0",
+        "tmp%2#2",
+        "tmp%2#6",
+        "tmp%4#2",
+        "tmp%4#3"
+      ],
+      "stack_out": [
+        "groups#0",
+        "escrows#0",
+        "awst_tmp%0#0",
+        "tmp%4#2",
+        "tmp%4#3",
+        "tmp%2#2",
         "tmp%2#6"
       ]
     },
-    "235": {
+    "239": {
       "op": "uncover 6",
       "stack_out": [
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "groups#0"
       ]
     },
-    "237": {
+    "241": {
       "op": "pushint 12800",
       "defined_out": [
         "12800",
@@ -1983,34 +2056,34 @@
         "escrows#0",
         "groups#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "groups#0",
         "12800"
       ]
     },
-    "240": {
+    "244": {
       "op": "*",
       "stack_out": [
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%0#7"
       ]
     },
-    "241": {
+    "245": {
       "op": "pushint 23700",
       "defined_out": [
         "23700",
@@ -2018,164 +2091,164 @@
         "escrows#0",
         "tmp%0#7",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%0#7",
         "23700"
       ]
     },
-    "245": {
+    "249": {
       "op": "+",
       "defined_out": [
         "awst_tmp%0#0",
         "escrows#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "awst_tmp%0#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7"
       ]
     },
-    "246": {
+    "250": {
       "op": "uncover 5",
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "awst_tmp%0#0"
       ]
     },
-    "248": {
+    "252": {
       "op": "extract 6 41",
       "defined_out": [
         "aggregate%encoded_element%0#0",
         "escrows#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "251": {
+    "255": {
       "op": "extract 8 32",
       "defined_out": [
         "aggregate%extract%0#0",
         "escrows#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "aggregate%extract%0#0"
       ]
     },
-    "254": {
+    "258": {
       "op": "global ZeroAddress",
       "defined_out": [
         "aggregate%extract%0#0",
         "escrows#0",
         "tmp%10#1",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "aggregate%extract%0#0",
         "tmp%10#1"
       ]
     },
-    "256": {
+    "260": {
       "op": "!=",
       "defined_out": [
         "escrows#0",
         "tmp%11#1",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1"
       ]
     },
-    "257": {
+    "261": {
       "op": "global MinBalance",
       "defined_out": [
         "escrows#0",
         "tmp%11#1",
         "tmp%12#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
         "tmp%12#0"
       ]
     },
-    "259": {
+    "263": {
       "op": "pushint 162100",
       "defined_out": [
         "162100",
@@ -2183,16 +2256,16 @@
         "tmp%11#1",
         "tmp%12#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2200,30 +2273,30 @@
         "162100"
       ]
     },
-    "263": {
+    "267": {
       "op": "+",
       "defined_out": [
         "escrows#0",
         "tmp%11#1",
         "tmp%14#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
         "tmp%14#0"
       ]
     },
-    "264": {
+    "268": {
       "op": "dig 7",
       "defined_out": [
         "escrows#0",
@@ -2231,16 +2304,16 @@
         "tmp%11#1",
         "tmp%14#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2248,35 +2321,35 @@
         "escrows#0 (copy)"
       ]
     },
-    "266": {
+    "270": {
       "op": "+",
       "defined_out": [
         "escrows#0",
         "tmp%11#1",
         "tmp%15#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
-        "tmp%4#2"
+        "tmp%4#2",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
         "tmp%4#2",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
         "tmp%15#0"
       ]
     },
-    "267": {
+    "271": {
       "op": "uncover 6",
       "stack_out": [
         "escrows#0",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2284,7 +2357,7 @@
         "tmp%4#2"
       ]
     },
-    "269": {
+    "273": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2292,14 +2365,14 @@
         "tmp%11#1",
         "tmp%15#0",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
-        "tmp%2#7"
+        "tmp%2#7",
+        "tmp%4#3"
       ],
       "stack_out": [
         "escrows#0",
+        "tmp%4#3",
         "tmp%2#2",
-        "tmp%2#5",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2307,20 +2380,20 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "270": {
+    "274": {
       "op": "uncover 6",
       "stack_out": [
         "escrows#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
         "tmp%15#0",
         "aggregate%val_as_bytes%0#0",
-        "tmp%2#2"
+        "tmp%4#3"
       ]
     },
-    "272": {
+    "276": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2328,13 +2401,13 @@
         "escrows#0",
         "tmp%11#1",
         "tmp%15#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7"
       ],
       "stack_out": [
         "escrows#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2343,20 +2416,20 @@
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "273": {
+    "277": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%2#0",
         "escrows#0",
         "tmp%11#1",
         "tmp%15#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7"
       ],
       "stack_out": [
         "escrows#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2364,10 +2437,10 @@
         "aggregate%head%2#0"
       ]
     },
-    "274": {
+    "278": {
       "op": "uncover 6",
       "stack_out": [
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2376,19 +2449,19 @@
         "escrows#0"
       ]
     },
-    "276": {
+    "280": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%2#0",
         "aggregate%val_as_bytes%2#0",
         "tmp%11#1",
         "tmp%15#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7"
       ],
       "stack_out": [
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2397,18 +2470,18 @@
         "aggregate%val_as_bytes%2#0"
       ]
     },
-    "277": {
+    "281": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%3#0",
         "tmp%11#1",
         "tmp%15#0",
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7"
       ],
       "stack_out": [
-        "tmp%2#5",
+        "tmp%2#2",
         "tmp%2#6",
         "tmp%2#7",
         "tmp%11#1",
@@ -2416,7 +2489,7 @@
         "aggregate%head%3#0"
       ]
     },
-    "278": {
+    "282": {
       "op": "uncover 5",
       "stack_out": [
         "tmp%2#6",
@@ -2424,10 +2497,10 @@
         "tmp%11#1",
         "tmp%15#0",
         "aggregate%head%3#0",
-        "tmp%2#5"
+        "tmp%2#2"
       ]
     },
-    "280": {
+    "284": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%3#0",
@@ -2446,7 +2519,7 @@
         "aggregate%val_as_bytes%3#0"
       ]
     },
-    "281": {
+    "285": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%4#0",
@@ -2463,7 +2536,7 @@
         "aggregate%head%4#0"
       ]
     },
-    "282": {
+    "286": {
       "op": "uncover 3",
       "stack_out": [
         "tmp%2#6",
@@ -2473,7 +2546,7 @@
         "tmp%2#7"
       ]
     },
-    "284": {
+    "288": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%4#0",
@@ -2490,7 +2563,7 @@
         "aggregate%val_as_bytes%4#0"
       ]
     },
-    "285": {
+    "289": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%5#0",
@@ -2505,7 +2578,7 @@
         "aggregate%head%5#0"
       ]
     },
-    "286": {
+    "290": {
       "op": "uncover 3",
       "stack_out": [
         "tmp%11#1",
@@ -2514,7 +2587,7 @@
         "tmp%2#6"
       ]
     },
-    "288": {
+    "292": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%5#0",
@@ -2529,7 +2602,7 @@
         "aggregate%val_as_bytes%5#0"
       ]
     },
-    "289": {
+    "293": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%6#0",
@@ -2542,7 +2615,7 @@
         "aggregate%head%6#0"
       ]
     },
-    "290": {
+    "294": {
       "op": "pushbytes 0x00",
       "defined_out": [
         "0x00",
@@ -2557,7 +2630,7 @@
         "0x00"
       ]
     },
-    "293": {
+    "297": {
       "op": "intc_0 // 0",
       "stack_out": [
         "tmp%11#1",
@@ -2567,7 +2640,7 @@
         "0"
       ]
     },
-    "294": {
+    "298": {
       "op": "uncover 4",
       "stack_out": [
         "tmp%15#0",
@@ -2577,7 +2650,7 @@
         "tmp%11#1"
       ]
     },
-    "296": {
+    "300": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
@@ -2590,7 +2663,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "297": {
+    "301": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%7#0",
@@ -2601,14 +2674,14 @@
         "aggregate%head%7#0"
       ]
     },
-    "298": {
+    "302": {
       "op": "swap",
       "stack_out": [
         "aggregate%head%7#0",
         "tmp%15#0"
       ]
     },
-    "299": {
+    "303": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%7#0",
@@ -2619,7 +2692,7 @@
         "aggregate%val_as_bytes%6#0"
       ]
     },
-    "300": {
+    "304": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%8#0"
@@ -2628,21 +2701,21 @@
         "aggregate%head%8#0"
       ]
     },
-    "301": {
+    "305": {
       "op": "bytec_0 // 0x151f7c75",
       "stack_out": [
         "aggregate%head%8#0",
         "0x151f7c75"
       ]
     },
-    "302": {
+    "306": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%head%8#0"
       ]
     },
-    "303": {
+    "307": {
       "op": "concat",
       "defined_out": [
         "tmp%11#0"
@@ -2651,11 +2724,11 @@
         "tmp%11#0"
       ]
     },
-    "304": {
+    "308": {
       "op": "log",
       "stack_out": []
     },
-    "305": {
+    "309": {
       "op": "pushint 1",
       "defined_out": [
         "1"
@@ -2664,7 +2737,7 @@
         "1"
       ]
     },
-    "307": {
+    "311": {
       "op": "return",
       "stack_out": []
     }

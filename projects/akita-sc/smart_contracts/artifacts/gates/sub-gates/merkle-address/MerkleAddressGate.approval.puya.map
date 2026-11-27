@@ -5,7 +5,7 @@
     "../../../../utils/base-contracts/upgradeable.ts",
     "../../../../utils/functions.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -1690,23 +1690,16 @@
       ]
     },
     "425": {
-      "op": "pushint 66",
-      "defined_out": [
-        "66",
-        "args#0",
-        "caller#0",
-        "registryID#0",
-        "tmp%0#1"
-      ],
+      "op": "intc_2 // 2",
       "stack_out": [
         "caller#0",
         "registryID#0",
         "args#0",
         "tmp%0#1",
-        "66"
+        "2"
       ]
     },
-    "427": {
+    "426": {
       "op": ">=",
       "defined_out": [
         "args#0",
@@ -1721,7 +1714,7 @@
         "tmp%1#1"
       ]
     },
-    "428": {
+    "427": {
       "op": "bnz check_after_assert@3",
       "stack_out": [
         "caller#0",
@@ -1729,7 +1722,7 @@
         "args#0"
       ]
     },
-    "431": {
+    "430": {
       "op": "bytec_3 // \"ERR:errIarg\"",
       "defined_out": [
         "\"ERR:errIarg\"",
@@ -1744,7 +1737,7 @@
         "\"ERR:errIarg\""
       ]
     },
-    "432": {
+    "431": {
       "op": "log",
       "stack_out": [
         "caller#0",
@@ -1752,11 +1745,11 @@
         "args#0"
       ]
     },
-    "433": {
+    "432": {
       "error": "ERR:errIarg",
       "op": "err // ERR:errIarg"
     },
-    "434": {
+    "433": {
       "block": "check_after_assert@3",
       "stack_in": [
         "caller#0",
@@ -1773,7 +1766,7 @@
         "registryID#0"
       ]
     },
-    "435": {
+    "434": {
       "op": "itob",
       "defined_out": [
         "encoded_value%0#0"
@@ -1784,7 +1777,7 @@
         "encoded_value%0#0"
       ]
     },
-    "436": {
+    "435": {
       "op": "dup",
       "defined_out": [
         "encoded_value%0#0",
@@ -1797,7 +1790,7 @@
         "encoded_value%0#0 (copy)"
       ]
     },
-    "437": {
+    "436": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -1812,7 +1805,7 @@
         "0"
       ]
     },
-    "438": {
+    "437": {
       "op": "intc_3 // 32",
       "defined_out": [
         "0",
@@ -1829,7 +1822,7 @@
         "32"
       ]
     },
-    "439": {
+    "438": {
       "error": "index out of bounds",
       "op": "box_extract // on error: index out of bounds",
       "defined_out": [
@@ -1843,7 +1836,7 @@
         "box%box_extract%0#0"
       ]
     },
-    "440": {
+    "439": {
       "op": "dig 1",
       "stack_out": [
         "caller#0",
@@ -1853,7 +1846,7 @@
         "encoded_value%0#0 (copy)"
       ]
     },
-    "442": {
+    "441": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -1870,7 +1863,7 @@
         "34"
       ]
     },
-    "444": {
+    "443": {
       "op": "intc_2 // 2",
       "defined_out": [
         "2",
@@ -1889,7 +1882,7 @@
         "2"
       ]
     },
-    "445": {
+    "444": {
       "op": "box_extract",
       "defined_out": [
         "box%box_extract%0#0",
@@ -1904,7 +1897,7 @@
         "box%box_extract%1#0"
       ]
     },
-    "446": {
+    "445": {
       "op": "btoi",
       "defined_out": [
         "box%box_extract%0#0",
@@ -1919,7 +1912,7 @@
         "box%btoi%0#0"
       ]
     },
-    "447": {
+    "446": {
       "op": "intc_2 // 2",
       "stack_out": [
         "caller#0",
@@ -1930,7 +1923,7 @@
         "2"
       ]
     },
-    "448": {
+    "447": {
       "op": "+",
       "defined_out": [
         "box%box_extract%0#0",
@@ -1945,7 +1938,7 @@
         "box%total_bytes%0#0"
       ]
     },
-    "449": {
+    "448": {
       "op": "uncover 2",
       "stack_out": [
         "caller#0",
@@ -1955,7 +1948,7 @@
         "encoded_value%0#0"
       ]
     },
-    "451": {
+    "450": {
       "op": "pushint 34",
       "stack_out": [
         "caller#0",
@@ -1966,7 +1959,7 @@
         "34"
       ]
     },
-    "453": {
+    "452": {
       "op": "uncover 2",
       "stack_out": [
         "caller#0",
@@ -1977,7 +1970,7 @@
         "box%total_bytes%0#0"
       ]
     },
-    "455": {
+    "454": {
       "op": "box_extract",
       "defined_out": [
         "box%box_extract%0#0",
@@ -1990,10 +1983,10 @@
         "box%box_extract%2#0"
       ]
     },
-    "456": {
+    "455": {
       "op": "itxn_begin"
     },
-    "457": {
+    "456": {
       "op": "uncover 3",
       "defined_out": [
         "box%box_extract%0#0",
@@ -2007,35 +2000,35 @@
         "caller#0"
       ]
     },
+    "458": {
+      "op": "sha256",
+      "defined_out": [
+        "box%box_extract%0#0",
+        "box%box_extract%2#0",
+        "tmp%6#1"
+      ],
+      "stack_out": [
+        "args#0",
+        "box%box_extract%0#0",
+        "box%box_extract%2#0",
+        "tmp%6#1"
+      ]
+    },
     "459": {
       "op": "sha256",
       "defined_out": [
         "box%box_extract%0#0",
         "box%box_extract%2#0",
-        "tmp%6#1"
+        "tmp%7#1"
       ],
       "stack_out": [
         "args#0",
         "box%box_extract%0#0",
         "box%box_extract%2#0",
-        "tmp%6#1"
+        "tmp%7#1"
       ]
     },
     "460": {
-      "op": "sha256",
-      "defined_out": [
-        "box%box_extract%0#0",
-        "box%box_extract%2#0",
-        "tmp%7#1"
-      ],
-      "stack_out": [
-        "args#0",
-        "box%box_extract%0#0",
-        "box%box_extract%2#0",
-        "tmp%7#1"
-      ]
-    },
-    "461": {
       "op": "intc_1 // 0",
       "stack_out": [
         "args#0",
@@ -2045,7 +2038,7 @@
         "0"
       ]
     },
-    "462": {
+    "461": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2061,7 +2054,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "463": {
+    "462": {
       "op": "intc_1 // 0",
       "stack_out": [
         "args#0",
@@ -2072,7 +2065,7 @@
         "0"
       ]
     },
-    "464": {
+    "463": {
       "op": "bytec_2 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -2092,7 +2085,7 @@
         "\"akita_dao\""
       ]
     },
-    "465": {
+    "464": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2112,7 +2105,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "466": {
+    "465": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -2124,7 +2117,7 @@
         "akitaDAO#0"
       ]
     },
-    "467": {
+    "466": {
       "op": "pushbytes \"aal\"",
       "defined_out": [
         "\"aal\"",
@@ -2144,7 +2137,7 @@
         "\"aal\""
       ]
     },
-    "472": {
+    "471": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2164,7 +2157,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "473": {
+    "472": {
       "op": "pop",
       "stack_out": [
         "args#0",
@@ -2175,7 +2168,7 @@
         "appListBytes#0"
       ]
     },
-    "474": {
+    "473": {
       "op": "pushint 72",
       "defined_out": [
         "72",
@@ -2195,7 +2188,7 @@
         "72"
       ]
     },
-    "476": {
+    "475": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2213,7 +2206,7 @@
         "tmp%11#0"
       ]
     },
-    "477": {
+    "476": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "args#0",
@@ -2223,7 +2216,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "479": {
+    "478": {
       "op": "pushbytes 0x2bf3cc5a // method \"verify(address,string,byte[32],byte[32][],uint64)bool\"",
       "defined_out": [
         "Method(verify(address,string,byte[32],byte[32][],uint64)bool)",
@@ -2241,7 +2234,7 @@
         "Method(verify(address,string,byte[32],byte[32][],uint64)bool)"
       ]
     },
-    "485": {
+    "484": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "args#0",
@@ -2251,7 +2244,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "487": {
+    "486": {
       "op": "uncover 3",
       "stack_out": [
         "args#0",
@@ -2261,7 +2254,7 @@
         "box%box_extract%0#0"
       ]
     },
-    "489": {
+    "488": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "args#0",
@@ -2270,7 +2263,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "491": {
+    "490": {
       "op": "uncover 2",
       "stack_out": [
         "args#0",
@@ -2279,7 +2272,7 @@
         "box%box_extract%2#0"
       ]
     },
-    "493": {
+    "492": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "args#0",
@@ -2287,7 +2280,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "495": {
+    "494": {
       "op": "swap",
       "stack_out": [
         "args#0",
@@ -2295,14 +2288,14 @@
         "tmp%7#1"
       ]
     },
-    "496": {
+    "495": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "args#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "498": {
+    "497": {
       "op": "swap",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -2313,17 +2306,17 @@
         "args#0"
       ]
     },
-    "499": {
+    "498": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "501": {
+    "500": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": []
     },
-    "503": {
+    "502": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -2332,24 +2325,24 @@
         "appl"
       ]
     },
-    "505": {
+    "504": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "507": {
+    "506": {
       "op": "intc_1 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "508": {
+    "507": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "510": {
+    "509": {
       "op": "itxn_submit"
     },
-    "511": {
+    "510": {
       "op": "itxn LastLog",
       "defined_out": [
         "awst_tmp%0#0"
@@ -2358,7 +2351,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "513": {
+    "512": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -2369,7 +2362,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "514": {
+    "513": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%0#0",
@@ -2380,14 +2373,14 @@
         "tmp%12#0"
       ]
     },
-    "517": {
+    "516": {
       "op": "swap",
       "stack_out": [
         "tmp%12#0",
         "awst_tmp%0#0"
       ]
     },
-    "518": {
+    "517": {
       "op": "extract 0 4",
       "defined_out": [
         "tmp%12#0",
@@ -2398,7 +2391,7 @@
         "tmp%13#0"
       ]
     },
-    "521": {
+    "520": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -2411,7 +2404,7 @@
         "0x151f7c75"
       ]
     },
-    "522": {
+    "521": {
       "op": "==",
       "defined_out": [
         "tmp%12#0",
@@ -2422,14 +2415,14 @@
         "tmp%14#0"
       ]
     },
-    "523": {
+    "522": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
         "tmp%12#0"
       ]
     },
-    "524": {
+    "523": {
       "op": "dup",
       "defined_out": [
         "tmp%12#0",
@@ -2440,7 +2433,7 @@
         "tmp%12#0 (copy)"
       ]
     },
-    "525": {
+    "524": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -2451,7 +2444,7 @@
         "len%0#0"
       ]
     },
-    "526": {
+    "525": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1",
@@ -2464,7 +2457,7 @@
         "1"
       ]
     },
-    "527": {
+    "526": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2475,28 +2468,28 @@
         "eq%0#0"
       ]
     },
-    "528": {
+    "527": {
       "error": "invalid number of bytes for bool",
       "op": "assert // invalid number of bytes for bool",
       "stack_out": [
         "tmp%12#0"
       ]
     },
-    "529": {
+    "528": {
       "op": "bytec_0 // 0x151f7c75",
       "stack_out": [
         "tmp%12#0",
         "0x151f7c75"
       ]
     },
-    "530": {
+    "529": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "tmp%12#0"
       ]
     },
-    "531": {
+    "530": {
       "op": "concat",
       "defined_out": [
         "tmp%8#0"
@@ -2505,21 +2498,21 @@
         "tmp%8#0"
       ]
     },
-    "532": {
+    "531": {
       "op": "log",
       "stack_out": []
     },
-    "533": {
+    "532": {
       "op": "intc_0 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "534": {
+    "533": {
       "op": "return",
       "stack_out": []
     },
-    "535": {
+    "534": {
       "subroutine": "smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.getRegistrationShape[routing]",
       "params": {},
       "block": "getRegistrationShape",
@@ -2532,7 +2525,7 @@
         "shape#0"
       ]
     },
-    "538": {
+    "537": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -2543,7 +2536,7 @@
         "shape#0 (copy)"
       ]
     },
-    "539": {
+    "538": {
       "op": "len",
       "defined_out": [
         "shape#0",
@@ -2554,7 +2547,7 @@
         "tuple_len%0#0"
       ]
     },
-    "540": {
+    "539": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -2562,7 +2555,7 @@
         "shape#0 (copy)"
       ]
     },
-    "542": {
+    "541": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -2577,7 +2570,7 @@
         "32"
       ]
     },
-    "543": {
+    "542": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -2591,7 +2584,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "544": {
+    "543": {
       "op": "dup",
       "defined_out": [
         "extract_uint16%0#0",
@@ -2606,7 +2599,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "545": {
+    "544": {
       "op": "pushint 34",
       "defined_out": [
         "34",
@@ -2623,7 +2616,7 @@
         "34"
       ]
     },
-    "547": {
+    "546": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2638,7 +2631,7 @@
         "eq%0#0"
       ]
     },
-    "548": {
+    "547": {
       "error": "invalid tail pointer at index 1 of (uint8[32],(len+utf8[]))",
       "op": "assert // invalid tail pointer at index 1 of (uint8[32],(len+utf8[]))",
       "stack_out": [
@@ -2647,7 +2640,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "549": {
+    "548": {
       "op": "dig 2",
       "stack_out": [
         "shape#0",
@@ -2656,7 +2649,7 @@
         "shape#0 (copy)"
       ]
     },
-    "551": {
+    "550": {
       "op": "swap",
       "stack_out": [
         "shape#0",
@@ -2665,7 +2658,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "552": {
+    "551": {
       "op": "dig 2",
       "defined_out": [
         "extract_uint16%0#0",
@@ -2682,7 +2675,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "554": {
+    "553": {
       "op": "substring3",
       "defined_out": [
         "shape#0",
@@ -2695,7 +2688,7 @@
         "substring3%0#0"
       ]
     },
-    "555": {
+    "554": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -2710,7 +2703,7 @@
         "0"
       ]
     },
-    "556": {
+    "555": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2724,7 +2717,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "557": {
+    "556": {
       "op": "pushint 36",
       "defined_out": [
         "36",
@@ -2739,7 +2732,7 @@
         "36"
       ]
     },
-    "559": {
+    "558": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -2752,7 +2745,7 @@
         "add%1#0"
       ]
     },
-    "560": {
+    "559": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -2763,14 +2756,14 @@
         "eq%1#0"
       ]
     },
-    "561": {
+    "560": {
       "error": "invalid number of bytes for smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGateRegistryInfo",
       "op": "assert // invalid number of bytes for smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGateRegistryInfo",
       "stack_out": [
         "shape#0"
       ]
     },
-    "562": {
+    "561": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -2781,14 +2774,14 @@
         "0x151f7c75"
       ]
     },
-    "563": {
+    "562": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "564": {
+    "563": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -2797,11 +2790,11 @@
         "tmp%2#0"
       ]
     },
-    "565": {
+    "564": {
       "op": "log",
       "stack_out": []
     },
-    "566": {
+    "565": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -2810,11 +2803,11 @@
         "1"
       ]
     },
-    "567": {
+    "566": {
       "op": "return",
       "stack_out": []
     },
-    "568": {
+    "567": {
       "subroutine": "smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.getCheckShape[routing]",
       "params": {},
       "block": "getCheckShape",
@@ -2827,7 +2820,7 @@
         "shape#0"
       ]
     },
-    "571": {
+    "570": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -2838,7 +2831,7 @@
         "shape#0 (copy)"
       ]
     },
-    "572": {
+    "571": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -2851,7 +2844,7 @@
         "0"
       ]
     },
-    "573": {
+    "572": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -2863,7 +2856,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "574": {
+    "573": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -2876,7 +2869,7 @@
         "32"
       ]
     },
-    "575": {
+    "574": {
       "op": "*",
       "defined_out": [
         "mul%0#0",
@@ -2887,7 +2880,7 @@
         "mul%0#0"
       ]
     },
-    "576": {
+    "575": {
       "op": "intc_2 // 2",
       "defined_out": [
         "2",
@@ -2900,7 +2893,7 @@
         "2"
       ]
     },
-    "577": {
+    "576": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -2911,7 +2904,7 @@
         "add%0#0"
       ]
     },
-    "578": {
+    "577": {
       "op": "dig 1",
       "stack_out": [
         "shape#0",
@@ -2919,7 +2912,7 @@
         "shape#0 (copy)"
       ]
     },
-    "580": {
+    "579": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -2932,7 +2925,7 @@
         "len%0#0"
       ]
     },
-    "581": {
+    "580": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2943,14 +2936,14 @@
         "eq%0#0"
       ]
     },
-    "582": {
+    "581": {
       "error": "invalid number of bytes for arc4.dynamic_array<bytes[32]>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>",
       "stack_out": [
         "shape#0"
       ]
     },
-    "583": {
+    "582": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -2961,14 +2954,14 @@
         "0x151f7c75"
       ]
     },
-    "584": {
+    "583": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "585": {
+    "584": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -2977,11 +2970,11 @@
         "tmp%2#0"
       ]
     },
-    "586": {
+    "585": {
       "op": "log",
       "stack_out": []
     },
-    "587": {
+    "586": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -2990,11 +2983,11 @@
         "1"
       ]
     },
-    "588": {
+    "587": {
       "op": "return",
       "stack_out": []
     },
-    "589": {
+    "588": {
       "subroutine": "smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.getEntry[routing]",
       "params": {},
       "block": "getEntry",
@@ -3007,7 +3000,7 @@
         "tmp%0#0"
       ]
     },
-    "592": {
+    "591": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -3018,7 +3011,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "593": {
+    "592": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -3029,7 +3022,7 @@
         "len%0#0"
       ]
     },
-    "594": {
+    "593": {
       "op": "pushint 8",
       "defined_out": [
         "8",
@@ -3042,7 +3035,7 @@
         "8"
       ]
     },
-    "596": {
+    "595": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3053,14 +3046,14 @@
         "eq%0#0"
       ]
     },
-    "597": {
+    "596": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "598": {
+    "597": {
       "op": "btoi",
       "defined_out": [
         "registryID#0"
@@ -3069,7 +3062,7 @@
         "registryID#0"
       ]
     },
-    "599": {
+    "598": {
       "op": "itob",
       "defined_out": [
         "encoded_value%0#0"
@@ -3078,7 +3071,7 @@
         "encoded_value%0#0"
       ]
     },
-    "600": {
+    "599": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -3089,14 +3082,14 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "601": {
+    "600": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
         "aggregate%box_get%0#0"
       ]
     },
-    "602": {
+    "601": {
       "op": "dup",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -3107,7 +3100,7 @@
         "aggregate%box_get%0#0 (copy)"
       ]
     },
-    "603": {
+    "602": {
       "op": "len",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -3118,7 +3111,7 @@
         "aggregate%length%0#0"
       ]
     },
-    "604": {
+    "603": {
       "op": "itob",
       "defined_out": [
         "aggregate%as_bytes%0#0",
@@ -3129,7 +3122,7 @@
         "aggregate%as_bytes%0#0"
       ]
     },
-    "605": {
+    "604": {
       "op": "extract 6 2",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -3140,14 +3133,14 @@
         "aggregate%length_uint16%0#0"
       ]
     },
-    "608": {
+    "607": {
       "op": "swap",
       "stack_out": [
         "aggregate%length_uint16%0#0",
         "aggregate%box_get%0#0"
       ]
     },
-    "609": {
+    "608": {
       "op": "concat",
       "defined_out": [
         "aggregate%encoded_value%0#0"
@@ -3156,7 +3149,7 @@
         "aggregate%encoded_value%0#0"
       ]
     },
-    "610": {
+    "609": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -3167,14 +3160,14 @@
         "0x151f7c75"
       ]
     },
-    "611": {
+    "610": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%encoded_value%0#0"
       ]
     },
-    "612": {
+    "611": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -3183,11 +3176,11 @@
         "tmp%4#0"
       ]
     },
-    "613": {
+    "612": {
       "op": "log",
       "stack_out": []
     },
-    "614": {
+    "613": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -3196,11 +3189,11 @@
         "1"
       ]
     },
-    "615": {
+    "614": {
       "op": "return",
       "stack_out": []
     },
-    "616": {
+    "615": {
       "subroutine": "smart_contracts/utils/base-contracts/upgradeable.ts::AkitaBaseContract.updateAkitaDAO[routing]",
       "params": {},
       "block": "updateAkitaDAO",
@@ -3213,7 +3206,7 @@
         "tmp%0#0"
       ]
     },
-    "619": {
+    "618": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -3224,7 +3217,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "620": {
+    "619": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -3235,7 +3228,7 @@
         "len%0#0"
       ]
     },
-    "621": {
+    "620": {
       "op": "pushint 8",
       "defined_out": [
         "8",
@@ -3248,7 +3241,7 @@
         "8"
       ]
     },
-    "623": {
+    "622": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3259,14 +3252,14 @@
         "eq%0#0"
       ]
     },
-    "624": {
+    "623": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "625": {
+    "624": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -3275,7 +3268,7 @@
         "akitaDAO#0"
       ]
     },
-    "626": {
+    "625": {
       "op": "txn Sender",
       "defined_out": [
         "akitaDAO#0",
@@ -3286,7 +3279,7 @@
         "tmp%0#1"
       ]
     },
-    "628": {
+    "627": {
       "op": "intc_1 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -3294,7 +3287,7 @@
         "0"
       ]
     },
-    "629": {
+    "628": {
       "op": "bytec_2 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -3309,7 +3302,7 @@
         "\"akita_dao\""
       ]
     },
-    "630": {
+    "629": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -3324,7 +3317,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "631": {
+    "630": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -3333,7 +3326,7 @@
         "maybe_value%0#0"
       ]
     },
-    "632": {
+    "631": {
       "op": "pushbytes \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -3348,7 +3341,7 @@
         "\"wallet\""
       ]
     },
-    "640": {
+    "639": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -3363,7 +3356,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "641": {
+    "640": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -3371,7 +3364,7 @@
         "walletID#0"
       ]
     },
-    "642": {
+    "641": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -3386,7 +3379,7 @@
         "check%0#0"
       ]
     },
-    "644": {
+    "643": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -3395,7 +3388,7 @@
         "value%0#0"
       ]
     },
-    "645": {
+    "644": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -3406,13 +3399,13 @@
         "tmp%2#0"
       ]
     },
-    "646": {
+    "645": {
       "op": "bnz updateAkitaDAO_after_assert@3",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "649": {
+    "648": {
       "op": "pushbytes \"ERR:errNdao\"",
       "defined_out": [
         "\"ERR:errNdao\"",
@@ -3423,17 +3416,17 @@
         "\"ERR:errNdao\""
       ]
     },
-    "662": {
+    "661": {
       "op": "log",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "663": {
+    "662": {
       "error": "ERR:errNdao",
       "op": "err // ERR:errNdao"
     },
-    "664": {
+    "663": {
       "block": "updateAkitaDAO_after_assert@3",
       "stack_in": [
         "akitaDAO#0"
@@ -3447,7 +3440,7 @@
         "\"akita_dao\""
       ]
     },
-    "665": {
+    "664": {
       "op": "swap",
       "defined_out": [
         "\"akita_dao\"",
@@ -3458,11 +3451,11 @@
         "akitaDAO#0"
       ]
     },
-    "666": {
+    "665": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "667": {
+    "666": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -3471,11 +3464,11 @@
         "1"
       ]
     },
-    "668": {
+    "667": {
       "op": "return",
       "stack_out": []
     },
-    "669": {
+    "668": {
       "subroutine": "smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.cost",
       "params": {
         "args#0": "bytes"
@@ -3484,7 +3477,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "672": {
+    "671": {
       "op": "frame_dig -1",
       "defined_out": [
         "args#0 (copy)"
@@ -3493,7 +3486,7 @@
         "args#0 (copy)"
       ]
     },
-    "674": {
+    "673": {
       "op": "len",
       "defined_out": [
         "tmp%0#0"
@@ -3502,7 +3495,7 @@
         "tmp%0#0"
       ]
     },
-    "675": {
+    "674": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0"
@@ -3512,7 +3505,7 @@
         "tmp%0#0"
       ]
     },
-    "676": {
+    "675": {
       "op": "pushint 35",
       "defined_out": [
         "35",
@@ -3524,7 +3517,7 @@
         "35"
       ]
     },
-    "678": {
+    "677": {
       "op": ">=",
       "defined_out": [
         "tmp%0#0",
@@ -3535,13 +3528,13 @@
         "tmp%1#0"
       ]
     },
-    "679": {
+    "678": {
       "op": "bnz smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.cost_after_assert@2",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "682": {
+    "681": {
       "op": "bytec_3 // \"ERR:errIarg\"",
       "defined_out": [
         "\"ERR:errIarg\"",
@@ -3552,17 +3545,17 @@
         "\"ERR:errIarg\""
       ]
     },
-    "683": {
+    "682": {
       "op": "log",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "684": {
+    "683": {
       "error": "ERR:errIarg",
       "op": "err // ERR:errIarg"
     },
-    "685": {
+    "684": {
       "block": "smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.cost_after_assert@2",
       "stack_in": [
         "tmp%0#0"
@@ -3577,7 +3570,7 @@
         "32"
       ]
     },
-    "686": {
+    "685": {
       "op": "-",
       "defined_out": [
         "tmp%3#0"
@@ -3586,7 +3579,7 @@
         "tmp%3#0"
       ]
     },
-    "687": {
+    "686": {
       "op": "pushint 2500",
       "defined_out": [
         "2500",
@@ -3597,7 +3590,7 @@
         "2500"
       ]
     },
-    "690": {
+    "689": {
       "op": "*",
       "defined_out": [
         "tmp%4#0"
@@ -3606,7 +3599,7 @@
         "tmp%4#0"
       ]
     },
-    "691": {
+    "690": {
       "op": "pushint 18500",
       "defined_out": [
         "18500",
@@ -3617,7 +3610,7 @@
         "18500"
       ]
     },
-    "695": {
+    "694": {
       "op": "+",
       "defined_out": [
         "tmp%5#0"
@@ -3626,7 +3619,7 @@
         "tmp%5#0"
       ]
     },
-    "696": {
+    "695": {
       "retsub": true,
       "op": "retsub"
     }

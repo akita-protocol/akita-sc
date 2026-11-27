@@ -200,7 +200,7 @@ export class AkitaFeeGeneratorContractWithOptIn extends AkitaBaseFeeGeneratorCon
       })
       .submit()
 
-    // Eagerly opt the dedicated revenue escrow + split recipients in
+    // Eagerly opt the dedicated revenue escrow in
     // when a named escrow is configured. The rekey inside
     // `optAkitaEscrowInAndSend` targets the DAO wallet (a different
     // AbstractedAccount instance than any caller's wallet), so this is

@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { NfdPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/nfd/NFDPluginClient'
-import { recordPluginDeployment } from './script-base'
+import { createAlgorandClient, describeNode, recordPluginDeployment } from './script-base'
 
 type Network = 'testnet' | 'mainnet'
 
@@ -62,16 +61,13 @@ Options:
   }
 }
 
-function createAlgorandClient(network: Network): AlgorandClient {
-  return network === 'mainnet' ? AlgorandClient.mainNet() : AlgorandClient.testNet()
-}
-
 async function main() {
   const options = parseArgs()
   const algorand = createAlgorandClient(options.network)
   const deployer = algorand.account.fromMnemonic(options.mnemonic!)
 
   console.log(`Deploying NFDPlugin to ${options.network}`)
+  console.log(`Node: ${describeNode(options.network)}`)
   console.log(`Deployer: ${deployer.addr.toString()}`)
   console.log(`NFD registry: ${options.registry.toString()}`)
 

@@ -96,6 +96,11 @@ export const SOCIAL_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   NINI: 'Meta was not initialized by its owner',
   EBLK: 'Already blocked',
   IMOD: 'Invalid subscription modifier',
+
+  // --- Remediation (2026-11 audit 08) --------------------------------------
+  RSRF: 'This address is reserved for an asset or app reference',
+  BNXP: 'A ban must end in the future',
+  BMOD: 'A moderator cannot be banned',
 })
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */

@@ -5,7 +5,7 @@
 import { ProposalActionEnum, SplitDistributionType, SplitsToTuples, type Split } from 'akita-sdk/dao'
 import algosdk from 'algosdk'
 import { describe, expect, test } from 'vitest'
-import { missingAssets } from '../scripts/lib/revenue-receiver-opt-ins'
+import { chooseOptInPlugin, missingAssets } from '../scripts/lib/revenue-receiver-opt-ins'
 import { parseShares, percent, planRevenueSplits, splitDifferences, type StoredSplit } from '../scripts/lib/revenue-splits'
 
 const WALLET = 3569559153n
@@ -120,5 +120,35 @@ describe('revenue receiver opt-ins', () => {
     expect(missingAssets([USDC, AKTA], [AKTA, 5n])).toEqual([USDC])
     expect(missingAssets([USDC, AKTA], [USDC, AKTA])).toEqual([])
     expect(missingAssets([], [USDC])).toEqual([])
+  })
+
+  // TestNet rehearsal 2026-11-25: step G2 had moved the receivers' grants to the new OptInPlugin and
+  // left pal.optin on the old one, and the step read pal.optin alone and refused.
+  describe('which OptInPlugin the receivers granted', () => {
+    const ZERO = algosdk.ALGORAND_ZERO_ADDRESS_STRING
+    const OLD = 763128795n
+    const NEW = 777358640n
+    const receivers = ['rec_krby', 'rec_mod', 'rec_gov']
+    const open = (plugin: bigint) => receivers.map((escrow) => ({ plugin, caller: ZERO, escrow }))
+
+    test('after G2 it is the newest registered plugin, though pal.optin still names the old one', () => {
+      expect(chooseOptInPlugin([NEW, OLD], receivers, open(NEW))).toBe(NEW)
+    })
+    test('before G2 it is the plugin pal.optin names, though a newer one is registered', () => {
+      expect(chooseOptInPlugin([NEW, OLD], receivers, open(OLD))).toBe(OLD)
+    })
+    test('a grant held by one caller, or on another escrow, is not an open grant of the receiver', () => {
+      const other = [{ plugin: NEW, caller: 'CALLER', escrow: 'rec_krby' }, { plugin: NEW, caller: ZERO, escrow: 'rev_social' }]
+      expect(chooseOptInPlugin([NEW, OLD], receivers, [...other, ...open(OLD)])).toBe(OLD)
+    })
+    test('a plugin every receiver granted wins over one only some granted', () => {
+      expect(chooseOptInPlugin([NEW, OLD], receivers, [...open(NEW).slice(0, 1), ...open(OLD)])).toBe(OLD)
+      expect(chooseOptInPlugin([NEW, OLD], receivers, open(NEW).slice(0, 2))).toBe(NEW)
+    })
+    test('with no grant at all it names the first candidate, and unset ids are left out', () => {
+      expect(chooseOptInPlugin([0n, OLD], receivers, [])).toBe(OLD)
+      expect(chooseOptInPlugin([NEW, OLD], receivers, [])).toBe(NEW)
+      expect(chooseOptInPlugin([0n, 0n], receivers, [])).toBe(0n)
+    })
   })
 })

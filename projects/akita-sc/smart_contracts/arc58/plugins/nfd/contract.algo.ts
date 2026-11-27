@@ -3,7 +3,7 @@ import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-types
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
 import { getControlledSpendingAccount, rekeyAddress } from "@akita-protocol/plugin/functions"
-import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeyOwner, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry } from './constants'
+import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeyOwner, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry, NFDPluginMaxForeignLinkMbr } from './constants'
 import { errCannotAutoRenew, errNotAnNfd, errNotNfdOwner, errNoSaleAmount, errPriceAboveMax } from './errors'
 
 // CONTRACT IMPORTS
@@ -27,6 +27,22 @@ export class NFDPlugin extends Contract {
     }).returnValue
   }
 
+  /**
+   * The NFD registry refuses any call that carries a RekeyTo, so a registry call cannot hand the account
+   * back itself: a payment of nothing from the account to itself does (audit 12, EXT-06).
+   */
+  private handBack(sender: Account, rekeyBack: boolean, wallet: Application): void {
+    if (rekeyBack) {
+      itxn.payment({ sender, receiver: sender, amount: 0, rekeyTo: rekeyAddress(true, wallet) }).submit()
+    }
+  }
+
+  private assertOwnedBy(appId: Application, sender: Account): void {
+    const [ownerBytes, ownerExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyOwner))
+    loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
+    loggedAssert(Account(ownerBytes) === sender, errNotNfdOwner)
+  }
+
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
@@ -47,7 +63,7 @@ export class NFDPlugin extends Contract {
     const sender = getControlledSpendingAccount(wallet)
     const appId = this.registry.value
 
-    return abiCall<typeof NFDRegistry.prototype.mintNfd>({
+    const minted = abiCall<typeof NFDRegistry.prototype.mintNfd>({
       sender,
       appId,
       args: [
@@ -60,8 +76,9 @@ export class NFDPlugin extends Contract {
         reservedFor,
         linkOnMint
       ],
-      rekeyTo: rekeyAddress(rekeyBack, wallet)
     }).returnValue
+    this.handBack(sender, rekeyBack, wallet)
+    return minted
   }
 
   deleteFields(
@@ -122,6 +139,17 @@ export class NFDPlugin extends Contract {
 
     loggedAssert(this.isNFD(appId), errNotAnNfd)
 
+    // Both costs are the caller's numbers (audit 12, EXT-04). ALGO paid into an NFD can be taken out again
+    // by that NFD's owner, so an NFD another account owns gets no more than the storage of one verified
+    // address. And the registry is never paid more than it asks for itself.
+    if (nfdMbrCost > NFDPluginMaxForeignLinkMbr) {
+      this.assertOwnedBy(appId, sender)
+    }
+    loggedAssert(
+      registryMbrCost <= abiCall<typeof NFDRegistry.prototype.costToAddToAddress>({ appId: this.registry.value, args: [sender] }).returnValue,
+      errPriceAboveMax,
+    )
+
     if (nfdMbrCost > 0) {
       itxn.payment({
         sender,
@@ -143,8 +171,8 @@ export class NFDPlugin extends Contract {
       appId: this.registry.value,
       args: [nfdName, appId.id, sender],
       apps: [appId],
-      rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
+    this.handBack(sender, rekeyBack, wallet)
   }
 
   unlinkNfdAddress(
@@ -163,8 +191,8 @@ export class NFDPlugin extends Contract {
       appId: this.registry.value,
       args: [nfdName, appId.id, address],
       apps: [appId],
-      rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
+    this.handBack(sender, rekeyBack, wallet)
   }
 
   setAddressPrimaryNfd(
@@ -183,8 +211,8 @@ export class NFDPlugin extends Contract {
       appId: this.registry.value,
       args: [nfdName, appId.id, address],
       apps: [appId],
-      rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
+    this.handBack(sender, rekeyBack, wallet)
   }
 
   offerForSale(
@@ -441,9 +469,7 @@ export class NFDPlugin extends Contract {
 
     // autoRenew is meant for keeper/global grants, so it may only spend on an
     // NFD this spending account actually owns (`renew` stays permissionless).
-    const [ownerBytes, ownerExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyOwner))
-    loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
-    loggedAssert(Account(ownerBytes) === sender, errNotNfdOwner)
+    this.assertOwnedBy(appId, sender)
 
     const [expirationBytes, expirationExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyExpirationTime))
     loggedAssert(expirationExists, errCannotAutoRenew)

@@ -23,17 +23,27 @@ export type WalletHint = {
   wallet?: bigint | number;
 };
 
-export type NewAuctionParams = MaybeSigner & WalletHint & Omit<
+/**
+ * `weightsListCount` no longer sizes anything from 2.0.0 on: a fee auction's weights storage grows
+ * with its bidders, so there is no bidder limit to choose and nothing to reserve. The factory only
+ * needs it above 0 for an auction with a bid fee and 0 for one without. Leave it out and the SDK
+ * passes 3 for a fee auction (also valid on an earlier factory) and 0 otherwise.
+ */
+export type WeightsListCount = {
+  weightsListCount?: bigint | number;
+};
+
+export type NewAuctionParams = MaybeSigner & WalletHint & WeightsListCount & Omit<
   FactoryContractArgs['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'],
-  'payment' | 'assetXfer'
+  'payment' | 'assetXfer' | 'weightsListCount'
 > & (
   | { isPrizeBox: true; prizeBoxId: bigint | number; }
   | { isPrizeBox: false; prizeAsset: bigint | number; prizeAmount: bigint | number; }
 )
 
-export type NewPrizeBoxAuctionParams = MaybeSigner & WalletHint & Omit<
+export type NewPrizeBoxAuctionParams = MaybeSigner & WalletHint & WeightsListCount & Omit<
   FactoryContractArgs['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'],
-  'payment'
+  'payment' | 'weightsListCount'
 >;
 
 export type DeleteAuctionParams = MaybeSigner & FactoryContractArgs['deleteAuctionApp(uint64)void'];
@@ -135,6 +145,15 @@ export type AuctionState = {
   sellerReferrer: string;
 };
 
+/**
+ * What `AuctionSDK.mbr()` returns for one auction, all of it refundable:
+ * - `bids`: every bid (on an ASA auction this includes the deposit that pays for the bid's refund
+ *   if its bidder leaves the bid asset)
+ * - `bidsByAddress`: added to an address's first bid
+ * - `locations`: added to an address's first bid in a fee auction (its location box and its slot in
+ *   the weights storage)
+ * - `weights`: the totals box of a fee auction, funded by the seller at creation
+ */
 export type AuctionMbrData = {
   bids: bigint;
   weights: bigint;

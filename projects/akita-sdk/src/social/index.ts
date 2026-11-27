@@ -481,7 +481,9 @@ export class SocialSDK {
   }
 
   /**
-   * Calculate the extra MBR needed for tip delivery based on recipient wallet type
+   * Calculate the extra MBR needed for tip delivery based on recipient wallet type.
+   * Only the deployed (pre-2.0.0) entry points charge it: the current ones never charge the tipper
+   * an opt-in for the creator, so nothing is added to their payments.
    * @param tipMbrInfo - The tip MBR info from checkTipMbrRequirements
    * @returns Extra MBR amount in microAlgos
    */
@@ -578,16 +580,26 @@ export class SocialSDK {
 
   /**
    * Calculate the MBR required for a vote
-   * Formula: votelist (+ extra if creating empty post for reference)
+   * Formula: votelist (+ the empty post and the votes box the vote creates for the reference)
+   * 
+   * A reply, a reaction or a meta update creates the empty post of a reference without its votes
+   * box, so the first vote on such a reference pays for the votes box alone.
    * 
    * @param needsEmptyPost - Whether an empty post needs to be created for the reference
+   * @param needsVotesBox - Whether the reference has no votes box yet (defaults to `needsEmptyPost`)
    * @returns MBR in microAlgos
    */
-  calculateVoteMBR(needsEmptyPost: boolean = false): bigint {
+  calculateVoteMBR(needsEmptyPost: boolean = false, needsVotesBox: boolean = needsEmptyPost): bigint {
     let total = VOTELIST_MBR;
-    if (needsEmptyPost) {
+    if (this.legacyTargets) {
       // the deployed contract charges only its (smaller) posts box for a materialized ref
-      total += this.legacyTargets ? LEGACY_MIN_POSTS_MBR : MIN_POSTS_MBR + VOTES_MBR;
+      return needsEmptyPost ? total + LEGACY_MIN_POSTS_MBR : total;
+    }
+    if (needsEmptyPost) {
+      total += MIN_POSTS_MBR;
+    }
+    if (needsVotesBox) {
+      total += VOTES_MBR;
     }
     return total;
   }
@@ -1254,13 +1266,18 @@ export class SocialSDK {
       this.getAkitaAssets(),
     ]);
 
-    // Voting on an asset / app / address ref that has no post box yet creates its
-    // posts and votes boxes in the same call, and the contract charges for both.
+    // Voting on an asset / app / address ref creates whichever of its posts box and votes box is
+    // missing, and the contract charges for each. They are not always missing together: a reply, a
+    // reaction or a meta update creates the posts box alone. (The deployed contract has no votes
+    // read and never charged the votes box.)
     const storageRef = this.reactionStorageRef(ref, refType);
-    const postExists = refType === RefType.Post || !storageRef
-      ? true
-      : await this.socialClient.getPostExists({ ...sendParams, args: { ref: storageRef } });
-    const mbrAmount = this.calculateVoteMBR(!postExists);
+    const [postExists, votesExist] = refType === RefType.Post || !storageRef
+      ? [true, true]
+      : await Promise.all([
+        this.socialClient.getPostExists({ ...sendParams, args: { ref: storageRef } }),
+        this.legacyTargets ? true : this.socialClient.getVotesExist({ ...sendParams, args: { ref: storageRef } }),
+      ]);
+    const mbrAmount = this.calculateVoteMBR(!postExists, !votesExist);
 
     const mbrPayment = this.algorand.createTransaction.payment({
       ...sendParams,

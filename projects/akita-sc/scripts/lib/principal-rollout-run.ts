@@ -16,7 +16,7 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { PLUGIN_APP_ID_KEYS, type SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, type ExecutionBuildGroup } from 'akita-sdk/wallet'
+import { CallerType, pendingUpgradeBoxBytes, type ExecutionBuildGroup } from 'akita-sdk/wallet'
 import algosdk from 'algosdk'
 import fs from 'node:fs'
 import type { ScriptContext } from '../script-base'
@@ -32,6 +32,7 @@ import {
   childPushProblems,
   createSignatures,
   dependencyGaps,
+  groupsForRounds,
   loadAcceptedAbiRemovals,
   lockstepPlugins,
   daoBindingMode,
@@ -49,6 +50,7 @@ import {
   programHash,
   programHasSelector,
   proposalReturnSize,
+  rebuildRecordedExecution,
   restampExecution,
   roundsForGroups,
   splitLockstep,
@@ -118,6 +120,27 @@ export async function readFactoryChild(ctx: Pick<ScriptContext, 'algorand'>, fac
 }
 
 const sameBytes = (a: Uint8Array | undefined, b: Uint8Array) => a !== undefined && Buffer.compare(Buffer.from(a), Buffer.from(b)) === 0
+
+const VALIDATOR_ARTIFACT = 'arc58/dao/AkitaDAOProposalValidator.arc56.json'
+
+/**
+ * The validator the DAO already points to (`current`), when it runs the tree's validator program.
+ *
+ * The validator is immutable and takes no create arguments, so one that runs this program is the one
+ * `update-dao.ts` would deploy. Any other answer (no pointer, a missing app, another program) is
+ * `undefined`, and the script deploys.
+ */
+export async function treeValidatorInUse(ctx: Pick<ScriptContext, 'algorand'>, current: bigint | undefined): Promise<bigint | undefined> {
+  if (!current) return undefined
+  const tree = loadCompiled(VALIDATOR_ARTIFACT)
+  let live: LiveAppState
+  try {
+    live = await readLiveApp(ctx, current)
+  } catch {
+    return undefined
+  }
+  return sameBytes(live.approval, tree.approval) && sameBytes(live.clear, tree.clear) ? current : undefined
+}
 
 /** Whether `appId` runs exactly the UpdateAkitaDAOPlugin artifact of this tree (informational). */
 export async function isCurrentUpdatePlugin(ctx: Pick<ScriptContext, 'algorand'>, appId: bigint): Promise<boolean> {
@@ -554,7 +577,8 @@ export async function measureRoundSeconds(ctx: Pick<ScriptContext, 'algorand'>, 
 
 /** Whether the DAO wallet's Update grant (global caller, no escrow) counts its windows in rounds. */
 async function updateGrantUsesRounds(ctx: ScriptContext): Promise<boolean> {
-  const grant = await ctx.dao.wallet.getPluginByKey({ plugin: ctx.updatePlugin.appId, caller: algosdk.ALGORAND_ZERO_ADDRESS_STRING, escrow: '' })
+  const wallet = await ctx.dao.getWallet()
+  const grant = await wallet.getPluginByKey({ plugin: ctx.updatePlugin.appId, caller: algosdk.ALGORAND_ZERO_ADDRESS_STRING, escrow: '' })
   return grant.useRounds
 }
 
@@ -583,10 +607,17 @@ export type ProposalBinding = { proposalId: bigint; leases?: readonly Uint8Array
 /** Build the execution groups of one target, in send order (the factory before its child). */
 export async function buildTargetExecutions(ctx: ScriptContext, p: TargetPlan, lease: (index: number) => string,
   window: Pick<ExecutionWindow, 'firstValid' | 'windowRounds'> = { firstValid: 0n, windowRounds: 2_000 },
-  binding?: ProposalBinding): Promise<ExecutionBuildGroup[]> {
+  binding?: ProposalBinding, recorded?: { actions: number; headroomRefs?: number }): Promise<ExecutionBuildGroup[]> {
   if (!p.groups) return []
   const version = ctx.options.version
   const windowSize = windowSizeArg(window.windowRounds, await updateGrantUsesRounds(ctx))
+  // The groups are built before their proposal exists. The DAO boxes the proposal then writes are read
+  // by the Update plugin when a group is sent, so each group gets box read budget for them up front.
+  const actions = recorded?.actions ?? p.groups.groups.length
+  const headroom = recorded?.headroomRefs !== undefined
+    ? { boxReadHeadroomRefs: recorded.headroomRefs }
+    : { pendingBoxBytes: pendingUpgradeBoxBytes({ groups: groupsForRounds(window.windowRounds), actions, proposalRead: binding !== undefined }) }
+  const wallet = await ctx.dao.getWallet()
   const executions: ExecutionBuildGroup[] = []
   for (let i = 0; i < p.groups.groups.length; i++) {
     const group = p.groups.groups[i]
@@ -617,7 +648,7 @@ export async function buildTargetExecutions(ctx: ScriptContext, p: TargetPlan, l
         daoBinding,
       }))
     }
-    executions.push(await ctx.dao.wallet.build.usePlugin({
+    executions.push(await wallet.build.usePlugin({
       sender: ctx.sender,
       signer: ctx.signer,
       lease: lease(i),
@@ -625,6 +656,7 @@ export async function buildTargetExecutions(ctx: ScriptContext, p: TargetPlan, l
       windowSize,
       callerType: CallerType.Global,
       calls,
+      ...headroom,
     }))
   }
   return executions
@@ -637,11 +669,14 @@ async function fundTarget(ctx: ScriptContext, p: TargetPlan, groups: number, log
     await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver, amount: microAlgo(amount) })
     log(`  funded ${label} with ${amount} µALGO`)
   }
-  const walletMbr = await ctx.dao.wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: BigInt(groups) })
+  // The SDK's `dao.wallet` getter throws until getWallet() has resolved, and nothing on the Phase 2
+  // path resolves it earlier (the B2 stop of the TestNet rehearsal, 2026-11-25). Ask for it here.
+  const wallet = await ctx.dao.getWallet()
+  const walletMbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: BigInt(groups) })
   const sponsor = !p.appUpToDate && p.plan.sizeChange ? p.plan.sponsoredMbrAfter : 0n
-  await pay(ctx.dao.wallet.client.appAddress.toString(), sponsor + walletMbr.executions + 2_000_000n, 1_000_000n, 'the DAO wallet (sponsor + execution keys)')
+  await pay(wallet.client.appAddress.toString(), sponsor + walletMbr.executions + 2_000_000n, 1_000_000n, 'the DAO wallet (sponsor + execution keys)')
   // usePlugin simulates as the DAO wallet admin before the proposal authorizes the real caller.
-  const admin = await ctx.dao.wallet.client.state.global.admin()
+  const admin = await wallet.client.state.global.admin()
   if (!admin) throw new Error('DAO wallet admin is missing')
   await pay(admin, 5_000_000n, 1_000_000n, 'the DAO wallet admin (simulation fee headroom)')
   const staged = Math.max(p.appUpToDate ? 0 : p.next.approval.length, p.child && !p.childUpToDate ? p.child.approval.length : 0)
@@ -703,11 +738,13 @@ export async function executeTargetPlan(ctx: ScriptContext, p: TargetPlan,
       // The wallet's execution box reference ('x' + lease) is part of the hashed group, so the rebuild
       // must use the recorded lease, not a fresh stamp (`restampExecution` only fixes txn[0].lease).
       const recorded = recordedLease(upgrades[i].executionKey)
-      const [execution] = await buildTargetExecutions(ctx, { ...p, groups: { ...p.groups, groups: [p.groups.groups[i]] } }, () => recorded,
-        { firstValid: upgrades[i].firstValid, windowRounds: roundsForGroups(upgrades[i].groups.length) },
-        proposalRead ? { proposalId, leases: [upgrades[i].executionKey] } : undefined)
-      restampExecution(execution, upgrades[i])
-      executions.push(execution)
+      const one = { ...p, groups: { ...p.groups, groups: [p.groups.groups[i]] } }
+      const boundTo = proposalRead ? { proposalId: proposalId!, leases: [upgrades[i].executionKey] } : undefined
+      executions.push(await rebuildRecordedExecution(
+        async (headroomRefs) => (await buildTargetExecutions(ctx, one, () => recorded,
+          { firstValid: upgrades[i].firstValid, windowRounds: roundsForGroups(upgrades[i].groups.length) },
+          boundTo, { actions: upgrades.length, headroomRefs }))[0],
+        (execution) => restampExecution(execution, upgrades[i])))
     }
     if (proposal.status !== PROPOSAL_STATUS_EXECUTED) {
       await executeProposal(ctx.dao, proposalId)

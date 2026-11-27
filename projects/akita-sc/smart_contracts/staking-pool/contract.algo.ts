@@ -67,6 +67,7 @@ import {
   POOL_STAKING_TYPE_NONE,
   POOL_STAKING_TYPE_SOFT,
   PoolBoxKeyActiveRounds,
+  PoolGlobalStateKeyLiveEntries,
   PoolUint64BoxMapMBR,
   PoolBoxPrefixBudgets,
   PoolBoxPrefixCommitted,
@@ -232,6 +233,8 @@ export class StakingPool extends classes(
   maxEntries = GlobalState<uint64>({ key: PoolGlobalStateKeyMaxEntries })
   /** the number of entries in a pool */
   entryID = GlobalState<uint64>({ initialValue: 1, key: PoolGlobalStateKeyEntryCount })
+  /** the number of entries that exist now; `maxEntries` caps this, not the ids ever issued (STK-04) */
+  liveEntries = GlobalState<uint64>({ initialValue: 0, key: PoolGlobalStateKeyLiveEntries })
   /** the number of rewards for the pool */
   rewardID = GlobalState<uint64>({ initialValue: 1, key: PoolGlobalStateKeyRewardCount })
   /**
@@ -288,6 +291,11 @@ export class StakingPool extends classes(
   principals = BoxMap<Account, StoredPrincipal>({ keyPrefix: PoolBoxPrefixPrincipals })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
+
+  /** Entries that exist now. `entryID` only ever grows, so it cannot be the cap's measure (STK-04). */
+  private liveEntryCount(): uint64 {
+    return this.liveEntries.hasValue ? this.liveEntries.value : 0
+  }
 
   private newEntryID(): uint64 {
     const id = this.entryID.value
@@ -524,11 +532,28 @@ export class StakingPool extends classes(
       this.closeRound(rewardID)
       return
     }
-    if (!this.budgets(rewardID).exists) {
-      loggedAssert(this.freeFunds(reward.asset) >= required, errNotEnoughFunds)
+    // A round its reward cannot pay closes unpaid instead of staying open and freezing the pool
+    // (STK-03): anyone may start a round, and while one is open nobody can enter or leave. Legacy
+    // rewards (no budget box) are checked against free funds as before.
+    const legacy = !this.budgets(rewardID).exists
+    const funded = legacy ? this.freeFunds(reward.asset) >= required : this.budgetOf(rewardID) >= required
+    // free ALGO the round itself needs: the Rewards disbursement box, one allocation credit per
+    // payee and the round's paid-total box
+    const allocations: uint64 = reward.distribution === DistributionTypeShuffle ? reward.winnerCount : reward.qualifiedStakers
+    let operations: uint64 = MinDisbursementsMBR + (BoxCostPerByte * Bytes(`${this.title.value} - Rewards`).length) + (UserAllocationMBR * allocations) + PoolUint64BoxMapMBR
+    if (legacy) {
+      // a legacy reward gets its budget and reservation boxes here, and an ALGO one is reserved from free ALGO
+      const legacyBoxes: uint64 = PoolUint64BoxMapMBR * 2
+      operations += legacyBoxes + (reward.asset === 0 ? required : 0)
+    }
+    if (!funded || this.freeFunds(0) < operations) {
+      this.rewards(rewardID).value = clone(reward)
+      this.closeRound(rewardID)
+      return
+    }
+    if (legacy) {
       this.creditBudget(rewardID, reward.asset, required)
     }
-    loggedAssert(this.budgetOf(rewardID) >= required, errRewardBudget)
 
     // create the Rewards disbursement only now that there is something to pay (M-1)
     reward.activeDisbursementID = this.createRewards(
@@ -748,7 +773,9 @@ export class StakingPool extends classes(
 
       // a LOCK pool only counts locks that are still locked (L-3)
       const stillLocked = this.type.value !== POOL_STAKING_TYPE_LOCK || info.expiration > Global.latestTimestamp
-      const heldSinceRoundStart = this.type.value !== POOL_STAKING_TYPE_HARD || roundStart === 0 || info.lastUpdate < roundStart
+      // HARD and LOCK custody must be unchanged since before the round started: a lock (re)created
+      // during the round is held out of it, like a HARD stake (STAKE-2 / STK-02)
+      const heldSinceRoundStart = roundStart === 0 || info.lastUpdate < roundStart
       if (info.amount >= quantity && stillLocked) {
         if (heldSinceRoundStart) {
           return { valid: true, balance: info.amount }
@@ -1050,7 +1077,7 @@ export class StakingPool extends classes(
 
     if (this.maxEntries.value !== 0) {
       loggedAssert(
-        (this.entryID.value - 1) + entries.length <= this.maxEntries.value,
+        this.liveEntryCount() + entries.length <= this.maxEntries.value,
         errPoolMaxEntriesReached
       )
     }
@@ -1193,6 +1220,7 @@ export class StakingPool extends classes(
       }
 
       const entryID = this.newEntryID()
+      this.liveEntries.value = this.liveEntryCount() + 1
       this.entries(entryID).value = {
         address: Txn.sender,
         asset,
@@ -1556,6 +1584,11 @@ export class StakingPool extends classes(
         refund = BoxCostPerBox + (BoxCostPerByte * (1 + 8 + this.entries(id).length)) + PoolEntriesByAddressExactMBR
       }
       this.entries(id).delete()
+      // a pool upgraded with entries starts its count at 0, so never underflow
+      const live = this.liveEntryCount()
+      if (live > 0) {
+        this.liveEntries.value = live - 1
+      }
     }
 
     const [count, entered] = this.uniques(address).maybe()
@@ -1596,6 +1629,13 @@ export class StakingPool extends classes(
       }
     }
 
+    // STK-10: an entrant whose account has closed cannot receive a refund below the base minimum
+    // balance. The deposit then stays in the pool as free ALGO, so one closed account can never
+    // block the clean-up of an ended pool or its deletion.
+    if (!canReceiveAlgo(receiver, refund)) {
+      return
+    }
+
     itxn.payment({ receiver, amount: refund }).submit()
   }
 
@@ -1632,8 +1672,8 @@ export class StakingPool extends classes(
   /**
    * Draws the shuffle tickets from the beacon round committed when allocation started
    * (`activeDisbursementRoundStart`). The read waits BEACON_LAG_ROUNDS past that round. An empty
-   * read reverts, so nobody can push the commitment forward and stall the round (TRADE-3); only
-   * after BEACON_MAX_WAIT_ROUNDS does it re-commit, and never to an already-public round.
+   * read reverts, so nobody can push the commitment forward and stall the round (TRADE-3). After
+   * BEACON_MAX_WAIT_ROUNDS an empty read closes the round unpaid: there is no second draw (STK-07).
    */
   raffle(rewardID: uint64): void {
     loggedAssert(this.rewards(rewardID).exists, errRewardNotFound)
@@ -1642,7 +1682,6 @@ export class StakingPool extends classes(
       distribution,
       winningTickets,
       activeDisbursementRoundStart,
-      vrfFailureCount,
       qualifiedStake,
       winnerCount,
     } = clone(this.rewards(rewardID).value)
@@ -1670,8 +1709,15 @@ export class StakingPool extends classes(
 
     if (seed.length === 0) {
       loggedAssert(Global.round >= activeDisbursementRoundStart + BEACON_MAX_WAIT_ROUNDS, errBeaconNotReady)
-      this.rewards(rewardID).value.vrfFailureCount = vrfFailureCount + 1
-      this.rewards(rewardID).value.activeDisbursementRoundStart = this.drawRound()
+      // Nobody drew while the committed value could be read (it is gone from the beacon, or was never
+      // published). Re-committing would give whoever waited a second draw for the same qualified set
+      // (STK-07): close the round unpaid instead. Nothing was allocated yet, so the Rewards
+      // disbursement closes and its storage returns to the pool.
+      abiCall<typeof Rewards.prototype.closeDisbursement>({
+        appId: getAkitaAppList(this.akitaDAO.value).rewards,
+        args: [this.rewards(rewardID).value.activeDisbursementID],
+      })
+      this.closeRound(rewardID)
       return
     }
 
@@ -1747,8 +1793,19 @@ export class StakingPool extends classes(
       errAbortForbidden
     )
     loggedAssert(this.rewards(rewardID).exists, errRewardNotFound)
-    const { phase, activeDisbursementID, expiration } = this.rewards(rewardID).value
+    const { phase, distribution, activeDisbursementID, activeDisbursementRoundStart, expiration } = this.rewards(rewardID).value
     loggedAssert(phase !== DisbursementPhaseIdle, errInvalidDisbursementPhase)
+
+    // STK-08: once the committed beacon round is reached its value, and so the winners, can be read
+    // by anyone. From then on only the DAO wallet can abort a shuffle round, so a creator cannot
+    // abort the draws it dislikes. A draw that can no longer be made closes by itself (STK-07).
+    if (
+      distribution === DistributionTypeShuffle &&
+      phase === DisbursementPhaseAllocation &&
+      Txn.sender !== this.getAkitaDAOWallet().address
+    ) {
+      loggedAssert(Global.round < activeDisbursementRoundStart, errAbortForbidden)
+    }
 
     if (activeDisbursementID !== 0 && mode !== ABORT_LEAVE) {
       const rewardsApp = Application(getAkitaAppList(this.akitaDAO.value).rewards)

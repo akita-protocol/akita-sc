@@ -8,6 +8,7 @@ import type { GateCtx } from "../principal";
 import type { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 export * from "./errors";
 export * from "./listing";
+export * from "./royalty";
 export * from "./types";
 export type MarketplaceContractArgs = MarketplaceArgs["obj"];
 /**
@@ -18,7 +19,7 @@ export type MarketplaceContractArgs = MarketplaceArgs["obj"];
  * except `purchase` with a legacy `Gate.mustCheck` gate txn.
  */
 export declare const MARKETPLACE_HINTED_METHODS: {
-    readonly list: "list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64";
+    readonly list: "list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64";
     readonly listPrizeBox: "listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64";
     readonly gatedPurchase: "gatedPurchase(pay,appl,uint64,address,uint64)void";
     readonly gatedPurchaseAsa: "gatedPurchaseAsa(axfer,appl,uint64,address,uint64)void";
@@ -81,7 +82,8 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      * Builds the atomic opt-in plan needed before a listing can be created.
      *
      * The listed ASA must be receivable by the marketplace before the `assetXfer`
-     * transaction runs. For ASA-denominated listings, the payment asset also needs
+     * transaction runs: that takes the factory's own opt-in only (`optInPrize`), because a prize never
+     * earns protocol fees. For ASA-denominated listings, the payment asset also needs
      * marketplace/escrow preparation so a future purchase can settle cleanly.
      */
     private getListingOptInPlan;
@@ -124,6 +126,13 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      * calls don't have to do the rekey dance mid-group.
      */
     optIn({ sender, signer, asset }: OptInParams): Promise<void>;
+    /**
+     * Opts the marketplace into an asset that is going to be SOLD on it. Only the factory itself opts
+     * in: the DAO revenue escrow never receives a prize, so this costs one asset opt-in (0.1 ALGO) and
+     * does not depend on the escrow's payout cycle. `list` adds this call on its own when it is needed.
+     * Use `optIn` for a payment asset.
+     */
+    optInPrize({ sender, signer, asset }: OptInParams): Promise<void>;
     /**
      * Removes a listing and returns the asset to the seller.
      * Can only be called by the seller.

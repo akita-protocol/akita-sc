@@ -19,7 +19,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, Contract, decodeArc4, methodSelector, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { btoi, Global, len, Txn } from '@algorandfoundation/algorand-typescript/op'
+import { AssetHolding, btoi, Global, len, Txn } from '@algorandfoundation/algorand-typescript/op'
 import {
   AbstractAccountBoxPrefixAllowances,
   AbstractAccountBoxPrefixDomainKeys,
@@ -91,6 +91,7 @@ import {
   errMalformedOffsets,
   errMethodOnCooldown,
   errMissingRekeyBack,
+  errNotFrozen,
   errOnlyAdminCanAddPlugin,
   errOnlyAdminCanUpdate,
   errOnlyAdminOrRevocationAppCanRemoveMethodRestriction,
@@ -284,9 +285,17 @@ export class AbstractedAccount extends Contract {
    * Expired grants are rejected.
    */
   private _requirePluginCaller(key: PluginKey, allowGlobal: boolean): void {
+    // WAL-01: an admin's own grant is keyed by this wallet's address, and a plugin sends as that
+    // address inside a window on the main account. So that address never counts as the grant's
+    // caller here (the same rule as resolveCallerType and arc58_removePlugin): the admin uses
+    // arc58_reclaim and arc58_optInEscrow.
     loggedAssert(
       Txn.sender === Application(key.plugin).address ||
-      (key.caller !== Global.zeroAddress && Txn.sender === key.caller) ||
+      (
+        key.caller !== Global.zeroAddress &&
+        key.caller !== Global.currentApplicationAddress &&
+        Txn.sender === key.caller
+      ) ||
       (allowGlobal && key.caller === Global.zeroAddress),
       errForbidden
     )
@@ -326,8 +335,9 @@ export class AbstractedAccount extends Contract {
     return MinPluginMBR + this._calcBCPB((MethodRestrictionByteLength * methodCount) + Bytes(escrow).length)
   }
 
-  private namedPluginsMbr(name: string): uint64 {
-    return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
+  /** WAL-04: the alias box stores the whole plugin key, so the key's escrow name is charged too. */
+  private namedPluginsMbr(name: string, keyEscrow: string): uint64 {
+    return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length + Bytes(keyEscrow).length)
   }
 
   private escrowsMbr(escrow: string): uint64 {
@@ -899,6 +909,9 @@ export class AbstractedAccount extends Contract {
   register(escrow: string): void {
     let app: uint64 = 0
     if (escrow !== '') {
+      // WAL-06: this wallet pays for the record. Its own record ('') is paid for when the wallet is
+      // made, so anyone may write that one. An escrow's record is not, so only the admin spends it.
+      this._requireAdmin()
       this._requireEscrow(escrow)
       app = this.escrows(escrow).value.id
       assert(app !== 0)
@@ -1282,7 +1295,7 @@ export class AbstractedAccount extends Contract {
 
     let totalMbr: uint64 = this.pluginsMbr(escrowKey, methodInfos.length)
     if (isNamed) {
-      totalMbr += this.namedPluginsMbr(name)
+      totalMbr += this.namedPluginsMbr(name, escrowKey)
     }
     if (defaultToEscrow) {
       totalMbr += this.defaultEscrowMbr(escrow)
@@ -1483,7 +1496,7 @@ export class AbstractedAccount extends Contract {
 
     // ACC-05: tolerate an alias whose grant was already removed with arc58_removePlugin
     // (which refunded the grant's MBR); then only the alias MBR is refunded.
-    let refund: uint64 = this.namedPluginsMbr(name)
+    let refund: uint64 = this.namedPluginsMbr(name, app.escrow)
     if (this.plugins(app).exists) {
       refund += this.pluginsMbr(app.escrow, this.plugins(app).value.methods.length)
       refund += this.uncountPlugin(app, this.plugins(app).value.escrow)
@@ -1535,6 +1548,41 @@ export class AbstractedAccount extends Contract {
     this._requireForbiddenAdmin()
     this._requireEscrow(escrow);
     this.reclaim(escrow, reclaims, true);
+  }
+
+  /**
+   * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+   *
+   * WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+   * still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+   * a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+   * the admin names the assets to give up here. A holding that is not frozen is refused, because
+   * arc58_reclaim returns it to the controlled address.
+   *
+   * @param escrow The escrow that holds the frozen assets
+   * @param assets The frozen assets to close out to their creators
+  */
+  arc58_closeFrozenToCreator(escrow: string, assets: uint64[]): void {
+    this._requireForbiddenAdmin()
+    this._requireEscrow(escrow)
+
+    const sender = this.escrows(escrow).value.address
+
+    for (let i: uint64 = 0; i < assets.length; i += 1) {
+      const [frozen, optedIn] = AssetHolding.assetFrozen(sender, assets[i])
+      loggedAssert(optedIn && frozen, errNotFrozen)
+
+      const creator = Asset(assets[i]).creator
+      itxn
+        .assetTransfer({
+          sender,
+          assetReceiver: creator,
+          assetAmount: 0,
+          xferAsset: assets[i],
+          assetCloseTo: creator
+        })
+        .submit()
+    }
   }
 
   /**

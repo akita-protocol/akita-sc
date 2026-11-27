@@ -211,6 +211,10 @@ function isLiteralZeroAddressReference(reference: ResourceReference): boolean {
   return reference.address !== undefined && isZeroAddress(reference.address);
 }
 
+function isEmptyBoxReference(reference: ResourceReference): boolean {
+  return reference.box !== undefined && reference.box.appIndex === 0n && reference.box.name.length === 0;
+}
+
 function effectiveAddress(address: Address, transaction: Transaction): Address {
   return isZeroAddress(address) ? transaction.sender : address;
 }
@@ -883,10 +887,12 @@ export function populateAccessListResources(
 
   // Seeded resources (seedAccessResources) are group-shared like discovered ones. A seed that
   // discovery already provided, or that is the sender / called app of some call, adds nothing.
+  // The exception is a seeded all-zero box reference: it names nothing and is box IO headroom, so
+  // every one is placed, on top of the references discovery asked for (see `boxReadHeadroom`).
   for (const reference of seeds) {
     if (isLiteralZeroAddressReference(reference)) continue;
     if (reference.appIndex !== undefined && createdAppIds.has(reference.appIndex)) continue;
-    addGroupReference(reference);
+    addGroupReference(reference, isEmptyBoxReference(reference));
   }
 
   for (let index = 0; index < extraBoxReferences; index += 1) {
@@ -941,6 +947,25 @@ export function seedAccessResources(composer: TransactionComposer, references: r
   seededComposers.set(composer, [...(seededComposers.get(composer) ?? []), ...references]);
   preparedComposers.delete(composer);
   return composer;
+}
+
+/** Bytes of box IO quota one box reference adds to its group (consensus v41). */
+export const BYTES_PER_BOX_REFERENCE = 2_048;
+
+/**
+ * Seeds that add box read budget for `bytes` of boxes a group reads but that do not exist yet when it
+ * is built: one all-zero box reference per 2,048 B (rounded up; none for 0).
+ *
+ * algod sizes a group's box read budget from the boxes that exist when it simulates, and rounds it up
+ * to whole references. A box created between the build and the send (an execution key, the proposal
+ * that carries it) is read against whatever the rounding left over, so a group built just under a
+ * 2,048 B step is refused at send time with "read budget exceeded". A reference passed on a call does
+ * not help: the simulation counts it as budget the group already has and asks for fewer of its own.
+ * These are placed after discovery, so they are always on top.
+ */
+export function boxReadHeadroom(bytes: bigint | number): ResourceReference[] {
+  const count = Math.ceil(Number(bytes) / BYTES_PER_BOX_REFERENCE);
+  return Array.from({ length: Math.max(0, count) }, () => ({ box: { appIndex: 0n, name: new Uint8Array(0) } }));
 }
 
 /** The resources seeded on `composer` so far (empty when none). */

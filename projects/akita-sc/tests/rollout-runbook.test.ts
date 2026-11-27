@@ -4,7 +4,8 @@
  * less than the runbook says. This test reads every command in the runbook's Sequence and fails when one
  * names an npm script or a file that does not exist, a flag its script never reads, or a contract, target or
  * plugin its script does not know. It also checks that every step the runbook says `rollout:status` tracks
- * is a step of that tracker, and that no command passes the key on the command line.
+ * is a step of that tracker, and that no command passes the key on the command line. The file that runs
+ * these commands, scripts/rollout-run.sh, is held to them by tests/rollout-runner.test.ts.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -26,7 +27,7 @@ function words(line: string): string[] {
 }
 
 /** Lines of a step's bash blocks that are shell housekeeping, not a rollout script. */
-const plainShell = /^(#|git |nvm use$|cd projects\/akita-sc$|read -rs DEPLOYER_MNEMONIC && export DEPLOYER_MNEMONIC$|export [A-Z]+=|mkdir -p receipts\/|npm test$|\(cd \.\.\/\.\. && npm ci\)$|\(cd \.\.\/akita-sdk && npm run build\)$)/
+const plainShell = /^(#|git |nvm use$|cd projects\/akita-sc$|read -rs DEPLOYER_MNEMONIC && export DEPLOYER_MNEMONIC$|read -rs NODELY_API_KEY && export NODELY_API_KEY$|export NODELY_PLAN=(boost|unlimited|enterprise)$|export [A-Z_]+=|mkdir -p receipts\/|npm test$|\(cd \.\.\/\.\. && npm ci\)$|\(cd \.\.\/akita-sdk && npm run build\)$)/
 
 function readCommands(): { commands: Command[]; other: { step: string; line: string }[]; tracked: string[] } {
   const text = readFileSync(runbookPath, 'utf8')
@@ -134,8 +135,11 @@ describe('rollout runbook commands', () => {
   })
 
   test('no command passes the key or an abbreviation', () => {
-    // The key comes from DEPLOYER_MNEMONIC (step A0); "…" used to stand for the rest of a command.
-    const bad = commands.filter((c) => c.args.includes('-m') || c.args.includes('--mnemonic') || c.line.includes('…') || c.line.includes('$M'))
+    // The key comes from DEPLOYER_MNEMONIC and the node key from NODELY_API_KEY (step A0), read by the
+    // scripts themselves: no command line names either, by flag or by variable. "…" used to stand for
+    // the rest of a command.
+    const secret = /\$\{?[A-Z_]*(MNEMONIC|KEY|SECRET|TOKEN|PASSWORD)/
+    const bad = commands.filter((c) => ['-m', '--mnemonic', '-t', '--token'].some((flag) => c.args.includes(flag)) || c.line.includes('…') || secret.test(c.line))
     expect(bad.map((c) => `${c.step}: ${c.line}`)).toEqual([])
   })
 
@@ -147,6 +151,28 @@ describe('rollout runbook commands', () => {
       return /options\.version|runUpdate\(|runPhase2Cli\(|deployImmutable\(/.test(source)
     })
     expect(missing.map((c) => `${c.step}: ${c.line}`)).toEqual([])
+  })
+
+  /**
+   * The steps after G2 used to name ids and addresses in angle brackets, to be filled in from receipts by
+   * hand. Each is now a variable: set once in A0, or read by rollout:id from what an earlier step recorded.
+   * (tests/rollout-runner.test.ts holds the file that runs these commands to them, line for line.)
+   */
+  test('no command types an id by hand, and every variable a command uses is set', () => {
+    const runbook = readFileSync(runbookPath, 'utf8')
+    const reads = [...runbook.matchAll(/^export ([A-Z_]+)=\$\((.+)\)$/gm)].filter(([, name]) => name !== 'CREATOR')
+    expect(reads.map(([, name]) => name)).toEqual(['META', 'META_ADDRESS', 'REV_GUILDS_APP', 'GUILD_FACTORY', 'GUILD_FACTORY_ADDRESS'])
+    for (const [, , cmd] of reads) expect(cmd).toMatch(/^npm run -s rollout:id -- -n mainnet (--app [A-Za-z]+( --address)?|--escrow [a-z_]+)$/)
+    expect(npmScripts['rollout:id']).toBe('ts-node --transpile-only scripts/rollout-id.ts')
+    // the three addresses the owner supplies
+    for (const name of ['HEARTBEAT_MANAGER', 'REV_NFD_SOURCE', 'LABS_ADDRESS']) expect(runbook).toMatch(new RegExp(`^export ${name}=<`, 'm'))
+    // A command that still names a value in angle brackets would have to be edited before it is run.
+    const typed = commands.filter((c) => /<[^>]+>/.test(c.line)).map((c) => `${c.step}: ${c.line}`)
+    expect(typed.filter((line) => !/^(H7|I1)\b/.test(line))).toEqual([])
+    // every variable a command uses is set in A0, read by rollout:id, or the key
+    const set = new Set([...runbook.matchAll(/^export ([A-Z_]+)=/gm)].map((m) => m[1]))
+    const used = new Set(commands.flatMap((c) => [...c.line.matchAll(/\$\{?([A-Z_]+)/g)].map((m) => m[1])))
+    expect([...used].filter((name) => !set.has(name))).toEqual([])
   })
 
   test('every step the runbook says is tracked is a step of rollout:status', () => {

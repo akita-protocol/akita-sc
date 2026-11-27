@@ -5,7 +5,7 @@
 main:
     intcblock 1 0 8 4
     bytecblock "ERR:errIhfd" "ERR:errIhrc" "router" "routerMethod" "referrer"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:54
     // export class HaystackRouterPlugin extends Contract {
     txn OnCompletion
     !
@@ -18,7 +18,7 @@ main:
     err
 
 main_create_NoOp@5:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:54
     // export class HaystackRouterPlugin extends Contract {
     pushbytes 0x88131fc4 // method "create(uint64,byte[4],address,uint64)void"
     txna ApplicationArgs 0
@@ -51,7 +51,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts::HaystackRouterPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:64
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -79,35 +79,35 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:56
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:60
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:66
     // this.router.value = router
     uncover 4
     app_global_put
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:58
     // routerMethod = GlobalState<bytes<4>>({ key: HaystackRouterPluginGlobalStateKeyRouterMethod })
     bytec_3 // "routerMethod"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:61
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:67
     // this.routerMethod.value = routerMethod
     uncover 3
     app_global_put
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:60
     // referrer = GlobalState<Account>({ key: HaystackRouterPluginGlobalStateKeyReferrer })
     bytec 4 // "referrer"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:62
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:68
     // this.referrer.value = referrer
     uncover 2
     app_global_put
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:56
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:62
     // referrerTreasury = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyReferrerTreasury })
     pushbytes "referrerTreasury"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:63
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:69
     // this.referrerTreasury.value = referrerTreasury
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:64
     // @abimethod({ onCreate: 'require' })
     intc_0 // 1
     return
@@ -116,8 +116,8 @@ create:
 // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts::HaystackRouterPlugin.swap[routing]() -> void:
 swap:
     pushbytes ""
-    dupn 4
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:197-204
+    dupn 3
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:208-215
     // swap(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -198,7 +198,7 @@ swap:
     err // ERR:errNath
 
 swap_after_assert@3:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:158
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:169
     // loggedAssert(amount > 0, errInvalidFunding)
     dig 3
     bnz swap_after_assert@7
@@ -207,41 +207,41 @@ swap_after_assert@3:
     err // ERR:errIhfd
 
 swap_after_assert@7:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:112
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:123
     // let fundingTxnIndex = Global.groupSize
     global GroupSize
-    bury 12
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
+    bury 11
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:125
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     txn GroupIndex
     intc_0 // 1
     +
-    bury 11
+    bury 10
 
 swap_while_top@8:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:125
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
-    dig 10
+    dig 9
     global GroupSize
     <
     bz swap_block@35
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:118
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:129
     // if (funding.type === TransactionType.ApplicationCall && funding.appId === Global.currentApplicationId) {
-    dig 10
+    dig 9
     gtxns TypeEnum
     dup
     bury 9
     pushint 6
     ==
     bz swap_after_if_else@11
-    dig 10
+    dig 9
     gtxns ApplicationID
     global CurrentApplicationID
     ==
     bnz swap_block@35
 
 swap_after_if_else@11:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:122
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:133
     // if (asset === 0 && funding.type === TransactionType.Payment) {
     dig 4
     bnz swap_else_body@18
@@ -249,21 +249,21 @@ swap_after_if_else@11:
     intc_0 // 1
     ==
     bz swap_else_body@18
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:123
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:134
     // const payment = gtxn.PaymentTxn(i)
     dig 7
     intc_0 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:124
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:135
     // if (payment.receiver !== this.router.value.address || payment.amount !== amount) {
-    dig 10
+    dig 9
     gtxns Receiver
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:56
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:124
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:135
     // if (payment.receiver !== this.router.value.address || payment.amount !== amount) {
     app_global_get_ex
     assert // check GlobalState exists
@@ -271,14 +271,14 @@ swap_after_if_else@11:
     assert // application exists
     !=
     bnz swap_block@34
-    dig 10
+    dig 9
     gtxns Amount
     dig 4
     !=
     bnz swap_block@34
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:127
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:138
     // loggedAssert(payment.closeRemainderTo === Global.zeroAddress, errInvalidFunding)
-    dig 10
+    dig 9
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
@@ -288,9 +288,9 @@ swap_after_if_else@11:
     err // ERR:errIhfd
 
 swap_after_if_else@29:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:139
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:150
     // loggedAssert(funding.rekeyTo === Global.zeroAddress, errInvalidFunding)
-    dig 10
+    dig 9
     gtxns RekeyTo
     global ZeroAddress
     ==
@@ -300,9 +300,9 @@ swap_after_if_else@29:
     err // ERR:errIhfd
 
 swap_after_assert@31:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:141
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:152
     // loggedAssert(fundingTxnIndex === Global.groupSize, errInvalidFunding)
-    dig 11
+    dig 10
     global GroupSize
     ==
     bnz swap_after_assert@33
@@ -311,20 +311,20 @@ swap_after_assert@31:
     err // ERR:errIhfd
 
 swap_after_assert@33:
-    dig 10
-    bury 12
+    dig 9
+    bury 11
 
 swap_block@34:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:125
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
-    dig 10
+    dig 9
     intc_0 // 1
     +
-    bury 11
+    bury 10
     b swap_while_top@8
 
 swap_else_body@18:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:128
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:139
     // } else if (asset !== 0 && funding.type === TransactionType.AssetTransfer) {
     dig 4
     bz swap_block@34
@@ -332,21 +332,21 @@ swap_else_body@18:
     intc_3 // 4
     ==
     bz swap_block@34
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:129
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:140
     // const transfer = gtxn.AssetTransferTxn(i)
     dig 7
     intc_3 // axfer
     ==
     assert // transaction type is axfer
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:130
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:141
     // if (transfer.assetReceiver !== this.router.value.address || transfer.xferAsset.id !== asset || transfer.assetAmount !== amount) {
-    dig 10
+    dig 9
     gtxns AssetReceiver
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:56
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:130
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:141
     // if (transfer.assetReceiver !== this.router.value.address || transfer.xferAsset.id !== asset || transfer.assetAmount !== amount) {
     app_global_get_ex
     assert // check GlobalState exists
@@ -354,19 +354,19 @@ swap_else_body@18:
     assert // application exists
     !=
     bnz swap_block@34
-    dig 10
+    dig 9
     gtxns XferAsset
     dig 5
     !=
     bnz swap_block@34
-    dig 10
+    dig 9
     gtxns AssetAmount
     dig 4
     !=
     bnz swap_block@34
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:133
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:144
     // loggedAssert(transfer.assetSender === Global.zeroAddress, errInvalidFunding)
-    dig 10
+    dig 9
     gtxns AssetSender
     global ZeroAddress
     ==
@@ -376,9 +376,9 @@ swap_else_body@18:
     err // ERR:errIhfd
 
 swap_after_assert@26:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:134
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:145
     // loggedAssert(transfer.assetCloseTo === Global.zeroAddress, errInvalidFunding)
-    dig 10
+    dig 9
     gtxns AssetCloseTo
     global ZeroAddress
     ==
@@ -388,9 +388,9 @@ swap_after_assert@26:
     err // ERR:errIhfd
 
 swap_block@35:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:145
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:156
     // loggedAssert(fundingTxnIndex < Global.groupSize, errInvalidFunding)
-    dig 11
+    dig 10
     global GroupSize
     <
     bnz swap_after_assert@37
@@ -399,57 +399,57 @@ swap_block@35:
     err // ERR:errIhfd
 
 swap_after_assert@37:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:161
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:172
     // const fundingAccount = gtxn.Transaction(fundingTxnIndex).sender
-    dig 11
+    dig 10
     gtxns Sender
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:73
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:79
     // let foundRouterCall = false
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:81
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     txn GroupIndex
     intc_0 // 1
     +
-    bury 13
+    bury 12
 
 swap_while_top@38:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:81
     // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
-    dig 12
+    dig 11
     global GroupSize
     <
-    bz swap_after_while@72
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:78
+    bz swap_after_while@80
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:84
     // if (txn.type !== TransactionType.ApplicationCall || txn.appId !== this.router.value) {
-    dig 12
+    dig 11
     gtxns TypeEnum
     dup
     bury 12
     pushint 6
     !=
-    bnz swap_block@71
-    dig 12
+    bnz swap_block@79
+    dig 11
     gtxns ApplicationID
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:56
     // router = GlobalState<Application>({ key: HaystackRouterPluginGlobalStateKeyRouter })
     bytec_2 // "router"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:78
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:84
     // if (txn.type !== TransactionType.ApplicationCall || txn.appId !== this.router.value) {
     app_global_get_ex
     assert // check GlobalState exists
     !=
-    bnz swap_block@71
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:82
+    bnz swap_block@79
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:88
     // const routerCall = gtxn.ApplicationCallTxn(i)
     dig 10
     pushint 6 // appl
     ==
     assert // transaction type is appl
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:84
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:90
     // loggedAssert(routerCall.onCompletion === OnCompleteAction.NoOp, errInvalidRouterCall)
-    dig 12
+    dig 11
     gtxns OnCompletion
     bz swap_after_assert@44
     bytec_1 // "ERR:errIhrc"
@@ -457,198 +457,234 @@ swap_while_top@38:
     err // ERR:errIhrc
 
 swap_after_assert@44:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:85
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:91
     // loggedAssert(routerCall.numAppArgs > 0, errInvalidRouterCall)
-    dig 12
+    dig 11
     gtxns NumAppArgs
     dup
-    bury 13
     bnz swap_after_assert@46
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
 swap_after_assert@46:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:93
     // if (routerCall.appArgs(0) !== this.routerMethod.value) {
     dig 12
     gtxnsa ApplicationArgs 0
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:52
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:58
     // routerMethod = GlobalState<bytes<4>>({ key: HaystackRouterPluginGlobalStateKeyRouterMethod })
     bytec_3 // "routerMethod"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:87
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:93
     // if (routerCall.appArgs(0) !== this.routerMethod.value) {
     app_global_get_ex
     assert // check GlobalState exists
     !=
-    bnz swap_block@71
+    bz swap_after_if_else@50
     pop
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:91
-    // loggedAssert(i > fundingTxnIndex, errInvalidFunding)
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:95
+    // loggedAssert(i < fundingTxnIndex, errInvalidRouterCall)
     dig 11
     dig 13
-    >
-    bnz swap_after_assert@50
-    bytec_0 // "ERR:errIhfd"
-    log
-    err // ERR:errIhfd
-
-swap_after_assert@50:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:92
-    // loggedAssert(routerCall.numAppArgs > FINALIZE_TERMS_ARG_INDEX, errInvalidRouterCall)
-    dig 10
-    intc_3 // 4
-    >
-    bnz swap_after_assert@52
+    <
+    bnz swap_block@79
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
-swap_after_assert@52:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:94
-    // const assets = routerCall.appArgs(FINALIZE_ASSETS_ARG_INDEX)
+swap_block@79:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:81
+    // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
     dig 11
-    gtxnsa ApplicationArgs 1
-    dup
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:95
-    // loggedAssert(assets.length >= 18 && extractUint16(assets, 0) >= 2, errInvalidRouterCall)
-    len
-    pushint 18
-    >=
-    bz swap_bool_false@55
-    dup
-    intc_1 // 0
-    extract_uint16
-    pushint 2
-    >=
-    bz swap_bool_false@55
+    intc_0 // 1
+    +
+    bury 12
+    b swap_while_top@38
+
+swap_after_if_else@50:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:100
+    // loggedAssert(!foundRouterCall && i === fundingTxnIndex + 1, errInvalidFunding)
+    swap
+    bnz swap_bool_false@53
+    dig 12
+    intc_0 // 1
+    +
+    dig 12
+    ==
+    bz swap_bool_false@53
     intc_0 // 1
 
-swap_bool_merge@56:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:95
-    // loggedAssert(assets.length >= 18 && extractUint16(assets, 0) >= 2, errInvalidRouterCall)
+swap_bool_merge@54:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:100
+    // loggedAssert(!foundRouterCall && i === fundingTxnIndex + 1, errInvalidFunding)
+    bnz swap_after_assert@56
+    bytec_0 // "ERR:errIhfd"
+    log
+    err // ERR:errIhfd
+
+swap_after_assert@56:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:101
+    // loggedAssert(routerCall.numAppArgs > FINALIZE_TERMS_ARG_INDEX, errInvalidRouterCall)
+    intc_3 // 4
+    >
     bnz swap_after_assert@58
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
 swap_after_assert@58:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:96
-    // loggedAssert(extractUint64(assets, 2) === asset, errInvalidFunding)
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:103
+    // const assets = routerCall.appArgs(FINALIZE_ASSETS_ARG_INDEX)
+    dig 10
+    gtxnsa ApplicationArgs 1
     dup
-    pushint 2
-    extract_uint64
-    dig 7
-    ==
-    bnz swap_after_assert@60
-    bytec_0 // "ERR:errIhfd"
-    log
-    err // ERR:errIhfd
-
-swap_after_assert@60:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:97
-    // loggedAssert(extractUint64(assets, 10) === outputAsset, errInvalidOutputAsset)
-    pushint 10
-    extract_uint64
-    dig 4
-    ==
-    bnz swap_after_assert@62
-    pushbytes "ERR:errIhoa"
-    log
-    err // ERR:errIhoa
-
-swap_after_assert@62:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:99
-    // const terms = routerCall.appArgs(FINALIZE_TERMS_ARG_INDEX)
-    dig 11
-    gtxnsa ApplicationArgs 4
-    dup
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:100
-    // loggedAssert(terms.length === FINALIZE_TERMS_LENGTH, errInvalidRouterCall)
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:104
+    // loggedAssert(assets.length >= 18 && extractUint16(assets, 0) >= 2, errInvalidRouterCall)
     len
-    pushint 93
-    ==
+    pushint 18
+    >=
+    bz swap_bool_false@61
+    dup
+    intc_1 // 0
+    extract_uint16
+    pushint 2
+    >=
+    bz swap_bool_false@61
+    intc_0 // 1
+
+swap_bool_merge@62:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:104
+    // loggedAssert(assets.length >= 18 && extractUint16(assets, 0) >= 2, errInvalidRouterCall)
     bnz swap_after_assert@64
     bytec_1 // "ERR:errIhrc"
     log
     err // ERR:errIhrc
 
 swap_after_assert@64:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:101
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:105
+    // loggedAssert(extractUint64(assets, 2) === asset, errInvalidFunding)
+    dup
+    pushint 2
+    extract_uint64
+    dig 7
+    ==
+    bnz swap_after_assert@66
+    bytec_0 // "ERR:errIhfd"
+    log
+    err // ERR:errIhfd
+
+swap_after_assert@66:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:106
+    // loggedAssert(extractUint64(assets, 10) === outputAsset, errInvalidOutputAsset)
+    pushint 10
+    extract_uint64
+    dig 4
+    ==
+    bnz swap_after_assert@68
+    pushbytes "ERR:errIhoa"
+    log
+    err // ERR:errIhoa
+
+swap_after_assert@68:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:108
+    // const terms = routerCall.appArgs(FINALIZE_TERMS_ARG_INDEX)
+    dig 10
+    gtxnsa ApplicationArgs 4
+    dup
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:109
+    // loggedAssert(terms.length === FINALIZE_TERMS_LENGTH, errInvalidRouterCall)
+    len
+    pushint 93
+    ==
+    bnz swap_after_assert@70
+    bytec_1 // "ERR:errIhrc"
+    log
+    err // ERR:errIhrc
+
+swap_after_assert@70:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:111
+    // loggedAssert(extract(terms, 0, 3) === Bytes.fromHex(FINALIZE_TERMS_HEADER), errInvalidRouterCall)
+    dup
+    extract 0 3
+    pushbytes 0x000100
+    ==
+    bnz swap_after_assert@72
+    bytec_1 // "ERR:errIhrc"
+    log
+    err // ERR:errIhrc
+
+swap_after_assert@72:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:112
     // loggedAssert(extract(terms, FINALIZE_TERMS_MIN_OUTPUT_OFFSET, 8) === itob(minOutputAmount), errInvalidMinOutput)
     dup
-    extract 2 8
+    extract 3 8
     dig 4
     itob
     ==
-    bnz swap_after_assert@66
+    bnz swap_after_assert@74
     pushbytes "ERR:errIhmo"
     log
     err // ERR:errIhmo
 
-swap_after_assert@66:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:102
+swap_after_assert@74:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:113
     // loggedAssert(extract(terms, FINALIZE_TERMS_BENEFICIARY_OFFSET, 32) === sender.bytes, errInvalidReceiverArg)
     dup
     extract 29 32
     dig 3
     ==
-    bnz swap_after_assert@68
+    bnz swap_after_assert@76
     pushbytes "ERR:errIhra"
     log
     err // ERR:errIhra
 
-swap_after_assert@68:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:103
+swap_after_assert@76:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
     // loggedAssert(extract(terms, FINALIZE_TERMS_REFERRER_OFFSET, 32) === this.referrer.value.bytes, errInvalidBeneficiary)
     extract 61 32
     intc_1 // 0
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:60
     // referrer = GlobalState<Account>({ key: HaystackRouterPluginGlobalStateKeyReferrer })
     bytec 4 // "referrer"
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:103
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:114
     // loggedAssert(extract(terms, FINALIZE_TERMS_REFERRER_OFFSET, 32) === this.referrer.value.bytes, errInvalidBeneficiary)
     app_global_get_ex
     assert // check GlobalState exists
     ==
-    bnz swap_after_assert@70
+    bnz swap_after_assert@78
     pushbytes "ERR:errIhbi"
     log
     err // ERR:errIhbi
 
-swap_after_assert@70:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:105
+swap_after_assert@78:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:116
     // foundRouterCall = true
     intc_0 // 1
+    b swap_block@79
 
-swap_block@71:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:75
-    // for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i += 1) {
-    dig 12
-    intc_0 // 1
-    +
-    bury 13
-    b swap_while_top@38
-
-swap_bool_false@55:
+swap_bool_false@61:
     intc_1 // 0
-    b swap_bool_merge@56
+    b swap_bool_merge@62
 
-swap_after_while@72:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:108
+swap_bool_false@53:
+    intc_1 // 0
+    b swap_bool_merge@54
+
+swap_after_while@80:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:119
     // loggedAssert(foundRouterCall, errInvalidRouter)
-    bnz swap_after_assert@74
+    bnz swap_after_assert@82
     pushbytes "ERR:errIhtr"
     log
     err // ERR:errIhtr
 
-swap_after_assert@74:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:170
+swap_after_assert@82:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:181
     // if (asset === 0) {
     dig 5
-    bnz swap_else_body@76
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:171-178
+    bnz swap_else_body@84
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:182-189
     // itxn
     //   .payment({
     //     sender,
@@ -658,7 +694,7 @@ swap_after_assert@74:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:187
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     dig 6
     dig 8
@@ -669,7 +705,7 @@ swap_after_assert@74:
     itxn_field Receiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:171-177
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:182-188
     // itxn
     //   .payment({
     //     sender,
@@ -681,7 +717,7 @@ swap_after_assert@74:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:171-178
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:182-189
     // itxn
     //   .payment({
     //     sender,
@@ -692,8 +728,8 @@ swap_after_assert@74:
     //   .submit()
     itxn_submit
 
-swap_after_if_else@77:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:197-204
+swap_after_if_else@85:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:208-215
     // swap(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -705,8 +741,8 @@ swap_after_if_else@77:
     intc_0 // 1
     return
 
-swap_else_body@76:
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:180-188
+swap_else_body@84:
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:191-199
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -717,7 +753,7 @@ swap_else_body@76:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:186
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:197
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     dig 6
     dig 8
@@ -730,7 +766,7 @@ swap_else_body@76:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:180-187
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:191-198
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -743,7 +779,7 @@ swap_else_body@76:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:180-188
+    // smart_contracts/arc58/plugins/haystack-router/contract.algo.ts:191-199
     // itxn
     //   .assetTransfer({
     //     sender,
@@ -754,4 +790,4 @@ swap_else_body@76:
     //   })
     //   .submit()
     itxn_submit
-    b swap_after_if_else@77
+    b swap_after_if_else@85

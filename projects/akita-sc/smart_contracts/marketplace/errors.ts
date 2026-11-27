@@ -50,3 +50,5 @@ export const errPriceRecentlyChanged = 'errPrcd'
 export const errPrizeIsPaymentAsset = 'errPbdl'
 /** A legacy-paid listing would take the factory's free balance below `LegacyFloatReserve` */
 export const errLegacyFloatReserve = 'errLflt'
+/** The creator royalty resolved when the listing is created is above the seller's `maxCreatorRoyalty` */
+export const errRoyaltyAboveMax = 'errRamx'

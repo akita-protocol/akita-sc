@@ -14,6 +14,8 @@ const calculateFee = (txn: Transaction, p: { feePerByte: bigint; minFee: bigint 
 
 import {
   accessListEntryCount,
+  boxReadHeadroom,
+  BYTES_PER_BOX_REFERENCE,
   canonicalResources,
   type ComposerGroupAnalysis,
   installAccessListResourcePopulator,
@@ -1475,6 +1477,41 @@ describe("Access-list resource seeding (principal resolution, spec §3.6)", () =
         analysis(1, { assets: Array.from({ length: 16 }, (_, index) => BigInt(index + 1)) }),
         [{ address: address(9) }],
       ),
+    ).toThrow(/requires 1 additional safe resource-carrier/);
+  });
+
+  test("boxReadHeadroom is one all-zero box reference per 2,048 B, rounded up", () => {
+    expect(BYTES_PER_BOX_REFERENCE).toBe(2_048);
+    expect(boxReadHeadroom(0)).toEqual([]);
+    expect(boxReadHeadroom(1)).toHaveLength(1);
+    expect(boxReadHeadroom(2_048n)).toHaveLength(1);
+    expect(boxReadHeadroom(2_049)).toHaveLength(2);
+    expect(boxReadHeadroom(94)).toEqual([{ box: { appIndex: 0n, name: new Uint8Array(0) } }]);
+  });
+
+  test("seeded box read headroom is placed on top of the references the call and discovery already have", () => {
+    const empty = { appIndex: 0n, name: new Uint8Array(0) };
+    const isEmpty = (reference: { box?: { appIndex: bigint; name: Uint8Array } }) =>
+      reference.box?.appIndex === 0n && reference.box.name.length === 0;
+    // The call passes one all-zero reference itself and discovery asks for one more. A group built this
+    // way has exactly the budget its simulation needed, so a box created before it is sent does not fit.
+    const build = (seeds: Parameters<typeof populateAccessListResources>[2]) => {
+      const transaction = appCall({ appIndex: 100n, boxes: [{ appIndex: 100n, name: new TextEncoder().encode("bc") }, empty] });
+      populateAccessListResources([transaction], analysis(1, { extraBoxRefs: 1 }), seeds);
+      return transaction.applicationCall?.access ?? [];
+    };
+
+    expect(build([]).filter(isEmpty)).toHaveLength(2);
+    expect(build(boxReadHeadroom(94)).filter(isEmpty)).toHaveLength(3);
+    expect(build(boxReadHeadroom(4_096)).filter(isEmpty)).toHaveLength(4);
+    // a named seed is still deduplicated
+    expect(build([{ box: { appIndex: 100n, name: new TextEncoder().encode("bc") } }])).toHaveLength(3);
+  });
+
+  test("box read headroom counts against Access capacity", () => {
+    const transaction = appCall({ appIndex: 100n });
+    expect(() =>
+      populateAccessListResources([transaction], analysis(1, { extraBoxRefs: 16 }), boxReadHeadroom(1)),
     ).toThrow(/requires 1 additional safe resource-carrier/);
   });
 

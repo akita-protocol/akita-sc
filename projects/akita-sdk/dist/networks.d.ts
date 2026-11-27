@@ -85,7 +85,7 @@ export interface NetworkAppIds {
     metaPlugin?: bigint;
     guildFactory?: bigint;
     guildConsensusFactory?: bigint;
-    /** creation-only GuildPlugin (guild = 0) */
+    /** shared GuildPlugin (guild = 0): creates Guilds and can act in any Guild of the factory */
     guildPlugin?: bigint;
     welcomePlugin?: bigint;
     /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
@@ -179,6 +179,8 @@ export declare function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoE
  * Flip testnet/mainnet to `true` in the same release that records the executed Phase 3 proposal.
  *
  * LocalNet is `true`: every LocalNet universe is deployed from the current tree (Phases 0-3 applied).
+ * TestNet and MainNet are `true` since release 2.0.0: the Phase 2 upgrades and the Phase 3 plugin
+ * proposal executed on TestNet on 2026-11-25 and on MainNet on 2026-11-26.
  */
 export declare const REGISTRY_WRITES_STOPPED: Record<AkitaNetwork, boolean>;
 /** Whether the SDK's default is to skip EscrowFactory registry writes on `network` (see REGISTRY_WRITES_STOPPED). */
@@ -203,6 +205,8 @@ export declare function shouldWriteRegistry(network: AkitaNetwork, explicit?: bo
  * selectors, and after it a top-level call of an old selector must pay the corrected MBR.
  *
  * LocalNet is `true`: every LocalNet universe is deployed from the current tree.
+ * TestNet and MainNet are `true` since release 2.0.0: the Phase 2 AkitaSocial and AkitaSocialGraph
+ * upgrade executed on TestNet on 2026-11-25 and on MainNet on 2026-11-26.
  */
 export declare const SOCIAL_HINTED_TARGETS: Record<AkitaNetwork, boolean>;
 /** Whether `SocialSDK` targets the upgraded (hinted) social programs on `network`; an explicit choice wins. */

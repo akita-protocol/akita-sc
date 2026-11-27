@@ -78,7 +78,7 @@ export type CollectibleVariationsArgs = {
             metaApp: bigint | number;
             metaTreeType: bigint | number;
         };
-        'arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': {
+        'writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': {
             asset: bigint | number;
             controllingApp: bigint | number;
             slot: Uint8Array;
@@ -91,13 +91,13 @@ export type CollectibleVariationsArgs = {
             ifRevision: bigint | number;
             proof: Uint8Array[];
         };
-        'arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)': {
+        'deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)': {
             asset: bigint | number;
             controllingApp: bigint | number;
             writer: string;
             slot: Uint8Array;
         };
-        'arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': {
+        'pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': {
             asset: bigint | number;
             controllingApp: bigint | number;
             writer: string;
@@ -105,20 +105,20 @@ export type CollectibleVariationsArgs = {
             sourceRevision: bigint | number;
             lock: boolean;
         };
-        'arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': {
+        'pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': {
             asset: bigint | number;
             writer: string;
             slot: Uint8Array;
             sourceRevision: bigint | number;
         };
-        'arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)': {
+        'unpinMainCreator(uint64,uint64)(bool,uint8,uint64)': {
             asset: bigint | number;
             controllingApp: bigint | number;
         };
-        'arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)': {
+        'unpinMainHolder(uint64)(bool,uint8,uint64)': {
             asset: bigint | number;
         };
-        'arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': {
+        'setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': {
             asset: bigint | number;
             controllingApp: bigint | number;
             collectible: Uint8Array;
@@ -127,25 +127,25 @@ export type CollectibleVariationsArgs = {
             holderPinsCollectibleOnly: boolean;
             lock: boolean;
         };
-        'arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': {
+        'setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': {
             collectible: Uint8Array;
             holder: Uint8Array;
             managerWrites: boolean;
             holderPinsCollectibleOnly: boolean;
         };
-        'arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)': {
+        'deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)': {
             asset: bigint | number;
             controllingApp: bigint | number;
         };
-        'arcTBD_delete_manager_policy()(bool,uint8,uint64)': Record<string, never>;
-        'arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))': {
+        'deleteManagerPolicy()(bool,uint8,uint64)': Record<string, never>;
+        'setGrant(byte[])(uint64,bool,(uint8,uint64))': {
             writers: Uint8Array;
         };
-        'arcTBD_delete_grant()(bool,uint8,uint64)': Record<string, never>;
-        'arcTBD_purge(byte[])(bool,uint8,uint64)': {
+        'deleteGrant()(bool,uint8,uint64)': Record<string, never>;
+        'purge(byte[])(bool,uint8,uint64)': {
             name: Uint8Array;
         };
-        'arcTBD_get_main(uint64)(uint8,byte[])': {
+        'getMain(uint64)(uint8,byte[])': {
             asset: bigint | number;
         };
     };
@@ -154,20 +154,20 @@ export type CollectibleVariationsArgs = {
      */
     tuple: {
         'create(uint64,uint64)void': [metaApp: bigint | number, metaTreeType: bigint | number];
-        'arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, slot: Uint8Array, holder: string, kind: bigint | number, sub: bigint | number, lock: boolean, flat: Uint8Array, body: Uint8Array, ifRevision: bigint | number, proof: Uint8Array[]];
-        'arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number, writer: string, slot: Uint8Array];
-        'arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, writer: string, slot: Uint8Array, sourceRevision: bigint | number, lock: boolean];
-        'arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': [asset: bigint | number, writer: string, slot: Uint8Array, sourceRevision: bigint | number];
-        'arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number];
-        'arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)': [asset: bigint | number];
-        'arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, collectible: Uint8Array, holder: Uint8Array, managerWrites: boolean, holderPinsCollectibleOnly: boolean, lock: boolean];
-        'arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': [collectible: Uint8Array, holder: Uint8Array, managerWrites: boolean, holderPinsCollectibleOnly: boolean];
-        'arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number];
-        'arcTBD_delete_manager_policy()(bool,uint8,uint64)': [];
-        'arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))': [writers: Uint8Array];
-        'arcTBD_delete_grant()(bool,uint8,uint64)': [];
-        'arcTBD_purge(byte[])(bool,uint8,uint64)': [name: Uint8Array];
-        'arcTBD_get_main(uint64)(uint8,byte[])': [asset: bigint | number];
+        'writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, slot: Uint8Array, holder: string, kind: bigint | number, sub: bigint | number, lock: boolean, flat: Uint8Array, body: Uint8Array, ifRevision: bigint | number, proof: Uint8Array[]];
+        'deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number, writer: string, slot: Uint8Array];
+        'pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, writer: string, slot: Uint8Array, sourceRevision: bigint | number, lock: boolean];
+        'pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': [asset: bigint | number, writer: string, slot: Uint8Array, sourceRevision: bigint | number];
+        'unpinMainCreator(uint64,uint64)(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number];
+        'unpinMainHolder(uint64)(bool,uint8,uint64)': [asset: bigint | number];
+        'setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': [asset: bigint | number, controllingApp: bigint | number, collectible: Uint8Array, holder: Uint8Array, managerWrites: boolean, holderPinsCollectibleOnly: boolean, lock: boolean];
+        'setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': [collectible: Uint8Array, holder: Uint8Array, managerWrites: boolean, holderPinsCollectibleOnly: boolean];
+        'deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)': [asset: bigint | number, controllingApp: bigint | number];
+        'deleteManagerPolicy()(bool,uint8,uint64)': [];
+        'setGrant(byte[])(uint64,bool,(uint8,uint64))': [writers: Uint8Array];
+        'deleteGrant()(bool,uint8,uint64)': [];
+        'purge(byte[])(bool,uint8,uint64)': [name: Uint8Array];
+        'getMain(uint64)(uint8,byte[])': [asset: bigint | number];
     };
 };
 /**
@@ -175,20 +175,20 @@ export type CollectibleVariationsArgs = {
  */
 export type CollectibleVariationsReturns = {
     'create(uint64,uint64)void': void;
-    'arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_delete_manager_policy()(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))': WriteResult;
-    'arcTBD_delete_grant()(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_purge(byte[])(bool,uint8,uint64)': RemoveResult;
-    'arcTBD_get_main(uint64)(uint8,byte[])': MainView;
+    'writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))': WriteResult;
+    'deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)': RemoveResult;
+    'pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))': WriteResult;
+    'pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))': WriteResult;
+    'unpinMainCreator(uint64,uint64)(bool,uint8,uint64)': RemoveResult;
+    'unpinMainHolder(uint64)(bool,uint8,uint64)': RemoveResult;
+    'setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))': WriteResult;
+    'setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))': WriteResult;
+    'deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)': RemoveResult;
+    'deleteManagerPolicy()(bool,uint8,uint64)': RemoveResult;
+    'setGrant(byte[])(uint64,bool,(uint8,uint64))': WriteResult;
+    'deleteGrant()(bool,uint8,uint64)': RemoveResult;
+    'purge(byte[])(bool,uint8,uint64)': RemoveResult;
+    'getMain(uint64)(uint8,byte[])': MainView;
 };
 /**
  * Defines the types of available calls and state of the CollectibleVariations smart contract.
@@ -201,62 +201,62 @@ export type CollectibleVariationsTypes = {
         argsObj: CollectibleVariationsArgs['obj']['create(uint64,uint64)void'];
         argsTuple: CollectibleVariationsArgs['tuple']['create(uint64,uint64)void'];
         returns: CollectibleVariationsReturns['create(uint64,uint64)void'];
-    }> & Record<'arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))' | 'arcTBD_write_variation', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)' | 'arcTBD_delete_variation', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))' | 'arcTBD_pin_main_creator', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))' | 'arcTBD_pin_main_holder', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)' | 'arcTBD_unpin_main_creator', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)' | 'arcTBD_unpin_main_holder', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))' | 'arcTBD_set_asset_policy', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))' | 'arcTBD_set_manager_policy', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)' | 'arcTBD_delete_asset_policy', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_delete_manager_policy()(bool,uint8,uint64)' | 'arcTBD_delete_manager_policy', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_delete_manager_policy()(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_delete_manager_policy()(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_delete_manager_policy()(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))' | 'arcTBD_set_grant', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'];
-        returns: CollectibleVariationsReturns['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'];
-    }> & Record<'arcTBD_delete_grant()(bool,uint8,uint64)' | 'arcTBD_delete_grant', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_delete_grant()(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_delete_grant()(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_delete_grant()(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_purge(byte[])(bool,uint8,uint64)' | 'arcTBD_purge', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_purge(byte[])(bool,uint8,uint64)'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_purge(byte[])(bool,uint8,uint64)'];
-        returns: CollectibleVariationsReturns['arcTBD_purge(byte[])(bool,uint8,uint64)'];
-    }> & Record<'arcTBD_get_main(uint64)(uint8,byte[])' | 'arcTBD_get_main', {
-        argsObj: CollectibleVariationsArgs['obj']['arcTBD_get_main(uint64)(uint8,byte[])'];
-        argsTuple: CollectibleVariationsArgs['tuple']['arcTBD_get_main(uint64)(uint8,byte[])'];
-        returns: CollectibleVariationsReturns['arcTBD_get_main(uint64)(uint8,byte[])'];
+    }> & Record<'writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))' | 'writeVariation', {
+        argsObj: CollectibleVariationsArgs['obj']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'];
+    }> & Record<'deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)' | 'deleteVariation', {
+        argsObj: CollectibleVariationsArgs['obj']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'];
+    }> & Record<'pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))' | 'pinMainCreator', {
+        argsObj: CollectibleVariationsArgs['obj']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'];
+    }> & Record<'pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))' | 'pinMainHolder', {
+        argsObj: CollectibleVariationsArgs['obj']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'];
+    }> & Record<'unpinMainCreator(uint64,uint64)(bool,uint8,uint64)' | 'unpinMainCreator', {
+        argsObj: CollectibleVariationsArgs['obj']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'];
+    }> & Record<'unpinMainHolder(uint64)(bool,uint8,uint64)' | 'unpinMainHolder', {
+        argsObj: CollectibleVariationsArgs['obj']['unpinMainHolder(uint64)(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['unpinMainHolder(uint64)(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['unpinMainHolder(uint64)(bool,uint8,uint64)'];
+    }> & Record<'setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))' | 'setAssetPolicy', {
+        argsObj: CollectibleVariationsArgs['obj']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'];
+    }> & Record<'setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))' | 'setManagerPolicy', {
+        argsObj: CollectibleVariationsArgs['obj']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'];
+    }> & Record<'deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)' | 'deleteAssetPolicy', {
+        argsObj: CollectibleVariationsArgs['obj']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'];
+    }> & Record<'deleteManagerPolicy()(bool,uint8,uint64)' | 'deleteManagerPolicy', {
+        argsObj: CollectibleVariationsArgs['obj']['deleteManagerPolicy()(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['deleteManagerPolicy()(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['deleteManagerPolicy()(bool,uint8,uint64)'];
+    }> & Record<'setGrant(byte[])(uint64,bool,(uint8,uint64))' | 'setGrant', {
+        argsObj: CollectibleVariationsArgs['obj']['setGrant(byte[])(uint64,bool,(uint8,uint64))'];
+        argsTuple: CollectibleVariationsArgs['tuple']['setGrant(byte[])(uint64,bool,(uint8,uint64))'];
+        returns: CollectibleVariationsReturns['setGrant(byte[])(uint64,bool,(uint8,uint64))'];
+    }> & Record<'deleteGrant()(bool,uint8,uint64)' | 'deleteGrant', {
+        argsObj: CollectibleVariationsArgs['obj']['deleteGrant()(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['deleteGrant()(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['deleteGrant()(bool,uint8,uint64)'];
+    }> & Record<'purge(byte[])(bool,uint8,uint64)' | 'purge', {
+        argsObj: CollectibleVariationsArgs['obj']['purge(byte[])(bool,uint8,uint64)'];
+        argsTuple: CollectibleVariationsArgs['tuple']['purge(byte[])(bool,uint8,uint64)'];
+        returns: CollectibleVariationsReturns['purge(byte[])(bool,uint8,uint64)'];
+    }> & Record<'getMain(uint64)(uint8,byte[])' | 'getMain', {
+        argsObj: CollectibleVariationsArgs['obj']['getMain(uint64)(uint8,byte[])'];
+        argsTuple: CollectibleVariationsArgs['tuple']['getMain(uint64)(uint8,byte[])'];
+        returns: CollectibleVariationsReturns['getMain(uint64)(uint8,byte[])'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -373,7 +373,7 @@ export declare abstract class CollectibleVariationsParamsFactory {
         };
     };
     /**
-     * Constructs a no op call for the arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64)) ABI method
      *
     * Create or replace the sender's variation (asset, sender, slot). `holder` zero means
     collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
@@ -383,9 +383,9 @@ export declare abstract class CollectibleVariationsParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdWriteVariation(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static writeVariation(params: CallParams<CollectibleVariationsArgs['obj']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64) ABI method
      *
     * Delete variation (asset, writer, slot) of an existing asset. The first authority that applies
     is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
@@ -395,99 +395,99 @@ export declare abstract class CollectibleVariationsParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdDeleteVariation(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static deleteVariation(params: CallParams<CollectibleVariationsArgs['obj']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64)) ABI method
      *
      * Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdPinMainCreator(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static pinMainCreator(params: CallParams<CollectibleVariationsArgs['obj']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64)) ABI method
      *
      * Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdPinMainHolder(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static pinMainHolder(params: CallParams<CollectibleVariationsArgs['obj']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the unpinMainCreator(uint64,uint64)(bool,uint8,uint64) ABI method
      *
      * Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12).
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdUnpinMainCreator(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static unpinMainCreator(params: CallParams<CollectibleVariationsArgs['obj']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the unpinMainHolder(uint64)(bool,uint8,uint64) ABI method
      *
      * Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdUnpinMainHolder(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static unpinMainHolder(params: CallParams<CollectibleVariationsArgs['obj']['unpinMainHolder(uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['unpinMainHolder(uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64)) ABI method
      *
      * Set the policy of one asset. It overrides the manager policy. `lock` is one way.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdSetAssetPolicy(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setAssetPolicy(params: CallParams<CollectibleVariationsArgs['obj']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64)) ABI method
      *
      * Set the policy of every asset whose ASA manager field is the sender. It has no lock.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdSetManagerPolicy(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setManagerPolicy(params: CallParams<CollectibleVariationsArgs['obj']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64) ABI method
      *
      * Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12).
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdDeleteAssetPolicy(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static deleteAssetPolicy(params: CallParams<CollectibleVariationsArgs['obj']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_delete_manager_policy()(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the deleteManagerPolicy()(bool,uint8,uint64) ABI method
      *
      * Delete the sender's manager policy.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdDeleteManagerPolicy(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_manager_policy()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_manager_policy()(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static deleteManagerPolicy(params: CallParams<CollectibleVariationsArgs['obj']['deleteManagerPolicy()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteManagerPolicy()(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64)) ABI method
+     * Constructs a no op call for the setGrant(byte[])(uint64,bool,(uint8,uint64)) ABI method
      *
      * Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdSetGrant(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setGrant(params: CallParams<CollectibleVariationsArgs['obj']['setGrant(byte[])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setGrant(byte[])(uint64,bool,(uint8,uint64))']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_delete_grant()(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the deleteGrant()(bool,uint8,uint64) ABI method
      *
      * Delete the sender's grant. Entries it admitted stay; the holder removes them separately.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdDeleteGrant(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_grant()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_grant()(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static deleteGrant(params: CallParams<CollectibleVariationsArgs['obj']['deleteGrant()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteGrant()(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_purge(byte[])(bool,uint8,uint64) ABI method
+     * Constructs a no op call for the purge(byte[])(bool,uint8,uint64) ABI method
      *
     * Delete one `v`, `m` or `p` box of a destroyed asset (I11). Anyone may call. `v` refunds the
     writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
@@ -497,9 +497,9 @@ export declare abstract class CollectibleVariationsParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdPurge(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_purge(byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_purge(byte[])(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static purge(params: CallParams<CollectibleVariationsArgs['obj']['purge(byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['purge(byte[])(bool,uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_get_main(uint64)(uint8,byte[]) ABI method
+     * Constructs a no op call for the getMain(uint64)(uint8,byte[]) ABI method
      *
     * The pin that applies: a valid holder pin, else the creator pin, else role 0. `pin` is the
     section's PinCore followed by its flat image (the holder's address is dropped).
@@ -508,7 +508,7 @@ export declare abstract class CollectibleVariationsParamsFactory {
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdGetMain(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_get_main(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['arcTBD_get_main(uint64)(uint8,byte[])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getMain(params: CallParams<CollectibleVariationsArgs['obj']['getMain(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['getMain(uint64)(uint8,byte[])']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the CollectibleVariations smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -875,7 +875,7 @@ export declare class CollectibleVariationsClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
          *
         * Create or replace the sender's variation (asset, sender, slot). `holder` zero means
         collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
@@ -885,11 +885,11 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdWriteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & {
+        writeVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete variation (asset, writer, slot) of an existing asset. The first authority that applies
         is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
@@ -899,121 +899,121 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdDeleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & {
+        deleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdPinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & {
+        pinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdPinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & {
+        pinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainCreator(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdUnpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"]> & {
+        unpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainHolder(uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdUnpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"]> & {
+        unpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainHolder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainHolder(uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of one asset. It overrides the manager policy. `lock` is one way.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdSetAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & {
+        setAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of every asset whose ASA manager field is the sender. It has no lock.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdSetManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & {
+        setManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdDeleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"]> & {
+        deleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_manager_policy()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteManagerPolicy()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's manager policy.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdDeleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"]> & {
+        deleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteManagerPolicy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteManagerPolicy()(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setGrant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdSetGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"]> & {
+        setGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_grant()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteGrant()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's grant. Entries it admitted stay; the holder removes them separately.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdDeleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_grant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_grant()(bool,uint8,uint64)"]> & {
+        deleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteGrant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteGrant()(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_purge(byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `purge(byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete one `v`, `m` or `p` box of a destroyed asset (I11). Anyone may call. `v` refunds the
         writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
@@ -1023,11 +1023,11 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdPurge: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_purge(byte[])(bool,uint8,uint64)"]> & {
+        purge: (params: CallParams<CollectibleVariationsArgs["obj"]["purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["purge(byte[])(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_get_main(uint64)(uint8,byte[])` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `getMain(uint64)(uint8,byte[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -1038,7 +1038,7 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdGetMain: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_get_main(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["arcTBD_get_main(uint64)(uint8,byte[])"]> & {
+        getMain: (params: CallParams<CollectibleVariationsArgs["obj"]["getMain(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["getMain(uint64)(uint8,byte[])"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -1054,7 +1054,7 @@ export declare class CollectibleVariationsClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
          *
         * Create or replace the sender's variation (asset, sender, slot). `holder` zero means
         collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
@@ -1064,7 +1064,7 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdWriteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & {
+        writeVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1072,7 +1072,7 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete variation (asset, writer, slot) of an existing asset. The first authority that applies
         is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
@@ -1082,7 +1082,7 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdDeleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & {
+        deleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1090,14 +1090,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdPinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & {
+        pinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1105,14 +1105,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdPinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & {
+        pinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1120,14 +1120,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainCreator(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdUnpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"]> & {
+        unpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1135,14 +1135,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainHolder(uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdUnpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"]> & {
+        unpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainHolder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainHolder(uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1150,14 +1150,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of one asset. It overrides the manager policy. `lock` is one way.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdSetAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & {
+        setAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1165,14 +1165,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of every asset whose ASA manager field is the sender. It has no lock.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdSetManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & {
+        setManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1180,14 +1180,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdDeleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"]> & {
+        deleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1195,14 +1195,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_manager_policy()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteManagerPolicy()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's manager policy.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdDeleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"]> & {
+        deleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteManagerPolicy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteManagerPolicy()(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1210,14 +1210,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setGrant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdSetGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"]> & {
+        setGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1225,14 +1225,14 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_grant()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteGrant()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's grant. Entries it admitted stay; the holder removes them separately.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdDeleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_grant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_grant()(bool,uint8,uint64)"]> & {
+        deleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteGrant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteGrant()(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1240,7 +1240,7 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_purge(byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `purge(byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete one `v`, `m` or `p` box of a destroyed asset (I11). Anyone may call. `v` refunds the
         writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
@@ -1250,7 +1250,7 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdPurge: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_purge(byte[])(bool,uint8,uint64)"]> & {
+        purge: (params: CallParams<CollectibleVariationsArgs["obj"]["purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["purge(byte[])(bool,uint8,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1258,7 +1258,7 @@ export declare class CollectibleVariationsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_get_main(uint64)(uint8,byte[])` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `getMain(uint64)(uint8,byte[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -1269,7 +1269,7 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdGetMain: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_get_main(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["arcTBD_get_main(uint64)(uint8,byte[])"]> & {
+        getMain: (params: CallParams<CollectibleVariationsArgs["obj"]["getMain(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["getMain(uint64)(uint8,byte[])"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1289,7 +1289,7 @@ export declare class CollectibleVariationsClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))` ABI method.
          *
         * Create or replace the sender's variation (asset, sender, slot). `holder` zero means
         collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
@@ -1299,10 +1299,10 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdWriteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        writeVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1312,7 +1312,7 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete variation (asset, writer, slot) of an existing asset. The first authority that applies
         is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
@@ -1322,10 +1322,10 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdDeleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & SendParams & {
+        deleteVariation: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1335,17 +1335,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdPinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        pinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1355,17 +1355,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdPinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        pinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1375,17 +1375,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainCreator(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdUnpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"]> & SendParams & {
+        unpinMainCreator: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["unpinMainCreator(uint64,uint64)(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1395,17 +1395,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `unpinMainHolder(uint64)(bool,uint8,uint64)` ABI method.
          *
          * Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdUnpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"]> & SendParams & {
+        unpinMainHolder: (params: CallParams<CollectibleVariationsArgs["obj"]["unpinMainHolder(uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["unpinMainHolder(uint64)(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["unpinMainHolder(uint64)(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1415,17 +1415,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of one asset. It overrides the manager policy. `lock` is one way.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdSetAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        setAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1435,17 +1435,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Set the policy of every asset whose ASA manager field is the sender. It has no lock.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdSetManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        setManagerPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1455,17 +1455,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)` ABI method.
          *
          * Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12).
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdDeleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"]> & SendParams & {
+        deleteAssetPolicy: (params: CallParams<CollectibleVariationsArgs["obj"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1475,17 +1475,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_manager_policy()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteManagerPolicy()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's manager policy.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdDeleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_manager_policy()(bool,uint8,uint64)"]> & SendParams & {
+        deleteManagerPolicy: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteManagerPolicy()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteManagerPolicy()(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_delete_manager_policy()(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["deleteManagerPolicy()(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1495,17 +1495,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `setGrant(byte[])(uint64,bool,(uint8,uint64))` ABI method.
          *
          * Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdSetGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"]> & SendParams & {
+        setGrant: (params: CallParams<CollectibleVariationsArgs["obj"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"] | CollectibleVariationsArgs["tuple"]["setGrant(byte[])(uint64,bool,(uint8,uint64))"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))"]);
+            return: (undefined | CollectibleVariationsReturns["setGrant(byte[])(uint64,bool,(uint8,uint64))"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1515,17 +1515,17 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_delete_grant()(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `deleteGrant()(bool,uint8,uint64)` ABI method.
          *
          * Delete the sender's grant. Entries it admitted stay; the holder removes them separately.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdDeleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_delete_grant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_delete_grant()(bool,uint8,uint64)"]> & SendParams & {
+        deleteGrant: (params?: CallParams<CollectibleVariationsArgs["obj"]["deleteGrant()(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["deleteGrant()(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_delete_grant()(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["deleteGrant()(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1535,7 +1535,7 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_purge(byte[])(bool,uint8,uint64)` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `purge(byte[])(bool,uint8,uint64)` ABI method.
          *
         * Delete one `v`, `m` or `p` box of a destroyed asset (I11). Anyone may call. `v` refunds the
         writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
@@ -1545,10 +1545,10 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdPurge: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["arcTBD_purge(byte[])(bool,uint8,uint64)"]> & SendParams & {
+        purge: (params: CallParams<CollectibleVariationsArgs["obj"]["purge(byte[])(bool,uint8,uint64)"] | CollectibleVariationsArgs["tuple"]["purge(byte[])(bool,uint8,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_purge(byte[])(bool,uint8,uint64)"]);
+            return: (undefined | CollectibleVariationsReturns["purge(byte[])(bool,uint8,uint64)"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1558,7 +1558,7 @@ export declare class CollectibleVariationsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the CollectibleVariations smart contract using the `arcTBD_get_main(uint64)(uint8,byte[])` ABI method.
+         * Makes a call to the CollectibleVariations smart contract using the `getMain(uint64)(uint8,byte[])` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
@@ -1569,10 +1569,10 @@ export declare class CollectibleVariationsClient {
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdGetMain: (params: CallParams<CollectibleVariationsArgs["obj"]["arcTBD_get_main(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["arcTBD_get_main(uint64)(uint8,byte[])"]> & SendParams & {
+        getMain: (params: CallParams<CollectibleVariationsArgs["obj"]["getMain(uint64)(uint8,byte[])"] | CollectibleVariationsArgs["tuple"]["getMain(uint64)(uint8,byte[])"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | CollectibleVariationsReturns["arcTBD_get_main(uint64)(uint8,byte[])"]);
+            return: (undefined | CollectibleVariationsReturns["getMain(uint64)(uint8,byte[])"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1590,7 +1590,7 @@ export declare class CollectibleVariationsClient {
      */
     clone(params: CloneAppClientParams): CollectibleVariationsClient;
     /**
-     * Makes a readonly (simulated) call to the CollectibleVariations smart contract using the `arcTBD_get_main(uint64)(uint8,byte[])` ABI method.
+     * Makes a readonly (simulated) call to the CollectibleVariations smart contract using the `getMain(uint64)(uint8,byte[])` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
@@ -1601,7 +1601,7 @@ export declare class CollectibleVariationsClient {
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    arcTbdGetMain(params: CallParams<CollectibleVariationsArgs['obj']['arcTBD_get_main(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['arcTBD_get_main(uint64)(uint8,byte[])']>): Promise<MainView>;
+    getMain(params: CallParams<CollectibleVariationsArgs['obj']['getMain(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['getMain(uint64)(uint8,byte[])']>): Promise<MainView>;
     /**
      * Methods to access state for the current CollectibleVariations app
      */
@@ -1632,7 +1632,7 @@ export declare class CollectibleVariationsClient {
 }
 export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64)) ABI method.
      *
     * Create or replace the sender's variation (asset, sender, slot). `holder` zero means
     collectible scope, otherwise holder scope bound to `holder`. `proof` is used only by meta
@@ -1643,9 +1643,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdWriteVariation(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_write_variation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | undefined]>;
+    writeVariation(params?: CallParams<CollectibleVariationsArgs['obj']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['writeVariation(uint64,uint64,byte[],address,uint8,uint8,bool,byte[],byte[],uint64,byte[32][])(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64) ABI method.
+     * Calls the deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64) ABI method.
      *
     * Delete variation (asset, writer, slot) of an existing asset. The first authority that applies
     is used and reported: writer (unlocked), void, holder, creator (unlocked policy).
@@ -1656,9 +1656,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdDeleteVariation(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_delete_variation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | undefined]>;
+    deleteVariation(params?: CallParams<CollectibleVariationsArgs['obj']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['deleteVariation(uint64,uint64,address,byte[])(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64)) ABI method.
      *
      * Pin a collectible-scope variation as the creator's main image. The pin is a snapshot of its flat image.
      *
@@ -1666,9 +1666,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdPinMainCreator(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_pin_main_creator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
+    pinMainCreator(params?: CallParams<CollectibleVariationsArgs['obj']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['pinMainCreator(uint64,uint64,address,byte[],uint64,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64)) ABI method.
      *
      * Pin a variation as the holder's main image. Only single-unit assets. The next transfer voids it.
      *
@@ -1676,9 +1676,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdPinMainHolder(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_pin_main_holder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | undefined]>;
+    pinMainHolder(params?: CallParams<CollectibleVariationsArgs['obj']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['pinMainHolder(uint64,address,byte[],uint64)(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64) ABI method.
+     * Calls the unpinMainCreator(uint64,uint64)(bool,uint8,uint64) ABI method.
      *
      * Clear the creator section. The resolved creator, or the AssetCreator when none resolves (I12).
      *
@@ -1686,9 +1686,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdUnpinMainCreator(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_unpin_main_creator(uint64,uint64)(bool,uint8,uint64)'] | undefined]>;
+    unpinMainCreator(params?: CallParams<CollectibleVariationsArgs['obj']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['unpinMainCreator(uint64,uint64)(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64) ABI method.
+     * Calls the unpinMainHolder(uint64)(bool,uint8,uint64) ABI method.
      *
      * Clear the holder section. Its holder, or anyone once it is void. Refunded to the holder in it.
      *
@@ -1696,9 +1696,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdUnpinMainHolder(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_unpin_main_holder(uint64)(bool,uint8,uint64)'] | undefined]>;
+    unpinMainHolder(params?: CallParams<CollectibleVariationsArgs['obj']['unpinMainHolder(uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['unpinMainHolder(uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['unpinMainHolder(uint64)(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64)) ABI method.
      *
      * Set the policy of one asset. It overrides the manager policy. `lock` is one way.
      *
@@ -1706,9 +1706,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdSetAssetPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_set_asset_policy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
+    setAssetPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['setAssetPolicy(uint64,uint64,byte[],byte[],bool,bool,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64)) ABI method.
      *
      * Set the policy of every asset whose ASA manager field is the sender. It has no lock.
      *
@@ -1716,9 +1716,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdSetManagerPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_set_manager_policy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
+    setManagerPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['setManagerPolicy(byte[],byte[],bool,bool)(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64) ABI method.
+     * Calls the deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64) ABI method.
      *
      * Delete an unlocked asset policy. The resolved creator, or the AssetCreator when none resolves (I12).
      *
@@ -1726,9 +1726,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdDeleteAssetPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_delete_asset_policy(uint64,uint64)(bool,uint8,uint64)'] | undefined]>;
+    deleteAssetPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['deleteAssetPolicy(uint64,uint64)(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_delete_manager_policy()(bool,uint8,uint64) ABI method.
+     * Calls the deleteManagerPolicy()(bool,uint8,uint64) ABI method.
      *
      * Delete the sender's manager policy.
      *
@@ -1736,9 +1736,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdDeleteManagerPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_manager_policy()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_manager_policy()(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_delete_manager_policy()(bool,uint8,uint64)'] | undefined]>;
+    deleteManagerPolicy(params?: CallParams<CollectibleVariationsArgs['obj']['deleteManagerPolicy()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteManagerPolicy()(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['deleteManagerPolicy()(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64)) ABI method.
+     * Calls the setGrant(byte[])(uint64,bool,(uint8,uint64)) ABI method.
      *
      * Writers the sender admits for holder-scope entries bound to the sender, on anything the sender holds.
      *
@@ -1746,9 +1746,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdSetGrant(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_set_grant(byte[])(uint64,bool,(uint8,uint64))'] | undefined]>;
+    setGrant(params?: CallParams<CollectibleVariationsArgs['obj']['setGrant(byte[])(uint64,bool,(uint8,uint64))'] | CollectibleVariationsArgs['tuple']['setGrant(byte[])(uint64,bool,(uint8,uint64))']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['setGrant(byte[])(uint64,bool,(uint8,uint64))'] | undefined]>;
     /**
-     * Calls the arcTBD_delete_grant()(bool,uint8,uint64) ABI method.
+     * Calls the deleteGrant()(bool,uint8,uint64) ABI method.
      *
      * Delete the sender's grant. Entries it admitted stay; the holder removes them separately.
      *
@@ -1756,9 +1756,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdDeleteGrant(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_delete_grant()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_delete_grant()(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_delete_grant()(bool,uint8,uint64)'] | undefined]>;
+    deleteGrant(params?: CallParams<CollectibleVariationsArgs['obj']['deleteGrant()(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['deleteGrant()(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['deleteGrant()(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_purge(byte[])(bool,uint8,uint64) ABI method.
+     * Calls the purge(byte[])(bool,uint8,uint64) ABI method.
      *
     * Delete one `v`, `m` or `p` box of a destroyed asset (I11). Anyone may call. `v` refunds the
     writer in the name; `m` refunds the holder section's deposit to its holder and the rest to the
@@ -1769,9 +1769,9 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdPurge(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_purge(byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['arcTBD_purge(byte[])(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_purge(byte[])(bool,uint8,uint64)'] | undefined]>;
+    purge(params?: CallParams<CollectibleVariationsArgs['obj']['purge(byte[])(bool,uint8,uint64)'] | CollectibleVariationsArgs['tuple']['purge(byte[])(bool,uint8,uint64)']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['purge(byte[])(bool,uint8,uint64)'] | undefined]>;
     /**
-     * Calls the arcTBD_get_main(uint64)(uint8,byte[]) ABI method.
+     * Calls the getMain(uint64)(uint8,byte[]) ABI method.
      *
     * The pin that applies: a valid holder pin, else the creator pin, else role 0. `pin` is the
     section's PinCore followed by its flat image (the holder's address is dropped).
@@ -1781,7 +1781,7 @@ export type CollectibleVariationsComposer<TReturns extends [...any[]] = []> = {
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdGetMain(params?: CallParams<CollectibleVariationsArgs['obj']['arcTBD_get_main(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['arcTBD_get_main(uint64)(uint8,byte[])']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['arcTBD_get_main(uint64)(uint8,byte[])'] | undefined]>;
+    getMain(params?: CallParams<CollectibleVariationsArgs['obj']['getMain(uint64)(uint8,byte[])'] | CollectibleVariationsArgs['tuple']['getMain(uint64)(uint8,byte[])']>): CollectibleVariationsComposer<[...TReturns, CollectibleVariationsReturns['getMain(uint64)(uint8,byte[])'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the CollectibleVariations smart contract.
      *

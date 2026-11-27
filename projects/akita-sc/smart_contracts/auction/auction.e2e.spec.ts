@@ -386,7 +386,8 @@ describe('Auction SDK', () => {
 
       const state = await raffleAuction.state()
       expect(state.bidFee).toBe(BID_FEE)
-      expect(state.weightsBoxCount).toBe(3n)
+      // weights storage grows with the bidders: nothing is reserved at creation, whatever count was passed
+      expect(state.weightsBoxCount).toBe(0n)
     })
 
     test('should allow multiple bidders to place bids', async () => {
@@ -908,15 +909,138 @@ describe('Auction SDK', () => {
         auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 3n })
       ).rejects.toThrow()
 
-      const sellerBefore = await getAccountBalance(algorand, owner.addr.toString())
+      // the only weights storage a new fee auction holds is its empty totals box, funded by the seller
+      const auctionAddress = auction.client.appAddress.toString()
+      const held = await getAccountBalance(algorand, auctionAddress)
       const returned = await auction.clearWeightsBoxes({ sender: owner.addr, signer: owner.signer, iterationAmount: 3n })
-      expect(returned).toBe(3n * (await auction.mbr()).weights)
-      // AR-13: the weights MBR goes straight back to the funder
-      expect(await getAccountBalance(algorand, owner.addr.toString())).toBeGreaterThan(sellerBefore)
+      expect(returned).toBe((await auction.mbr()).weights)
+      expect(returned).toBe(2_900n)
+      // AR-13: it goes straight back to the funder, out of the auction's account
+      expect(held - await getAccountBalance(algorand, auctionAddress)).toBe(returned)
+      // and nothing is left to clear
+      expect(await auction.clearWeightsBoxes({ sender: owner.addr, signer: owner.signer, iterationAmount: 1n })).toBe(0n)
 
       await akitaUniverse.auctionFactory.cancelAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
       await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
       expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('a fee auction can be cancelled without clearing first: the cancel removes the totals box and refunds its storage with the rest', async () => {
+      const owner = await newSeller()
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+      const auction = await createAuction(owner, { startIn: 7_200n, duration: 14_400n })
+      const funder = await auction.client.state.global.funder()
+      expect(funder?.account).toBe(owner.addr.toString())
+
+      const ownerBefore = await getAccountBalance(algorand, owner.addr.toString())
+      await akitaUniverse.auctionFactory.cancelAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
+      expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+      // the recorded deposit, totals box included, is back with the seller (less the fees of the call),
+      // and none of it stayed in the factory
+      const back = await getAccountBalance(algorand, owner.addr.toString()) - ownerBefore
+      expect(back).toBeLessThanOrEqual(funder!.amount)
+      expect(back).toBeGreaterThan(funder!.amount - 50_000n)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('no bidder cap: a fee auction reserves no weights boxes, each new bidder funds its own slot, and the storage refunds free them', async () => {
+      const BID_BOX = 35_300n
+      const BY_ADDRESS = 18_900n
+      const LOCATION_BOX = 18_900n
+      const SLOT = 3_200n // 8 bytes
+      const NEW_WEIGHTS_BOX = 6_100n // 2,500 + 400 * ('w' + uint64)
+      const TOTALS_BOX = 2_900n // 2,500 + 400 * 't'
+      const owner = await newSeller()
+      const bidders = [await newBidder(), await newBidder(), await newBidder()]
+      const [a, b, c] = bidders
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      // the count no longer sizes anything: every value above 0 prices the same auction, the seller
+      // funds only the totals box, and a fee auction just has to pass one
+      const quote = (weightsListCount: bigint) =>
+        akitaUniverse.auctionFactory.cost({ isPrizeBox: false, bidAssetId: 0n, prizeAssetId: testAssetId, weightsListCount })
+      const quoted = await quote(1n)
+      for (const count of [3n, 15n, 1_000n]) expect(await quote(count)).toBe(quoted)
+      expect(quoted - await quote(0n)).toBe(TOTALS_BOX)
+      await expect(createAuction(owner, { weightsListCount: 0n }).then(() => 'created')).rejects.toThrow(/Fanw/)
+
+      const auction = await createAuction(owner, { weightsListCount: 1_000n })
+      const appId = auction.client.appId
+      const boxNames = async () => (await algorand.app.getBoxNames(appId)).map((box) => Buffer.from(box.nameRaw).toString('latin1')).sort()
+      const weightsBox = new Uint8Array([0x77, ...algosdk.encodeUint64(0n)])
+      const totalsBox = new Uint8Array([0x74])
+      const weights = async () => {
+        const box = await algorand.app.getBoxValue(appId, weightsBox)
+        return Array.from({ length: box.length / 8 }, (_, i) => algosdk.decodeUint64(box.slice(i * 8, i * 8 + 8), 'bigint'))
+      }
+      const total = async () => algosdk.decodeUint64(await algorand.app.getBoxValue(appId, totalsBox), 'bigint')
+      const minBalance = async () => BigInt((await algorand.account.getInformation(auction.client.appAddress)).minBalance.microAlgos)
+
+      // at creation the auction holds only the empty totals box
+      expect(await boxNames()).toEqual(['t'])
+      expect((await auction.state()).weightsBoxCount).toBe(0n)
+      const costs = await auction.mbr()
+      expect(costs).toEqual({ bids: BID_BOX, weights: TOTALS_BOX, bidsByAddress: BY_ADDRESS, locations: LOCATION_BOX + SLOT + NEW_WEIGHTS_BOX + SLOT })
+      const firstBid = costs.bids + costs.bidsByAddress + costs.locations
+
+      await timeWarp.timeWarp(70n)
+      const minBefore = await minBalance()
+      await bid(auction, a, 1_000_000n)
+      await bid(auction, b, 1_100_000n)
+      await bid(auction, c, 1_200_000n)
+
+      // three bidders: their bid, address and location boxes, three slots, and one weights box with its total
+      const afterThree = 3n * (BID_BOX + BY_ADDRESS + LOCATION_BOX + SLOT) + NEW_WEIGHTS_BOX + SLOT
+      expect(await minBalance() - minBefore).toBe(afterThree)
+      expect(await weights()).toEqual([1_000_000n, 1_100_000n, 1_200_000n])
+      expect(await total()).toBe(3_300_000n)
+      expect((await auction.state()).weightsBoxCount).toBe(1n)
+
+      // another bid by a known address is one more bid box: its weight is replaced, no slot is added
+      await bid(auction, a, 1_300_000n)
+      expect(await minBalance() - minBefore).toBe(afterThree + BID_BOX)
+      expect(await weights()).toEqual([1_300_000n, 1_100_000n, 1_200_000n])
+      expect(await total()).toBe(3_600_000n)
+      expect((await auction.state()).weightedBidTotal).toBe(3_600_000n)
+
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await draw(auction)
+      // AR-02: the auction winner's weight is out of the draw
+      expect(await weights()).toEqual([0n, 1_100_000n, 1_200_000n])
+      expect(await total()).toBe(2_300_000n)
+      expect([b.addr.toString(), c.addr.toString()]).toContain(await findWinner(auction))
+      await auction.claimRafflePrize({ sender: deployer.addr, signer: deployer.signer })
+
+      // the losing bids are paid back first, so the storage refunds below move storage deposits only
+      for (const id of [1n, 2n, 3n]) await auction.refundBid({ sender: deployer.addr, signer: deployer.signer, id })
+      const held = await Promise.all(bidders.map((bidder) => getAccountBalance(algorand, bidder.addr.toString())))
+      const gained = () => Promise.all(bidders.map(async (bidder, i) => await getAccountBalance(algorand, bidder.addr.toString()) - held[i]))
+
+      // the totals box stays while any bid's storage is still to be refunded
+      await expect(auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 1n })).rejects.toThrow(/Narc/)
+
+      // refunds follow the bids in the order they were placed; each new address met gives one slot back
+      await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 1n })
+      expect(await gained()).toEqual([firstBid, 0n, 0n])
+      expect((await algorand.app.getBoxValue(appId, weightsBox)).length).toBe(2 * 8)
+
+      await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 2n })
+      expect(await gained()).toEqual([firstBid, firstBid, firstBid])
+      // the last slot went with the last location box: no weights box is left
+      expect((await auction.state()).weightsBoxCount).toBe(0n)
+      expect((await boxNames()).filter((name) => name.startsWith('w'))).toEqual([])
+
+      // the winning bid's own box is the last storage to go
+      await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 5n })
+      expect(await gained()).toEqual([firstBid + costs.bids, firstBid, firstBid])
+      expect(await boxNames()).toEqual(['t'])
+
+      // nobody has to clear the totals box: the delete removes it and the seller's deposit comes back whole
+      await akitaUniverse.auctionFactory.deleteAuction({ sender: owner.addr, signer: owner.signer, appId })
+      await expect(algorand.client.algod.getApplicationByID(appId).do()).rejects.toThrow()
       expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
     })
 
@@ -976,26 +1100,44 @@ describe('Auction SDK', () => {
       await expect(createAuction(owner, { bidFee: 0n, bidAssetId: testAssetId })).rejects.toThrow(/Piba/)
     })
 
-    test('AR-12: quoted bid MBR equals the actual min-balance increase', async () => {
+    test('AR-12: the quoted bid MBR is what the bid deposits, and it covers the actual min-balance increase', async () => {
       const owner = await newSeller()
       const [a, b] = [await newBidder(), await newBidder()]
       const auction = await createAuction(owner)
       await timeWarp.timeWarp(70n)
 
       const { bids, bidsByAddress, locations } = await auction.mbr()
-      const minBalance = async () =>
-        BigInt((await algorand.client.algod.accountInformation(auction.client.appAddress).do()).minBalance)
+      const account = async () => {
+        const info = await algorand.client.algod.accountInformation(auction.client.appAddress).do()
+        return { minBalance: BigInt(info.minBalance), balance: BigInt(info.amount) }
+      }
+      // A unique bidder of a fee auction pays a flat share of the weights storage (AuctionMBRWeightSlot,
+      // part of `locations`): its 8-byte slot, plus opening a weights box and adding that box's total.
+      // Only the bidder that opens a weights box needs all of it.
+      const SLOT = 400n * 8n
+      const WEIGHT_SLOT = 12_500n
 
-      const before = await minBalance()
+      const before = await account()
       await bid(auction, a, 1_000_000n)
-      const afterFirst = await minBalance()
-      expect(afterFirst - before).toBe(bids + bidsByAddress + locations)
+      const afterFirst = await account()
+      // a opens the first weights box: the quote is exactly what the storage costs
+      expect(afterFirst.minBalance - before.minBalance).toBe(bids + bidsByAddress + locations)
+      expect(afterFirst.balance - before.balance).toBe(1_000_000n + bids + bidsByAddress + locations)
 
       await bid(auction, b, 1_100_000n)
+      const afterSecond = await account()
+      // b pays the same share and needs only a slot; the rest stays on the auction, held against the
+      // next weights box, and comes back to b with its storage refund
+      expect(afterSecond.minBalance - afterFirst.minBalance).toBe(bids + bidsByAddress + locations - (WEIGHT_SLOT - SLOT))
+      expect(afterSecond.balance - afterFirst.balance).toBe(1_100_000n + bids + bidsByAddress + locations)
+
       await bid(auction, a, 1_200_000n)
-      const afterRepeat = await minBalance()
-      // b: first bid (3 boxes); a's second bid: only a new bid box
-      expect(afterRepeat - afterFirst).toBe(bids + bidsByAddress + locations + bids)
+      const afterRepeat = await account()
+      // a's second bid: only a new bid box
+      expect(afterRepeat.minBalance - afterSecond.minBalance).toBe(bids)
+      expect(afterRepeat.balance - afterSecond.balance).toBe(1_200_000n + bids)
+      // what the auction holds is never less than its minimum balance plus the bids it must give back
+      expect(afterRepeat.balance - afterRepeat.minBalance).toBeGreaterThanOrEqual(1_000_000n + 1_100_000n + 1_200_000n)
     })
 
     test('TRADE-2: the factory rejects a prize ASA that has a clawback or freeze address', async () => {
@@ -1081,6 +1223,74 @@ describe('Auction SDK', () => {
 
       // A's losing bid (minus its 1% fee) and its raffle prize wait for A as Rewards disbursements
       expect(await rewardsHolding() - rewardsBefore).toBeGreaterThan(990_000n)
+    })
+
+    test('AUC-02: bids left behind by a bidder who quit the bid asset are refunded out of their own deposit, not the seller\'s reserve', async () => {
+      const owner = await newSeller()
+      const [leaver, winner] = [await newBidder(), await newBidder()]
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000_000n, decimals: 0, assetName: 'Deposit Bid', unitName: 'DPB',
+      })
+      const bidAssetId = BigInt(assetId)
+      for (const account of [owner, leaver, winner]) await optInTo(account, bidAssetId)
+      for (const account of [leaver, winner]) {
+        await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, assetId: bidAssetId, amount: 10_000_000n, receiver: account.addr })
+      }
+      await akitaUniverse.auctionFactory.optIn({ sender: deployer.addr, signer: deployer.signer, asset: bidAssetId })
+      // Rewards holds the bid asset already, so a refund disbursement costs its own storage and nothing else
+      const rewards = akitaUniverse.rewards.client
+      await rewards.send.optIn({
+        sender: deployer.addr, signer: deployer.signer, extraFee: (1_000).microAlgo(),
+        args: {
+          payment: await algorand.createTransaction.payment({ sender: deployer.addr, receiver: rewards.appAddress, amount: (100_000).microAlgo() }),
+          asset: bidAssetId,
+        },
+      })
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner, { bidFee: 0n, bidAssetId })
+      // an ASA bid holds what one refund disbursement costs: its 35,300 box and a 44,500 deposit
+      const costs = await auction.mbr()
+      expect(costs.bids).toBe(79_800n)
+      const deposit = costs.bids - 35_300n
+
+      await timeWarp.timeWarp(70n)
+      const asaBid = (bidder: TransactionSignerAccount, amount: bigint) =>
+        auction.bid({ sender: bidder.addr, signer: bidder.signer, amount, marketplace: owner.addr.toString(), isAsa: true, bidAsset: bidAssetId })
+      // three bids in a row by one address (allowed without a bid fee), which then leaves the bid asset
+      for (const amount of [1_000_000n, 1_100_000n, 1_200_000n]) await asaBid(leaver, amount)
+      await asaBid(winner, 1_300_000n)
+      await algorand.send.assetOptOut({ sender: leaver.addr, signer: leaver.signer, assetId: bidAssetId, creator: deployer.addr, ensureZeroBalance: false })
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      /** what the auction's account could spend: the seller's reserve, plus the deposits still held */
+      const spendable = async () => {
+        const info = await algorand.account.getInformation(auction.client.appAddress)
+        return BigInt(info.balance.microAlgos) - BigInt(info.minBalance.microAlgos)
+      }
+      const rewardsHolding = async () => {
+        const info = await algorand.account.getInformation(rewards.appAddress)
+        return info.assets?.find((holding) => holding.assetId === bidAssetId)?.amount ?? 0n
+      }
+      const [spendableBefore, rewardsBefore] = [await spendable(), await rewardsHolding()]
+      const [leaverBefore, winnerBefore] = [await getAccountBalance(algorand, leaver.addr.toString()), await getAccountBalance(algorand, winner.addr.toString())]
+
+      await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 16n })
+      expect((await auction.state()).refundCount).toBe(3n)
+      // the three abandoned bids wait for the leaver in Rewards, each disbursement paid for by its own bid
+      expect(await rewardsHolding() - rewardsBefore).toBe(3_300_000n)
+      // of the leaver's storage only its address record is left to return; the winner's comes back whole
+      expect(await getAccountBalance(algorand, leaver.addr.toString()) - leaverBefore).toBe(costs.bidsByAddress)
+      expect(await getAccountBalance(algorand, winner.addr.toString()) - winnerBefore).toBe(costs.bids + costs.bidsByAddress)
+      // what the auction can spend fell by the four deposits and nothing else: the seller's reserve is untouched
+      expect(spendableBefore - await spendable()).toBe(4n * deposit)
+
+      // a zero-fee auction has no totals box: the cleanup call is a no-op instead of a failure
+      expect(await auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 1n })).toBe(0n)
+      await akitaUniverse.auctionFactory.deleteAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
     })
 
     /** opts the account out of the prize asset and closes it, so a payment below 0.1 ALGO can no longer reach it */

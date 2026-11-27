@@ -19,6 +19,24 @@ export type UpgradeDaoBinding = {
     lease: string | Uint8Array;
     proposalId: bigint | number;
 };
+/**
+ * Bytes of DAO boxes an execution-key upgrade group reads that exist only once its UpgradeApp proposal
+ * is created and executed, for `wallet.build.usePlugin({ pendingBoxBytes })`:
+ *
+ * - `'u' + itob(target)`, the upgrade leases recorded for the target: a 2-byte count and 40 B per
+ *   action that names the target (`actions`, 1 unless the target's factory and child go in two groups).
+ * - with `proposalRead` (a DAO without `isUpgradeLease`, see `UpgradeDaoBinding`): the execution box
+ *   `'x' + lease` (16 B) and the proposal box `'l' + itob(id)`, 121 B plus, for each of its
+ *   `proposalActions` UpgradeApp actions, 67 B and 32 B per group id.
+ *
+ * `groups` is the number of group ids one execution key carries (one per 1,000 rounds of its window).
+ */
+export declare function pendingUpgradeBoxBytes({ groups, actions, proposalRead, proposalActions }: {
+    groups: number;
+    actions?: number;
+    proposalRead?: boolean;
+    proposalActions?: number;
+}): number;
 type ContractArgs = UpdateAkitaDaoPluginArgs["obj"];
 type DeleteBoxedContractArgs = (Omit<ContractArgs['deleteBoxedContract(uint64,bool)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
@@ -44,6 +62,12 @@ type UpdateAkitaDaoAppIDForAppArgs = (Omit<ContractArgs['updateAkitaDaoAppIDForA
     daoBinding?: UpgradeDaoBinding;
 });
 type UpdateAkitaDaoEscrowForAppArgs = (Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,(string,uint64))void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+    daoBinding?: UpgradeDaoBinding;
+});
+type UpdateRevocationArgs = (Omit<ContractArgs['updateRevocation(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & {
+    factoryAppId: bigint | number;
+} & MaybeSigner & {
     rekeyBack?: boolean;
     daoBinding?: UpgradeDaoBinding;
 });
@@ -83,6 +107,16 @@ export declare class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPlugi
     updateAkitaDaoAppIDForApp(args: UpdateAkitaDaoAppIDForAppArgs): PluginSDKReturn;
     updateAkitaDaoEscrowForApp(): PluginSDKReturn;
     updateAkitaDaoEscrowForApp(args: UpdateAkitaDaoEscrowForAppArgs): PluginSDKReturn;
+    /**
+     * Points the wallet factory at the revocation app (`AbstractedAccountFactory.updateRevocation`),
+     * the app every wallet asks whether a grant was revoked. Zero turns the check off.
+     *
+     * The plugin calls the factory the DAO's `aal.wallet` names, and the call is upgrade-class, so the
+     * execution key has to be recorded for that factory: pass it as `factoryAppId` (the SDK's
+     * `walletFactory` for the network, as `updateFactoryChildContract` takes it).
+     */
+    updateRevocation(): PluginSDKReturn;
+    updateRevocation(args: UpdateRevocationArgs): PluginSDKReturn;
     /**
      * Updates a factory's child contract bytecode stored in its box.
      * This allows the factory to deploy new instances with the updated contract code.

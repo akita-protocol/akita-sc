@@ -4,8 +4,9 @@
  *
  * Inputs are the receipts that `deploy-gates.ts --manifest-dir <dir>` writes (one `<Contract>.json` per
  * sub-gate), plus optional explicit `--sub-gates Name=id,...`. For each sub-gate the script:
- *   1. checks that the app runs the program its receipt (or the current artifact) names;
- *   2. flags it context-aware only if it runs the current artifact AND that artifact has `checkFor`;
+ *   1. checks that the app runs the program its receipt names, and that this is the current artifact
+ *      of its name: an app that runs any other program is refused, with or without a receipt;
+ *   2. flags it context-aware if that artifact has `checkFor`;
  *   3. reads the Gate's allowlist box and skips sub-gates that are already allowlisted with the right flag;
  *   4. tops up the Gate for new boxes and sends `setSubGate(app, true, ctxAware)` as the Gate creator;
  *   5. reads every box back and fails on any mismatch.

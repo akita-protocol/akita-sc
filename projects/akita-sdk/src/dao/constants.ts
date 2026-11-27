@@ -19,6 +19,13 @@ export enum ProposalActionEnum {
 
 export const EMPTY_CID = Buffer.from('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 
+/**
+ * Seconds an approved proposal stays executable after its voting period ends (45 days). A proposal
+ * that was voted on can execute until `votingTs + duration + PROPOSAL_EXECUTION_WINDOW`; later its
+ * proposer can only cancel and delete it. Creator-approved bootstrap proposals expire at `initialize`.
+ */
+export const PROPOSAL_EXECUTION_WINDOW: bigint = 3_888_000n
+
 /** Deposit for a vote receipt ('w' + proposal id + voter -> type, power, weight). */
 export const DAOProposalVotesMBR: bigint = 25_700n
 

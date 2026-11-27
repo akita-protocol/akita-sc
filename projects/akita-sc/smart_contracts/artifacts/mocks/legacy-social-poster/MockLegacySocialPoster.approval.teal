@@ -129,10 +129,10 @@ post:
     pushint 36
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -141,7 +141,7 @@ post:
     pop
     dup
     cover 4
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:519
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -237,13 +237,13 @@ post_after_assert@3:
     intc_2 // 1
     bzero
     cover 3
-    // smart_contracts/utils/functions.ts:554
+    // smart_contracts/utils/functions.ts:572
     // if (!rekeyBack) {
     uncover 8
     bnz post_after_if_else@7
     uncover 7
     pop
-    // smart_contracts/utils/functions.ts:555
+    // smart_contracts/utils/functions.ts:573
     // return Global.zeroAddress
     global ZeroAddress
 
@@ -324,7 +324,7 @@ post_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8:
     return
 
 post_after_if_else@7:
-    // smart_contracts/utils/functions.ts:558
+    // smart_contracts/utils/functions.ts:576
     // return wallet.address
     uncover 7
     app_params_get AppAddress

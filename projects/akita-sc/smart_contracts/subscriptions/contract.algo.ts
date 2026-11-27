@@ -36,7 +36,7 @@ import {
   gateCheck,
   gateCheckCtx,
   getSubscriptionFees,
-  legacyOriginOr,
+  legacyOriginAtRestOr,
   legacyOriginOrTxnSender,
   legacyWalletOf,
   ownsAtRestOf,
@@ -625,7 +625,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       // LEGACY (registry; Phase 4 replaces it with `key.address` after the adoptPrincipal backfill, Q13)
       const legacyWallet = legacyWalletOf(this.akitaDAO.value, key.address)
       wallet = legacyWallet.id
-      principal = legacyOriginOr(legacyWallet, key.address)
+      principal = legacyOriginAtRestOr(legacyWallet, key.address)
     }
 
     return {
@@ -1345,7 +1345,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const gateID = this.triggerGateID(key)
     // audit SG-05: eligibility is re-checked for the subscriber, never for the keeper
     const wallet = legacyWalletOf(this.akitaDAO.value, key.address)
-    const origin = legacyOriginOr(wallet, key.address)
+    const origin = legacyOriginAtRestOr(wallet, key.address)
     loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), errFailedGate)
 
     this.triggerImpl(key, true)
@@ -1358,7 +1358,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
   /**
    * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
-   * registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+   * registry answer `(legacyWalletOf(key.address), legacyOriginAtRestOr(...))` into `principals` once, so the
    * Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
    * `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
    */
@@ -1373,7 +1373,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
     assertExactPayment(payment, Global.currentApplicationAddress, SubscriptionPrincipalMBR)
 
-    this.principals(key).value = { wallet: wallet.id, principal: legacyOriginOr(wallet, key.address) }
+    this.principals(key).value = { wallet: wallet.id, principal: legacyOriginAtRestOr(wallet, key.address) }
   }
 
   /**

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /** Deploy the unused main Gate and every sub-gate in the immutable catalog, with resumable receipts. */
+import fs from 'node:fs'
 import path from 'node:path'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { deployImmutable } from './lib/immutable-deployment'
+import { checkLegacyCutoff } from './lib/ctx-sub-gates'
 import catalog from './lib/immutable-catalog.json'
 
 runScript(async () => {
@@ -24,6 +26,15 @@ runScript(async () => {
   const ctx = await setupContext(options)
   const legacyCutoff = value('--legacy-cutoff')
   if (selected.includes('gate') && !legacyCutoff) throw new Error('--legacy-cutoff is required to deploy the main Gate (v1 gate_cursor; 1 on a fresh network)')
+  // Checked until the Gate's receipt names its app: after that the create is done and cannot change.
+  const gateReceipt = directory ? path.join(directory, 'Gate.json') : undefined
+  const gateCreated = gateReceipt !== undefined && fs.existsSync(gateReceipt) && Boolean((JSON.parse(fs.readFileSync(gateReceipt, 'utf8')) as { appId?: string }).appId)
+  const liveGate = ctx.appIds.gate ?? 0n
+  if (selected.includes('gate') && !gateCreated && liveGate > 0n) {
+    const state = (await ctx.algorand.client.algod.getApplicationByID(liveGate).do()).params?.globalState ?? []
+    const cursor = state.find((kv) => Buffer.from(kv.key).toString() === 'gate_cursor')?.value.uint
+    console.log(checkLegacyCutoff(legacyCutoff!, liveGate, cursor === undefined ? undefined : BigInt(cursor)))
+  }
   for (const key of selected) {
     const config: Record<string, string> = key === 'gate' ? { legacyCutoff: legacyCutoff! } : {}
     await deployImmutable(ctx, names[key], config, directory ? path.join(directory, `${names[key]}.json`) : undefined, args.includes('--register'))

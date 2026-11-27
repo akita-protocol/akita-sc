@@ -59,6 +59,7 @@ export const RAFFLE_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   // --- Weights allocation ------------------------------------------------
   MALF: 'Must allocate at least four weights chunks',
   MAMF: 'Must allocate at most fifteen weights chunks',
+  RFUL: 'The raffle is full',
 
   // --- Factory / misc ----------------------------------------------------
   MNOT: 'Factory not opted into ticket asset',

@@ -101,6 +101,8 @@ export const DAOUpgradeLeaseMBR: uint64 = 2_500 + (400 * (9 + 2 + 40))
 export const MaxBootstrapKeyRounds: uint64 = 10_000
 /** governance power counts at most this many days of remaining lock time (DAO-05) */
 export const MaxGovernanceLockDays: uint64 = 365
+/** an approved proposal may execute for this long after its voting period ends (45 days) */
+export const ProposalExecutionWindow: uint64 = 3_888_000
 /** upper bound on the proposal-creation power setting, in base units (power never exceeds the locked amount) */
 export const MaxProposalPower: uint64 = 1_000_000_000_000_000
 

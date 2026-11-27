@@ -467,7 +467,7 @@ export type GuildPluginTypes = {
             keys: {
                 factory: bigint;
                 /**
-                 * A zero target is a creation-only adapter; every other instance is permanently scoped to one Guild.
+                 * A zero target is the shared adapter (any Guild of the factory); every other instance is permanently scoped to one Guild.
                  */
                 guild: bigint;
             };

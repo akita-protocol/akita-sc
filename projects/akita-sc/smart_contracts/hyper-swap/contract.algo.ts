@@ -534,6 +534,26 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
    * @param proof unused; kept for ABI compatibility (the hash box proves a verified escrow)
    */
   withdraw(id: uint64, receiver: Account, asset: uint64, amount: uint64, proof: Proof) {
+    this.returnLeaf(id, Txn.sender, receiver, asset, amount)
+  }
+
+  /**
+   * Returns any escrowed leaf of a cancelled swap to its funder (`from`, named by the leaf hash).
+   * Permissionless, like `disburseFrom`: the leaf can only go back to the account that funded it,
+   * so a funder that never comes back cannot keep a cancelled offer out of CANCEL_COMPLETED and
+   * hold the offer's storage deposit.
+   *
+   * @param id the id of the cancelled offer
+   * @param from the funder (sender) in the leaf
+   * @param receiver the receiver of the leaf's swap
+   * @param asset the asset of the leaf's swap
+   * @param amount the amount of the leaf's swap
+   */
+  withdrawFor(id: uint64, from: Account, receiver: Account, asset: uint64, amount: uint64) {
+    this.returnLeaf(id, from, receiver, asset, amount)
+  }
+
+  private returnLeaf(id: uint64, from: Account, receiver: Account, asset: uint64, amount: uint64): void {
     // ensure the offer exists
     loggedAssert(this.offers(id).exists, errOfferNotFound)
     const { state, escrowed } = this.offers(id).value
@@ -541,8 +561,8 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
     loggedAssert(state === STATE_CANCELLED, errInvalidState)
     // ensure the escrow count isn't zero
     loggedAssert(escrowed > 0, errNothingToWithdraw)
-    // ensure this leaf is still escrowed; the hash names the caller as its funder
-    const hash = sha256(sha256(Bytes`${Txn.sender.bytes}${receiver.bytes}${itob(asset)}${itob(amount)}`))
+    // ensure this leaf is still escrowed; the hash names its funder
+    const hash = sha256(sha256(Bytes`${from.bytes}${receiver.bytes}${itob(asset)}${itob(amount)}`))
     const hashKey: HashKey = { id, hash }
     loggedAssert(this.hashes(hashKey).exists, errLeafNotEscrowed)
 
@@ -553,7 +573,7 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
       itxn
         .payment({
           amount: amount,
-          receiver: Txn.sender,
+          receiver: from,
         })
         .submit()
     } else {
@@ -561,12 +581,12 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
         .assetTransfer({
           xferAsset: asset,
           assetAmount: amount,
-          assetReceiver: Txn.sender,
+          assetReceiver: from,
         })
         .submit()
     }
 
-    this.refundStorage(payor, Txn.sender, refundAmount)
+    this.refundStorage(payor, from, refundAmount)
 
     // decrement our escrow count
     const newEscrowed: uint64 = escrowed - 1
@@ -583,7 +603,8 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
 
   /**
    * Cleans up participant box and refunds MBR
-   * Can only be called when offer is completed, cancelled+completed, or expired
+   * Can only be called when offer is completed, cancelled (with or without leaves still to be
+   * returned: a participant's deposit backs no escrow), or expired
    *
    * @param id the id of the offer
    * @param participant the participant address to clean up
@@ -592,8 +613,8 @@ export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContra
     loggedAssert(this.offers(id).exists, errOfferNotFound)
     const { state, expiration, acceptances, escrowed } = this.offers(id).value
 
-    // can only cleanup if completed, cancel_completed, or expired (while in OFFERED or ESCROWING state)
-    const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
+    // can only cleanup if completed, cancelled, or expired (while in OFFERED or ESCROWING state)
+    const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED || state === STATE_CANCELLED
     const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp && escrowed === 0
     loggedAssert(isCompleted || isExpired, errInvalidState)
 

@@ -234,9 +234,9 @@ export function finalizeArgs(route: MockRoute, minAmountOut: bigint, beneficiary
   assets.set(algosdk.encodeUint64(route.assetIn), 0)
   assets.set(algosdk.encodeUint64(route.assetOut), 8)
   const terms = new Uint8Array(93)
-  terms.set(uint16(1), 0)
-  terms.set(algosdk.encodeUint64(minAmountOut), 2)
-  terms.set(algosdk.encodeUint64(route.amountOut), 10)
+  terms.set([0, 1, 0], 0) // input = entry 0 of the asset ids, output = entry 1, fixed-input mode
+  terms.set(algosdk.encodeUint64(minAmountOut), 3)
+  terms.set(algosdk.encodeUint64(route.amountOut), 11)
   terms.set(algosdk.decodeAddress(beneficiary).publicKey, 29)
   terms.set(algosdk.decodeAddress(referrer).publicKey, 61)
   const tag = new TextEncoder().encode('hayrouter/v1:{"tag":"akita-localnet-mock"}')

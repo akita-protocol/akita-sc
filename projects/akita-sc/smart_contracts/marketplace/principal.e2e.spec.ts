@@ -357,8 +357,8 @@ describe('Marketplace principal resolution (§6.7)', () => {
       const legacyAmount = cost - LEGACY_FLOAT
       await expectContractError(
         marketplace().client.newGroup()
-          .listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64({
-            sender: user.addr, signer: user.signer, args: { ...(await listArgs(user, legacyAmount)), wallet: 0n }, maxFee: microAlgo(2_000_000),
+          .listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64({
+            sender: user.addr, signer: user.signer, args: { ...(await listArgs(user, legacyAmount)), wallet: 0n, maxCreatorRoyalty: 50_000n }, maxFee: microAlgo(2_000_000),
           })
           .send(SEND),
         'errIpay',
@@ -534,7 +534,7 @@ describe('Marketplace principal resolution (§6.7)', () => {
       expect(sigs).toContain(MARKETPLACE_LEGACY_METHODS[name])
     }
     const client = marketplace().client.send
-    expect(typeof client.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64).toBe('function')
+    expect(typeof client.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64).toBe('function')
     expect(typeof client.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64).toBe('function')
     expect(typeof client.gatedPurchasePayApplUint64AddressUint64Void).toBe('function')
     expect(typeof client.gatedPurchasePayApplUint64AddressVoid).toBe('function')

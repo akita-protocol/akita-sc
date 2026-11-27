@@ -83,6 +83,11 @@ export declare class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
     /** Number of reward rounds currently open (entries, checks and removals are frozen while > 0). */
     getOpenRounds(): Promise<bigint>;
     /**
+     * Number of entries that exist now. `maxEntries` caps this number; `getState().entryCount` is the
+     * number of entry ids ever issued, which only grows.
+     */
+    getLiveEntries(): Promise<bigint>;
+    /**
      * Gets MBR data for the pool based on winning tickets count.
      */
     getMbr({ winningTickets }: StakingPoolMbrParams): Promise<StakingPoolMbrData>;
@@ -158,7 +163,10 @@ export declare class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
     endPool(params?: MaybeSigner): Promise<void>;
     /** Removes an entry and refunds its MBR (entrant any time no round is open; anyone after the end). */
     removeEntry({ sender, signer, address, asset }: RemoveEntryParams): Promise<void>;
-    /** Creator or DAO wallet unsticks a reward round. */
+    /**
+     * Creator or DAO wallet unsticks a reward round. Once the committed beacon round of a shuffle
+     * round is reached, only the DAO wallet can abort it.
+     */
     abortRound({ sender, signer, rewardId, mode }: AbortRoundParams): Promise<void>;
     /** Recovers expired allocations and/or closes a finalized round's Rewards disbursement. */
     reclaimRound({ sender, signer, disbursementId, reclaims, close }: ReclaimRoundParams): Promise<void>;

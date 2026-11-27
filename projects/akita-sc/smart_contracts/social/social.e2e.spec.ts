@@ -2060,6 +2060,15 @@ describe('Full DAO Integration Tests', () => {
   // Regressions for the 2026-10 social audit (graph / impact / plugin lane)
   // ==========================================================================
   describe('Audit regressions', () => {
+    /**
+     * Block time of the latest round. Tests move block time forward and it never comes back, so it runs
+     * ahead of the wall clock; a ban has to end after it (audit 08, SOC-07).
+     */
+    const chainNow = async (): Promise<bigint> => {
+      const { lastRound } = await algorand.client.algod.status().do()
+      return (await algorand.client.algod.block(lastRound).do()).block.header.timestamp
+    }
+
     const aktaBalance = async (address: string): Promise<bigint> => {
       const info = await algorand.asset.getAccountInformation(address, aktaAssetId)
       return info.balance
@@ -2216,7 +2225,7 @@ describe('Full DAO Integration Tests', () => {
       expect(await balance(user2.addr.toString())).toBeLessThan(voterBefore)
     })
 
-    test("S-06: a vote records the voter's impact without spot AKTA holdings", async () => {
+    test("S-06 (accepted): a vote records the voter's whole impact, held AKTA included", async () => {
       const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(61) })
       await user2Sdk.vote({ ref: postKey, refType: RefType.Post, isUp: true })
 
@@ -2224,9 +2233,11 @@ describe('Full DAO Integration Tests', () => {
       const full = await daoSdk.getUserImpact({ address: user2.addr.toString() })
       const held = heldAktaScore(await aktaBalance(user2.addr.toString()))
 
-      // user2 holds ~100,000 AKTA, so the public score includes a held-AKTA component
+      // user2 holds ~100,000 AKTA, so the score has a held-AKTA component, and the vote's weight
+      // is the same score every other reader gets (the owner's decision of 2026-11-25)
       expect(held).toBeGreaterThan(0n)
-      expect(full - recorded).toBe(held)
+      expect(recorded).toBe(full)
+      expect(recorded).toBeGreaterThanOrEqual(held)
     })
 
     test('S-10h: the DAO cannot set a zero subscription modifier', async () => {
@@ -2251,7 +2262,7 @@ describe('Full DAO Integration Tests', () => {
       // user2 follows user1 and blocks the moderator, then gets banned
       await user2Sdk.follow({ address: user1.addr.toString() })
       await user2Sdk.block({ address: moderator.addr.toString() })
-      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 10n * 365n * 86_400n * 100n
+      const farFuture = (await chainNow()) + 10n * 365n * 86_400n * 100n
       await moderatorSdk.ban({ address: user2.addr.toString(), expiration: farFuture })
       await expect(daoSdk.isBanned({ account: user2.addr.toString() })).resolves.toBe(true)
 
@@ -2290,7 +2301,7 @@ describe('Full DAO Integration Tests', () => {
       await ensureModerator(moderator, 'social_add_moderator_active')
       const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(62) })
       const target = algorand.account.random().addr.toString()
-      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 365n * 86_400n
+      const farFuture = (await chainNow()) + 365n * 86_400n
       const client = moderatorSdk.moderationClient
       const params = {
         sender: moderator.addr,
@@ -2342,7 +2353,7 @@ describe('Full DAO Integration Tests', () => {
       const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(63) })
       const target = algorand.account.random().addr.toString()
       const user = moderator.addr.toString()
-      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 365n * 86_400n
+      const farFuture = (await chainNow()) + 365n * 86_400n
       const { epoch, actions: before } = await daoSdk.getModeratorActivity({ user })
       for (let i = 0; i < 3; i++) {
         await moderatorSdk.flagPost({ ref: postKey })
@@ -2384,7 +2395,7 @@ describe('Full DAO Integration Tests', () => {
       await ensureModerator(idle, 'social_add_moderator_idle')
 
       const target = algorand.account.random().addr.toString()
-      await moderatorSdk.ban({ address: target, expiration: BigInt(Math.floor(Date.now() / 1000)) + 86_400n })
+      await moderatorSdk.ban({ address: target, expiration: (await chainNow()) + 86_400n })
       await moderatorSdk.unban({ address: target })
 
       const gate = akitaUniverse.subgates.socialModeratorGate.client
@@ -2426,7 +2437,7 @@ describe('Full DAO Integration Tests', () => {
 
       for (let i = 0; i < 2; i++) {
         const target = algorand.account.random().addr.toString()
-        await moderatorSdk.ban({ address: target, expiration: BigInt(Math.floor(Date.now() / 1000)) + 86_400n })
+        await moderatorSdk.ban({ address: target, expiration: (await chainNow()) + 86_400n })
       }
       const { actions, previousActions } = await daoSdk.getModeratorActivity({ user: moderator.addr.toString() })
       expect(actions).toBeGreaterThanOrEqual(2n)
@@ -2526,7 +2537,7 @@ describe('Full DAO Integration Tests', () => {
       // counted actions update the counters without allocating more (ban +1, unban -1: net 0)
       const target = algorand.account.random().addr.toString()
       const params = { ...gateCallParams, sender: temp.addr, signer: temp.signer }
-      await moderation.send.ban({ ...params, args: { address: target, expiration: 1n } })
+      await moderation.send.ban({ ...params, args: { address: target, expiration: (await chainNow()) + 86_400n } })
       expect((await daoSdk.getModeratorActivity({ user: address })).actions).toBe(1n)
       await moderation.send.unban({ ...params, args: { address: target } })
       expect(await minBalance() - base).toBe(MODERATORS_MBR + MODERATOR_ACTIVITY_MBR)

@@ -7,7 +7,7 @@ import { EscrowFactorySDK } from '../escrow';
 import { ENV_VAR_NAMES, resolveAppIdWithClient, shouldWriteRegistry } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
-import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, assertEscrowCanBeDeleted, domainBoxKey, escrowDeleteWarnings, executionBoxKey, ValueMap } from './utils';
+import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, assertEscrowCanBeDeleted, domainBoxKey, escrowDeleteWarnings, executionBoxKey, executionKeyBoxBytes, ValueMap } from './utils';
 import { addPluginExtraFee, controlledMbrFee, deleteEscrowExtraFee, MaxGroupSize, newEscrowExtraFee, ReclaimsPerCall, RemoveAllowancesPerCall } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
@@ -16,7 +16,7 @@ import { prepareGroup, PreparedGroup, sendPrepared } from '../simulate/prepare';
 import { computeExpectedCost, ExpectedCost } from '../simulate/cost';
 import { WalletGroupComposer } from './group';
 import { algodPrincipalReader, predictWindowPrincipal, windowPrincipalResources, type Principal, type PrincipalResourceReference } from '../principal';
-import { seedAccessResources } from '../simulate/access-list';
+import { boxReadHeadroom, BYTES_PER_BOX_REFERENCE, seedAccessResources } from '../simulate/access-list';
 
 export * from './constants';
 export * from './errors';
@@ -933,6 +933,26 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   /**
+   * Give an escrow's frozen holdings back to the creator of each asset and opt the escrow out of them.
+   * Admin only, since 2.0.0.
+   *
+   * The network closes a frozen holding only to the asset's creator, and an escrow that still holds an
+   * asset cannot be deleted. `reclaimFunds` never sends a holding anywhere but the wallet's account, so
+   * giving one up is this separate call: whatever the escrow holds of each asset goes to that asset's
+   * creator and does not come back. The wallet refuses an asset whose holding is not frozen, because
+   * `reclaimFunds` returns that one to the wallet.
+   */
+  async closeFrozenToCreator({ sender, signer, ...args }: ContractArgs['arc58_closeFrozenToCreator(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>> {
+
+    const sendParams = this.getSendParams({ sender, signer });
+
+    return await this.client.send.arc58CloseFrozenToCreator({
+      ...sendParams,
+      args
+    });
+  }
+
+  /**
    * How many plugins and allowances the wallet counts for an escrow. Undefined for an escrow made
    * before the wallet kept this count.
    */
@@ -1005,7 +1025,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
     const frozen = (account.assets ?? []).filter((holding) => holding.isFrozen).map((holding) => holding.assetId);
     if (frozen.length > 0) {
-      blockers.push(`its holding of ${frozen.join(', ')} is frozen`);
+      blockers.push(`its holding of ${frozen.join(', ')} is frozen: closeFrozenToCreator gives a frozen holding back to the asset's creator`);
     }
     if (assets.length > 0 && controlledAddress !== undefined) {
       const receiver = await this.algorand.account.getInformation(controlledAddress);
@@ -1188,7 +1208,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
   readonly build = {
 
-    usePlugin: async ({ firstValid = 0n, windowSize = 0n, consolidateFees = true, skipSignatures = false, adminRekeyMaxFee, ...args }: BuildWalletUsePluginParams): Promise<ExecutionBuildGroup> => {
+    usePlugin: async ({ firstValid = 0n, windowSize = 0n, consolidateFees = true, skipSignatures = false, adminRekeyMaxFee, pendingBoxBytes = 0, boxReadHeadroomRefs, ...args }: BuildWalletUsePluginParams): Promise<ExecutionBuildGroup> => {
 
       const { lease } = args;
 
@@ -1237,6 +1257,30 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       // call transaction" on any group whose plugin path issues an ABI call.
       const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
       const composer = await group.composer();
+
+      let numGroupsToBuild: number;
+      let endTarget: bigint;
+
+      if (useRounds) {
+        endTarget = start + windowSize;
+        numGroupsToBuild = Math.ceil(Number(windowSize) / Number(validityPeriod));
+      } else {
+        // Convert seconds to rounds (assuming ~2.7s per round)
+        const roundsNeeded = BigInt(Math.ceil(Number(windowSize) / 2.7));
+        endTarget = start + roundsNeeded;
+        numGroupsToBuild = Math.ceil(Number(roundsNeeded) / Number(validityPeriod));
+      }
+
+      // The rekey reads this wallet's execution key box ('x' + lease), which is written when the key is
+      // added: after this build, before the group is sent. The simulation below cannot size a box that
+      // does not exist yet, so the group gets box read budget for it here, and for whatever else the
+      // caller says is created in between. Without it a group whose simulated box reads end just under a
+      // 2,048 B step is refused when it is sent ("read budget exceeded").
+      const headroom = boxReadHeadroom(boxReadHeadroomRefs !== undefined
+        ? boxReadHeadroomRefs * BYTES_PER_BOX_REFERENCE
+        : executionKeyBoxBytes(numGroupsToBuild) + Number(pendingBoxBytes));
+      seedAccessResources(composer, headroom);
+
       const internalTxns = (composer as unknown as {
         txns: Array<{ type: string; maxFee?: AlgoAmount }>
       }).txns;
@@ -1260,19 +1304,6 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         prepared.transactions = prepared.transactions.slice(rekeyIndex);
         prepared.signers = prepared.signers.slice(rekeyIndex);
         prepared.methodCalls = new Map([...prepared.methodCalls].map(([index, method]) => [index - rekeyIndex, method] as const).filter(([index]) => index >= 0));
-      }
-
-      let numGroupsToBuild: number;
-      let endTarget: bigint;
-
-      if (useRounds) {
-        endTarget = start + windowSize;
-        numGroupsToBuild = Math.ceil(Number(windowSize) / Number(validityPeriod));
-      } else {
-        // Convert seconds to rounds (assuming ~2.7s per round)
-        const roundsNeeded = BigInt(Math.ceil(Number(windowSize) / 2.7));
-        endTarget = start + roundsNeeded;
-        numGroupsToBuild = Math.ceil(Number(roundsNeeded) / Number(validityPeriod));
       }
 
       // Total fees distributed by the simulate — our consolidation target.
@@ -1324,6 +1355,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         lastValid: endTarget,
         useRounds,
         ids: [],
+        boxReadHeadroomRefs: headroom.length,
         windows: [],
         expectedCost,
         send: async (options) => {

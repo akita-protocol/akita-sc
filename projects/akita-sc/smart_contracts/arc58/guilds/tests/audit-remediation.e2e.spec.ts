@@ -4,11 +4,13 @@ import type { TransactionSignerAccount as AddressWithTransactionSigner } from '@
 import { ALGORAND_ZERO_ADDRESS_STRING, assignGroupID as groupTransactions } from 'algosdk'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { TimeWarp } from '../../../../tests/utils/time'
+import { FixedSignerGuildConsensusClient } from '../../../artifacts/arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensusClient'
 import { SubscriptionGuildConsensusClient } from '../../../artifacts/arc58/guilds/consensus/subscriptions/SubscriptionGuildConsensusClient'
 import type { GuildClient } from '../../../artifacts/arc58/guilds/core/GuildClient'
 import {
   action,
   ACTION_LOCK_PLUGIN_SET,
+  ACTION_NEW_ESCROW,
   ACTION_UPGRADE_APP,
   addPluginAction,
   APPROVE,
@@ -23,10 +25,15 @@ import {
   EMPTY_EVIDENCE,
   encodeAbi,
   endVoting,
+  executePluginAction,
   executeProposal,
   EXECUTION_MBR,
   expectContractError,
   finalizeProposal,
+  FIXED_SIGNERS,
+  fixedSigner,
+  fixedSignerConfig,
+  fixedSignerConfiguration,
   latestTimestamp,
   MAX_APP_CALL_FEE,
   minBalanceOf,
@@ -58,6 +65,10 @@ import {
  * L-1a approval-minimum cap, D-2 stronger-class settings changes, L-1b subscription power and weight
  * bounds, L-1c locked-token lockup bound, L-2 closed-account refunds, I-1 plugin storage, I-2 orphan
  * plugin settings, and I-3 creator-only bootstrap execution.
+ *
+ * And for the 2026-11-25 audit (05, Guilds): GLD-01 the lockout bound also covers the fixed-signer
+ * threshold and both ratios, GLD-03 a zero group hash is never a commitment, and GLD-04 upgrade and
+ * execution parameters that could never run are refused at drafting.
  */
 const fixture = algorandFixture()
 let environment: GuildTestEnvironment
@@ -403,4 +414,116 @@ describe('Guild audit remediation (2026-10-02)', () => {
     await executeProposal(guild, proposalId)
     expect(await guild.canChangePluginSet({ args: {} })).toBe(false)
   }, 120_000)
+
+  test('GLD-01: a voted raise of the signer threshold, or of a ratio, goes only as far as its own ballot met it', async () => {
+    const others: AddressWithTransactionSigner[] = []
+    for (let i = 0; i < 4; i += 1) others.push(await fixture.context.generateAccount({ initialFunds: microAlgo(5_000_000n) }))
+    const signers = [environment.creator, ...others]
+    const three = signers.slice(0, 3)
+    const four = signers.slice(0, 4)
+
+    // five equal signers, three of them pass a proposal
+    const { guild, deployment } = await mintGuild(environment, FIXED_SIGNERS, fixedSignerConfig(3n))
+    const config = fixedSignerConfiguration(1, signers.map((signer) => [signer.addr.toString(), 1n]))
+    const mbrPayment = await environment.algorand.createTransaction.payment({
+      sender: environment.creator.addr,
+      signer: environment.creator.signer,
+      receiver: guild.appAddress,
+      amount: microAlgo(await guild.consensusConfigurationMbr({ args: { config }, staticFee: MAX_APP_CALL_FEE })),
+    })
+    await guild.send.configureConsensus({ args: { mbrPayment, config }, ...send })
+    await guild.send.partiallyInitialize({ args: {}, ...send })
+    const consensus = new FixedSignerGuildConsensusClient({
+      algorand: environment.algorand,
+      appId: deployment.consensus,
+      defaultSender: environment.creator.addr,
+      defaultSigner: environment.creator.signer,
+    })
+    const threshold = async () => (await consensus.state.global.getAll()).threshold
+    const newEscrowSettings = async () => (await guild.state.global.getAll()).newEscrowProposalSettings
+    const statusOf = async (proposalId: bigint) => (await guild.getProposal({ args: { proposalId } })).status
+    expect(await threshold()).toBe(3n)
+
+    /** Create and submit as the creator, cast the votes, close voting and finalize. */
+    const ballot = async (
+      actions: GuildAction[],
+      approving: AddressWithTransactionSigner[],
+      rejecting: AddressWithTransactionSigner[] = [],
+    ) => {
+      const proposalId = await createProposal(environment, guild, actions)
+      await submitProposal(guild, proposalId)
+      for (const voter of approving) await vote(environment, guild, voter, proposalId, APPROVE)
+      for (const voter of rejecting) await vote(environment, guild, voter, proposalId, REJECT)
+      await endVoting(timeWarp)
+      await finalizeProposal(guild, proposalId)
+      return proposalId
+    }
+
+    // The threshold is every ballot's approval floor: three approvals cannot make it five.
+    const unanimous = await ballot([consensusAction(fixedSigner.setThreshold(5n))], three)
+    expect(await statusOf(unanimous)).toBe(40)
+    await expectContractError(executeProposal(guild, unanimous), 'ERR:errGlko')
+    expect(await threshold()).toBe(3n)
+    // Four approvals can make it four, and lowering it again is always allowed.
+    await executeProposal(guild, await ballot([consensusAction(fixedSigner.setThreshold(4n))], four))
+    expect(await threshold()).toBe(4n)
+    await executeProposal(guild, await ballot([consensusAction(fixedSigner.setThreshold(3n))], four))
+    expect(await threshold()).toBe(3n)
+
+    // Participation: a ballot three of five signers voted on cannot require all five to vote next time.
+    const everyone = await ballot([setSettingsAction(ACTION_NEW_ESCROW, proposalSettings({ participation: 100_000n }))], three)
+    expect(await statusOf(everyone)).toBe(40)
+    await expectContractError(executeProposal(guild, everyone), 'ERR:errGlko')
+    expect((await newEscrowSettings())?.participation).toBe(0n)
+    // It can require the turnout it had itself (three of five).
+    await executeProposal(guild, await ballot([setSettingsAction(ACTION_NEW_ESCROW, proposalSettings({ participation: 60_000n }))], three))
+    expect((await newEscrowSettings())?.participation).toBe(60_000n)
+
+    // Approval ratio: three approvals against one rejection (75%) cannot require 80%, and can require 75%.
+    const supermajority = proposalSettings({ participation: 60_000n, approval: 80_000n })
+    const tooStrict = await ballot([setSettingsAction(ACTION_NEW_ESCROW, supermajority)], three, [signers[3]])
+    expect(await statusOf(tooStrict)).toBe(40)
+    await expectContractError(executeProposal(guild, tooStrict), 'ERR:errGlko')
+    expect((await newEscrowSettings())?.approval).toBe(50_000n)
+    const attainable = proposalSettings({ participation: 60_000n, approval: 75_000n })
+    await executeProposal(guild, await ballot([setSettingsAction(ACTION_NEW_ESCROW, attainable)], three, [signers[3]]))
+    expect((await newEscrowSettings())?.approval).toBe(75_000n)
+  }, 900_000)
+
+  test('GLD-03/GLD-04: an upgrade or execution that could never run, or that commits to no group, is refused at drafting', async () => {
+    const { guild } = await mintLockedGuild(environment)
+    await setupGuildWallet(environment, guild)
+    await guild.appClient.fundAppAccount({ amount: microAlgo(1_000_000n) })
+    const plugin = environment.revenueEscrow.appId
+    await executeProposal(guild, await createProposal(environment, guild, [addPluginAction(plugin, ALGORAND_ZERO_ADDRESS_STRING, 'ops')]))
+    await guild.send.initialize({ args: {}, ...send })
+
+    const hash = new Uint8Array(32).fill(9)
+    // the group ID of a transaction sent on its own: committing to it would admit any ungrouped update call
+    const zero = new Uint8Array(32)
+    const key = (n: number) => new Uint8Array(32).fill(n)
+    const firstValid = BigInt((await environment.algorand.getSuggestedParams()).firstValid)
+    const lastValid = firstValid + 1000n
+
+    for (const refused of [
+      upgradeAppAction(guild.appId, key(1), [], firstValid, lastValid),
+      upgradeAppAction(guild.appId, key(2), [hash], lastValid, firstValid),
+      upgradeAppAction(guild.appId + 1n, key(3), [hash], firstValid, lastValid),
+      upgradeAppAction(guild.appId, key(4), [zero], firstValid, lastValid),
+      upgradeAppAction(guild.appId, key(5), [hash, zero], firstValid, lastValid),
+      executePluginAction(plugin, 'ops', key(6), [], firstValid, lastValid),
+      executePluginAction(plugin, 'ops', key(7), [hash], lastValid, firstValid),
+    ]) {
+      await expectContractError(createProposal(environment, guild, [refused]), 'ERR:errGacn')
+    }
+
+    // The same two actions are accepted with parameters that can run.
+    const proposalId = (await guild.state.global.proposalId())!
+    expect(
+      await createProposal(environment, guild, [executePluginAction(plugin, 'ops', key(8), [hash], firstValid, lastValid)]),
+    ).toBe(proposalId)
+    expect(
+      await createProposal(environment, guild, [upgradeAppAction(guild.appId, key(9), [hash], firstValid, lastValid)]),
+    ).toBe(proposalId + 1n)
+  }, 300_000)
 })

@@ -92,6 +92,20 @@ export declare function populateAccessListResources(input: algosdk.Transaction[]
  * resources that some call in the group reads. Calling this again appends, and it drops a cached build.
  */
 export declare function seedAccessResources(composer: TransactionComposer, references: readonly ResourceReference[]): TransactionComposer;
+/** Bytes of box IO quota one box reference adds to its group (consensus v41). */
+export declare const BYTES_PER_BOX_REFERENCE = 2048;
+/**
+ * Seeds that add box read budget for `bytes` of boxes a group reads but that do not exist yet when it
+ * is built: one all-zero box reference per 2,048 B (rounded up; none for 0).
+ *
+ * algod sizes a group's box read budget from the boxes that exist when it simulates, and rounds it up
+ * to whole references. A box created between the build and the send (an execution key, the proposal
+ * that carries it) is read against whatever the rounding left over, so a group built just under a
+ * 2,048 B step is refused at send time with "read budget exceeded". A reference passed on a call does
+ * not help: the simulation counts it as budget the group already has and asks for fewer of its own.
+ * These are placed after discovery, so they are always on top.
+ */
+export declare function boxReadHeadroom(bytes: bigint | number): ResourceReference[];
 /** The resources seeded on `composer` so far (empty when none). */
 export declare function seededAccessResources(composer: TransactionComposer): readonly ResourceReference[];
 /** Enable resource discovery when building a composer without sending it. */

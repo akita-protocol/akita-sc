@@ -192,12 +192,12 @@ probe:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:405
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     pushint 88
     extract_uint64
     cover 3
-    // smart_contracts/utils/functions.ts:395-398
+    // smart_contracts/utils/functions.ts:413-416
     // const data = abiCall<typeof EscrowFactory.prototype.get>({
     //   appId: escrowFactory,
     //   args: [address]
@@ -231,14 +231,14 @@ probe:
     assert // invalid number of bytes for bytes
     extract 6 0
     dup
-    // smart_contracts/utils/functions.ts:400
+    // smart_contracts/utils/functions.ts:418
     // if (Bytes(data).length !== 8) {
     len
     intc_2 // 8
     !=
     bz probe_after_if_else@3
     pop
-    // smart_contracts/utils/functions.ts:401
+    // smart_contracts/utils/functions.ts:419
     // return 0
     intc_0 // 0
 
@@ -249,10 +249,10 @@ probe_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@12:
     bnz probe_after_if_else@16
 
 probe_after_inlined_smart_contracts/utils/functions.ts::legacyOriginOr@27:
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:361
     // return referrerOr(walletID, Global.zeroAddress)
     global ZeroAddress
-    // smart_contracts/utils/functions.ts:336
+    // smart_contracts/utils/functions.ts:354
     // if (walletID.id === 0) {
     dig 1
     bnz probe_after_if_else@30
@@ -281,37 +281,37 @@ probe_after_inlined_smart_contracts/utils/functions.ts::referrerOr@31:
 
 probe_after_if_else@30:
     pop
-    // smart_contracts/utils/functions.ts:357-360
+    // smart_contracts/utils/functions.ts:375-378
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
     dup
-    // smart_contracts/utils/functions.ts:359
+    // smart_contracts/utils/functions.ts:377
     // Bytes(AbstractAccountGlobalStateKeysReferrer)
     bytec_1 // "referrer"
-    // smart_contracts/utils/functions.ts:357-360
+    // smart_contracts/utils/functions.ts:375-378
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:361
     // return referrerOr(walletID, Global.zeroAddress)
     b probe_after_inlined_smart_contracts/utils/functions.ts::referrerOr@31
 
 probe_after_if_else@16:
-    // smart_contracts/utils/functions.ts:348-351
+    // smart_contracts/utils/functions.ts:366-369
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     dup
-    // smart_contracts/utils/functions.ts:350
+    // smart_contracts/utils/functions.ts:368
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     bytec_0 // "controlled_address"
-    // smart_contracts/utils/functions.ts:348-351
+    // smart_contracts/utils/functions.ts:366-369
     // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
@@ -319,7 +319,7 @@ probe_after_if_else@16:
     app_global_get_ex
     swap
     cover 2
-    // smart_contracts/utils/functions.ts:352
+    // smart_contracts/utils/functions.ts:370
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bz probe_bool_false@19
     dig 1
@@ -330,7 +330,7 @@ probe_after_if_else@16:
     intc_1 // 1
 
 probe_bool_merge@20:
-    // smart_contracts/utils/functions.ts:352
+    // smart_contracts/utils/functions.ts:370
     // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
     bnz probe_after_assert@22
     pushbytes "ERR:errIwlt"
@@ -375,42 +375,42 @@ probe_bool_false@19:
     b probe_bool_merge@20
 
 probe_after_if_else@3:
-    // smart_contracts/utils/functions.ts:404
+    // smart_contracts/utils/functions.ts:422
     // const wallet = btoi(data)
     btoi
     dup
-    // smart_contracts/utils/functions.ts:371
+    // smart_contracts/utils/functions.ts:389
     // if (wallet === 0 || walletFactory === 0) {
     bz probe_if_body@5
     dig 2
     bnz probe_after_if_else@6
 
 probe_if_body@5:
-    // smart_contracts/utils/functions.ts:372
+    // smart_contracts/utils/functions.ts:390
     // return false
     intc_0 // 0
 
 probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11:
-    // smart_contracts/utils/functions.ts:405
+    // smart_contracts/utils/functions.ts:423
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     intc_0 // 0
     cover 2
     select
-    // smart_contracts/utils/functions.ts:387
+    // smart_contracts/utils/functions.ts:405
     // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
     b probe_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@12
 
 probe_after_if_else@6:
-    // smart_contracts/utils/functions.ts:374
+    // smart_contracts/utils/functions.ts:392
     // const [creator, exists] = op.AppParams.appCreator(wallet)
     dup
     app_params_get AppCreator
     swap
     bury 5
-    // smart_contracts/utils/functions.ts:375
+    // smart_contracts/utils/functions.ts:393
     // return exists && creator === appAddress(walletFactory)
     bz probe_bool_false@9
-    // smart_contracts/utils/functions.ts:366
+    // smart_contracts/utils/functions.ts:384
     // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
     dig 2
     itob
@@ -418,19 +418,19 @@ probe_after_if_else@6:
     swap
     concat
     sha512_256
-    // smart_contracts/utils/functions.ts:375
+    // smart_contracts/utils/functions.ts:393
     // return exists && creator === appAddress(walletFactory)
     dig 4
     ==
     bz probe_bool_false@9
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:405
+    // smart_contracts/utils/functions.ts:423
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11
 
 probe_bool_false@9:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:405
+    // smart_contracts/utils/functions.ts:423
     // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
     b probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11
 

@@ -34,7 +34,7 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
     }): RaffleSDK;
     /**
      * Gets the exact ALGO payment `newRaffle` requires, quoted on-chain by the factory
-     * (`newRaffleCost`): creation fee + child program/state MBR + child funding + weights boxes.
+     * (`newRaffleCost`): creation fee + child program/state MBR + child funding + weights storage.
      */
     cost({ isPrizeBox, prizeId, ticketAsset, weightsListCount }?: RaffleCostParams): Promise<bigint>;
     /**

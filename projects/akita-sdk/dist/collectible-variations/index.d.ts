@@ -7,7 +7,7 @@ export * from './codec';
 export * from './errors';
 export * as layout from './layout';
 export type { RemoveResult, WriteResult } from '../generated/CollectibleVariationsClient';
-type Method = 'arcTbdWriteVariation' | 'arcTbdDeleteVariation' | 'arcTbdPinMainCreator' | 'arcTbdPinMainHolder' | 'arcTbdUnpinMainCreator' | 'arcTbdUnpinMainHolder' | 'arcTbdSetAssetPolicy' | 'arcTbdSetManagerPolicy' | 'arcTbdDeleteAssetPolicy' | 'arcTbdDeleteManagerPolicy' | 'arcTbdSetGrant' | 'arcTbdDeleteGrant' | 'arcTbdPurge';
+type Method = 'writeVariation' | 'deleteVariation' | 'pinMainCreator' | 'pinMainHolder' | 'unpinMainCreator' | 'unpinMainHolder' | 'setAssetPolicy' | 'setManagerPolicy' | 'deleteAssetPolicy' | 'deleteManagerPolicy' | 'setGrant' | 'deleteGrant' | 'purge';
 /** A call's ABI result and the deposit paid in front of it (0 when none). */
 export type Sent<T> = {
     result: T;
@@ -116,7 +116,7 @@ export declare class CollectibleVariationsSDK extends BaseSDK<CollectibleVariati
         source: 'asset' | 'manager' | 'default';
     }>;
     /**
-     * The pin that applies, as arcTBD_get_main computes it: a holder pin whose
+     * The pin that applies, as getMain computes it: a holder pin whose
      * holder still holds one whole unit, else the creator pin, else role 0.
      * Read from the box and the holder's balance, so it needs no funded reader.
      */

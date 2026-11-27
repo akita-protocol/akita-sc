@@ -101,7 +101,7 @@ export * from './connect';
 // returns `{ windows }` — pre-populated, pre-grouped `PreparedGroup`s that
 // can be submitted later by a different actor via `sendPrepared(window, algod)`.
 export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';
-export { installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
+export { boxReadHeadroom, BYTES_PER_BOX_REFERENCE, installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
 
 // Off-chain mirror of the principal-resolution standard (also importable as `@akta/sdk/principal`).
 export * as principal from './principal';

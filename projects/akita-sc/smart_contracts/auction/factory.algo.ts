@@ -6,8 +6,8 @@ import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KE
 import { errBadMethodPrizeBoxTransferNeeded, errContractNotSet, errNotPrizeBoxOwner } from '../utils/errors'
 import { disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, legacyWalletOf, principalOf, referrerOrZeroAddress, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
-import { AuctionGlobalStateKeySeller, MaxWeightsBoxes } from './constants'
-import { errBidsMustAlwaysIncrease, errEndMustBeAtleastFiveMinutesAfterStart, errInvalidPayment, errInvalidTransfer, errNotAnAuction, errNotOptedIn, errPrizeIsBidAsset, errPrizeSeizable, errStartingBidRequired, errTooManyWeightsBoxes, errWeightsNeedBidFee } from './errors'
+import { AuctionGlobalStateKeySeller } from './constants'
+import { errBidsMustAlwaysIncrease, errEndMustBeAtleastFiveMinutesAfterStart, errInvalidPayment, errInvalidTransfer, errNotAnAuction, errNotOptedIn, errPrizeIsBidAsset, errPrizeSeizable, errStartingBidRequired, errFeeAuctionNeedsWeights, errWeightsNeedBidFee } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
@@ -38,17 +38,27 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
   /**
-   * AR-02: fee auctions need a positive starting bid (every bid then carries raffle weight)
-   * and at most MaxWeightsBoxes weights boxes (size of the child's weightTotals array).
+   * AR-02: fee auctions need a positive starting bid (every bid then carries raffle weight).
+   *
+   * `weightsListCount` no longer sizes anything: a fee auction's weights storage grows with its
+   * bidders, who each pay for their own, so there is no bidder limit to choose and no weights box
+   * to reserve. It now only says which kind of auction is being priced, because `newAuctionCost`
+   * does not see the bid fee: any value above 0 for a fee auction, whose (empty) totals box the
+   * seller funds, and 0 for a zero-fee auction.
    */
   private validateRaffleConfig(bidFee: uint64, startingBid: uint64, weightsListCount: uint64): void {
     if (bidFee > 0) {
       loggedAssert(startingBid > 0, errStartingBidRequired)
-      loggedAssert(weightsListCount <= MaxWeightsBoxes, errTooManyWeightsBoxes)
+      loggedAssert(weightsListCount > 0, errFeeAuctionNeedsWeights)
     } else {
       // only fee auctions send the weights MBR to the child; a zero-fee auction would strand it here
       loggedAssert(weightsListCount === 0, errWeightsNeedBidFee)
     }
+  }
+
+  /** the weights storage a seller funds: the totals box of a fee auction, nothing for a zero-fee one */
+  private weightsMbr(weightsListCount: uint64): uint64 {
+    return weightsListCount > 0 ? this.mbr().weights : 0
   }
 
   /**
@@ -108,8 +118,6 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     const optinMBR: uint64 = Global.assetOptInMinBalance * (isAlgoBid ? 1 : 2)
 
-    const costs = this.mbr()
-
     const auction = compileArc4(Auction)
 
     // Worst-case disbursement MBR:
@@ -123,7 +131,7 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     }
 
-    const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + this.weightsMbr(weightsListCount) + disbursementMBR
     const totalMBR: uint64 = (
       this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
@@ -230,8 +238,8 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     // Only call init when there's a raffle (bidFee > 0) since it sets up weight boxes
     if (bidFee > 0) {
-      // Calculate weights MBR only (base and optIn MBR already sent above)
-      const weightsMBR: uint64 = weightsListCount * costs.weights
+      // the totals box only (base and optIn MBR already sent above)
+      const weightsMBR: uint64 = this.weightsMbr(weightsListCount)
       auction.call.init({
         appId: auctionApp.id,
         args: [
@@ -376,8 +384,6 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), errNotOptedIn)
     const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
 
-    const costs = this.mbr()
-
     const auction = compileArc4(Auction)
 
     // Worst-case disbursement MBR for prize box auction:
@@ -391,7 +397,7 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     }
 
-    const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + this.weightsMbr(weightsListCount) + disbursementMBR
     const totalMBR: uint64 = (
       this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
@@ -471,7 +477,7 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     // Only call init when there's a raffle (bidFee > 0) since it sets up weight boxes
     if (bidFee > 0) {
-      const weightsMBR: uint64 = weightsListCount * costs.weights
+      const weightsMBR: uint64 = this.weightsMbr(weightsListCount)
       auction.call.init({
         appId: auctionApp.id,
         args: [
@@ -531,8 +537,6 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     const isAlgoBid = bidAssetID === 0
     const optinMBR: uint64 = Global.assetOptInMinBalance * (isPrizeBox ? (isAlgoBid ? 0 : 1) : (isAlgoBid ? 1 : 2))
 
-    const costs = this.mbr()
-
     const auction = compileArc4(Auction)
 
     // 1 referral (in bid asset) + prize + ASA bid payments
@@ -550,7 +554,7 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
       disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, bidAssetID)
     }
 
-    const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + this.weightsMbr(weightsListCount) + disbursementMBR
     const totalMBR: uint64 = (
       this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +

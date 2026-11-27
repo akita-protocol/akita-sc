@@ -11,7 +11,7 @@ import { MerkleAssetGateFactory } from '../smart_contracts/artifacts/gates/sub-g
 import { deployMerkleAddressGate } from './fixtures/gates/sub-gates/merkle-address'
 import { deployAkitaDAO } from './fixtures/dao'
 import { deployHyperSwap } from './fixtures/hyper-swap'
-import { errInvalidState, errParticipantsNotCleaned, errCantVerifyLeaf, errNotAParticipant, errOfferTooLong, errTermsMismatch } from '../smart_contracts/hyper-swap/errors'
+import { errInvalidState, errLeafNotEscrowed, errParticipantsNotCleaned, errCantVerifyLeaf, errNotAParticipant, errOfferTooLong, errTermsMismatch } from '../smart_contracts/hyper-swap/errors'
 import { errClawbackForbidden } from '../smart_contracts/utils/errors'
 import { errFailedToVerifyInclusion } from '../smart_contracts/meta/errors'
 import { TimeWarp } from './utils/time'
@@ -126,6 +126,65 @@ describe.each(['Meta', 'MetaMerkles'] as const)('Contract consumers against %s (
     }, extraFee: microAlgo(10_000) })
     expect((await check(owner)).return).toBe(true)
     expect((await check(addresses[1])).return).toBe(false)
+  })
+
+  test('audit 11 GAT-04: MerkleAddressGate accepts the short proofs of lists with one, two and three members', async () => {
+    const { algorand, testAccount } = fixture.context
+    const gate = await deployMerkleAddressGate({ fixture, sender: owner, signer: testAccount.signer, args: { akitaDao: dao.appId } })
+    const outsider = algorand.account.random().addr.toString()
+    const members = [owner, ...Array.from({ length: 2 }, () => algorand.account.random().addr.toString())]
+    const proofSizes: number[] = []
+    for (const size of [1, 2, 3]) {
+      const addresses = members.slice(0, size)
+      const tree = MerkleTree.of(addresses.map((address) => [decodeAddress(address).publicKey]), [SchemaPart.Address])
+      const rootName = `short-addresses-${size}`
+      await sdk.addRoot({ name: rootName, root: tree.root, type: 2n })
+      const args = ABIType.from('(address,string)').encode([owner, rootName])
+      const cost = (await gate.send.cost({ args: { args } })).return!
+      const registered = await gate.send.register({ args: { args, mbrPayment: algorand.createTransaction.payment({
+        sender: owner, receiver: gate.appAddress, amount: microAlgo(cost),
+      }) } })
+      const check = (caller: string, index: number) => gate.send.check({ args: {
+        caller, registryId: registered.return!, args: ABIType.from('byte[32][]').encode(tree.getProof(index)),
+      }, extraFee: microAlgo(10_000) })
+      for (let index = 0; index < size; index++) {
+        proofSizes.push(tree.getProof(index).length)
+        // every member passes with its own proof, whatever its length; nobody else passes with it
+        expect((await check(addresses[index], index)).return).toBe(true)
+        expect((await check(outsider, index)).return).toBe(false)
+      }
+    }
+    // an empty proof (the only member) and one-node proofs were among them: both were refused before
+    expect(proofSizes).toContain(0)
+    expect(proofSizes).toContain(1)
+  })
+
+  test('audit 11 GAT-04: MerkleAssetGate accepts the short proofs of collections with one and two assets', async () => {
+    const { algorand, testAccount } = fixture.context
+    const { appClient: gate } = await algorand.client.getTypedAppFactory(MerkleAssetGateFactory, {
+      defaultSender: owner, defaultSigner: testAccount.signer,
+    }).send.create.create({ args: { version: 'test', akitaDao: dao.appId }, note: 'short proofs' })
+    await gate.appClient.fundAppAccount({ amount: microAlgo(100_000) })
+    const outsider = algorand.account.random().addr.toString()
+    for (const size of [1, 2]) {
+      // `asset` is held by the owner; the other entry is an id nobody holds
+      const tree = MerkleTree.of([[asset], [asset + 1n]].slice(0, size), [SchemaPart.Uint64])
+      const rootName = `short-assets-${size}`
+      await sdk.addRoot({ name: rootName, root: tree.root, type: 1n })
+      const args = ABIType.from('(address,string)').encode([owner, rootName])
+      const cost = (await gate.send.cost({ args: { args } })).return!
+      const registered = await gate.send.register({ args: { args, mbrPayment: algorand.createTransaction.payment({
+        sender: owner, receiver: gate.appAddress, amount: microAlgo(cost),
+      }) } })
+      const proof = tree.getProof(0)
+      expect(proof).toHaveLength(size - 1)
+      const check = (caller: string) => gate.send.check({ args: {
+        caller, registryId: registered.return!, args: ABIType.from('(uint64,byte[32][])').encode([asset, proof]),
+      }, extraFee: microAlgo(10_000) })
+      expect((await check(owner)).return).toBe(true)
+      // someone who does not hold the asset still fails, with the same valid proof
+      expect((await check(outsider)).return).toBe(false)
+    }
   })
 
 })
@@ -368,6 +427,73 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     await swap.withdraw({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, asset: 0n, amount: 20_000n, proof: [] })
     expect((await swap.getOffer({ id: 0n })).state).toBe(60)
     await cleanup(swap, [owner, to])
+  })
+
+  test('audit 09 MKT-02: a cancelled offer is finished without the funder that walked away', async () => {
+    const { algorand } = fixture.context
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap()
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
+    // The partner funds its leaf, cancels, and never comes back for it.
+    await swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) })
+    await swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(50)
+    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(1n)
+
+    // A participant's deposit backs no escrow: the owner takes its own back at once.
+    const ownerBefore = await balanceOf(owner)
+    await swap.client.send.cleanupParticipant({ args: { id: 0n, participant: owner }, extraFee: microAlgo(10_000) })
+    expect(await balanceOf(owner)).toBeGreaterThan(ownerBefore)
+    // The offer itself still waits for the leaf.
+    await expect(swap.client.send.cleanupOffer({ args: { id: 0n }, extraFee: microAlgo(10_000) }))
+      .rejects.toThrow(new RegExp(errInvalidState))
+
+    // Anyone returns the leaf, and only to the account that funded it.
+    const keeper = algorand.account.random()
+    await algorand.account.ensureFunded(keeper.addr, owner, microAlgo(1_000_000))
+    const asKeeper = { sender: keeper.addr, signer: keeper.signer }
+    const keeperAddress = keeper.addr.toString()
+    // a leaf the keeper names itself the funder of was never escrowed
+    await expect(swap.withdrawFor({ ...asKeeper, id: 0n, from: keeperAddress, receiver: owner, asset: 0n, amount: 20_000n }))
+      .rejects.toThrow(new RegExp(errLeafNotEscrowed))
+    const partnerBefore = await balanceOf(to)
+    const keeperBefore = await balanceOf(keeperAddress)
+    await swap.withdrawFor({ ...asKeeper, id: 0n, from: to, receiver: owner, asset: 0n, amount: 20_000n })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
+    expect((await swap.getOffer({ id: 0n })).escrowed).toBe(0n)
+    // the funder has its principal and its leaf's storage deposit; the keeper only paid fees
+    expect(await balanceOf(to) - partnerBefore).toBeGreaterThan(20_000n)
+    expect(await balanceOf(keeperAddress)).toBeLessThan(keeperBefore)
+
+    // A leaf is returned once.
+    await expect(swap.client.send.withdrawFor({
+      ...asKeeper, args: { id: 0n, from: to, receiver: owner, asset: 0n, amount: 20_000n }, extraFee: microAlgo(10_000), note: 'again',
+    })).rejects.toThrow(new RegExp(errInvalidState))
+    // Every remaining deposit is released: the app is back to its base balance.
+    await cleanup(swap, [to])
+  })
+
+  test('audit 09 MKT-02: the funder still withdraws its own leaf, and a participant cleans up before or after', async () => {
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap()
+    await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
+    await swap.escrow({ id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
+    await swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) })
+    // fully funded and not expired: nobody can cancel a swap that is ready to settle
+    await expect(swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })).rejects.toThrow(new RegExp(errInvalidState))
+    await new TimeWarp(fixture.context.algorand).timeWarp(3601n)
+    await swap.cancel({ sender: partner.addr, signer: partner.signer, id: 0n, proof: [] })
+
+    // the partner cleans its participant record up first, then still withdraws its own leaf
+    await swap.client.send.cleanupParticipant({ args: { id: 0n, participant: to }, extraFee: microAlgo(10_000) })
+    await swap.withdraw({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, asset: 0n, amount: 20_000n, proof: [] })
+    expect((await swap.getOffer({ id: 0n })).state).toBe(50)
+    // the owner's leaf goes back to the owner whoever sends the call
+    const ownerBefore = await balanceOf(owner)
+    await swap.withdrawFor({ sender: partner.addr, signer: partner.signer, id: 0n, from: owner, receiver: to, asset: 0n, amount: 10_000n })
+    expect(await balanceOf(owner) - ownerBefore).toBeGreaterThan(10_000n)
+    expect((await swap.getOffer({ id: 0n })).state).toBe(60)
+    await cleanup(swap, [owner])
   })
 
   test('HS-02: an offer that under-declares its leaves cannot be accepted', async () => {

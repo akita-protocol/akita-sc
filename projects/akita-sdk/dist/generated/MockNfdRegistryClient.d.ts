@@ -41,6 +41,33 @@ export type MockNfdRegistryArgs = {
      */
     obj: {
         'create()void': Record<string, never>;
+        'setLinkCost(uint64)void': {
+            cost: bigint | number;
+        };
+        'costToAddToAddress(address)uint64': {
+            lookupAddress: string;
+        };
+        'mintNfd(pay,string,address,bool)uint64': {
+            purchaseTxn: AppMethodCallTransactionArgument;
+            nfdName: string;
+            reservedFor: string;
+            linkOnMint: boolean;
+        };
+        'linkNfdAddress(string,uint64,address)void': {
+            nfdName: string;
+            nfdAppId: bigint | number;
+            addrToVerify: string;
+        };
+        'unlinkNfdAddress(string,uint64,address)void': {
+            nfdName: string;
+            nfdAppId: bigint | number;
+            addrToRemove: string;
+        };
+        'setAddressPrimaryNfd(string,uint64,address)void': {
+            nfdName: string;
+            nfdAppId: bigint | number;
+            addrBeingModified: string;
+        };
         'isValidNfdAppId(string,uint64)bool': {
             nfdName: string;
             nfdAppId: bigint | number;
@@ -51,6 +78,12 @@ export type MockNfdRegistryArgs = {
      */
     tuple: {
         'create()void': [];
+        'setLinkCost(uint64)void': [cost: bigint | number];
+        'costToAddToAddress(address)uint64': [lookupAddress: string];
+        'mintNfd(pay,string,address,bool)uint64': [purchaseTxn: AppMethodCallTransactionArgument, nfdName: string, reservedFor: string, linkOnMint: boolean];
+        'linkNfdAddress(string,uint64,address)void': [nfdName: string, nfdAppId: bigint | number, addrToVerify: string];
+        'unlinkNfdAddress(string,uint64,address)void': [nfdName: string, nfdAppId: bigint | number, addrToRemove: string];
+        'setAddressPrimaryNfd(string,uint64,address)void': [nfdName: string, nfdAppId: bigint | number, addrBeingModified: string];
         'isValidNfdAppId(string,uint64)bool': [nfdName: string, nfdAppId: bigint | number];
     };
 };
@@ -59,6 +92,12 @@ export type MockNfdRegistryArgs = {
  */
 export type MockNfdRegistryReturns = {
     'create()void': void;
+    'setLinkCost(uint64)void': void;
+    'costToAddToAddress(address)uint64': bigint;
+    'mintNfd(pay,string,address,bool)uint64': bigint;
+    'linkNfdAddress(string,uint64,address)void': void;
+    'unlinkNfdAddress(string,uint64,address)void': void;
+    'setAddressPrimaryNfd(string,uint64,address)void': void;
     'isValidNfdAppId(string,uint64)bool': boolean;
 };
 /**
@@ -72,11 +111,51 @@ export type MockNfdRegistryTypes = {
         argsObj: MockNfdRegistryArgs['obj']['create()void'];
         argsTuple: MockNfdRegistryArgs['tuple']['create()void'];
         returns: MockNfdRegistryReturns['create()void'];
+    }> & Record<'setLinkCost(uint64)void' | 'setLinkCost', {
+        argsObj: MockNfdRegistryArgs['obj']['setLinkCost(uint64)void'];
+        argsTuple: MockNfdRegistryArgs['tuple']['setLinkCost(uint64)void'];
+        returns: MockNfdRegistryReturns['setLinkCost(uint64)void'];
+    }> & Record<'costToAddToAddress(address)uint64' | 'costToAddToAddress', {
+        argsObj: MockNfdRegistryArgs['obj']['costToAddToAddress(address)uint64'];
+        argsTuple: MockNfdRegistryArgs['tuple']['costToAddToAddress(address)uint64'];
+        returns: MockNfdRegistryReturns['costToAddToAddress(address)uint64'];
+    }> & Record<'mintNfd(pay,string,address,bool)uint64' | 'mintNfd', {
+        argsObj: MockNfdRegistryArgs['obj']['mintNfd(pay,string,address,bool)uint64'];
+        argsTuple: MockNfdRegistryArgs['tuple']['mintNfd(pay,string,address,bool)uint64'];
+        returns: MockNfdRegistryReturns['mintNfd(pay,string,address,bool)uint64'];
+    }> & Record<'linkNfdAddress(string,uint64,address)void' | 'linkNfdAddress', {
+        argsObj: MockNfdRegistryArgs['obj']['linkNfdAddress(string,uint64,address)void'];
+        argsTuple: MockNfdRegistryArgs['tuple']['linkNfdAddress(string,uint64,address)void'];
+        returns: MockNfdRegistryReturns['linkNfdAddress(string,uint64,address)void'];
+    }> & Record<'unlinkNfdAddress(string,uint64,address)void' | 'unlinkNfdAddress', {
+        argsObj: MockNfdRegistryArgs['obj']['unlinkNfdAddress(string,uint64,address)void'];
+        argsTuple: MockNfdRegistryArgs['tuple']['unlinkNfdAddress(string,uint64,address)void'];
+        returns: MockNfdRegistryReturns['unlinkNfdAddress(string,uint64,address)void'];
+    }> & Record<'setAddressPrimaryNfd(string,uint64,address)void' | 'setAddressPrimaryNfd', {
+        argsObj: MockNfdRegistryArgs['obj']['setAddressPrimaryNfd(string,uint64,address)void'];
+        argsTuple: MockNfdRegistryArgs['tuple']['setAddressPrimaryNfd(string,uint64,address)void'];
+        returns: MockNfdRegistryReturns['setAddressPrimaryNfd(string,uint64,address)void'];
     }> & Record<'isValidNfdAppId(string,uint64)bool' | 'isValidNfdAppId', {
         argsObj: MockNfdRegistryArgs['obj']['isValidNfdAppId(string,uint64)bool'];
         argsTuple: MockNfdRegistryArgs['tuple']['isValidNfdAppId(string,uint64)bool'];
         returns: MockNfdRegistryReturns['isValidNfdAppId(string,uint64)bool'];
     }>;
+    /**
+     * Defines the shape of the state of the application.
+     */
+    state: {
+        global: {
+            keys: {
+                linkCost: bigint;
+                mints: bigint;
+                links: bigint;
+                unlinks: bigint;
+                primaries: bigint;
+                lastAddress: string;
+            };
+            maps: {};
+        };
+    };
 };
 /**
  * Defines the possible abi call signatures.
@@ -101,6 +180,10 @@ export type MethodArgs<TSignature extends MockNfdRegistrySignatures> = MockNfdRe
  * Maps a method signature from the MockNfdRegistry smart contract to the method's return type
  */
 export type MethodReturn<TSignature extends MockNfdRegistrySignatures> = MockNfdRegistryTypes['methods'][TSignature]['returns'];
+/**
+ * Defines the shape of the keyed global state of the application.
+ */
+export type GlobalKeysState = MockNfdRegistryTypes['state']['global']['keys'];
 /**
  * Defines supported create method params for this smart contract
  */
@@ -168,6 +251,48 @@ export declare abstract class MockNfdRegistryParamsFactory {
             onComplete?: OnApplicationComplete.NoOpOC;
         };
     };
+    /**
+     * Constructs a no op call for the setLinkCost(uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setLinkCost(params: CallParams<MockNfdRegistryArgs['obj']['setLinkCost(uint64)void'] | MockNfdRegistryArgs['tuple']['setLinkCost(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the costToAddToAddress(address)uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static costToAddToAddress(params: CallParams<MockNfdRegistryArgs['obj']['costToAddToAddress(address)uint64'] | MockNfdRegistryArgs['tuple']['costToAddToAddress(address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the mintNfd(pay,string,address,bool)uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static mintNfd(params: CallParams<MockNfdRegistryArgs['obj']['mintNfd(pay,string,address,bool)uint64'] | MockNfdRegistryArgs['tuple']['mintNfd(pay,string,address,bool)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the linkNfdAddress(string,uint64,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static linkNfdAddress(params: CallParams<MockNfdRegistryArgs['obj']['linkNfdAddress(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['linkNfdAddress(string,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the unlinkNfdAddress(string,uint64,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static unlinkNfdAddress(params: CallParams<MockNfdRegistryArgs['obj']['unlinkNfdAddress(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['unlinkNfdAddress(string,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setAddressPrimaryNfd(string,uint64,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setAddressPrimaryNfd(params: CallParams<MockNfdRegistryArgs['obj']['setAddressPrimaryNfd(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['setAddressPrimaryNfd(string,uint64,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the isValidNfdAppId(string,uint64)bool ABI method
      *
@@ -541,6 +666,60 @@ export declare class MockNfdRegistryClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setLinkCost(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setLinkCost: (params: CallParams<MockNfdRegistryArgs["obj"]["setLinkCost(uint64)void"] | MockNfdRegistryArgs["tuple"]["setLinkCost(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `costToAddToAddress(address)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        costToAddToAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["costToAddToAddress(address)uint64"] | MockNfdRegistryArgs["tuple"]["costToAddToAddress(address)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `mintNfd(pay,string,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        mintNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["mintNfd(pay,string,address,bool)uint64"] | MockNfdRegistryArgs["tuple"]["mintNfd(pay,string,address,bool)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `linkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        linkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["linkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["linkNfdAddress(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `unlinkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        unlinkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["unlinkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["unlinkNfdAddress(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setAddressPrimaryNfd(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setAddressPrimaryNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["setAddressPrimaryNfd(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["setAddressPrimaryNfd(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the MockNfdRegistry smart contract using the `isValidNfdAppId(string,uint64)bool` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -563,6 +742,84 @@ export declare class MockNfdRegistryClient {
          * @returns The clearState result
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setLinkCost(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setLinkCost: (params: CallParams<MockNfdRegistryArgs["obj"]["setLinkCost(uint64)void"] | MockNfdRegistryArgs["tuple"]["setLinkCost(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `costToAddToAddress(address)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        costToAddToAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["costToAddToAddress(address)uint64"] | MockNfdRegistryArgs["tuple"]["costToAddToAddress(address)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `mintNfd(pay,string,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        mintNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["mintNfd(pay,string,address,bool)uint64"] | MockNfdRegistryArgs["tuple"]["mintNfd(pay,string,address,bool)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `linkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        linkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["linkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["linkNfdAddress(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `unlinkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        unlinkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["unlinkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["unlinkNfdAddress(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setAddressPrimaryNfd(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setAddressPrimaryNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["setAddressPrimaryNfd(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["setAddressPrimaryNfd(string,uint64,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
         /**
          * Makes a call to the MockNfdRegistry smart contract using the `isValidNfdAppId(string,uint64)bool` ABI method.
          *
@@ -590,6 +847,114 @@ export declare class MockNfdRegistryClient {
          * @returns The clearState result
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setLinkCost(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setLinkCost: (params: CallParams<MockNfdRegistryArgs["obj"]["setLinkCost(uint64)void"] | MockNfdRegistryArgs["tuple"]["setLinkCost(uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["setLinkCost(uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `costToAddToAddress(address)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        costToAddToAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["costToAddToAddress(address)uint64"] | MockNfdRegistryArgs["tuple"]["costToAddToAddress(address)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["costToAddToAddress(address)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `mintNfd(pay,string,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        mintNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["mintNfd(pay,string,address,bool)uint64"] | MockNfdRegistryArgs["tuple"]["mintNfd(pay,string,address,bool)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["mintNfd(pay,string,address,bool)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `linkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        linkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["linkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["linkNfdAddress(string,uint64,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["linkNfdAddress(string,uint64,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `unlinkNfdAddress(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        unlinkNfdAddress: (params: CallParams<MockNfdRegistryArgs["obj"]["unlinkNfdAddress(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["unlinkNfdAddress(string,uint64,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["unlinkNfdAddress(string,uint64,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the MockNfdRegistry smart contract using the `setAddressPrimaryNfd(string,uint64,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setAddressPrimaryNfd: (params: CallParams<MockNfdRegistryArgs["obj"]["setAddressPrimaryNfd(string,uint64,address)void"] | MockNfdRegistryArgs["tuple"]["setAddressPrimaryNfd(string,uint64,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MockNfdRegistryReturns["setAddressPrimaryNfd(string,uint64,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
         /**
          * Makes a call to the MockNfdRegistry smart contract using the `isValidNfdAppId(string,uint64)bool` ABI method.
          *
@@ -630,10 +995,92 @@ export declare class MockNfdRegistryClient {
     /**
      * Methods to access state for the current MockNfdRegistry app
      */
-    state: {};
+    state: {
+        /**
+         * Methods to access global state for the current MockNfdRegistry app
+         */
+        global: {
+            /**
+             * Get all current keyed values from global state
+             */
+            getAll: () => Promise<Partial<Expand<GlobalKeysState>>>;
+            /**
+             * Get the current value of the linkCost key in global state
+             */
+            linkCost: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the mints key in global state
+             */
+            mints: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the links key in global state
+             */
+            links: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the unlinks key in global state
+             */
+            unlinks: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the primaries key in global state
+             */
+            primaries: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the lastAddress key in global state
+             */
+            lastAddress: () => Promise<string | undefined>;
+        };
+    };
     newGroup(): MockNfdRegistryComposer;
 }
 export type MockNfdRegistryComposer<TReturns extends [...any[]] = []> = {
+    /**
+     * Calls the setLinkCost(uint64)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setLinkCost(params?: CallParams<MockNfdRegistryArgs['obj']['setLinkCost(uint64)void'] | MockNfdRegistryArgs['tuple']['setLinkCost(uint64)void']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['setLinkCost(uint64)void'] | undefined]>;
+    /**
+     * Calls the costToAddToAddress(address)uint64 ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    costToAddToAddress(params?: CallParams<MockNfdRegistryArgs['obj']['costToAddToAddress(address)uint64'] | MockNfdRegistryArgs['tuple']['costToAddToAddress(address)uint64']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['costToAddToAddress(address)uint64'] | undefined]>;
+    /**
+     * Calls the mintNfd(pay,string,address,bool)uint64 ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    mintNfd(params?: CallParams<MockNfdRegistryArgs['obj']['mintNfd(pay,string,address,bool)uint64'] | MockNfdRegistryArgs['tuple']['mintNfd(pay,string,address,bool)uint64']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['mintNfd(pay,string,address,bool)uint64'] | undefined]>;
+    /**
+     * Calls the linkNfdAddress(string,uint64,address)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    linkNfdAddress(params?: CallParams<MockNfdRegistryArgs['obj']['linkNfdAddress(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['linkNfdAddress(string,uint64,address)void']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['linkNfdAddress(string,uint64,address)void'] | undefined]>;
+    /**
+     * Calls the unlinkNfdAddress(string,uint64,address)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    unlinkNfdAddress(params?: CallParams<MockNfdRegistryArgs['obj']['unlinkNfdAddress(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['unlinkNfdAddress(string,uint64,address)void']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['unlinkNfdAddress(string,uint64,address)void'] | undefined]>;
+    /**
+     * Calls the setAddressPrimaryNfd(string,uint64,address)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setAddressPrimaryNfd(params?: CallParams<MockNfdRegistryArgs['obj']['setAddressPrimaryNfd(string,uint64,address)void'] | MockNfdRegistryArgs['tuple']['setAddressPrimaryNfd(string,uint64,address)void']>): MockNfdRegistryComposer<[...TReturns, MockNfdRegistryReturns['setAddressPrimaryNfd(string,uint64,address)void'] | undefined]>;
     /**
      * Calls the isValidNfdAppId(string,uint64)bool ABI method.
      *

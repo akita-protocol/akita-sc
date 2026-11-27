@@ -237,7 +237,7 @@ export type ListingTypes = {
                  */
                 marketplaceRoyalties: bigint;
                 /**
-                 * the app ID for the akita DAO escrow
+                 * the DAO escrow the factory named when this listing was created; a sale pays the one it names then (`feeEscrow`)
                  */
                 akitaDaoEscrow: EscrowConfig;
                 /**

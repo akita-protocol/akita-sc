@@ -43,7 +43,7 @@ export type MockAdmitDelegateArgs = {
         'setAnswer(bool)void': {
             answer: boolean;
         };
-        'arcTBD_admit(uint64,address,byte[],address)bool': {
+        'admit(uint64,address,byte[],address)bool': {
             asset: bigint | number;
             writer: string;
             slot: Uint8Array;
@@ -55,7 +55,7 @@ export type MockAdmitDelegateArgs = {
      */
     tuple: {
         'setAnswer(bool)void': [answer: boolean];
-        'arcTBD_admit(uint64,address,byte[],address)bool': [asset: bigint | number, writer: string, slot: Uint8Array, holder: string];
+        'admit(uint64,address,byte[],address)bool': [asset: bigint | number, writer: string, slot: Uint8Array, holder: string];
     };
 };
 /**
@@ -63,7 +63,7 @@ export type MockAdmitDelegateArgs = {
  */
 export type MockAdmitDelegateReturns = {
     'setAnswer(bool)void': void;
-    'arcTBD_admit(uint64,address,byte[],address)bool': boolean;
+    'admit(uint64,address,byte[],address)bool': boolean;
 };
 /**
  * Defines the types of available calls and state of the MockAdmitDelegate smart contract.
@@ -76,10 +76,10 @@ export type MockAdmitDelegateTypes = {
         argsObj: MockAdmitDelegateArgs['obj']['setAnswer(bool)void'];
         argsTuple: MockAdmitDelegateArgs['tuple']['setAnswer(bool)void'];
         returns: MockAdmitDelegateReturns['setAnswer(bool)void'];
-    }> & Record<'arcTBD_admit(uint64,address,byte[],address)bool' | 'arcTBD_admit', {
-        argsObj: MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'];
-        argsTuple: MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool'];
-        returns: MockAdmitDelegateReturns['arcTBD_admit(uint64,address,byte[],address)bool'];
+    }> & Record<'admit(uint64,address,byte[],address)bool' | 'admit', {
+        argsObj: MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'];
+        argsTuple: MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool'];
+        returns: MockAdmitDelegateReturns['admit(uint64,address,byte[],address)bool'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -149,12 +149,12 @@ export declare abstract class MockAdmitDelegateParamsFactory {
      */
     static setAnswer(params: CallParams<MockAdmitDelegateArgs['obj']['setAnswer(bool)void'] | MockAdmitDelegateArgs['tuple']['setAnswer(bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the arcTBD_admit(uint64,address,byte[],address)bool ABI method
+     * Constructs a no op call for the admit(uint64,address,byte[],address)bool ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static arcTbdAdmit(params: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static admit(params: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the MockAdmitDelegate smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -473,12 +473,12 @@ export declare class MockAdmitDelegateClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+         * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        arcTbdAdmit: (params: CallParams<MockAdmitDelegateArgs["obj"]["arcTBD_admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["arcTBD_admit(uint64,address,byte[],address)bool"]> & {
+        admit: (params: CallParams<MockAdmitDelegateArgs["obj"]["admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["admit(uint64,address,byte[],address)bool"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
     };
@@ -507,12 +507,12 @@ export declare class MockAdmitDelegateClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+         * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        arcTbdAdmit: (params: CallParams<MockAdmitDelegateArgs["obj"]["arcTBD_admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["arcTBD_admit(uint64,address,byte[],address)bool"]> & {
+        admit: (params: CallParams<MockAdmitDelegateArgs["obj"]["admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["admit(uint64,address,byte[],address)bool"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -550,15 +550,15 @@ export declare class MockAdmitDelegateClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the MockAdmitDelegate smart contract using the `arcTBD_admit(uint64,address,byte[],address)bool` ABI method.
+         * Makes a call to the MockAdmitDelegate smart contract using the `admit(uint64,address,byte[],address)bool` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        arcTbdAdmit: (params: CallParams<MockAdmitDelegateArgs["obj"]["arcTBD_admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["arcTBD_admit(uint64,address,byte[],address)bool"]> & SendParams & {
+        admit: (params: CallParams<MockAdmitDelegateArgs["obj"]["admit(uint64,address,byte[],address)bool"] | MockAdmitDelegateArgs["tuple"]["admit(uint64,address,byte[],address)bool"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MockAdmitDelegateReturns["arcTBD_admit(uint64,address,byte[],address)bool"]);
+            return: (undefined | MockAdmitDelegateReturns["admit(uint64,address,byte[],address)bool"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -605,13 +605,13 @@ export type MockAdmitDelegateComposer<TReturns extends [...any[]] = []> = {
      */
     setAnswer(params?: CallParams<MockAdmitDelegateArgs['obj']['setAnswer(bool)void'] | MockAdmitDelegateArgs['tuple']['setAnswer(bool)void']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['setAnswer(bool)void'] | undefined]>;
     /**
-     * Calls the arcTBD_admit(uint64,address,byte[],address)bool ABI method.
+     * Calls the admit(uint64,address,byte[],address)bool ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    arcTbdAdmit(params?: CallParams<MockAdmitDelegateArgs['obj']['arcTBD_admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['arcTBD_admit(uint64,address,byte[],address)bool']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['arcTBD_admit(uint64,address,byte[],address)bool'] | undefined]>;
+    admit(params?: CallParams<MockAdmitDelegateArgs['obj']['admit(uint64,address,byte[],address)bool'] | MockAdmitDelegateArgs['tuple']['admit(uint64,address,byte[],address)bool']>): MockAdmitDelegateComposer<[...TReturns, MockAdmitDelegateReturns['admit(uint64,address,byte[],address)bool'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the MockAdmitDelegate smart contract.
      *

@@ -15,6 +15,7 @@ import {
   INFERENCE_ERROR_MESSAGES,
   InferencePluginSDK,
   InferenceProviderStatus,
+  MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,
@@ -95,6 +96,8 @@ import {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pendingUpgradeBoxBytes,
+  pluginInstallCost,
   proposeToGuild,
   runDraftProposal,
   sendGuildExecution,
@@ -105,19 +108,20 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-UTGWGNW5.mjs";
+} from "../chunk-MPQYECGV.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
-import "../chunk-JSS5LFT3.mjs";
+import "../chunk-VXHF5AKC.mjs";
+import "../chunk-TLZOIDZM.mjs";
 import "../chunk-RUHR54B7.mjs";
-import "../chunk-4KZTQ4F2.mjs";
+import "../chunk-3G47U4UC.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-GOQ4H3PG.mjs";
-import "../chunk-LGBCH6R3.mjs";
-import "../chunk-KMNTDT7N.mjs";
-import "../chunk-F6MCTL3D.mjs";
-import "../chunk-BECHT3SD.mjs";
+import "../chunk-SA6NGPPZ.mjs";
+import "../chunk-6V4OENI7.mjs";
+import "../chunk-6XECO6Z2.mjs";
+import "../chunk-VPI3D6AS.mjs";
 import "../chunk-JZMSW77U.mjs";
 import "../chunk-J5LGTIGS.mjs";
 export {
@@ -138,6 +142,7 @@ export {
   INFERENCE_ERROR_MESSAGES,
   InferencePluginSDK,
   InferenceProviderStatus,
+  MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
   METADATA_MAX_SCOPE_BYTES,
@@ -218,6 +223,8 @@ export {
   newMetaPlugin,
   newWallet,
   parseWalletErrorCode,
+  pendingUpgradeBoxBytes,
+  pluginInstallCost,
   proposeToGuild,
   runDraftProposal,
   sendGuildExecution,

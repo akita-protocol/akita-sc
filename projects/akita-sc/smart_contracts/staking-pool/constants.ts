@@ -19,6 +19,8 @@ export const PoolGlobalStateKeyEndTimestamp = 'end_timestamp'
 export const PoolGlobalStateKeyRewardInterval = 'reward_interval'
 export const PoolGlobalStateKeyLastDisbursementTimestamp = 'last_disbursement_timestamp'
 export const PoolGlobalStateKeyMaxEntries = 'max_entries'
+/** entries that exist now (STK-04) */
+export const PoolGlobalStateKeyLiveEntries = 'live_entries'
 export const PoolGlobalStateKeyEntryCount = 'entry_count'
 export const PoolGlobalStateKeyUniqueAssetsStaked = 'unique_assets_staked'
 export const PoolGlobalStateKeyStakeKey = 'stake_key'
@@ -150,7 +152,8 @@ export const PoolEntriesByAddressExactMBR: uint64 = 22_100
 // (1615566206) stores one value per multiple of BEACON_ROUND_INTERVAL rounds and submits it about 2
 // rounds later. Allocation commits to the first stored round at least DRAW_DELAY_ROUNDS ahead; the
 // draw may read it BEACON_LAG_ROUNDS after that round. An empty read reverts until
-// BEACON_MAX_WAIT_ROUNDS have passed (inside the beacon's ~1,512-round window), then re-commits.
+// BEACON_MAX_WAIT_ROUNDS have passed (inside the beacon's ~1,512-round window); after that the pool
+// closes the round unpaid instead of drawing again (STK-07).
 export const DRAW_DELAY_ROUNDS: uint64 = 8
 export const BEACON_ROUND_INTERVAL: uint64 = 8
 export const BEACON_LAG_ROUNDS: uint64 = 4

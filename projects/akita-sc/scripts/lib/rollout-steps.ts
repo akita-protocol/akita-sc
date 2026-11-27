@@ -16,6 +16,7 @@ import { escrowAddress, planCreditWithdrawals } from './rewards-credit-withdrawa
 import { RewardsSDK } from 'akita-sdk/rewards'
 import { planPowerRescale, powerProblems } from './proposal-power'
 import { planServiceFunding } from './service-account-funding'
+import { planServiceReserve } from './subscription-service-reserve'
 import { payOnlyGrantProblem, payPluginProblem, policyWriterGrantProblem, readDaoGrantPolicy } from './grant-policy-steps'
 
 type Status = { done: boolean; detail: string }
@@ -88,11 +89,23 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       return { done: set, detail: `aal.staking ${aal?.staking} heartbeat_manager_address = ${set ? manager : '(unset)'}` }
     } })
 
+  // E2a: the services that exist before the Subscriptions upgrade could grow their text to the maximum
+  // for nothing afterwards, out of the balance that holds subscribers' escrowed ALGO (audit 07, SUB-02).
+  add({ id: 'subscription-reserve', stage: 'E', title: 'Subscriptions holds the storage reserve of the services that already exist', requires: [],
+    run: 'npm run fund:subscription-reserve -- --confirm', check: async () => {
+      if (!ctx.appIds.subscriptions) return { done: false, detail: `no subscriptions app id for ${network}` }
+      const plan = await planServiceReserve(ctx, ctx.appIds.subscriptions).catch((e: Error) => e)
+      if (plan instanceof Error) return { done: false, detail: plan.message }
+      return { done: plan.shortfall === 0n, detail: plan.shortfall === 0n
+        ? `${plan.free} µALGO free covers ${plan.reserveOwed} of reserve and ${plan.algoEscrow} of escrow`
+        : `send ${plan.shortfall} µALGO: ${plan.free} free against ${plan.reserveOwed} of reserve and ${plan.algoEscrow} of escrow` }
+    } })
+
   const gatedPhase2 = new Set(['AkitaSocial', 'Subscriptions', 'Marketplace', 'StakingPoolFactory', 'AuctionFactory', 'RaffleFactory'])
   // The runner refuses a target that pays referrals until aal.rewards is Rewards v2 (rollout.test).
   const referralPhase2 = new Set([...gatedPhase2, 'AbstractedAccountFactory'])
   for (const t of [...PHASE2_TARGETS, ...PHASE2_RIDE_ALONG_TARGETS]) {
-    const requires = ['phase2a', ...(gatedPhase2.has(t.name) ? ['gate'] : []), ...(referralPhase2.has(t.name) ? ['rewards'] : []), ...(t.name === 'StakingPoolFactory' ? ['staking'] : [])]
+    const requires = ['phase2a', ...(gatedPhase2.has(t.name) ? ['gate'] : []), ...(referralPhase2.has(t.name) ? ['rewards'] : []), ...(t.name === 'StakingPoolFactory' ? ['staking'] : []), ...(t.name === 'Subscriptions' ? ['subscription-reserve'] : [])]
     const ride = PHASE2_RIDE_ALONG_TARGETS.includes(t)
     add({ id: `p2:${t.name}`, stage: 'E', title: `${t.name}${t.child ? ` + ${t.child.name} child` : ''}`, requires, run: `scripts/principal-phase2-upgrade-targets.ts --target ${t.name} --confirm${ride ? ' (lockstep plugin)' : ''}`,
       check: async () => {

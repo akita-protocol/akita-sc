@@ -4,9 +4,10 @@ import { Address } from 'algosdk';
 import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import algosdk from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest';
-import { SunsetPluginSDK } from 'akita-sdk/wallet';
+import { newMetaPlugin, SunsetPluginSDK, WelcomePluginSDK } from 'akita-sdk/wallet';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { SunsetPluginFactory } from '../../artifacts/arc58/plugins/sunset/SunsetPluginClient';
+import { WelcomePluginFactory } from '../../artifacts/arc58/plugins/welcome/WelcomePluginClient';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -17,20 +18,73 @@ type PluginCase = {
   sdk: object;
 };
 
+type AbiMethod = { name?: string; args?: Array<{ name?: string }> };
+
+const clientOf = (sdk: object) => (sdk as unknown as Record<string, unknown>).client as {
+  appSpec?: { methods?: AbiMethod[] };
+  appClient: { getABIMethod(name: string): { getSelector(): Uint8Array; getSignature(): string } };
+};
+
+const abiMethods = (sdk: object): AbiMethod[] => clientOf(sdk)?.appSpec?.methods ?? [];
+
 const getSdkMethods = (sdk: object) => {
   const sdkRecord = sdk as unknown as Record<string, unknown>;
-  const client = sdkRecord.client as {
-    appSpec?: { methods?: Array<{ name?: string }> };
-  } | undefined;
-  const abiMethodNames = new Set(
-    client?.appSpec?.methods?.flatMap(({ name }) => name === undefined ? [] : [name]) ?? [],
-  );
+  const abiMethodNames = new Set(abiMethods(sdk).flatMap(({ name }) => name === undefined ? [] : [name]));
 
   return Object.getOwnPropertyNames(Object.getPrototypeOf(sdk))
     .filter((name) => name !== 'constructor')
     .filter((name) => abiMethodNames.has(name))
     .filter((name) => typeof sdkRecord[name] === 'function')
     .sort();
+};
+
+/**
+ * The methods a wallet reaches through this plugin: the ones whose first argument is the wallet.
+ * A plugin's own `create` takes no wallet.
+ */
+const walletAbiMethods = (sdk: object) => abiMethods(sdk)
+  .flatMap(({ name, args }) => name !== undefined && args?.[0]?.name === 'wallet' ? [name] : [])
+  .sort();
+
+/**
+ * Plugin methods with no hook of their own name, and how a wallet reaches each one instead. Every other
+ * method a wallet calls must have a hook of its own name (audit 13, XSY-04). Each claim is checked:
+ *
+ * - `sentBy`: the named hook lists this method among the selectors it sends, when it is called with
+ *   `args` (or with none, the form a method-restricted grant is built from). A method a hook sends only
+ *   for some arguments is not in the no-arguments list, so a method-restricted Update grant has to name
+ *   `setClearProgram` and `updateAppWithSchema` itself; the DAO's Update grant has no method list.
+ * - `legacyNameOf`: an on-chain alias of a method that has a hook. The SDK never sends the alias, so
+ *   what is checked is that the method it stands for has a hook and takes the same arguments.
+ */
+type HookAlias =
+  | { sentBy: string; args?: Record<string, unknown>; why: string }
+  | { legacyNameOf: string; why: string };
+
+/** What `updateApp` needs besides the arguments that pick its steps. Nothing here is sent. */
+const UPDATE_APP_ARGS = { appId: 1n, version: '0', data: new Uint8Array(1) };
+
+const HOOK_ALIASES: Record<string, Record<string, HookAlias>> = {
+  auctionPlugin: {
+    deleteApplication: {
+      legacyNameOf: 'deleteAuctionApp',
+      why: 'the v1 ABI name, kept on chain for method lists made against it; it only forwards',
+    },
+  },
+  updatePlugin: {
+    initBoxedContract: { sentBy: 'updateApp', why: 'a step of updateApp and of updateFactoryChildContract' },
+    loadBoxedContract: { sentBy: 'updateApp', why: 'a step of updateApp and of updateFactoryChildContract' },
+    setClearProgram: {
+      sentBy: 'updateApp',
+      args: { ...UPDATE_APP_ARGS, clearProgram: new Uint8Array([0x0b]) },
+      why: 'the first step of updateApp when a clear program is passed',
+    },
+    updateAppWithSchema: {
+      sentBy: 'updateApp',
+      args: { ...UPDATE_APP_ARGS, globalNumUint: 1n },
+      why: 'the last step of updateApp, in place of updateApp, for a target whose schema grows',
+    },
+  },
 };
 
 describe('ARC58 plugin SDK hooks', () => {
@@ -67,6 +121,27 @@ describe('ARC58 plugin SDK hooks', () => {
       factoryParams: { appId: sunsetClient.appId },
     });
 
+    // The plugins the parity test used to leave out (audit 13, XSY-04). GuildPlugin needs a Guild and
+    // its factory, which this universe does not deploy; its hooks have their own unit test
+    // (akita-sdk/src/wallet/plugins/guild.test.ts).
+    const metaPlugin = await newMetaPlugin({
+      algorand,
+      sender: deployer.addr.toString(),
+      signer: deployer.signer,
+      registry: akitaUniverse.metaMerkles.appId,
+    });
+    const welcomeFactory = algorand.client.getTypedAppFactory(WelcomePluginFactory, {
+      defaultSender: deployer.addr,
+      defaultSigner: deployer.signer,
+    });
+    const { appClient: welcomeClient } = await welcomeFactory.send.create.create({
+      args: { factory: akitaUniverse.walletFactory.appId },
+    });
+    const welcomePlugin = new WelcomePluginSDK({
+      algorand,
+      factoryParams: { appId: welcomeClient.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+    });
+
     pluginCases = [
       { name: 'asaManagerPlugin', sdk: akitaUniverse.asaManagerPlugin },
       { name: 'auctionPlugin', sdk: akitaUniverse.auctionPlugin },
@@ -90,6 +165,8 @@ describe('ARC58 plugin SDK hooks', () => {
       { name: 'subscriptionsPlugin', sdk: akitaUniverse.subscriptionsPlugin },
       { name: 'sunsetPlugin', sdk: sunsetPlugin },
       { name: 'updatePlugin', sdk: akitaUniverse.updatePlugin },
+      { name: 'metaPlugin', sdk: metaPlugin },
+      { name: 'welcomePlugin', sdk: welcomePlugin },
     ];
   });
 
@@ -121,6 +198,49 @@ describe('ARC58 plugin SDK hooks', () => {
     }
 
     expect(assertions.length).toBeGreaterThanOrEqual(pluginCases.length);
+  });
+
+  test('audit 13 XSY-04: every plugin method a wallet calls is reachable through the SDK', () => {
+    // The test above drives from the SDK, so a plugin method with no hook cannot fail it, and a wallet
+    // simply cannot reach that method. This one drives from the ABI.
+    const hex = (selector: Uint8Array) => Buffer.from(selector).toString('hex');
+    const missing: string[] = [];
+    for (const pluginCase of pluginCases) {
+      const sdk = pluginCase.sdk as unknown as Record<string, (args?: unknown) => () => { selectors: Uint8Array[] }>;
+      const abi = (method: string) => clientOf(pluginCase.sdk).appClient.getABIMethod(method);
+      const methods = walletAbiMethods(pluginCase.sdk);
+      expect(methods, `${pluginCase.name} should have methods a wallet calls`).not.toHaveLength(0);
+      const aliases = HOOK_ALIASES[pluginCase.name] ?? {};
+      for (const method of methods) {
+        if (typeof sdk[method] === 'function') continue;
+        // a method with no hook of its own is allowed only where the alias table says how it is
+        // reached, and that claim holds
+        const alias = aliases[method];
+        let reached = false;
+        if (alias !== undefined && 'sentBy' in alias) {
+          const hook = alias.args === undefined
+            ? sdk[alias.sentBy]()
+            : sdk[alias.sentBy]({ sender: deployer.addr.toString(), signer: deployer.signer, ...alias.args });
+          reached = hook().selectors.map(hex).includes(hex(abi(method).getSelector()));
+        } else if (alias !== undefined) {
+          const argsOf = (name: string) => abi(name).getSignature().slice(name.length);
+          reached = typeof sdk[alias.legacyNameOf] === 'function' && argsOf(method) === argsOf(alias.legacyNameOf);
+        }
+        if (!reached) missing.push(`${pluginCase.name}.${method}`);
+      }
+    }
+    expect(missing).toEqual([]);
+
+    // The alias table holds nothing stale: every entry names a method the plugin still has and the
+    // SDK still has no hook for.
+    for (const pluginCase of pluginCases) {
+      const methods = walletAbiMethods(pluginCase.sdk);
+      for (const method of Object.keys(HOOK_ALIASES[pluginCase.name] ?? {})) {
+        expect(methods, `${pluginCase.name}.${method} is in the alias table`).toContain(method);
+        expect(typeof (pluginCase.sdk as unknown as Record<string, unknown>)[method], `${pluginCase.name}.${method} has no hook of its own`).not.toBe('function');
+      }
+    }
+    expect(Object.keys(HOOK_ALIASES).every((name) => pluginCases.some((c) => c.name === name))).toBe(true);
   });
 
   test('subscriptions newServiceWithDescription helper returns the expected hook sequence', () => {

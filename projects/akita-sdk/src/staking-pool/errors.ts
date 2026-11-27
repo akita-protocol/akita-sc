@@ -75,7 +75,7 @@ export const STAKING_POOL_ERROR_MESSAGES: Record<string, string> = withErrorCode
   ROPN: 'A reward round is open; entries, checks and removals are frozen until it closes',
   RBUD: 'Reward budget is too small',
   PNEN: 'Pool must be a draft or past its end',
-  ABRT: 'Only the creator or the DAO wallet can abort a round',
+  ABRT: 'Only the creator or the DAO wallet can abort a round, and only the DAO wallet once a shuffle draw can be read',
   TYRQ: 'Typed staking pools require an asset stake key',
   IQTY: 'Staked quantity must be positive',
   IVTP: 'Invalid pool staking type',

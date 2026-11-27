@@ -4,7 +4,8 @@
  *
  * After the seal only the DAO wallet can call `setSubGate`, and no DAO proposal action does that directly, so
  * every sub-gate must be allowlisted first (`allowlist-sub-gates.ts`). This script refuses to seal while any
- * expected sub-gate (every receipt in `--manifest-dir`, plus `--sub-gates`) is missing from the allowlist.
+ * sub-gate of the tree has no receipt in `--manifest-dir` (and is not named with `--sub-gates`), or while one
+ * of them is missing from the allowlist: a sub-gate left out here could only be added by a DAO proposal.
  * Re-running on a sealed Gate is a no-op. `--dry-run` checks and prints, and sends nothing.
  */
 import fs from 'node:fs'
@@ -56,6 +57,10 @@ runScript(async () => {
     expected.set(name, BigInt(id))
   }
   if (expected.size === 0) throw new Error('No sub-gates to verify (use --manifest-dir and/or --sub-gates); refusing to seal blind')
+  const absent = subGateNames.filter((name) => !expected.has(name))
+  if (absent.length > 0) {
+    throw new Error(`Refusing to seal: no receipt for ${absent.join(', ')}. Deploy them (deploy-gates.ts) and allowlist them first: after the seal only a DAO proposal can add a sub-gate`)
+  }
 
   const missing: string[] = []
   for (const [name, appId] of expected) {

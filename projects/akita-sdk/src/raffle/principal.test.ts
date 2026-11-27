@@ -38,7 +38,7 @@ function raffle(withMarker: boolean) {
       ? { [RAFFLE_SELLER_REFERRER_KEY]: { value: "", valueRaw: REFERRER.addr.publicKey, valueBase64: "", keyRaw: new Uint8Array(), keyBase64: "" } }
       : {},
   );
-  vi.spyOn(client, "mbr").mockResolvedValue({ entries: 31_700n, weights: 0n, entriesByAddress: 18_900n });
+  vi.spyOn(client, "mbr").mockResolvedValue({ entries: 44_200n, weights: 2_900n, entriesByAddress: 18_900n });
   vi.spyOn(client.algorand.createTransaction, "payment").mockResolvedValue(PAYMENT);
   const calls: Record<string, unknown[]> = {};
   const group: Record<string, unknown> = { send: vi.fn().mockResolvedValue({}) };

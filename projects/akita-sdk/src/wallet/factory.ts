@@ -8,6 +8,7 @@ import { emptySigner } from '../constants';
 import { ALGORAND_ZERO_ADDRESS_STRING, Address, TransactionSigner } from 'algosdk';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { assertByteArrayLength, randomByteArray } from '../utils';
+import { pluginInstallCost } from './constants';
 
 export type WalletFactoryContractArgs = AbstractedAccountFactoryArgs["obj"];
 
@@ -62,11 +63,7 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
 
     // Add extra funding + asset MBR + plugin MBR to the payment
     const assetMBR = BigInt(assets.length) * 100_000n
-    const pluginMBR = plugins.reduce((acc, p) => {
-      const methodBytes = BigInt(p.methods?.length ?? 0) * 20n * 400n
-      const escrowBytes = BigInt(new TextEncoder().encode(p.escrow ?? '').length) * 400n
-      return acc + 38_900n + methodBytes + escrowBytes
-    }, 0n)
+    const pluginMBR = pluginInstallCost(plugins)
 
     const totalPayment = cost + BigInt(extraFunding) + assetMBR + pluginMBR
 

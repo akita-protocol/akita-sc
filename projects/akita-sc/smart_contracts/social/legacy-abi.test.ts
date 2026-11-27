@@ -71,11 +71,13 @@ describe('social legacy shims keep every deployed selector (§7.2)', () => {
     }
   })
 
-  test('AkitaSocial: the only new methods besides the hinted overloads are setMetaWallet and the paying updateMeta', () => {
+  test('AkitaSocial: the only new methods besides the hinted overloads are setMetaWallet, the paying updateMeta and the votes read', () => {
     const before = new Set(deployed.contracts.AkitaSocial.methods)
     const added = signatures(social).filter((sig) => !before.has(sig))
     expect(added.sort()).toEqual([
       ...HINTED_SOCIAL.map((m) => withHint(deployed.contracts.AkitaSocial.methods.find((s) => s.startsWith(`${m}(`))!)),
+      // readonly: whether a ref has its votes box, which a vote quote needs (audit 08, SOC-04)
+      'getVotesExist(byte[32])bool',
       'setMetaWallet(uint64)void',
       // setting a wall gate pays for the wall's posts box; the deployed selector stays as a shim
       'updateMeta(pay,uint64,uint64,uint64,uint64,uint64,uint64)void',
@@ -141,10 +143,16 @@ describe('legacy payment terms are pinned to the deployed MainNet social plugins
   const teal = readFileSync(path.join(root, 'artifacts/social/AkitaSocial.approval.teal'), 'utf8')
   const source = readFileSync(path.join(root, 'social/constants.ts'), 'utf8')
 
-  test('the four pinned ids are exactly every MainNet social plugin the SDK records', () => {
-    const recorded = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.map((d) => Number(d.appId)).sort()
-    expect(pins.map(socialConstant).sort()).toEqual(recorded)
-    expect(recorded).toEqual([3_368_400_007, 3_569_562_087, 3_633_295_088, 3_643_581_007])
+  test('the four pinned ids are exactly every MainNet social plugin the SDK records from before release 2.0.0', () => {
+    // Release 2.0.0 deployed a fifth social plugin on MainNet on 2026-11-26. It is built from the current
+    // constants, so the amounts it quotes are the corrected terms: it is not pinned, and legacyTerms is
+    // false for it on MainNet. Every older deployment quotes the deployed terms and has to be pinned.
+    const released = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.filter((d) => d.version === '2.0.0').map((d) => Number(d.appId))
+    const older = MAINNET_PLUGIN_DEPLOYMENTS.socialPlugin.filter((d) => d.version !== '2.0.0').map((d) => Number(d.appId)).sort()
+    expect(released).toEqual([3_783_367_682])
+    expect(pins.map(socialConstant).sort()).toEqual(older)
+    expect(older).toEqual([3_368_400_007, 3_569_562_087, 3_633_295_088, 3_643_581_007])
+    expect(pins.map(socialConstant)).not.toContain(released[0])
   })
 
   test('the MainNet genesis hash constant is the 32-byte mainnet-v1.0 hash', () => {

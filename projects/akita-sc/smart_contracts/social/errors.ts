@@ -98,3 +98,12 @@ export const errNotSelfMeta = 'errNsme'
 export const errNotInitialized = 'errNini'
 export const errAlreadyBlocked = 'errEblk'
 export const errInvalidModifier = 'errImod'
+
+// --- Remediation (2026-11 audit 08) -----------------------------------------
+
+/** an address ref with the shape of an asset or app key (ID followed by 24 zero bytes) */
+export const errReservedRef = 'errRsrf'
+/** a ban must end in the future */
+export const errBanExpired = 'errBnxp'
+/** moderators are removed by the DAO, not banned by each other */
+export const errCannotBanModerator = 'errBmod'

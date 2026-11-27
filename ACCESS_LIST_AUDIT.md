@@ -159,6 +159,14 @@ Boxes: `entries[id]`, `weights[chunk]` (32 KiB/16 entries), and `entriesByAddres
 
 The accepted `weightsListCount = 15` creation variants are protocol-impossible as one group. The non-PrizeBox variant has an absolute 224-entry ceiling after pay+axfer, and the new boxes alone need 240. The PrizeBox variant can expose at most 240 entries across its app calls, but the boxes consume all of them before boxed program/DAO/PrizeBox/ticket resources. Creation must be split from weight-box initialization, boxes must be smaller, or the contract must impose a lower proven cap.
 
+**Update for 2.0.0 (2026-11-25).** Raffles and fee auctions no longer reserve weights boxes, so the paragraph above and the `16 * weightsListCount` entries in the rows before it describe children created before 2.0.0. From 2.0.0 on:
+
+- `init` creates one empty totals box, `B(t)`, whatever `weightsListCount` is, so creation fits one group.
+- An entry (`Raffle.enter*`) or the first bid of an address in a fee auction (`Auction.bid*`) grows `B(weights[chunk])` by one 8-byte slot and writes `B(t)`. A weights box is as long as the entries it holds, up to 32 KiB; `B(t)` holds 8 bytes per weights box.
+- `refundMBR` also touches a weights box and `B(t)`: `Raffle.refundMBR` walks from the last entry down and shrinks that entry's box, `Auction.refundMBR` walks the bids in order and shrinks the last weights box once per unique bidder.
+- `clearWeightsBoxes` touches `B(t)` only, and is optional: `deleteApplication` (and `Auction.cancel`) remove a totals box that is still there, so they need `B(t)` too.
+- `findWinner` reads `B(t)` to skip whole boxes (at most 64 per call) and one `B(weights[chunk])`.
+
 ## Marketplace and Listing
 
 Marketplace has the inherited 8 KiB `boxedContract`. Listing itself stores sale state in globals and delegates settlement helpers.

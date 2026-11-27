@@ -110,9 +110,11 @@ sender. Keep sufficient spendable ALGO on the Guild for the simulation fee caps
 as well as the separately funded treasury wallet. The eventual signer pays the
 actual outer transaction fees.
 
-Deploy a creation-only Guild plugin with Guild ID zero if needed. Deploy and
-install a distinct Guild-specific plugin for participation, then grant each
-delegation only the intended instance and methods. Existing factory-wide Guild
+Deploy the shared Guild plugin (Guild ID zero) if needed. It creates Guilds
+and can also act in any Guild its factory created, so a grant for it reaches
+all of them. Deploy and install a distinct Guild-specific plugin where
+participation must stay inside one Guild, then grant each delegation only the
+intended instance and methods. Existing factory-wide Guild
 plugins do not gain isolation merely because new instances are deployed;
 remove or revoke those old delegations during migration.
 

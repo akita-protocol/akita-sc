@@ -473,6 +473,16 @@ export type AbstractedAccountArgs = {
              */
             reclaims: [bigint | number, bigint | number, boolean][];
         };
+        'arc58_closeFrozenToCreator(string,uint64[])void': {
+            /**
+             * The escrow that holds the frozen assets
+             */
+            escrow: string;
+            /**
+             * The frozen assets to close out to their creators
+             */
+            assets: bigint[] | number[];
+        };
         'arc58_deleteEscrow(string)void': {
             /**
              * The escrow to delete
@@ -648,6 +658,7 @@ export type AbstractedAccountArgs = {
         'arc58_newEscrow(string,address)uint64': [escrow: string, address: string];
         'arc58_toggleEscrowLock(string)(uint64,address,bool)': [escrow: string];
         'arc58_reclaim(string,(uint64,uint64,bool)[])void': [escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
+        'arc58_closeFrozenToCreator(string,uint64[])void': [escrow: string, assets: bigint[] | number[]];
         'arc58_deleteEscrow(string)void': [escrow: string];
         'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': [plugin: bigint | number, caller: string, escrow: string, reclaims: [bigint | number, bigint | number, boolean][]];
         'arc58_optInEscrow(string,uint64[])void': [escrow: string, assets: bigint[] | number[]];
@@ -696,6 +707,7 @@ export type AbstractedAccountReturns = {
     'arc58_newEscrow(string,address)uint64': bigint;
     'arc58_toggleEscrowLock(string)(uint64,address,bool)': EscrowInfo;
     'arc58_reclaim(string,(uint64,uint64,bool)[])void': void;
+    'arc58_closeFrozenToCreator(string,uint64[])void': void;
     'arc58_deleteEscrow(string)void': void;
     'arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void': void;
     'arc58_optInEscrow(string,uint64[])void': void;
@@ -827,6 +839,10 @@ export type AbstractedAccountTypes = {
         argsObj: AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
         returns: AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'];
+    }> & Record<'arc58_closeFrozenToCreator(string,uint64[])void' | 'arc58_closeFrozenToCreator', {
+        argsObj: AbstractedAccountArgs['obj']['arc58_closeFrozenToCreator(string,uint64[])void'];
+        argsTuple: AbstractedAccountArgs['tuple']['arc58_closeFrozenToCreator(string,uint64[])void'];
+        returns: AbstractedAccountReturns['arc58_closeFrozenToCreator(string,uint64[])void'];
     }> & Record<'arc58_deleteEscrow(string)void' | 'arc58_deleteEscrow', {
         argsObj: AbstractedAccountArgs['obj']['arc58_deleteEscrow(string)void'];
         argsTuple: AbstractedAccountArgs['tuple']['arc58_deleteEscrow(string)void'];
@@ -1418,6 +1434,22 @@ export declare abstract class AbstractedAccountParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static arc58Reclaim(params: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the arc58_closeFrozenToCreator(string,uint64[])void ABI method
+     *
+    * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+  
+    WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+    still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+    a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+    the admin names the assets to give up here. A holding that is not frozen is refused, because
+    arc58_reclaim returns it to the controlled address.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static arc58CloseFrozenToCreator(params: CallParams<AbstractedAccountArgs['obj']['arc58_closeFrozenToCreator(string,uint64[])void'] | AbstractedAccountArgs['tuple']['arc58_closeFrozenToCreator(string,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the arc58_deleteEscrow(string)void ABI method
      *
@@ -2411,6 +2443,24 @@ export declare class AbstractedAccountClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_closeFrozenToCreator(string,uint64[])void` ABI method.
+         *
+        * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+    
+        WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+        still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+        a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+        the admin names the assets to give up here. A holding that is not frozen is refused, because
+        arc58_reclaim returns it to the controlled address.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        arc58CloseFrozenToCreator: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_closeFrozenToCreator(string,uint64[])void"] | AbstractedAccountArgs["tuple"]["arc58_closeFrozenToCreator(string,uint64[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the AbstractedAccount smart contract using the `arc58_deleteEscrow(string)void` ABI method.
          *
         * Delete an escrow by closing its account out to the controlled address.
@@ -3001,6 +3051,28 @@ export declare class AbstractedAccountClient {
          * @returns The call transaction
          */
         arc58Reclaim: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_reclaim(string,(uint64,uint64,bool)[])void"] | AbstractedAccountArgs["tuple"]["arc58_reclaim(string,(uint64,uint64,bool)[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_closeFrozenToCreator(string,uint64[])void` ABI method.
+         *
+        * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+    
+        WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+        still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+        a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+        the admin names the assets to give up here. A holding that is not frozen is refused, because
+        arc58_reclaim returns it to the controlled address.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        arc58CloseFrozenToCreator: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_closeFrozenToCreator(string,uint64[])void"] | AbstractedAccountArgs["tuple"]["arc58_closeFrozenToCreator(string,uint64[])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -3787,6 +3859,33 @@ export declare class AbstractedAccountClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | AbstractedAccountReturns["arc58_reclaim(string,(uint64,uint64,bool)[])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AbstractedAccount smart contract using the `arc58_closeFrozenToCreator(string,uint64[])void` ABI method.
+         *
+        * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+    
+        WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+        still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+        a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+        the admin names the assets to give up here. A holding that is not frozen is refused, because
+        arc58_reclaim returns it to the controlled address.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        arc58CloseFrozenToCreator: (params: CallParams<AbstractedAccountArgs["obj"]["arc58_closeFrozenToCreator(string,uint64[])void"] | AbstractedAccountArgs["tuple"]["arc58_closeFrozenToCreator(string,uint64[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AbstractedAccountReturns["arc58_closeFrozenToCreator(string,uint64[])void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -4705,6 +4804,23 @@ export type AbstractedAccountComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     arc58Reclaim(params?: CallParams<AbstractedAccountArgs['obj']['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | AbstractedAccountArgs['tuple']['arc58_reclaim(string,(uint64,uint64,bool)[])void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_reclaim(string,(uint64,uint64,bool)[])void'] | undefined]>;
+    /**
+     * Calls the arc58_closeFrozenToCreator(string,uint64[])void ABI method.
+     *
+    * Give an escrow's frozen holdings back to the creator of each asset, and opt the escrow out.
+  
+    WAL-05: the ledger closes a frozen holding only to the asset's creator, and an escrow that
+    still holds an asset cannot be deleted. Anyone who can make an escrow opt in can leave it
+    a frozen unit of an asset of their own. arc58_reclaim never redirects a close-out by itself:
+    the admin names the assets to give up here. A holding that is not frozen is refused, because
+    arc58_reclaim returns it to the controlled address.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    arc58CloseFrozenToCreator(params?: CallParams<AbstractedAccountArgs['obj']['arc58_closeFrozenToCreator(string,uint64[])void'] | AbstractedAccountArgs['tuple']['arc58_closeFrozenToCreator(string,uint64[])void']>): AbstractedAccountComposer<[...TReturns, AbstractedAccountReturns['arc58_closeFrozenToCreator(string,uint64[])void'] | undefined]>;
     /**
      * Calls the arc58_deleteEscrow(string)void ABI method.
      *

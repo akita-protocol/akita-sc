@@ -8,7 +8,7 @@ import { gateCtx } from '../utils/principal'
 import { CallerTypeGlobal } from '../arc58/account/types'
 import { CID } from '../utils/types/base'
 import { AkitaSocialBoxPrefixMeta, AkitaSocialboxPrefixPayWall, AkitaSocialBoxPrefixPosts, AkitaSocialBoxPrefixReactionList, AkitaSocialBoxPrefixReactionRecords, AkitaSocialBoxPrefixReactions, AkitaSocialBoxPrefixRefTypes, AkitaSocialBoxPrefixVoteList, AkitaSocialBoxPrefixVoteRecords, AkitaSocialBoxPrefixVotes, AkitaSocialGlobalStateKeysLegacyListCutoff, AkitaSocialGlobalStateKeysPaywallID, AkitaSocialGlobalStateKeysRefTypeCounter, AmendmentMBR, BuiltInRefTypeCount, EditBackRefMBR, ImpactMetaMBR, LegacyMinPostsMBR, LegacySocialPluginDecember, LegacySocialPluginMay, LegacySocialPluginV002, LegacySocialPluginV003, MainNetGenesisHash, MAX_TIMESTAMP_DRIFT, MinPostsMBR, ONE_DAY, PostTypeEditPost, PostTypeEditReply, PostTypePost, PostTypeReply, ReactionlistMBR, ReactionRecordMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, ReplyParentRefMBR, TipActionPost, TipActionReact, TipSendTypeARC58, TipSendTypeDirect, VotelistMBR, VotesMBR } from './constants'
-import { errAlreadyOptedIn, errAlreadyReacted, errAlreadyVoted, errAutomatedAccount, errBanned, errBlocked, errFailedGate, errHasGate, errHaventVoted, errInvalidApp, errInvalidAsset, errInvalidPayment, errInvalidPaywall, errInvalidRefLength, errInvalidTransfer, errIsAReply, errIsAlreadyAmended, errLegacyRef, errMetaAlreadyExists, errMetaDoesntExist, errNoSelfVote, errNotAReply, errNotAkitaDao, errNotGraph, errNotModeration, errNotSelfMeta, errNotYourPostToEdit, errPaywallNotFound, errPostExists, errPostNotFound, errRefTypeNotFound, errReplyNotFound, errTimestampTooOld, errUserDoesNotOwnNft } from './errors'
+import { errAlreadyOptedIn, errAlreadyReacted, errAlreadyVoted, errAutomatedAccount, errBanned, errBlocked, errFailedGate, errHasGate, errHaventVoted, errInvalidApp, errInvalidAsset, errInvalidPayment, errInvalidPaywall, errInvalidRefLength, errInvalidTransfer, errIsAReply, errIsAlreadyAmended, errLegacyRef, errMetaAlreadyExists, errMetaDoesntExist, errNoSelfVote, errNotAReply, errNotAkitaDao, errNotGraph, errNotModeration, errNotSelfMeta, errNotYourPostToEdit, errPaywallNotFound, errPostExists, errPostNotFound, errRefTypeNotFound, errReplyNotFound, errReservedRef, errTimestampTooOld, errUserDoesNotOwnNft } from './errors'
 import { MetaValue, PostType, PostValue, ReactionListKey, ReactionsKey, RefTypeValue, SocialImpactInputs, TipAction, ViewPayWallValue, VoteListKey, VoteListValue, VotesValue } from './types'
 
 // CONTRACT IMPORTS
@@ -179,6 +179,13 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
         loggedAssert(ref.length === 32, errInvalidRefLength)
         refBytes = ref.toFixed({ length: 32 })
         creator = Account(refBytes)
+        // Every ref type shares one key space, and the key of an asset or app ref is its ID followed by
+        // 24 zero bytes. An "address" of that shape would materialize the asset's or app's ref with a
+        // creator nobody controls, and every later tip on it would miss its real creator (audit 08,
+        // SOC-02). No account address has that shape, so walls of real addresses are unaffected.
+        // The zero address stays a valid ref (no creator, the whole fee goes to the DAO): an ID is
+        // never zero, so it is the key of no asset or app a client references.
+        loggedAssert(ref.slice(8) !== op.bzero(24) || ref.slice(0, 8) === op.bzero(8), errReservedRef)
         // the wall's addressGateID is enforced by the callers (see wallGateID)
         break
       case RefTypeApp:
@@ -301,7 +308,11 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     loggedAssert(this.isReply(postType), errNotAReply)
 
     const parentPostRef = ref.slice(36, 68).toFixed({ length: 32 })
-    const { gateID: ogPostGateID } = this.posts(parentPostRef).value
+    const { gateID: parentGateID, creator: parentCreator } = this.posts(parentPostRef).value
+    // A wall is gated by its owner's addressGateID, not by the wall box's own gateID (always 0). Apply
+    // it to edits as resolveParentContext does to new replies (audit 08, SOC-09).
+    const wallGate = this.wallGateID(parentPostRef, parentCreator)
+    const ogPostGateID: uint64 = wallGate !== 0 ? wallGate : parentGateID
 
     return { parentPostRef, ogPostGateID, gateID, usePayWall, payWallID, editKey }
   }
@@ -772,8 +783,10 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       errAlreadyVoted
     )
     loggedAssert(Txn.sender !== creator, errNoSelfVote)
-    // gated walls can't be voted on
-    loggedAssert(this.wallGateID(ref, creator) === 0, errHasGate)
+    // A gated wall can't be up-voted. A down-vote is always accepted: the wall owner sets and clears the
+    // gate at will, even inside one group, and would otherwise decide who may lower the vote total that
+    // feeds the owner's own impact (audit 08, SOC-06).
+    loggedAssert(!isUp || this.wallGateID(ref, creator) === 0, errHasGate)
 
     const senderIsAutomated = this.meta(Txn.sender).value.automated
     loggedAssert(!senderIsAutomated, errAutomatedAccount)
@@ -1005,6 +1018,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     const postKey = this.computePostKey(timestamp, nonce)
 
     this.validateTip(tip, TipActionPost)
@@ -1039,6 +1053,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     this.editPostImpl(mbrPayment, tip, cid, amendment, creatorFlags, p.referrer, false)
   }
 
@@ -1087,6 +1102,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     const replyKey = this.computePostKey(timestamp, nonce)
 
     const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
@@ -1137,6 +1153,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     this.replyImpl(mbrPayment, tip, timestamp, nonce, cid, ref, type, gateID, usePayWall, payWallID, creatorFlags, p.referrer, false)
   }
 
@@ -1192,6 +1209,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     const { parentPostRef, ogPostGateID, gateID, usePayWall, payWallID, editKey } = this.prepareReplyEdit(amendment, cid)
     loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), ogPostGateID), errFailedGate)
 
@@ -1225,6 +1243,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     this.editReplyImpl(mbrPayment, tip, cid, amendment, creatorFlags, p.referrer, false)
   }
 
@@ -1265,6 +1284,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     this.voteImpl(mbrPayment, tip, ref, type, isUp, p.referrer, false)
   }
 
@@ -1386,6 +1406,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
     loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), postGateID), errFailedGate)
 
@@ -1419,6 +1440,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64
   ): void {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     this.reactImpl(mbrPayment, tip, ref, type, NFT, p.referrer, false)
   }
 
@@ -1501,6 +1523,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     wallet: uint64,
   ): uint64 {
     const p = principalOf(this.akitaDAO.value, wallet)
+    this.assertPrincipalNotBanned(p.principal)
     // meta can only be created for yourself; `user` stays in the ABI for compatibility
     loggedAssert(user === Txn.sender, errNotSelfMeta)
     return this.initMetaImpl(mbrPayment, automated, subscriptionIndex, NFD, akitaNFT, p.wallet)
@@ -1741,6 +1764,15 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }).returnValue
   }
 
+  // A ban on a wallet's main account also stops that wallet's escrows (audit 08, SOC-03). The spender
+  // itself is still checked where it always was (`isBanned(Txn.sender)`); this adds the verified principal
+  // of a hinted write (`principalOf(...).principal`: the wallet's origin in a window, else the sender).
+  private assertPrincipalNotBanned(principal: Account): void {
+    if (principal !== Txn.sender) {
+      loggedAssert(!this.isBanned(principal), errBanned)
+    }
+  }
+
   // Exposes the raw inputs needed by `AkitaSocialImpact` to compute a user's
   // social-activity score. Calling this is cheaper than recomputing the score
   // here because the math now lives entirely on the impact contract.
@@ -1763,6 +1795,15 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   @abimethod({ readonly: true })
   getPostExists(ref: bytes<32>): boolean {
     return this.posts(ref).exists
+  }
+
+  /**
+   * A ref materialized by a reply, a reaction or `updateMeta` has a posts box but no votes box, and the
+   * first vote on it pays for the votes box. Callers that quote a vote need to see that (audit 08, SOC-04).
+   */
+  @abimethod({ readonly: true })
+  getVotesExist(ref: bytes<32>): boolean {
+    return this.votes(ref).exists
   }
 
   @abimethod({ readonly: true })

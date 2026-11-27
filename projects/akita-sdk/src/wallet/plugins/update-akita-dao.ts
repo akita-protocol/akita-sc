@@ -24,6 +24,25 @@ export const UPGRADE_BINDING_NOTE_PROPOSAL = 'akita:upgrade-binding:proposal';
  */
 export type UpgradeDaoBinding = { lease: string | Uint8Array; proposalId: bigint | number };
 
+/**
+ * Bytes of DAO boxes an execution-key upgrade group reads that exist only once its UpgradeApp proposal
+ * is created and executed, for `wallet.build.usePlugin({ pendingBoxBytes })`:
+ *
+ * - `'u' + itob(target)`, the upgrade leases recorded for the target: a 2-byte count and 40 B per
+ *   action that names the target (`actions`, 1 unless the target's factory and child go in two groups).
+ * - with `proposalRead` (a DAO without `isUpgradeLease`, see `UpgradeDaoBinding`): the execution box
+ *   `'x' + lease` (16 B) and the proposal box `'l' + itob(id)`, 121 B plus, for each of its
+ *   `proposalActions` UpgradeApp actions, 67 B and 32 B per group id.
+ *
+ * `groups` is the number of group ids one execution key carries (one per 1,000 rounds of its window).
+ */
+export function pendingUpgradeBoxBytes({ groups, actions = 1, proposalRead = false, proposalActions = actions }:
+  { groups: number; actions?: number; proposalRead?: boolean; proposalActions?: number }): number {
+  const leases = 2 + 40 * actions;
+  if (!proposalRead) return leases;
+  return leases + 16 + 121 + proposalActions * (67 + 32 * groups);
+}
+
 type ContractArgs = UpdateAkitaDaoPluginArgs["obj"];
 
 type DeleteBoxedContractArgs = (
@@ -52,6 +71,13 @@ type UpdateAkitaDaoAppIDForAppArgs = (
 
 type UpdateAkitaDaoEscrowForAppArgs = (
   Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,(string,uint64))void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
+)
+
+type UpdateRevocationArgs = (
+  Omit<ContractArgs['updateRevocation(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & { factoryAppId: bigint | number }
   & MaybeSigner
   & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
@@ -85,8 +111,12 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     name[0] = 'u'.charCodeAt(0);
     new DataView(name.buffer).setBigUint64(1, BigInt(target));
     // Execution groups are simulated as the wallet admin before the proposal executes, so the DAO boxes the
-    // execution-key path reads ('u', 'x', 'l') and the wallet grant it checks are not yet sized into the
-    // group's box read budget. One empty box reference adds 1 KB of read quota for them.
+    // execution-key path reads ('u', 'x', 'l') are not yet sized into the group's box read budget. This
+    // empty box reference adds 2,048 B of budget only while the simulated reads fit the references the
+    // calls name: once they do not, the simulation counts it as budget the group already has. The budget
+    // those boxes can rely on is the one `wallet.build.usePlugin` adds after discovery: pass it
+    // `pendingBoxBytes: pendingUpgradeBoxBytes(...)`. The reference stays so a group proposed by an
+    // earlier SDK is rebuilt with the same id.
     const readHeadroom = { appId: 0n, name: new Uint8Array(0) };
     if (!daoBinding) return { appReferences: [dao], boxReferences: [{ appId: dao, name }, readHeadroom] };
     const lease = typeof daoBinding.lease === 'string' ? encodeLease(daoBinding.lease)! : daoBinding.lease;
@@ -328,6 +358,54 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
             ...sendParams,
             ...(await this.upgradeReferences(appId, args.daoBinding)),
             args: { wallet, rekeyBack, appId, newEscrow },
+          })
+        )
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }]
+      }
+    });
+  }
+
+  /**
+   * Points the wallet factory at the revocation app (`AbstractedAccountFactory.updateRevocation`),
+   * the app every wallet asks whether a grant was revoked. Zero turns the check off.
+   *
+   * The plugin calls the factory the DAO's `aal.wallet` names, and the call is upgrade-class, so the
+   * execution key has to be recorded for that factory: pass it as `factoryAppId` (the SDK's
+   * `walletFactory` for the network, as `updateFactoryChildContract` takes it).
+   */
+  updateRevocation(): PluginSDKReturn
+  updateRevocation(args: UpdateRevocationArgs): PluginSDKReturn
+  updateRevocation(args?: UpdateRevocationArgs): PluginSDKReturn {
+    const methodName = 'updateRevocation';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, app, factoryAppId } = args;
+
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = (
+          await this.client.params.updateRevocation({
+            ...sendParams,
+            // the factory is the app this call changes, so its execution-key box is the one to reference
+            ...(await this.upgradeReferences(factoryAppId, args.daoBinding)),
+            args: { wallet, rekeyBack, app },
           })
         )
 

@@ -4,12 +4,13 @@ import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/al
 import { Address } from 'algosdk';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, WalletSDK, WalletFactorySDK, CallerType, NFDPluginSDK } from 'akita-sdk/wallet';
+import type { PluginSDKReturn } from 'akita-sdk';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { deployNFDPlugin } from '../../../../tests/fixtures/plugins/nfd';
 import { expectContractError } from '../../../../tests/utils/errors';
 import { MockNfdClient, MockNfdFactory } from '../../../artifacts/mocks/nfd/MockNfdClient';
-import { MockNfdRegistryFactory } from '../../../artifacts/mocks/nfd/MockNfdRegistryClient';
+import { MockNfdRegistryClient, MockNfdRegistryFactory } from '../../../artifacts/mocks/nfd/MockNfdRegistryClient';
 import { MockFakeWalletFactory } from '../../../artifacts/mocks/fake-wallet/MockFakeWalletClient';
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 import { AbstractedAccountMbrFactory } from '../../../artifacts/arc58/account/AbstractedAccountMBRClient';
@@ -19,8 +20,8 @@ import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstr
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow';
 import { errMethodOnCooldown, errPluginDoesNotExist, errPluginExpired } from '../../account/errors';
-import { NFDPluginAutoRenewWindow } from './constants';
-import { errCannotAutoRenew, errNotAnNfd } from './errors';
+import { NFDPluginAutoRenewWindow, NFDPluginMaxForeignLinkMbr } from './constants';
+import { errCannotAutoRenew, errNotAnNfd, errNotNfdOwner, errPriceAboveMax } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -210,6 +211,161 @@ describe('NFD plugin contract', () => {
 
       const pluginAfter = await algorand.account.getInformation(nfdPlugin.client.appAddress);
       expect(pluginAfter.balance.microAlgos).toBe(pluginBefore.balance.microAlgos);
+    });
+  });
+
+  describe('audit 12: registry calls and link costs', () => {
+    // what the live registry asks for a first link, and what live link groups pay into the NFD
+    const REGISTRY_QUOTE = 18_500n;
+    const NFD_STORAGE = 37_900n;
+    let stranger: TransactionSignerAccount;
+    let linkWallet: WalletSDK;
+    let nfdPlugin: NFDPluginSDK;
+    let nfdFactory: MockNfdFactory;
+    let registry: MockNfdRegistryClient;
+    let owned: MockNfdClient;
+    let foreign: MockNfdClient;
+
+    const balance = async (address: string | Address) => (await algorand.account.getInformation(address)).balance.microAlgos;
+    const walletAddress = () => linkWallet.client.appAddress.toString();
+    const counts = async () => {
+      const state = await registry.state.global.getAll();
+      return { mints: state.mints ?? 0n, links: state.links ?? 0n, unlinks: state.unlinks ?? 0n, primaries: state.primaries ?? 0n, last: state.lastAddress };
+    };
+
+    const mintNfd = async (name: string, owner: string) => {
+      const { appClient } = await nfdFactory.send.create.create({ args: { nfdName: name, owner, expiration: 0n, renewPrice: 0n } });
+      // an NFD's account holds its minimum balance long before anything is linked to it
+      await appClient.appClient.fundAppAccount({ amount: algokit.microAlgo(100_000) });
+      return appClient;
+    };
+
+    const use = (calls: PluginSDKReturn[]) => linkWallet.usePlugin({ sender: user.addr, signer: user.signer, callerType: CallerType.Global, calls });
+
+    /**
+     * A plugin call built here rather than through the SDK hook, because these registry calls need
+     * costs the mock registry does not model. `maxFee` is the allowance the group needs to cover the
+     * call's inner transactions: a hand-built call carries no default.
+     */
+    const PLUGIN_MAX_FEE = algokit.microAlgo(20_000);
+
+    /** linkNfdAddress with explicit costs (the SDK reads them from the NFD, which the mock does not model) */
+    const link = (nfd: MockNfdClient, name: string, nfdMbrCost: bigint, registryMbrCost: bigint, rekeyBack = true): PluginSDKReturn => () => ({
+      appId: nfdPlugin.appId,
+      selectors: [nfdPlugin.client.appClient.getABIMethod('linkNfdAddress').getSelector()],
+      getTxns: async ({ wallet }) => [{
+        type: 'methodCall' as const,
+        ...(await nfdPlugin.client.params.linkNfdAddress({
+          sender: user.addr, signer: user.signer, maxFee: PLUGIN_MAX_FEE,
+          args: { wallet, rekeyBack, appId: nfd.appId, nfdName: name, nfdMbrCost, registryMbrCost },
+        })),
+      }],
+    });
+
+    /** setAddressPrimaryNfd or unlinkNfdAddress, with the same fee allowance */
+    const addressCall = (
+      method: 'setAddressPrimaryNfd' | 'unlinkNfdAddress',
+      nfd: MockNfdClient,
+      name: string,
+      rekeyBack = true,
+    ): PluginSDKReturn => () => ({
+      appId: nfdPlugin.appId,
+      selectors: [nfdPlugin.client.appClient.getABIMethod(method).getSelector()],
+      getTxns: async ({ wallet }) => [{
+        type: 'methodCall' as const,
+        ...(await nfdPlugin.client.params[method]({
+          sender: user.addr, signer: user.signer, maxFee: PLUGIN_MAX_FEE,
+          args: { wallet, rekeyBack, appId: nfd.appId, nfdName: name, address: walletAddress() },
+        })),
+      }],
+    });
+
+    beforeAll(async () => {
+      stranger = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) });
+      const registryFactory = algorand.client.getTypedAppFactory(MockNfdRegistryFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer });
+      ({ appClient: registry } = await registryFactory.send.create.create({ args: {} }));
+      await registry.appClient.fundAppAccount({ amount: algokit.microAlgo(100_000) });
+      await registry.send.setLinkCost({ args: { cost: REGISTRY_QUOTE } });
+      nfdFactory = algorand.client.getTypedAppFactory(MockNfdFactory, { defaultSender: deployer.addr, defaultSigner: deployer.signer });
+      nfdPlugin = await deployNFDPlugin({ fixture, sender: deployer.addr, signer: deployer.signer, args: { registry: registry.appId } });
+
+      linkWallet = await newWallet({
+        algorand,
+        factoryParams: { appId: akitaUniverse.walletFactory.appId, defaultSender: user.addr, defaultSigner: user.signer },
+        sender: user.addr,
+        signer: user.signer,
+        nickname: 'Link Wallet',
+      });
+      await linkWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(20_000_000) });
+      await linkWallet.addPlugin({ client: nfdPlugin, callerType: CallerType.Global });
+      owned = await mintNfd('owned-link.algo', walletAddress());
+      foreign = await mintNfd('foreign-link.algo', stranger.addr.toString());
+    });
+
+    test('EXT-06: mint, link, set-primary and unlink reach a registry that refuses RekeyTo, and the wallet keeps its account', async () => {
+      const before = await counts();
+      const registryBefore = await balance(registry.appAddress);
+      const nfdBefore = await balance(owned.appAddress);
+
+      // a registry call that is the last call of its window
+      await use([nfdPlugin.mint({ sender: user.addr, signer: user.signer, nfdName: 'minted.algo', reservedFor: walletAddress(), linkOnMint: false, amount: 1_000_000n })]);
+      await use([link(owned, 'owned-link.algo', NFD_STORAGE, REGISTRY_QUOTE)]);
+      // the apps' window: link, then set the primary NFD, the account handed back by the last call
+      await use([
+        link(owned, 'owned-link.algo', 0n, 0n, false),
+        addressCall('setAddressPrimaryNfd', owned, 'owned-link.algo'),
+      ]);
+      await use([addressCall('unlinkNfdAddress', owned, 'owned-link.algo')]);
+
+      const after = await counts();
+      expect([after.mints - before.mints, after.links - before.links, after.primaries - before.primaries, after.unlinks - before.unlinks]).toEqual([1n, 2n, 1n, 1n]);
+      expect(after.last).toBe(walletAddress());
+      expect((await balance(registry.appAddress)) - registryBefore).toBe(1_000_000n + REGISTRY_QUOTE);
+      expect((await balance(owned.appAddress)) - nfdBefore).toBe(NFD_STORAGE);
+      expect((await algorand.account.getInformation(linkWallet.client.appAddress)).authAddr).toBeUndefined();
+    });
+
+    test('EXT-04: the registry is never paid more than its own quote', async () => {
+      const walletBefore = await balance(walletAddress());
+      const registryBefore = await balance(registry.appAddress);
+      await expectContractError(use([link(owned, 'owned-link.algo', 0n, REGISTRY_QUOTE + 1n)]), errPriceAboveMax);
+      await expectContractError(use([link(owned, 'owned-link.algo', 0n, 5_000_000n)]), errPriceAboveMax);
+      expect(await balance(walletAddress())).toBe(walletBefore);
+      expect(await balance(registry.appAddress)).toBe(registryBefore);
+      expect((await algorand.account.getInformation(linkWallet.client.appAddress)).authAddr).toBeUndefined();
+    });
+
+    test('EXT-04: an NFD another account owns gets no more than the storage of one address', async () => {
+      const cap = BigInt(NFDPluginMaxForeignLinkMbr);
+      const walletBefore = await balance(walletAddress());
+      const foreignBefore = await balance(foreign.appAddress);
+      await expectContractError(use([link(foreign, 'foreign-link.algo', cap + 1n, REGISTRY_QUOTE)]), errNotNfdOwner);
+      await expectContractError(use([link(foreign, 'foreign-link.algo', 5_000_000n, REGISTRY_QUOTE)]), errNotNfdOwner);
+      expect(await balance(walletAddress())).toBe(walletBefore);
+      expect(await balance(foreign.appAddress)).toBe(foreignBefore);
+
+      // the storage of the link itself is still paid, as when the address is verified on someone else's NFD
+      await use([link(foreign, 'foreign-link.algo', NFD_STORAGE, REGISTRY_QUOTE)]);
+      expect((await balance(foreign.appAddress)) - foreignBefore).toBe(NFD_STORAGE);
+
+      // an NFD the account owns can be given more: only its owner, this account, can take it out again
+      const ownedBefore = await balance(owned.appAddress);
+      await use([link(owned, 'owned-link.algo', cap + 1n, REGISTRY_QUOTE)]);
+      expect((await balance(owned.appAddress)) - ownedBefore).toBe(cap + 1n);
+      expect((await algorand.account.getInformation(linkWallet.client.appAddress)).authAddr).toBeUndefined();
+    });
+
+    test('an app that only looks like an NFD is still refused before anything is paid', async () => {
+      // same program and name fields, but not an app the registry vouches for
+      const strangerFactory = algorand.client.getTypedAppFactory(MockNfdFactory, { defaultSender: stranger.addr, defaultSigner: stranger.signer });
+      const { appClient: lookalike } = await strangerFactory.send.create.create({
+        args: { nfdName: 'owned-link.algo', owner: walletAddress(), expiration: 0n, renewPrice: 0n },
+      });
+      await lookalike.appClient.fundAppAccount({ amount: algokit.microAlgo(100_000) });
+      const walletBefore = await balance(walletAddress());
+      await expectContractError(use([link(lookalike, 'owned-link.algo', NFD_STORAGE, REGISTRY_QUOTE)]), errNotAnNfd);
+      expect(await balance(walletAddress())).toBe(walletBefore);
+      expect(await balance(lookalike.appAddress)).toBe(100_000n);
     });
   });
 });

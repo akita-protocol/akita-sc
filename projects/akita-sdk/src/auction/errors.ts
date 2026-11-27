@@ -76,6 +76,7 @@ export const AUCTION_ERROR_MESSAGES: Record<string, string> = withErrorCodeAlias
   PIBA: 'The prize cannot be the bid asset',
   PSZB: 'The prize asset has a clawback or freeze address',
   WNBF: 'Only auctions with a bid fee can have weights boxes',
+  FANW: 'An auction with a bid fee must be created with a weightsListCount above 0',
   BNRD: 'The beacon value for the committed round is not available yet',
 })
 

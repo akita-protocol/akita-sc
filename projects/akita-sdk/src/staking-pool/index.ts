@@ -231,6 +231,14 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
   }
 
   /**
+   * Number of entries that exist now. `maxEntries` caps this number; `getState().entryCount` is the
+   * number of entry ids ever issued, which only grows.
+   */
+  async getLiveEntries(): Promise<bigint> {
+    return (await this.client.state.global.liveEntries()) ?? 0n;
+  }
+
+  /**
    * Gets MBR data for the pool based on winning tickets count.
    */
   async getMbr({ winningTickets }: StakingPoolMbrParams): Promise<StakingPoolMbrData> {
@@ -571,7 +579,10 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
-  /** Creator or DAO wallet unsticks a reward round. */
+  /**
+   * Creator or DAO wallet unsticks a reward round. Once the committed beacon round of a shuffle
+   * round is reached, only the DAO wallet can abort it.
+   */
   async abortRound({ sender, signer, rewardId, mode }: AbortRoundParams): Promise<void> {
     const group = this.client.newGroup();
     group.abortRound({ ...this.getSendParams({ sender, signer }), args: { rewardId, mode: BigInt(mode) } });

@@ -256,7 +256,7 @@ check:
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:74
     // loggedAssert(args.length >= MinCheckArgsLength, errInvalidArgCount)
     len
-    pushint 66
+    intc_2 // 2
     >=
     bnz check_after_assert@3
     bytec_3 // "ERR:errIarg"

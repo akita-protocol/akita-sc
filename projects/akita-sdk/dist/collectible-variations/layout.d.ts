@@ -82,7 +82,7 @@ export declare const MaxProofLevels = 24;
 export declare const PlainAsa = 0;
 export declare const Arc20GetAssetConfig = "get_asset_config(asset)(uint64,uint32,bool,string,string,string,byte[],address,address,address,address)";
 export declare const Arc20ManagerOffset = 25;
-export declare const DelegateAdmit = "arcTBD_admit(uint64,address,byte[],address)bool";
+export declare const DelegateAdmit = "admit(uint64,address,byte[],address)bool";
 /** Logged before a deposit mismatch fails: prefix || required amount (8 bytes). */
 export declare const DepositLogPrefix = "cv:deposit:";
 /** `ifRevision`: the entry must not exist. */

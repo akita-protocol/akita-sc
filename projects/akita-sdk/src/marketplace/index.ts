@@ -20,8 +20,11 @@ import { MIN_DISBURSEMENTS_MBR, USER_ALLOCATION_MBR } from "../rewards";
 import type { GateCtx } from "../principal";
 import type { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 
+import { resolveMaxCreatorRoyalty } from "./royalty";
+
 export * from "./errors";
 export * from "./listing";
+export * from "./royalty";
 export * from "./types";
 
 export type MarketplaceContractArgs = MarketplaceArgs["obj"];
@@ -29,6 +32,8 @@ export type MarketplaceContractArgs = MarketplaceArgs["obj"];
 type MarketplaceOptInPlan = {
   asset: bigint;
   cost: bigint;
+  /** the asset being sold: the factory alone opts in (`optInPrize`), with no revenue escrow involved */
+  prize: boolean;
 };
 
 const ASSET_OPT_IN_MIN_BALANCE = 100_000n;
@@ -41,7 +46,7 @@ const ASSET_OPT_IN_MIN_BALANCE = 100_000n;
  * except `purchase` with a legacy `Gate.mustCheck` gate txn.
  */
 export const MARKETPLACE_HINTED_METHODS = {
-  list: 'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64',
+  list: 'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64',
   listPrizeBox: 'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64',
   gatedPurchase: 'gatedPurchase(pay,appl,uint64,address,uint64)void',
   gatedPurchaseAsa: 'gatedPurchaseAsa(axfer,appl,uint64,address,uint64)void',
@@ -176,7 +181,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     const group = needsComposer ? this.client.newGroup() : undefined;
 
     if (group) {
-      for (const { asset, cost: optInCost } of listingOptIns.assetsToOptIn) {
+      for (const { asset, cost: optInCost, prize } of listingOptIns.assetsToOptIn) {
         const optInPayment = await this.client.algorand.createTransaction.payment({
       note: uniqueNote('payment'),
           ...sendParams,
@@ -184,11 +189,19 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
           receiver: this.client.appAddress,
         });
 
-        group.optIn({
-          ...sendParams,
-          args: { payment: optInPayment, asset },
-          maxFee: microAlgo(257_000),
-        });
+        if (prize) {
+          group.optInPrize({
+            ...sendParams,
+            args: { payment: optInPayment, asset },
+            maxFee: microAlgo(257_000),
+          });
+        } else {
+          group.optIn({
+            ...sendParams,
+            args: { payment: optInPayment, asset },
+            maxFee: microAlgo(257_000),
+          });
+        }
       }
     }
 
@@ -229,7 +242,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         }));
       }
     } else {
-      const { asset, amount, name, proof } = rest as Exclude<ListParams, { isPrizeBox: true }>;
+      const { asset, amount, name, proof, maxCreatorRoyalty } = rest as Exclude<ListParams, { isPrizeBox: true }>;
 
       const assetXfer = await this.client.algorand.createTransaction.assetTransfer({
       note: uniqueNote('assetTransfer'),
@@ -251,16 +264,17 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         name,
         proof,
         wallet,
+        maxCreatorRoyalty: resolveMaxCreatorRoyalty(maxCreatorRoyalty, proof),
       };
 
       if (group) {
-        group.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64({
+        group.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64({
           ...sendParams,
           args,
           maxFee: microAlgo(2_000_000),
         });
       } else {
-        ({ return: appId } = await this.client.send.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64({
+        ({ return: appId } = await this.client.send.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64({
           ...sendParams,
           args,
         }));
@@ -352,7 +366,8 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
    * Builds the atomic opt-in plan needed before a listing can be created.
    *
    * The listed ASA must be receivable by the marketplace before the `assetXfer`
-   * transaction runs. For ASA-denominated listings, the payment asset also needs
+   * transaction runs: that takes the factory's own opt-in only (`optInPrize`), because a prize never
+   * earns protocol fees. For ASA-denominated listings, the payment asset also needs
    * marketplace/escrow preparation so a future purchase can settle cleanly.
    */
   private async getListingOptInPlan({ prizeAsset, paymentAsset }: { prizeAsset: bigint, paymentAsset: bigint }): Promise<{ assetsToOptIn: MarketplaceOptInPlan[], paymentEscrowOptInCost: bigint }> {
@@ -364,13 +379,20 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     let paymentEscrowOptInCost = 0n;
 
     for (const asset of assets) {
+      if (asset !== paymentAsset) {
+        if (!(await this.isMarketplaceOptedInToAsset(asset))) {
+          assetsToOptIn.push({ asset, cost: ASSET_OPT_IN_MIN_BALANCE, prize: true });
+        }
+        continue;
+      }
+
       const [isMarketplaceOptedIn, optInCost] = await Promise.all([
         this.isMarketplaceOptedInToAsset(asset),
         this.client.optInCost({ args: { asset } }),
       ]);
 
       if (!isMarketplaceOptedIn) {
-        assetsToOptIn.push({ asset, cost: optInCost });
+        assetsToOptIn.push({ asset, cost: optInCost, prize: false });
         continue;
       }
 
@@ -596,6 +618,31 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       args: { payment, asset },
       maxFee: microAlgo(257_000),
       coverAppCallInnerTransactionFees: true,
+      populateAppCallResources: true,
+    });
+  }
+
+  /**
+   * Opts the marketplace into an asset that is going to be SOLD on it. Only the factory itself opts
+   * in: the DAO revenue escrow never receives a prize, so this costs one asset opt-in (0.1 ALGO) and
+   * does not depend on the escrow's payout cycle. `list` adds this call on its own when it is needed.
+   * Use `optIn` for a payment asset.
+   */
+  async optInPrize({ sender, signer, asset }: OptInParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const payment = await this.client.algorand.createTransaction.payment({
+      note: uniqueNote('payment'),
+      ...sendParams,
+      amount: microAlgo(ASSET_OPT_IN_MIN_BALANCE),
+      receiver: this.client.appAddress,
+    });
+
+    await this.client.send.optInPrize({
+      ...sendParams,
+      args: { payment, asset },
+      coverAppCallInnerTransactionFees: true,
+      maxFee: microAlgo(10_000),
       populateAppCallResources: true,
     });
   }

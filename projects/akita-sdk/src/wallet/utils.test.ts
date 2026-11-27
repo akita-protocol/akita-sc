@@ -1,10 +1,11 @@
 import { describe, test, expect } from 'vitest'
-import { encodeAddress } from 'algosdk'
+import algosdk, { encodeAddress } from 'algosdk'
 import {
   SpendAllowanceTypeFromString,
   AllowancesToTuple,
   AllowanceInfoTranslate,
   executionBoxKey,
+  executionKeyBoxBytes,
   domainBoxKey,
   ValueMap,
   applyDefaultAppCallMaxFees,
@@ -216,6 +217,17 @@ describe('executionBoxKey', () => {
     const a = executionBoxKey('lease-1')
     const b = executionBoxKey('lease-2')
     expect(Array.from(a)).not.toEqual(Array.from(b))
+  })
+})
+
+describe('executionKeyBoxBytes', () => {
+  test('is the ARC-4 size of ExecutionInfo: (byte[32][],uint64,uint64)', () => {
+    const type = algosdk.ABIType.from('(byte[32][],uint64,uint64)')
+    for (const groups of [1, 2, 30]) {
+      const ids = Array.from({ length: groups }, () => new Uint8Array(32))
+      expect(executionKeyBoxBytes(groups)).toBe(type.encode([ids, 1n, 2n]).length)
+    }
+    expect(executionKeyBoxBytes(1)).toBe(52)
   })
 })
 

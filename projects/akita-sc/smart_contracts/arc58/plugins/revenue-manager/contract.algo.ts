@@ -455,13 +455,17 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
 
       let balance: uint64 = 0
       let optedIn: boolean = false;
+      let frozen: boolean = false
       if (asset === 0) {
         balance = op.balance(sender) - sender.minBalance
       } else {
         const assetKey: ManagedAssetKey = { wallet, escrow, asset }
         loggedAssert(this.managedAssets(assetKey).exists, errAssetNotRegistered);
         ([balance, optedIn] = AssetHolding.assetBalance(sender, asset));
-        loggedAssert(optedIn, errInvalidAsset)
+        loggedAssert(optedIn, errInvalidAsset);
+        // A frozen holding cannot be sent. It stays in the escrow and the asset still counts as
+        // processed, so whoever holds an asset's freeze role cannot stop the cycle.
+        ([frozen] = AssetHolding.assetFrozen(sender, asset))
       }
 
       let remaining: uint64 = balance
@@ -471,7 +475,9 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
         let amount: uint64 = 0
         switch (type) {
           case SplitDistributionTypeFlat:
-            amount = value
+            // DAO-06: a flat share takes what is there. An asset with less than the flat amount
+            // (an NFT, or a holding of 0) must not stop the cycle.
+            amount = value < remaining ? value : remaining
             break
           case SplitDistributionTypePercentage:
             // With percentage-only 100% splits, assign the final receiver the
@@ -498,7 +504,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
         // is not opted in is left in the escrow and rolls into the next cycle:
         // the plugin never pays receiver opt-in MBR, and one receiver can no
         // longer revert (and so freeze) the whole disbursement cycle.
-        if (asset !== 0 && !receiverAddress.isOptedIn(Asset(asset))) {
+        if (asset !== 0 && (frozen || !receiverAddress.isOptedIn(Asset(asset)) || AssetHolding.assetFrozen(receiverAddress, asset)[0])) {
           continue
         }
 
@@ -579,6 +585,29 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
     if ((allocationCounter + ids.length) === totalAssetsToProcess) {
       this.escrows(key).value.phase = EscrowDisbursementPhaseFinalization
     }
+
+    rekeyBackIfNecessary(rekeyBack, wallet)
+  }
+
+  /**
+   * Stops tracking an asset on an idle DAO receive escrow, e.g. a hostile or dead asset, so it no longer
+   * has to be processed in every cycle. The escrow keeps its holding; the DAO can close it out with a
+   * Reclaim. Only callable through the DAO wallet's main-account grant.
+   */
+  removeManagedAsset(wallet: Application, rekeyBack: boolean, escrow: string, asset: uint64): void {
+    this.validateWallet(wallet)
+    this.requireDaoMainAccount(wallet)
+    this.validateEscrowName(escrow)
+
+    const key: WalletEscrowKey = { wallet, escrow }
+    loggedAssert(this.escrows(key).exists, errReceiveEscrowDoesNotExist)
+    const { phase, allocationCounter } = this.escrows(key).value
+    loggedAssert(phase === EscrowDisbursementPhaseIdle && allocationCounter === 0, errEscrowNotIdle)
+
+    const assetKey: ManagedAssetKey = { wallet, escrow, asset }
+    loggedAssert(this.managedAssets(assetKey).exists, errAssetNotRegistered)
+    this.managedAssets(assetKey).delete()
+    this.escrows(key).value.optinCount -= 1
 
     rekeyBackIfNecessary(rekeyBack, wallet)
   }

@@ -500,7 +500,7 @@ gatedFollow:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:930
+    // smart_contracts/utils/functions.ts:945
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -584,7 +584,7 @@ gatedFollow_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCt
     swap
     concat
     bury 8
-    // smart_contracts/utils/functions.ts:975
+    // smart_contracts/utils/functions.ts:990
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     dig 5
     gtxns ApplicationID
@@ -594,66 +594,66 @@ gatedFollow_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCt
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:975
+    // smart_contracts/utils/functions.ts:990
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:975-976
+    // smart_contracts/utils/functions.ts:990-991
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz gatedFollow_bool_false@54
-    // smart_contracts/utils/functions.ts:976
+    // smart_contracts/utils/functions.ts:991
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 4
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:975-976
+    // smart_contracts/utils/functions.ts:990-991
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz gatedFollow_bool_false@54
-    // smart_contracts/utils/functions.ts:977
+    // smart_contracts/utils/functions.ts:992
     // gateTxn.numAppArgs === 4 &&
     dig 4
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:975-977
+    // smart_contracts/utils/functions.ts:990-992
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz gatedFollow_bool_false@54
-    // smart_contracts/utils/functions.ts:978
+    // smart_contracts/utils/functions.ts:993
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     dig 4
     gtxnsa ApplicationArgs 0
     pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:975-978
+    // smart_contracts/utils/functions.ts:990-993
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     bz gatedFollow_bool_false@54
-    // smart_contracts/utils/functions.ts:979
+    // smart_contracts/utils/functions.ts:994
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     dig 4
     gtxnsa ApplicationArgs 1
     dig 7
     ==
-    // smart_contracts/utils/functions.ts:975-979
+    // smart_contracts/utils/functions.ts:990-994
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     bz gatedFollow_bool_false@54
-    // smart_contracts/utils/functions.ts:980
+    // smart_contracts/utils/functions.ts:995
     // gateTxn.appArgs(2) === itob(id)
     dig 4
     gtxnsa ApplicationArgs 2
     dig 9
     ==
-    // smart_contracts/utils/functions.ts:975-980
+    // smart_contracts/utils/functions.ts:990-995
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -1024,7 +1024,7 @@ legacyGatedFollow:
     assert // check GlobalState exists
     txn Sender
     cover 4
-    // smart_contracts/utils/functions.ts:449
+    // smart_contracts/utils/functions.ts:467
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     swap
     gtxns ApplicationID
@@ -1034,66 +1034,66 @@ legacyGatedFollow:
     bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:449
+    // smart_contracts/utils/functions.ts:467
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:449-450
+    // smart_contracts/utils/functions.ts:467-468
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz legacyGatedFollow_bool_false@11
-    // smart_contracts/utils/functions.ts:450
+    // smart_contracts/utils/functions.ts:468
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 4
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:449-450
+    // smart_contracts/utils/functions.ts:467-468
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz legacyGatedFollow_bool_false@11
-    // smart_contracts/utils/functions.ts:451
+    // smart_contracts/utils/functions.ts:469
     // gateTxn.numAppArgs === 4 &&
     dig 4
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:449-451
+    // smart_contracts/utils/functions.ts:467-469
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz legacyGatedFollow_bool_false@11
-    // smart_contracts/utils/functions.ts:452
+    // smart_contracts/utils/functions.ts:470
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     dig 4
     gtxnsa ApplicationArgs 0
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:449-452
+    // smart_contracts/utils/functions.ts:467-470
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     bz legacyGatedFollow_bool_false@11
-    // smart_contracts/utils/functions.ts:453
+    // smart_contracts/utils/functions.ts:471
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     dig 4
     gtxnsa ApplicationArgs 1
     dig 3
     ==
-    // smart_contracts/utils/functions.ts:449-453
+    // smart_contracts/utils/functions.ts:467-471
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     bz legacyGatedFollow_bool_false@11
-    // smart_contracts/utils/functions.ts:454
+    // smart_contracts/utils/functions.ts:472
     // gateTxn.appArgs(2) === itob(id)
     dig 4
     gtxnsa ApplicationArgs 2
     dig 4
     ==
-    // smart_contracts/utils/functions.ts:449-454
+    // smart_contracts/utils/functions.ts:467-472
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -1643,7 +1643,7 @@ payWallMbr:
 
 // smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements[routing]() -> void:
 checkTipMbrRequirements:
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     txna ApplicationArgs 1
     dup
@@ -1674,12 +1674,12 @@ checkTipMbrRequirements:
     pushbytes "akita_assets"
     app_global_get_ex
     pop
-    // smart_contracts/social/base.ts:79
+    // smart_contracts/social/base.ts:76
     // const akta = Asset(getAkitaAssets(akitaDAO).akta)
     intc_0 // 0
     extract_uint64
     swap
-    // smart_contracts/social/base.ts:81
+    // smart_contracts/social/base.ts:78
     // if (wallet.id !== 0 && !creator.isOptedIn(akta)) {
     bz checkTipMbrRequirements_after_if_else@6
     dig 2
@@ -1774,22 +1774,22 @@ checkTipMbrRequirements:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/social/base.ts:83
+    // smart_contracts/social/base.ts:80
     // if (canCallArc58OptIn) {
     bz checkTipMbrRequirements_after_if_else@6
-    // smart_contracts/social/base.ts:86
+    // smart_contracts/social/base.ts:83
     // arc58: Global.assetOptInMinBalance
     global AssetOptInMinBalance
-    // smart_contracts/social/base.ts:84-87
+    // smart_contracts/social/base.ts:81-84
     // return {
     //   type: TipSendTypeARC58,
     //   arc58: Global.assetOptInMinBalance
     // }
     itob
-    // smart_contracts/social/base.ts:85
+    // smart_contracts/social/base.ts:82
     // type: TipSendTypeARC58,
     pushbytes 0x14
-    // smart_contracts/social/base.ts:84-87
+    // smart_contracts/social/base.ts:81-84
     // return {
     //   type: TipSendTypeARC58,
     //   arc58: Global.assetOptInMinBalance
@@ -1798,7 +1798,7 @@ checkTipMbrRequirements:
     concat
 
 checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7:
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     bytec_1 // 0x151f7c75
     swap
@@ -1808,13 +1808,13 @@ checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial
     return
 
 checkTipMbrRequirements_after_if_else@6:
-    // smart_contracts/social/base.ts:91-94
+    // smart_contracts/social/base.ts:88-91
     // return {
     //   type: TipSendTypeDirect,
     //   arc58: 0
     // }
     pushbytes 0x0a0000000000000000
-    // smart_contracts/social/base.ts:78
+    // smart_contracts/social/base.ts:75
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     b checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7
 

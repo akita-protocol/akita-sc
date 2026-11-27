@@ -91,6 +91,8 @@ There is no `wallet.optInEscrow` or `wallet.balance`. Opt-in is `wallet.group().
 
 `deleteEscrow({ escrow })` removes every plugin and allowance that names the escrow, closes its assets out to the wallet and deletes it, in one group. `getEscrowTeardown(escrow)` returns the plan it works from: what will be removed, `blockers` that no call can undo, and `warnings`.
 
+A frozen holding is a blocker, because the network closes one only to the asset's creator. `closeFrozenToCreator({ escrow, assets })` gives such holdings back to their creators and opts the escrow out, after which the delete goes through. What it sends does not come back, so ask the person first. The wallet refuses an asset whose holding is not frozen: `reclaimFunds` returns that one.
+
 **An app must show the plan's `warnings` prominently before the person confirms.** They say what becomes of the escrow's address, which cannot be undone and differs with the kind of escrow:
 
 | `code` | The escrow is | After the delete |
@@ -117,7 +119,7 @@ A Hyperspace session installs a plugin grant for the P-256 LogicSig caller from 
 | Co-admin passkeys | `assignDomain` (a key whose domain equals the wallet domain is a co-admin; reassigning refunds the old key's MBR), `removeDomainKey` (revokes and refunds; on-chain `assignDomain(key, '')`), `getDomainKey`. An admin change through an admin plugin (recovery) clears the wallet domain, disabling every co-admin key until the new admin calls `setDomain`. |
 | Profile | `setNickname`, `setAvatar`, `setBanner`, `setBio` |
 | Plugins | `addPlugin`, `usePlugin`, `removePlugin` (the admin, the revocation app, or the grant's own caller: pass that caller as `sender`), `removeNamedPlugin`, `canCall`, `getPlugins`, `getPluginByKey`, `getNamedPlugins`, `getPluginByName` |
-| Escrows | `newEscrow`, `getEscrows`, `getEscrow`, `toggleEscrowLock`, `reclaimFunds`, `getEscrowTeardown`, `deleteEscrow` |
+| Escrows | `newEscrow`, `getEscrows`, `getEscrow`, `toggleEscrowLock`, `reclaimFunds`, `closeFrozenToCreator`, `getEscrowTeardown`, `deleteEscrow` |
 | Allowances | `addAllowances`, `removeAllowances`, `getAllowances`, `getAllowance` |
 | Execution keys | `addExecutionKey`, `removeExecutionKey`, `getExecutions`, `getExecution` |
 | Reads | `getGlobalState`, `getAdmin`, `getMbr` |

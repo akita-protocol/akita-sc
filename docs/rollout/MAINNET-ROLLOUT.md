@@ -88,7 +88,7 @@ Four programs changed after the update above. The record is in the audit's decis
 Four programs changed after the update above, for two additions the owner asked for on the evening of 2026-11-16. The record is in the audit's decision record (kept outside this repository since 2026-11-17) ("Seventh pass").
 
 - **FixedSignerGuildConsensus is 5,424 bytes (was 4,886).** New method `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void`. A signer whose own weight meets the threshold uses a plugin the Guild's wallet granted to the consensus app, in one send and with no proposal. The consensus app is the named caller of that grant, so the route does nothing until a Guild installs a plugin with its consensus app's address as the caller. The wallet's own checks on the grant still hold: the wallet named in each call, the rekey back, method restrictions, cooldown and escrow allowance. The Guild's vote settings, the proposal fee and the proposal record do not apply to such a use (C29, the design). ALGO the consensus app gains during a use is forwarded to the Guild app, where `sweep` sends it on to the treasury (C28). The program cannot be patched once it is registered at H2. It still needs 2 extra pages and three upload chunks.
-- **GuildPlugin is 5,564 bytes (was 5,247).** New method `usePluginAsSigner`, the wallet-side entry to the route. It works from the creation-only plugin (guild = 0) for every Guild of the factory. Still 2 extra pages.
+- **GuildPlugin is 5,564 bytes (was 5,247).** New method `usePluginAsSigner`, the wallet-side entry to the route. It works from the shared plugin (guild = 0) for every Guild of the factory, like every other method of that instance (audit 05, GLD-02: the instance is not creation-only). Still 2 extra pages.
 - **Limits of the route.** It carries only plugin methods that take no transaction arguments, and the SDK has no helper yet to encode the calls. A Guild with locked-token or subscription consensus has no such route: the call fails there.
 - **Subscriptions is 10,801 bytes (was 10,468).** New methods `updateServiceHighlight`, `setFeaturedService`, `clearFeaturedService` and the read-only `getFeaturedService`. A creator edits a service's highlight label and colour at any time, and names one of their services as featured. The featured id is in a new box per creator (prefix `f`) that costs 18,900 µALGO once and comes back on clear to whoever paid it. A payer that is not the creator adds 28,500 µALGO for the payer record. Moving the featured service later takes a payment of 0 µALGO in the group. No existing method, box or struct changed. The four services on MainNet (app 3569556497, read 2026-11-16) decode under the unchanged layout, so their highlights can be edited as soon as E2 has run.
 - **E2 keeps its pages, sponsorship and group size.** Subscriptions still needs 5 extra pages and six upload chunks, and the DAO wallet still sponsors 3,528,000 µA. 1,483 B of headroom is left (was 1,816).
@@ -134,7 +134,7 @@ The owner said the drift that matters is not in the programs. It is in how each 
 - **Three more creation fees change, in new step B3a:** a staking pool from 50 to 100 ALGO, a raffle from 10 to 50, and an auction from 10 to 50 (owner, 2026-11-17). Writing the step found an SDK fault: no proposal that changes `nft_fees` could be built. It is fixed.
 - **AuctionFactory now charges the auction creation fee** (owner, 2026-11-17; C33). The factory live today never has, so auctions cost storage only until E4 upgrades it. One contract program changes for this, AuctionFactory's. See B3a and E4.
 - **Manifest.** `release/manifest.json` is regenerated from a whole-tree build. It differs from the manifest before it in one entry only: AuctionFactory's approval program, 4,781 to 4,861 bytes. Its interface is unchanged: the same 18 methods with the same signatures. 33 programs differ from the release commit, and AuctionFactory is the new one.
-- **Still open:** the DualStake choice, the heartbeat manager's address (G2a), the `rev_nfd` source (G3a), and the two pay-silo recipients (G2 and H6). Since 2026-11-21 no pay silo is deployed: only the Akita Labs LLC address (H6) is asked for.
+- **Still open:** the DualStake choice. The owner gave the three addresses on 2026-11-25: the heartbeat manager (G2a), the `rev_nfd` source (G3a) and the Akita Labs LLC address (H6). Since 2026-11-21 no pay silo is deployed, so H6 is the only recipient asked for.
 - **The audit records left the repository** on 2026-11-17 by the owner's decision, because the repository is public. They are kept privately. Where this runbook cites a pass of the audit, the record is there.
 
 ## Update 2026-11-18: the revenue split becomes 80/5/15, and its receivers opt in
@@ -186,11 +186,12 @@ Six deployable programs change, the wallet takes a fifth program page, and the s
 - **Storage.** A new escrow costs 6,100 µALGO plus 400 per byte of its name more than before, for the count. A grant that uses an escrow by default costs 20,500 µALGO plus 400 per byte of the escrow's name more, for the name it stores, and gets it back when the grant is removed. The address of a deleted escrow that the factory made is under nobody's control: ALGO sent there afterwards is lost. An asset cannot be sent there, because the address can never opt in again.
 - **A new helper app (F0).** The SDK asks the immutable AbstractedAccountMBR what a wallet's boxes cost. The deployed helper (MainNet 3642282698, TestNet 767110471) runs the 304-byte program and does not know the count. F0 deploys the tree's and points `walletMbr` at it. Its method and return type are unchanged, so an SDK reads either helper. Neither quotes the extra cost of a grant that uses an escrow by default: the SDK's `defaultEscrowGrantMbr` gives it, and the three rollout scripts that install such grants add it.
 - **The fifth page.** Every live wallet has four pages: 73 on MainNet, the DAO wallet among them, and 1 on TestNet (read 2026-11-20). The factory grows a wallet's pages when it updates it. The factory sends the update and it created the wallet, so its minimum balance rises by 100,000 µALGO per wallet and it pays nothing out; the wallet's own account and its boxes are untouched. This is measured on a wallet that runs the MainNet program (`tests/compat`). `updateWallet` takes no payment and the factory has 1,121 µALGO free on MainNet, 800 on TestNet. F1 and F2 therefore read what the factory lacks and pay it from the sender before they update anything: 7.3 ALGO for MainNet's 73 wallets, 0.1 ALGO on TestNet.
-- **What a wallet above four pages costs its callers.** The node charges a program's bytes above 8,192 to the group's box read budget, once for each such app the group touches. For this wallet that is 562 bytes: 8,750 of approval program and 4 of clear program (555 before the wallet guard of 2026-11-21). A group that calls a wallet, or only lists one as an app reference, therefore needs at least one box reference. It may be empty, and it adds 2,048 bytes of budget, which a box the group already names counts toward. A group that names no box is refused with `read budget exceeded (562 > 0)` before it runs. The SDK finds the reference by simulation and puts it on the same transaction at no extra fee. A hand-built call to a wallet must add it. The mobile and desktop apps had one, the hosted agent controller proof (`arc58_getAdmin()address`), and the backend accepted that proof only without a box reference; all three change with this release (akita-rn 267, akita-desktop 88, akita-backend 30), and the backend goes out before the apps. The transaction that creates or updates a wallet also costs more, because it carries the program: 56 µALGO more when measured at 8,743 bytes, so an update cost 2,056 µALGO in fees and a caller that passes a fixed 2,000 fails. The SDK's wallet creation and steps F1 and F2 let the client size the fee. Both rules are measured on LocalNet, which runs the consensus version MainNet and TestNet run (read 2026-11-20), and `admin.e2e.spec.ts` holds the test. They apply to a wallet from the moment it is updated: F1 for the DAO wallet, F2 for the others.
+- **What a wallet above four pages costs its callers.** The node charges a program's bytes above 8,192 to the group's box read budget, once for each such app the group touches. For this wallet that is 730 bytes: 8,918 of approval program and 4 of clear program (562 before the audit fixes of 2026-11-25). A group that calls a wallet, or only lists one as an app reference, therefore needs at least one box reference. It may be empty, and it adds 2,048 bytes of budget, which a box the group already names counts toward. A group that names no box is refused with `read budget exceeded (730 > 0)` before it runs. The SDK finds the reference by simulation and puts it on the same transaction at no extra fee. A hand-built call to a wallet must add it. The mobile and desktop apps had one, the hosted agent controller proof (`arc58_getAdmin()address`), and the backend accepted that proof only without a box reference; all three change with this release (akita-rn 267, akita-desktop 88, akita-backend 30), and the backend goes out before the apps. The transaction that creates or updates a wallet also costs more, because it carries the program: 56 µALGO more when measured at 8,743 bytes, so an update cost 2,056 µALGO in fees, about 2,231 at 8,918 bytes, and a caller that passes a fixed 2,000 fails. The SDK's wallet creation and steps F1 and F2 let the client size the fee. Both rules are measured on LocalNet, which runs the consensus version MainNet and TestNet run (read 2026-11-20), and `admin.e2e.spec.ts` holds the test. They apply to a wallet from the moment it is updated: F1 for the DAO wallet, F2 for the others.
 - **New wallets.** From E7 on a wallet is created with five pages and costs 0.1 ALGO more. The factory's `cost` quotes it. Reading the staged wallet from the factory's box now takes five box entries where it took four.
 - **An escrow that is an outside account.** An escrow can be an ordinary account rekeyed to the wallet and registered with `arc58_newEscrow(name, address)`. Its record has no app id and the factory has no part in it. A delete closes the account out to the controlled address and removes the record and the count, with nothing sent to the factory. Closing the account ends its rekey, so the address is its own key's again, where a factory escrow's address is under nobody's control. The network closes no account that holds an asset, is opted in to an app, or created an asset or an app that still exists. The SDK reads that from the chain, names the reason and sends nothing. The DAO wallet on MainNet has two such escrows (read 2026-11-20). `akta_creator` created three assets that exist, AKTA among them, and `collections` created 6,005 and is opted in to 25 apps, so neither can be deleted. Do not register one account under two names: the first delete closes it, and the wallet can then not delete the second record.
 - **Apps warn before a delete.** What becomes of an escrow's address cannot be undone and differs with the kind of escrow. The SDK's `getEscrowTeardown` returns it as `warnings`, one for a factory escrow (`address-under-nobodys-control`) and one for an outside account (`address-returns-to-its-key`). An app that offers the delete, or puts it into a DAO or Guild proposal, shows them in the confirmation itself before the person confirms. The owner asked for this on 2026-11-20. No app offers the delete yet.
 - **Do not delete an escrow that a revenue split pays.** The revenue manager refuses to pay a split whose receiver escrow is gone. Change the splits first.
+- **Do not delete a revenue escrow a fee generator still names** (audit 13, XSY-03). Marketplace, Listing, the auction and raffle factories and their children, Subscriptions, PollFactory and HyperSwap each send the protocol's cut to the escrow the DAO registered under their own name (`rev_marketplace`, `rev_auctions`, `rev_subscriptions` and the rest). A Listing reads that name from its Marketplace as it settles, so repointing the Marketplace moves the next sale's fee and no live listing has to be touched; what it does not do is survive a delete. The address of a deleted factory escrow is under nobody's control, and the ALGO leg of the fee does not fail when it cannot reach an escrow, so the cut of every sale after the delete would be sent there and lost, while the asset leg reverts the sale. So register the replacement, point the generator at it with `update:app-dao-escrow`, and only then delete the old escrow. A dry run of that command prints the escrow the app reads today.
 - **One test changed for the node.** `methods on cooldown, single group` sent the same call twice. algod 5.1.1 refuses a group that repeats a transaction before it evaluates it, so the second call now pays another amount. The wallet's cooldown rule is unchanged.
 - **Manifest.** `release/manifest.json` is regenerated. It differs in the six programs above and in two test-only ones that inherit them: MockBigWallet (11,162 B, was 10,579) and MockLegacyVoteDAO (11,054 B, was 10,996).
 
@@ -256,14 +257,83 @@ The owner asked on 2026-11-24 for Akita's own inference network before TestNet, 
 
 One step is added: H1a, after the Meta deploy. No existing step changes and none is renumbered. The owner asked for it on 2026-11-24.
 
-- **TestNet only for 2.0.0.** The registry deploys to TestNet with this release. MainNet waits until its ARC has a number and the `arcTBD_*` methods are renamed, which changes the program (new hash, new audit pass, fresh TestNet deploy). Do not run H1a on MainNet; at I1 on MainNet name `collectible-variations` in `--allow-pending`.
+- **Reversed on 2026-11-25:** this entry first held the registry to TestNet for 2.0.0, because its methods carried placeholder names for an ARC number. The owner set the ARC aside and the methods now have plain names, so H1a runs on MainNet with the rest of stage H. See the 2026-11-25 entry.
 
-- **A new immutable contract.** `CollectibleVariations` (smart_contracts/collectible-variations) is the registry of the Collectible Variations ARC draft: per-asset variations (images, render bundles, data, links) written by admitted writers, a main image pinned by the creator or the holder, creator policies per asset (`p`) or per ASA manager (`P`), holder grants (`g`), and purge after an asset is destroyed. It is a singleton that accepts no update or delete. Every box is paid by the account that owns it and refunded to it.
+- **A new immutable contract.** `CollectibleVariations` (smart_contracts/collectible-variations) is the Collectible Variations registry: per-asset variations (images, render bundles, data, links) written by admitted writers, a main image pinned by the creator or the holder, creator policies per asset (`p`) or per ASA manager (`P`), holder grants (`g`), and purge after an asset is destroyed. It is a singleton that accepts no update or delete. Every box is paid by the account that owns it and refunded to it.
 - **It depends on Meta only.** A `meta` writer set is a Merkle root that the registry itself owns in Meta, under the "collectible writer list" tree type, and checks with Meta.verify. Meta's app id and that type id are fixed at create. The registry needs no DAO proposal and no app-list slot.
 - **Programs.** CollectibleVariations is 8,022 bytes with three extra pages. The LocalNet mocks MockSmartAsa, MockAdmitDelegate, MockRegistryCaller and MockOddDelegate are added for its tests. No other program's bytes change.
 - **Manifest.** `release/manifest.json` gains four entries (159 programs; MockOddDelegate is a bare program with no app spec and is not listed). The 155 existing entries are unchanged.
 - **SDK.** `akita-sdk/collectible-variations` adds `CollectibleVariationsSDK` (measures each call's deposit by simulating it once, then sends the payment and the call), the box codecs, and the writer-list tree helpers. `networks.ts` gains the optional key `collectibleVariations`.
 - **Not run on a public network.** The deploy script and its receipt resume were run on LocalNet only.
+
+## Update 2026-11-25: the thirteen readiness audits are answered
+
+Thirteen independent audits were read over the release tree, one per system, and their fixes are in. No step of the sequence is added or renumbered except E2a, the Subscriptions storage top-up below. 32 deployable programs get new bytes; every one of them is already deployed fresh by a step of this rollout, so no step is added for them either. The owner answered the open questions on 2026-11-25; where an answer kept the behaviour, the finding is recorded as accepted and nothing changed.
+
+- **What the fixes cover.** The wallet and its factory (WAL-01 to WAL-08), gifting (GFT-04), DAO governance and revenue payouts (DAO-01, DAO-03, DAO-04, DAO-06, DAO-07, DAO-09, DAO-10), staking pools (STK-02, STK-03, STK-04, STK-07, STK-08, STK-10), guilds and subscriptions (the signer-threshold lockout bound, upgrade commitments checked at drafting, renewals gated on the subscriber), auctions and raffles (AUC-02, AUC-03, the entrant caps), social (the tipper-paid opt-in, reserved ref shapes, bans that reach a wallet's escrows, the votes box quoted when missing, the wall gate, the ban rules), the marketplace and HyperSwap (audit 09, including the royalty cap), gates (GAT-02, GAT-04), the external adapters (EXT-02, EXT-03, EXT-04, EXT-06) and the cross-system pass (XSY-03, XSY-04, XSY-05, SOC-13).
+- **The caps the owner asked to remove are gone.** A raffle no longer caps its entrants and a fee auction no longer caps its bidders: both now open a weights box as the entries arrive and grow it one slot at a time, so nothing is reserved at creation and a seller no longer locks 13.1 ALGO per reserved box. An entry or a first bid pays a flat 12,500 µALGO for its slot, refundable, which `mbr()` carries, so the plugins and the SDK quote it unchanged.
+- **An ASA bid and an ASA raffle entry hold 79,800 µALGO** instead of 35,300, the cost of the Rewards disbursement that refunds them if the bidder has quit the asset. ALGO bids and entries are unchanged, and all of it is refundable.
+- **A grant that anyone may use is not refused.** The first batch made every plugin refuse a global grant with no method list; the owner said no on 2026-11-25, and it was reverted (`03cc0732`). Clients install a method list by default and warn when a grant has none (akita-rn, akita-desktop). Execution keys not tied to a plugin, the shared Guild plugin grant, the passkey checks, gate standing passed between accounts, the single `PayPlugin` grant with no policy, freezable prizes and the operator key's standing grants are all accepted as they are.
+- **A voted proposal expires** 45 days after its voting period ends (`ProposalExecutionWindow`, `errPrex`; DAO-09, the owner's number). After that its proposer can only cancel and delete it. Nothing in this rollout holds a proposal that long, but do not create the stage G or H proposals before the step that executes them is ready.
+- **`initialize()` refuses while AKTA, BONES or the staking app is unset** (`errGnrd`; DAO-10), because nobody could propose afterwards. `initialize-dao.ts` checks all three before I1 and warns when the staking app reports no locked AKTA.
+- **`MarketplacePlugin.list` takes one more argument.** Its selector is now `list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64`, with `maxCreatorRoyalty` last. A method-restricted grant that names the old selector, and any keeper or hand-built call, must take the new one. `purchase` and `listPrizeBox` are unchanged.
+- **Do not update a live pre-2.0.0 Auction, Raffle or StakingPool child in place.** The new children declare another schema (the auction and raffle children drop the `w_totals` global, the pool adds `live_entries`) and keep their weights in boxes where the old ones used globals. The factories stage the new program for new children only, which is what E4 and E5 do; let the live ones finish under their own program. The SDK's readers decode both layouts.
+- **An execution group needs box-read headroom.** algod sizes a group's box read budget from the boxes that exist when it simulates, and an execution key's box and an UpgradeApp proposal's DAO boxes are written after the group is built. A group whose reads ended just under a 2,048 B step was accepted in simulation and refused at send with `read budget exceeded`; the RaffleFactory group did, at 22,514 B against 22,528 B of budget. `wallet.build.usePlugin` now seeds an all-zero box reference as headroom, always for the execution key box and for `pendingBoxBytes` the caller names, and the rollout runner, `runUpdate` and the sunset builder pass the bytes an UpgradeApp proposal writes. A resumed rollout rebuilds a recorded group by trying the other headroom counts until the recorded group id comes back, so a resume after this change still matches a group built before it.
+- **Programs.** Old → new bytes, with the step that deploys each. No program changes its page count, so no sponsored MBR in the sequence changes.
+
+| Program | Bytes | Step |
+|---|---|---|
+| AkitaReferrerGate | 816 → 803 | C1 |
+| MerkleAddressGate | 697 → 696 | C1 |
+| MerkleAssetGate | 769 (new bytes) | C1 |
+| AkitaDAO | 10,856 → 10,866 | B2 |
+| AkitaDAOProposalValidator | 3,704 → 4,073 | B2, before the DAO |
+| AkitaSocial | 11,499 → 11,693 | E1 |
+| AkitaSocialModeration | 1,477 → 1,525 | E1 (ride-along) |
+| Subscriptions | 10,801 → 10,818 | E2 |
+| Marketplace | 5,665 → 5,753 | E3 |
+| Listing | 3,203 → 3,326 | E3 (child) |
+| AuctionFactory | 4,890 → 4,867 | E4 |
+| Auction | 8,522 → 8,521 | E4 (child) |
+| RaffleFactory | 3,794 → 3,751 | E4 |
+| Raffle | 8,158 → 8,151 | E4 (child) |
+| StakingPoolFactory | 4,006 → 3,972 | E5 |
+| StakingPool | 13,272 → 13,472 | E5 (child) |
+| PollFactory | 4,339 → 4,305 | E6 |
+| HyperSwap | 3,986 → 4,056 | E6 |
+| PrizeBoxFactory | 2,184 → 2,150 | E6 (ride-along) |
+| AbstractedAccountFactory | 3,536 → 3,618 | E7 |
+| AbstractedAccount | 8,750 → 8,918 | E7 (child), F1, F2 |
+| AbstractedAccountMBR | 308 → 312 | F0 |
+| AkitaSocialPlugin | 8,174 → 7,821 | G1 |
+| MarketplacePlugin | 2,677 → 2,650 | G1 |
+| AuctionPlugin | 3,809 (new bytes) | G1 |
+| RafflePlugin | 4,300 (new bytes) | G1 |
+| SelfOptInPlugin | 431 → 428 | G2 |
+| NFDPlugin | 2,956 → 3,073 | G2 |
+| HaystackRouterPlugin | 892 → 932 | G2 |
+| RevenueManagerPlugin | 4,987 → 5,218 | G3 |
+| Guild | 12,586 → 12,943 | H2 |
+| FixedSignerGuildConsensus | 5,424 → 5,523 | H2 |
+
+- **Test-only programs.** MockBigWallet 11,169 → 11,337, MockHyperSwap 4,008 → 4,078, MockLegacyVoteDAO 11,087 → 11,097, MockNfdRegistry 130 → 635 (it now refuses a RekeyTo and quotes a link cost, like the live registry), MockHaystackRouter 350 → 363 (the live router's terms layout), and MockWindowReclaim is new. None is deployed by this rollout. On LocalNet and TestNet, redeploy the mock Haystack router (`deploy:mock-haystack`) before rehearsing a swap: the plugin now reads the route terms in the live router's layout and the old mock emits the old one.
+- **Two new checks before a step, both read-only.** `check:social-legacy-prefixes` before E1 (SOC-13) and `fund:subscription-reserve` before E2 (SUB-02, step E2a). `rollout:status` gains the step `subscription-reserve`, and `p2:Subscriptions` requires it.
+- **One command for MainNet (2026-11-25).** The owner asked for the MainNet rollout as one script, like the rehearsal. The rehearsal's runner became `scripts/rollout-run.sh`, which holds the runbook's MainNet lines as written, and two files start it for a network: `rollout-mainnet.sh` and `rollout-testnet-rehearsal.sh`. The TestNet commands are made from the MainNet lines by the five differences of A4, and a fixture holds them to the commands the rehearsal ran: the new file lists, sends and prints for TestNet exactly what the file the rehearsal used did. A MainNet run adds what TestNet has no use for: G2b and the Haystack router plugin, and five checks before its first command (the commit, the tree, the receipts, the node key, the release manifest). D1a, G4 and I2 stay by hand. `tests/rollout-runner.test.ts` runs both networks end to end against stub commands: the order sent, picking up after a stop, the deploys that keep no receipt, the three addresses, each refusal, and that neither key is printed or written.
+- **A gate import cutoff is checked against the chain** (XSY-05). `deploy-gates.ts` reads the registered gate's `gate_cursor` and refuses a `--legacy-cutoff` that is not it, naming the value to pass, so a new Gate v2 cannot be sealed with a cutoff that would leave legacy standing readable or unreachable. `allowlist-sub-gates.ts` now also refuses any app whose program is not the current artifact of the sub-gate it names, and `seal-gate-imports.ts` refuses to seal while a sub-gate of the tree has no receipt.
+- **A listing pays the escrow its Marketplace names** (XSY-03), read at settlement instead of at creation, so repointing the Marketplace with `update:app-dao-escrow` moves the next sale's fee and no live listing has to be touched. The same step's warning about deleting a revenue escrow now covers the fee generators.
+- **Every plugin method a wallet calls is reachable through the SDK** (XSY-04): `RewardsPlugin.editDisbursement` and `UpdateAkitaDAOPlugin.updateRevocation` were callable on chain and had no SDK hook. `updateRevocation` takes the factory app id. A test walks every plugin's ABI against the SDK's hooks, so a method added later cannot be missed. Three methods have no hook of their own name and are reached another way, each checked by that test: `AuctionPlugin.deleteApplication` is the v1 name of `deleteAuctionApp` and only forwards to it, and `UpdateAkitaDAOPlugin.setClearProgram` and `updateAppWithSchema` are steps `updateApp` sends when it is given a clear program or a larger schema.
+- **Left open for the owner.** The creator-royalty findings (a fix is drafted, the owner asked for it if it is clean), SOC-05 (how one AKTA balance backs the staking part of many accounts' impact score), a price ceiling for public NFD auto-renew of segment names, and the DualStakePlugin fix (EXT-07, which is the pool check G2 already describes and the same fix). That plugin stays out of release 2.0.0 until the owner picks it, and I1 names it in `--allow-pending`.
+- **Manifest.** `release/manifest.json` is regenerated: 160 programs: the 32 above, five mocks and one new mock.
+- **Held AKTA and Akita NFTs count in vote weights and the tip tax again** (S-06, reverted on the owner's decision of 2026-11-25, after the audits). Since 2026-11-10 the tree had left both out of the score AkitaSocial reads for a vote's weight and for the tax on a tip, because a held balance can be passed between accounts and counts for each one that holds it when it is read. The owner accepts that: holding counts wherever the score is read, as on the deployed AkitaSocialImpact, and as gates and fee discounts already read it. One more program changes, AkitaSocialImpact 3,160 → 3,146 bytes, in E1 as a ride-along, and its manifest entry with it. No step, argument or payment changes.
+- **The rollout does not launch the DAO** (the owner, 2026-11-25, after the audits). The sequence ends at I2, the push and tag, with the MainNet DAO in Draft. I1 (the threshold rescale, the grant clean-up, `clearBootstrapKeys` and `initialize()`) is kept as the launch procedure and run later, on the owner's call. No step of stages B to H changes: each already ran with the DAO in Draft. Wherever a step says to name something in `--allow-pending` at I1, that still holds for the day I1 is run.
+- **Collectible Variations has plain method names and goes to MainNet** (the owner, 2026-11-25, after the audits). The ARC is set aside for now, so the registry is a regular contract. Its 14 methods drop the `arcTBD_` placeholder and take their handlers' names: `writeVariation`, `deleteVariation`, `pinMainCreator`, `pinMainHolder`, `unpinMainCreator`, `unpinMainHolder`, `setAssetPolicy`, `setManagerPolicy`, `deleteAssetPolicy`, `deleteManagerPolicy`, `setGrant`, `deleteGrant`, `purge` and `getMain`. The callback a delegate app answers is `admit(uint64,address,byte[],address)bool`. Arguments, return values, boxes and logic are unchanged: against the previous build the approval program differs only in the 15 method selectors and is still 8,022 bytes. MockAdmitDelegate changes the same way. No other program's bytes change; the manifest still lists 160 programs. The SDK's `CollectibleVariationsSDK` keeps its own method names and calls the new ones. With the names settled, the MainNet hold of 2026-11-25 is lifted: H1a runs on MainNet after H1 (200 ALGO of Meta type fees, see H1a) and `collectible-variations` is no longer named in `--allow-pending` at I1.
+- **TestNet rehearsal, first stop: B2 (2026-11-25).** A4a and B1 ran, and `update:dao` deployed the validator and repointed the DAO, then stopped with `Wallet not initialized` before funding the DAO upgrade. Nothing was half-sent: the stop came before any payment or proposal of the upgrade. Cause: the Phase 2 runner read the DAO wallet through the SDK getter that throws until `getWallet()` has resolved, and nothing on that path resolved it. The LocalNet suite resolves the wallet in its setup and a dry run returns before the send path, so only the command line could hit it, on every target of the Phase 2 runner (B2 and the stage E upgrades; D1 goes through `runUpdate`, which resolves the wallet first). Fixed in three places: the runner asks for the wallet where it uses it; `setupContext` resolves it before a script that sends does anything (a failure there stops the script before it sends); and `update:dao` reuses the validator the DAO already points to when it runs the tree program, so the same command carries on. Scripts only: no program and no manifest entry changes.
+- **TestNet rehearsal, A4a to G2 done (2026-11-25).** The runner finished every step from A4a to G2 on TestNet from commit `c89509be`. Read back the same day with the registry the run recorded: every tracked check of stages B to G is done except the three that are meant to wait (the Haystack router plugin, which TestNet leaves out; DualStakePlugin, which is held; RevenueManagerPlugin, which is G3) and the heartbeat manager (G2a). The DAO is still in Draft. Each later step was then planned on TestNet before it was run. One refused: G3b read `pal.optin`, which G2 leaves on the old OptInPlugin while it moves the receivers' grants to the new one. The step now reads the plugin from the receivers' grants (see G3b). The node key (A0) was added the same day, after the public endpoints slowed the run.
+- **No id is typed by hand (2026-11-25).** The steps after G2 named their ids and addresses in angle brackets, to be filled in from receipts. They now use variables: the three addresses the owner supplies are set once in A0, and an id that a step creates is read by `rollout:id` (`scripts/rollout-id.ts`), which prints the app id the SDK records under a key, that app's address, or the app id of a DAO wallet escrow, and prints nothing when the value is not there. The TestNet runner gained the steps after G2, G2a to H6, built from the same lines, so the rehearsal runs the commands MainNet will. It takes the three addresses from the shell under the names A0 gives them and stops before the step that needs one that is not set. `tests/rollout-runbook.test.ts` holds the two together and refuses a command that still names a value in angle brackets. Found on the way: a dry run of G3a without `--sender` reported an existing escrow as missing, because the escrow lookup was a simulated call that a node refuses from an empty sender; the lookup now reads the wallet's boxes.
+- **TestNet rehearsal finished: A4a to H6 (2026-11-25).** The runner finished G2a to H6 on TestNet from commit `7cdb6074`, with the three addresses of A0; A4a to G2 had run from `c89509be`. Read back the same day with the registry the run recorded: every tracked check of stages B to H is done except the four that are meant to wait: the Haystack router plugin (TestNet has no router), DualStakePlugin (held), SocialClaim (not in 2.0.0) and the SDK switches (G4, by hand). Stage I is not part of this rollout, and the DAO is still in Draft. The dry run of each step from G2a to H6 then found nothing left to do: the heartbeat manager is the address given, all 12 `rev_*` escrows are registered with the new RevenueManagerPlugin, Meta takes policies only from MetaPlugin, and `rec_krby` pays only the Labs address. Three MainNet commands had nothing to act on there, so MainNet is their first run: F2's sweep of the user wallets, G2b, and the Haystack plugin deploy (A4). The run's cost to the creator is in A5.
+- **MainNet rollout finished: B1 to H6 (2026-11-26).** The runner finished B1 to H6 on MainNet from commit `cd1e5b05`. One command stopped on the way: C2 lost its connection to the node after three of its eighteen `setSubGate` calls, and the next start sent the other fifteen. Read back the same day with the registry the run wrote: every tracked check of stages B to H is done except the two that are meant to wait (DualStakePlugin, held, and SocialClaim, not in 2.0.0); each of the 77 registered apps runs the program the release manifest pins or is one that is meant to stay; every versioned app reports 2.0.0 and names the DAO; the DAO wallet's 33 grants and 26 escrows match TestNet's one for one; and the dry run of each step finds nothing left to do. The three commands that had nothing to act on in the rehearsal ran here for the first time: F2 found 73 user wallets and all report 2.0.0, G2b left no credit on Rewards v1, and the Haystack plugin runs the tree program. Stage I is not part of this rollout, and the DAO is still in Draft. The run took 271 ALGO from the creator (461.1 held before, 190.1 after).
+- **G4 done on both networks (2026-11-26).** `REGISTRY_WRITES_STOPPED` and `SOCIAL_HINTED_TARGETS` are `true` for TestNet and MainNet, in the commit that records the ids `--register` wrote on both. That commit also sets `daoProposalValidator` in `networks.ts` and the README to the validator B2 deployed (777354623 on TestNet, 3783316415 on MainNet): B2 repoints the DAO and does not write that key, and nothing reads it, since the SDK asks the DAO. Tests that pinned the state before the rollout pin the new one: the two switches (`src/social/index.test.ts`, `src/wallet/principal-phase3.test.ts`), the latest NFD plugin (`src/networks.test.ts`) and the Guild factory id (`tests/release-deployments.test.ts`). Each switch keeps a test of its off position. What is left is I2.
+- **Main is merged in, and the SDK is 2.0.0 (2026-11-26).** `main` had seven commits the release branch never took. They are merged: the release's side is kept where it already carried the change (the `@akita-protocol` scope and the publish workflow), main's rewrite of the Lora App Lab import is taken with the release's edits on top, and main's inference PaySilo deploy script is left out because PaySilo was removed on 2026-11-21. `main` can now be fast-forwarded to the release. The SDK package is version 2.0.0 (the owner, 2026-11-26): 1.5.0-canary.2 was already on npm. The built `dist/` does not carry the version, so it is unchanged.
 
 ## Live state (read 2026-10-10)
 
@@ -323,12 +393,11 @@ Blocks: H1. MetaMerkles 3569558010 has no update route, so Meta is a new app. Me
 
 ### DEC-4. Which sub-gates get new app ids
 
-Blocks: C1. 8 sub-gates changed behavior (AkitaReferrer, Asset, NFD, NFDRoot, SocialFollowerCount, StakingAmount, Subscription, SubscriptionStreak). 8 changed only error codes (MerkleAddress, MerkleAsset, Poll, SocialActivity, SocialFollowerIndex, SocialImpact, SocialModerator, StakingPower). The live compiler-only ones route every method Gate v2 calls (check, cost, register, getEntry).
+**Decided 2026-11-25 (the owner: "Deploy all again"): every sub-gate is deployed again.** C1 deploys all 18 (the 16 live ones and the two new ones of 2026-10-12), C2 allowlists what C1's receipts name, and no `--sub-gates` list of live app ids is passed any more. Every gate then runs the audited program of this release, and the allowlist holds nothing older.
 
-- Redeploy the 8 changed, allowlist the 8 live ones on Gate v2 (recommended, matches the plugin policy).
-- Redeploy all 16 for uniform versions.
+Background: 8 sub-gates changed behavior (AkitaReferrer, Asset, NFD, NFDRoot, SocialFollowerCount, StakingAmount, Subscription, SubscriptionStreak) and 8 changed only error codes (MerkleAddress, MerkleAsset, Poll, SocialActivity, SocialFollowerIndex, SocialImpact, SocialModerator, StakingPower). The audit of the gates then changed two of the second group: MerkleAddressGate and MerkleAssetGate accept the short proofs of small lists (GAT-04), which the live ones refuse. The Asset sub-gate also reads an empty account's ALGO balance as zero (audit C27), and AkitaReferrerGate no longer fails on a wallet whose `referrer` is not an address (GAT-02).
 
-Since 2026-11-16 the Asset sub-gate in the tree also reads an empty account's ALGO balance as zero (audit C27). Both options deploy it again, so both carry the fix.
+What a new app id costs: a gate that names a sub-gate by app id must be registered again. Nothing on MainNet does: Gate v1 has registered no gate at all (`gate_cursor` 1), so there is nothing to carry over.
 
 ### DEC-5. Commit, deploy, then push and tag
 
@@ -351,6 +420,18 @@ What this order needs, because nothing is on GitHub while the rollout runs:
 
 Every command below is complete: run it as written, from `projects/akita-sc`, in the shell that step A0 sets up. A value in `<angle brackets>` is the only thing to fill in. `tests/rollout-runbook.test.ts` reads these blocks and fails when a command names a script, a flag, a contract, a target or a tracker step that does not exist.
 
+**One command runs B1 to H6.** `scripts/rollout-mainnet.sh` runs every step below that has commands, in order, each line as it is written here. `scripts/rollout-testnet-rehearsal.sh` runs the same steps for the rehearsal (A4). Both start `scripts/rollout-run.sh`, which holds the lines, and `tests/rollout-runner.test.ts` fails when a line there differs from its block here. The steps can still be run by hand, one block at a time.
+
+```bash
+HEARTBEAT_MANAGER=<address> REV_NFD_SOURCE=<address> LABS_ADDRESS=<address> \
+  ROLLOUT_COMMIT=<commit> bash projects/akita-sc/scripts/rollout-mainnet.sh
+```
+
+- **By hand before it:** rename the rehearsal's `receipts` folder (A4), fund the DAO creator (A5), ask the two Listing sellers (D1a), and put the node key in the shell (A0). It takes the DAO creator's key from the shell, or asks for it without showing it.
+- **What it checks before its first command,** refusing to start otherwise: the checkout is at the commit named; the contracts, the scripts and the SDK source are that commit's (`networks.ts` aside, which `--register` writes); `receipts` holds no rehearsal; `NODELY_API_KEY` is set (`--public-node` goes without it); and the built programs are the ones `release/manifest.json` pins (DEC-5). It then asks for the word `mainnet`.
+- **How it runs:** each send has its dry run first. It stops at the first command that fails and runs nothing after it; the next start carries on from there, because finished commands are listed in `receipts/mainnet-done.txt`. A plugin deploy that keeps no receipt (G2, G3) is not run a second time until you say whether the first created its app. `--until <step>` stops after a step, to go stage by stage; `--list` shows what is done.
+- **By hand after it:** G4 and I2. I1 is not part of this rollout.
+
 Rules that hold for every step:
 
 - **One version label.** `$V` is set once in A0 and passed to every command. A receipt records the label, so a rerun with another label is refused. The label must differ from the live wallet version 1.0.1, or F2 skips every wallet.
@@ -370,13 +451,20 @@ Off-chain. Nothing is sent.
 - **Requires:** none. **Script:** plain shell.
 - `2.0.0` is the release label (the owner confirmed it on 2026-11-17). Version labels are free text; live apps carry 0.0.2, 0.0.3, 1.0.0 and 1.0.1 today.
 - `CREATOR` is read from the chain by the tracker. `echo "$CREATOR"` should print one address, the one whose key was entered above.
+- **The three addresses the owner supplies** are set here once and used by name: `HEARTBEAT_MANAGER` (G2a), `REV_NFD_SOURCE` (G3a) and `LABS_ADDRESS` (H6). Ids that a step creates are not typed either: the step that needs one reads it with `rollout:id`, from what the earlier step recorded (`--app <key>`, with `--address` for the app's address) or from the DAO wallet (`--escrow <name>`). `rollout:id` prints nothing when the value is not there yet, so the variable stays empty and the command that uses it refuses. `echo` a variable to see it.
+- **The node key.** The public endpoints limit requests by address, and the TestNet rehearsal of 2026-11-25 was slowed by it. With `NODELY_API_KEY` set, every command of this runbook sends its requests to Nodely with the key; `read -rs` keeps it out of the shell history, and a command line never carries it. `NODELY_PLAN` names the plan the key belongs to, because a key is honoured only on its plan's hosts: `boost` (the default) is the public `nodely.dev` hosts, `unlimited` and `enterprise` are the `nodely.io` hosts. Each command prints a `Node:` line that names the host in use and says whether a key is sent; it never prints the key. Leave both unset to use the public endpoints. LocalNet ignores them.
 
 ```bash
 nvm use
 cd projects/akita-sc
 read -rs DEPLOYER_MNEMONIC && export DEPLOYER_MNEMONIC
+read -rs NODELY_API_KEY && export NODELY_API_KEY
+export NODELY_PLAN=boost
 export V=2.0.0
 export CREATOR=$(npm run -s rollout:status -- --network mainnet | sed -n 's/^DAO creator: //p')
+export HEARTBEAT_MANAGER=<heartbeat manager address>
+export REV_NFD_SOURCE=<rev_nfd source address>
+export LABS_ADDRESS=<Akita Labs LLC address>
 mkdir -p receipts/gates receipts/phase2 receipts/phase3
 ```
 
@@ -427,9 +515,9 @@ git bundle create akita-release.bundle --all
 - **What:** Run every stage on TestNet with the same scripts, checking progress with rollout:status --network testnet after each step. Start with A4a, which gives TestNet's DAO wallet the escrows and grants MainNet's has.
 - **Why here:** TestNet runs the same programs as MainNet for every target (re-read 2026-11-17; the two plugins that differ are replaced by G2), so the ABI guard and the K1 binding run against real deployed bytes. LocalNet runs the tree, so its ABI diff is empty.
 - **Requires:** A2. **Script:** new: rollout-status.ts written today.
-- **The commands differ from the MainNet ones in five places only.**
+- **The commands differ from the MainNet ones in five places only.** `scripts/rollout-testnet-rehearsal.sh` applies them to the MainNet lines, so the rehearsal runs what MainNet will.
   - `-n testnet` for `-n mainnet`, and `--network testnet` for the tracker.
-  - C2 and C3 name the kept sub-gates by app id. On TestNet the list is `MerkleAddressGate=763128509,MerkleAssetGate=763128506,PollGate=763128514,SocialActivityGate=763128517,SocialFollowerIndexGate=763128516,SocialImpactGate=763128505,SocialModeratorGate=763128512,StakingPowerGate=767241897`.
+  - C2 and C3 no longer name live sub-gates by app id on either network: DEC-4 deploys all 18 again, so their receipts are the whole set (changed 2026-11-25; the TestNet ids the rehearsal used to pass are in the history of this file).
   - `deploy:haystack-router-plugin` stops on TestNet, for want of a router id. Skip it there and add `plugin:haystackRouterPlugin` to `--allow-pending` at I1.
   - `deploy:guild-factory` takes `--confirm-mainnet` on MainNet only.
   - G3b takes `--asset 10458941,752884771` on TestNet, where the revenue escrows hold neither USDC nor AKTA.
@@ -441,8 +529,8 @@ git bundle create akita-release.bundle --all
   - There is no Haystack router and no Akita NFD app, so the swap path and the Akita NFD reads are not exercised.
 - **State to make first** (suggested 2026-11-17; the owner decides). TestNet runs the old programs today, so records made on it now are of the kind MainNet holds. Before B1: two or three wallets through the factory, one with automatic updates off; an open Listing; a Poll; a few posts and a follow; a subscription; a staking lock; and one Rewards v1 disbursement with an unclaimed allocation.
 - TestNet PollFactory holds 0 ALGO. Its upgrade plans without funding (dry run 2026-11-17). E6a funds it.
-- **Keep the rehearsal's receipts apart.** The steps write their receipts under `receipts`, and a step that finds a receipt resumes from it. After the rehearsal, rename the folder to `receipts-testnet` before MainNet's A0 makes a new one.
-- **Measure the cost.** Note the DAO creator's balance before B1 and after I1. The difference sizes the MainNet top-up in A5.
+- **Keep the rehearsal's receipts apart.** The steps write their receipts under `receipts`, and a step that finds a receipt resumes from it. After the rehearsal, rename the folder to `receipts-testnet` before MainNet's A0 makes a new one. `rollout-mainnet.sh` refuses to start while the rehearsal's files are there.
+- **Measure the cost.** Note the DAO creator's balance before B1 and after I1. The difference sizes the MainNet top-up in A5. Done for the rehearsal of 2026-11-25, which stopped at H6: the figures are in A5.
 - I1 on TestNet ends the creator's control of the TestNet DAO as it does on MainNet, and every later change there needs a vote. Stop before I1 to keep the TestNet DAO in Draft.
 
 ```bash
@@ -477,6 +565,8 @@ npm run rollout:testnet-parity -- -n testnet --dry-run --sender "$CREATOR"
 - **Why here:** A step that runs short mid-group wastes a proposal window.
 - **Requires:** none. **Script:** manual.
 - DAO creator (the deployer): 7.63 ALGO free on MainNet (61.10 held, 53.47 minimum balance; read 2026-11-17). It creates every new app, and each one raises its minimum balance. Top it up before B1 by what the TestNet rehearsal spent (A4), with margin.
+  - **Measured on the rehearsal (2026-11-25, from the TestNet indexer):** B1 to H6 took 266.5 ALGO from the creator in payments and fees. 200 of it is H1a's two Meta type fees, which Meta owes to the DAO. The rest went to the DAO app (19.2), the new Update plugin (8.8), six factories (25.6 between the two guild factories and the staking pool, wallet, auction and raffle factories) and the new apps' own balances; fees were 1.1. The 49 apps it created hold another 19.6 ALGO of its minimum balance. A4a, which MainNet does not run, cost 0.45 more.
+  - **For MainNet** add the 7.3 ALGO of the wallet pages (below) and the Haystack plugin, which TestNet does not deploy: about 295 ALGO in all, against 7.63 free (read again 2026-11-25). Send more than that, since MainNet's apps hold other balances than TestNet's. A run that comes up short stops at that command and carries on from it once the account is funded.
 - DAO wallet: 10.65 ALGO sponsorship (has 43.37 free). It was 10.55 before Subscriptions took a sixth page on 2026-11-15.
 - Wallet factory (3569556257): 7.3 ALGO for the fifth program page of its 73 wallets, 0.1 ALGO each. It has 1,121 µALGO free (read 2026-11-20). F1 and F2 pay it from the deployer as they run, so the deployer's top-up includes it. F0 creates one more app, which holds 0.1 ALGO of the deployer's balance.
 - StakingPoolFactory box growth +1.842 ALGO and AuctionFactory +14,800 µA; the Phase 2 runner pays both.
@@ -489,12 +579,14 @@ The new Update plugin first; then the DAO upgrades itself through it.
 #### B1. Phase 2a: install the new UpdateAkitaDAOPlugin
 
 - **What:** Deploy the page-growing Update plugin and run ONE proposal: UpdateFields pal (update = new; optin and revenueManager unchanged), AddPlugin new (global, execution key), RemovePlugin old 3569559689. Then record the id and rebuild the SDK.
-- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,856 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
+- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,866 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
 - **Requires:** A2. **Script:** ready.
 - **Tracked by rollout:status as** `phase2a`.
 - The pal write replaces the whole struct: it must carry optin 3569560490 and revenueManager 3642325118.
 - The live validator caps proposal settings power at 1,000; the AddPlugin settings must fit.
 - Until B2 lands, every Update-plugin group carries the K1 proposal note. runUpdate now adds it automatically (fixed today).
+- **The Update grant has no method list, and has to stay that way through Phase 2.** Every Phase 2 upgrade sends `setClearProgram`, and a target whose schema grows is upgraded with `updateAppWithSchema`. B1 copies the old grant's method list to the new plugin as it is, and the SDK's `updateApp()` selector list (the form a method-restricted grant is built from) names neither method. Both live grants are global, use an execution key and name no method (MainNet wallet grant of plugin 3569559689, TestNet 763128671, read 2026-11-25), so nothing has to change. If the B1 dry run ever prints a method count other than `methods=0 -> 0` for the Update grant, stop: add `setClearProgram` and `updateAppWithSchema` to the list before any Phase 2 step.
+- **The plugin's staging box holds whatever it last uploaded.** Every program goes into one box (`bc`) on the plugin's own account, which each Phase 2 run resizes and the runner tops the plugin up for: 2,500 + 400 µALGO per byte. The largest in this release is the StakingPool child at 13,472 B, so 5,392,100 µALGO, and the deployer pays it. That ALGO stays in the plugin's account as minimum balance after the last update, because nothing in the sequence calls `deleteBoxedContract`; call it from the DAO wallet after G3 if the balance is wanted back, and expect the next release to pay it again.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2a-update-plugin.ts -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -510,6 +602,7 @@ npx ts-node --transpile-only scripts/principal-phase2a-update-plugin.ts -n mainn
 - **Tracked by rollout:status as** `dao`.
 - Keep the DAO in Draft (ROLLOUT-8): while Draft only the creator proposes, which keeps the K1 read safe.
 - The DAO wallet sponsors 3,592,500 µA of page growth (5 extra pages since the 2026-10-12 time-weighted votes; was 3,492,500 at 4).
+- The validator's shape check is a length check, not a per-field one: a value of the right length always decodes (audit 04, DAO-04). What is refused is a value of the wrong length, and the one field it looks inside is `oal.daoProposalValidator`, which may not be 0.
 - Time-weighted votes (2026-10-12, audit DAO-04 option 4B): approve / reject / abstain tally power in base units (2026-10-13), amount x min(days left, 365) / 365 (0 with under a week left; a lock must outlast the vote). A voter with 0 power cannot vote (errNpow), and a re-vote after power fell to 0 is refused, so the cast vote stands. Quorum counts the locked amount (base units) that voted against the amount locked at submit, so aged locks with full turnout reach quorum. Proposals voted before the upgrade (no tally box) still compare their recorded power with live locked stake.
 - Vote box v2: new receipts are `'w'` + proposal id + voter → (type, power, weight), 25,700 µA. Legacy `'v'` receipts are replaced on a re-vote and refunded at 22,500 by deleteProposalVotes.
 - Participation record: `'r'` + voter → (lastVotedTs, lastProposalID, votes), 25,300 µA paid with the first vote, never deleted. Read through `getGovernanceParticipation` (GovernanceParticipationGate, revenue payouts).
@@ -517,6 +610,8 @@ npx ts-node --transpile-only scripts/principal-phase2a-update-plugin.ts -n mainn
 - Proposal power thresholds are base units from B2 on (2026-10-13; `utils/defaults.ts` is 600/300/200 tokens x 1e6). Every `power` the live DAO already stores (the nine `*_ps` proposal settings globals and each global execution-key plugin's DAO settings) is in whole token-years and reads 1e6 times lower after B2. Thresholds are not enforced while the DAO is in Draft. The globals are rescaled in I1 (`dao:rescale-power`); a plugin's settings are rescaled when its grant is swapped in G1, G2 or G3, because the swap copies them. The new validator caps `power` at 1e15.
 - The last two lines deploy and record the tree AkitaDAOPlugin for the lockstep above. The DAO wallet holds no grant of it, so there is nothing to swap.
 - From here on, each bootstrap UpgradeApp/ExecutePlugin window must end within 10,000 rounds of executeProposal.
+- **Safe to start again.** If `update:dao` stops after the pointer update and before the DAO upgrade, run the same command again. It finds that the DAO already points to a validator running the tree program, deploys no second one, and goes on to the upgrade. A stop after the proposal is resumed with `--dao-only --proposal-id <id>`.
+- **The validator goes in before the DAO, and that order holds for every release that adds a field.** The validator checks each `UpdateFields` value by its encoded length (`aal` 96 B, `sal` 32, `pal` 24, `oal` 56, and one case per fee field), so a release that adds a slot to a list or a fee field must install the new validator first: the DAO would otherwise refuse the proposal that writes it, and a DAO whose list is longer than the deployed readers expect fails every reader at once. `update:dao` does them in this order. 2.0.0 adds the fee field `inference_fees` and changes no list length (audit 13, XSY-06).
 
 ```bash
 npm run update:dao -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -579,15 +674,15 @@ npm run update:revenue-splits -- -n mainnet --split rec_krby=80,rec_mod=5,rec_go
 
 Six Phase 2 targets call Gate.checkFor / mustCheckFor, which Gate v1 does not route.
 
-#### C1. Deploy Gate v2 and the changed sub-gates
+#### C1. Deploy Gate v2 and every sub-gate
 
-- **What:** Deploy Gate v2 (legacyCutoff 1: v1 never registered a gate) and the sub-gates chosen in DEC-4, each with a receipt.
+- **What:** Deploy Gate v2 (legacyCutoff 1: v1 never registered a gate) and all 18 sub-gates (DEC-4), each with a receipt.
 - **Why here:** Gate v1 and every sub-gate are immutable, so the fixes ship as new apps. Nothing needs importing (v1 gate_cursor = 1).
-- **Requires:** A3. **Script:** fixed: Type error fixed today.
+- **Requires:** A3. **Script:** fixed: the deploy checks the cutoff against Gate v1's live cursor (2026-11-25, audit 13 XSY-05). It refuses `--legacy-cutoff 1` if anyone has registered a gate on v1 in the meantime, and names the value to pass instead; the check runs until the Gate's receipt names its app, after which the create cannot change. The cutoff cannot be changed afterwards, and a v1 id at or above it can never be imported.
 
 ```bash
-npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --dry-run --sender "$CREATOR"
-npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --manifest-dir receipts/gates
+npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --dry-run --sender "$CREATOR"
+npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates
 ```
 
 - ModeratorActivityGate (new, 2026-10-12, Kyle approved): "at least N counted moderation actions in the current 7-day epoch (plus the previous one)". Deploy it here: after C3 only a DAO proposal can allowlist it. Its checks fail until E1 upgrades AkitaSocialModeration (`moderatorActivity`).
@@ -595,26 +690,26 @@ npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,
 
 #### C2. Allowlist every sub-gate
 
-- **What:** As the Gate creator, allowlist the new sub-gates (context-aware flag for AkitaReferrer, Subscription, SubscriptionStreak, ModeratorActivityGate, GovernanceParticipationGate) and the kept live ones.
+- **What:** As the Gate creator, allowlist the 18 sub-gates C1 deployed (context-aware flag for AkitaReferrer, Subscription, SubscriptionStreak, ModeratorActivityGate, GovernanceParticipationGate).
 - **Why here:** After the seal only the DAO wallet can change the allowlist, and no DAO action calls setSubGate directly.
 - **Requires:** C1. **Script:** ready. Between C1 and C4 the SDK still names Gate v1, so both this step and C3 take Gate v2's id from its receipt in `--manifest-dir` (fixed 2026-11-16; `--gate <id>` overrides it).
-- Never flag a live (old) sub-gate as context-aware: Gate v2 would fail every context check that uses it (C15).
-- `--sub-gates` lists the eight live sub-gates that are kept (DEC-4), with their MainNet ids.
+- Every sub-gate must run the current artifact of its name: since 2026-11-25 the script refuses any other program, with or without a receipt (audit 13). The allowlist is what makes a program trusted by every gate that names it, and after the seal only a DAO proposal can take an entry out.
+- No `--sub-gates` list of live app ids is passed any more: DEC-4 deploys every sub-gate again, so the receipts in `--manifest-dir` are the whole set.
 
 ```bash
-npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n mainnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=3569558615,MerkleAssetGate=3569558603,PollGate=3569558607,SocialActivityGate=3569558616,SocialFollowerIndexGate=3569558605,SocialImpactGate=3569558618,SocialModeratorGate=3569558617,StakingPowerGate=3642975628 --dry-run --sender "$CREATOR"
-npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n mainnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=3569558615,MerkleAssetGate=3569558603,PollGate=3569558607,SocialActivityGate=3569558616,SocialFollowerIndexGate=3569558605,SocialImpactGate=3569558618,SocialModeratorGate=3569558617,StakingPowerGate=3642975628
+npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n mainnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"
+npx ts-node --transpile-only scripts/allowlist-sub-gates.ts -n mainnet --manifest-dir receipts/gates
 ```
 
 #### C3. Seal Gate imports
 
 - **What:** Call sealImports, which hands allowlist control to the DAO wallet.
 - **Why here:** Ends the creator's migration window. The script refuses while any expected sub-gate is not allowlisted.
-- **Requires:** C2. **Script:** new: seal-gate-imports.ts written today (gap G5).
+- **Requires:** C2. **Script:** new: seal-gate-imports.ts written today (gap G5). Since 2026-11-25 it also refuses while any sub-gate of the tree has no receipt in `--manifest-dir` (or is named with `--sub-gates`): one left out here could afterwards be added only by a DAO proposal.
 
 ```bash
-npm run seal:gate-imports -- -n mainnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=3569558615,MerkleAssetGate=3569558603,PollGate=3569558607,SocialActivityGate=3569558616,SocialFollowerIndexGate=3569558605,SocialImpactGate=3569558618,SocialModeratorGate=3569558617,StakingPowerGate=3642975628 --dry-run --sender "$CREATOR"
-npm run seal:gate-imports -- -n mainnet --manifest-dir receipts/gates --sub-gates MerkleAddressGate=3569558615,MerkleAssetGate=3569558603,PollGate=3569558607,SocialActivityGate=3569558616,SocialFollowerIndexGate=3569558605,SocialImpactGate=3569558618,SocialModeratorGate=3569558617,StakingPowerGate=3642975628
+npm run seal:gate-imports -- -n mainnet --manifest-dir receipts/gates --dry-run --sender "$CREATOR"
+npm run seal:gate-imports -- -n mainnet --manifest-dir receipts/gates
 ```
 
 #### C4. Point aal.gate at Gate v2
@@ -626,7 +721,7 @@ npm run seal:gate-imports -- -n mainnet --manifest-dir receipts/gates --sub-gate
 - The live GatePlugin is pinned to Gate v1 and keeps registering there silently; rotate it in G2.
 
 ```bash
-npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,nfd,nfdRoot,socialFollowerCount,stakingAmount,subscription,subscriptionStreak,moderatorActivity,governanceParticipation --legacy-cutoff 1 --manifest-dir receipts/gates --register
+npm run deploy:gates -- -n mainnet -v "$V" --contracts gate,akitaReferrer,asset,merkleAddress,merkleAsset,nfd,nfdRoot,poll,socialActivity,socialFollowerCount,socialFollowerIndex,socialImpact,socialModerator,moderatorActivity,governanceParticipation,stakingAmount,stakingPower,subscription,subscriptionStreak --legacy-cutoff 1 --manifest-dir receipts/gates --register
 (cd ../akita-sdk && npm run build)
 ```
 
@@ -703,9 +798,11 @@ Phase 2 singletons with their children, plus the ride-along upgrades.
 - K4: from this moment until Phase 4, monitor AkitaSocial's free balance (7.64 ALGO today) and top it up.
 - Do not rerun register-social-extensions.ts; it is not idempotent and arc53_collection is already registered.
 - DAO wallet sponsors 3,528,000 µA.
+- Before the upgrade, run the SOC-13 check (audit 08). A vote or reaction made on the deployed program is stored under the first 16 bytes of its ref; the upgraded program accepts such an entry only against a ref whose post existed before the cutoff, which stops a look-alike minted afterwards but cannot tell apart two pre-cutoff refs that share those 16 bytes. The check lists the live `posts` boxes at one round and refuses the upgrade if any pair does. It sends nothing, needs no key, and takes about a second per thousand posts.
 - Moderator activity fix (Kyle approved 2026-10-12): the upgraded AkitaSocialModeration writes `lastActive` on every successful moderation action (the live app never wrote it, so every SocialModeratorGate "active since" check saw 0). It also counts state-changing actions per moderator per 7-day epoch in a new `'k'` box (25,300 µA) and adds the readonly `moderatorActivity` (read by ModeratorActivityGate, C1). `addModerator` now creates `'d'` and `'k'` together and `removeModerator` deletes both, so each moderator holds 44,200 µA of the Moderation app's own balance, released back to that balance on removal; flag, unflag and content-flag actions allocate nothing. The ABI is additive, the `'d'` box layout is unchanged, and the deployed SocialModeratorGate keeps working. The live app has 0 moderators and 0 µA: before the first addModerator proposal, fund it with 100,000 µA (account minimum) + 44,200 µA per moderator + 18,900 µA per concurrent ban.
 
 ```bash
+npm run check:social-legacy-prefixes -- -n mainnet
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target AkitaSocial,AkitaSocialGraph --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target AkitaSocial,AkitaSocialGraph --confirm
 npm run update:social -- -n mainnet -v "$V" --contracts socialImpact,socialModeration --dry-run --sender "$CREATOR"
@@ -714,16 +811,33 @@ npm run update:social -- -n mainnet -v "$V" --contracts socialImpact,socialModer
 
 #### E2. Subscriptions
 
-- **What:** Phase 2 Subscriptions (pages 4 → 6: the program is 10,801 B since the featured service of 2026-11-16, and was 10,468 B with the payer records of 2026-11-15).
+- **What:** Phase 2 Subscriptions (pages 4 → 6: the program is 10,818 B with the audit fixes of 2026-11-25, 10,801 B since the featured service of 2026-11-16, and was 10,468 B with the payer records of 2026-11-15).
 - **Why here:** Hinted subscribe paths back the new SubscriptionsPlugin and the subscription guild consensus.
-- **Requires:** C4, D2, B1. **Script:** ready.
+- **Requires:** C4, D2, B1, **and E2a below**. **Script:** ready.
 - **Tracked by rollout:status as** `p2:Subscriptions`.
 - Run E1–E3 immediately after D2: until each service upgrades, its referral payouts revert at Rewards v2.
-- DAO wallet sponsors 3,528,000 µA (3,428,000 while the program still fitted 4 extra pages). 1,483 B of headroom left in 5 extra pages.
+- DAO wallet sponsors 3,528,000 µA (3,428,000 while the program still fitted 4 extra pages). 1,470 B of headroom left in 5 extra pages.
+- Do not run this before E2a. The upgraded program charges the whole service reserve at creation and takes nothing in `setServiceDetails` / `setServiceMedia`, so a service created before the upgrade can grow its text to the maximum for free, out of the app's own balance, which is where subscribers' escrowed ALGO sits (audit 07, SUB-02).
 
 ```bash
+npm run fund:subscription-reserve -- -n mainnet --dry-run   # must print "nothing to send"
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target Subscriptions --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target Subscriptions --confirm
+```
+
+#### E2a. Top the Subscriptions app up to the service storage reserve (before E2)
+
+- **What:** One plain payment to the Subscriptions app, of what the services that already exist could still take in storage, over and above the ALGO its subscribers hold in escrow. When the audit read MainNet that was 4,718,400 µA of reserve for four 451-byte service boxes against 3,434,000 µA of free balance, so 1,284,400 µA to send. The script works the numbers out from the chain each time; send what it prints, not this figure.
+- **Why here:** The deployed program charges 62,500 µA for a service box that starts at 168 B and may grow to 3,441 B. The upgraded program charges the whole `ServicesMBR` (1,378,900 µA) at creation instead, so its two setters are free, and a pre-upgrade service pays nothing for that growth. Every byte raises the app's minimum balance, which is paid out of the free balance holding subscribers' escrowed ALGO. One merchant enlarging their service text could therefore block every withdrawal, unsubscribe and ALGO renewal until the text was shrunk again (audit 07, SUB-02).
+- **Requires:** none. Any funded account can send it, and it can run days before E2. **Script:** ready: `fund:subscription-reserve` plans without `--confirm`, sends only the shortfall and reads the balances back. A rerun sends nothing.
+- **Tracked by rollout:status as** `subscription-reserve`.
+- The check is `(balance − minimum balance) ≥ Σ ALGO escrow + Σ (ServicesMBR − MBR of each service box)`. It counts only subscriptions whose escrow asset is 0; an ASA escrow does not draw on the balance.
+- Rerun the dry run right before E2 and make sure it prints "nothing to send". A service created or enlarged between the top-up and the upgrade changes the number.
+- From the upgrade on, a new service pays its own reserve, so this step is needed once and never again.
+
+```bash
+npm run fund:subscription-reserve -- -n mainnet --dry-run
+npm run fund:subscription-reserve -- -n mainnet --confirm
 ```
 
 #### E3. Marketplace + Listing
@@ -734,6 +848,8 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 - **Tracked by rollout:status as** `p2:Marketplace`.
 - Run E1–E3 immediately after D2: until each service upgrades, its referral payouts revert at Rewards v2.
 - K8: keep ≥ 500,000 µA + 189,600 µA per open legacy-paid listing free in the Marketplace (176,800 for a prize box; 1,905,400 free covers 7). The float is the 164,000 creator MBR plus 12,800 for each disbursement the deployed plugin quotes at the v1 MBR (prize + referral; referral only for a prize box).
+- **From this step a prize opt-in no longer touches the revenue escrow** (audit 09, MKT-01): the factory opts itself in to the asset being sold, so listing an NFT no longer waits for the DAO revenue escrow's payout cycle to be idle. A new *payment* asset still takes the full route through that escrow, which only the escrow's registered source may ask for. This app id is that source for `rev_marketplace` and the upgrade does not change it, so nothing has to be re-registered here. If a later release ever deploys the Marketplace as a new app, register the new app as the source (`register:revenue-escrow --source`) before its first listing in a new payment asset.
+- **A listing settles to the escrow its Marketplace names at that moment** (audit 13, XSY-03), not the one it was created under, so `update:app-dao-escrow` on the Marketplace moves the next sale's fee and the live Listings need no change.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target Marketplace --dry-run --sender "$CREATOR"
@@ -749,8 +865,9 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 - K6 lockstep: ship the SDK release the same day; the HEAD SDK cannot create raffles on the new factory.
 - The old AuctionPlugin underpays bids on new children by 800 µA; rotate it in G1 soon after.
 - From this step on AuctionFactory charges the DAO's auction creation fee (C33; 50 ALGO after B3a, 10 ALGO if B3a has not run). `newAuctionCost` includes it, and the SDK and AuctionPlugin v3 pay what `newAuctionCost` quotes. A caller that works the cost out itself is short by the fee and is refused (`errIpay`). Creation sends one more inner payment, so a caller that sets a fixed fee needs 1,000 µA more.
-- Auction child is 8,522 B: +0.1 ALGO MBR per auction.
-- Raffle child is 8,158 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16). It has 30 B left in its four pages: `auction/principal-abi.test.ts` fails if it takes a fifth.
+- Auction child is 8,521 B: +0.1 ALGO MBR per auction.
+- **The live children keep their own program.** The factories stage the new child for new auctions and raffles only. Do not push the new program into an auction or raffle that already exists: the new children declare another schema (no `w_totals` global) and keep their weights in boxes the old ones kept in globals, so the new code would misread them. Let the live ones finish, and read them with the SDK, which decodes both layouts.
+- Raffle child is 8,151 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16). It has 37 B left in its four pages: `auction/principal-abi.test.ts` fails if it takes a fifth.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target AuctionFactory,RaffleFactory --dry-run --sender "$CREATOR"
@@ -759,11 +876,12 @@ npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n main
 
 #### E5. StakingPoolFactory + StakingPool
 
-- **What:** Phase 2 StakingPoolFactory with the 13,272 B child (exactly 16 txns).
+- **What:** Phase 2 StakingPoolFactory with the 13,472 B child (exactly 16 txns: seven upload chunks of 2,026 B, as at 13,272 B).
 - **Why here:** The runner refuses this target until Staking, Rewards v2 and Gate v2 are live; all three are hard callee dependencies.
 - **Requires:** D1, D2, C4, B1. **Script:** fixed: Gate dependency added today; the Rewards dependency now also covers the referral reclaim overloads.
 - **Tracked by rollout:status as** `p2:StakingPoolFactory`.
 - New pools cost 3 more pages (+300,000 µA) and ~447 µA fee surcharge; static quotes in other frontends go stale.
+- **The live pools keep their own program.** The factory stages the new child for new pools only. Do not push the new program into a pool that already exists: it declares one more global uint (`live_entries`, STK-04) and counts a round's eligible stake differently (STK-02), so the new code would misread an open round.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase2-upgrade-targets.ts -n mainnet -v "$V" --target StakingPoolFactory --dry-run --sender "$CREATOR"
@@ -812,7 +930,7 @@ npm run fund:service-accounts -- -n mainnet --confirm
 - K2 lockstep: ship the SDK release and every wallet-creating frontend/backend in the same hour.
 - From this moment anyone can push the AVM 13 wallet into any automatic wallet, the DAO wallet included. Run F right after.
 - Never change aal.wallet: every principal check pins wallet genuineness to it.
-- The child is 8,750 B (8,743 B on 2026-11-20, 7 B more with the wallet guard of 2026-11-21): five upload chunks as before, in the one group. The factory's child box grows by 564 B, 225,600 µALGO, which the runner pays. A wallet created from here on has five program pages and costs 0.1 ALGO more; the factory's `cost` quotes it.
+- The child is 8,918 B (8,750 B before the audit fixes of 2026-11-25, 8,743 B on 2026-11-20): five upload chunks as before, in the one group. The factory's child box grows by 732 B, 292,800 µALGO, which the runner pays. A wallet created from here on has five program pages and costs 0.1 ALGO more; the factory's `cost` quotes it.
 - Until F1 and F2 have funded the factory, a push into a four-page wallet fails: the factory cannot hold the fifth page.
 
 ```bash
@@ -878,6 +996,7 @@ Each new plugin waits for the service version it calls.
 - **Tracked by rollout:status as** `plugin:socialPlugin`.
 - `--add-new-methods` adds setMetaWallet to method-restricted social grants. The DAO wallet holds no method-restricted raffle or auction grant on MainNet or TestNet (read 2026-11-16), so gap G9 does not apply to this rollout.
 - The swap also moves the DAO wallet's two grants of the older social plugin 3569562087, and rescales the proposal threshold of every grant it copies (see B2).
+- **The MarketplacePlugin's `list` selector changes with this release** (audit 09, MKT-03): `maxCreatorRoyalty` is a new last argument, the highest creator royalty the seller accepts, read when the call lands. A method-restricted grant that names the old selector stops routing `list`, so swap such a grant with this step rather than keeping it. The SDK sends the deployed ABI for the plugin ids that still route the old one, as it already does for `purchase`, and a backend or keeper that builds the call by hand needs the new selector and a royalty bound. `purchase` and `listPrizeBox` are unchanged.
 
 ```bash
 npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n mainnet -v "$V" --swap --add-new-methods --dry-run --sender "$CREATOR"
@@ -955,11 +1074,11 @@ npm run update:dao-wallet-plugins -- -n mainnet --add-method rewardsPlugin:recla
 - **Why here:** It needs the upgraded Staking (D1) and the tree StakingPlugin (G2).
 - **Requires:** D1, G2. **Script:** ready (see D1).
 - **Tracked by rollout:status as** `heartbeat`.
-- The manager is an account the owner's backend holds for this one job. The owner creates it and gives the address (asked 2026-11-17).
+- The manager is an account the owner's backend holds for this one job. The owner creates it and gives the address (asked 2026-11-17, given 2026-11-25).
 
 ```bash
-npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address> --dry-run
-npm run staking:set-heartbeat-manager -- -n mainnet --manager <heartbeat manager address>
+npm run staking:set-heartbeat-manager -- -n mainnet --manager "$HEARTBEAT_MANAGER" --dry-run
+npm run staking:set-heartbeat-manager -- -n mainnet --manager "$HEARTBEAT_MANAGER"
 ```
 
 #### G2b. Withdraw the stickers escrow's storage credits from Rewards v1
@@ -984,6 +1103,7 @@ npm run rewards:withdraw-v1-credits -- -n mainnet --execute
 - **Tracked by rollout:status as** `plugin:revenueManagerPlugin`.
 - **Then enable the split keeper** (akita-backend `server/revenue_split.go`). Before G3 the escrow grants stop at processEscrowAllocation, so the keeper refuses every escrow; a read-only dry run on 2026-10-12 found all 9 blocked on the missing finalize grant. After G3, make sure pal.revenueManager is listed in `RevenueManagerPluginAppIDs` (`server/contract_networks.go`), confirm a dry run logs `would_start`, then set `REVENUE_SPLIT_ENABLED=true`. It runs at 23:30, 23:40 and 23:50 UTC, before the 00:10 revenue distribution.
 - **Enable the keeper only after B3b and G3b.** The first payout divides everything the escrows have built up, at the shares stored then, and it skips an asset share whose receiver has not opted in to the asset.
+- **Fund the new plugin and keep it funded** (audit 04, DAO-05, accepted as a cost to watch). The plugin pays for its own boxes out of its own balance: 16,900 µALGO, permanently, for each asset tracked on an escrow, and 18,900 µALGO while an asset is being processed. A caller that registers an asset through a fee generator's public `optIn` pays the escrow's opt-in, not the box. So when the plugin runs out of free balance, new-asset opt-ins revert at every fee generator and every payout cycle reverts, until someone sends it ALGO. The live plugin held 1.0 ALGO with 0.2484 free (read for audit 04): about 14 registrations. Send the new plugin 2 ALGO right after G3 and watch its free balance with K8; `removeManagedAsset` (new in this release) lets a DAO proposal drop a junk asset from an idle escrow and get its box back.
 
 ```bash
 npm run deploy:revenue-manager-plugin -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
@@ -1000,11 +1120,11 @@ npm run deploy:revenue-manager-plugin -- -n mainnet -v "$V"
 - **Why here:** An escrow that is not registered is never split, so its fees never reach the buckets. The keeper only cycles registered escrows.
 - **Requires:** G3 (the new RevenueManager and its grants). **Script:** new 2026-11-16: `register:revenue-escrow` (`scripts/register-revenue-escrow.ts`). One proposal registers the escrow and adds the grant; it reads both back, and a rerun does only what is missing. It refuses a source that differs from a recorded one.
 - **Tracked by rollout:status as** `revenue-escrows`: done when every `rev_*` escrow of the DAO wallet is registered and has the grant. `initialize` waits for it.
-- `--source` is the account allowed to opt the escrow in to an asset. For the nine registered escrows it is the address of the app that fills the escrow (read 2026-11-16), so use the Meta app's address for `rev_meta` and the GuildFactory's for `rev_guilds`. Nothing fills `rev_nfd` from an app; its only caller today is the operator account that holds its NFD and RevenueManager grants. Suggested for `rev_nfd` on 2026-11-17: that operator account. The owner's answer is open.
+- `--source` is the account allowed to opt the escrow in to an asset. For the nine registered escrows it is the address of the app that fills the escrow (read 2026-11-16), so use the Meta app's address for `rev_meta` and the GuildFactory's for `rev_guilds`. Nothing fills `rev_nfd` from an app; its only caller today is the operator account that holds its NFD and RevenueManager grants. Suggested for `rev_nfd` on 2026-11-17: that operator account. The owner agreed on 2026-11-25, and noted that NFD proceeds arrive in ALGO only, so the source has no asset to opt the escrow in to today.
 
 ```bash
-npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd source address> --confirm
+npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source "$REV_NFD_SOURCE" --confirm
 ```
 
 #### G3b. Opt the split's receivers in to the assets the revenue escrows hold
@@ -1013,12 +1133,13 @@ npm run register:revenue-escrow -- -n mainnet --escrow rev_nfd --source <rev_nfd
 - **Why here:** A payout sends each receiver its ALGO whatever it holds. It skips an asset share whose receiver has not opted in to the asset and leaves that share in the revenue escrow, and the next payout divides what was left again. A receiver that has not opted in therefore loses its share to the ones that have, cycle after cycle, and with none opted in no asset is paid at all. So all three opt in together, before the split keeper is enabled. `rev_subscriptions` holds 398.50 USDC and `rev_social` 14,720.81 AKTA (read 2026-11-17).
 - **Requires:** nothing on chain: each receiver carries an open OptInPlugin grant on both networks today. Run it after G3a and before the keeper is enabled. **Script:** new 2026-11-18: `opt-in:revenue-receivers` (`scripts/opt-in-revenue-receivers.ts`; the rules are in `scripts/lib/revenue-receiver-opt-ins.ts`). It plans unless `--confirm` is given, skips what a receiver already holds, and reads the holdings back.
 - **Not tracked by `rollout:status`.** The plan is the check: after the run, the dry run prints "Nothing to do".
+- **Which OptInPlugin.** The step acts through the OptInPlugin the receivers' open grants name. G2 moves every DAO wallet grant to the new OptInPlugin and leaves `pal.optin` on the old one, so from G2 on the two differ, and the plan says so. Until 2026-11-25 the step read `pal.optin` alone and refused after G2 with "holds no global grant"; a dry run on TestNet after the rehearsal's G2 found it.
 - **Any funded account can send it.** The grants are open to every caller. The sender pays 0.1 ALGO of minimum balance for each opt-in, which the receiver then holds: 0.6 ALGO on MainNet, plus fees. The dry run simulates each group as `--sender` against the programs live at that moment.
 - **The receivers are locked, and that does not stop it.** A lock stops the wallet's own opt-in and allowance calls. The OptInPlugin acts on the escrow through the wallet's plugin rekey, which a lock does not guard.
 - **An asset that no revenue escrow holds is left out.** Three single-unit NFTs are registered on `rev_marketplace` on MainNet and it holds none of them, so they need no opt-in. `--asset <id[,id]>` opts the receivers in to an asset ahead of its first payment.
 - **Run it again when a revenue escrow is first paid in a new asset.** The plan names what each receiver lacks.
 - **On TestNet** the revenue escrows hold neither USDC nor AKTA, so the plain command finds nothing to do. To rehearse the step there, name the two assets: `--asset 10458941,752884771`.
-- Planned on MainNet and on TestNet on 2026-11-18, read-only: six opt-ins in three groups on each (TestNet with `--asset`), and every group passes in simulation.
+- Planned on MainNet and on TestNet on 2026-11-18, read-only: six opt-ins in three groups on each (TestNet with `--asset`), and every group passes in simulation. Planned again on TestNet on 2026-11-25, after G2 there: the same six opt-ins pass in simulation through the new OptInPlugin.
 - Tested by `tests/revenue-splits.e2e.spec.ts` (LocalNet: an account with no role opts the three locked receivers in, they stay locked, and 1,000,003 units of an asset then divide 800,002, 50,000 and 150,001).
 
 ```bash
@@ -1034,6 +1155,8 @@ npm run opt-in:revenue-receivers -- -n mainnet --confirm
 - **Tracked by rollout:status as** `sdk-flags`.
 - Inventory off-chain registry readers first.
 - By hand: in `projects/akita-sdk/src/networks.ts` set `REGISTRY_WRITES_STOPPED.mainnet` and `SOCIAL_HINTED_TARGETS.mainnet` to `true`, then rebuild. Publishing the package comes with I2, after the tag.
+- The same edit moves tests that pin the switches and the registry: `src/social/index.test.ts`, `src/wallet/principal-phase3.test.ts` and `src/networks.test.ts` in the SDK, and `tests/release-deployments.test.ts`. Set `daoProposalValidator` in `networks.ts` and the README to the validator the DAO names, which B2 does not record.
+- Done for TestNet and MainNet on 2026-11-26 (see the update log).
 
 ```bash
 (cd ../akita-sdk && npm run build)
@@ -1056,7 +1179,7 @@ Independent of each other; each after its prerequisites.
 - Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
 - **Grant policies:** right after deploy:meta-plugin, `set:policy-writer` registers MetaPlugin as Meta's only policy writer. The creator can set it once while it is unset; after that only the DAO wallet can change it. Until it is set no wallet can store a grant policy, so a plugin that reads one (PayPlugin on rec_krby, H6) refuses every delegated call. The DAO writes a policy through a global MetaPlugin grant with an execution key: AddPlugin (`useExecutionKey`), then one ExecutePlugin proposal for the configurePolicy group.
 - **The DAO's policy writer grant:** `install:policy-writer-grant` gives the DAO wallet MetaPlugin as a global grant on no escrow that needs an execution key, at the DAO's app upgrade thresholds. It stays installed. Every policy the DAO writes, now or after launch, is then one ExecutePlugin proposal that registers one group; without the grant a policy change after launch needs an AddPlugin vote first. The script refuses while Meta's policy writer is not the recorded MetaPlugin, and refuses to reuse a grant that needs no execution key.
-- **PayPlugin:** it is created with Meta's app id as its `registry` and reads every grant's policy from that app. The id cannot change afterwards and `deploy:pay-plugin` cannot check it, so read the id from `receipts/meta.json`. `rollout:status` and H6 refuse a PayPlugin whose registry is not the recorded Meta. `update:dao-wallet-plugins` then moves the DAO wallet's own PayPlugin grant, which needs an execution key and so needs no policy. It is the grant swap of G2, run again: it replaces only the grants that still point at an old version.
+- **PayPlugin:** it is created with Meta's app id as its `registry` and reads every grant's policy from that app. The id cannot change afterwards and `deploy:pay-plugin` cannot check it, so the command takes it from the Meta this step recorded (`$META`, read by `rollout:id`); compare it with the Meta app id in `receipts/meta.json`. `rollout:status` and H6 refuse a PayPlugin whose registry is not the recorded Meta. `update:dao-wallet-plugins` then moves the DAO wallet's own PayPlugin grant, which needs an execution key and so needs no policy. It is the grant swap of G2, run again: it replaces only the grants that still point at an old version.
 - **The backend's inference billing settings:** akita-backend's pay-as-you-go inference billing collects through this PayPlugin and a policy on each member's grant (akita-backend pull request 31). Its `AKITA_INFERENCE_BILLING` entry for a network takes `payPluginAppId`, `metaAppId` and `metaPluginAppId` from this step's receipts, and `payPluginApprovalSha256` from `arc58/plugins/pay/PayPlugin` in `release/manifest.json`. At startup the backend checks the program hash, PayPlugin's `registry` and Meta's `policy_writer` against them, so set the entry only after `set:policy-writer` and `deploy:pay-plugin` here. An entry that still has the pay silo keys is refused.
 - **Tracked by rollout:status as** `meta`, `meta-plugin`, `meta-policy-writer`, `dao-policy-writer`, `plugin:payPlugin`, `meta-escrow`.
 
@@ -1064,27 +1187,29 @@ Independent of each other; each after its prerequisites.
 npm run deploy:meta -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
 npm run deploy:meta -- -n mainnet -v "$V" --manifest receipts/meta.json --register
 (cd ../akita-sdk && npm run build)
-npm run deploy:meta-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/meta-plugin.json --register
+export META=$(npm run -s rollout:id -- -n mainnet --app meta)
+export META_ADDRESS=$(npm run -s rollout:id -- -n mainnet --app meta --address)
+npm run deploy:meta-plugin -- -n mainnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/meta-plugin.json --register
 (cd ../akita-sdk && npm run build)
 npm run set:policy-writer -- -n mainnet --dry-run --sender "$CREATOR"
 npm run set:policy-writer -- -n mainnet --confirm
 npm run install:policy-writer-grant -- -n mainnet --dry-run
 npm run install:policy-writer-grant -- -n mainnet --confirm
-npm run deploy:pay-plugin -- -n mainnet -v "$V" --config '{"registry":"<Meta app id>"}' --manifest receipts/pay-plugin.json --register
+npm run deploy:pay-plugin -- -n mainnet -v "$V" --config "{\"registry\":\"$META\"}" --manifest receipts/pay-plugin.json --register
 (cd ../akita-sdk && npm run build)
 npm run update:dao-wallet-plugins -- -n mainnet --dry-run --sender "$CREATOR"
 npm run update:dao-wallet-plugins -- -n mainnet --confirm-update
 npm run create:dao-escrow -- -n mainnet --escrow rev_meta --execute
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --dry-run
 npm run update:app-dao-escrow -- -n mainnet --app meta --escrow rev_meta --confirm
-npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta app address> --confirm
+npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source "$META_ADDRESS" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source "$META_ADDRESS" --confirm
 (cd ../akita-sdk && npm run build)
 ```
 
-#### H1a. Collectible Variations registry (TestNet only for 2.0.0)
+#### H1a. Collectible Variations registry
 
-- **MainNet hold:** do not run this step on MainNet. The owner decided on 2026-11-25 that the registry ships to TestNet with 2.0.0 and waits for MainNet until its ARC has a number and the `arcTBD_*` methods are renamed. The app can never be updated, so those names would be permanent. The rename changes the program: it gets a new hash, a new audit pass and a fresh TestNet deploy before MainNet. The TestNet app deployed now is a throwaway. At I1 on MainNet, name `collectible-variations` in `--allow-pending`.
+- **Names are permanent:** the app can never be updated, so the method names it is created with stay for good. They are plain names (`writeVariation`, `getMain`, `purge` and so on; the delegate callback is `admit(uint64,address,byte[],address)bool`). The owner set the ARC aside on 2026-11-25, which lifted the earlier MainNet hold. The program deployed on MainNet must be the one rehearsed on TestNet: compare its hash with `release/manifest.json` (H1a's receipt records it).
 - **What:** Deploy the Collectible Variations registry bound to the Meta of H1, with a receipt, and record its id.
 - **Why here:** It is created with Meta's app id and the id of Meta's "collectible writer list" tree type, and neither can change afterwards.
 - **Requires:** H1 (Meta deployed and recorded as `meta`). Nothing else: no DAO proposal, no app-list slot, no plugin grant. **Script:** ready: `deploy:collectible-variations` writes a resumable receipt and `--register` records the `collectibleVariations` SDK key.
@@ -1095,17 +1220,16 @@ npm run register:revenue-escrow -- -n mainnet --escrow rev_meta --source <Meta a
 - **Tracked by rollout:status as** `collectible-variations`. It is not a launch prerequisite: if it is not deployed before I1, name it in `--allow-pending`.
 
 ```bash
-# TestNet only until the ARC has a number (see MainNet hold above).
-npm run deploy:collectible-variations -- -n testnet -v "$V" --dry-run --sender "$CREATOR"
-npm run deploy:collectible-variations -- -n testnet -v "$V" --manifest receipts/collectible-variations.testnet.json --reserve-type-zero --register
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --dry-run --sender "$CREATOR"
+npm run deploy:collectible-variations -- -n mainnet -v "$V" --manifest receipts/collectible-variations.json --reserve-type-zero --register
 (cd ../akita-sdk && npm run build)
 ```
 
 #### H2. Guilds
 
-- **What:** Create the DAO guild-fee escrow, deploy GuildConsensusFactory, register the three consensus programs, deploy GuildFactory, upload the Guild kernel, then a creation-only GuildPlugin.
+- **What:** Create the DAO guild-fee escrow, deploy GuildConsensusFactory, register the three consensus programs, deploy GuildFactory, upload the Guild kernel, then the shared GuildPlugin (guild = 0).
 - **Why here:** Guild calls the 11-argument newAccount (K2) and the factory needs guild_fees. Consensus names are first-come and permissionless; verify each before publishing ids.
-- **Requires:** E7, B3. **Script:** ready (G7 closed): deploy:guild-factory refuses before any write unless aal.wallet routes the 11-argument newAccount and the DAO has guild_fees. It keeps a resumable receipt (a rerun skips created apps and uploaded programs), reads every consensus name back and refuses a name holding another program, then `--register` records `guildConsensusFactory` and `guildFactory`. deploy:guild-plugin `--register` records `guildPlugin` only for the creation-only plugin (guild = 0).
+- **Requires:** E7, B3. **Script:** ready (G7 closed): deploy:guild-factory refuses before any write unless aal.wallet routes the 11-argument newAccount and the DAO has guild_fees. It keeps a resumable receipt (a rerun skips created apps and uploaded programs), reads every consensus name back and refuses a name holding another program, then `--register` records `guildConsensusFactory` and `guildFactory`. deploy:guild-plugin `--register` records `guildPlugin` only for the shared plugin (guild = 0).
 - A refused consensus name cannot be fixed on that factory: abandon its receipt and deploy a new one.
 - GUILD_DEPLOYMENT.md §'Existing wallet and DAO migration' describes a removed dynamic-page factory; ignore that part.
 
@@ -1113,12 +1237,15 @@ npm run deploy:collectible-variations -- -n testnet -v "$V" --manifest receipts/
 
 ```bash
 npm run create:dao-escrow -- -n mainnet --escrow rev_guilds --execute
-npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app <rev_guilds escrow app id> --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"
-npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app <rev_guilds escrow app id> --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet
+export REV_GUILDS_APP=$(npm run -s rollout:id -- -n mainnet --escrow rev_guilds)
+npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --dry-run --sender "$CREATOR"
+npm run deploy:guild-factory -- -n mainnet -v "$V" --revenue-escrow-app "$REV_GUILDS_APP" --revenue-escrow-name rev_guilds --manifest receipts/guild-factory.json --register --confirm-mainnet
 (cd ../akita-sdk && npm run build)
-npm run deploy:guild-plugin -- -n mainnet -v "$V" --config '{"factory":"<GuildFactory app id>","guild":"0"}' --manifest receipts/guild-plugin.json --register
-npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source <GuildFactory app address> --dry-run
-npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source <GuildFactory app address> --confirm
+export GUILD_FACTORY=$(npm run -s rollout:id -- -n mainnet --app guildFactory)
+export GUILD_FACTORY_ADDRESS=$(npm run -s rollout:id -- -n mainnet --app guildFactory --address)
+npm run deploy:guild-plugin -- -n mainnet -v "$V" --config "{\"factory\":\"$GUILD_FACTORY\",\"guild\":\"0\"}" --manifest receipts/guild-plugin.json --register
+npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --dry-run
+npm run register:revenue-escrow -- -n mainnet --escrow rev_guilds --source "$GUILD_FACTORY_ADDRESS" --confirm
 (cd ../akita-sdk && npm run build)
 ```
 
@@ -1161,8 +1288,8 @@ npm run deploy:wallet-balance-reader -- -n mainnet -v "$V" --manifest receipts/w
 - PayPlugin sends an asset only to an address that holds it. The Akita Labs LLC address must be opted in to USDC and AKTA before a payment in either. The script says so when it is not.
 
 ```bash
-npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --dry-run
-npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient <Akita Labs LLC address> --confirm
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient "$LABS_ADDRESS" --dry-run
+npm run install:pay-policy-grant -- -n mainnet --escrow rec_krby --recipient "$LABS_ADDRESS" --confirm
 ```
 
 #### H7. SocialClaim (not in this release)
@@ -1186,7 +1313,9 @@ npm run deploy:immutable -- -n mainnet -v "$V" --contract SocialClaim --config s
 
 ### Stage I: Launch the DAO
 
-No script supports a voting DAO end to end, so everything above runs first.
+**The 2.0.0 rollout does not launch the DAO (the owner, 2026-11-25).** It ends at I2, with the MainNet DAO still in Draft, as TestNet's is. I1 is not run with the rollout. It stays here as the launch procedure for the day the owner calls it; until then the creator keeps sending the DAO's proposals, each of which executes at once. Nothing in stages B to H needs an initialized DAO. The proposal thresholds stay as they are until I1, which is safe because thresholds are not enforced in Draft (B2), and `dao:initialize` refuses to run before `dao:rescale-power` has.
+
+No script supports a voting DAO end to end, so whenever I1 is run, everything above runs first.
 
 #### I1. Rescale thresholds, review grants, clear bootstrap keys, initialize (one-way)
 
@@ -1196,7 +1325,7 @@ No script supports a voting DAO end to end, so everything above runs first.
 - **Tracked by rollout:status as** `power`, `initialize`.
 - Expired proposal #107 stays inert; 19 expired execution boxes hold ~420k µA.
 - `dao:rescale-power` rewrites each `*_ps` global whose power is still in whole tokens (x 1e6; see B2), keeps every other setting, and reads each back. It refuses a value neither unit explains (above 1,000 and below 1,000,000). The plugin settings were rescaled by the grant swaps; the tracker's `power` step names any that were not. The Update plugin's own settings are never read (the DAO drives it through UpgradeApp only) and are left as they are.
-- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19). They name `collectible-variations` because H1a is held on MainNet until its ARC has a number (owner, 2026-11-25).
+- The commands name `plugin:dualStakePlugin` in `--allow-pending` because G2 leaves that plugin out. Drop it if the plugin is fixed and deployed first. They name `social-claim` because H7 is not in this release (owner, 2026-11-19).
 - `dao:initialize` reads the same steps as `rollout:status` and refuses while one is not done. A step left for a vote on purpose is named with `--allow-pending <id,id>`, as `social-claim` is while H7 is left out. Five steps cannot be named: `phase2a`, `dao`, `validator`, `dao-wallet` and `power`. It plans unless `--confirm-initialize` is given.
 
 ```bash
@@ -1205,8 +1334,8 @@ npm run dao:rescale-power -- -n mainnet --dry-run
 npm run dao:rescale-power -- -n mainnet --confirm-rescale
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --dry-run --sender "$CREATOR"
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --confirm-revoke
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --dry-run
-npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim,collectible-variations --confirm-initialize
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --dry-run
+npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,social-claim --confirm-initialize
 ```
 
 #### I2. Push and tag the release
@@ -1217,7 +1346,10 @@ npm run dao:initialize -- -n mainnet --allow-pending plugin:dualStakePlugin,soci
 - The audit records are not part of the push: the `audits/` folder was removed on 2026-11-17.
 - The contract CI workflow runs for the first time on this push. Repeat A1 on a clean checkout of the tag.
 - Publish the SDK only after the tag, so the published package and the tag are the same tree.
+- Since 2026-11-26 the commit to tag is on the work branch: it carries the registry and README that `--register` wrote on both networks, the G4 switches and the rebuilt SDK, so the checkout that ran the rollout has nothing left to commit. Move it to that commit before tagging.
 - A pushed tag named `sdk-v<version>` or `plugin-v<version>` makes `.github/workflows/publish.yml` publish that package to npm. Give the release tag another name, and push one of those two only to publish.
+- The SDK is 2.0.0, so `sdk-v2.0.0` publishes it. It becomes the default on npm in place of 1.4.12. The plugin package is 1.2.0 and npm has 1.0.0; `plugin-v1.2.0` publishes it.
+- The release contains `main` since 2026-11-26, so the last push below moves `main` forward without a merge. If `main` only takes pull requests, open one from `release/mainnet-rollout`; it has no conflicts.
 
 ```bash
 npm run release:manifest:check
@@ -1225,11 +1357,12 @@ npm run release:manifest:check
 git push -u origin release/mainnet-rollout
 git tag -s <release tag>
 git push origin <release tag>
+git push origin release/mainnet-rollout:main
 ```
 
 ### Stage J: After launch
 
-Monitoring until Phase 4.
+Monitoring until Phase 4. It starts when stage G is done and does not wait for I1: the legacy shims, the AkitaSocial balance and the Marketplace float need watching from the upgrades on, whether or not the DAO has launched.
 
 #### J1. Monitor and plan Phase 4
 
@@ -1332,5 +1465,5 @@ Every `--dry-run` and `rollout:status` line of the Sequence was then run against
 - **G14.** Closed 2026-11-16: `update:app-dao-escrow` sends `updateAkitaDaoEscrowForApp` for any fee generator (H1).
 - **G17.** No dry run can show a step whose prerequisite is not on chain yet, so the Sequence as a whole is proven only by running it. That is the TestNet rehearsal (A4).
 - **G15.** Parked with the Plugin DEX: PluginDexAdminPlugin and `accept:plugin-dex-admin` are on branch `feat/plugin-dex-v2`, built and tested but not reviewed.
-- **G16.** `npm run check-types` reports 12 errors, all in test files; CI does not gate on it yet. The contract CI workflow was rewritten on 2026-11-10 and has not run on GitHub yet, because nothing has been pushed (it first runs in I2).
+- **G16.** `npm run check-types` reports 12 errors, all in test files; CI does not gate on it yet. The contract CI workflow (`.github/workflows/akita-sc-ci.yaml`) does run on the release branch: it was dispatched on every commit of the audit fix batch of 2026-11-25 (runs 96 to 106), and each run is a reproducible build of the whole tree against `release/manifest.json` plus the suite in six shards, about twenty minutes. A push does not start it, so dispatch it by hand, and never while a run you need is still going: a new dispatch cancels the one in progress.
 

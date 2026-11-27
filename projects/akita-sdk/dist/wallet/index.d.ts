@@ -150,6 +150,17 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
     reclaimFunds({ sender, signer, ...args }: ContractArgs['arc58_reclaim(string,(uint64,uint64,bool)[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     /**
+     * Give an escrow's frozen holdings back to the creator of each asset and opt the escrow out of them.
+     * Admin only, since 2.0.0.
+     *
+     * The network closes a frozen holding only to the asset's creator, and an escrow that still holds an
+     * asset cannot be deleted. `reclaimFunds` never sends a holding anywhere but the wallet's account, so
+     * giving one up is this separate call: whatever the escrow holds of each asset goes to that asset's
+     * creator and does not come back. The wallet refuses an asset whose holding is not frozen, because
+     * `reclaimFunds` returns that one to the wallet.
+     */
+    closeFrozenToCreator({ sender, signer, ...args }: ContractArgs['arc58_closeFrozenToCreator(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
+    /**
      * How many plugins and allowances the wallet counts for an escrow. Undefined for an escrow made
      * before the wallet kept this count.
      */
@@ -204,7 +215,7 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     addExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void'] & MaybeSigner): Promise<TxnReturn<void>>;
     removeExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_removeExecutionKey(byte[32])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     readonly build: {
-        usePlugin: ({ firstValid, windowSize, consolidateFees, skipSignatures, adminRekeyMaxFee, ...args }: BuildWalletUsePluginParams) => Promise<ExecutionBuildGroup>;
+        usePlugin: ({ firstValid, windowSize, consolidateFees, skipSignatures, adminRekeyMaxFee, pendingBoxBytes, boxReadHeadroomRefs, ...args }: BuildWalletUsePluginParams) => Promise<ExecutionBuildGroup>;
     };
     getGlobalState(): Promise<WalletGlobalState>;
     getAdmin(): Promise<string>;

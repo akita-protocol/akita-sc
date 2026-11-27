@@ -55,9 +55,11 @@ export class BaseSocial extends Contract {
   /**
    * Route of a hinted creator tip; `wallet` is the creator's routing wallet (`tipWallet`, 0 for none).
    * The account that receives the remainder decides it: `creator` when it holds AKTA, else the
-   * wallet's origin. An origin without AKTA is opted in through the wallet (the tipper funds the
-   * opt-in MBR) when the wallet allows the opt-in plugin; a direct tip to an account without AKTA
-   * goes to the DAO.
+   * wallet's origin. A tip to an account without AKTA goes to the DAO.
+   *
+   * The tipper is never charged an opt-in for the creator (audit 08, SOC-01). That charge was decided
+   * on the origin's live opt-in state, which the creator controls: close the asset out, keep the
+   * 100,000 microAlgo, and the next tipper pays it again. Creators opt in at their own cost.
    */
   protected tipRoute(akitaDAO: Application, creator: Account, wallet: Application): { type: TipSendType, arc58: uint64, receiver: Account } {
     const akta = Asset(getAkitaAssets(akitaDAO).akta)
@@ -66,12 +68,7 @@ export class BaseSocial extends Contract {
       return { type: TipSendTypeDirect, arc58: 0, receiver: creator }
     }
 
-    const origin = getOriginAccount(wallet)
-    if (!origin.isOptedIn(akta) && this.canCallArc58OptIn(akitaDAO, wallet)) {
-      return { type: TipSendTypeARC58, arc58: Global.assetOptInMinBalance, receiver: origin }
-    }
-
-    return { type: TipSendTypeDirect, arc58: 0, receiver: origin }
+    return { type: TipSendTypeDirect, arc58: 0, receiver: getOriginAccount(wallet) }
   }
 
   /** Deployed tip route, decided on `creator` (legacy shims and the deployed plugins' quotes). */

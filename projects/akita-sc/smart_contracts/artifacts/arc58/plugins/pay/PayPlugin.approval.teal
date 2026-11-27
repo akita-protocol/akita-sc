@@ -891,16 +891,16 @@ pay_bool_false@64:
     b pay_bool_merge@65
 
 pay_after_if_else@68:
-    // smart_contracts/utils/functions.ts:532-535
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:534
+    // smart_contracts/utils/functions.ts:552
     // Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     bytec 9 // "rekey_index"
-    // smart_contracts/utils/functions.ts:532-535
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
@@ -1220,16 +1220,16 @@ pay_after_if_else@54:
     b pay_after_inlined_smart_contracts/meta/functions.ts::readMetaRecordInfo@55
 
 pay_after_if_else@41:
-    // smart_contracts/utils/functions.ts:532-535
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:534
+    // smart_contracts/utils/functions.ts:552
     // Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     bytec 9 // "rekey_index"
-    // smart_contracts/utils/functions.ts:532-535
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)

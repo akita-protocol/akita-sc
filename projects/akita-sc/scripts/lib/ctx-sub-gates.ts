@@ -101,9 +101,12 @@ export type AllowlistAction = {
 }
 
 /**
- * Decide the allowlist calls. A sub-gate is context-aware only if the program it runs on chain is the
- * current artifact and that artifact has `checkFor`. A context-aware artifact whose deployed program
- * differs is refused: flagging an older program would make the Gate call a method it lacks.
+ * Decide the allowlist calls. Every sub-gate must run the current artifact of its name: an app that
+ * runs any other program is refused, whatever name it is given. The allowlist is what makes a program
+ * trusted by every gate that names it, and after the seal only a DAO proposal can take an entry out,
+ * so nothing is allowlisted on the strength of a name and an app id alone (2.0.0 deploys every
+ * sub-gate again, so there is no older program to keep). A sub-gate is flagged context-aware when
+ * that artifact has `checkFor`.
  */
 export function planAllowlist(
   gate: Arc56Like,
@@ -116,12 +119,10 @@ export function planAllowlist(
     if (candidate.appId <= 0n) throw new Error(`${candidate.name}: invalid app id ${candidate.appId}`)
     if (seen.has(candidate.appId)) throw new Error(`${candidate.name}: app ${candidate.appId} listed twice`)
     seen.add(candidate.appId)
-    const artifactCtx = isCtxAwareSpec(candidate.artifact)
-    const matches = candidate.onChainApprovalHash === artifactApprovalHash(candidate.artifact)
-    if (artifactCtx && !matches) {
-      throw new Error(`${candidate.name}: app ${candidate.appId} does not run the current (context-aware) artifact; redeploy it first`)
+    if (candidate.onChainApprovalHash !== artifactApprovalHash(candidate.artifact)) {
+      throw new Error(`${candidate.name}: app ${candidate.appId} does not run the current ${candidate.name} artifact; deploy it again first (deploy-gates.ts)`)
     }
-    const ctxAware = artifactCtx && matches
+    const ctxAware = isCtxAwareSpec(candidate.artifact)
     if (ctxAware && !withFlag) {
       throw new Error(`${candidate.name}: context-aware sub-gate, but the Gate has no ${SET_SUB_GATE_CTX_SIGNATURE}`)
     }
@@ -162,3 +163,25 @@ export function resolveGateId(explicit: string | undefined, directory: string | 
   return registered
 }
 
+/** Gate v2 issues its ids from 2^32 (`FirstGateV2ID`); a gate whose cursor is below that is a Gate v1. */
+const FIRST_GATE_V2_ID = 2n ** 32n
+
+/**
+ * The legacy cutoff decides which Gate v1 ids can ever be imported, and Gate v2 can never change it.
+ * Gate v1 accepts registrations by anyone until the cutover, so a cutoff written down earlier can be
+ * stale by the time Gate v2 is created: a gate registered in between could not be imported, and
+ * whatever stored its id would fail its gate check for good (audit 13, XSY-05). This compares the
+ * cutoff with the cursor of the gate the network names, right before the create is sent.
+ */
+export function checkLegacyCutoff(legacyCutoff: string, liveGate: bigint, liveCursor: bigint | undefined): string {
+  if (!/^(0|[1-9][0-9]*)$/.test(legacyCutoff)) throw new Error(`--legacy-cutoff ${legacyCutoff} is not a number`)
+  if (liveCursor === undefined) throw new Error(`Gate ${liveGate} has no gate_cursor in its global state; refusing to guess the legacy cutoff`)
+  if (liveCursor >= FIRST_GATE_V2_ID) {
+    return `Gate ${liveGate} is a Gate v2 (cursor ${liveCursor}): its ids cannot be imported, so the cutoff ${legacyCutoff} is not checked against it`
+  }
+  if (BigInt(legacyCutoff) !== liveCursor) {
+    throw new Error(`--legacy-cutoff ${legacyCutoff} does not match Gate v1 ${liveGate}, whose gate_cursor is ${liveCursor} now. ` +
+      `Pass --legacy-cutoff ${liveCursor}, and import its gates before sealImports`)
+  }
+  return `Legacy cutoff ${legacyCutoff} matches the gate_cursor of Gate v1 ${liveGate}`
+}

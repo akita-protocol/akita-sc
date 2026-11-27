@@ -54,7 +54,11 @@ export type MarketplaceArgs = {
             akitaDao: bigint | number;
             akitaDaoEscrow: EscrowConfig;
         };
-        'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': {
+        'optInPrize(pay,uint64)void': {
+            payment: AppMethodCallTransactionArgument;
+            asset: bigint | number;
+        };
+        'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64': {
             payment: AppMethodCallTransactionArgument;
             assetXfer: AppMethodCallTransactionArgument;
             price: bigint | number;
@@ -66,6 +70,7 @@ export type MarketplaceArgs = {
             name: string;
             proof: Uint8Array[];
             wallet: bigint | number;
+            maxCreatorRoyalty: bigint | number;
         };
         'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': {
             payment: AppMethodCallTransactionArgument;
@@ -182,7 +187,8 @@ export type MarketplaceArgs = {
      */
     tuple: {
         'create(string,string,uint64,(string,uint64))void': [version: string, childVersion: string, akitaDao: bigint | number, akitaDaoEscrow: EscrowConfig];
-        'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[], wallet: bigint | number];
+        'optInPrize(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
+        'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[], wallet: bigint | number, maxCreatorRoyalty: bigint | number];
         'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[]];
         'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64': [prizeBoxTransferTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, wallet: bigint | number];
         'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64': [prizeBoxTransferTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string];
@@ -210,7 +216,8 @@ export type MarketplaceArgs = {
  */
 export type MarketplaceReturns = {
     'create(string,string,uint64,(string,uint64))void': void;
-    'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64': bigint;
+    'optInPrize(pay,uint64)void': void;
+    'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64': bigint;
     'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': bigint;
     'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64': bigint;
     'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64': bigint;
@@ -243,10 +250,14 @@ export type MarketplaceTypes = {
         argsObj: MarketplaceArgs['obj']['create(string,string,uint64,(string,uint64))void'];
         argsTuple: MarketplaceArgs['tuple']['create(string,string,uint64,(string,uint64))void'];
         returns: MarketplaceReturns['create(string,string,uint64,(string,uint64))void'];
-    }> & Record<'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64', {
-        argsObj: MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
-        argsTuple: MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
-        returns: MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'];
+    }> & Record<'optInPrize(pay,uint64)void' | 'optInPrize', {
+        argsObj: MarketplaceArgs['obj']['optInPrize(pay,uint64)void'];
+        argsTuple: MarketplaceArgs['tuple']['optInPrize(pay,uint64)void'];
+        returns: MarketplaceReturns['optInPrize(pay,uint64)void'];
+    }> & Record<'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64', {
+        argsObj: MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'];
+        argsTuple: MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'];
+        returns: MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'];
     }> & Record<'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64', {
         argsObj: MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
         argsTuple: MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
@@ -508,23 +519,44 @@ export declare abstract class MarketplaceParamsFactory {
         update(params: CallParams<MarketplaceArgs["obj"]["update(string)void"] | MarketplaceArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
     };
     /**
-     * Constructs a no op call for the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64 ABI method
+     * Constructs a no op call for the optInPrize(pay,uint64)void ABI method
      *
-    * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
-    the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
-    the spender (`Txn.sender`).
+    * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+    escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+    not depend on the escrow's payout phase, and the payer is charged one opt-in.
+  
+    `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+    asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+    `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
   
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64(params: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static optInPrize(params: CallParams<MarketplaceArgs['obj']['optInPrize(pay,uint64)void'] | MarketplaceArgs['tuple']['optInPrize(pay,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64 ABI method
+     *
+    * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
+    the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
+    the spender (`Txn.sender`).
+  
+    `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+    listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+    when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64(params: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64 ABI method
      *
     * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
     Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
     (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+    The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
   
      *
      * @param params Parameters for the call
@@ -1247,17 +1279,39 @@ export declare class MarketplaceClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `optInPrize(pay,uint64)void` ABI method.
          *
-        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
-        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
-        the spender (`Txn.sender`).
+        * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+        escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+        not depend on the escrow's payout phase, and the payer is charged one opt-in.
+    
+        `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+        asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+        `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
     
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & {
+        optInPrize: (params: CallParams<MarketplaceArgs["obj"]["optInPrize(pay,uint64)void"] | MarketplaceArgs["tuple"]["optInPrize(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64` ABI method.
+         *
+        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
+        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
+        the spender (`Txn.sender`).
+    
+        `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+        listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+        when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1266,6 +1320,7 @@ export declare class MarketplaceClient {
         * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
         Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
         (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+        The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
     
          *
          * @param params The params for the smart contract call
@@ -1503,17 +1558,43 @@ export declare class MarketplaceClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `optInPrize(pay,uint64)void` ABI method.
          *
-        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
-        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
-        the spender (`Txn.sender`).
+        * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+        escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+        not depend on the escrow's payout phase, and the payer is charged one opt-in.
+    
+        `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+        asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+        `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
     
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & {
+        optInPrize: (params: CallParams<MarketplaceArgs["obj"]["optInPrize(pay,uint64)void"] | MarketplaceArgs["tuple"]["optInPrize(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64` ABI method.
+         *
+        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
+        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
+        the spender (`Txn.sender`).
+    
+        `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+        listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+        when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1526,6 +1607,7 @@ export declare class MarketplaceClient {
         * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
         Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
         (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+        The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
     
          *
          * @param params The params for the smart contract call
@@ -1846,20 +1928,51 @@ export declare class MarketplaceClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `optInPrize(pay,uint64)void` ABI method.
          *
-        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
-        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
-        the spender (`Txn.sender`).
+        * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+        escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+        not depend on the escrow's payout phase, and the payer is charged one opt-in.
+    
+        `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+        asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+        `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
     
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]> & SendParams & {
+        optInPrize: (params: CallParams<MarketplaceArgs["obj"]["optInPrize(pay,uint64)void"] | MarketplaceArgs["tuple"]["optInPrize(pay,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MarketplaceReturns["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64"]);
+            return: (undefined | MarketplaceReturns["optInPrize(pay,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Marketplace smart contract using the `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64` ABI method.
+         *
+        * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
+        the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
+        the spender (`Txn.sender`).
+    
+        `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+        listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+        when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64: (params: CallParams<MarketplaceArgs["obj"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"] | MarketplaceArgs["tuple"]["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | MarketplaceReturns["list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1874,6 +1987,7 @@ export declare class MarketplaceClient {
         * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
         Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
         (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+        The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
     
          *
          * @param params The params for the smart contract call
@@ -2331,24 +2445,46 @@ export declare class MarketplaceClient {
 }
 export type MarketplaceComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64 ABI method.
+     * Calls the optInPrize(pay,uint64)void ABI method.
      *
-    * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
-    the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
-    the spender (`Txn.sender`).
+    * Opt this factory into a prize asset only. A prize never earns protocol fees, so the DAO revenue
+    escrow does not have to hold it: nothing is registered with the revenue manager, the call does
+    not depend on the escrow's payout phase, and the payer is charged one opt-in.
+  
+    `optIn` stays the route for a payment asset, whose fees the escrow must be able to receive. An
+    asset opted in here can still become a payment asset later: `list` opts the escrow in (and
+    `listCost` charges for it) whenever the escrow does not hold a listing's payment asset.
   
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64(params?: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64'] | undefined]>;
+    optInPrize(params?: CallParams<MarketplaceArgs['obj']['optInPrize(pay,uint64)void'] | MarketplaceArgs['tuple']['optInPrize(pay,uint64)void']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['optInPrize(pay,uint64)void'] | undefined]>;
+    /**
+     * Calls the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64 ABI method.
+     *
+    * List an ASA (principal resolution §6.7). `wallet` is the caller's wallet hint (0 = plain account):
+    the verified principal's referrer is fixed on the rev-3 child as `seller_referrer`. The seller is
+    the spender (`Txn.sender`).
+  
+    `maxCreatorRoyalty` is the highest creator royalty the seller accepts (in the units of the
+    listing's `creator_royalty`, 50_000 = 50%). The royalty is resolved from the creator's record
+    when the call runs, so a rate raised after the seller signed reverts the listing (errRamx).
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64Uint64(params?: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64,uint64)uint64'] | undefined]>;
     /**
      * Calls the list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64 ABI method.
      *
     * LEGACY shim, deployed selector `list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64`.
     Creates a rev-3 child whose `seller_referrer` is the seller's registry referrer at creation
     (`legacySellerReferrer`). Also accepts the deployed plugin's ALGO payment (`assertListingPayment`).
+    The deployed selector carries no royalty bound, so the shim keeps the deployed behaviour (the cap only).
   
      *
      * @param args The arguments for the contract call

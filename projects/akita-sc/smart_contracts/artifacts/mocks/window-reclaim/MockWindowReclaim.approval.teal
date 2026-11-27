@@ -1,0 +1,219 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 1 32
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:13
+    // export class MockWindowReclaim extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x39af7fb9 // method "reclaimViaGrant(uint64,bool,uint64,address,string,uint64,address)void"
+    txna ApplicationArgs 0
+    match main_reclaimViaGrant_route@3
+    err
+
+main_reclaimViaGrant_route@3:
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:14-22
+    // reclaimViaGrant(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   amount: uint64,
+    //   receiver: Account
+    // ): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b reclaimViaGrant
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:13
+    // export class MockWindowReclaim extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/window-reclaim/contract.algo.ts::MockWindowReclaim.reclaimViaGrant[routing]() -> void:
+reclaimViaGrant:
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:14-22
+    // reclaimViaGrant(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   amount: uint64,
+    //   receiver: Account
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    cover 6
+    txna ApplicationArgs 7
+    dup
+    cover 7
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/utils/functions.ts:504-507
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 5
+    // smart_contracts/utils/functions.ts:506
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:504-507
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    cover 2
+    cover 7
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:24-28
+    // abiCall<typeof AbstractedAccount.prototype.arc58_pluginReclaim>({
+    //   sender,
+    //   appId: wallet,
+    //   args: [plugin, caller, escrow, [{ asset: 0, amount, closeOut: false }]],
+    // })
+    itxn_begin
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:27
+    // args: [plugin, caller, escrow, [{ asset: 0, amount, closeOut: false }]],
+    intc_0 // 0
+    itob
+    swap
+    itob
+    concat
+    pushbytes 0x00
+    concat
+    pushbytes 0x0001
+    swap
+    concat
+    uncover 6
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:24-28
+    // abiCall<typeof AbstractedAccount.prototype.arc58_pluginReclaim>({
+    //   sender,
+    //   appId: wallet,
+    //   args: [plugin, caller, escrow, [{ asset: 0, amount, closeOut: false }]],
+    // })
+    pushbytes 0x6a205cfc // method "arc58_pluginReclaim(uint64,address,string,(uint64,uint64,bool)[])void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:29
+    // itxn.payment({ sender, receiver, amount, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
+    itxn_begin
+    // smart_contracts/utils/functions.ts:572
+    // if (!rekeyBack) {
+    bnz reclaimViaGrant_after_if_else@5
+    uncover 3
+    pop
+    // smart_contracts/utils/functions.ts:573
+    // return Global.zeroAddress
+    global ZeroAddress
+
+reclaimViaGrant_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
+    itxn_field RekeyTo
+    uncover 2
+    itxn_field Amount
+    itxn_field Sender
+    itxn_field Receiver
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:29
+    // itxn.payment({ sender, receiver, amount, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:14-22
+    // reclaimViaGrant(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   amount: uint64,
+    //   receiver: Account
+    // ): void {
+    intc_2 // 1
+    return
+
+reclaimViaGrant_after_if_else@5:
+    // smart_contracts/utils/functions.ts:576
+    // return wallet.address
+    uncover 3
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/mocks/window-reclaim/contract.algo.ts:29
+    // itxn.payment({ sender, receiver, amount, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
+    b reclaimViaGrant_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6

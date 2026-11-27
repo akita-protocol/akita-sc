@@ -53,7 +53,7 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
     minEntries = 0n,
     gateId,
     marketplace,
-    weightsListCount,
+    weightsListCount = 4n,
     wallet = 0n,
     ...rest
   }: NewRaffleParams): Promise<RaffleSDK> {
@@ -168,7 +168,7 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
 
   /**
    * Gets the exact ALGO payment `newRaffle` requires, quoted on-chain by the factory
-   * (`newRaffleCost`): creation fee + child program/state MBR + child funding + weights boxes.
+   * (`newRaffleCost`): creation fee + child program/state MBR + child funding + weights storage.
    */
   async cost({ isPrizeBox = false, prizeId = 0n, ticketAsset = 0n, weightsListCount = 4n }: RaffleCostParams = {}): Promise<bigint> {
     return await this.client.newRaffleCost({

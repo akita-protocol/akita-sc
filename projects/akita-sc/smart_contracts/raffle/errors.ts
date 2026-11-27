@@ -66,8 +66,12 @@ export const errStillHasWeightsBoxes = 'errShwb'
 
 // --- Weights allocation -----------------------------------------------------
 
+/** no longer raised: weights boxes are not reserved at creation (kept for children created before) */
 export const errMustAllocateAtLeastFourHighestBidsChunks = 'errMalf'
+/** no longer raised: weights boxes are not reserved at creation (kept for children created before) */
 export const errMustAllocateAtMostFifteenHighestBidsChunks = 'errMamf'
+/** the totals box is full: 4096 weights boxes of 4096 entries each */
+export const errRaffleFull = 'errRful'
 
 // --- Factory / misc ---------------------------------------------------------
 

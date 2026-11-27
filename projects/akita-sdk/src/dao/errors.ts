@@ -87,6 +87,11 @@ export const DAO_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   CFCD: 'A fee-covering plugin grant needs a cooldown and a named caller or an execution key',
   NUPX: 'Group is not authorized by a DAO UpgradeApp execution for this target',
   NPOW: 'No voting power: voting needs a lock that outlasts the vote with at least a week of it left',
+
+  // --- Audit 2026-11 (release 2.0.0) ----------------------------------------
+  IFVL: 'The value does not have the exact encoding of the field it updates',
+  PREX: 'The proposal has expired: it was not executed within 45 days of the end of its voting period',
+  GNRD: 'The DAO cannot be initialized before AKTA, BONES and the staking app are set',
 })
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */

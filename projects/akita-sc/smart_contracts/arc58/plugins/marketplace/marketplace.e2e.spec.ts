@@ -300,6 +300,42 @@ describe('Marketplace plugin contract', () => {
       });
     });
 
+    test('audit 09 MKT-01: the plugin opts the factory into a prize without the DAO revenue escrow', async () => {
+      const listingId = await createListing({ amount: 1n, price: 4_000_000n, name: '' });
+      const escrow = (await akitaUniverse.dao.wallet.getEscrows()).get('rev_marketplace')!.address.toString();
+      const holds = async (address: string) =>
+        (await algorand.account.getInformation(address)).assets?.some((asset) => asset.assetId === testAssetId) ?? false;
+
+      // a prize never earns protocol fees, so only the factory holds it
+      expect(await holds(akitaUniverse.marketplace.client.appAddress.toString())).toBe(true);
+      expect(await holds(escrow)).toBe(false);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [marketplacePluginSdk.delist({ appId: listingId })],
+      });
+    });
+
+    test('audit 09 MKT-03: the plugin passes on the highest creator royalty the seller accepts', async () => {
+      const held = async () =>
+        (await algorand.account.getInformation(wallet.client.appAddress)).assets?.find((asset) => asset.assetId === testAssetId)?.amount ?? 0n;
+      const before = await held();
+
+      // without a proof the listing pays the 5% default, which is above a bound of zero
+      await expectContractError(createListing({ amount: 1n, price: 4_000_000n, name: '', maxCreatorRoyalty: 0n }), 'errRamx');
+      expect(await held()).toBe(before);
+
+      const listingId = await createListing({ amount: 1n, price: 4_000_000n, name: '', maxCreatorRoyalty: 5_000n });
+      const listing = akitaUniverse.marketplace.getListing({ appId: listingId });
+      expect((await listing.state()).creatorRoyalty).toBe(5_000n);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [marketplacePluginSdk.delist({ appId: listingId })],
+      });
+      expect(await held()).toBe(before);
+    });
+
     test('lists a prize box through the plugin path', async () => {
       const listingId = await createPrizeBoxListing({ price: 6_000_000n });
       const listing = akitaUniverse.marketplace.getListing({ appId: listingId });
@@ -313,7 +349,7 @@ describe('Marketplace plugin contract', () => {
     });
   });
 
-  const createListing = async ({ amount, price, name }: { amount: bigint; price: bigint; name: string }): Promise<bigint> => {
+  const createListing = async ({ amount, price, name, maxCreatorRoyalty }: { amount: bigint; price: bigint; name: string; maxCreatorRoyalty?: bigint }): Promise<bigint> => {
     const currentTimestamp = await getBlockTimestamp(algorand);
     const marketplaceAddress = akitaUniverse.marketplace.client.appAddress;
     const createdBefore = new Set(await getCreatedAppIds(algorand, marketplaceAddress));
@@ -332,6 +368,7 @@ describe('Marketplace plugin contract', () => {
           marketplace: ZERO_ADDRESS,
           name,
           proof: [],
+          maxCreatorRoyalty,
         }),
       ],
     });

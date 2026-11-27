@@ -12,7 +12,10 @@
  * `--asset` adds one ahead of its first payment.
  *
  * The receivers are escrows of the DAO wallet that carry a global OptInPlugin grant, so any funded
- * account can send the opt-ins and pays the 0.1 ALGO minimum balance of each. The plugin acts on the
+ * account can send the opt-ins and pays the 0.1 ALGO minimum balance of each. Which OptInPlugin that
+ * is changes during the rollout: step G2 moves every DAO wallet grant to the newest registered one and
+ * leaves the DAO's `pal.optin` on the earlier one until user wallets have moved. So the plugin is read
+ * from the grants the receivers hold, not from `pal.optin` alone (TestNet rehearsal, 2026-11-25). The plugin acts on the
  * escrow through the wallet's plugin rekey, which an escrow lock does not stop. Assets a receiver
  * already holds are skipped, so a rerun only finishes what is left.
  */
@@ -33,7 +36,10 @@ const MAX_APP_CALL_FEE = 272_000n
 
 export type ReceiverOptIns = { escrow: string; address: string; locked: boolean; granted: boolean; missing: bigint[] }
 export type ReceiverOptInPlan = {
+  /** The OptInPlugin the receivers' open grants name (see chooseOptInPlugin). */
   optInPlugin: bigint
+  /** The DAO's `pal.optin`, which differs from `optInPlugin` between rollout step G2 and its repoint. */
+  palOptIn: bigint
   revenueManager: bigint
   /** Assets a revenue escrow is registered to pay out and holds a balance of, plus any asked for by hand, ascending. */
   wanted: bigint[]
@@ -50,6 +56,20 @@ export function missingAssets(wanted: readonly bigint[], held: readonly bigint[]
   return [...new Set(wanted)].filter((asset) => !held.includes(asset)).sort(ascending)
 }
 
+/**
+ * The OptInPlugin to act through: of the candidates, in the order given, the first one every receiver
+ * holds an open (any caller) grant of; failing that the first one any receiver holds; failing that the
+ * first candidate, so the refusal names it. Pure.
+ */
+export function chooseOptInPlugin(candidates: readonly bigint[], receivers: readonly string[],
+  grants: readonly { plugin: bigint; caller: string; escrow: string }[]): bigint {
+  const ids = [...new Set(candidates.filter((id) => id > 0n))]
+  const open = (plugin: bigint, escrow: string) => grants.some((g) => g.plugin === plugin && g.caller === ALGORAND_ZERO_ADDRESS_STRING && g.escrow === escrow)
+  return ids.find((plugin) => receivers.every((escrow) => open(plugin, escrow)))
+    ?? ids.find((plugin) => receivers.some((escrow) => open(plugin, escrow)))
+    ?? ids[0] ?? 0n
+}
+
 async function holdings(ctx: ScriptContext, address: string): Promise<{ asset: bigint; amount: bigint }[]> {
   const info = await ctx.algorand.client.algod.accountInformation(address).do()
   return (info.assets ?? []).map((holding) => ({ asset: BigInt(holding.assetId), amount: BigInt(holding.amount) }))
@@ -61,10 +81,12 @@ export async function planReceiverOptIns(ctx: ScriptContext, extra: readonly big
   if (table.length === 0) throw new Error('The DAO holds no revenue split table, so there are no receivers to opt in')
   const outside = table.filter((split) => split.wallet !== wallet.appId)
   if (outside.length > 0) throw new Error(`The split table pays ${outside.map((s) => `"${s.escrow}" on wallet ${s.wallet}`).join(', ')}, which is not an escrow of the DAO wallet ${wallet.appId}; this step cannot opt it in`)
-  const optInPlugin = pluginList?.optin ?? 0n
-  if (optInPlugin <= 0n) throw new Error('The DAO pluginAppList names no OptIn plugin')
+  const palOptIn = pluginList?.optin ?? 0n
+  const newest = BigInt((ctx.appIds as { optinPlugin?: bigint | number } | undefined)?.optinPlugin ?? 0)
+  if (palOptIn <= 0n && newest <= 0n) throw new Error('Neither the SDK registry nor the DAO pluginAppList names an OptIn plugin')
 
   const [grants, walletEscrows] = await Promise.all([wallet.client.state.box.plugins.getMap().then((map) => [...map]), wallet.getEscrows()])
+  const optInPlugin = chooseOptInPlugin([newest, palOptIn], table.map((split) => split.escrow), grants.map(([key]) => key))
 
   // Only an asset registered with the RevenueManager for an escrow can be paid out of it, and a payout
   // moves a balance: an asset is wanted once a revenue escrow that reads the table holds some of it.
@@ -99,7 +121,7 @@ export async function planReceiverOptIns(ctx: ScriptContext, extra: readonly big
     const granted = grants.some(([key]) => key.plugin === optInPlugin && key.caller === ALGORAND_ZERO_ADDRESS_STRING && key.escrow === escrow)
     receivers.push({ escrow, address, locked: info.locked, granted, missing: missingAssets(wanted, (await holdings(ctx, address)).map((h) => h.asset)) })
   }
-  return { optInPlugin, revenueManager, wanted, unheld, receivers }
+  return { optInPlugin, palOptIn, revenueManager, wanted, unheld, receivers }
 }
 
 const optInCall = (ctx: ScriptContext, plugin: bigint, sender: string, assets: bigint[]) =>
@@ -130,6 +152,7 @@ export async function runReceiverOptIns(ctx: ScriptContext,
   for (const asset of [...plan.wanted, ...plan.unheld]) names.set(asset, (await ctx.algorand.client.algod.getAssetByID(asset).do()).params?.unitName ?? '')
   const show = (asset: bigint) => (names.get(asset) ? `${asset} (${names.get(asset)})` : `${asset}`)
   log(`Revenue receivers on ${ctx.options.network} (DAO ${ctx.dao.appId}, OptIn plugin ${plan.optInPlugin}):`)
+  if (plan.palOptIn > 0n && plan.palOptIn !== plan.optInPlugin) log(`  The receivers' grants name OptIn plugin ${plan.optInPlugin}; the DAO's pal.optin is still ${plan.palOptIn}, as rollout step G2 leaves it.`)
   log(`  Assets the revenue escrows hold and pay out${options.assets?.length ? ', plus --asset' : ''}: ${plan.wanted.map(show).join(', ') || 'none'}`)
   if (plan.unheld.length > 0) log(`  Registered but held by no revenue escrow, so not needed yet: ${plan.unheld.map(show).join(', ')}. Pass --asset to opt in ahead of a first payment.`)
   for (const r of plan.receivers) {

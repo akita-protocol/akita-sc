@@ -54,8 +54,12 @@ type BaseNewRaffleParams = MaybeSigner & WalletHint & {
   gateId: bigint | number;
   /** Marketplace address for royalties */
   marketplace: string;
-  /** Number of weights boxes to allocate */
-  weightsListCount: bigint | number;
+  /**
+   * Ignored from 2.0.0 on, where a raffle has no fixed number of entrants: its weights storage
+   * grows with the entries and each entry pays for its own. A factory deployed before that
+   * reserved this many boxes of 4096 entrants (4 to 15), so the default stays 4.
+   */
+  weightsListCount?: bigint | number;
 };
 
 export type NewRaffleParams = BaseNewRaffleParams & (
@@ -198,7 +202,7 @@ export type RaffleCostParams = {
   prizeId?: bigint | number;
   /** Ticket asset ID (0 for ALGO) */
   ticketAsset?: bigint | number;
-  /** Number of weights boxes */
+  /** Ignored from 2.0.0 on (see `NewRaffleParams.weightsListCount`) */
   weightsListCount?: bigint | number;
 };
 

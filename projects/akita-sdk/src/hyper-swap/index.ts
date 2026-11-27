@@ -16,6 +16,7 @@ import {
   DisburseAllParams,
   CancelParams,
   WithdrawParams,
+  WithdrawForParams,
   OptInParams,
   GetOfferParams,
   OfferValue,
@@ -353,6 +354,20 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
         amount,
         proof,
       },
+    });
+  }
+
+  /**
+   * Returns an escrowed leaf of a cancelled offer to its funder (`from`). Anyone may call this, and the
+   * leaf can only go back to the account that funded it. Once every leaf is returned the offer is
+   * complete and its storage can be cleaned up, so no funder has to come back for the others to finish.
+   */
+  async withdrawFor({ sender, signer, id, from, receiver, asset, amount }: WithdrawForParams): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    await this.client.send.withdrawFor({
+      ...sendParams,
+      args: { id, from, receiver, asset, amount },
     });
   }
 }

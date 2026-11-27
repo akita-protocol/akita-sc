@@ -84,19 +84,19 @@ isGenuineWallet_bool_false@6:
 
 // smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
 getControlledSpendingAccount:
-    // smart_contracts/utils/functions.ts:499
+    // smart_contracts/utils/functions.ts:517
     // export function getControlledSpendingAccount(wallet: Application): Account {
     proto 1 1
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -104,7 +104,7 @@ getControlledSpendingAccount:
     app_global_get_ex
     pop
     dup
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:519
     // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
     acct_params_get AcctAuthAddr
     assert // account funded
@@ -116,37 +116,37 @@ getControlledSpendingAccount:
     err // ERR:errNath
 
 getControlledSpendingAccount_after_assert@2:
-    // smart_contracts/utils/functions.ts:502
+    // smart_contracts/utils/functions.ts:520
     // return sender
     retsub
 
 
 // smart_contracts/utils/functions.ts::rekeyBackIfNecessary(rekeyBack: uint64, wallet: uint64) -> void:
 rekeyBackIfNecessary:
-    // smart_contracts/utils/functions.ts:539
+    // smart_contracts/utils/functions.ts:557
     // export function rekeyBackIfNecessary(rekeyBack: boolean, wallet: Application): void {
     proto 2 0
-    // smart_contracts/utils/functions.ts:540
+    // smart_contracts/utils/functions.ts:558
     // if (rekeyBack) {
     frame_dig -2
     bz rekeyBackIfNecessary_after_if_else@3
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:542-549
+    // smart_contracts/utils/functions.ts:560-567
     // itxn
     //   .payment({
     //     sender,
@@ -156,20 +156,20 @@ rekeyBackIfNecessary:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/utils/functions.ts:547
+    // smart_contracts/utils/functions.ts:565
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     frame_dig -2
     frame_dig -1
     callsub rekeyAddress
     itxn_field RekeyTo
-    // smart_contracts/utils/functions.ts:546
+    // smart_contracts/utils/functions.ts:564
     // amount: 0,
     intc_1 // 0
     itxn_field Amount
     dup
     itxn_field Receiver
     itxn_field Sender
-    // smart_contracts/utils/functions.ts:542-548
+    // smart_contracts/utils/functions.ts:560-566
     // itxn
     //   .payment({
     //     sender,
@@ -181,7 +181,7 @@ rekeyBackIfNecessary:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:542-549
+    // smart_contracts/utils/functions.ts:560-567
     // itxn
     //   .payment({
     //     sender,
@@ -198,20 +198,20 @@ rekeyBackIfNecessary_after_if_else@3:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:553
+    // smart_contracts/utils/functions.ts:571
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:554
+    // smart_contracts/utils/functions.ts:572
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:555
+    // smart_contracts/utils/functions.ts:573
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:558
+    // smart_contracts/utils/functions.ts:576
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -1074,7 +1074,7 @@ principal:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:965
+    // smart_contracts/utils/functions.ts:980
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64

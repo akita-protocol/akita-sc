@@ -165,47 +165,6 @@ ownsAtRest_after_if_else@4:
     retsub
 
 
-// smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
-splitOptInCount:
-    // smart_contracts/utils/functions.ts:891
-    // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-    proto 3 1
-    // smart_contracts/utils/functions.ts:892
-    // let count: uint64 = 0
-    intc_0 // 0
-    // smart_contracts/utils/functions.ts:894
-    // if (!escrow.isOptedIn(asset)) {
-    frame_dig -2
-    frame_dig -1
-    asset_holding_get AssetBalance
-    bury 1
-    bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:272
-    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
-    frame_dig -3
-    pushbytes "revenue_splits"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:898
-    // count += splits.length
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:895
-    // count += 1
-    intc_1 // 1
-    // smart_contracts/utils/functions.ts:898
-    // count += splits.length
-    +
-    frame_bury 0
-
-splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:901
-    // return count
-    frame_dig 0
-    swap
-    retsub
-
-
 // smart_contracts/inference/contract.algo.ts::InferenceNetwork.create[routing]() -> void:
 create:
     // smart_contracts/inference/contract.algo.ts:97
@@ -1097,24 +1056,22 @@ optInDaoEscrow_after_assert@10:
     // smart_contracts/utils/base-contracts/base.ts:103
     // this.akitaDAO.value,
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:104
     // escrow.app.address,
-    uncover 2
+    swap
     dup
-    cover 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/base-contracts/base.ts:102-106
-    // const optInCount = splitOptInCount(
-    //   this.akitaDAO.value,
-    //   escrow.app.address,
-    //   asset
-    // )
-    dig 5
+    // smart_contracts/utils/functions.ts:916
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    dig 4
     dup
-    cover 4
-    callsub splitOptInCount
+    cover 3
+    asset_holding_get AssetBalance
+    bury 1
+    !
     // smart_contracts/utils/base-contracts/base.ts:108
     // const mbrAmount: uint64 = Global.assetOptInMinBalance * optInCount
     global AssetOptInMinBalance
@@ -3063,7 +3020,7 @@ openPooled:
     bytec 9 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:960
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     pushint 88
     extract_uint64
@@ -3137,13 +3094,13 @@ openPooled_after_if_else@7:
     callsub ownsAtRest
     bz openPooled_bool_false@10
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:960
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b openPooled_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@12
 
 openPooled_bool_false@10:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:960
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b openPooled_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@12
 
@@ -3259,7 +3216,7 @@ openSponsored_after_assert@7:
     bytec 9 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:945
+    // smart_contracts/utils/functions.ts:960
     // return ownsAtRest(getAkitaAppList(akitaDAO).wallet, wallet, account)
     pushint 88
     extract_uint64
@@ -3305,7 +3262,7 @@ openSponsored_after_assert@14:
     bytec 9 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:945
+    // smart_contracts/utils/functions.ts:960
     // return ownsAtRest(getAkitaAppList(akitaDAO).wallet, wallet, account)
     pushint 88
     extract_uint64
@@ -4123,6 +4080,7 @@ smart_contracts/inference/contract.algo.ts::InferenceNetwork.escrowOptInCost:
     // smart_contracts/inference/contract.algo.ts:550
     // return Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
@@ -4136,8 +4094,14 @@ smart_contracts/inference/contract.algo.ts::InferenceNetwork.escrowOptInCost:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
+    // smart_contracts/utils/functions.ts:916
+    // return escrow.isOptedIn(asset) ? 0 : 1
     frame_dig -1
-    callsub splitOptInCount
+    asset_holding_get AssetBalance
+    bury 1
+    !
+    // smart_contracts/inference/contract.algo.ts:550
+    // return Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     *
     retsub
 
@@ -4612,7 +4576,7 @@ walletPrincipal:
     bytec 9 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:930
+    // smart_contracts/utils/functions.ts:945
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64

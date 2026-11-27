@@ -49,6 +49,12 @@ describe("plugin deployment catalog", () => {
     const nfd = resolvePluginDeployment("mainnet", 3570637728n);
 
     expect(nfd).toMatchObject({ key: "nfdPlugin", revision: 2, isLatest: false });
-    expect(nfd?.latest.appId).toBe(3572944055n);
+    expect(nfd?.latest.appId).toBe(MAINNET_APP_IDS.nfdPlugin);
+
+    // The deployment that release 2.0.0 replaced on 2026-11-26 stays resolvable, with the new one as its update.
+    const replaced = resolvePluginDeployment("mainnet", 3572944055n);
+    expect(replaced).toMatchObject({ key: "nfdPlugin", revision: 3, isLatest: false });
+    expect(replaced?.latest.appId).toBe(3783369090n);
+    expect(MAINNET_APP_IDS.nfdPlugin).toBe(3783369090n);
   });
 });

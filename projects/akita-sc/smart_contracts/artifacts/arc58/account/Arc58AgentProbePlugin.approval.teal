@@ -32,20 +32,20 @@ main___algots__.defaultCreate@10:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:553
+    // smart_contracts/utils/functions.ts:571
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:554
+    // smart_contracts/utils/functions.ts:572
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:555
+    // smart_contracts/utils/functions.ts:573
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:558
+    // smart_contracts/utils/functions.ts:576
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -72,16 +72,16 @@ allowed:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -158,16 +158,16 @@ forbidden:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -274,16 +274,16 @@ removeGrant:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 4
-    // smart_contracts/utils/functions.ts:488
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:486-489
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)

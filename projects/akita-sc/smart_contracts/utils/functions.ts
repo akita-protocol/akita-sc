@@ -328,6 +328,24 @@ export function legacyOriginOr(walletID: Application, or: Account): Account {
   return origin
 }
 
+/**
+ * LEGACY, for paths a third party calls (a keeper triggering someone else's subscription): like
+ * `legacyOriginOr`, but the wallet's declared controlled address counts only when the wallet owns it
+ * at rest (it is the wallet's own address, or it is rekeyed to the wallet). Being the current sender
+ * proves nothing there: the sender is the keeper, and a wallet's admin can make the wallet name any
+ * account, so the subscriber would be choosing whose eligibility is checked (audit 07, SUB-01).
+ */
+export function legacyOriginAtRestOr(walletID: Application, or: Account): Account {
+  if (walletID.id === 0) {
+    return or
+  }
+  const origin = getOriginAccount(walletID)
+  if (origin !== walletID.address && origin.authAddress !== walletID.address) {
+    return or
+  }
+  return origin
+}
+
 export function legacyOriginOrTxnSender(walletID: Application): Account {
   return legacyOriginOr(walletID, Txn.sender)
 }
@@ -888,17 +906,14 @@ export function legacySendReferralPaymentFor(akitaDAO: Application, account: Acc
   return { leftover: amount, referralMbr: 0 }
 }
 
+/**
+ * How many opt-ins a fee generator pays for when it registers `asset` on its DAO revenue escrow: the
+ * escrow's own, or none once the escrow holds the asset. The RevenueManager opts in only the escrow
+ * and leaves a share whose receiver is not opted in for the next cycle, so nothing is charged for the
+ * split receivers (audit DAO-07).
+ */
 export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-  let count: uint64 = 0
-
-  if (!escrow.isOptedIn(asset)) {
-    count += 1
-    // split accounts are dedicated escrows, if the main escrow is not opted in, assume the others aren't either
-    const splits = getSplits(akitaDAO)
-    count += splits.length
-  }
-
-  return count
+  return escrow.isOptedIn(asset) ? 0 : 1
 }
 
 // PRINCIPAL RESOLUTION -----------------------------------------------------------------------------

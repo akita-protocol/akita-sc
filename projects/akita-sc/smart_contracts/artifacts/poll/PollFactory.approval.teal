@@ -70,47 +70,6 @@ main_update_route@2:
     b update
 
 
-// smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
-splitOptInCount:
-    // smart_contracts/utils/functions.ts:891
-    // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
-    proto 3 1
-    // smart_contracts/utils/functions.ts:892
-    // let count: uint64 = 0
-    intc_0 // 0
-    // smart_contracts/utils/functions.ts:894
-    // if (!escrow.isOptedIn(asset)) {
-    frame_dig -2
-    frame_dig -1
-    asset_holding_get AssetBalance
-    bury 1
-    bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:272
-    // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
-    frame_dig -3
-    pushbytes "revenue_splits"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/functions.ts:898
-    // count += splits.length
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:895
-    // count += 1
-    intc_1 // 1
-    // smart_contracts/utils/functions.ts:898
-    // count += splits.length
-    +
-    frame_bury 0
-
-splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:901
-    // return count
-    frame_dig 0
-    swap
-    retsub
-
-
 // smart_contracts/poll/factory.algo.ts::PollFactory.create[routing]() -> void:
 create:
     // smart_contracts/poll/factory.algo.ts:22
@@ -1255,14 +1214,21 @@ optIn:
     // smart_contracts/utils/base-contracts/base.ts:190
     // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
-    swap
     intc_2 // 2
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    uncover 2
-    callsub splitOptInCount
+    // smart_contracts/utils/functions.ts:916
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    swap
+    asset_holding_get AssetBalance
+    dup
+    cover 2
+    cover 3
+    pop
+    !
     swap
     // smart_contracts/utils/base-contracts/base.ts:192
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
@@ -1277,11 +1243,11 @@ optIn:
 optIn_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:193
     // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), errInvalidPaymentAmount)
-    swap
+    uncover 2
     gtxns Amount
     global AssetOptInMinBalance
     intc_1 // 1
-    dig 3
+    uncover 3
     +
     *
     ==
@@ -1332,7 +1298,7 @@ optIn_after_assert@5:
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:208
     // if (count > 0 && escrow.name !== '') {
-    bz optIn_after_if_else@9
+    bnz optIn_after_if_else@9
     dupn 2
     intc_0 // 0
     extract_uint16
@@ -1539,24 +1505,22 @@ optIn_after_assert@14:
     // smart_contracts/utils/base-contracts/base.ts:103
     // this.akitaDAO.value,
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:104
     // escrow.app.address,
-    uncover 2
+    swap
     dup
-    cover 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/base-contracts/base.ts:102-106
-    // const optInCount = splitOptInCount(
-    //   this.akitaDAO.value,
-    //   escrow.app.address,
-    //   asset
-    // )
-    dig 6
+    // smart_contracts/utils/functions.ts:916
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    dig 5
     dup
-    cover 4
-    callsub splitOptInCount
+    cover 3
+    asset_holding_get AssetBalance
+    bury 1
+    !
     // smart_contracts/utils/base-contracts/base.ts:108
     // const mbrAmount: uint64 = Global.assetOptInMinBalance * optInCount
     global AssetOptInMinBalance
@@ -1698,6 +1662,7 @@ optInCost:
     // smart_contracts/utils/base-contracts/base.ts:215
     // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
+    bury 1
     assert // check GlobalState exists
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:48
@@ -1711,8 +1676,12 @@ optInCost:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    uncover 2
-    callsub splitOptInCount
+    // smart_contracts/utils/functions.ts:916
+    // return escrow.isOptedIn(asset) ? 0 : 1
+    swap
+    asset_holding_get AssetBalance
+    bury 1
+    !
     // smart_contracts/utils/base-contracts/base.ts:216
     // return Global.assetOptInMinBalance * (1 + count)
     global AssetOptInMinBalance
