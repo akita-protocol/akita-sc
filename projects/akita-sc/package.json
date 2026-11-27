@@ -189,6 +189,7 @@
     "set:policy-writer": "ts-node --transpile-only scripts/set-policy-writer.ts",
     "install:policy-writer-grant": "ts-node --transpile-only scripts/install-policy-writer-grant.ts",
     "install:inference-admin-grant": "ts-node --transpile-only scripts/install-inference-admin-grant.ts",
+    "update:inference-fees": "ts-node --transpile-only scripts/update-inference-fees.ts",
     "install:pay-policy-grant": "ts-node --transpile-only scripts/install-pay-policy-grant.ts",
     "deploy:sunset-plugin": "ts-node --transpile-only scripts/deploy-immutable.ts --contract SunsetPlugin",
     "deploy:rewards": "ts-node --transpile-only scripts/deploy-immutable.ts --contract Rewards",
