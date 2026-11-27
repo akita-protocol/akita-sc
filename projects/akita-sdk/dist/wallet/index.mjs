@@ -99,12 +99,12 @@ import {
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-I7VNIGKR.mjs";
+} from "../chunk-VOBSXYPN.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
 import "../chunk-VXHF5AKC.mjs";
-import "../chunk-4S756LF5.mjs";
+import "../chunk-D6KKKSSQ.mjs";
 import "../chunk-RUHR54B7.mjs";
 import "../chunk-O3BCWT7J.mjs";
 import "../chunk-XN5GRW52.mjs";

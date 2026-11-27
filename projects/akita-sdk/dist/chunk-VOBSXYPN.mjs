@@ -21,7 +21,7 @@ import {
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "./chunk-4S756LF5.mjs";
+} from "./chunk-D6KKKSSQ.mjs";
 import {
   EscrowFactorySDK
 } from "./chunk-O3BCWT7J.mjs";
@@ -9720,6 +9720,19 @@ var MetaPluginSDK = class extends BaseSDK {
         }
       ]
     });
+  }
+  /**
+   * `set` for a preference record (see `meta/preferences`): the wallet's spending account publishes
+   * `data` under `record`. Several of these can share one wallet execution.
+   */
+  setPreference(args) {
+    const { record, ...rest } = args;
+    return this.set({ ...rest, namespace: record.namespace, key: record.field });
+  }
+  /** `remove` for a preference record; Meta refunds its storage deposit. */
+  removePreference(args) {
+    const { record, ...rest } = args;
+    return this.remove({ ...rest, namespace: record.namespace, key: record.field });
   }
   /** Publish the complete value in one plugin call within a wallet execution. */
   async setRecord({ wallet, execution = {}, ...args }) {
@@ -36443,4 +36456,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-I7VNIGKR.mjs.map
+//# sourceMappingURL=chunk-VOBSXYPN.mjs.map

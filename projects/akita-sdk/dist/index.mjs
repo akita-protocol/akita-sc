@@ -70,14 +70,14 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-ZGGCTDEJ.mjs";
+} from "./chunk-DAH5CXIZ.mjs";
 import "./chunk-JGTO3CDP.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-I7VNIGKR.mjs";
+} from "./chunk-VOBSXYPN.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes
@@ -95,7 +95,14 @@ import {
 } from "./chunk-C5XM3R7G.mjs";
 import "./chunk-VXHF5AKC.mjs";
 import {
+  ACCOUNT_GROUPS_MAX_ENTRIES,
+  ACCOUNT_GROUPS_MAX_GROUPS,
+  ACCOUNT_GROUPS_RECORD,
   ACCOUNT_IMAGE_RECORD,
+  AKITA_PREFERENCES_NAMESPACE,
+  AKITA_PREFERENCES_SCOPE,
+  AKITA_PREFERENCE_RECORDS,
+  APP_THEME_RECORD,
   METADATA_CHUNK_BYTES,
   METADATA_FINAL_PART_BYTES,
   METADATA_INLINE_BYTES,
@@ -107,13 +114,22 @@ import {
   METADATA_RECORD_HEADER_BYTES,
   MetaFactory,
   MetaSDK,
+  RECEIVE_QR_ACCOUNTS_MAX,
+  RECEIVE_QR_ACCOUNTS_RECORD,
   RECEIVE_QR_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
   decodeMetadataBoxName,
   decodeMetadataRecord,
+  encodeAccountGroups,
   encodeAccountImageReference,
+  encodeAppTheme,
   encodeMetadataJson,
+  encodeReceiveQrAccountStyles,
   encodeReceiveQrStyle,
+  isAccountGroupsV1,
   isAccountImageReferenceV1,
+  isAppThemeV1,
+  isReceiveQrAccountStylesV1,
   isReceiveQrStyleV1,
   metadataBoxName,
   metadataDataKey,
@@ -123,12 +139,17 @@ import {
   metadataPluginValueLimit,
   metadataStorageCost,
   metadataValueLimit,
+  parseAccountGroups,
   parseAccountImageReference,
+  parseAppTheme,
+  parseReceiveQrAccountStyles,
   parseReceiveQrStyle,
+  readMetaPreference,
+  resolveReceiveQrStyle,
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "./chunk-4S756LF5.mjs";
+} from "./chunk-D6KKKSSQ.mjs";
 import "./chunk-RUHR54B7.mjs";
 import {
   EscrowFactorySDK,
@@ -216,7 +237,14 @@ import {
 } from "./chunk-JZMSW77U.mjs";
 import "./chunk-J5LGTIGS.mjs";
 export {
+  ACCOUNT_GROUPS_MAX_ENTRIES,
+  ACCOUNT_GROUPS_MAX_GROUPS,
+  ACCOUNT_GROUPS_RECORD,
   ACCOUNT_IMAGE_RECORD,
+  AKITA_PREFERENCES_NAMESPACE,
+  AKITA_PREFERENCES_SCOPE,
+  AKITA_PREFERENCE_RECORDS,
+  APP_THEME_RECORD,
   ARC65_ALT_PREFIX,
   ARC65_PREFIX,
   AkitaDaoSDK,
@@ -265,7 +293,10 @@ export {
   PollSDK,
   PrizeBoxFactorySDK,
   PrizeBoxSDK,
+  RECEIVE_QR_ACCOUNTS_MAX,
+  RECEIVE_QR_ACCOUNTS_RECORD,
   RECEIVE_QR_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
   REGISTRY_WRITES_STOPPED,
   RaffleFactorySDK,
   RaffleSDK,
@@ -298,9 +329,12 @@ export {
   decodeMetadataBoxName,
   decodeMetadataRecord,
   detectNetworkFromClient,
+  encodeAccountGroups,
   encodeAccountImageReference,
+  encodeAppTheme,
   encodeConnectUri,
   encodeMetadataJson,
+  encodeReceiveQrAccountStyles,
   encodeReceiveQrStyle,
   extractP256PublicKeyCoordinates,
   getAppIdForSDK,
@@ -326,8 +360,11 @@ export {
   hyperSwapRootName,
   hyperSwapTradeTree,
   installAccessListResourcePopulator,
+  isAccountGroupsV1,
   isAccountImageReferenceV1,
+  isAppThemeV1,
   isPluginSDKReturn,
+  isReceiveQrAccountStylesV1,
   isReceiveQrStyleV1,
   isSubscriptionSeasoned,
   makeErrorTranslator,
@@ -341,18 +378,23 @@ export {
   metadataValueLimit,
   normalizeSigner,
   offerTermsFromLists,
+  parseAccountGroups,
   parseAccountImageReference,
+  parseAppTheme,
   parseArc65Code,
   parseP256DerSignature,
+  parseReceiveQrAccountStyles,
   parseReceiveQrStyle,
   prepareGroup,
   principal_exports as principal,
+  readMetaPreference,
   registerAccessListResourceCarrier,
   registryWritesStopped,
   removeFixedSignerMemberAction,
   resolveAppId,
   resolveAppIdWithClient,
   resolvePluginDeployment,
+  resolveReceiveQrStyle,
   seedAccessResources,
   seededAccessResources,
   sendPrepared,

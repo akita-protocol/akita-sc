@@ -1,6 +1,7 @@
 import { BaseSDK } from "../../base";
 import { MetaPluginClient } from "../../generated/MetaPluginClient";
 import { MaybeSigner, NewContractSDKParams, PluginSDKReturn } from "../../types";
+import type { MetaPreferenceRecord } from "../../meta/preferences";
 import { MetaPluginScope } from "./meta-scope";
 import type { WalletSDK } from "../index";
 import type { WalletUsePluginParams } from "../types";
@@ -137,6 +138,22 @@ export declare class MetaPluginSDK extends BaseSDK<MetaPluginClient> {
         rekeyBack?: boolean;
         description: string;
         schemaList: bigint[] | number[];
+    }): PluginSDKReturn;
+    /**
+     * `set` for a preference record (see `meta/preferences`): the wallet's spending account publishes
+     * `data` under `record`. Several of these can share one wallet execution.
+     */
+    setPreference(args: MaybeSigner & {
+        record: Pick<MetaPreferenceRecord, "namespace" | "field">;
+        data: Uint8Array;
+        expectedRevision: bigint;
+        rekeyBack?: boolean;
+    }): PluginSDKReturn;
+    /** `remove` for a preference record; Meta refunds its storage deposit. */
+    removePreference(args: MaybeSigner & {
+        record: Pick<MetaPreferenceRecord, "namespace" | "field">;
+        expectedRevision: bigint;
+        rekeyBack?: boolean;
     }): PluginSDKReturn;
     /** Publish the complete value in one plugin call within a wallet execution. */
     setRecord({ wallet, execution, ...args }: Omit<MetadataSet, "rekeyBack"> & {

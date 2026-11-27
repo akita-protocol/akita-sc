@@ -14,6 +14,7 @@ export { MetaSDK, MetaFactory } from './meta';
 export type { SetMetadataArgs, RemoveMetadataArgs } from './meta';
 export * from './meta/records';
 export * from './meta/schemas';
+export * from './meta/preferences';
 export { PollSDK, PollFactorySDK } from './poll';
 export { PrizeBoxSDK, PrizeBoxFactorySDK } from './prize-box';
 export { RaffleSDK, RaffleFactorySDK } from './raffle';
