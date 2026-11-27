@@ -490,8 +490,8 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   rewardsV1: 763128244n,
   governanceParticipationGate: 777357149n,
   moderatorActivityGate: 777357141n,
-  inferenceNetwork: 0n,
-  inferencePlugin: 0n,
+  inferenceNetwork: 777489805n,
+  inferencePlugin: 777489958n,
 };
 
 /**
