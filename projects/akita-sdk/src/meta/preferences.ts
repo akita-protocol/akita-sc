@@ -1,6 +1,7 @@
 import { isValidAddress } from "algosdk";
 import { encodeMetadataJson, METADATA_MAX_VALUE_BYTES, metadataDataKey, type MetadataKey } from "./records";
 import { isReceiveQrStyleV1, type ReceiveQrStyleV1 } from "./schemas";
+import type { MetaPluginScope } from "../wallet/plugins/meta-scope";
 
 /**
  * Account preferences that Akita clients publish in the Meta registry so they follow the account
@@ -15,21 +16,34 @@ import { isReceiveQrStyleV1, type ReceiveQrStyleV1 } from "./schemas";
 /** A Meta record a Meta plugin call addresses by `namespace` and `field`, and a reader by `key`. */
 export type MetaPreferenceRecord = { readonly namespace: string; readonly field: string; readonly key: Uint8Array };
 
-function preferenceRecord(namespace: string, field: string): MetaPreferenceRecord {
-  return { namespace, field, key: metadataDataKey(namespace, field) };
+/**
+ * Every synced preference lives in this one namespace, so a single key-restricted Meta plugin
+ * grant (`AKITA_PREFERENCES_SCOPE`) can write all of them and nothing else. Akita gives that grant
+ * to the wallet's hot key, so a settings change needs no passkey approval.
+ */
+export const AKITA_PREFERENCES_NAMESPACE = "akita.prefs";
+
+function preferenceRecord(field: string): MetaPreferenceRecord {
+  return { namespace: AKITA_PREFERENCES_NAMESPACE, field, key: metadataDataKey(AKITA_PREFERENCES_NAMESPACE, field) };
 }
 
-/** The wallet's own receive QR style; the same record as `RECEIVE_QR_RECORD`. */
-export const RECEIVE_QR_STYLE_RECORD = preferenceRecord("akita.receive-qr", "style");
-/** The account's app theme: light/dark scheme and accent. */
-export const APP_THEME_RECORD = preferenceRecord("akita.theme", "app");
-/** The account's sub account groups and order. */
-export const ACCOUNT_GROUPS_RECORD = preferenceRecord("akita.account", "groups");
-/**
- * Receive QR styles for the wallet's other accounts, keyed by address. The wallet's own style is
- * `RECEIVE_QR_RECORD`, which also stands for any account without an entry here.
- */
-export const RECEIVE_QR_ACCOUNTS_RECORD = preferenceRecord("akita.receive-qr", "accounts");
+/** The account's app theme: light/dark scheme and accent (`AppThemeV1`). */
+export const APP_THEME_RECORD = preferenceRecord("theme");
+/** The account's sub account groups and order (`AccountGroupsV1`). */
+export const ACCOUNT_GROUPS_RECORD = preferenceRecord("groups");
+/** The wallet's receive QR style (`ReceiveQrStyleV1`); it also stands for accounts without their own. */
+export const RECEIVE_QR_STYLE_RECORD = preferenceRecord("qr");
+/** Receive QR styles for the wallet's other accounts, keyed by address (`ReceiveQrAccountStylesV1`). */
+export const RECEIVE_QR_ACCOUNTS_RECORD = preferenceRecord("qr-accounts");
+
+export const AKITA_PREFERENCE_RECORDS = [APP_THEME_RECORD, ACCOUNT_GROUPS_RECORD, RECEIVE_QR_STYLE_RECORD, RECEIVE_QR_ACCOUNTS_RECORD] as const;
+
+/** The Meta plugin scope that lets a grant write exactly the preference records. */
+export const AKITA_PREFERENCES_SCOPE: MetaPluginScope = {
+  type: "keys",
+  namespace: AKITA_PREFERENCES_NAMESPACE,
+  keys: AKITA_PREFERENCE_RECORDS.map((record) => record.field),
+};
 
 // ---------------------------------------------------------------------------------------------
 // Theme

@@ -2,6 +2,9 @@ import { describe, expect, test, vi } from "vitest";
 import { encodeAddress } from "algosdk";
 import {
   ACCOUNT_GROUPS_RECORD,
+  AKITA_PREFERENCE_RECORDS,
+  AKITA_PREFERENCES_NAMESPACE,
+  AKITA_PREFERENCES_SCOPE,
   APP_THEME_RECORD,
   encodeAccountGroups,
   encodeAppTheme,
@@ -16,7 +19,8 @@ import {
   type AccountGroupsV1,
   type AppThemeV1,
 } from "./preferences";
-import { metadataDataKey, metadataPluginValueLimit, RECEIVE_QR_RECORD } from "./records";
+import { metadataDataKey, metadataPluginValueLimit } from "./records";
+import { metadataScopeArgs } from "../wallet/plugins/meta-scope";
 import type { ReceiveQrStyleV1 } from "./schemas";
 import { MetaPluginSDK } from "../wallet/plugins/meta";
 
@@ -25,14 +29,17 @@ const address = (fill: number) => encodeAddress(new Uint8Array(32).fill(fill));
 const style: ReceiveQrStyleV1 = { version: 1, background: "#112233", foreground: "auto", moduleRoundness: 0.5, finderRoundness: 1, showAvatar: true };
 
 describe("Meta preference records", () => {
-  test("keys follow the Meta plugin's namespace convention", () => {
-    expect(APP_THEME_RECORD.key).toEqual(metadataDataKey("akita.theme", "app"));
-    expect(ACCOUNT_GROUPS_RECORD.key).toEqual(metadataDataKey("akita.account", "groups"));
-    expect(RECEIVE_QR_ACCOUNTS_RECORD.key).toEqual(metadataDataKey("akita.receive-qr", "accounts"));
-    expect(RECEIVE_QR_STYLE_RECORD.key).toEqual(RECEIVE_QR_RECORD.key);
-    for (const record of [APP_THEME_RECORD, ACCOUNT_GROUPS_RECORD, RECEIVE_QR_ACCOUNTS_RECORD, RECEIVE_QR_STYLE_RECORD]) {
+  test("every record shares one namespace that a key-restricted grant can cover", () => {
+    expect(APP_THEME_RECORD.key).toEqual(metadataDataKey("akita.prefs", "theme"));
+    expect(ACCOUNT_GROUPS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "groups"));
+    expect(RECEIVE_QR_STYLE_RECORD.key).toEqual(metadataDataKey("akita.prefs", "qr"));
+    expect(RECEIVE_QR_ACCOUNTS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "qr-accounts"));
+    for (const record of AKITA_PREFERENCE_RECORDS) {
+      expect(record.namespace).toBe(AKITA_PREFERENCES_NAMESPACE);
       expect(metadataPluginValueLimit(record.namespace, record.field)).toBeGreaterThan(16000);
     }
+    // The plugin's scope encoding accepts it, in canonical order.
+    expect(metadataScopeArgs(AKITA_PREFERENCES_SCOPE)).toEqual({ namespace: "akita.prefs", keys: ["qr", "theme", "groups", "qr-accounts"] });
   });
 
   test("app theme round-trips and rejects anything else", () => {
@@ -108,8 +115,8 @@ describe("Meta preference records", () => {
     Object.assign(sdk, { set, remove });
     const data = encodeAppTheme({ version: 1, scheme: "dark", accent: "lime" });
     expect(sdk.setPreference({ record: APP_THEME_RECORD, data, expectedRevision: 3n })).toBe("call");
-    expect(set).toHaveBeenCalledWith({ namespace: "akita.theme", key: "app", data, expectedRevision: 3n });
+    expect(set).toHaveBeenCalledWith({ namespace: "akita.prefs", key: "theme", data, expectedRevision: 3n });
     expect(sdk.removePreference({ record: ACCOUNT_GROUPS_RECORD, expectedRevision: 1n })).toBe("removal");
-    expect(remove).toHaveBeenCalledWith({ namespace: "akita.account", key: "groups", expectedRevision: 1n });
+    expect(remove).toHaveBeenCalledWith({ namespace: "akita.prefs", key: "groups", expectedRevision: 1n });
   });
 });

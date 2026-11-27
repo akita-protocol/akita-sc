@@ -109,14 +109,17 @@ later commit after deletion (ALG-01); intentionally recreating the key is valid.
 `@akta/sdk/meta` defines the records Akita clients publish so an account's
 settings follow it to every device and other clients can read them. Each is a
 versioned JSON record owned by the account that wrote it; through the Meta
-plugin that is the wallet's controlled address.
+plugin that is the wallet's controlled address. All of them live in the
+`akita.prefs` namespace, so one key-restricted grant (`AKITA_PREFERENCES_SCOPE`)
+can write every preference and nothing else. Akita gives that grant to the
+wallet's hot key, so a settings change needs no passkey approval.
 
-| Record | Namespace / field | Value |
-|--------|-------------------|-------|
-| `APP_THEME_RECORD` | `akita.theme` / `app` | `AppThemeV1`: `{ version: 1, scheme: "light" \| "dark" \| "system", accent }` |
-| `ACCOUNT_GROUPS_RECORD` | `akita.account` / `groups` | `AccountGroupsV1`: `{ version: 1, order, groups: [{ id, label, icon, color, accountIds }] }` |
-| `RECEIVE_QR_STYLE_RECORD` | `akita.receive-qr` / `style` | `ReceiveQrStyleV1`, the wallet's style (same key as `RECEIVE_QR_RECORD`) |
-| `RECEIVE_QR_ACCOUNTS_RECORD` | `akita.receive-qr` / `accounts` | `ReceiveQrAccountStylesV1`: `{ version: 1, accounts: { [address]: ReceiveQrStyleV1 } }` |
+| Record | Field | Value |
+|--------|-------|-------|
+| `APP_THEME_RECORD` | `theme` | `AppThemeV1`: `{ version: 1, scheme: "light" \| "dark" \| "system", accent }` |
+| `ACCOUNT_GROUPS_RECORD` | `groups` | `AccountGroupsV1`: `{ version: 1, order, groups: [{ id, label, icon, color, accountIds }] }` |
+| `RECEIVE_QR_STYLE_RECORD` | `qr` | `ReceiveQrStyleV1`, the wallet's receive QR style |
+| `RECEIVE_QR_ACCOUNTS_RECORD` | `qr-accounts` | `ReceiveQrAccountStylesV1`: `{ version: 1, accounts: { [address]: ReceiveQrStyleV1 } }` |
 
 Account ids in groups are the client's own ids; Akita writes `escrow-<escrow name>`,
 and `order` mixes them with `group:<group id>` entries. `resolveReceiveQrStyle`
@@ -136,8 +139,9 @@ await wallet.usePlugin({
 });
 ```
 
-Several `setPreference` calls can share one wallet execution, so a client can
-save every changed preference with one approval. These values are public.
+Configure a delegated grant for them with
+`metaPlugin.configureScope({ caller, scope: AKITA_PREFERENCES_SCOPE, expectedRevision: 0n })`
+through the wallet's Meta admin grant, in the same group as the grant's install. These values are public.
 Clients apply account groups and per-account QR styles only while the owner's
 Akita membership is paid up, and premium theme accents under the same rule as
 the viewer's own theme.
