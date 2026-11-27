@@ -4,8 +4,8 @@ import { btoi, itob, sha256 } from "@algorandfoundation/algorand-typescript/op"
 import { AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysCurrentPlugin, AbstractAccountGlobalStateKeysReferrer, AbstractAccountGlobalStateKeysRekeyIndex, AbstractAccountGlobalStateKeysSpendingAddress } from "../arc58/account/constants"
 import { errEscrowDoesNotExist } from "../arc58/account/errors"
 import { CallerTypeGlobal, EscrowInfo, PluginKey } from "../arc58/account/types"
-import { AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees } from "../arc58/dao/constants"
-import { AkitaAppList, AkitaAssets, AkitaSocialAppList, NFTFees, OtherAppList, PluginAppList, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../arc58/dao/types"
+import { AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysInferenceFees, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees } from "../arc58/dao/constants"
+import { AkitaAppList, AkitaAssets, AkitaSocialAppList, InferenceFees, NFTFees, OtherAppList, PluginAppList, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../arc58/dao/types"
 import { GlobalStateKeyFunder } from "../constants"
 import { GateArgs } from "../gates/types"
 import { PrizeBoxGlobalStateKeyOwner } from "../prize-box/constants"
@@ -254,6 +254,13 @@ export function getSwapFees(akitaDAO: Application): SwapFees {
 export function getNFTFees(akitaDAO: Application): NFTFees {
   const [nftFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysNFTFees))
   return decodeArc4<NFTFees>(nftFeesBytes)
+}
+
+/** The DAO's inference fees, or zeros while no proposal has set them. */
+export function getInferenceFees(akitaDAO: Application): InferenceFees {
+  const [bytes, exists] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysInferenceFees))
+  if (!exists) return { chargePercentage: 0, providerBond: 0 }
+  return decodeArc4<InferenceFees>(bytes)
 }
 
 export function getAkitaAssets(akitaDAO: Application): AkitaAssets {

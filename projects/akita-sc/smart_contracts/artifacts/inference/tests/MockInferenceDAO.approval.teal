@@ -1,0 +1,168 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 1
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:9
+    // export class MockInferenceDAO extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytess 0x4ed09b8f 0xc4afc117 // method "setInferenceFees(uint64,uint64)void", method "setApps(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match setInferenceFees setApps
+    err
+
+main_create_NoOp@6:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:9
+    // export class MockInferenceDAO extends Contract {
+    pushbytes 0x240d2f67 // method "create(uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.create[routing]() -> void:
+create:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:14
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:16
+    // this.akitaAssets.value = { akta, bones: 0 }
+    itob
+    intc_1 // 0
+    itob
+    concat
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:10
+    // akitaAssets = GlobalState<AkitaAssets>({ key: AkitaDAOGlobalStateKeysAkitaAssets })
+    pushbytes "akita_assets"
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:16
+    // this.akitaAssets.value = { akta, bones: 0 }
+    swap
+    app_global_put
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:17
+    // this.setApps(0, 0)
+    intc_1 // 0
+    dup
+    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:14
+    // @abimethod({ onCreate: 'require' })
+    intc_2 // 1
+    return
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setInferenceFees[routing]() -> void:
+setInferenceFees:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:20
+    // setInferenceFees(chargePercentage: uint64, providerBond: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:21
+    // this.inferenceFees.value = { chargePercentage, providerBond }
+    swap
+    itob
+    swap
+    itob
+    concat
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:12
+    // inferenceFees = GlobalState<InferenceFees>({ key: AkitaDAOGlobalStateKeysInferenceFees })
+    pushbytes "inference_fees"
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:21
+    // this.inferenceFees.value = { chargePercentage, providerBond }
+    swap
+    app_global_put
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:20
+    // setInferenceFees(chargePercentage: uint64, providerBond: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps[routing]() -> void:
+setApps:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:24
+    // setApps(subscriptions: uint64, wallet: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps
+    intc_2 // 1
+    return
+
+
+// smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps(subscriptions: uint64, wallet: uint64) -> void:
+smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps:
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:24
+    // setApps(subscriptions: uint64, wallet: uint64): void {
+    proto 2 0
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:26
+    // staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
+    intc_1 // 0
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:25-28
+    // this.akitaAppList.value = {
+    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
+    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet,
+    // }
+    itob
+    frame_dig -2
+    itob
+    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+    swap
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    dig 1
+    concat
+    swap
+    concat
+    frame_dig -1
+    itob
+    concat
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:11
+    // akitaAppList = GlobalState<AkitaAppList>({ key: AkitaDAOGlobalStateKeysAkitaAppList })
+    pushbytes "aal"
+    // smart_contracts/inference/tests/mock-inference-dao.algo.ts:25-28
+    // this.akitaAppList.value = {
+    //   staking: 0, rewards: 0, pool: 0, prizeBox: 0, subscriptions, gate: 0, auction: 0, hyperSwap: 0,
+    //   raffle: 0, metaMerkles: 0, marketplace: 0, wallet,
+    // }
+    swap
+    app_global_put
+    retsub

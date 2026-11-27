@@ -4,6 +4,7 @@ export * from './welcome'
 export * from './social-claim'
 export * from './meta'
 export * from './pay';
+export * from './inference';
 export * from './asa-manager';
 export * from './update-akita-dao';
 export * from './revenue-manager';

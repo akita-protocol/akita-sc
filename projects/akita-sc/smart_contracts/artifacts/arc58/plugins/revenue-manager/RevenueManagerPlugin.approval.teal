@@ -213,26 +213,26 @@ rekeyBackIfNecessary_after_if_else@3:
 
 // smart_contracts/utils/functions.ts::getEscrow(wallet: uint64) -> bytes:
 getEscrow:
-    // smart_contracts/utils/functions.ts:516
+    // smart_contracts/utils/functions.ts:523
     // export function getEscrow(wallet: Application): string {
     proto 1 1
-    // smart_contracts/utils/functions.ts:519-522
+    // smart_contracts/utils/functions.ts:526-529
     // const [currentPluginBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     // )
     frame_dig -1
-    // smart_contracts/utils/functions.ts:521
+    // smart_contracts/utils/functions.ts:528
     // Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     pushbytes "current_plugin"
-    // smart_contracts/utils/functions.ts:519-522
+    // smart_contracts/utils/functions.ts:526-529
     // const [currentPluginBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysCurrentPlugin)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:525
+    // smart_contracts/utils/functions.ts:532
     // return currentPlugin.escrow
     dup
     pushint 40
@@ -452,16 +452,16 @@ optIn_after_assert@11:
     cover 2
     extract 41 1
     swap
-    // smart_contracts/utils/functions.ts:543-546
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     // )
     dig 6
-    // smart_contracts/utils/functions.ts:545
+    // smart_contracts/utils/functions.ts:552
     // Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
     pushbytes "rekey_index"
-    // smart_contracts/utils/functions.ts:543-546
+    // smart_contracts/utils/functions.ts:550-553
     // const [rekeyIndexBytes] = op.AppGlobal.getExUint64(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysRekeyIndex)
@@ -2668,14 +2668,14 @@ processEscrowAllocation_after_if_else@33:
     b processEscrowAllocation_block@43
 
 processEscrowAllocation_ternary_false@37:
-    // smart_contracts/utils/functions.ts:270
+    // smart_contracts/utils/functions.ts:277
     // assert(p <= DIVISOR, errInvalidPercentage)
     uncover 5
     dup
     intc 4 // 100000
     <=
     assert // errIpct
-    // smart_contracts/utils/functions.ts:271
+    // smart_contracts/utils/functions.ts:278
     // return op.divw(...op.mulw(a, p), DIVISOR)
     dig 4
     mulw

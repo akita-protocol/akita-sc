@@ -374,6 +374,18 @@
       },
       "extraPages": 0
     },
+    "arc58/plugins/inference/InferencePlugin": {
+      "name": "InferencePlugin",
+      "approval": {
+        "bytes": 2672,
+        "sha256": "ee3bf834f96a2460637dc8a8a650dcc7ba2927f2b49f191fa42eb6b8417a7c15"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+      },
+      "extraPages": 1
+    },
     "arc58/plugins/marketplace/MarketplacePlugin": {
       "name": "MarketplacePlugin",
       "approval": {
@@ -954,6 +966,44 @@
         "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
       },
       "extraPages": 1
+    },
+    "inference/InferenceNetwork": {
+      "name": "InferenceNetwork",
+      "approval": {
+        "bytes": 6894,
+        "sha256": "9d68ed775b9a7c0e624a6e76c9080ab18a4592f02952ccb2b56316967a3bff94"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 3
+    },
+    "inference/tests/MockInferenceDAO": {
+      "name": "MockInferenceDAO",
+      "testOnly": true,
+      "approval": {
+        "bytes": 226,
+        "sha256": "065e6b0610bf8ff192410fd4b8f522ff2adfd7cc67be580974b8d6b4358fa98e"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
+    },
+    "inference/tests/MockInferenceSubscriptions": {
+      "name": "MockInferenceSubscriptions",
+      "testOnly": true,
+      "approval": {
+        "bytes": 557,
+        "sha256": "452e2d1e2cb23d075a606dcbeb14f65c72c0c4b13f59be738f82496ed8ae4233"
+      },
+      "clear": {
+        "bytes": 4,
+        "sha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7"
+      },
+      "extraPages": 0
     },
     "marketplace/Listing": {
       "name": "Listing",

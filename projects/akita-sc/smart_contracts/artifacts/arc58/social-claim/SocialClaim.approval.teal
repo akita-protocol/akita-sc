@@ -1700,7 +1700,7 @@ requireAkitaWallet:
     // smart_contracts/arc58/social-claim/contract.algo.ts:334
     // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
     bz requireAkitaWallet_bool_false@3
-    // smart_contracts/utils/functions.ts:382
+    // smart_contracts/utils/functions.ts:389
     // if (wallet === 0 || walletFactory === 0) {
     frame_dig -1
     bz requireAkitaWallet_if_body@9
@@ -1708,7 +1708,7 @@ requireAkitaWallet:
     bnz requireAkitaWallet_after_if_else@10
 
 requireAkitaWallet_if_body@9:
-    // smart_contracts/utils/functions.ts:383
+    // smart_contracts/utils/functions.ts:390
     // return false
     intc_0 // 0
 
@@ -1734,16 +1734,16 @@ requireAkitaWallet_bool_false@3:
     b requireAkitaWallet_bool_merge@4
 
 requireAkitaWallet_after_if_else@10:
-    // smart_contracts/utils/functions.ts:385
+    // smart_contracts/utils/functions.ts:392
     // const [creator, exists] = op.AppParams.appCreator(wallet)
     frame_dig -1
     app_params_get AppCreator
     swap
     frame_bury 0
-    // smart_contracts/utils/functions.ts:386
+    // smart_contracts/utils/functions.ts:393
     // return exists && creator === appAddress(walletFactory)
     bz requireAkitaWallet_bool_false@13
-    // smart_contracts/utils/functions.ts:377
+    // smart_contracts/utils/functions.ts:384
     // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
     frame_dig 1
     itob
@@ -1751,7 +1751,7 @@ requireAkitaWallet_after_if_else@10:
     swap
     concat
     sha512_256
-    // smart_contracts/utils/functions.ts:386
+    // smart_contracts/utils/functions.ts:393
     // return exists && creator === appAddress(walletFactory)
     frame_dig 0
     ==

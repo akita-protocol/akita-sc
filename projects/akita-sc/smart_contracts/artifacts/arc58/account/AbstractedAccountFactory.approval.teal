@@ -1429,10 +1429,10 @@ newAccount_while_top@44:
     intc_1 // 1
     -
     ==
-    // smart_contracts/utils/functions.ts:565
+    // smart_contracts/utils/functions.ts:572
     // if (!rekeyBack) {
     bnz newAccount_after_if_else@65
-    // smart_contracts/utils/functions.ts:566
+    // smart_contracts/utils/functions.ts:573
     // return Global.zeroAddress
     global ZeroAddress
 
@@ -1481,7 +1481,7 @@ newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@66:
     b newAccount_while_top@44
 
 newAccount_after_if_else@65:
-    // smart_contracts/utils/functions.ts:569
+    // smart_contracts/utils/functions.ts:576
     // return wallet.address
     dig 1
     app_params_get AppAddress
@@ -1894,13 +1894,13 @@ newAccount_after_if_else@70:
     // let cut: uint64 = calcPercent(creationFee, getWalletFees(this.akitaDAO.value).referrerPercentage)
     intc_3 // 8
     extract_uint64
-    // smart_contracts/utils/functions.ts:270
+    // smart_contracts/utils/functions.ts:277
     // assert(p <= DIVISOR, errInvalidPercentage)
     dup
     intc 4 // 100000
     <=
     assert // errIpct
-    // smart_contracts/utils/functions.ts:271
+    // smart_contracts/utils/functions.ts:278
     // return op.divw(...op.mulw(a, p), DIVISOR)
     dig 1
     mulw
@@ -1929,7 +1929,7 @@ newAccount_after_if_else@72:
     bury 1
     assert // check GlobalState exists
     dig 25
-    // smart_contracts/utils/functions.ts:736
+    // smart_contracts/utils/functions.ts:743
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocationsLength)
     pushint 79800
     // smart_contracts/arc58/account/factory.algo.ts:359
@@ -1968,7 +1968,7 @@ newAccount_after_if_else@75:
     swap
     cover 5
     assert // application exists
-    // smart_contracts/utils/functions.ts:1012
+    // smart_contracts/utils/functions.ts:1019
     // if (amount > 0 && referrer !== Global.zeroAddress) {
     dig 1
     bz newAccount_after_if_else@82
@@ -1982,17 +1982,17 @@ newAccount_after_if_else@75:
     bytec 7 // "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:1014
+    // smart_contracts/utils/functions.ts:1021
     // const { referrerPercentage } = getWalletFees(akitaDAO)
     intc_3 // 8
     extract_uint64
-    // smart_contracts/utils/functions.ts:270
+    // smart_contracts/utils/functions.ts:277
     // assert(p <= DIVISOR, errInvalidPercentage)
     dup
     intc 4 // 100000
     <=
     assert // errIpct
-    // smart_contracts/utils/functions.ts:271
+    // smart_contracts/utils/functions.ts:278
     // return op.divw(...op.mulw(a, p), DIVISOR)
     dig 2
     mulw
@@ -2000,26 +2000,26 @@ newAccount_after_if_else@75:
     divw
     dup
     bury 23
-    // smart_contracts/utils/functions.ts:1017
+    // smart_contracts/utils/functions.ts:1024
     // if (referralFee === 0 && amount > 0) {
     bnz newAccount_after_if_else@80
     dig 1
     bz newAccount_after_if_else@80
-    // smart_contracts/utils/functions.ts:1018
+    // smart_contracts/utils/functions.ts:1025
     // referralFee = 1
     intc_1 // 1
     bury 22
 
 newAccount_after_if_else@80:
-    // smart_contracts/utils/functions.ts:1024
+    // smart_contracts/utils/functions.ts:1031
     // Global.latestTimestamp,
     global LatestTimestamp
-    // smart_contracts/utils/functions.ts:1025
+    // smart_contracts/utils/functions.ts:1032
     // (Global.latestTimestamp + THIRTY_DAYS),
     dup
     pushint 2592000
     +
-    // smart_contracts/utils/functions.ts:1026
+    // smart_contracts/utils/functions.ts:1033
     // [{ address: referrer, amount: referralFee }],
     dig 23
     dup
@@ -2036,11 +2036,11 @@ newAccount_after_if_else@80:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:773
+    // smart_contracts/utils/functions.ts:780
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
     intc_3 // 8
     extract_uint64
-    // smart_contracts/utils/functions.ts:776
+    // smart_contracts/utils/functions.ts:783
     // const mbr: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
     dig 1
     intc_0 // 0
@@ -2049,7 +2049,7 @@ newAccount_after_if_else@80:
     *
     pushint 54500
     +
-    // smart_contracts/utils/functions.ts:779-791
+    // smart_contracts/utils/functions.ts:786-798
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -2064,19 +2064,19 @@ newAccount_after_if_else@80:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:783
+    // smart_contracts/utils/functions.ts:790
     // receiver: Application(rewardsApp).address,
     dig 1
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:784
+    // smart_contracts/utils/functions.ts:791
     // amount: mbr + sum
     dig 1
     dig 5
     +
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/utils/functions.ts:782-785
+    // smart_contracts/utils/functions.ts:789-792
     // itxn.payment({
     //   receiver: Application(rewardsApp).address,
     //   amount: mbr + sum
@@ -2085,7 +2085,7 @@ newAccount_after_if_else@80:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:779-791
+    // smart_contracts/utils/functions.ts:786-798
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -2100,17 +2100,17 @@ newAccount_after_if_else@80:
     //   ]
     // }).returnValue
     itxn_next
-    // smart_contracts/utils/functions.ts:786
+    // smart_contracts/utils/functions.ts:793
     // timeToUnlock,
     uncover 5
     itob
-    // smart_contracts/utils/functions.ts:787
+    // smart_contracts/utils/functions.ts:794
     // expiration,
     uncover 5
     itob
     uncover 3
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:779-791
+    // smart_contracts/utils/functions.ts:786-798
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -2152,13 +2152,13 @@ newAccount_after_if_else@80:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/utils/functions.ts:833
+    // smart_contracts/utils/functions.ts:840
     // return { id, cost }
     itob
     swap
     itob
     concat
-    // smart_contracts/utils/functions.ts:1021-1030
+    // smart_contracts/utils/functions.ts:1028-1037
     // const { cost: referralMbr } = createInstantDisbursement(
     //   akitaDAO,
     //   asset,
@@ -2170,7 +2170,7 @@ newAccount_after_if_else@80:
     //   reclaimTo
     // )
     extract 8 8
-    // smart_contracts/utils/functions.ts:1032
+    // smart_contracts/utils/functions.ts:1039
     // return { leftover: (amount - referralFee), referralMbr }
     cover 2
     -
@@ -2199,7 +2199,7 @@ newAccount_after_if_else@82:
     pop
     uncover 3
     pop
-    // smart_contracts/utils/functions.ts:1035
+    // smart_contracts/utils/functions.ts:1042
     // return { leftover: amount, referralMbr: 0 }
     itob
     intc_0 // 0
@@ -2948,7 +2948,7 @@ optIn:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:909
+    // smart_contracts/utils/functions.ts:916
     // return escrow.isOptedIn(asset) ? 0 : 1
     swap
     asset_holding_get AssetBalance
@@ -3241,7 +3241,7 @@ optIn_after_assert@14:
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:909
+    // smart_contracts/utils/functions.ts:916
     // return escrow.isOptedIn(asset) ? 0 : 1
     dig 5
     dup
@@ -3404,7 +3404,7 @@ optInCost:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:909
+    // smart_contracts/utils/functions.ts:916
     // return escrow.isOptedIn(asset) ? 0 : 1
     swap
     asset_holding_get AssetBalance

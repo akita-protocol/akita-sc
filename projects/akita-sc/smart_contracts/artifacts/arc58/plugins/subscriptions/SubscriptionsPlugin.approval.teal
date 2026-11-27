@@ -2608,7 +2608,7 @@ subscribe_after_for@4:
     bytec_1 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:973
+    // smart_contracts/utils/functions.ts:980
     // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
     pushint 88
     extract_uint64

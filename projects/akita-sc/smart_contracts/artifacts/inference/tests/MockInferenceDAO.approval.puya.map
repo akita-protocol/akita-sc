@@ -1,0 +1,939 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../inference/tests/mock-inference-dao.algo.ts"
+  ],
+  "mappings": ";;;;;;AAQA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAKG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAE0B;AAAe;AAAf;AAAA;AANb;;;;;;;;;;;;;;AAMZ;AAAA;AACa;AAAG;AAAhB;;;AAHD;AAAA;AAMD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAC6B;AAAA;AAAA;AAAA;AAAA;AATb;;;;;;;;;;;;;;;;AASd;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;AAEa;AADe;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAdb;;;;;AAcb;AAAA;",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 8 0 1"
+    },
+    "6": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "8": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "9": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "10": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "12": {
+      "op": "bz main_create_NoOp@6",
+      "stack_out": []
+    },
+    "15": {
+      "op": "pushbytess 0x4ed09b8f 0xc4afc117 // method \"setInferenceFees(uint64,uint64)void\", method \"setApps(uint64,uint64)void\"",
+      "defined_out": [
+        "Method(setApps(uint64,uint64)void)",
+        "Method(setInferenceFees(uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(setInferenceFees(uint64,uint64)void)",
+        "Method(setApps(uint64,uint64)void)"
+      ]
+    },
+    "27": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(setApps(uint64,uint64)void)",
+        "Method(setInferenceFees(uint64,uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(setInferenceFees(uint64,uint64)void)",
+        "Method(setApps(uint64,uint64)void)",
+        "tmp%4#0"
+      ]
+    },
+    "30": {
+      "op": "match setInferenceFees setApps",
+      "stack_out": []
+    },
+    "36": {
+      "op": "err"
+    },
+    "37": {
+      "block": "main_create_NoOp@6",
+      "stack_in": [],
+      "op": "pushbytes 0x240d2f67 // method \"create(uint64)void\"",
+      "defined_out": [
+        "Method(create(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)"
+      ]
+    },
+    "43": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(uint64)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)",
+        "tmp%5#0"
+      ]
+    },
+    "46": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "50": {
+      "op": "err"
+    },
+    "51": {
+      "subroutine": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "54": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "55": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "56": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "57": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "58": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "59": {
+      "op": "btoi",
+      "defined_out": [
+        "akta#0"
+      ],
+      "stack_out": [
+        "akta#0"
+      ]
+    },
+    "60": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "61": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0"
+      ]
+    },
+    "62": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%1#0"
+      ]
+    },
+    "63": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%1#0"
+      ],
+      "stack_out": [
+        "aggregate%head%1#0"
+      ]
+    },
+    "64": {
+      "op": "pushbytes \"akita_assets\"",
+      "defined_out": [
+        "\"akita_assets\"",
+        "aggregate%head%1#0"
+      ],
+      "stack_out": [
+        "aggregate%head%1#0",
+        "\"akita_assets\""
+      ]
+    },
+    "78": {
+      "op": "swap",
+      "stack_out": [
+        "\"akita_assets\"",
+        "aggregate%head%1#0"
+      ]
+    },
+    "79": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "80": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "81": {
+      "op": "dup",
+      "stack_out": [
+        "0",
+        "0"
+      ]
+    },
+    "82": {
+      "callsub": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "op": "callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "stack_out": []
+    },
+    "85": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "86": {
+      "op": "return",
+      "stack_out": []
+    },
+    "87": {
+      "subroutine": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setInferenceFees[routing]",
+      "params": {},
+      "block": "setInferenceFees",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "90": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "91": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "92": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "93": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "94": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "95": {
+      "op": "btoi",
+      "defined_out": [
+        "chargePercentage#0"
+      ],
+      "stack_out": [
+        "chargePercentage#0"
+      ]
+    },
+    "96": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "chargePercentage#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0"
+      ]
+    },
+    "99": {
+      "op": "dup",
+      "defined_out": [
+        "chargePercentage#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "100": {
+      "op": "len",
+      "defined_out": [
+        "chargePercentage#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "101": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "102": {
+      "op": "==",
+      "defined_out": [
+        "chargePercentage#0",
+        "eq%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "103": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "chargePercentage#0",
+        "tmp%2#0"
+      ]
+    },
+    "104": {
+      "op": "btoi",
+      "defined_out": [
+        "chargePercentage#0",
+        "providerBond#0"
+      ],
+      "stack_out": [
+        "chargePercentage#0",
+        "providerBond#0"
+      ]
+    },
+    "105": {
+      "op": "swap",
+      "stack_out": [
+        "providerBond#0",
+        "chargePercentage#0"
+      ]
+    },
+    "106": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "providerBond#0"
+      ],
+      "stack_out": [
+        "providerBond#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "107": {
+      "op": "swap",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "providerBond#0"
+      ]
+    },
+    "108": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%1#0"
+      ]
+    },
+    "109": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%1#0"
+      ],
+      "stack_out": [
+        "aggregate%head%1#0"
+      ]
+    },
+    "110": {
+      "op": "pushbytes \"inference_fees\"",
+      "defined_out": [
+        "\"inference_fees\"",
+        "aggregate%head%1#0"
+      ],
+      "stack_out": [
+        "aggregate%head%1#0",
+        "\"inference_fees\""
+      ]
+    },
+    "126": {
+      "op": "swap",
+      "stack_out": [
+        "\"inference_fees\"",
+        "aggregate%head%1#0"
+      ]
+    },
+    "127": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "128": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "129": {
+      "op": "return",
+      "stack_out": []
+    },
+    "130": {
+      "subroutine": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps[routing]",
+      "params": {},
+      "block": "setApps",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "133": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "134": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "135": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "136": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "137": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "138": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "139": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "142": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "143": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "144": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "145": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "146": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "147": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%3#0"
+      ]
+    },
+    "148": {
+      "callsub": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "op": "callsub smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "stack_out": []
+    },
+    "151": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "152": {
+      "op": "return",
+      "stack_out": []
+    },
+    "153": {
+      "subroutine": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "params": {
+        "subscriptions#0": "uint64",
+        "wallet#0": "uint64"
+      },
+      "block": "smart_contracts/inference/tests/mock-inference-dao.algo.ts::MockInferenceDAO.setApps",
+      "stack_in": [],
+      "op": "proto 2 0"
+    },
+    "156": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "157": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "158": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "subscriptions#0 (copy)"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "subscriptions#0 (copy)"
+      ]
+    },
+    "160": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%4#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%4#0"
+      ]
+    },
+    "161": {
+      "op": "pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%4#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%4#0",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "195": {
+      "op": "swap",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "aggregate%val_as_bytes%4#0"
+      ]
+    },
+    "196": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%4#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%4#0"
+      ]
+    },
+    "197": {
+      "op": "dig 1",
+      "defined_out": [
+        "aggregate%head%4#0",
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%4#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "199": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%5#0"
+      ]
+    },
+    "200": {
+      "op": "dig 1",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "202": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%6#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%6#0"
+      ]
+    },
+    "203": {
+      "op": "dig 1",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%6#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "205": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%7#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%7#0"
+      ]
+    },
+    "206": {
+      "op": "dig 1",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%7#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "208": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%8#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%8#0"
+      ]
+    },
+    "209": {
+      "op": "dig 1",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%8#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "211": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%9#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%head%9#0"
+      ]
+    },
+    "212": {
+      "op": "swap",
+      "stack_out": [
+        "aggregate%head%9#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "213": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%10#0"
+      ],
+      "stack_out": [
+        "aggregate%head%10#0"
+      ]
+    },
+    "214": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "aggregate%head%10#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "aggregate%head%10#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "216": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%head%10#0",
+        "aggregate%val_as_bytes%11#0"
+      ],
+      "stack_out": [
+        "aggregate%head%10#0",
+        "aggregate%val_as_bytes%11#0"
+      ]
+    },
+    "217": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%11#0"
+      ],
+      "stack_out": [
+        "aggregate%head%11#0"
+      ]
+    },
+    "218": {
+      "op": "pushbytes \"aal\"",
+      "defined_out": [
+        "\"aal\"",
+        "aggregate%head%11#0"
+      ],
+      "stack_out": [
+        "aggregate%head%11#0",
+        "\"aal\""
+      ]
+    },
+    "223": {
+      "op": "swap",
+      "stack_out": [
+        "\"aal\"",
+        "aggregate%head%11#0"
+      ]
+    },
+    "224": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "225": {
+      "retsub": true,
+      "op": "retsub"
+    }
+  }
+}

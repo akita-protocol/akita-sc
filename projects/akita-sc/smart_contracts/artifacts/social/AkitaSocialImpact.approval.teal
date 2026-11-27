@@ -585,7 +585,7 @@ commitStakingImpact:
     // const staking = Application(getAkitaAppList(this.akitaDAO.value).staking)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:260
+    // smart_contracts/utils/functions.ts:267
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     swap
     bytec_3 // "akita_assets"
@@ -740,7 +740,7 @@ checkpointStakingImpact:
     // const staking = getAkitaAppList(this.akitaDAO.value).staking
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:260
+    // smart_contracts/utils/functions.ts:267
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     swap
     bytec_3 // "akita_assets"
@@ -830,7 +830,7 @@ stakingImpactCost:
     // const staking = getAkitaAppList(this.akitaDAO.value).staking
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:260
+    // smart_contracts/utils/functions.ts:267
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     swap
     bytec_3 // "akita_assets"
@@ -1810,7 +1810,7 @@ userImpactWithSocial_after_if_else@2:
     // const akta = getAkitaAssets(this.akitaDAO.value).akta
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:260
+    // smart_contracts/utils/functions.ts:267
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     bytec_3 // "akita_assets"
     app_global_get_ex
@@ -1944,7 +1944,7 @@ userImpactWithSocial_ternary_merge@5:
     // const akta = getAkitaAssets(this.akitaDAO.value).akta
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:260
+    // smart_contracts/utils/functions.ts:267
     // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
     bytec_3 // "akita_assets"
     app_global_get_ex

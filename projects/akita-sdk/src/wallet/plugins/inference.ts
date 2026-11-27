@@ -1,0 +1,300 @@
+type ReadableAddress = string | import('algosdk').Address;
+import { sha256 } from "@noble/hashes/sha2.js";
+import { ABIType, decodeAddress, encodeUint64 } from "algosdk";
+import { BaseSDK } from "../../base";
+import { InferencePluginClient, InferencePluginFactory } from "../../generated/InferencePluginClient";
+import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn, PluginTxn } from "../../types";
+import { getTxns } from "../utils";
+export { INFERENCE_ERROR_MESSAGES, translateInferenceError } from "../../inference/errors";
+
+/** InferenceNetwork box key prefixes, for naming references explicitly. */
+const boxKey = (prefix: string, id: bigint | number) => {
+  const key = new Uint8Array(9);
+  key[0] = prefix.charCodeAt(0);
+  key.set(encodeUint64(BigInt(id)), 1);
+  return key;
+};
+
+const addressBytes = (address: ReadableAddress) =>
+  typeof address === "string" ? decodeAddress(address).publicKey : address.publicKey;
+
+/**
+ * An InferenceNetwork ticket's id: sha256 of the principal's address (the wallet's controlled address)
+ * and the caller's 32-byte request id. The caller knows it before the ticket lands.
+ */
+export function inferenceTicketId(principal: ReadableAddress, request: Uint8Array): Uint8Array {
+  if (request.length !== 32) throw new Error("An inference request id is 32 bytes");
+  const data = new Uint8Array(64);
+  data.set(addressBytes(principal), 0);
+  data.set(request, 32);
+  return sha256(data);
+}
+
+const ticketBoxKey = (ticket: Uint8Array) => {
+  if (ticket.length !== 32) throw new Error("An inference ticket id is 32 bytes");
+  const key = new Uint8Array(33);
+  key[0] = "t".charCodeAt(0);
+  key.set(ticket, 1);
+  return key;
+};
+
+/** The box key of a subscription's use of an InferenceNetwork sponsor pool. */
+export function inferenceUsageKey(pool: bigint | number, subscriber: ReadableAddress, subscription: bigint | number) {
+  const key = new Uint8Array(49);
+  key[0] = "u".charCodeAt(0);
+  key.set(encodeUint64(BigInt(pool)), 1);
+  key.set(addressBytes(subscriber), 9);
+  key.set(encodeUint64(BigInt(subscription)), 41);
+  return key;
+}
+
+/**
+ * The references `InferenceNetwork.settle` (and `refundExpired`) need, for providers that build the call
+ * themselves, with automatic resource population off. Pass the ticket's fields: `payer`, `principal`,
+ * and for a pool ticket `pool` and `subscription` (`payer` is then the subscription's address).
+ *
+ * A plain ticket names the payout, the payer and the principal (the refund falls back to the principal
+ * when the payer can no longer receive) and the asset: 7 references with its three boxes. A pool
+ * ticket's deposit goes back to the principal and its lock to the pool, so it names the payout and the
+ * principal, the asset and five boxes: 8, the most one call holds.
+ */
+export function inferenceSettleReferences(args: {
+  ticket: Uint8Array;
+  provider: bigint | number;
+  asset: bigint | number;
+  payer: ReadableAddress;
+  principal: ReadableAddress;
+  payout: ReadableAddress;
+  pool?: bigint | number;
+  subscription?: bigint | number;
+}) {
+  const pooled = args.pool !== undefined && BigInt(args.pool) !== 0n;
+  const boxes = [ticketBoxKey(args.ticket), boxKey("p", args.provider), boxKey("x", args.asset)];
+  if (pooled) boxes.push(boxKey("o", args.pool!), inferenceUsageKey(args.pool!, args.payer, args.subscription ?? 0n));
+  const accounts = pooled ? [args.payout, args.principal] : [args.payout, args.payer, args.principal];
+  return {
+    accountReferences: accounts.filter((a, i) => accounts.findIndex((b) => b.toString() === a.toString()) === i),
+    assetReferences: BigInt(args.asset) === 0n ? [] : [BigInt(args.asset)],
+    boxReferences: boxes,
+  };
+}
+
+/**
+ * Policy of a delegated InferencePlugin grant: the network it may use, the only providers it may open
+ * tickets to, the only assets it may lock (0 is ALGO), and the most one ticket may lock.
+ */
+export type InferencePolicy = { network: bigint; providers: bigint[]; assets: bigint[]; maxPrice: bigint };
+
+const inferencePolicyType = ABIType.from("(uint64,uint64[],uint64[],uint64)");
+const sortedUnique = (values: (bigint | number)[]) =>
+  [...new Set(values.map((v) => BigInt(v)))].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+
+/**
+ * Encode an InferencePlugin policy body for `MetaPluginSDK.configurePolicy`. Sorts the lists and drops
+ * repeats, which the plugin's `validatePolicy` requires; each list must hold 1 to 8 entries.
+ */
+export function encodeInferencePolicy(policy: {
+  network: bigint | number;
+  providers: (bigint | number)[];
+  assets: (bigint | number)[];
+  maxPrice: bigint | number;
+}): Uint8Array {
+  const providers = sortedUnique(policy.providers);
+  const assets = sortedUnique(policy.assets);
+  if (providers.length < 1 || providers.length > 8) throw new Error("An inference policy lists 1 to 8 providers");
+  if (assets.length < 1 || assets.length > 8) throw new Error("An inference policy lists 1 to 8 assets");
+  if (BigInt(policy.maxPrice) <= 0n) throw new Error("An inference policy needs a cap above zero");
+  return inferencePolicyType.encode([BigInt(policy.network), providers, assets, BigInt(policy.maxPrice)]);
+}
+
+export function decodeInferencePolicy(body: Uint8Array): InferencePolicy {
+  const [network, providers, assets, maxPrice] = inferencePolicyType.decode(body) as [bigint, bigint[], bigint[], bigint];
+  return {
+    network: BigInt(network),
+    providers: providers.map((p) => BigInt(p)),
+    assets: assets.map((a) => BigInt(a)),
+    maxPrice: BigInt(maxPrice),
+  };
+}
+
+type Common = MaybeSigner & { rekeyBack?: boolean; network: bigint | number };
+
+type OpenArgs = MaybeSigner & {
+  rekeyBack?: boolean;
+  network: bigint | number;
+  provider: bigint | number;
+  asset: bigint | number;
+  /** The most this request may cost; locked until the provider settles. */
+  maxPrice: bigint | number;
+  /** The caller's 32-byte id for the request, which it also sends to the provider. */
+  request: Uint8Array;
+};
+
+type OpenPooledArgs = MaybeSigner & {
+  rekeyBack?: boolean;
+  network: bigint | number;
+  /** The sponsor pool that pays. */
+  pool: bigint | number;
+  provider: bigint | number;
+  /** The most this request may cost; locked from the pool until the provider settles. */
+  maxPrice: bigint | number;
+  /** The caller's 32-byte id for the request, which it also sends to the provider. */
+  request: Uint8Array;
+  /** The wallet's paid-up subscription to the pool's service. */
+  subscription: { address: ReadableAddress; id: bigint | number };
+};
+
+/** InferenceNetwork settings, as `setSettings` takes them. */
+export type InferenceSettings = { unbondDelay: bigint | number; settleWindow: bigint | number; openRegistration: boolean };
+
+/** InferenceNetwork provider status. A Frozen provider can neither take nor settle tickets. */
+export const InferenceProviderStatus = { Pending: 0n, Active: 1n, Paused: 2n, Unbonding: 3n, Exited: 4n, Frozen: 5n } as const;
+
+type AdminArgs = {
+  setSettings: { settings: InferenceSettings };
+  /** `newBox` on the first call for an asset: the spending account then pays the asset's box. */
+  setPaymentAsset: { asset: bigint | number; allowed: boolean; newBox: boolean };
+  setProviderStatus: { provider: bigint | number; status: bigint | number };
+  slash: { provider: bigint | number; amount: bigint | number; receiver: ReadableAddress };
+  /** The zero address hands the network to the DAO's wallet alone. */
+  setAdmin: { admin: ReadableAddress };
+};
+
+/** Builds InferencePlugin calls for `WalletSDK.usePlugin`. */
+export class InferencePluginSDK extends BaseSDK<InferencePluginClient> {
+
+  constructor(params: NewContractSDKParams) {
+    super({ factory: InferencePluginFactory, ...params });
+  }
+
+  private selector(name: string) {
+    return [this.client.appClient.getABIMethod(name).getSelector()];
+  }
+
+  /** Opens a ticket from the wallet's spending account for one request; the call returns the ticket id. */
+  open(): PluginSDKReturn;
+  open(args: OpenArgs): PluginSDKReturn;
+  open(args?: OpenArgs): PluginSDKReturn {
+    if (args === undefined) {
+      return (_?: ReadableAddress) => ({ appId: this.client.appId, selectors: this.selector("open"), getTxns });
+    }
+    const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
+    return (_?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: this.selector("open"),
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const params = await this.client.params.open({
+          ...sendParams,
+          args: {
+            wallet,
+            rekeyBack: args.rekeyBack ?? true,
+            network: BigInt(args.network),
+            provider: BigInt(args.provider),
+            asset: BigInt(args.asset),
+            maxPrice: BigInt(args.maxPrice),
+            request: args.request,
+          },
+        });
+        return [{ type: "methodCall", ...params }];
+      },
+    });
+  }
+
+  /**
+   * Opens a ticket paid from a sponsor pool, against the wallet's subscription to the pool's service;
+   * nothing leaves the wallet. The call returns the ticket id. The network call reads the subscription
+   * with two inner calls, so give the wallet call `extraFee` for them.
+   */
+  openPooled(): PluginSDKReturn;
+  openPooled(args: OpenPooledArgs): PluginSDKReturn;
+  openPooled(args?: OpenPooledArgs): PluginSDKReturn {
+    if (args === undefined) {
+      return (_?: ReadableAddress) => ({ appId: this.client.appId, selectors: this.selector("openPooled"), getTxns });
+    }
+    const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
+    return (_?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: this.selector("openPooled"),
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const params = await this.client.params.openPooled({
+          ...sendParams,
+          args: {
+            wallet,
+            rekeyBack: args.rekeyBack ?? true,
+            network: BigInt(args.network),
+            pool: BigInt(args.pool),
+            provider: BigInt(args.provider),
+            maxPrice: BigInt(args.maxPrice),
+            request: args.request,
+            subscription: { address: args.subscription.address.toString(), id: BigInt(args.subscription.id) },
+          },
+        });
+        return [{ type: "methodCall", ...params }];
+      },
+    });
+  }
+
+  // DAO administration. The network accepts these only from the DAO's wallet (or its bootstrap
+  // admin): the DAO holds an execution-key grant of this plugin and runs each one by ExecutePlugin.
+
+  /** InferenceNetwork.setSettings through the wallet. */
+  setSettings(): PluginSDKReturn;
+  setSettings(args: Common & AdminArgs["setSettings"]): PluginSDKReturn;
+  setSettings(args?: Common & AdminArgs["setSettings"]): PluginSDKReturn {
+    return this.adminCall("setSettings", args, (a) => ({
+      settings: { unbondDelay: BigInt(a.settings.unbondDelay), settleWindow: BigInt(a.settings.settleWindow), openRegistration: a.settings.openRegistration },
+    }));
+  }
+
+  /** InferenceNetwork.setPaymentAsset through the wallet. */
+  setPaymentAsset(): PluginSDKReturn;
+  setPaymentAsset(args: Common & AdminArgs["setPaymentAsset"]): PluginSDKReturn;
+  setPaymentAsset(args?: Common & AdminArgs["setPaymentAsset"]): PluginSDKReturn {
+    return this.adminCall("setPaymentAsset", args, (a) => ({ asset: BigInt(a.asset), allowed: a.allowed, newBox: a.newBox }));
+  }
+
+  /** InferenceNetwork.setProviderStatus through the wallet; see `InferenceProviderStatus`. */
+  setProviderStatus(): PluginSDKReturn;
+  setProviderStatus(args: Common & AdminArgs["setProviderStatus"]): PluginSDKReturn;
+  setProviderStatus(args?: Common & AdminArgs["setProviderStatus"]): PluginSDKReturn {
+    return this.adminCall("setProviderStatus", args, (a) => ({ provider: BigInt(a.provider), status: BigInt(a.status) }));
+  }
+
+  /** InferenceNetwork.slash through the wallet: sends up to the provider's whole bond to `receiver`. */
+  slash(): PluginSDKReturn;
+  slash(args: Common & AdminArgs["slash"]): PluginSDKReturn;
+  slash(args?: Common & AdminArgs["slash"]): PluginSDKReturn {
+    return this.adminCall("slash", args, (a) => ({ provider: BigInt(a.provider), amount: BigInt(a.amount), receiver: a.receiver.toString() }));
+  }
+
+  /** InferenceNetwork.setAdmin through the wallet. */
+  setAdmin(): PluginSDKReturn;
+  setAdmin(args: Common & AdminArgs["setAdmin"]): PluginSDKReturn;
+  setAdmin(args?: Common & AdminArgs["setAdmin"]): PluginSDKReturn {
+    return this.adminCall("setAdmin", args, (a) => ({ admin: a.admin.toString() }));
+  }
+
+  /** One admin pass-through. */
+  private adminCall<K extends keyof AdminArgs>(
+    name: K,
+    args: (Common & AdminArgs[K]) | undefined,
+    toArgs: (args: Common & AdminArgs[K]) => Record<string, unknown>,
+  ): PluginSDKReturn {
+    if (args === undefined) {
+      return (_?: ReadableAddress) => ({ appId: this.client.appId, selectors: this.selector(name), getTxns });
+    }
+    const sendParams = this.getRequiredSendParams({ sender: args.sender, signer: args.signer });
+    return (_?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: this.selector(name),
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const build = this.client.params[name] as unknown as (params: unknown) => Promise<Record<string, unknown>>;
+        const params = await build({
+          ...sendParams,
+          args: { wallet, rekeyBack: args.rekeyBack ?? true, network: BigInt(args.network), ...toArgs(args) },
+        });
+        return [{ type: "methodCall", ...params } as unknown as PluginTxn];
+      },
+    });
+  }
+}

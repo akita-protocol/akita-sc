@@ -487,7 +487,7 @@ ownsAtRest_after_if_else@4:
 
 // smart_contracts/utils/functions.ts::principalOf(akitaDAO: uint64, hint: uint64) -> bytes:
 principalOf:
-    // smart_contracts/utils/functions.ts:937
+    // smart_contracts/utils/functions.ts:944
     // export function principalOf(akitaDAO: Application, hint: uint64): Principal {
     proto 2 1
     // smart_contracts/utils/functions.ts:206
@@ -496,7 +496,7 @@ principalOf:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:938
+    // smart_contracts/utils/functions.ts:945
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -535,7 +535,7 @@ principalOf:
     //   true
     // )
     callsub resolvePrincipalCtx
-    // smart_contracts/utils/functions.ts:938
+    // smart_contracts/utils/functions.ts:945
     // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     retsub
 
@@ -623,7 +623,7 @@ tryProbe:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:943
+    // smart_contracts/utils/functions.ts:950
     // return tryResolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -771,7 +771,7 @@ quote:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:948
+    // smart_contracts/utils/functions.ts:955
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     pushint 88
     extract_uint64
@@ -807,7 +807,7 @@ quote_after_if_else@3:
     intc_3 // 32
     ==
     bz quote_ternary_false@6
-    // smart_contracts/utils/functions.ts:948
+    // smart_contracts/utils/functions.ts:955
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     b quote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
 
@@ -816,7 +816,7 @@ quote_ternary_false@6:
     // smart_contracts/utils/principal.ts:244
     // return referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
     global ZeroAddress
-    // smart_contracts/utils/functions.ts:948
+    // smart_contracts/utils/functions.ts:955
     // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
     b quote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
 
@@ -853,7 +853,7 @@ owns:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:953
+    // smart_contracts/utils/functions.ts:960
     // return ownsAtRest(getAkitaAppList(akitaDAO).wallet, wallet, account)
     pushint 88
     extract_uint64
@@ -914,7 +914,7 @@ atRest:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:965
     // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
     pushint 88
     extract_uint64
@@ -943,7 +943,7 @@ atRest_after_if_else@3:
     callsub ownsAtRest
     bnz atRest_after_if_else@5
     popn 2
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:965
     // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
     b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
 
@@ -968,7 +968,7 @@ atRest_after_if_else@5:
     global ZeroAddress
     ==
     select
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:965
     // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
     b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
 
@@ -984,7 +984,7 @@ atRest_after_if_else@7:
     uncover 2
     ==
     select
-    // smart_contracts/utils/functions.ts:958
+    // smart_contracts/utils/functions.ts:965
     // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
     b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
 
@@ -1023,7 +1023,7 @@ thirdParty:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:963
+    // smart_contracts/utils/functions.ts:970
     // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
     pushint 88
     extract_uint64
@@ -1062,7 +1062,7 @@ thirdParty_after_if_else@3:
 
 thirdParty_if_body@5:
     popn 2
-    // smart_contracts/utils/functions.ts:963
+    // smart_contracts/utils/functions.ts:970
     // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
     b thirdParty_after_inlined_smart_contracts/utils/principal.ts::thirdPartyPrincipal@7
 
@@ -1078,7 +1078,7 @@ thirdParty_after_if_else@6:
     swap
     cover 2
     select
-    // smart_contracts/utils/functions.ts:963
+    // smart_contracts/utils/functions.ts:970
     // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
     b thirdParty_after_inlined_smart_contracts/utils/principal.ts::thirdPartyPrincipal@7
 
@@ -1117,7 +1117,7 @@ ctxOwns:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     pushint 88
     extract_uint64
@@ -1168,13 +1168,13 @@ ctxOwns_after_if_else@4:
     callsub ownsAtRest
     bz ctxOwns_bool_false@7
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b ctxOwns_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@9
 
 ctxOwns_bool_false@7:
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:968
+    // smart_contracts/utils/functions.ts:975
     // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
     b ctxOwns_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@9
 
@@ -1212,7 +1212,7 @@ tipWalletOf:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:1046
+    // smart_contracts/utils/functions.ts:1053
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     pushint 88
     extract_uint64
@@ -1263,7 +1263,7 @@ tipWalletOf_if_body@6:
     // smart_contracts/utils/principal.ts:376
     // return 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:1046
+    // smart_contracts/utils/functions.ts:1053
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     b tipWalletOf_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@8
 
@@ -1278,7 +1278,7 @@ tipWalletOf_after_if_else@7:
     intc_0 // 0
     cover 2
     select
-    // smart_contracts/utils/functions.ts:1046
+    // smart_contracts/utils/functions.ts:1053
     // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
     b tipWalletOf_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@8
 
@@ -1320,7 +1320,7 @@ gateCheckCtxOf:
     // return gateCheckCtx(gateTxn, this.akitaDAO.value, ctx, id)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:983
+    // smart_contracts/utils/functions.ts:990
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     swap
     gtxns ApplicationID
@@ -1330,67 +1330,67 @@ gateCheckCtxOf:
     bytec_2 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:983
+    // smart_contracts/utils/functions.ts:990
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:983-984
+    // smart_contracts/utils/functions.ts:990-991
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz gateCheckCtxOf_bool_false@8
-    // smart_contracts/utils/functions.ts:984
+    // smart_contracts/utils/functions.ts:991
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 2
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:983-984
+    // smart_contracts/utils/functions.ts:990-991
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz gateCheckCtxOf_bool_false@8
-    // smart_contracts/utils/functions.ts:985
+    // smart_contracts/utils/functions.ts:992
     // gateTxn.numAppArgs === 4 &&
     dig 2
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:983-985
+    // smart_contracts/utils/functions.ts:990-992
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz gateCheckCtxOf_bool_false@8
-    // smart_contracts/utils/functions.ts:986
+    // smart_contracts/utils/functions.ts:993
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     dig 2
     gtxnsa ApplicationArgs 0
     pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:983-986
+    // smart_contracts/utils/functions.ts:990-993
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     bz gateCheckCtxOf_bool_false@8
-    // smart_contracts/utils/functions.ts:987
+    // smart_contracts/utils/functions.ts:994
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     dig 2
     gtxnsa ApplicationArgs 1
     dig 2
     ==
-    // smart_contracts/utils/functions.ts:983-987
+    // smart_contracts/utils/functions.ts:990-994
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
     // gateTxn.appArgs(1) === encodeArc4(ctx) &&
     bz gateCheckCtxOf_bool_false@8
-    // smart_contracts/utils/functions.ts:988
+    // smart_contracts/utils/functions.ts:995
     // gateTxn.appArgs(2) === itob(id)
     dig 2
     gtxnsa ApplicationArgs 2
     dig 1
     itob
     ==
-    // smart_contracts/utils/functions.ts:983-988
+    // smart_contracts/utils/functions.ts:990-995
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&

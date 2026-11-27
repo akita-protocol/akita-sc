@@ -3772,14 +3772,14 @@ finalizeProposal_after_assert@5:
     swap
 
 finalizeProposal_after_if_else@10:
-    // smart_contracts/utils/functions.ts:270
+    // smart_contracts/utils/functions.ts:277
     // assert(p <= DIVISOR, errInvalidPercentage)
     uncover 4
     dup
     intc 4 // 100000
     <=
     assert // errIpct
-    // smart_contracts/utils/functions.ts:271
+    // smart_contracts/utils/functions.ts:278
     // return op.divw(...op.mulw(a, p), DIVISOR)
     uncover 2
     mulw
@@ -9092,13 +9092,13 @@ approvalMet_after_if_else@4:
     frame_dig -3
     frame_dig -2
     +
-    // smart_contracts/utils/functions.ts:275
+    // smart_contracts/utils/functions.ts:282
     // assert(a < b, errInvalidPercentageOfArgs)
     frame_dig -3
     dig 1
     <
     assert // errIpoa
-    // smart_contracts/utils/functions.ts:276
+    // smart_contracts/utils/functions.ts:283
     // return op.divw(...op.mulw(a, DIVISOR), b)
     frame_dig -3
     intc 4 // 100000

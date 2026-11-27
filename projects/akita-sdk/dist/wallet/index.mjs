@@ -12,6 +12,9 @@ import {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  INFERENCE_ERROR_MESSAGES,
+  InferencePluginSDK,
+  InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
@@ -61,12 +64,14 @@ import {
   createGuild,
   createGuildInOneCall,
   decodeGrantPolicy,
+  decodeInferencePolicy,
   decodeMetadataScope,
   decodePayPolicy,
   defaultEscrowGrantMbr,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,
   deleteEscrowExtraFee,
+  encodeInferencePolicy,
   encodePayPolicy,
   escrowCountMbr,
   estimateRoundAfter,
@@ -77,6 +82,9 @@ import {
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
+  inferenceSettleReferences,
+  inferenceTicketId,
+  inferenceUsageKey,
   initializeGuild,
   installFundedPlugin,
   isDripAllowance,
@@ -96,23 +104,24 @@ import {
   socialClaimAttestationMessage,
   socialClaimGiftBoxName,
   socialClaimSubject,
+  translateInferenceError,
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress
-} from "../chunk-I7VNIGKR.mjs";
+} from "../chunk-JH5ISDHK.mjs";
 import "../chunk-LHUPJJI4.mjs";
 import "../chunk-TWVKGIBP.mjs";
 import "../chunk-C5XM3R7G.mjs";
 import "../chunk-VXHF5AKC.mjs";
-import "../chunk-4S756LF5.mjs";
+import "../chunk-4PALUI63.mjs";
 import "../chunk-RUHR54B7.mjs";
-import "../chunk-O3BCWT7J.mjs";
+import "../chunk-2MK7JDER.mjs";
 import "../chunk-XN5GRW52.mjs";
 import "../chunk-GOQ4H3PG.mjs";
 import "../chunk-SA6NGPPZ.mjs";
 import "../chunk-6V4OENI7.mjs";
-import "../chunk-6KZRU7EW.mjs";
-import "../chunk-YGF2XHR6.mjs";
+import "../chunk-LAW6GIX3.mjs";
+import "../chunk-PZ5SMDC2.mjs";
 import "../chunk-JZMSW77U.mjs";
 import "../chunk-J5LGTIGS.mjs";
 export {
@@ -130,6 +139,9 @@ export {
   GuildPluginSDK,
   HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
+  INFERENCE_ERROR_MESSAGES,
+  InferencePluginSDK,
+  InferenceProviderStatus,
   MARKETPLACE_PLUGIN_LEGACY_LIST,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
   MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS,
@@ -179,12 +191,14 @@ export {
   createGuild,
   createGuildInOneCall,
   decodeGrantPolicy,
+  decodeInferencePolicy,
   decodeMetadataScope,
   decodePayPolicy,
   defaultEscrowGrantMbr,
   defaultGuildBaseConfig,
   defaultGuildProposalSettings,
   deleteEscrowExtraFee,
+  encodeInferencePolicy,
   encodePayPolicy,
   escrowCountMbr,
   estimateRoundAfter,
@@ -195,6 +209,9 @@ export {
   guildExecutionKey,
   guildExecutionRecord,
   guildPluginSelectors,
+  inferenceSettleReferences,
+  inferenceTicketId,
+  inferenceUsageKey,
   initializeGuild,
   installFundedPlugin,
   isDripAllowance,
@@ -214,6 +231,7 @@ export {
   socialClaimAttestationMessage,
   socialClaimGiftBoxName,
   socialClaimSubject,
+  translateInferenceError,
   translateWalletError,
   voteOnGuildProposal,
   walletControlledAddress

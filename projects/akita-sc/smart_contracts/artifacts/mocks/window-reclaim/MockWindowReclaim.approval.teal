@@ -108,16 +108,16 @@ reclaimViaGrant:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/utils/functions.ts:497-500
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 5
-    // smart_contracts/utils/functions.ts:499
+    // smart_contracts/utils/functions.ts:506
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:497-500
+    // smart_contracts/utils/functions.ts:504-507
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -173,12 +173,12 @@ reclaimViaGrant:
     // smart_contracts/mocks/window-reclaim/contract.algo.ts:29
     // itxn.payment({ sender, receiver, amount, rekeyTo: rekeyAddress(rekeyBack, wallet) }).submit()
     itxn_begin
-    // smart_contracts/utils/functions.ts:565
+    // smart_contracts/utils/functions.ts:572
     // if (!rekeyBack) {
     bnz reclaimViaGrant_after_if_else@5
     uncover 3
     pop
-    // smart_contracts/utils/functions.ts:566
+    // smart_contracts/utils/functions.ts:573
     // return Global.zeroAddress
     global ZeroAddress
 
@@ -209,7 +209,7 @@ reclaimViaGrant_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6
     return
 
 reclaimViaGrant_after_if_else@5:
-    // smart_contracts/utils/functions.ts:569
+    // smart_contracts/utils/functions.ts:576
     // return wallet.address
     uncover 3
     app_params_get AppAddress

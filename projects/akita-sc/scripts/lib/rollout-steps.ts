@@ -46,6 +46,7 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
   const [aal, oal, pal, state, guildFees] = await Promise.all([
     g.akitaAppList(), g.otherAppList(), g.pluginAppList(), g.state(), g.guildFees().catch(() => undefined),
   ])
+  const inferenceFees = await g.inferenceFees().catch(() => undefined)
   const wallet = await ctx.dao.getWallet()
   const grants = await wallet.client.state.box.plugins.getMap()
   const staleDaoGrants = (key: PluginAppIdKey) => [...grants.keys()]
@@ -217,6 +218,8 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
     ['welcome-plugin', 'WelcomePlugin deployed and registered', 'welcomePlugin', 'arc58/plugins/welcome/WelcomePlugin.arc56.json', ['p2:AbstractedAccountFactory'], 'runbook G1 (Phase 3 deploys it)'],
     ['balance-reader', 'Wallet balance reader deployed and registered', 'walletBalanceReader', 'arc58/account/AbstractedAccountBalanceReader.arc56.json', [], 'npm run deploy:wallet-balance-reader -- --manifest receipts/wallet-balance-reader.json --register'],
     ['social-claim', 'SocialClaim deployed and registered (not in release 2.0.0: name it in --allow-pending at I1)', 'socialClaim', 'arc58/social-claim/SocialClaim.arc56.json', ['welcome-plugin', 'plugin:payPlugin'], 'npm run deploy:immutable -- --contract SocialClaim --config social-claim.json --manifest receipts/social-claim.json --register'],
+    ['inference-network', 'InferenceNetwork deployed and registered (not in release 2.0.0: name it in --allow-pending at I1)', 'inferenceNetwork', 'inference/InferenceNetwork.arc56.json', ['meta-policy-writer'], 'npm run deploy:inference -- --claimer <address> --payout <address> --manifest receipts/inference.json --register --confirm'],
+    ['inference-plugin', 'InferencePlugin deployed and registered, reading policies from Meta (not in release 2.0.0: name it in --allow-pending at I1)', 'inferencePlugin', 'arc58/plugins/inference/InferencePlugin.arc56.json', ['inference-network'], 'npm run deploy:inference (same run as the network)'],
   ]
   for (const [id, title, key, artifact, requires, run] of products) {
     add({ id, stage: 'H', title, requires, run, check: async () => {
@@ -252,6 +255,45 @@ export async function readRolloutStatus(ctx: ScriptContext): Promise<{ rows: Rol
       const escrow = entry ? BigInt((ESCROW_CONFIG.decode(entry.value.bytes) as [string, bigint])[1]) : 0n
       return { done: escrow > 0n, detail: escrow > 0n ? `Meta ${meta} sends fees to escrow app ${escrow}` : `Meta ${meta} has no DAO escrow yet; its fees wait in the app` }
     } })
+
+  // InferenceNetwork's admin is the DAO: an execution-key grant of InferencePlugin, the bootstrap admin
+  // given up, its fees going to rev_inference, and the DAO's inference_fees set.
+  const inferenceGlobal = async (key: string) => {
+    const appId = ctx.appIds.inferenceNetwork
+    if (!appId) return undefined
+    const app = await ctx.algorand.client.algod.getApplicationByID(appId).do().catch(() => undefined)
+    return (app?.params?.globalState ?? []).find((kv) => Buffer.from(kv.key).toString() === key)?.value
+  }
+  add({ id: 'inference-admin-grant', stage: 'H', title: 'DAO wallet holds InferencePlugin as a global grant that needs an execution key', requires: ['dao', 'inference-plugin'],
+    run: 'npm run install:inference-admin-grant -- --confirm', check: async () => {
+      const plugin = ctx.appIds.inferencePlugin
+      if (!plugin) return { done: false, detail: 'SDK inferencePlugin is not recorded yet' }
+      const info = [...grants].find(([k]) => k.plugin === plugin && k.caller === ALGORAND_ZERO_ADDRESS_STRING && k.escrow === '')?.[1]
+      const problem = policyWriterGrantProblem(info)
+      return { done: !problem, detail: problem ? `the DAO wallet's global grant of InferencePlugin ${plugin} ${problem}` : `the DAO wallet holds InferencePlugin ${plugin} as a global grant that needs an execution key` }
+    } })
+  add({ id: 'inference-escrow', stage: 'H', title: 'InferenceNetwork sends its fees to rev_inference, registered with the RevenueManager', requires: ['inference-network', 'plugin:revenueManagerPlugin'],
+    run: 'runbook inference step 3: npm run create:dao-escrow -- --escrow rev_inference --execute, npm run update:app-dao-escrow -- --app inferenceNetwork --escrow rev_inference --confirm, npm run register:revenue-escrow -- --escrow rev_inference --source <network address> --confirm', check: async () => {
+      const value = await inferenceGlobal('akita_escrow')
+      const [name, app] = value ? ESCROW_CONFIG.decode(value.bytes) as [string, bigint] : ['', 0n]
+      if (BigInt(app) === 0n) return { done: false, detail: `InferenceNetwork ${ctx.appIds.inferenceNetwork ?? '(unset)'} has no DAO escrow yet; its fees wait in the app` }
+      const rmId = pal?.revenueManager ?? 0n
+      const records = rmId > 0n ? await (createPluginClient('revenueManagerPlugin', ctx, rmId, ctx.sender) as unknown as RevenueManagerPluginSDK).client.state.box.escrows.getMap() : new Map()
+      const registered = [...records.keys()].some((k: { wallet: bigint; escrow: string }) => k.wallet === wallet.appId && k.escrow === name)
+      const done = name === 'rev_inference' && registered
+      return { done, detail: `InferenceNetwork sends fees to ${name || '(unnamed)'} (app ${app})${name === 'rev_inference' ? '' : ', not rev_inference'}; ${registered ? '' : 'not '}registered with RevenueManager ${rmId}` }
+    } })
+  add({ id: 'inference-handover', stage: 'H', title: 'InferenceNetwork has given up its bootstrap admin to the DAO', requires: ['inference-admin-grant', 'inference-escrow'],
+    run: 'npm run deploy:inference -- --hand-to-dao --confirm', check: async () => {
+      const value = await inferenceGlobal('admin')
+      if (!value) return { done: false, detail: `InferenceNetwork ${ctx.appIds.inferenceNetwork ?? '(unset)'} not found` }
+      const admin = algosdk.encodeAddress(value.bytes)
+      return { done: admin === ALGORAND_ZERO_ADDRESS_STRING, detail: admin === ALGORAND_ZERO_ADDRESS_STRING ? 'only the DAO wallet administers InferenceNetwork' : `the bootstrap admin is still ${admin}` }
+    } })
+  add({ id: 'inference-fees', stage: 'H', title: 'The DAO\'s inference_fees set through UpdateFields', requires: ['dao', 'validator'],
+    run: 'runbook inference step 5 (UpdateFields inference_fees)', check: async () => ({
+      done: inferenceFees !== undefined,
+      detail: inferenceFees ? `inference_fees = ${JSON.stringify(inferenceFees, (_, v) => typeof v === 'bigint' ? v.toString() : v)}` : 'inference_fees absent: tickets pay no DAO fee and registration has no bond floor' }) })
 
   // PayPlugin reads each grant's policy from the Meta it was created with, and nothing at deploy checks that id.
   add({ id: 'plugin:payPlugin', stage: 'H', title: 'payPlugin rotated (created with Meta as its registry, registered, DAO grants swapped)', requires: ['meta'],
