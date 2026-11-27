@@ -104,6 +104,44 @@ After an uncertain response, read the record and revision before retrying.
 Deleting a record removes all its storage. There is no retained draft that can
 later commit after deletion (ALG-01); intentionally recreating the key is valid.
 
+## Account preferences
+
+`@akta/sdk/meta` defines the records Akita clients publish so an account's
+settings follow it to every device and other clients can read them. Each is a
+versioned JSON record owned by the account that wrote it; through the Meta
+plugin that is the wallet's controlled address.
+
+| Record | Namespace / field | Value |
+|--------|-------------------|-------|
+| `APP_THEME_RECORD` | `akita.theme` / `app` | `AppThemeV1`: `{ version: 1, scheme: "light" \| "dark" \| "system", accent }` |
+| `ACCOUNT_GROUPS_RECORD` | `akita.account` / `groups` | `AccountGroupsV1`: `{ version: 1, order, groups: [{ id, label, icon, color, accountIds }] }` |
+| `RECEIVE_QR_STYLE_RECORD` | `akita.receive-qr` / `style` | `ReceiveQrStyleV1`, the wallet's style (same key as `RECEIVE_QR_RECORD`) |
+| `RECEIVE_QR_ACCOUNTS_RECORD` | `akita.receive-qr` / `accounts` | `ReceiveQrAccountStylesV1`: `{ version: 1, accounts: { [address]: ReceiveQrStyleV1 } }` |
+
+Account ids in groups are the client's own ids; Akita writes `escrow-<escrow name>`,
+and `order` mixes them with `group:<group id>` entries. `resolveReceiveQrStyle`
+picks an account's own QR style, else the wallet's.
+
+```ts
+import { APP_THEME_RECORD, encodeAppTheme, parseAppTheme, readMetaPreference } from '@akta/sdk/meta';
+
+const theme = await readMetaPreference(meta, owner, APP_THEME_RECORD, parseAppTheme);
+// theme.value is undefined when the record is absent or does not parse.
+await wallet.usePlugin({
+  calls: [metaPlugin.setPreference({
+    record: APP_THEME_RECORD,
+    data: encodeAppTheme({ version: 1, scheme: 'dark', accent: 'lime' }),
+    expectedRevision: theme.revision,
+  })],
+});
+```
+
+Several `setPreference` calls can share one wallet execution, so a client can
+save every changed preference with one approval. These values are public.
+Clients apply account groups and per-account QR styles only while the owner's
+Akita membership is paid up, and premium theme accents under the same rule as
+the viewer's own theme.
+
 ## Storage, discovery, and contract helpers
 
 Each data record occupies exactly one box:
