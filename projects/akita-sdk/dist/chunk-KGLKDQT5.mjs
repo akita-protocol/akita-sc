@@ -2335,7 +2335,16 @@ var APP_THEME_RECORD = preferenceRecord("theme");
 var ACCOUNT_GROUPS_RECORD = preferenceRecord("groups");
 var RECEIVE_QR_STYLE_RECORD = preferenceRecord("qr");
 var RECEIVE_QR_ACCOUNTS_RECORD = preferenceRecord("qr-accounts");
-var AKITA_PREFERENCE_RECORDS = [APP_THEME_RECORD, ACCOUNT_GROUPS_RECORD, RECEIVE_QR_STYLE_RECORD, RECEIVE_QR_ACCOUNTS_RECORD];
+var ACCOUNT_ICONS_RECORD = preferenceRecord("icons");
+var AGENT_ACCOUNTS_RECORD = preferenceRecord("agents");
+var AKITA_PREFERENCE_RECORDS = [
+  APP_THEME_RECORD,
+  ACCOUNT_GROUPS_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
+  RECEIVE_QR_ACCOUNTS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD
+];
 var AKITA_PREFERENCES_SCOPE = {
   type: "keys",
   namespace: AKITA_PREFERENCES_NAMESPACE,
@@ -2382,6 +2391,30 @@ function isReceiveQrAccountStylesV1(value) {
 function resolveReceiveQrStyle(address, walletStyle, accountStyles) {
   return (accountStyles == null ? void 0 : accountStyles.accounts[address]) ?? walletStyle;
 }
+var ACCOUNT_ICONS_MAX = 64;
+function isAccountIconV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["emoji", "color"])) return false;
+  if (value.emoji === void 0 && value.color === void 0) return false;
+  if (value.emoji !== void 0 && (typeof value.emoji !== "string" || value.emoji.length < 1 || value.emoji.length > 16)) return false;
+  return value.color === void 0 || typeof value.color === "string" && color2.test(value.color);
+}
+function isAccountIconsV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "accounts"]) || value.version !== 1 || !object2(value.accounts)) return false;
+  const entries = Object.entries(value.accounts);
+  return entries.length <= ACCOUNT_ICONS_MAX && entries.every(([address, icon]) => isValidAddress2(address) && isAccountIconV1(icon));
+}
+var AGENT_ACCOUNTS_MAX = 32;
+function isAgentAccountV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["address", "name", "avatar"])) return false;
+  if (typeof value.address !== "string" || !isValidAddress2(value.address)) return false;
+  if (typeof value.name !== "string" || value.name.length < 1 || value.name.length > 64) return false;
+  return value.avatar === void 0 || typeof value.avatar === "string" && value.avatar.length <= 256 && /^(https|ipfs):\/\/\S+$/.test(value.avatar);
+}
+function isAgentAccountsV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "agents"]) || value.version !== 1 || !object2(value.agents)) return false;
+  const entries = Object.entries(value.agents);
+  return entries.length <= AGENT_ACCOUNTS_MAX && entries.every(([escrow, agent]) => escrow.length >= 1 && escrow.length <= 64 && isAgentAccountV1(agent));
+}
 function parse2(data, valid) {
   if (data.length > METADATA_MAX_VALUE_BYTES) return void 0;
   try {
@@ -2398,9 +2431,13 @@ function encode(value, valid, name) {
 var parseAppTheme = (data) => parse2(data, isAppThemeV1);
 var parseAccountGroups = (data) => parse2(data, isAccountGroupsV1);
 var parseReceiveQrAccountStyles = (data) => parse2(data, isReceiveQrAccountStylesV1);
+var parseAccountIcons = (data) => parse2(data, isAccountIconsV1);
+var parseAgentAccounts = (data) => parse2(data, isAgentAccountsV1);
 var encodeAppTheme = (value) => encode(value, isAppThemeV1, "app theme v1");
 var encodeAccountGroups = (value) => encode(value, isAccountGroupsV1, "account groups v1");
 var encodeReceiveQrAccountStyles = (value) => encode(value, isReceiveQrAccountStylesV1, "receive QR account styles v1");
+var encodeAccountIcons = (value) => encode(value, isAccountIconsV1, "account icons v1");
+var encodeAgentAccounts = (value) => encode(value, isAgentAccountsV1, "agent accounts v1");
 async function readMetaPreference(meta, owner, record, parseValue) {
   const result = await meta.readRecord(owner, record.key);
   if (!result.exists) return { exists: false, revision: 0n, value: void 0 };
@@ -2937,6 +2974,8 @@ export {
   ACCOUNT_GROUPS_RECORD,
   RECEIVE_QR_STYLE_RECORD,
   RECEIVE_QR_ACCOUNTS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD,
   AKITA_PREFERENCE_RECORDS,
   AKITA_PREFERENCES_SCOPE,
   isAppThemeV1,
@@ -2946,13 +2985,21 @@ export {
   RECEIVE_QR_ACCOUNTS_MAX,
   isReceiveQrAccountStylesV1,
   resolveReceiveQrStyle,
+  ACCOUNT_ICONS_MAX,
+  isAccountIconsV1,
+  AGENT_ACCOUNTS_MAX,
+  isAgentAccountsV1,
   parseAppTheme,
   parseAccountGroups,
   parseReceiveQrAccountStyles,
+  parseAccountIcons,
+  parseAgentAccounts,
   encodeAppTheme,
   encodeAccountGroups,
   encodeReceiveQrAccountStyles,
+  encodeAccountIcons,
+  encodeAgentAccounts,
   readMetaPreference,
   MetaSDK
 };
-//# sourceMappingURL=chunk-D6KKKSSQ.mjs.map
+//# sourceMappingURL=chunk-KGLKDQT5.mjs.map

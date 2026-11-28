@@ -2,14 +2,20 @@ import { describe, expect, test, vi } from "vitest";
 import { encodeAddress } from "algosdk";
 import {
   ACCOUNT_GROUPS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD,
   AKITA_PREFERENCE_RECORDS,
   AKITA_PREFERENCES_NAMESPACE,
   AKITA_PREFERENCES_SCOPE,
   APP_THEME_RECORD,
   encodeAccountGroups,
+  encodeAccountIcons,
+  encodeAgentAccounts,
   encodeAppTheme,
   encodeReceiveQrAccountStyles,
   parseAccountGroups,
+  parseAccountIcons,
+  parseAgentAccounts,
   parseAppTheme,
   parseReceiveQrAccountStyles,
   readMetaPreference,
@@ -17,6 +23,8 @@ import {
   RECEIVE_QR_STYLE_RECORD,
   resolveReceiveQrStyle,
   type AccountGroupsV1,
+  type AccountIconsV1,
+  type AgentAccountsV1,
   type AppThemeV1,
 } from "./preferences";
 import { metadataDataKey, metadataPluginValueLimit } from "./records";
@@ -34,12 +42,14 @@ describe("Meta preference records", () => {
     expect(ACCOUNT_GROUPS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "groups"));
     expect(RECEIVE_QR_STYLE_RECORD.key).toEqual(metadataDataKey("akita.prefs", "qr"));
     expect(RECEIVE_QR_ACCOUNTS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "qr-accounts"));
+    expect(ACCOUNT_ICONS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "icons"));
+    expect(AGENT_ACCOUNTS_RECORD.key).toEqual(metadataDataKey("akita.prefs", "agents"));
     for (const record of AKITA_PREFERENCE_RECORDS) {
       expect(record.namespace).toBe(AKITA_PREFERENCES_NAMESPACE);
       expect(metadataPluginValueLimit(record.namespace, record.field)).toBeGreaterThan(16000);
     }
     // The plugin's scope encoding accepts it, in canonical order.
-    expect(metadataScopeArgs(AKITA_PREFERENCES_SCOPE)).toEqual({ namespace: "akita.prefs", keys: ["qr", "theme", "groups", "qr-accounts"] });
+    expect(metadataScopeArgs(AKITA_PREFERENCES_SCOPE)).toEqual({ namespace: "akita.prefs", keys: ["qr", "icons", "theme", "agents", "groups", "qr-accounts"] });
   });
 
   test("app theme round-trips and rejects anything else", () => {
@@ -92,6 +102,45 @@ describe("Meta preference records", () => {
     expect(resolveReceiveQrStyle(sub, style, accounts)?.background).toBe("#000000");
     expect(resolveReceiveQrStyle(address(3), style, accounts)).toBe(style);
     expect(resolveReceiveQrStyle(sub, undefined, undefined)).toBeUndefined();
+  });
+
+  test("account icons round-trip, keyed by address, with an emoji, a colour or both", () => {
+    const icons: AccountIconsV1 = {
+      version: 1,
+      accounts: { [address(1)]: { emoji: "🦊", color: "#2563eb" }, [address(2)]: { color: "#111827" }, [address(3)]: { emoji: "🐕‍🦺" } },
+    };
+    expect(parseAccountIcons(encodeAccountIcons(icons))).toEqual(icons);
+    for (const bad of [
+      { version: 1, accounts: { "not-an-address": { emoji: "🦊" } } },
+      { version: 1, accounts: { [address(1)]: {} } },
+      { version: 1, accounts: { [address(1)]: { color: "blue" } } },
+      { version: 1, accounts: { [address(1)]: { emoji: "x".repeat(17) } } },
+      { version: 1, accounts: { [address(1)]: { emoji: "🦊", size: 2 } } },
+      { version: 1, accounts: Object.fromEntries(Array.from({ length: 65 }, (_, index) => [address(index + 1), { emoji: "🦊" }])) },
+    ]) {
+      expect(parseAccountIcons(bytes(bad))).toBeUndefined();
+    }
+  });
+
+  test("agent accounts round-trip, keyed by escrow name", () => {
+    const agents: AgentAccountsV1 = {
+      version: 1,
+      agents: {
+        "agent:trader": { address: address(4), name: "Trader", avatar: "https://images.nf.domains/avatar/trader.png" },
+        "agent:scout": { address: address(5), name: "Scout" },
+      },
+    };
+    expect(parseAgentAccounts(encodeAgentAccounts(agents))).toEqual(agents);
+    for (const bad of [
+      { version: 1, agents: { "agent:x": { address: "nope", name: "X" } } },
+      { version: 1, agents: { "agent:x": { address: address(4), name: "" } } },
+      { version: 1, agents: { "agent:x": { address: address(4), name: "X", avatar: "javascript:alert(1)" } } },
+      { version: 1, agents: { "agent:x": { address: address(4), name: "X", avatar: `https://${"a".repeat(256)}` } } },
+      { version: 1, agents: { "": { address: address(4), name: "X" } } },
+    ]) {
+      expect(parseAgentAccounts(bytes(bad))).toBeUndefined();
+    }
+    expect(() => encodeAgentAccounts({ version: 1, agents: { "agent:x": { address: "nope", name: "X" } } })).toThrow(/agent accounts/);
   });
 
   test("reads report the revision to write against, and absent or invalid values as undefined", async () => {

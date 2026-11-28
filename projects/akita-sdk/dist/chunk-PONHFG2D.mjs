@@ -21,7 +21,7 @@ import {
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "./chunk-D6KKKSSQ.mjs";
+} from "./chunk-KGLKDQT5.mjs";
 import {
   EscrowFactorySDK
 } from "./chunk-O3BCWT7J.mjs";
@@ -36456,4 +36456,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-VOBSXYPN.mjs.map
+//# sourceMappingURL=chunk-PONHFG2D.mjs.map

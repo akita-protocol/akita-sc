@@ -10,7 +10,8 @@ import type { MetaPluginScope } from "../wallet/plugins/meta-scope";
  *
  * Everything here is public. Clients should apply account groups and per-account QR styles only
  * while the owner's Akita membership is paid up, and premium theme accents under the same rule
- * they use for the viewer's own theme.
+ * they use for the viewer's own theme. Account order (in the groups record), account icons and
+ * agent account details apply to everyone.
  */
 
 /** A Meta record a Meta plugin call addresses by `namespace` and `field`, and a reader by `key`. */
@@ -36,7 +37,19 @@ export const RECEIVE_QR_STYLE_RECORD = preferenceRecord("qr");
 /** Receive QR styles for the wallet's other accounts, keyed by address (`ReceiveQrAccountStylesV1`). */
 export const RECEIVE_QR_ACCOUNTS_RECORD = preferenceRecord("qr-accounts");
 
-export const AKITA_PREFERENCE_RECORDS = [APP_THEME_RECORD, ACCOUNT_GROUPS_RECORD, RECEIVE_QR_STYLE_RECORD, RECEIVE_QR_ACCOUNTS_RECORD] as const;
+/** The emoji and background colour the owner gave each account, keyed by address (`AccountIconsV1`). */
+export const ACCOUNT_ICONS_RECORD = preferenceRecord("icons");
+/** The agent each agent sub account was made for: its address, name and avatar (`AgentAccountsV1`). */
+export const AGENT_ACCOUNTS_RECORD = preferenceRecord("agents");
+
+export const AKITA_PREFERENCE_RECORDS = [
+  APP_THEME_RECORD,
+  ACCOUNT_GROUPS_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
+  RECEIVE_QR_ACCOUNTS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD,
+] as const;
 
 /** The Meta plugin scope that lets a grant write exactly the preference records. */
 export const AKITA_PREFERENCES_SCOPE: MetaPluginScope = {
@@ -173,6 +186,70 @@ export function resolveReceiveQrStyle(
 }
 
 // ---------------------------------------------------------------------------------------------
+// Account icons
+
+export const ACCOUNT_ICONS_MAX = 64;
+
+export interface AccountIconV1 {
+  /** A short emoji shown in place of the wallet glyph. */
+  emoji?: string;
+  /** The icon's background, `#rrggbb`. */
+  color?: string;
+}
+
+export interface AccountIconsV1 {
+  version: 1;
+  /** Account address to its icon. */
+  accounts: Record<string, AccountIconV1>;
+}
+
+function isAccountIconV1(value: unknown): value is AccountIconV1 {
+  if (!object(value) || !hasOnly(value, ["emoji", "color"])) return false;
+  if (value.emoji === undefined && value.color === undefined) return false;
+  if (value.emoji !== undefined && (typeof value.emoji !== "string" || value.emoji.length < 1 || value.emoji.length > 16)) return false;
+  return value.color === undefined || (typeof value.color === "string" && color.test(value.color));
+}
+
+export function isAccountIconsV1(value: unknown): value is AccountIconsV1 {
+  if (!object(value) || !hasOnly(value, ["version", "accounts"]) || value.version !== 1 || !object(value.accounts)) return false;
+  const entries = Object.entries(value.accounts);
+  return entries.length <= ACCOUNT_ICONS_MAX && entries.every(([address, icon]) => isValidAddress(address) && isAccountIconV1(icon));
+}
+
+// ---------------------------------------------------------------------------------------------
+// Agent accounts
+
+export const AGENT_ACCOUNTS_MAX = 32;
+
+export interface AgentAccountV1 {
+  /** The agent's account: the caller its plugins are installed for. */
+  address: string;
+  /** The agent's name as its install request gave it. */
+  name: string;
+  /** An `https://` or `ipfs://` image for the agent, from its profile when it was installed. */
+  avatar?: string;
+}
+
+export interface AgentAccountsV1 {
+  version: 1;
+  /** The sub account's escrow name (e.g. `agent:trader`) to the agent it was made for. */
+  agents: Record<string, AgentAccountV1>;
+}
+
+function isAgentAccountV1(value: unknown): value is AgentAccountV1 {
+  if (!object(value) || !hasOnly(value, ["address", "name", "avatar"])) return false;
+  if (typeof value.address !== "string" || !isValidAddress(value.address)) return false;
+  if (typeof value.name !== "string" || value.name.length < 1 || value.name.length > 64) return false;
+  return value.avatar === undefined || (typeof value.avatar === "string" && value.avatar.length <= 256 && /^(https|ipfs):\/\/\S+$/.test(value.avatar));
+}
+
+export function isAgentAccountsV1(value: unknown): value is AgentAccountsV1 {
+  if (!object(value) || !hasOnly(value, ["version", "agents"]) || value.version !== 1 || !object(value.agents)) return false;
+  const entries = Object.entries(value.agents);
+  return entries.length <= AGENT_ACCOUNTS_MAX && entries.every(([escrow, agent]) => escrow.length >= 1 && escrow.length <= 64 && isAgentAccountV1(agent));
+}
+
+// ---------------------------------------------------------------------------------------------
 // Encoding and reading
 
 function parse<T>(data: Uint8Array, valid: (value: unknown) => value is T): T | undefined {
@@ -193,11 +270,15 @@ function encode<T>(value: T, valid: (value: unknown) => value is T, name: string
 export const parseAppTheme = (data: Uint8Array) => parse(data, isAppThemeV1);
 export const parseAccountGroups = (data: Uint8Array) => parse(data, isAccountGroupsV1);
 export const parseReceiveQrAccountStyles = (data: Uint8Array) => parse(data, isReceiveQrAccountStylesV1);
+export const parseAccountIcons = (data: Uint8Array) => parse(data, isAccountIconsV1);
+export const parseAgentAccounts = (data: Uint8Array) => parse(data, isAgentAccountsV1);
 
 export const encodeAppTheme = (value: AppThemeV1) => encode(value, isAppThemeV1, "app theme v1");
 export const encodeAccountGroups = (value: AccountGroupsV1) => encode(value, isAccountGroupsV1, "account groups v1");
 export const encodeReceiveQrAccountStyles = (value: ReceiveQrAccountStylesV1) =>
   encode(value, isReceiveQrAccountStylesV1, "receive QR account styles v1");
+export const encodeAccountIcons = (value: AccountIconsV1) => encode(value, isAccountIconsV1, "account icons v1");
+export const encodeAgentAccounts = (value: AgentAccountsV1) => encode(value, isAgentAccountsV1, "agent accounts v1");
 
 /**
  * A published preference: `revision` is the record's current revision (0 when absent), which a

@@ -70,14 +70,14 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-DAH5CXIZ.mjs";
+} from "./chunk-4JWATDAK.mjs";
 import "./chunk-JGTO3CDP.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-VOBSXYPN.mjs";
+} from "./chunk-PONHFG2D.mjs";
 import {
   bytesToHexColor,
   hexColorToBytes
@@ -98,7 +98,11 @@ import {
   ACCOUNT_GROUPS_MAX_ENTRIES,
   ACCOUNT_GROUPS_MAX_GROUPS,
   ACCOUNT_GROUPS_RECORD,
+  ACCOUNT_ICONS_MAX,
+  ACCOUNT_ICONS_RECORD,
   ACCOUNT_IMAGE_RECORD,
+  AGENT_ACCOUNTS_MAX,
+  AGENT_ACCOUNTS_RECORD,
   AKITA_PREFERENCES_NAMESPACE,
   AKITA_PREFERENCES_SCOPE,
   AKITA_PREFERENCE_RECORDS,
@@ -121,13 +125,17 @@ import {
   decodeMetadataBoxName,
   decodeMetadataRecord,
   encodeAccountGroups,
+  encodeAccountIcons,
   encodeAccountImageReference,
+  encodeAgentAccounts,
   encodeAppTheme,
   encodeMetadataJson,
   encodeReceiveQrAccountStyles,
   encodeReceiveQrStyle,
   isAccountGroupsV1,
+  isAccountIconsV1,
   isAccountImageReferenceV1,
+  isAgentAccountsV1,
   isAppThemeV1,
   isReceiveQrAccountStylesV1,
   isReceiveQrStyleV1,
@@ -140,7 +148,9 @@ import {
   metadataStorageCost,
   metadataValueLimit,
   parseAccountGroups,
+  parseAccountIcons,
   parseAccountImageReference,
+  parseAgentAccounts,
   parseAppTheme,
   parseReceiveQrAccountStyles,
   parseReceiveQrStyle,
@@ -149,7 +159,7 @@ import {
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "./chunk-D6KKKSSQ.mjs";
+} from "./chunk-KGLKDQT5.mjs";
 import "./chunk-RUHR54B7.mjs";
 import {
   EscrowFactorySDK,
@@ -240,7 +250,11 @@ export {
   ACCOUNT_GROUPS_MAX_ENTRIES,
   ACCOUNT_GROUPS_MAX_GROUPS,
   ACCOUNT_GROUPS_RECORD,
+  ACCOUNT_ICONS_MAX,
+  ACCOUNT_ICONS_RECORD,
   ACCOUNT_IMAGE_RECORD,
+  AGENT_ACCOUNTS_MAX,
+  AGENT_ACCOUNTS_RECORD,
   AKITA_PREFERENCES_NAMESPACE,
   AKITA_PREFERENCES_SCOPE,
   AKITA_PREFERENCE_RECORDS,
@@ -330,7 +344,9 @@ export {
   decodeMetadataRecord,
   detectNetworkFromClient,
   encodeAccountGroups,
+  encodeAccountIcons,
   encodeAccountImageReference,
+  encodeAgentAccounts,
   encodeAppTheme,
   encodeConnectUri,
   encodeMetadataJson,
@@ -361,7 +377,9 @@ export {
   hyperSwapTradeTree,
   installAccessListResourcePopulator,
   isAccountGroupsV1,
+  isAccountIconsV1,
   isAccountImageReferenceV1,
+  isAgentAccountsV1,
   isAppThemeV1,
   isPluginSDKReturn,
   isReceiveQrAccountStylesV1,
@@ -379,7 +397,9 @@ export {
   normalizeSigner,
   offerTermsFromLists,
   parseAccountGroups,
+  parseAccountIcons,
   parseAccountImageReference,
+  parseAgentAccounts,
   parseAppTheme,
   parseArc65Code,
   parseP256DerSignature,

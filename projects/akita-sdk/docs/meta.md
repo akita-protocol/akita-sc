@@ -120,10 +120,14 @@ wallet's hot key, so a settings change needs no passkey approval.
 | `ACCOUNT_GROUPS_RECORD` | `groups` | `AccountGroupsV1`: `{ version: 1, order, groups: [{ id, label, icon, color, accountIds }] }` |
 | `RECEIVE_QR_STYLE_RECORD` | `qr` | `ReceiveQrStyleV1`, the wallet's receive QR style |
 | `RECEIVE_QR_ACCOUNTS_RECORD` | `qr-accounts` | `ReceiveQrAccountStylesV1`: `{ version: 1, accounts: { [address]: ReceiveQrStyleV1 } }` |
+| `ACCOUNT_ICONS_RECORD` | `icons` | `AccountIconsV1`: `{ version: 1, accounts: { [address]: { emoji?, color? } } }` |
+| `AGENT_ACCOUNTS_RECORD` | `agents` | `AgentAccountsV1`: `{ version: 1, agents: { [escrow name]: { address, name, avatar? } } }` |
 
 Account ids in groups are the client's own ids; Akita writes `escrow-<escrow name>`,
 and `order` mixes them with `group:<group id>` entries. `resolveReceiveQrStyle`
-picks an account's own QR style, else the wallet's.
+picks an account's own QR style, else the wallet's. `agents` records the agent an
+agent sub account (`agent:<name>`) was made for, with the avatar it had at install
+(`https://` or `ipfs://`).
 
 ```ts
 import { APP_THEME_RECORD, encodeAppTheme, parseAppTheme, readMetaPreference } from '@akta/sdk/meta';
@@ -144,7 +148,7 @@ Configure a delegated grant for them with
 through the wallet's Meta admin grant, in the same group as the grant's install. These values are public.
 Clients apply account groups and per-account QR styles only while the owner's
 Akita membership is paid up, and premium theme accents under the same rule as
-the viewer's own theme.
+the viewer's own theme. Account order, icons and agent details apply to everyone.
 
 ## Storage, discovery, and contract helpers
 
