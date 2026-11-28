@@ -595,8 +595,8 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   rewardsV1: 3569556095n,
   governanceParticipationGate: 3783318970n,
   moderatorActivityGate: 3783318837n,
-  inferenceNetwork: 0n,
-  inferencePlugin: 0n,
+  inferenceNetwork: 3784962089n,
+  inferencePlugin: 3784962543n,
 };
 
 /**

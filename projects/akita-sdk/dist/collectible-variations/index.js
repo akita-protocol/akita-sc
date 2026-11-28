@@ -6,8 +6,8 @@ var _chunkJ43IZCZCjs = require('../chunk-J43IZCZC.js');
 var _chunkZGCVKZRLjs = require('../chunk-ZGCVKZRL.js');
 
 
-var _chunk7UO6FJCTjs = require('../chunk-7UO6FJCT.js');
-require('../chunk-LMKWWXS5.js');
+var _chunkJOZ53P7Pjs = require('../chunk-JOZ53P7P.js');
+require('../chunk-QTFMUV2J.js');
 require('../chunk-WXNDITZI.js');
 
 
@@ -1604,7 +1604,7 @@ var translateCollectibleVariationsError = _chunkZGCVKZRLjs.makeErrorTranslator.c
 
 // src/collectible-variations/index.ts
 var DISCOVERY_FEE = 60000n;
-var CollectibleVariationsSDK = class extends _chunk7UO6FJCTjs.BaseSDK {
+var CollectibleVariationsSDK = class extends _chunkJOZ53P7Pjs.BaseSDK {
   constructor(params) {
     super({ factory: CollectibleVariationsFactory, ...params }, "COLLECTIBLE_VARIATIONS_APP_ID");
   }
