@@ -1,0 +1,15 @@
+{
+  "commit": "e7f174ee",
+  "note": "The 2026-10-02 audit and 2026-10-05 review both read e7f174ee plus uncommitted changes. Code that was uncommitted then (guilds, Meta, DEX hooks, the Akita router) is not in this snapshot, and the scorer leaves its findings out of recall.",
+  "families": [
+    { "id": "account", "name": "ARC-58 account, keys, escrow, shared utils, plugin library", "paths": ["arc58/account", "arc58/keys", "escrow", "utils", "projects/akita-plugin"] },
+    { "id": "dao", "name": "DAO, validator, DAO and update plugins", "paths": ["arc58/dao", "arc58/plugins/dao", "arc58/plugins/update-akita-dao"] },
+    { "id": "staking", "name": "Staking, staking pool, rewards", "paths": ["staking", "staking-pool", "rewards", "arc58/plugins/staking", "arc58/plugins/staking-pool", "arc58/plugins/rewards", "arc58/plugins/dual-stake"] },
+    { "id": "social", "name": "Social, graph, impact, moderation", "paths": ["social", "arc58/plugins/social"] },
+    { "id": "subs-gates", "name": "Subscriptions, gate and sub-gates", "paths": ["subscriptions", "gates", "arc58/plugins/subscriptions", "arc58/plugins/gate"] },
+    { "id": "trade", "name": "Marketplace, prize box, plugin DEX", "paths": ["marketplace", "prize-box", "plugin-dex", "arc58/plugins/marketplace"] },
+    { "id": "auction-raffle", "name": "Auction and raffle", "paths": ["auction", "raffle", "arc58/plugins/auction", "arc58/plugins/raffle"] },
+    { "id": "swap-poll", "name": "HyperSwap, MetaMerkles, poll", "paths": ["hyper-swap", "meta-merkles", "poll", "arc58/plugins/hyper-swap", "arc58/plugins/poll"] },
+    { "id": "plugins-sunset", "name": "Remaining plugins and sunset", "paths": ["arc58/plugins/asa-manager", "arc58/plugins/haystack-router", "arc58/plugins/nfd", "arc58/plugins/optin", "arc58/plugins/self-optin", "arc58/plugins/pay", "arc58/plugins/pay-silo", "arc58/plugins/revenue-manager", "arc58/plugins/sunset", "sunset"] }
+  ]
+}
