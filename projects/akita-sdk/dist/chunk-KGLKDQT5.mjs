@@ -2325,6 +2325,125 @@ function encodeAccountImageReference(value) {
   return encodeMetadataJson(value);
 }
 
+// src/meta/preferences.ts
+import { isValidAddress as isValidAddress2 } from "algosdk";
+var AKITA_PREFERENCES_NAMESPACE = "akita.prefs";
+function preferenceRecord(field) {
+  return { namespace: AKITA_PREFERENCES_NAMESPACE, field, key: metadataDataKey(AKITA_PREFERENCES_NAMESPACE, field) };
+}
+var APP_THEME_RECORD = preferenceRecord("theme");
+var ACCOUNT_GROUPS_RECORD = preferenceRecord("groups");
+var RECEIVE_QR_STYLE_RECORD = preferenceRecord("qr");
+var RECEIVE_QR_ACCOUNTS_RECORD = preferenceRecord("qr-accounts");
+var ACCOUNT_ICONS_RECORD = preferenceRecord("icons");
+var AGENT_ACCOUNTS_RECORD = preferenceRecord("agents");
+var AKITA_PREFERENCE_RECORDS = [
+  APP_THEME_RECORD,
+  ACCOUNT_GROUPS_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
+  RECEIVE_QR_ACCOUNTS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD
+];
+var AKITA_PREFERENCES_SCOPE = {
+  type: "keys",
+  namespace: AKITA_PREFERENCES_NAMESPACE,
+  keys: AKITA_PREFERENCE_RECORDS.map((record) => record.field)
+};
+var accentId = /^[A-Za-z0-9_-]{1,32}$/;
+function object2(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function hasOnly2(value, keys) {
+  return Object.keys(value).every((key) => keys.includes(key));
+}
+function isAppThemeV1(value) {
+  return object2(value) && hasOnly2(value, ["version", "scheme", "accent"]) && value.version === 1 && (value.scheme === "light" || value.scheme === "dark" || value.scheme === "system") && typeof value.accent === "string" && accentId.test(value.accent);
+}
+var ACCOUNT_GROUPS_MAX_GROUPS = 32;
+var ACCOUNT_GROUPS_MAX_ENTRIES = 256;
+var MAX_ID_LENGTH = 64;
+var MAX_LABEL_LENGTH = 64;
+var MAX_ICON_LENGTH = 16;
+var color2 = /^#[0-9a-fA-F]{6}$/;
+function boundedString(value, max) {
+  return typeof value === "string" && value.length > 0 && value.length <= max;
+}
+function boundedIds(value) {
+  return Array.isArray(value) && value.length <= ACCOUNT_GROUPS_MAX_ENTRIES && value.every((id) => boundedString(id, MAX_ID_LENGTH));
+}
+function isAccountGroupV1(value) {
+  return object2(value) && hasOnly2(value, ["id", "label", "icon", "color", "accountIds"]) && boundedString(value.id, MAX_ID_LENGTH) && boundedString(value.label, MAX_LABEL_LENGTH) && boundedString(value.icon, MAX_ICON_LENGTH) && typeof value.color === "string" && color2.test(value.color) && boundedIds(value.accountIds);
+}
+function isAccountGroupsV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "order", "groups"]) || value.version !== 1 || !boundedIds(value.order) || !Array.isArray(value.groups) || value.groups.length > ACCOUNT_GROUPS_MAX_GROUPS || !value.groups.every(isAccountGroupV1)) {
+    return false;
+  }
+  const ids = value.groups.map((group) => group.id);
+  return new Set(ids).size === ids.length;
+}
+var RECEIVE_QR_ACCOUNTS_MAX = 64;
+function isReceiveQrAccountStylesV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "accounts"]) || value.version !== 1 || !object2(value.accounts)) return false;
+  const entries = Object.entries(value.accounts);
+  return entries.length <= RECEIVE_QR_ACCOUNTS_MAX && entries.every(([address, style]) => isValidAddress2(address) && isReceiveQrStyleV1(style));
+}
+function resolveReceiveQrStyle(address, walletStyle, accountStyles) {
+  return (accountStyles == null ? void 0 : accountStyles.accounts[address]) ?? walletStyle;
+}
+var ACCOUNT_ICONS_MAX = 64;
+function isAccountIconV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["emoji", "color"])) return false;
+  if (value.emoji === void 0 && value.color === void 0) return false;
+  if (value.emoji !== void 0 && (typeof value.emoji !== "string" || value.emoji.length < 1 || value.emoji.length > 16)) return false;
+  return value.color === void 0 || typeof value.color === "string" && color2.test(value.color);
+}
+function isAccountIconsV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "accounts"]) || value.version !== 1 || !object2(value.accounts)) return false;
+  const entries = Object.entries(value.accounts);
+  return entries.length <= ACCOUNT_ICONS_MAX && entries.every(([address, icon]) => isValidAddress2(address) && isAccountIconV1(icon));
+}
+var AGENT_ACCOUNTS_MAX = 32;
+function isAgentAccountV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["address", "name", "avatar"])) return false;
+  if (typeof value.address !== "string" || !isValidAddress2(value.address)) return false;
+  if (typeof value.name !== "string" || value.name.length < 1 || value.name.length > 64) return false;
+  return value.avatar === void 0 || typeof value.avatar === "string" && value.avatar.length <= 256 && /^(https|ipfs):\/\/\S+$/.test(value.avatar);
+}
+function isAgentAccountsV1(value) {
+  if (!object2(value) || !hasOnly2(value, ["version", "agents"]) || value.version !== 1 || !object2(value.agents)) return false;
+  const entries = Object.entries(value.agents);
+  return entries.length <= AGENT_ACCOUNTS_MAX && entries.every(([escrow, agent]) => escrow.length >= 1 && escrow.length <= 64 && isAgentAccountV1(agent));
+}
+function parse2(data, valid) {
+  if (data.length > METADATA_MAX_VALUE_BYTES) return void 0;
+  try {
+    const value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(data));
+    return valid(value) ? value : void 0;
+  } catch {
+    return void 0;
+  }
+}
+function encode(value, valid, name) {
+  if (!valid(value)) throw new Error(`Invalid ${name}.`);
+  return encodeMetadataJson(value);
+}
+var parseAppTheme = (data) => parse2(data, isAppThemeV1);
+var parseAccountGroups = (data) => parse2(data, isAccountGroupsV1);
+var parseReceiveQrAccountStyles = (data) => parse2(data, isReceiveQrAccountStylesV1);
+var parseAccountIcons = (data) => parse2(data, isAccountIconsV1);
+var parseAgentAccounts = (data) => parse2(data, isAgentAccountsV1);
+var encodeAppTheme = (value) => encode(value, isAppThemeV1, "app theme v1");
+var encodeAccountGroups = (value) => encode(value, isAccountGroupsV1, "account groups v1");
+var encodeReceiveQrAccountStyles = (value) => encode(value, isReceiveQrAccountStylesV1, "receive QR account styles v1");
+var encodeAccountIcons = (value) => encode(value, isAccountIconsV1, "account icons v1");
+var encodeAgentAccounts = (value) => encode(value, isAgentAccountsV1, "agent accounts v1");
+async function readMetaPreference(meta, owner, record, parseValue) {
+  const result = await meta.readRecord(owner, record.key);
+  if (!result.exists) return { exists: false, revision: 0n, value: void 0 };
+  return { exists: true, revision: result.revision, value: parseValue(result.data) };
+}
+
 // src/meta/index.ts
 var ADD_TYPE_COST = 100000000n;
 var MetaSDK = class extends BaseSDK {
@@ -2850,6 +2969,37 @@ export {
   parseAccountImageReference,
   encodeReceiveQrStyle,
   encodeAccountImageReference,
+  AKITA_PREFERENCES_NAMESPACE,
+  APP_THEME_RECORD,
+  ACCOUNT_GROUPS_RECORD,
+  RECEIVE_QR_STYLE_RECORD,
+  RECEIVE_QR_ACCOUNTS_RECORD,
+  ACCOUNT_ICONS_RECORD,
+  AGENT_ACCOUNTS_RECORD,
+  AKITA_PREFERENCE_RECORDS,
+  AKITA_PREFERENCES_SCOPE,
+  isAppThemeV1,
+  ACCOUNT_GROUPS_MAX_GROUPS,
+  ACCOUNT_GROUPS_MAX_ENTRIES,
+  isAccountGroupsV1,
+  RECEIVE_QR_ACCOUNTS_MAX,
+  isReceiveQrAccountStylesV1,
+  resolveReceiveQrStyle,
+  ACCOUNT_ICONS_MAX,
+  isAccountIconsV1,
+  AGENT_ACCOUNTS_MAX,
+  isAgentAccountsV1,
+  parseAppTheme,
+  parseAccountGroups,
+  parseReceiveQrAccountStyles,
+  parseAccountIcons,
+  parseAgentAccounts,
+  encodeAppTheme,
+  encodeAccountGroups,
+  encodeReceiveQrAccountStyles,
+  encodeAccountIcons,
+  encodeAgentAccounts,
+  readMetaPreference,
   MetaSDK
 };
-//# sourceMappingURL=chunk-4S756LF5.mjs.map
+//# sourceMappingURL=chunk-KGLKDQT5.mjs.map

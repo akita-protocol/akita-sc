@@ -632,4 +632,5 @@ export class MetaSDK extends BaseSDK<MetaClient> {
 
 export * from "./records";
 export * from "./schemas";
+export * from "./preferences";
 export { MetaClient, MetaFactory } from "../generated/MetaClient";

@@ -21,7 +21,7 @@ var _chunk5Z3F6G6Pjs = require('./chunk-5Z3F6G6P.js');
 
 
 
-var _chunkHIIOJMTJjs = require('./chunk-HIIOJMTJ.js');
+var _chunk3MGCP5DCjs = require('./chunk-3MGCP5DC.js');
 
 
 var _chunk54YKG5RNjs = require('./chunk-54YKG5RN.js');
@@ -9501,12 +9501,12 @@ var keysType = _algosdk.ABIType.from("string[]");
 var METADATA_MAX_SCOPE_BYTES = 124;
 function metadataScopeArgs(scope = { type: "unrestricted" }) {
   if (scope.type === "unrestricted") return { namespace: "", keys: [] };
-  _chunkHIIOJMTJjs.validateMetadataName.call(void 0, scope.namespace);
+  _chunk3MGCP5DCjs.validateMetadataName.call(void 0, scope.namespace);
   const keys = scope.type === "keys" ? [...scope.keys] : [];
   if (scope.type === "keys" && keys.length === 0) throw new Error("A key-restricted scope must select at least one key.");
   keys.forEach((key) => {
-    _chunkHIIOJMTJjs.validateMetadataName.call(void 0, key);
-    _chunkHIIOJMTJjs.metadataDataKey.call(void 0, scope.namespace, key);
+    _chunk3MGCP5DCjs.validateMetadataName.call(void 0, key);
+    _chunk3MGCP5DCjs.metadataDataKey.call(void 0, scope.namespace, key);
   });
   if (new Set(keys).size !== keys.length) throw new Error("Duplicate metadata scope keys.");
   if (keysType.encode(keys).length > METADATA_MAX_SCOPE_BYTES) throw new Error("The encoded scope key list exceeds 124 bytes.");
@@ -9552,7 +9552,7 @@ var MetaPluginSDK = class extends _chunkQJKJIFW6js.BaseSDK {
     const registry = await this.client.state.global.registry();
     if (registry === void 0) throw new Error("Meta plugin is not initialized.");
     const owner = await walletControlledAddress(this.algorand, args.wallet);
-    const meta = new (0, _chunkHIIOJMTJjs.MetaSDK)({ algorand: this.algorand, readerAccount: (_a = this.getReaderSendParams({}).sender) == null ? void 0 : _a.toString(), factoryParams: { appId: registry } });
+    const meta = new (0, _chunk3MGCP5DCjs.MetaSDK)({ algorand: this.algorand, readerAccount: (_a = this.getReaderSendParams({}).sender) == null ? void 0 : _a.toString(), factoryParams: { appId: registry } });
     const record = await meta.readRecord(owner, grantPolicyKey(args.plugin, args.caller, _nullishCoalesce(args.escrow, () => ( ""))));
     if (!record.exists) return { registry, exists: false, revision: 0n, start: 0n, body: new Uint8Array() };
     const { start, body } = decodeGrantPolicy(record.data);
@@ -9721,9 +9721,22 @@ var MetaPluginSDK = class extends _chunkQJKJIFW6js.BaseSDK {
       ]
     });
   }
+  /**
+   * `set` for a preference record (see `meta/preferences`): the wallet's spending account publishes
+   * `data` under `record`. Several of these can share one wallet execution.
+   */
+  setPreference(args) {
+    const { record, ...rest } = args;
+    return this.set({ ...rest, namespace: record.namespace, key: record.field });
+  }
+  /** `remove` for a preference record; Meta refunds its storage deposit. */
+  removePreference(args) {
+    const { record, ...rest } = args;
+    return this.remove({ ...rest, namespace: record.namespace, key: record.field });
+  }
   /** Publish the complete value in one plugin call within a wallet execution. */
   async setRecord({ wallet, execution = {}, ...args }) {
-    _chunkHIIOJMTJjs.validateMetadataValueSize.call(void 0, args.data.length, _chunkHIIOJMTJjs.metadataPluginValueLimit.call(void 0, args.namespace, args.key));
+    _chunk3MGCP5DCjs.validateMetadataValueSize.call(void 0, args.data.length, _chunk3MGCP5DCjs.metadataPluginValueLimit.call(void 0, args.namespace, args.key));
     const sender = _nullishCoalesce(args.sender, () => ( execution.sender));
     const signer = _nullishCoalesce(args.signer, () => ( execution.signer));
     return wallet.usePlugin({ ...execution, sender, signer, calls: [this.set({ ...args, sender, signer })] });
@@ -9731,8 +9744,8 @@ var MetaPluginSDK = class extends _chunkQJKJIFW6js.BaseSDK {
   pluginCall(method, args) {
     const selectors = [this.client.appClient.getABIMethod(method).getSelector()];
     if (args === void 0) return () => ({ appId: this.appId, selectors, getTxns: _chunkVAC3L4E5js.getTxns });
-    _chunkHIIOJMTJjs.validateMetadataRecordKey.call(void 0, _chunkHIIOJMTJjs.metadataDataKey.call(void 0, args.namespace, args.key));
-    if ("data" in args) _chunkHIIOJMTJjs.validateMetadataValueSize.call(void 0, args.data.length, _chunkHIIOJMTJjs.metadataPluginValueLimit.call(void 0, args.namespace, args.key));
+    _chunk3MGCP5DCjs.validateMetadataRecordKey.call(void 0, _chunk3MGCP5DCjs.metadataDataKey.call(void 0, args.namespace, args.key));
+    if ("data" in args) _chunk3MGCP5DCjs.validateMetadataValueSize.call(void 0, args.data.length, _chunk3MGCP5DCjs.metadataPluginValueLimit.call(void 0, args.namespace, args.key));
     const sendParams = this.getRequiredSendParams(args);
     return () => ({
       appId: this.appId,
@@ -9745,7 +9758,7 @@ var MetaPluginSDK = class extends _chunkQJKJIFW6js.BaseSDK {
           key: args.key,
           expectedRevision: args.expectedRevision
         };
-        const params = method === "set" ? await this.client.params.set({ ...sendParams, args: { ...callArgs, ..._chunkHIIOJMTJjs.metadataDataParts.call(void 0, args.data) } }) : await this.client.params.remove({ ...sendParams, args: callArgs });
+        const params = method === "set" ? await this.client.params.set({ ...sendParams, args: { ...callArgs, ..._chunk3MGCP5DCjs.metadataDataParts.call(void 0, args.data) } }) : await this.client.params.remove({ ...sendParams, args: callArgs });
         return [{ type: "methodCall", ...params }];
       }
     });
@@ -36443,4 +36456,4 @@ var WalletSDK = (_class59 = class extends _chunkQJKJIFW6js.BaseSDK {
 
 
 exports.CallerType = CallerType; exports.AddPluginDefaults = AddPluginDefaults; exports.isFlatAllowance = isFlatAllowance; exports.isWindowAllowance = isWindowAllowance; exports.isDripAllowance = isDripAllowance; exports.isValidPluginSDK = isValidPluginSDK; exports.getPluginAppId = getPluginAppId; exports.NewEscrowFeeAmount = NewEscrowFeeAmount; exports.ControlledMbrMoveFee = ControlledMbrMoveFee; exports.controlledMbrFee = controlledMbrFee; exports.addPluginExtraFee = addPluginExtraFee; exports.newEscrowExtraFee = newEscrowExtraFee; exports.escrowCountMbr = escrowCountMbr; exports.defaultEscrowGrantMbr = defaultEscrowGrantMbr; exports.pluginInstallCost = pluginInstallCost; exports.DeleteEscrowFeeAmount = DeleteEscrowFeeAmount; exports.RegisterEscrowFeeAmount = RegisterEscrowFeeAmount; exports.RemoveAllowancesPerCall = RemoveAllowancesPerCall; exports.ReclaimsPerCall = ReclaimsPerCall; exports.MaxGroupSize = MaxGroupSize; exports.deleteEscrowExtraFee = deleteEscrowExtraFee; exports.prepareGroup = prepareGroup; exports.sendPrepared = sendPrepared; exports.WalletGroupComposer = WalletGroupComposer; exports.WALLET_ERROR_MESSAGES = WALLET_ERROR_MESSAGES; exports.parseWalletErrorCode = parseWalletErrorCode; exports.translateWalletError = translateWalletError; exports.WalletFactorySDK = WalletFactorySDK; exports.newWallet = newWallet; exports.OptInPluginSDK = OptInPluginSDK; exports.SelfOptInPluginSDK = SelfOptInPluginSDK; exports.WelcomePluginSDK = WelcomePluginSDK; exports.SOCIAL_CLAIM_ATTESTATION_DOMAIN = SOCIAL_CLAIM_ATTESTATION_DOMAIN; exports.SOCIAL_CLAIM_MIN_TTL = SOCIAL_CLAIM_MIN_TTL; exports.SOCIAL_CLAIM_MAX_TTL = SOCIAL_CLAIM_MAX_TTL; exports.SOCIAL_CLAIM_SUBJECT_MBR = SOCIAL_CLAIM_SUBJECT_MBR; exports.SOCIAL_CLAIM_GIFT_MBR = SOCIAL_CLAIM_GIFT_MBR; exports.socialClaimSubject = socialClaimSubject; exports.socialClaimAttestationMessage = socialClaimAttestationMessage; exports.socialClaimGiftBoxName = socialClaimGiftBoxName; exports.SocialClaimSDK = SocialClaimSDK; exports.MetaPluginFactory = MetaPluginFactory; exports.MetaPluginClient = MetaPluginClient; exports.METADATA_MAX_SCOPE_BYTES = METADATA_MAX_SCOPE_BYTES; exports.metadataScopeArgs = metadataScopeArgs; exports.decodeMetadataScope = decodeMetadataScope; exports.decodeGrantPolicy = decodeGrantPolicy; exports.MetaPluginSDK = MetaPluginSDK; exports.grantPolicyKey = grantPolicyKey; exports.walletControlledAddress = walletControlledAddress; exports.newMetaPlugin = newMetaPlugin; exports.PayPluginSDK = PayPluginSDK; exports.encodePayPolicy = encodePayPolicy; exports.decodePayPolicy = decodePayPolicy; exports.AsaManagerPluginSDK = AsaManagerPluginSDK; exports.UPGRADE_BINDING_NOTE_PROPOSAL = UPGRADE_BINDING_NOTE_PROPOSAL; exports.pendingUpgradeBoxBytes = pendingUpgradeBoxBytes; exports.UpdateAkitaDAOPluginSDK = UpdateAkitaDAOPluginSDK; exports.RevenueManagerPluginSDK = RevenueManagerPluginSDK; exports.AuctionPluginSDK = AuctionPluginSDK; exports.DAOPluginSDK = DAOPluginSDK; exports.DualStakePluginSDK = DualStakePluginSDK; exports.GatePluginSDK = GatePluginSDK; exports.GuildPluginSDK = GuildPluginSDK; exports.defaultGuildProposalSettings = defaultGuildProposalSettings; exports.defaultGuildBaseConfig = defaultGuildBaseConfig; exports.initializeGuild = initializeGuild; exports.runDraftProposal = runDraftProposal; exports.proposeToGuild = proposeToGuild; exports.voteOnGuildProposal = voteOnGuildProposal; exports.finishGuildProposal = finishGuildProposal; exports.estimateRoundAfter = estimateRoundAfter; exports.GUILD_EXECUTION_WINDOWS = GUILD_EXECUTION_WINDOWS; exports.buildGuildExecution = buildGuildExecution; exports.guildExecutionRecord = guildExecutionRecord; exports.guildExecutionKey = guildExecutionKey; exports.sendGuildExecution = sendGuildExecution; exports.installFundedPlugin = installFundedPlugin; exports.guildPluginSelectors = guildPluginSelectors; exports.createGuild = createGuild; exports.createGuildInOneCall = createGuildInOneCall; exports.findGuildPlugin = findGuildPlugin; exports.HaystackRouterPluginSDK = HaystackRouterPluginSDK; exports.HyperSwapPluginSDK = HyperSwapPluginSDK; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE = MARKETPLACE_PLUGIN_LEGACY_PURCHASE; exports.MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS = MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS; exports.MARKETPLACE_PLUGIN_LEGACY_LIST = MARKETPLACE_PLUGIN_LEGACY_LIST; exports.MarketplacePluginSDK = MarketplacePluginSDK; exports.NFDPluginSDK = NFDPluginSDK; exports.PollPluginSDK = PollPluginSDK; exports.RAFFLE_PLUGIN_NEW_RAFFLE = RAFFLE_PLUGIN_NEW_RAFFLE; exports.RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_RAFFLE_MIN_ENTRIES; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE; exports.RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES = RAFFLE_PLUGIN_NEW_PRIZE_BOX_RAFFLE_MIN_ENTRIES; exports.RafflePluginSDK = RafflePluginSDK; exports.RewardsPluginSDK = RewardsPluginSDK; exports.SocialPluginSDK = SocialPluginSDK; exports.StakingPluginSDK = StakingPluginSDK; exports.StakingPoolPluginSDK = StakingPoolPluginSDK; exports.SubscriptionsPluginSDK = SubscriptionsPluginSDK; exports.SunsetPluginSDK = SunsetPluginSDK; exports.WalletSDK = WalletSDK;
-//# sourceMappingURL=chunk-QMVRAATW.js.map
+//# sourceMappingURL=chunk-IKWJPKQP.js.map
